@@ -7,7 +7,7 @@ import {
     ReverseWordData, FindLetterPairData, WordGroupingData, VisualMemoryData, StoryAnalysisData, CoordinateCipherData,
     ProverbSearchData, TargetSearchData, ShapeNumberPatternData, GridDrawingData, ColorWheelMemoryData, ImageComprehensionData,
     CharacterMemoryData, StorySequencingData, ChaoticNumberSearchData, BlockPaintingData, MiniWordGridData, VisualOddOneOutData,
-    ShapeCountingData, SymmetryDrawingData
+    ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData
 } from '../types';
 
 if (!process.env.API_KEY) {
@@ -1223,4 +1223,130 @@ export const generateSymmetryDrawingFromAI = async (): Promise<SymmetryDrawingDa
         },
     };
     return generateWithSchema(prompt, schema) as Promise<SymmetryDrawingData>;
+};
+
+export const generateBurdonTestFromAI = async (): Promise<LetterGridTestData> => {
+    const prompt = `
+    Bir "Burdon Dikkat Testi" oluştur. 30 satır ve 30 sütundan oluşan bir harf ızgarası oluştur.
+    Izgarayı rastgele küçük Türkçe harflerle doldur.
+    Aranacak hedef harfler "a, b, d, g" olsun.
+    Bu hedef harflerin ızgarada dengeli bir şekilde dağıldığından emin ol.
+    Başlık olarak "BURDON DİKKAT TESTİ" ve aranacak harfleri belirten bir açıklama ekle.
+    Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING, description: 'The title for the letter grid test.' },
+            grid: {
+                type: Type.ARRAY,
+                items: { type: Type.ARRAY, items: { type: Type.STRING } }
+            },
+            targetLetters: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+            },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<LetterGridTestData>;
+};
+
+export const generateFindDifferentStringFromAI = async (): Promise<FindDifferentStringData> => {
+    const prompt = `
+    Bir "Farklı Olanı Bulma" etkinliği oluştur.
+    16 satır ve 6 sütundan oluşsun.
+    Her satırda, temel dize olarak "VWN" kullanılsın.
+    Her satırda bir konumda "VWN" yerine "VMN" gibi çok benzer bir varyasyon kullanılsın. Bu varyasyonun konumu her satır için rastgele olsun.
+    Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING, description: 'The title of the activity.' },
+            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        items: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    }
+                }
+            }
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<FindDifferentStringData>;
+};
+
+export const generateDotPaintingFromAI = async (): Promise<DotPaintingData> => {
+    const prompt = `
+    Çocuklar için bir "Nokta Boyama" etkinliği oluştur.
+    1. 210x297 (A4 oranı) bir viewBox içinde, düzensiz dikdörtgen bölgelerden oluşan bir ızgara deseni oluştur. Bu deseni bir dizi SVG path 'd' özelliği olarak tanımla.
+    2. Bu bölgelerin içine 22 tane nokta yerleştir. Noktaların renkleri "orange", "blue", "deeppink", "black" olsun. Her renkten birkaç tane olsun.
+    3. Her noktanın 'cx' ve 'cy' koordinatlarını ve rengini döndür.
+    Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING, description: 'The title.' },
+            prompt1: { type: Type.STRING, description: 'Prompt for the first part.' },
+            prompt2: { type: Type.STRING, description: 'Prompt for the second part.' },
+            svgViewBox: { type: Type.STRING, description: 'The SVG viewBox string, e.g., "0 0 210 297".' },
+            gridPaths: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'Array of SVG path d-strings for grid lines.' },
+            dots: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        cx: { type: Type.NUMBER },
+                        cy: { type: Type.NUMBER },
+                        color: { type: Type.STRING },
+                    }
+                }
+            }
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<DotPaintingData>;
+};
+
+export const generateAbcConnectFromAI = async (): Promise<AbcConnectData> => {
+    const prompt = `
+    Çocuklar için bir "ABC Bağlama" etkinliği oluştur. 3 ayrı bulmaca üret.
+    1. Bulmaca: 5x5'lik bir ızgarada A, B, C, D harf çiftleri.
+    2. Bulmaca: 5x5'lik bir ızgarada A, B, C, D, E harf çiftleri.
+    3. Bulmaca: 8x8'lik bir ızgarada A, B, C, D, E harf çiftleri.
+    Her bulmaca için ızgara boyutunu ve her harfin 0-indeksli x, y koordinatlarını içeren bir liste döndür.
+    Harf çiftlerinin, yatay ve dikey çizgilerle, diğer yolları kesmeyecek şekilde birleştirilebilir olduğundan emin ol.
+    Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING, description: 'The title.' },
+            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.INTEGER },
+                        gridDim: { type: Type.INTEGER },
+                        points: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    letter: { type: Type.STRING },
+                                    x: { type: Type.INTEGER },
+                                    y: { type: Type.INTEGER },
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<AbcConnectData>;
 };

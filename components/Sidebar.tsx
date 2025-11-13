@@ -12,7 +12,8 @@ import {
     generateCoordinateCipherFromAI, generateProverbSearchFromAI, generateTargetSearchFromAI, generateShapeNumberPatternFromAI,
     generateGridDrawingFromAI, generateColorWheelMemoryFromAI, generateImageComprehensionFromAI, generateCharacterMemoryFromAI,
     generateStorySequencingFromAI, generateChaoticNumberSearchFromAI, generateBlockPaintingFromAI, generateMiniWordGridFromAI,
-    generateVisualOddOneOutFromAI, generateShapeCountingFromAI, generateSymmetryDrawingFromAI
+    generateVisualOddOneOutFromAI, generateShapeCountingFromAI, generateSymmetryDrawingFromAI, generateBurdonTestFromAI,
+    generateFindDifferentStringFromAI, generateDotPaintingFromAI, generateAbcConnectFromAI
 } from '../services/geminiService';
 
 interface SidebarProps {
@@ -105,6 +106,10 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
         case ActivityType.VISUAL_ODD_ONE_OUT: data = await generateVisualOddOneOutFromAI(); break;
         case ActivityType.SHAPE_COUNTING: data = await generateShapeCountingFromAI(); break;
         case ActivityType.SYMMETRY_DRAWING: data = await generateSymmetryDrawingFromAI(); break;
+        case ActivityType.BURDON_TEST: data = await generateBurdonTestFromAI(); break;
+        case ActivityType.FIND_DIFFERENT_STRING: data = await generateFindDifferentStringFromAI(); break;
+        case ActivityType.DOT_PAINTING: data = await generateDotPaintingFromAI(); break;
+        case ActivityType.ABC_CONNECT: data = await generateAbcConnectFromAI(); break;
         default:
            setError('Yapay zeka üretici henüz bu etkinlik için mevcut değil.');
            break;
@@ -118,7 +123,18 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
   };
 
   const renderSettings = (activity: Activity) => {
-    const showTopic = ![ActivityType.STROOP_TEST, ActivityType.LETTER_GRID_TEST, ActivityType.NUMBER_SEARCH, ActivityType.NUMBER_PATTERN, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.FIND_THE_DUPLICATE_IN_ROW, ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.FIND_LETTER_PAIR, ActivityType.PROVERB_SEARCH, ActivityType.TARGET_SEARCH, ActivityType.SHAPE_NUMBER_PATTERN, ActivityType.GRID_DRAWING, ActivityType.COLOR_WHEEL_MEMORY, ActivityType.CHAOTIC_NUMBER_SEARCH, ActivityType.BLOCK_PAINTING, ActivityType.MINI_WORD_GRID, ActivityType.VISUAL_ODD_ONE_OUT, ActivityType.SHAPE_COUNTING, ActivityType.SYMMETRY_DRAWING].includes(activity.id);
+    const noSettingsActivities = [
+        ActivityType.BURDON_TEST, ActivityType.FIND_DIFFERENT_STRING, ActivityType.DOT_PAINTING, ActivityType.ABC_CONNECT,
+        ActivityType.BLOCK_PAINTING, ActivityType.MINI_WORD_GRID, ActivityType.VISUAL_ODD_ONE_OUT, ActivityType.SHAPE_COUNTING, 
+        ActivityType.SYMMETRY_DRAWING, ActivityType.GRID_DRAWING, ActivityType.CHAOTIC_NUMBER_SEARCH, ActivityType.NUMBER_SEARCH,
+        ActivityType.FIND_THE_DUPLICATE_IN_ROW, ActivityType.SHAPE_NUMBER_PATTERN
+    ];
+
+    if (noSettingsActivities.includes(activity.id)) {
+        return <p className="text-sm text-gray-500 dark:text-gray-400 p-4 text-center">Bu etkinlik için özel ayar bulunmamaktadır.</p>
+    }
+
+    const showTopic = ![ActivityType.STROOP_TEST, ActivityType.LETTER_GRID_TEST, ActivityType.NUMBER_PATTERN, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.FIND_LETTER_PAIR, ActivityType.PROVERB_SEARCH, ActivityType.TARGET_SEARCH, ActivityType.COLOR_WHEEL_MEMORY].includes(activity.id);
     const showItemCount = [ActivityType.WORD_SEARCH, ActivityType.ANAGRAM, ActivityType.MATH_PUZZLE, ActivityType.STROOP_TEST, ActivityType.NUMBER_PATTERN, ActivityType.SPELLING_CHECK, ActivityType.FIND_THE_DIFFERENCE, ActivityType.ODD_ONE_OUT, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.WORD_LADDER, ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.REVERSE_WORD, ActivityType.COORDINATE_CIPHER, ActivityType.COLOR_WHEEL_MEMORY, ActivityType.IMAGE_COMPREHENSION].includes(activity.id);
     const showGridSize = [ActivityType.WORD_SEARCH, ActivityType.LETTER_GRID_TEST, ActivityType.FIND_LETTER_PAIR, ActivityType.COORDINATE_CIPHER, ActivityType.PROVERB_SEARCH, ActivityType.TARGET_SEARCH].includes(activity.id);
     const showTargetLetters = activity.id === ActivityType.LETTER_GRID_TEST;
@@ -134,12 +150,6 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
     if (activity.id === ActivityType.COORDINATE_CIPHER) itemCountLabel = "Şifre Uzunluğu";
     if (activity.id === ActivityType.IMAGE_COMPREHENSION) itemCountLabel = "Soru Sayısı";
     
-    const hasSettings = showTopic || showItemCount || showGridSize || showTargetLetters || showTargetPair || showDifficulty || showTargetSearchChars;
-
-    if (!hasSettings) {
-        return <p className="text-sm text-gray-500 dark:text-gray-400 p-4 text-center">Bu etkinlik için özel ayar bulunmamaktadır.</p>
-    }
-
     return (
       <>
         {showTopic && <div className="mb-4">

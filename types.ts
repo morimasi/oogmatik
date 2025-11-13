@@ -42,6 +42,10 @@ export enum ActivityType {
   VISUAL_ODD_ONE_OUT = 'VISUAL_ODD_ONE_OUT',
   SHAPE_COUNTING = 'SHAPE_COUNTING',
   SYMMETRY_DRAWING = 'SYMMETRY_DRAWING',
+  BURDON_TEST = 'BURDON_TEST',
+  FIND_DIFFERENT_STRING = 'FIND_DIFFERENT_STRING',
+  DOT_PAINTING = 'DOT_PAINTING',
+  ABC_CONNECT = 'ABC_CONNECT',
 }
 
 export interface Activity {
@@ -404,6 +408,41 @@ export interface SymmetryDrawingData {
     axis: 'vertical' | 'horizontal';
 }
 
+export interface FindDifferentStringData {
+    title: string;
+    prompt: string;
+    rows: {
+        items: string[];
+    }[];
+}
+
+export interface DotPaintingData {
+    title: string;
+    prompt1: string;
+    prompt2: string;
+    svgViewBox: string;
+    gridPaths: string[];
+    dots: {
+        cx: number;
+        cy: number;
+        color: string;
+    }[];
+}
+
+export interface AbcConnectData {
+    title: string;
+    prompt: string;
+    puzzles: {
+        id: number;
+        gridDim: number;
+        points: {
+            letter: string;
+            x: number;
+            y: number;
+        }[];
+    }[];
+}
+
 
 export type WorksheetData = 
   | WordSearchData 
@@ -449,4 +488,7 @@ export type WorksheetData =
   | VisualOddOneOutData
   | ShapeCountingData
   | SymmetryDrawingData
+  | FindDifferentStringData
+  | DotPaintingData
+  | AbcConnectData
   | null;

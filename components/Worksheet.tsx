@@ -8,7 +8,7 @@ import {
     WordFormationData, ReverseWordData, FindLetterPairData, WordGroupingData, VisualMemoryData, StoryAnalysisData,
     CoordinateCipherData, ProverbSearchData, TargetSearchData, ShapeNumberPatternData, GridDrawingData, ColorWheelMemoryData,
     ImageComprehensionData, CharacterMemoryData, StorySequencingData, ChaoticNumberSearchData, BlockPaintingData, MiniWordGridData,
-    VisualOddOneOutData, ShapeCountingData, SymmetryDrawingData
+    VisualOddOneOutData, ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData
 } from '../types';
 import Shape from './Shape';
 
@@ -172,7 +172,7 @@ const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) =
                     {data.grid?.map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {row?.map((cell, cellIndex) => (
-                                <td key={cellIndex} className="border border-gray-300 dark:border-gray-600 text-center font-mono text-lg w-8 h-8 md:w-10 md:h-10" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
+                                <td key={cellIndex} className="border border-gray-300 dark:border-gray-600 text-center font-mono text-xs w-5 h-5" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                                     {cell}
                                 </td>
                             ))}
@@ -1150,6 +1150,117 @@ const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data })
     );
 };
 
+const FindDifferentStringSheet: React.FC<{ data: FindDifferentStringData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-gray-600 dark:text-gray-400 mb-6">{data.prompt}</p>
+        <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-inner">
+            <table className="w-full border-collapse">
+                <thead>
+                    <tr>
+                        <th className="p-2 border" style={{borderColor: 'var(--worksheet-border-color)'}}></th>
+                        {data.rows?.[0]?.items?.map((_, index) => (
+                            <th key={index} className="p-2 border font-mono" style={{borderColor: 'var(--worksheet-border-color)'}}>{String.fromCharCode(65 + index)}</th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.rows?.map((row, rIndex) => (
+                        <tr key={rIndex}>
+                            <td className="p-2 border text-center font-bold" style={{borderColor: 'var(--worksheet-border-color)'}}>{rIndex + 1}</td>
+                            {row.items?.map((item, cIndex) => (
+                                <td key={cIndex} className="p-2 border text-center font-mono" style={{borderColor: 'var(--worksheet-border-color)'}}>{item}</td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </div>
+);
+
+const DotPaintingSheet: React.FC<{ data: DotPaintingData }> = ({ data }) => {
+    const renderGrid = (showDots: boolean) => (
+        <svg viewBox={data.svgViewBox} className="w-full h-auto border" style={{borderColor: 'var(--worksheet-border-color)'}}>
+            {data.gridPaths?.map((d, i) => (
+                <path key={i} d={d} fill="none" stroke="black" strokeWidth="0.5" />
+            ))}
+            {showDots && data.dots?.map((dot, i) => (
+                <circle key={i} cx={dot.cx} cy={dot.cy} r="2" fill={dot.color} />
+            ))}
+        </svg>
+    );
+
+    return (
+        <div>
+            <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+            <div className="page space-y-4">
+                <p className="text-center">{data.prompt1}</p>
+                {renderGrid(true)}
+                 <div className="flex justify-center items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full" style={{backgroundColor: 'orange'}}></div><span>Turuncu</span></div>
+                    <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full" style={{backgroundColor: 'blue'}}></div><span>Mavi</span></div>
+                    <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full" style={{backgroundColor: 'deeppink'}}></div><span>Pembe</span></div>
+                    <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full" style={{backgroundColor: 'black'}}></div><span>Siyah</span></div>
+                </div>
+            </div>
+            <div className="page-break"></div>
+            <div className="page space-y-4">
+                <p className="text-center">{data.prompt2}</p>
+                {renderGrid(false)}
+            </div>
+        </div>
+    );
+};
+
+const AbcConnectSheet: React.FC<{ data: AbcConnectData }> = ({ data }) => {
+    const renderPuzzle = (puzzle: AbcConnectData['puzzles'][0]) => {
+        const cellSize = 100 / (puzzle.gridDim + 1);
+        const pointsMap = new Map<string, { letter: string, x: number, y: number }>();
+        puzzle.points.forEach(p => pointsMap.set(`${p.x}-${p.y}`, p));
+
+        return (
+            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                 <h4 className="font-bold text-center mb-2">Bulmaca {puzzle.id}</h4>
+                <svg viewBox="0 0 100 100" className="w-full h-auto">
+                    {Array.from({ length: puzzle.gridDim }).map((_, y) => 
+                        Array.from({ length: puzzle.gridDim }).map((_, x) => {
+                            const point = pointsMap.get(`${x}-${y}`);
+                            return (
+                                <g key={`${x}-${y}`}>
+                                    <circle cx={(x + 1) * cellSize} cy={(y + 1) * cellSize} r="1.5" className="fill-pink-500" />
+                                    {point && (
+                                        <text
+                                            x={(x + 1) * cellSize + 3}
+                                            y={(y + 1) * cellSize + 2}
+                                            fontSize="5"
+                                            className="font-bold"
+                                        >{point.letter}</text>
+                                    )}
+                                </g>
+                            )
+                        })
+                    )}
+                </svg>
+            </div>
+        );
+    };
+
+    return (
+        <div>
+            <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">{data.prompt}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data.puzzles?.map(puzzle => (
+                    <div key={puzzle.id}>
+                        {renderPuzzle(puzzle)}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => {
   if (!data || !activityType) return null;
@@ -1164,6 +1275,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
       case ActivityType.NUMBER_PATTERN: return <NumberPatternSheet data={data as NumberPatternData} />;
       case ActivityType.SPELLING_CHECK: return <SpellingCheckSheet data={data as SpellingCheckData} />;
       case ActivityType.LETTER_GRID_TEST: return <LetterGridTestSheet data={data as LetterGridTestData} />;
+      case ActivityType.BURDON_TEST: return <LetterGridTestSheet data={data as LetterGridTestData} />;
       case ActivityType.NUMBER_SEARCH: return <NumberSearchSheet data={data as NumberSearchData} />;
       case ActivityType.WORD_MEMORY: return <WordMemorySheet data={data as WordMemoryData} />;
       case ActivityType.STORY_CREATION_PROMPT: return <StoryCreationPromptSheet data={data as StoryCreationPromptData} />;
@@ -1199,6 +1311,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
       case ActivityType.VISUAL_ODD_ONE_OUT: return <VisualOddOneOutSheet data={data as VisualOddOneOutData} />;
       case ActivityType.SHAPE_COUNTING: return <ShapeCountingSheet data={data as ShapeCountingData} />;
       case ActivityType.SYMMETRY_DRAWING: return <SymmetryDrawingSheet data={data as SymmetryDrawingData} />;
+      case ActivityType.FIND_DIFFERENT_STRING: return <FindDifferentStringSheet data={data as FindDifferentStringData} />;
+      case ActivityType.DOT_PAINTING: return <DotPaintingSheet data={data as DotPaintingData} />;
+      case ActivityType.ABC_CONNECT: return <AbcConnectSheet data={data as AbcConnectData} />;
       default: return <p>Bu etkinlik türü için görüntüleme henüz oluşturulmadı.</p>;
     }
   };

@@ -283,6 +283,30 @@ export const ACTIVITIES: Activity[] = [
     description: 'Verilen desenin simetri eksenine göre yansımasını çizin.',
     icon: 'fa-solid fa-reflect-horizontal',
   },
+  {
+    id: ActivityType.BURDON_TEST,
+    title: 'Burdon Dikkat Testi',
+    description: 'Aşağıdaki satırlarda “a, b, d, g” harflerini bulup yuvarlak içine alalım.',
+    icon: 'fa-solid fa-tasks',
+  },
+  {
+    id: ActivityType.FIND_DIFFERENT_STRING,
+    title: 'Farklı Olanı Bulma',
+    description: 'Aşağıdaki sütunlarda yer alan harf sıralamasında VWN’den farklı olan harf grubunu işaretleyelim.',
+    icon: 'fa-solid fa-not-equal',
+  },
+  {
+    id: ActivityType.DOT_PAINTING,
+    title: 'Nokta Boyama',
+    description: 'Noktaların bulunduğu alanları boyayarak gizli şekli ortaya çıkaralım.',
+    icon: 'fa-solid fa-paint-brush',
+  },
+  {
+    id: ActivityType.ABC_CONNECT,
+    title: 'ABC Bağlama',
+    description: 'Örnekteki gibi aynı harflerle belirtilen noktaları birbirleriyle kesişmeyecek şekilde yatay ve dikey çizgilerle birleştirelim.',
+    icon: 'fa-solid fa-draw-polygon',
+  },
 ];
 
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
@@ -302,7 +326,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.COLOR_WHEEL_MEMORY,
       ActivityType.IMAGE_COMPREHENSION,
       ActivityType.CHARACTER_MEMORY,
-      ActivityType.LETTER_GRID_TEST, // "Burdon Dikkat Testi" uses this type
+      ActivityType.BURDON_TEST,
     ]
   },
   {
@@ -359,6 +383,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         ActivityType.SYMBOL_CIPHER,
         ActivityType.COORDINATE_CIPHER,
         ActivityType.SHAPE_NUMBER_PATTERN,
+        ActivityType.ABC_CONNECT,
     ]
   },
   {
@@ -376,6 +401,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.BLOCK_PAINTING,
       ActivityType.VISUAL_ODD_ONE_OUT,
       ActivityType.SYMMETRY_DRAWING,
+      ActivityType.FIND_DIFFERENT_STRING,
+      ActivityType.DOT_PAINTING,
     ]
   },
 ];
