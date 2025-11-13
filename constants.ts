@@ -1,0 +1,381 @@
+import { Activity, ActivityType, ActivityCategory } from './types';
+
+export const ACTIVITIES: Activity[] = [
+  {
+    id: ActivityType.WORD_SEARCH,
+    title: 'Kelime Bulmaca',
+    description: 'Verilen kelimeleri harf tablosunda bulun.',
+    icon: 'fa-solid fa-search',
+  },
+  {
+    id: ActivityType.ANAGRAM,
+    title: 'Anagram',
+    description: 'Karışık harflerden anlamlı kelimeler oluşturun.',
+    icon: 'fa-solid fa-shuffle',
+  },
+  {
+    id: ActivityType.ANAGRAM,
+    title: 'Anagram (Liste)',
+    description: 'Verilen kelimelerin anagramlarını bulun.',
+    icon: 'fa-solid fa-list-ol',
+  },
+   {
+    id: ActivityType.FIND_THE_DIFFERENCE,
+    title: 'Farklı Olanı Bul (Görsel)',
+    description: 'Gruplar içinde farklı olan kelimeyi bulun.',
+    icon: 'fa-solid fa-not-equal',
+  },
+  {
+    id: ActivityType.MATH_PUZZLE,
+    title: 'Matematik Bulmacası',
+    description: 'Nesnelerle gizlenmiş sayıları bularak denklemleri çözün.',
+    icon: 'fa-solid fa-calculator',
+  },
+  {
+    id: ActivityType.STORY_COMPREHENSION,
+    title: 'Hikaye Anlama',
+    description: 'Kısa bir hikaye okuyun ve ilgili soruları yanıtlayın.',
+    icon: 'fa-solid fa-book-open',
+  },
+   {
+    id: ActivityType.STORY_COMPREHENSION,
+    title: 'Hikayeye Dikkat - 1',
+    description: 'Yeni bir hikaye okuyun ve ilgili soruları yanıtlayın.',
+    icon: 'fa-solid fa-book-bookmark',
+  },
+   {
+    id: ActivityType.STORY_COMPREHENSION,
+    title: 'Hikayeye Dikkat - 2',
+    description: 'Yeni bir hikaye okuyun ve ilgili soruları yanıtlayın.',
+    icon: 'fa-solid fa-book-open-reader',
+  },
+  {
+    id: ActivityType.WORD_COMPARISON,
+    title: 'Kelime Karşılaştırma',
+    description: 'İki kelime listesini karşılaştırıp farklı olanları bulun.',
+    icon: 'fa-solid fa-code-compare',
+  },
+  {
+    id: ActivityType.WORDS_IN_STORY,
+    title: 'Metindeki Kelimeler',
+    description: 'Metinde geçen ve geçmeyen kelimeleri listeden bulun.',
+    icon: 'fa-solid fa-book-reader',
+  },
+  {
+    id: ActivityType.STROOP_TEST,
+    title: 'Stroop Testi (Renk Oku)',
+    description: 'Kelimeyi değil, kelimenin yazıldığı rengi söyleyin.',
+    icon: 'fa-solid fa-palette',
+  },
+  {
+    id: ActivityType.NUMBER_PATTERN,
+    title: 'Sayı Örüntüsü Bulma',
+    description: 'Sayı dizisindeki kuralı bulup eksik sayıyı tamamlayın.',
+    icon: 'fa-solid fa-arrow-trend-up',
+  },
+  {
+    id: ActivityType.SPELLING_CHECK,
+    title: 'Doğru Yazılışı Bulma',
+    description: 'Verilen kelimeler arasından doğru yazılanı seçin.',
+    icon: 'fa-solid fa-spell-check',
+  },
+  {
+    id: ActivityType.LETTER_GRID_TEST,
+    title: 'Harf Izgara Testi',
+    description: 'Harf yığını içinden istenen harfleri bulun ve işaretleyin.',
+    icon: 'fa-solid fa-border-all',
+  },
+  {
+    id: ActivityType.NUMBER_SEARCH,
+    title: 'Sayı Avı',
+    description: 'Karışık sayılar arasından belirli bir sırayı takip edin.',
+    icon: 'fa-solid fa-arrow-down-1-9',
+  },
+  {
+    id: ActivityType.WORD_MEMORY,
+    title: 'Süper Hafıza (Kelime)',
+    description: 'Kelimeleri ezberleyin ve sonraki sayfada hatırlayın.',
+    icon: 'fa-solid fa-brain',
+  },
+  {
+    id: ActivityType.STORY_CREATION_PROMPT,
+    title: 'Hikaye Oluşturma',
+    description: 'Verilen anahtar kelimeleri kullanarak bir hikaye yazın.',
+    icon: 'fa-solid fa-pencil-alt',
+  },
+  {
+    id: ActivityType.ODD_ONE_OUT,
+    title: 'Farkı Fark Et (Anlamsal)',
+    description: 'Kelime gruplarında anlamsal olarak farklı olanı bulun.',
+    icon: 'fa-solid fa-lightbulb-question',
+  },
+  {
+    id: ActivityType.SHAPE_MATCHING,
+    title: 'Şekil Eşleştirme',
+    description: 'Aynı şekil dizilerini bulun ve eşleştirin.',
+    icon: 'fa-solid fa-shapes',
+  },
+  {
+    id: ActivityType.SYMBOL_CIPHER,
+    title: 'Şifre Çözme',
+    description: 'Şekillerle kodlanmış kelimeleri anahtara bakarak çözün.',
+    icon: 'fa-solid fa-key',
+  },
+  {
+    id: ActivityType.PROVERB_FILL_IN_THE_BLANK,
+    title: 'Atasözü Avı',
+    description: 'Atasözlerindeki eksik kelimeleri bulun ve tamamlayın.',
+    icon: 'fa-solid fa-quote-left',
+  },
+  {
+    id: ActivityType.LETTER_BRIDGE,
+    title: 'Harf Köprüsü',
+    description: 'İki kelime arasına bir harf yerleştirerek yeni kelimeler oluşturun.',
+    icon: 'fa-solid fa-bridge',
+  },
+  {
+    id: ActivityType.FIND_THE_DUPLICATE_IN_ROW,
+    title: 'İkiliyi Bul',
+    description: 'Her satırda tekrar eden harfi veya rakamı bulun.',
+    icon: 'fa-solid fa-clone',
+  },
+  {
+    id: ActivityType.WORD_LADDER,
+    title: 'Kelime Merdiveni',
+    description: 'Her adımda tek harf değiştirerek bir kelimeden diğerine ulaşın.',
+    icon: 'fa-solid fa-stairs',
+  },
+  {
+    id: ActivityType.FIND_IDENTICAL_WORD,
+    title: 'Aynısını Bul',
+    description: 'Birbirine çok benzeyen kelimelerden aynı olan çifti bulun.',
+    icon: 'fa-solid fa-equals',
+  },
+  {
+    id: ActivityType.WORD_FORMATION,
+    title: 'Harflerden Kelime Türetme',
+    description: 'Verilen harfleri kullanarak anlamlı kelimeler oluşturun.',
+    icon: 'fa-solid fa-puzzle-piece',
+  },
+  {
+    id: ActivityType.REVERSE_WORD,
+    title: 'Ters Oku - Ters Uko',
+    description: 'Verilen kelimeleri tersten yazma alıştırması yapın.',
+    icon: 'fa-solid fa-right-left-rotate',
+  },
+  {
+    id: ActivityType.FIND_LETTER_PAIR,
+    title: 'Harf İkilisini Bul',
+    description: 'Harf tablosunda istenen harf ikilisini bulun.',
+    icon: 'fa-solid fa-magnifying-glass-plus',
+  },
+  {
+    id: ActivityType.WORD_GROUPING,
+    title: 'Gruplama',
+    description: 'Kelimeleri doğru kategorilere ayırın.',
+    icon: 'fa-solid fa-folder-tree',
+  },
+  {
+    id: ActivityType.VISUAL_MEMORY,
+    title: 'Süper Hafıza (Görsel)',
+    description: 'Görselleri aklınızda tutup sonraki sayfada bulun.',
+    icon: 'fa-solid fa-images',
+  },
+   {
+    id: ActivityType.CHARACTER_MEMORY,
+    title: 'Dikkat - Hafıza',
+    description: 'Karakterleri aklınızda tutup sonraki sayfada bulun.',
+    icon: 'fa-solid fa-users-viewfinder',
+  },
+  {
+    id: ActivityType.STORY_ANALYSIS,
+    title: 'Hikaye Analizi',
+    description: 'Hikayedeki eş/zıt anlamlı kelimeleri ve detayları bulun.',
+    icon: 'fa-solid fa-magnifying-glass-chart',
+  },
+  {
+    id: ActivityType.COORDINATE_CIPHER,
+    title: 'Gizemli Bulmaca',
+    description: 'Koordinatları verilen harfleri birleştirip şifreyi çözün.',
+    icon: 'fa-solid fa-map-location-dot',
+  },
+  {
+    id: ActivityType.PROVERB_SEARCH,
+    title: 'Atasözü Avı',
+    description: 'Harf tablosunda gizlenmiş atasözünü bulun.',
+    icon: 'fa-solid fa-comment-dots',
+  },
+  {
+    id: ActivityType.TARGET_SEARCH,
+    title: 'Dikkatli Göz',
+    description: 'Karakter yığını içinde hedef karakteri bulun.',
+    icon: 'fa-solid fa-crosshairs',
+  },
+  {
+    id: ActivityType.SHAPE_NUMBER_PATTERN,
+    title: 'Şekilli Sayı Örüntüsü',
+    description: 'Şekillerdeki sayılar arasındaki kuralı bulup eksik sayıyı tamamlayın.',
+    icon: 'fa-solid fa-draw-polygon',
+  },
+  {
+    id: ActivityType.GRID_DRAWING,
+    title: 'Ayna Çizimi',
+    description: 'Soldaki deseni sağdaki boş alana kopyalayın.',
+    icon: 'fa-solid fa-vector-square',
+  },
+  {
+    id: ActivityType.COLOR_WHEEL_MEMORY,
+    title: 'Renk Çemberi',
+    description: 'Renk çarkındaki nesneleri ezberleyip doğru yerleştirin.',
+    icon: 'fa-solid fa-bullseye',
+  },
+  {
+    id: ActivityType.IMAGE_COMPREHENSION,
+    title: 'Resme Dikkat',
+    description: 'Resmi inceleyip detaylarla ilgili soruları yanıtlayın.',
+    icon: 'fa-solid fa-image',
+  },
+  {
+    id: ActivityType.CHARACTER_MEMORY,
+    title: 'Hafızanda Tut (Karakter)',
+    description: 'Karakterleri aklınızda tutup sonraki sayfada hatırlayın.',
+    icon: 'fa-solid fa-user-friends',
+  },
+  {
+    id: ActivityType.STORY_SEQUENCING,
+    title: 'Hikaye Oluşturma (Sıralama)',
+    description: 'Karışık resimleri sıralayarak anlamlı bir hikaye oluşturun.',
+    icon: 'fa-solid fa-film',
+  },
+  {
+    id: ActivityType.CHAOTIC_NUMBER_SEARCH,
+    title: 'Sayıları Bulma',
+    description: 'Karışık sayılar arasından 1\'den 50\'ye kadar olanları boyayın.',
+    icon: 'fa-solid fa-search-plus',
+  },
+  {
+    id: ActivityType.BLOCK_PAINTING,
+    title: 'Blok Boyama',
+    description: 'Verilen blokları kullanarak deseni doğru renklere boyayın.',
+    icon: 'fa-solid fa-puzzle-piece',
+  },
+  {
+    id: ActivityType.MINI_WORD_GRID,
+    title: 'Kelime Bulmaca (Mini)',
+    description: 'Küçük tablolarda renkli harften başlayan kelimeleri bulun.',
+    icon: 'fa-solid fa-table-cells',
+  },
+  {
+    id: ActivityType.VISUAL_ODD_ONE_OUT,
+    title: 'Sözcük Avı (Farklı Şekil)',
+    description: 'Her satırda diğerlerinden farklı olan şekli bulun.',
+    icon: 'fa-solid fa-circle-nodes',
+  },
+  {
+    id: ActivityType.SHAPE_COUNTING,
+    title: 'Kaç Tane Üçgen Var?',
+    description: 'Karmaşık şekillerin içine gizlenmiş üçgenleri sayın.',
+    icon: 'fa-solid fa-calculator-simple',
+  },
+  {
+    id: ActivityType.SYMMETRY_DRAWING,
+    title: 'Noktalarla Dans (Simetri)',
+    description: 'Verilen desenin simetri eksenine göre yansımasını çizin.',
+    icon: 'fa-solid fa-reflect-horizontal',
+  },
+];
+
+export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
+  {
+    id: 'memory_attention',
+    title: '🧠 Hafıza & Dikkat',
+    description: 'Görsel hafıza ve dikkat geliştirme oyunları',
+    icon: 'fa-solid fa-brain',
+    activities: [
+      ActivityType.WORD_MEMORY,
+      ActivityType.VISUAL_MEMORY,
+      ActivityType.NUMBER_SEARCH,
+      ActivityType.FIND_THE_DUPLICATE_IN_ROW,
+      ActivityType.LETTER_GRID_TEST,
+      ActivityType.FIND_LETTER_PAIR,
+      ActivityType.TARGET_SEARCH,
+      ActivityType.COLOR_WHEEL_MEMORY,
+      ActivityType.IMAGE_COMPREHENSION,
+      ActivityType.CHARACTER_MEMORY,
+      ActivityType.LETTER_GRID_TEST, // "Burdon Dikkat Testi" uses this type
+    ]
+  },
+  {
+    id: 'word_games',
+    title: '📝 Kelime Oyunları',
+    description: 'Anagram, sözcük avı ve dil becerileri',
+    icon: 'fa-solid fa-spell-check',
+    activities: [
+      ActivityType.WORD_SEARCH, // Also for "Sağlıklı Büyüme (Spor)"
+      ActivityType.PROVERB_SEARCH,
+      ActivityType.ANAGRAM,
+      ActivityType.SPELLING_CHECK,
+      ActivityType.WORD_COMPARISON,
+      ActivityType.PROVERB_FILL_IN_THE_BLANK,
+      ActivityType.LETTER_BRIDGE,
+      ActivityType.WORD_LADDER,
+      ActivityType.WORD_FORMATION,
+      ActivityType.REVERSE_WORD,
+      ActivityType.WORD_GROUPING,
+      ActivityType.MINI_WORD_GRID,
+    ]
+  },
+  {
+    id: 'math_geometry',
+    title: '🔢 Matematik & Geometri',
+    description: 'Sayma, simetri ve şekil egzersizleri',
+    icon: 'fa-solid fa-calculator',
+    activities: [
+      ActivityType.MATH_PUZZLE,
+      ActivityType.SHAPE_COUNTING,
+    ]
+  },
+  {
+    id: 'reading_comprehension',
+    title: '📚 Okuma Anlama',
+    description: 'Hikaye okuma ve metin analizi',
+    icon: 'fa-solid fa-book-open',
+    activities: [
+      ActivityType.STORY_COMPREHENSION, // Also for "Hikayeye Dikkat"
+      ActivityType.STORY_ANALYSIS,
+      ActivityType.STORY_CREATION_PROMPT,
+      ActivityType.WORDS_IN_STORY,
+      ActivityType.STORY_SEQUENCING,
+    ]
+  },
+  {
+    id: 'logic_problems',
+    title: '🧩 Mantık Problemleri',
+    description: 'Eleme yöntemi ve problem çözme',
+    icon: 'fa-solid fa-lightbulb',
+    activities: [
+        ActivityType.NUMBER_PATTERN,
+        ActivityType.SHAPE_MATCHING,
+        ActivityType.SYMBOL_CIPHER,
+        ActivityType.COORDINATE_CIPHER,
+        ActivityType.SHAPE_NUMBER_PATTERN,
+    ]
+  },
+  {
+    id: 'perceptual_skills',
+    title: '👁️ Algısal Beceriler',
+    description: 'Şekil tanıma ve desen farkı bulma',
+    icon: 'fa-solid fa-eye',
+    activities: [
+      ActivityType.FIND_THE_DIFFERENCE,
+      ActivityType.STROOP_TEST, // Also for "Sağ Beyin - Sol Beyin"
+      ActivityType.ODD_ONE_OUT,
+      ActivityType.FIND_IDENTICAL_WORD,
+      ActivityType.GRID_DRAWING,
+      ActivityType.CHAOTIC_NUMBER_SEARCH,
+      ActivityType.BLOCK_PAINTING,
+      ActivityType.VISUAL_ODD_ONE_OUT,
+      ActivityType.SYMMETRY_DRAWING,
+    ]
+  },
+];
