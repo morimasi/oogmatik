@@ -30,7 +30,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
                     id="fontSize"
                     value={settings.fontSize}
                     onChange={(e) => onSettingsChange({...settings, fontSize: Number(e.target.value)})}
-                    className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-20 p-1.5 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
+                    className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-20 p-1.5 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
                 />
             </div>
 
@@ -48,10 +48,10 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
         </div>
       
         <div className="flex items-center gap-2">
-            <button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
+            <button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-zinc-800">
                 <i className="fa-solid fa-save"></i><span className="hidden sm:inline">Kaydet</span>
             </button>
-            <button onClick={handlePrint} className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
+            <button onClick={handlePrint} className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 dark:focus-visible:ring-offset-zinc-800">
                 <i className="fa-solid fa-print"></i><span className="hidden sm:inline">Yazdır</span>
             </button>
         </div>

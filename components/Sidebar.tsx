@@ -316,7 +316,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
   const ActivityButton: React.FC<{ activity: Activity }> = ({ activity }) => (
     <button
         onClick={() => onSelectActivity(activity.id)}
-        className="w-full text-left p-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-zinc-700/80 transition-colors flex items-center"
+        className="w-full text-left p-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-zinc-700/80 transition-colors flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
     >
         <i className={`${activity.icon} w-6 text-center text-indigo-500 dark:text-indigo-400 mr-3`}></i>
         <span className="flex-1 text-sm">{activity.title}</span>
@@ -329,7 +329,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
         // Settings View
         <div className="flex flex-col h-full">
             <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
-                <button onClick={() => onSelectActivity(null)} className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm mb-4">
+                <button onClick={() => onSelectActivity(null)} className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm mb-4 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
                     <i className="fa-solid fa-arrow-left mr-2"></i>Tüm Etkinlikler
                 </button>
                 <div className="flex items-center">
@@ -351,7 +351,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                  <button
                     onClick={handleGenerate}
                     disabled={isLoading}
-                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:bg-zinc-400 dark:disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:bg-zinc-400 dark:disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800"
                     >
                     {isLoading ? (
                         <>
@@ -377,8 +377,8 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                 ) : (
                     <div className="space-y-1 max-h-48 overflow-y-auto pr-2">
                     {savedWorksheets.map(ws => (
-                        <div key={ws.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-zinc-700/80">
-                            <button onClick={() => onLoadSaved(ws)} className="flex-1 text-left flex items-center min-w-0" title={`'${ws.name}' etkinliğini yükle`}>
+                        <div key={ws.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-zinc-700/80 transition-colors">
+                            <button onClick={() => onLoadSaved(ws)} className="flex-1 text-left flex items-center min-w-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-indigo-500 rounded-l-md" title={`'${ws.name}' etkinliğini yükle`}>
                                 <i className={`${ws.icon} w-6 text-center text-indigo-500 dark:text-indigo-400 mr-3`}></i>
                                 <div className="flex-1 truncate">
                                 <span className="text-sm font-medium block truncate">{ws.name}</span>
@@ -387,7 +387,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                             </button>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); onDeleteSaved(ws.id); }} 
-                                className="text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-2 px-2"
+                                className="text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-2 px-2 focus:outline-none focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-red-500 rounded-r-md"
                                 aria-label={`'${ws.name}' etkinliğini sil`}
                                 title={`'${ws.name}' etkinliğini sil`}
                             >
@@ -404,7 +404,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                     <div key={category.id}>
                         <button 
                             onClick={() => handleToggleCategory(category.id)}
-                            className="w-full flex justify-between items-center p-3 bg-zinc-100 dark:bg-zinc-700/50 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg"
+                            className="w-full flex justify-between items-center p-3 bg-zinc-100 dark:bg-zinc-700/50 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800"
                         >
                             <div className="flex items-center">
                                 <i className={`${category.icon} mr-3 text-lg`}></i>

@@ -90,7 +90,7 @@ const App: React.FC = () => {
             href="https://github.com" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+            className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
             aria-label="GitHub Repository"
           >
             <i className="fa-brands fa-github fa-2x"></i>
