@@ -7,7 +7,10 @@ import {
     ReverseWordData, FindLetterPairData, WordGroupingData, VisualMemoryData, StoryAnalysisData, CoordinateCipherData,
     ProverbSearchData, TargetSearchData, ShapeNumberPatternData, GridDrawingData, ColorWheelMemoryData, ImageComprehensionData,
     CharacterMemoryData, StorySequencingData, ChaoticNumberSearchData, BlockPaintingData, MiniWordGridData, VisualOddOneOutData,
-    ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData
+    ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, PasswordFinderData,
+    SyllableCompletionData, SynonymWordSearchData, WordConnectData, SpiralPuzzleData, CrosswordData,
+    JumbledWordStoryData, HomonymSentenceData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData,
+    AntonymFlowerPuzzleData, ProverbWordChainData, ThematicOddOneOutData, SynonymAntonymGridData, PunctuationColoringData
 } from '../types';
 
 if (!process.env.API_KEY) {
@@ -961,24 +964,79 @@ export const generateImageComprehensionFromAI = async (topic: string, questionCo
 
 
 export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<CharacterMemoryData> => {
-    const prompt = `
+    // Step 1: Generate text descriptions first
+    const textPrompt = `
     Çocuklar için bir karakter hafıza oyunu oluştur.
     Konu: "${topic}" (Örn: Kasaba halkı, Süper kahramanlar, Orman hayvanları).
     1. Ezberlenmesi gereken ${memorizeCount} tane benzersiz ve akılda kalıcı çizgi film karakteri için detaylı ve görsel birer açıklama yaz. (örn: 'Kırmızı, çizgili bir tişört giyen, gözlüklü, sarı saçlı, uzun boylu bir adam').
     2. Test için, bu ${memorizeCount} karakteri de içeren, toplam ${testCount} tane karakter açıklaması oluştur. Yeni karakterler de ekle. Bu test listesindeki karakter açıklamalarının sırasını karıştır.
-    3. Sonucu aşağıdaki JSON formatında döndür.
+    3. Sonucu aşağıdaki JSON formatında döndür. Sadece metin açıklamalarını döndür, resim verisi ekleme.
     `;
-    const schema = {
+    const textSchema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The main title of the activity.' },
-            memorizeTitle: { type: Type.STRING, description: 'Title for the memorization part.' },
-            testTitle: { type: Type.STRING, description: 'Title for the test part.' },
-            charactersToMemorize: { type: Type.ARRAY, items: { type: Type.STRING, description: 'A detailed description of a character.' } },
-            testCharacters: { type: Type.ARRAY, items: { type: Type.STRING, description: 'A detailed description of a character for the test.' } },
+            title: { type: Type.STRING },
+            memorizeTitle: { type: Type.STRING },
+            testTitle: { type: Type.STRING },
+            charactersToMemorize: { type: Type.ARRAY, items: { type: Type.STRING } },
+            testCharacters: { type: Type.ARRAY, items: { type: Type.STRING } },
         },
     };
-    return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData>;
+    const textData: {
+        title: string;
+        memorizeTitle: string;
+        testTitle: string;
+        charactersToMemorize: string[];
+        testCharacters: string[];
+    } = await generateWithSchema(textPrompt, textSchema);
+
+    // Step 2: Generate images for each unique description
+    const allDescriptions = [...new Set([...textData.charactersToMemorize, ...textData.testCharacters])];
+    
+    const imagePromises = allDescriptions.map(async (description) => {
+        const imagePrompt = `A vibrant and detailed cartoon character for children, full body, on a plain white background. The character is: ${description}`;
+        const imageResponse = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: { parts: [{ text: imagePrompt }] },
+            config: { responseModalities: ['IMAGE'] },
+        });
+
+        let imageBase64 = '';
+        const part = imageResponse.candidates?.[0]?.content?.parts?.[0];
+        if (part?.inlineData) {
+            imageBase64 = part.inlineData.data;
+        }
+        if (!imageBase64) {
+             console.warn(`Could not generate image for description: ${description}`);
+        }
+        return { description, imageBase64 };
+    });
+
+    const generatedImages = await Promise.all(imagePromises);
+    const imageMap = new Map(generatedImages.map(item => [item.description, item.imageBase64]));
+
+    // Step 3: Combine descriptions with images
+    const charactersToMemorize = textData.charactersToMemorize.map(desc => ({
+        description: desc,
+        imageBase64: imageMap.get(desc) || '',
+    })).filter(char => char.imageBase64);
+
+    const testCharacters = textData.testCharacters.map(desc => ({
+        description: desc,
+        imageBase64: imageMap.get(desc) || '',
+    })).filter(char => char.imageBase64);
+
+    if (charactersToMemorize.length < textData.charactersToMemorize.length || testCharacters.length < textData.testCharacters.length) {
+        console.warn("Some character images could not be generated.");
+    }
+
+    return {
+        title: textData.title,
+        memorizeTitle: textData.memorizeTitle,
+        testTitle: textData.testTitle,
+        charactersToMemorize,
+        testCharacters,
+    };
 };
 
 export const generateStorySequencingFromAI = async (topic: string): Promise<StorySequencingData> => {
@@ -1349,4 +1407,509 @@ export const generateAbcConnectFromAI = async (): Promise<AbcConnectData> => {
         },
     };
     return generateWithSchema(prompt, schema) as Promise<AbcConnectData>;
+};
+
+export const generatePasswordFinderFromAI = async (): Promise<PasswordFinderData> => {
+    const prompt = `
+    Çocuklar için bir "Şifre Bul" etkinliği oluştur.
+    1. Toplam 18 tane Türkçe kelime oluştur. Bunların yaklaşık yarısı özel isim (Ankara, Elif, Akdeniz gibi - ilk harfi büyük yazılması gerekenler), diğer yarısı cins isim (palto, vişne, gömlek gibi) olsun.
+    2. Her kelime için, şifre adayı olacak bir harf seç ve kelimenin kendisinden bağımsız olarak bu harfi belirt.
+    3. Her kelimenin özel isim olup olmadığını (isProperNoun) boolean olarak belirt.
+    4. Sadece özel isim olan kelimelerdeki şifre adayı harflerin birleşimiyle oluşacak şifrenin uzunluğunu hesapla.
+    5. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            words: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        passwordLetter: { type: Type.STRING },
+                        isProperNoun: { type: Type.BOOLEAN },
+                    }
+                }
+            },
+            passwordLength: { type: Type.INTEGER },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<PasswordFinderData>;
+};
+
+export const generateSyllableCompletionFromAI = async (theme: string): Promise<SyllableCompletionData> => {
+    const prompt = `
+    Çocuklar için bir "Eksik Kelimeler" etkinliği oluştur. Tema: "${theme}".
+    1. Bu temayla ilgili 10 tane 2 veya 3 heceli Türkçe kelime oluştur.
+    2. Her kelimeyi iki parçaya ayır.
+    3. Bu kelime parçalarını (first, second) ve eksik heceleri (syllables) ayrı listeler halinde döndür. 'syllables' listesi karıştırılmış olmalı.
+    4. Bulunan kelimelerin kullanılacağı bir hikaye yazma görevi (storyPrompt) ekle.
+    Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            theme: { type: Type.STRING },
+            wordParts: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        first: { type: Type.STRING },
+                        second: { type: Type.STRING },
+                    }
+                }
+            },
+            syllables: { type: Type.ARRAY, items: { type: Type.STRING } },
+            storyPrompt: { type: Type.STRING },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<SyllableCompletionData>;
+};
+
+export const generateSynonymWordSearchFromAI = async (): Promise<SynonymWordSearchData> => {
+    const prompt = `
+    Çocuklar için bir "Eş Anlamlı Kelime Avı" etkinliği oluştur.
+    1. Birbirinin eş anlamlısı olan 10 tane Türkçe kelime çifti oluştur (word, synonym).
+    2. Bu 10 eş anlamlı kelimeyi (synonym) 15x15'lik bir kelime arama bulmacasına (grid) yerleştir.
+    3. Boşlukları rastgele harflerle doldur.
+    4. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            wordsToMatch: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        synonym: { type: Type.STRING },
+                    }
+                }
+            },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<SynonymWordSearchData>;
+};
+
+export const generateWordConnectFromAI = async (): Promise<WordConnectData> => {
+    const prompt = `
+    Çocuklar için bir "Kelime Bağlama" etkinliği oluştur.
+    1. Birbirinin zıt anlamlısı olan 6 tane Türkçe kelime çifti oluştur.
+    2. Bu 12 kelimeyi 8x8'lik bir ızgaraya, aralarında kesişmeyen yollarla birleştirilebilecek şekilde yerleştir.
+    3. Her kelimenin metnini, çift ID'sini (pairId) ve 0-indeksli x, y koordinatlarını döndür.
+    4. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            gridDim: { type: Type.INTEGER },
+            points: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        pairId: { type: Type.INTEGER },
+                        x: { type: Type.INTEGER },
+                        y: { type: Type.INTEGER },
+                    }
+                }
+            },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordConnectData>;
+};
+
+export const generateSpiralPuzzleFromAI = async (): Promise<SpiralPuzzleData> => {
+    const prompt = `
+    Çocuklar için bir "Sarmal Bulmaca" etkinliği oluştur.
+    1. Birbiriyle ilişkili 12 kelime için ipuçları oluştur (örn: "Öğüt kelimesinin eş anlamlısı").
+    2. Bu 12 kelimeyi 13x13'lük bir ızgaraya merkezden başlayıp dışa doğru sarmal şeklinde yerleştir.
+    3. Her kelimenin başlangıç konumunu (row, col) ve numarasını (id) belirt.
+    4. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            clues: { type: Type.ARRAY, items: { type: Type.STRING } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            wordStarts: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.INTEGER },
+                        row: { type: Type.INTEGER },
+                        col: { type: Type.INTEGER },
+                    }
+                }
+            },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<SpiralPuzzleData>;
+};
+
+export const generateCrosswordFromAI = async (): Promise<CrosswordData> => {
+    const prompt = `
+    Çocuklar için bir "Çapraz Bulmaca" etkinliği oluştur.
+    1. 11 tane ipucu oluştur. İpuçları "YUMUŞAK kelimesinin eş anlamlısı" gibi olmalı.
+    2. Bu ipuçlarının cevaplarını, bazı harfleri renkli (şifre) olacak şekilde bir bulmaca ızgarasına yerleştir. Izgara yaklaşık 12x12 boyutunda olabilir.
+    3. Izgarayı, boş kareler için null ve dolu kareler için harf içeren bir 2D dizi olarak döndür.
+    4. Şifreyi oluşturan hücrelerin koordinatlarını (row, col) belirt.
+    5. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            clues: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.INTEGER },
+                        text: { type: Type.STRING },
+                    }
+                }
+            },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, nullable: true } } },
+            passwordCells: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        row: { type: Type.INTEGER },
+                        col: { type: Type.INTEGER },
+                    }
+                }
+            },
+            passwordLength: { type: Type.INTEGER },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<CrosswordData>;
+};
+
+export const generateJumbledWordStoryFromAI = async (theme: string): Promise<JumbledWordStoryData> => {
+    const prompt = `
+    Çocuklar için bir "Kelime Bulma ve Hikaye Yazma" etkinliği oluştur. Tema: "${theme}".
+    1. Tema ile ilgili, her biri 4-7 harfli 8 kelime oluştur.
+    2. Her kelimenin harflerini karıştırarak bir jumbled listesi oluştur.
+    3. Bulunan kelimelerin kullanılacağı bir hikaye yazma görevi (storyPrompt) ekle.
+    4. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            theme: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        jumbled: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        word: { type: Type.STRING },
+                    }
+                }
+            },
+            storyPrompt: { type: Type.STRING },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<JumbledWordStoryData>;
+};
+
+export const generateHomonymSentenceFromAI = async (): Promise<HomonymSentenceData> => {
+    const textPrompt = `
+        Çocuklar için bir "Kelime Ağı (Eş Sesli)" etkinliği oluştur.
+        1. 8 tane yaygın Türkçe eş sesli kelime seç (örn: yüz, dal, at, yaz, ben, dolu, alay, ekmek).
+        2. Her kelime için, kelimenin bir anlamını temsil eden basit bir görsel açıklaması yaz. (örn: 'yüz' için 'insan suratı', 'dal' için 'ağaç dalı').
+        3. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const textSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            items: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        description: { type: Type.STRING },
+                    }
+                }
+            },
+        },
+    };
+    const textData = await generateWithSchema(textPrompt, textSchema);
+
+    const imagePromises = textData.items.map(async (item: { word: string, description: string }) => {
+        const imagePrompt = `A simple, clear cartoon icon of a ${item.description}, on a white background.`;
+        const imageResponse = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: { parts: [{ text: imagePrompt }] },
+            config: { responseModalities: ['IMAGE'] },
+        });
+        const part = imageResponse.candidates?.[0]?.content?.parts?.[0];
+        const imageBase64 = part?.inlineData?.data || '';
+        return { word: item.word, imageBase64 };
+    });
+
+    const itemsWithImages = await Promise.all(imagePromises);
+
+    return {
+        title: textData.title,
+        prompt: textData.prompt,
+        items: itemsWithImages,
+    };
+};
+
+export const generateWordGridPuzzleFromAI = async (theme: string): Promise<WordGridPuzzleData> => {
+    const prompt = `
+    Çocuklar için bir "Kelime Ağı (Yerleştirme)" etkinliği oluştur. Tema: "${theme}".
+    1. Tema ile ilgili 12 tane Türkçe kelime listesi oluştur.
+    2. Bu kelimelerden 8 tanesini, birbirine geçen bir 15x15'lik bulmaca ızgarasına (Scrabble gibi) yerleştir.
+    3. Izgarayı, boş kareler için null, dolu kareler için harf ve bazı ipucu harfleri içeren bir 2D dizi olarak döndür.
+    4. Kullanılmayan kelimeleri yazmak için bir talimat ekle.
+    5. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            theme: { type: Type.STRING },
+            wordList: { type: Type.ARRAY, items: { type: Type.STRING } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, nullable: true } } },
+            unusedWordPrompt: { type: Type.STRING },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordGridPuzzleData>;
+};
+
+export const generateProverbSayingSortFromAI = async (): Promise<ProverbSayingSortData> => {
+    const prompt = `
+    Çocuklar için bir "Atasözü/Özdeyiş" sıralama etkinliği oluştur.
+    1. 5 tane yaygın Türkçe atasözü ve 5 tane ünlü özdeyiş bul.
+    2. Bunları karışık bir sırada listele ve her birinin türünü ('atasözü' veya 'özdeyiş') belirt.
+    3. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            items: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        text: { type: Type.STRING },
+                        type: { type: Type.STRING },
+                    }
+                }
+            },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData>;
+};
+
+export const generateHomonymImageMatchFromAI = async (): Promise<HomonymImageMatchData> => {
+    const prompt = `
+    Çocuklar için bir "Resim Eşleştirme (Eş Sesli)" etkinliği oluştur.
+    1. 5 tane yaygın Türkçe eş sesli kelime seç (örn: at, yüz, dil, ekmek, bin).
+    2. Her kelimenin iki farklı anlamını tanımlayan kısa açıklamalar yaz. (örn: 'at' için 'bir binek hayvanı' ve 'bir şeyi fırlatma eylemi').
+    3. Ayrıca, bu kelimelerle ilgisiz, harfleri karıştırılmış bir kelime bulmacası için bir kelime ve harfleri oluştur.
+    4. Sonucu aşağıdaki JSON formatında, sadece metin verisiyle döndür.
+    `;
+    const textSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, desc1: { type: Type.STRING }, desc2: { type: Type.STRING } } } },
+            wordScramble: { type: Type.OBJECT, properties: { letters: { type: Type.ARRAY, items: { type: Type.STRING } }, word: { type: Type.STRING } } },
+        },
+    };
+    const textData = await generateWithSchema(prompt, textSchema);
+
+    const imagePromises = textData.pairs.flatMap((pair: any) => [
+        { word: pair.word, desc: pair.desc1 },
+        { word: pair.word, desc: pair.desc2 }
+    ]).map(async (item: { word: string, desc: string }) => {
+        const imagePrompt = `A simple, clear cartoon icon of: ${item.desc}. On a white background.`;
+        const imageResponse = await ai.models.generateContent({ model: 'gemini-2.5-flash-image', contents: { parts: [{ text: imagePrompt }] }, config: { responseModalities: ['IMAGE'] } });
+        const imageBase64 = imageResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || '';
+        return { ...item, imageBase64 };
+    });
+
+    const images = await Promise.all(imagePromises);
+    const leftImages = textData.pairs.map((p: any, i: number) => ({ id: i, word: p.word, imageBase64: images.find(img => img.desc === p.desc1)?.imageBase64 || '' }));
+    const rightImages = textData.pairs.map((p: any, i: number) => ({ id: i, word: p.word, imageBase64: images.find(img => img.desc === p.desc2)?.imageBase64 || '' }));
+
+    return {
+        title: textData.title,
+        prompt: textData.prompt,
+        leftImages,
+        rightImages,
+        wordScramble: textData.wordScramble,
+    };
+};
+
+export const generateAntonymFlowerPuzzleFromAI = async (): Promise<AntonymFlowerPuzzleData> => {
+    const prompt = `
+    Çocuklar için bir "Zıt Anlamlı Kelime Bulmacası" etkinliği oluştur.
+    1. 9 tane kelime ve zıt anlamlılarını bul (örn: uzun-kısa).
+    2. Her zıt anlamlı kelimenin harflerini, şifreyi oluşturacak 2-3 ekstra harfle birleştir ve karıştır. Bu harfler papatyanın yaprakları olacak.
+    3. Tüm ekstra harflerin birleşimiyle oluşacak 8 harfli bir şifre kelimesi belirle.
+    4. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        centerWord: { type: Type.STRING },
+                        antonym: { type: Type.STRING },
+                        petalLetters: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    }
+                }
+            },
+            passwordLength: { type: Type.INTEGER },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<AntonymFlowerPuzzleData>;
+};
+
+export const generateProverbWordChainFromAI = async (): Promise<ProverbWordChainData> => {
+    const prompt = `
+    Çocuklar için bir "Atasözü/Özdeyiş Bulma" etkinliği oluştur.
+    1. 8 tane kısa ve bilinen Türkçe atasözü veya özdeyiş seç.
+    2. Tüm bu cümlelerdeki kelimeleri tek bir listeye koy ve karıştır.
+    3. Her kelime için rastgele bir renk ata ('pink', 'orange', 'cyan', 'lime', 'purple', 'yellow', 'red', 'blue').
+    4. Çözüm olarak atasözlerinin tam listesini ver.
+    5. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            wordCloud: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        color: { type: Type.STRING },
+                    }
+                }
+            },
+            solutions: { type: Type.ARRAY, items: { type: Type.STRING } },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<ProverbWordChainData>;
+};
+
+export const generateThematicOddOneOutFromAI = async (theme: string): Promise<ThematicOddOneOutData> => {
+    const prompt = `
+    Çocuklar için bir "Farklı Özelliği Bulma" etkinliği oluştur. Tema: "${theme}".
+    1. 4 satır oluştur. Her satırda, tema ile ilgili 4 kelime ve tema ile ilgisiz 1 kelime olsun.
+    2. Her satır için ilgisiz kelimeyi belirt.
+    3. Bulunan farklı kelimelerle cümle yazma görevi ekle.
+    4. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            theme: { type: Type.STRING },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        words: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        oddWord: { type: Type.STRING },
+                    }
+                }
+            },
+            sentencePrompt: { type: Type.STRING },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutData>;
+};
+
+export const generateSynonymAntonymGridFromAI = async (): Promise<SynonymAntonymGridData> => {
+    const prompt = `
+    Çocuklar için bir "Eş ve Zıt Anlamlı Kelime Bulmacası" oluştur.
+    1. 10 kelime ve zıt anlamlılarını bul.
+    2. 10 kelime ve eş anlamlılarını bul.
+    3. Bu 20 zıt/eş anlamlı kelimeyi 15x15'lik bir harf ızgarasına yerleştir.
+    4. Boşlukları rastgele harflerle doldur.
+    5. Sonucu aşağıdaki JSON formatında döndür. Sadece orijinal kelimeleri ve ızgarayı döndür, cevapları kullanıcı bulacak.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            antonyms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING } } } },
+            synonyms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING } } } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<SynonymAntonymGridData>;
+};
+
+export const generatePunctuationColoringFromAI = async (): Promise<PunctuationColoringData> => {
+    const prompt = `
+    Çocuklar için bir "Görsel Boyama (Noktalama)" etkinliği oluştur.
+    1. Her biri farklı bir noktalama işareti (., ?, !, :, ‘, “”, -) gerektiren 8 tane basit cümle oluştur. Cümlenin sonuna parantez içinde ( ) boşluk bırak.
+    2. Her cümle için bir renk ata ('salmon', 'skyblue', 'mediumpurple', 'limegreen', 'gold', 'hotpink', 'darkorange', 'deepskyblue').
+    3. Her cümlenin gerektirdiği doğru noktalama işaretini belirt.
+    4. Sonucu aşağıdaki JSON formatında döndür.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            sentences: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        text: { type: Type.STRING },
+                        color: { type: Type.STRING },
+                        correctMark: { type: Type.STRING },
+                    }
+                }
+            },
+        },
+    };
+    return generateWithSchema(prompt, schema) as Promise<PunctuationColoringData>;
 };

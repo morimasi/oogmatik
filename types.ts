@@ -46,6 +46,32 @@ export enum ActivityType {
   FIND_DIFFERENT_STRING = 'FIND_DIFFERENT_STRING',
   DOT_PAINTING = 'DOT_PAINTING',
   ABC_CONNECT = 'ABC_CONNECT',
+  PASSWORD_FINDER = 'PASSWORD_FINDER',
+  SYLLABLE_COMPLETION = 'SYLLABLE_COMPLETION',
+  SYNONYM_WORD_SEARCH = 'SYNONYM_WORD_SEARCH',
+  WORD_CONNECT = 'WORD_CONNECT',
+  SPIRAL_PUZZLE = 'SPIRAL_PUZZLE',
+  CROSSWORD = 'CROSSWORD',
+  JUMBLED_WORD_STORY = 'JUMBLED_WORD_STORY',
+  HOMONYM_SENTENCE_WRITING = 'HOMONYM_SENTENCE_WRITING',
+  WORD_GRID_PUZZLE = 'WORD_GRID_PUZZLE',
+  PROVERB_SAYING_SORT = 'PROVERB_SAYING_SORT',
+  HOMONYM_IMAGE_MATCH = 'HOMONYM_IMAGE_MATCH',
+  ANTONYM_FLOWER_PUZZLE = 'ANTONYM_FLOWER_PUZZLE',
+  PROVERB_WORD_CHAIN = 'PROVERB_WORD_CHAIN',
+  THEMATIC_ODD_ONE_OUT = 'THEMATIC_ODD_ONE_OUT',
+  SYNONYM_ANTONYM_GRID = 'SYNONYM_ANTONYM_GRID',
+  PUNCTUATION_COLORING = 'PUNCTUATION_COLORING',
+  PUNCTUATION_MAZE = 'PUNCTUATION_MAZE',
+  ANTONYM_RESFEBE = 'ANTONYM_RESFEBE',
+  THEMATIC_WORD_SEARCH_COLOR = 'THEMATIC_WORD_SEARCH_COLOR',
+  THEMATIC_ODD_ONE_OUT_SENTENCE = 'THEMATIC_ODD_ONE_OUT_SENTENCE',
+  PROVERB_SENTENCE_FINDER = 'PROVERB_SENTENCE_FINDER',
+  SYNONYM_SEARCH_STORY = 'SYNONYM_SEARCH_STORY',
+  COLUMN_ODD_ONE_OUT_SENTENCE = 'COLUMN_ODD_ONE_OUT_SENTENCE',
+  SYNONYM_ANTONYM_COLORING = 'SYNONYM_ANTONYM_COLORING',
+  PUNCTUATION_PHONE_NUMBER = 'PUNCTUATION_PHONE_NUMBER',
+  PUNCTUATION_SPIRAL_PUZZLE = 'PUNCTUATION_SPIRAL_PUZZLE',
 }
 
 export interface Activity {
@@ -329,12 +355,17 @@ export interface ImageComprehensionData {
     questions: string[];
 }
 
+export interface CharacterObject {
+    description: string;
+    imageBase64: string;
+}
+
 export interface CharacterMemoryData {
     title: string;
     memorizeTitle: string;
     testTitle: string;
-    charactersToMemorize: string[]; // Array of character descriptions
-    testCharacters: string[]; // Array of character descriptions for the test
+    charactersToMemorize: CharacterObject[];
+    testCharacters: CharacterObject[];
 }
 
 export interface StorySequencingData {
@@ -443,6 +474,276 @@ export interface AbcConnectData {
     }[];
 }
 
+export interface PasswordFinderData {
+    title: string;
+    prompt: string;
+    words: {
+        word: string;
+        passwordLetter: string;
+        isProperNoun: boolean;
+    }[];
+    passwordLength: number;
+}
+
+export interface SyllableCompletionData {
+    title: string;
+    prompt: string;
+    theme: string;
+    wordParts: {
+        first: string;
+        second: string;
+    }[];
+    syllables: string[];
+    storyPrompt: string;
+}
+
+export interface SynonymWordSearchData {
+    title: string;
+    prompt: string;
+    wordsToMatch: {
+        word: string;
+        synonym: string;
+    }[];
+    grid: string[][];
+}
+
+export interface WordConnectData {
+    title: string;
+    prompt: string;
+    gridDim: number;
+    points: {
+        word: string;
+        pairId: number;
+        x: number;
+        y: number;
+    }[];
+}
+
+export interface SpiralPuzzleData {
+    title: string;
+    prompt: string;
+    clues: string[];
+    grid: string[][];
+    wordStarts: {
+        id: number;
+        row: number;
+        col: number;
+    }[];
+}
+
+export interface CrosswordData {
+    title: string;
+    prompt: string;
+    clues: {
+        id: number;
+        text: string;
+    }[];
+    grid: (string | null)[][];
+    passwordCells: {
+        row: number;
+        col: number;
+    }[];
+    passwordLength: number;
+}
+
+export interface JumbledWordStoryData {
+    title: string;
+    prompt: string;
+    theme: string;
+    puzzles: {
+        jumbled: string[];
+        word: string;
+    }[];
+    storyPrompt: string;
+}
+
+export interface HomonymSentenceData {
+    title: string;
+    prompt: string;
+    items: {
+        word: string;
+        imageBase64: string;
+    }[];
+}
+
+export interface WordGridPuzzleData {
+    title: string;
+    prompt: string;
+    theme: string;
+    wordList: string[];
+    grid: (string | null)[][];
+    unusedWordPrompt: string;
+}
+
+export interface ProverbSayingSortData {
+    title: string;
+    prompt: string;
+    items: {
+        text: string;
+        type: 'atasözü' | 'özdeyiş';
+    }[];
+}
+
+export interface HomonymImageMatchData {
+    title: string;
+    prompt: string;
+    leftImages: { id: number; word: string; imageBase64: string }[];
+    rightImages: { id: number; word: string; imageBase64: string }[];
+    wordScramble: {
+        letters: string[];
+        word: string;
+    };
+}
+
+export interface AntonymFlowerPuzzleData {
+    title: string;
+    prompt: string;
+    puzzles: {
+        centerWord: string;
+        antonym: string;
+        petalLetters: string[];
+    }[];
+    passwordLength: number;
+}
+
+export interface ProverbWordChainData {
+    title: string;
+    prompt: string;
+    wordCloud: {
+        word: string;
+        color: string;
+    }[];
+    solutions: string[];
+}
+
+export interface ThematicOddOneOutData {
+    title: string;
+    prompt: string;
+    theme: string;
+    rows: {
+        words: string[];
+        oddWord: string;
+    }[];
+    sentencePrompt: string;
+}
+
+export interface SynonymAntonymGridData {
+    title: string;
+    prompt: string;
+    antonyms: { word: string }[];
+    synonyms: { word: string }[];
+    grid: string[][];
+}
+
+export interface PunctuationColoringData {
+    title: string;
+    prompt: string;
+    sentences: {
+        text: string;
+        color: string;
+        correctMark: string;
+    }[];
+}
+
+export interface PunctuationMazeData {
+    title: string;
+    prompt: string;
+    punctuationMark: string;
+    rules: {
+        id: number;
+        text: string;
+        isCorrect: boolean;
+    }[];
+}
+
+export interface AntonymResfebeData {
+    title: string;
+    prompt: string;
+    puzzles: {
+        word: string;
+        antonym: string;
+        imageBase64: string;
+        clues: (string | { type: 'image' })[];
+    }[];
+    antonymsPrompt: string;
+}
+
+export interface ThematicWordSearchColorData {
+    title: string;
+    prompt: string;
+    theme: string;
+    words: string[];
+    grid: string[][];
+}
+
+export interface ThematicOddOneOutSentenceData {
+    title: string;
+    prompt: string;
+    rows: {
+        words: string[];
+        oddWord: string;
+    }[];
+    sentencePrompt: string;
+}
+
+export interface ProverbSentenceFinderData {
+    title: string;
+    prompt: string;
+    wordCloud: {
+        word: string;
+        color: string;
+    }[];
+    solutions: string[];
+}
+
+export interface SynonymSearchAndStoryData {
+    title: string;
+    prompt: string;
+    wordTable: {
+        word: string;
+        synonym: string;
+    }[];
+    grid: string[][];
+    storyPrompt: string;
+}
+
+export interface ColumnOddOneOutSentenceData {
+    title: string;
+    prompt: string;
+    columns: {
+        words: string[];
+        oddWord: string;
+    }[];
+    sentencePrompt: string;
+}
+
+export interface SynonymAntonymColoringData {
+    title: string;
+    prompt: string;
+    colorKey: {
+        text: string; // "Cömert'in zıt anlamlısı"
+        color: string;
+    }[];
+    wordsOnImage: {
+        word: string; // "Cimri"
+        x: number; // percentage
+        y: number; // percentage
+    }[];
+}
+
+export interface PunctuationPhoneNumberData {
+    title: string;
+    prompt: string;
+    instruction: string;
+    clues: {
+        id: number;
+        text: string;
+    }[];
+    solution: {
+        punctuationMark: string;
+        number: number;
+    }[];
+}
 
 export type WorksheetData = 
   | WordSearchData 
@@ -491,4 +792,29 @@ export type WorksheetData =
   | FindDifferentStringData
   | DotPaintingData
   | AbcConnectData
+  | PasswordFinderData
+  | SyllableCompletionData
+  | SynonymWordSearchData
+  | WordConnectData
+  | SpiralPuzzleData
+  | CrosswordData
+  | JumbledWordStoryData
+  | HomonymSentenceData
+  | WordGridPuzzleData
+  | ProverbSayingSortData
+  | HomonymImageMatchData
+  | AntonymFlowerPuzzleData
+  | ProverbWordChainData
+  | ThematicOddOneOutData
+  | SynonymAntonymGridData
+  | PunctuationColoringData
+  | PunctuationMazeData
+  | AntonymResfebeData
+  | ThematicWordSearchColorData
+  | ThematicOddOneOutSentenceData
+  | ProverbSentenceFinderData
+  | SynonymSearchAndStoryData
+  | ColumnOddOneOutSentenceData
+  | SynonymAntonymColoringData
+  | PunctuationPhoneNumberData
   | null;

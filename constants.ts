@@ -307,6 +307,162 @@ export const ACTIVITIES: Activity[] = [
     description: 'Örnekteki gibi aynı harflerle belirtilen noktaları birbirleriyle kesişmeyecek şekilde yatay ve dikey çizgilerle birleştirelim.',
     icon: 'fa-solid fa-draw-polygon',
   },
+  {
+    id: ActivityType.PASSWORD_FINDER,
+    title: 'Şifre Bul',
+    description: 'Baş harfi büyük yazılması gereken kelimeleri bulup şifreyi çözün.',
+    icon: 'fa-solid fa-user-secret',
+  },
+  {
+    id: ActivityType.SYLLABLE_COMPLETION,
+    title: 'Eksik Kelimeler',
+    description: 'Eksik heceleri bularak kelimeleri tamamlayın ve hikaye yazın.',
+    icon: 'fa-solid fa-puzzle-piece',
+  },
+  {
+    id: ActivityType.SYNONYM_WORD_SEARCH,
+    title: 'Eş Anlamlı Kelime Avı',
+    description: 'Kelimelerin eş anlamlılarını bulup bulmacada arayın.',
+    icon: 'fa-solid fa-file-word',
+  },
+  {
+    id: ActivityType.WORD_CONNECT,
+    title: 'Kelime Bağlama',
+    description: 'Anlamca ilişkili kelimeleri çizgilerle birleştirin.',
+    icon: 'fa-solid fa-link',
+  },
+  {
+    id: ActivityType.SPIRAL_PUZZLE,
+    title: 'Sarmal Bulmaca',
+    description: 'İpuçlarından kelimeleri bulup sarmal bulmacaya yerleştirin.',
+    icon: 'fa-solid fa-hurricane',
+  },
+  {
+    id: ActivityType.CROSSWORD,
+    title: 'Çapraz Bulmaca',
+    description: 'Verilen ipuçlarıyla bulmacayı çözün ve şifreyi bulun.',
+    icon: 'fa-solid fa-border-all',
+  },
+  {
+    id: ActivityType.JUMBLED_WORD_STORY,
+    title: 'Kelime Bulma ve Hikaye Yazma',
+    description: 'Karışık harflerden kelimeler bulun ve bu kelimelerle hikaye yazın.',
+    icon: 'fa-solid fa-pen-nib',
+  },
+  {
+    id: ActivityType.HOMONYM_SENTENCE_WRITING,
+    title: 'Kelime Ağı (Eş Sesli)',
+    description: 'Eş sesli kelimeler için iki farklı anlama gelen cümleler yazın.',
+    icon: 'fa-solid fa-water',
+  },
+  {
+    id: ActivityType.WORD_GRID_PUZZLE,
+    title: 'Kelime Ağı (Yerleştirme)',
+    description: 'Verilen kelimeleri bulmaca tablosuna doğru şekilde yerleştirin.',
+    icon: 'fa-solid fa-table-cells-large',
+  },
+  {
+    id: ActivityType.PROVERB_SAYING_SORT,
+    title: 'Şifre Bul (Atasözü/Özdeyiş)',
+    description: 'Cümlelerin atasözü mü yoksa özdeyiş mi olduğunu belirleyin.',
+    icon: 'fa-solid fa-arrows-split-up-and-left',
+  },
+  {
+    id: ActivityType.HOMONYM_IMAGE_MATCH,
+    title: 'Resim Eşleştirme (Eş Sesli)',
+    description: 'Eş sesli kelimelere ait görselleri eşleştirin.',
+    icon: 'fa-solid fa-object-ungroup',
+  },
+  {
+    id: ActivityType.ANTONYM_FLOWER_PUZZLE,
+    title: 'Eşleştir (Zıt Anlamlı)',
+    description: 'Papatyaların ortasındaki kelimelerin zıt anlamlılarını bulun ve şifreyi çözün.',
+    icon: 'fa-solid fa-fan',
+  },
+  {
+    id: ActivityType.PROVERB_WORD_CHAIN,
+    title: 'Atasözü/Özdeyiş Bulma',
+    description: 'Karışık kelimelerden atasözleri ve özdeyişler oluşturun.',
+    icon: 'fa-solid fa-link-slash',
+  },
+  {
+    id: ActivityType.THEMATIC_ODD_ONE_OUT,
+    title: 'Farklı Özelliği Bulma',
+    description: 'Belirli bir temaya uymayan kelimeyi bulun.',
+    icon: 'fa-solid fa-magnifying-glass-arrow-right',
+  },
+  {
+    id: ActivityType.SYNONYM_ANTONYM_GRID,
+    title: 'Kelime Bulma (Eş/Zıt Anlamlı)',
+    description: 'Kelimelerin eş ve zıt anlamlılarını bulup bulmacaya yerleştirin.',
+    icon: 'fa-solid fa-right-left',
+  },
+  {
+    id: ActivityType.PUNCTUATION_COLORING,
+    title: 'Görsel Boyama (Noktalama)',
+    description: 'Cümlelere uygun noktalama işaretlerini bularak resmi boyayın.',
+    icon: 'fa-solid fa-pencil',
+  },
+  {
+    id: ActivityType.PUNCTUATION_MAZE,
+    title: 'Labirent (Noktalama)',
+    description: 'Doğru kuralı bularak labirentte doğru yolu bulun.',
+    icon: 'fa-solid fa-mouse',
+  },
+  {
+    id: ActivityType.ANTONYM_RESFEBE,
+    title: 'Resfebe (Zıt Anlamlı)',
+    description: 'Resfebe ile kelimeyi bulun, sonra zıt anlamlısını yazın.',
+    icon: 'fa-solid fa-image-landscape',
+  },
+  {
+    id: ActivityType.THEMATIC_WORD_SEARCH_COLOR,
+    title: 'Kelime Bulma (Tematik)',
+    description: 'Belirli bir konudaki kelimeleri bulmacada bulun ve boyayın.',
+    icon: 'fa-solid fa-highlighter',
+  },
+  {
+    id: ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE,
+    title: 'Şifre Bul (Farklı Kelime)',
+    description: 'Her grupta farklı olan kelimeyi bulun ve cümle kurun.',
+    icon: 'fa-solid fa-user-secret',
+  },
+  {
+    id: ActivityType.PROVERB_SENTENCE_FINDER,
+    title: 'Cümle Bulma (Atasözü)',
+    description: 'Karışık kelimelerden atasözleri oluşturun ve boyayın.',
+    icon: 'fa-solid fa-comments',
+  },
+  {
+    id: ActivityType.SYNONYM_SEARCH_STORY,
+    title: 'Dikkat Testi (Eş Anlamlı)',
+    description: 'Kelimelerin eş anlamlılarını bulun, bulmacada arayın ve hikaye yazın.',
+    icon: 'fa-solid fa-file-signature',
+  },
+  {
+    id: ActivityType.PUNCTUATION_SPIRAL_PUZZLE,
+    title: 'Sarmal Bulmaca (Noktalama)',
+    description: 'Dil bilgisi ve noktalama kuralları ile sarmal bulmacayı çözün.',
+    icon: 'fa-solid fa-pen-ruler',
+  },
+  {
+    id: ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE,
+    title: 'Farklı Özelliği Bulma (Sütun)',
+    description: 'Her sütunda farklı olan kelimeyi bulup cümle kurun.',
+    icon: 'fa-solid fa-table-columns',
+  },
+  {
+    id: ActivityType.SYNONYM_ANTONYM_COLORING,
+    title: 'Görsel Boyama (Eş/Zıt Anlamlı)',
+    description: 'Doğru eş/zıt anlamlı kelimeyi bularak resmi boyayın.',
+    icon: 'fa-solid fa-fill-drip',
+  },
+  {
+    id: ActivityType.PUNCTUATION_PHONE_NUMBER,
+    title: 'Bul Bakalım (Telefon Numarası)',
+    description: 'Noktalama ipuçlarını çözerek gizli telefon numarasını bulun.',
+    icon: 'fa-solid fa-phone-volume',
+  },
 ];
 
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
@@ -327,6 +483,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.IMAGE_COMPREHENSION,
       ActivityType.CHARACTER_MEMORY,
       ActivityType.BURDON_TEST,
+      ActivityType.SYNONYM_SEARCH_STORY,
     ]
   },
   {
@@ -335,7 +492,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     description: 'Anagram, sözcük avı ve dil becerileri',
     icon: 'fa-solid fa-spell-check',
     activities: [
-      ActivityType.WORD_SEARCH, // Also for "Sağlıklı Büyüme (Spor)"
+      ActivityType.WORD_SEARCH,
       ActivityType.PROVERB_SEARCH,
       ActivityType.ANAGRAM,
       ActivityType.SPELLING_CHECK,
@@ -347,6 +504,23 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.REVERSE_WORD,
       ActivityType.WORD_GROUPING,
       ActivityType.MINI_WORD_GRID,
+      ActivityType.PASSWORD_FINDER,
+      ActivityType.SYLLABLE_COMPLETION,
+      ActivityType.SYNONYM_WORD_SEARCH,
+      ActivityType.SPIRAL_PUZZLE,
+      ActivityType.CROSSWORD,
+      ActivityType.JUMBLED_WORD_STORY,
+      ActivityType.HOMONYM_SENTENCE_WRITING,
+      ActivityType.WORD_GRID_PUZZLE,
+      ActivityType.HOMONYM_IMAGE_MATCH,
+      ActivityType.ANTONYM_FLOWER_PUZZLE,
+      ActivityType.SYNONYM_ANTONYM_GRID,
+      ActivityType.PUNCTUATION_COLORING,
+      ActivityType.ANTONYM_RESFEBE,
+      ActivityType.THEMATIC_WORD_SEARCH_COLOR,
+      ActivityType.PROVERB_SENTENCE_FINDER,
+      ActivityType.PUNCTUATION_SPIRAL_PUZZLE,
+      ActivityType.SYNONYM_ANTONYM_COLORING,
     ]
   },
   {
@@ -370,6 +544,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.STORY_CREATION_PROMPT,
       ActivityType.WORDS_IN_STORY,
       ActivityType.STORY_SEQUENCING,
+      ActivityType.PROVERB_SAYING_SORT,
+      ActivityType.PROVERB_WORD_CHAIN,
     ]
   },
   {
@@ -384,6 +560,12 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         ActivityType.COORDINATE_CIPHER,
         ActivityType.SHAPE_NUMBER_PATTERN,
         ActivityType.ABC_CONNECT,
+        ActivityType.WORD_CONNECT,
+        ActivityType.THEMATIC_ODD_ONE_OUT,
+        ActivityType.PUNCTUATION_MAZE,
+        ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE,
+        ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE,
+        ActivityType.PUNCTUATION_PHONE_NUMBER,
     ]
   },
   {

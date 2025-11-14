@@ -13,7 +13,12 @@ import {
     generateGridDrawingFromAI, generateColorWheelMemoryFromAI, generateImageComprehensionFromAI, generateCharacterMemoryFromAI,
     generateStorySequencingFromAI, generateChaoticNumberSearchFromAI, generateBlockPaintingFromAI, generateMiniWordGridFromAI,
     generateVisualOddOneOutFromAI, generateShapeCountingFromAI, generateSymmetryDrawingFromAI, generateBurdonTestFromAI,
-    generateFindDifferentStringFromAI, generateDotPaintingFromAI, generateAbcConnectFromAI
+    generateFindDifferentStringFromAI, generateDotPaintingFromAI, generateAbcConnectFromAI, generatePasswordFinderFromAI,
+    generateSyllableCompletionFromAI, generateSynonymWordSearchFromAI, generateWordConnectFromAI, generateSpiralPuzzleFromAI,
+    generateCrosswordFromAI, generateJumbledWordStoryFromAI, generateHomonymSentenceFromAI, generateWordGridPuzzleFromAI,
+    generateProverbSayingSortFromAI, generateHomonymImageMatchFromAI, generateAntonymFlowerPuzzleFromAI,
+    generateProverbWordChainFromAI, generateThematicOddOneOutFromAI, generateSynonymAntonymGridFromAI,
+    generatePunctuationColoringFromAI
 } from '../services/geminiService';
 
 interface SidebarProps {
@@ -110,6 +115,22 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
         case ActivityType.FIND_DIFFERENT_STRING: data = await generateFindDifferentStringFromAI(); break;
         case ActivityType.DOT_PAINTING: data = await generateDotPaintingFromAI(); break;
         case ActivityType.ABC_CONNECT: data = await generateAbcConnectFromAI(); break;
+        case ActivityType.PASSWORD_FINDER: data = await generatePasswordFinderFromAI(); break;
+        case ActivityType.SYLLABLE_COMPLETION: data = await generateSyllableCompletionFromAI(topic); break;
+        case ActivityType.SYNONYM_WORD_SEARCH: data = await generateSynonymWordSearchFromAI(); break;
+        case ActivityType.WORD_CONNECT: data = await generateWordConnectFromAI(); break;
+        case ActivityType.SPIRAL_PUZZLE: data = await generateSpiralPuzzleFromAI(); break;
+        case ActivityType.CROSSWORD: data = await generateCrosswordFromAI(); break;
+        case ActivityType.JUMBLED_WORD_STORY: data = await generateJumbledWordStoryFromAI(topic); break;
+        case ActivityType.HOMONYM_SENTENCE_WRITING: data = await generateHomonymSentenceFromAI(); break;
+        case ActivityType.WORD_GRID_PUZZLE: data = await generateWordGridPuzzleFromAI(topic); break;
+        case ActivityType.PROVERB_SAYING_SORT: data = await generateProverbSayingSortFromAI(); break;
+        case ActivityType.HOMONYM_IMAGE_MATCH: data = await generateHomonymImageMatchFromAI(); break;
+        case ActivityType.ANTONYM_FLOWER_PUZZLE: data = await generateAntonymFlowerPuzzleFromAI(); break;
+        case ActivityType.PROVERB_WORD_CHAIN: data = await generateProverbWordChainFromAI(); break;
+        case ActivityType.THEMATIC_ODD_ONE_OUT: data = await generateThematicOddOneOutFromAI(topic); break;
+        case ActivityType.SYNONYM_ANTONYM_GRID: data = await generateSynonymAntonymGridFromAI(); break;
+        case ActivityType.PUNCTUATION_COLORING: data = await generatePunctuationColoringFromAI(); break;
         default:
            setError('Yapay zeka üretici henüz bu etkinlik için mevcut değil.');
            break;
@@ -124,15 +145,28 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
 
   const renderSettings = (activity: Activity) => {
     const noSettingsActivities = [
+        ActivityType.PASSWORD_FINDER, ActivityType.SYNONYM_WORD_SEARCH, ActivityType.WORD_CONNECT, ActivityType.SPIRAL_PUZZLE, ActivityType.CROSSWORD,
         ActivityType.BURDON_TEST, ActivityType.FIND_DIFFERENT_STRING, ActivityType.DOT_PAINTING, ActivityType.ABC_CONNECT,
         ActivityType.BLOCK_PAINTING, ActivityType.MINI_WORD_GRID, ActivityType.VISUAL_ODD_ONE_OUT, ActivityType.SHAPE_COUNTING, 
         ActivityType.SYMMETRY_DRAWING, ActivityType.GRID_DRAWING, ActivityType.CHAOTIC_NUMBER_SEARCH, ActivityType.NUMBER_SEARCH,
-        ActivityType.FIND_THE_DUPLICATE_IN_ROW, ActivityType.SHAPE_NUMBER_PATTERN
+        ActivityType.FIND_THE_DUPLICATE_IN_ROW, ActivityType.SHAPE_NUMBER_PATTERN, ActivityType.HOMONYM_SENTENCE_WRITING,
+        ActivityType.PROVERB_SAYING_SORT, ActivityType.HOMONYM_IMAGE_MATCH, ActivityType.ANTONYM_FLOWER_PUZZLE,
+        ActivityType.PROVERB_WORD_CHAIN, ActivityType.SYNONYM_ANTONYM_GRID, ActivityType.PUNCTUATION_COLORING
     ];
-
+    
     if (noSettingsActivities.includes(activity.id)) {
         return <p className="text-sm text-gray-500 dark:text-gray-400 p-4 text-center">Bu etkinlik için özel ayar bulunmamaktadır.</p>
     }
+
+    const themeActivities = [ActivityType.SYLLABLE_COMPLETION, ActivityType.JUMBLED_WORD_STORY, ActivityType.WORD_GRID_PUZZLE, ActivityType.THEMATIC_ODD_ONE_OUT];
+    if (themeActivities.includes(activity.id)) {
+        return <div className="p-4"><label htmlFor="topic" className="block text-sm font-medium">Tema</label>
+        <input type="text" id="topic" value={topic} onChange={(e) => setTopic(e.target.value)}
+       className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+       placeholder="Örn: Birey ve Toplum"
+     /></div>
+   }
+
 
     const showTopic = ![ActivityType.STROOP_TEST, ActivityType.LETTER_GRID_TEST, ActivityType.NUMBER_PATTERN, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.FIND_LETTER_PAIR, ActivityType.PROVERB_SEARCH, ActivityType.TARGET_SEARCH, ActivityType.COLOR_WHEEL_MEMORY].includes(activity.id);
     const showItemCount = [ActivityType.WORD_SEARCH, ActivityType.ANAGRAM, ActivityType.MATH_PUZZLE, ActivityType.STROOP_TEST, ActivityType.NUMBER_PATTERN, ActivityType.SPELLING_CHECK, ActivityType.FIND_THE_DIFFERENCE, ActivityType.ODD_ONE_OUT, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.WORD_LADDER, ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.REVERSE_WORD, ActivityType.COORDINATE_CIPHER, ActivityType.COLOR_WHEEL_MEMORY, ActivityType.IMAGE_COMPREHENSION].includes(activity.id);
