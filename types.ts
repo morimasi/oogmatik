@@ -1256,6 +1256,15 @@ export interface PositionalAnagramData {
     }[];
 }
 
+export interface SavedWorksheet {
+  id: string;
+  name: string;
+  activityType: ActivityType;
+  worksheetData: WorksheetData;
+  createdAt: string;
+  icon: string;
+}
+
 export type WorksheetData = 
   | WordSearchData 
   | AnagramData[] 

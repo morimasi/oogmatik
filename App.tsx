@@ -1,7 +1,8 @@
-import React, { useState, CSSProperties } from 'react';
-import { ActivityType, WorksheetData } from './types';
+import React, { useState, useEffect, CSSProperties } from 'react';
+import { ActivityType, WorksheetData, SavedWorksheet } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
+import { ACTIVITIES } from './constants';
 
 export interface StyleSettings {
   fontFamily: string;
@@ -21,6 +22,51 @@ const App: React.FC = () => {
     borderColor: '#e5e7eb', // gray-200
     borderWidth: 1,
   });
+  const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('savedWorksheets');
+      if (stored) {
+        setSavedWorksheets(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error("Failed to parse saved worksheets from localStorage", e);
+      setSavedWorksheets([]);
+    }
+  }, []);
+
+  const updateLocalStorage = (worksheets: SavedWorksheet[]) => {
+    localStorage.setItem('savedWorksheets', JSON.stringify(worksheets));
+  };
+
+  const addSavedWorksheet = (name: string, activityType: ActivityType, data: WorksheetData) => {
+    const activity = ACTIVITIES.find(a => a.id === activityType);
+    const icon = activity?.icon || 'fa-solid fa-file';
+    const newWorksheet: SavedWorksheet = {
+      id: new Date().toISOString() + Math.random(),
+      name,
+      activityType,
+      worksheetData: data,
+      createdAt: new Date().toISOString(),
+      icon,
+    };
+    const updated = [...savedWorksheets, newWorksheet];
+    setSavedWorksheets(updated);
+    updateLocalStorage(updated);
+  };
+
+  const deleteSavedWorksheet = (id: string) => {
+    const updated = savedWorksheets.filter(ws => ws.id !== id);
+    setSavedWorksheets(updated);
+    updateLocalStorage(updated);
+  };
+
+  const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
+    setSelectedActivity(worksheet.activityType);
+    setWorksheetData(worksheet.worksheetData);
+  };
+
 
   const handleWorksheetStyle = (): CSSProperties => {
     return {
@@ -64,6 +110,9 @@ const App: React.FC = () => {
           setIsLoading={setIsLoading}
           setError={setError}
           isLoading={isLoading}
+          savedWorksheets={savedWorksheets}
+          onLoadSaved={loadSavedWorksheet}
+          onDeleteSaved={deleteSavedWorksheet}
         />
         <ContentArea
           activityType={selectedActivity}
@@ -73,6 +122,7 @@ const App: React.FC = () => {
           styleSettings={styleSettings}
           onStyleChange={setStyleSettings}
           worksheetStyles={handleWorksheetStyle()}
+          onSave={addSavedWorksheet}
         />
       </div>
     </div>

@@ -14,6 +14,7 @@ interface ContentAreaProps {
   styleSettings: StyleSettings;
   onStyleChange: (settings: StyleSettings) => void;
   worksheetStyles: CSSProperties;
+  onSave: (name: string, activityType: ActivityType, data: WorksheetData) => void;
 }
 
 const WelcomePlaceholder: React.FC = () => (
@@ -33,15 +34,17 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   error,
   styleSettings,
   onStyleChange,
-  worksheetStyles
+  worksheetStyles,
+  onSave
 }) => {
   return (
     <main className="flex-1 bg-slate-100 dark:bg-gray-900 p-6 overflow-y-auto">
       <div className="max-w-4xl mx-auto">
-        {worksheetData && !isLoading && (
+        {worksheetData && !isLoading && activityType && (
           <Toolbar 
             settings={styleSettings} 
             onSettingsChange={onStyleChange} 
+            onSave={(name) => onSave(name, activityType, worksheetData)}
           />
         )}
         

@@ -4,11 +4,19 @@ import { StyleSettings } from '../App';
 interface ToolbarProps {
   settings: StyleSettings;
   onSettingsChange: (newSettings: StyleSettings) => void;
+  onSave: (name: string) => void;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave }) => {
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleSave = () => {
+    const name = prompt('Çalışma sayfasına bir ad verin:', 'Kaydedilmiş Etkinlik');
+    if (name) {
+      onSave(name);
+    }
   };
 
   return (
@@ -54,9 +62,14 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange }) => {
             </div>
         </div>
       
-        <button onClick={handlePrint} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-            <i className="fa-solid fa-print mr-2"></i>Yazdır
-        </button>
+        <div className="flex items-center gap-2">
+            <button onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                <i className="fa-solid fa-save mr-2"></i>Kaydet
+            </button>
+            <button onClick={handlePrint} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                <i className="fa-solid fa-print mr-2"></i>Yazdır
+            </button>
+        </div>
     </div>
   );
 };

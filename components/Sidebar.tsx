@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ActivityType, WorksheetData } from '../types';
+import { Activity, ActivityType, WorksheetData, SavedWorksheet } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import * as geminiService from '../services/geminiService';
 
@@ -10,9 +10,12 @@ interface SidebarProps {
   setIsLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   isLoading: boolean;
+  savedWorksheets: SavedWorksheet[];
+  onLoadSaved: (worksheet: SavedWorksheet) => void;
+  onDeleteSaved: (id: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, setWorksheetData, setIsLoading, setError, isLoading }) => {
+const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, setWorksheetData, setIsLoading, setError, isLoading, savedWorksheets, onLoadSaved, onDeleteSaved }) => {
   const [openCategory, setOpenCategory] = useState<string | null>(ACTIVITY_CATEGORIES[0]?.id || null);
   
   // Settings State
@@ -367,6 +370,34 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
       ) : (
         // Category List View
         <div className="p-4">
+             <div className="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
+                <h2 className="text-xl font-bold mb-2 px-2">Kaydedilen Etkinlikler</h2>
+                {savedWorksheets.length === 0 ? (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 px-3">Henüz kaydedilmiş bir etkinlik yok.</p>
+                ) : (
+                    <div className="space-y-1 max-h-48 overflow-y-auto pr-2">
+                    {savedWorksheets.map(ws => (
+                        <div key={ws.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-teal-50 dark:hover:bg-gray-700/80">
+                            <button onClick={() => onLoadSaved(ws)} className="flex-1 text-left flex items-center min-w-0" title={`'${ws.name}' etkinliğini yükle`}>
+                                <i className={`${ws.icon} w-6 text-center text-teal-500 dark:text-teal-400 mr-3`}></i>
+                                <div className="flex-1 truncate">
+                                <span className="text-sm font-medium block truncate">{ws.name}</span>
+                                <span className="block text-xs text-gray-400">{new Date(ws.createdAt).toLocaleDateString()}</span>
+                                </div>
+                            </button>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); onDeleteSaved(ws.id); }} 
+                                className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-2 px-2"
+                                aria-label={`'${ws.name}' etkinliğini sil`}
+                                title={`'${ws.name}' etkinliğini sil`}
+                            >
+                                <i className="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    ))}
+                    </div>
+                )}
+            </div>
              <h2 className="text-xl font-bold mb-4 px-2">Etkinlik Kategorileri</h2>
              <div className="space-y-2">
                 {ACTIVITY_CATEGORIES.map(category => (
