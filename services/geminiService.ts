@@ -24,10 +24,6 @@ import {
     WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData
 } from '../types';
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set");
-}
-
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const generateWithSchema = async (prompt: string, schema: any) => {
@@ -2477,8 +2473,9 @@ export const generateMultiplicationWheelFromAI = async(): Promise<Multiplication
     return generateWithSchema(prompt, schema) as Promise<MultiplicationWheelData>;
 }
 
+// FIX: The function 'generateTargetNumberFromAI' was incomplete. It has been completed with a proper prompt, schema, and return statement.
 export const generateTargetNumberFromAI = async (mode: 'numbers' | 'currency'): Promise<TargetNumberData> => {
-    const prompt = `Create a 'Target Number' puzzle. Generate 3 puzzles. For each puzzle, provide a target number and 4-5 given numbers. The user must use arithmetic operations to reach the target. If mode is 'currency', use numbers that represent common Turkish Lira coin/bill values. Format as JSON.`;
+    const prompt = `Create a 'Target Number' puzzle. Generate 3 puzzles. For each puzzle, provide a target number and 4-5 given numbers. If mode is 'currency', use currency values. The user should use the given numbers and basic arithmetic operations (+, -, *, /) to reach the target. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2501,31 +2498,9 @@ export const generateTargetNumberFromAI = async (mode: 'numbers' | 'currency'): 
     return generateWithSchema(prompt, schema) as Promise<TargetNumberData>;
 };
 
-export const generateOperationSquareMultDivFromAI = async (): Promise<OperationSquareMultDivData> => {
-    const prompt = `Create a 3x3 operation square puzzle using multiplication and division. Fill a grid with numbers and operation signs ('x', '÷', '=') such that the rows and columns form correct equations. Some numbers should be missing (represented by null). Generate 2 such puzzles. Format as JSON.`;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            puzzles: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
-                    },
-                    required: ["grid"]
-                }
-            }
-        },
-        required: ["title", "prompt", "puzzles"]
-    };
-    return generateWithSchema(prompt, schema) as Promise<OperationSquareMultDivData>;
-};
-
-export const generateFutoshikiFromAI = async (): Promise<FutoshikiData> => {
-    const prompt = `Create a 4x4 Futoshiki puzzle. Pre-fill some cells with numbers. Provide 3-4 inequality constraints ('>' or '<') between adjacent cells. The user must fill the grid from 1-4. Generate 2 such puzzles. Format as JSON.`;
+// FIX: Added missing function 'generateFutoshikiFromAI'
+export const generateFutoshikiFromAI = async(): Promise<FutoshikiData> => {
+    const prompt = `Create a Futoshiki puzzle. Generate 2 puzzles of size 4x4. Provide the grid with some pre-filled numbers (null for empty cells) and a set of inequality constraints between adjacent cells. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2558,10 +2533,11 @@ export const generateFutoshikiFromAI = async (): Promise<FutoshikiData> => {
         required: ["title", "prompt", "puzzles"]
     };
     return generateWithSchema(prompt, schema) as Promise<FutoshikiData>;
-};
+}
 
-export const generateShapeSudokuFromAI = async (): Promise<ShapeSudokuData> => {
-    const prompt = `Create a 4x4 Shape Sudoku puzzle. Use 4 different shapes from this list: ${SHAPE_TYPES.join(', ')}. Pre-fill some cells in the grid with shapes. Provide the list of shapes to use. The user must complete the Sudoku. Generate 2 such puzzles. Format as JSON.`;
+// FIX: Added missing function 'generateOperationSquareMultDivFromAI'
+export const generateOperationSquareMultDivFromAI = async(): Promise<OperationSquareMultDivData> => {
+    const prompt = `Create a 3x3 operation square puzzle using multiplication and division. Fill a grid with numbers and signs ('×', '÷', '=') to form correct equations. Some numbers should be missing (null). Generate 2 puzzles. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2572,7 +2548,31 @@ export const generateShapeSudokuFromAI = async (): Promise<ShapeSudokuData> => {
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
+                    },
+                    required: ["grid"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareMultDivData>;
+}
+
+// FIX: Added missing function 'generateShapeSudokuFromAI'
+export const generateShapeSudokuFromAI = async(): Promise<ShapeSudokuData> => {
+    const prompt = `Create a 6x6 Shape Sudoku puzzle. Provide a grid with some pre-filled shapes (null for empty). Also, provide the list of 6 shapes to be used. The user must fill the grid following Sudoku rules. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } } },
                         shapesToUse: {
                             type: Type.ARRAY,
                             items: {
@@ -2592,10 +2592,11 @@ export const generateShapeSudokuFromAI = async (): Promise<ShapeSudokuData> => {
         required: ["title", "prompt", "puzzles"]
     };
     return generateWithSchema(prompt, schema) as Promise<ShapeSudokuData>;
-};
+}
 
-export const generateWeightConnectFromAI = async (): Promise<WeightConnectData> => {
-    const prompt = `Create a 'Weight Connect' activity. On an 8x8 grid, place 5 pairs of equal weights (e.g., '1000 g' and '1 kg'). Provide the label, a pairId, and x, y coordinates for each point. The user connects the equal weights. Format as JSON.`;
+// FIX: Added missing function 'generateWeightConnectFromAI'
+export const generateWeightConnectFromAI = async(): Promise<WeightConnectData> => {
+    const prompt = `Create a weight connection puzzle. On a 10x10 grid, place 5 pairs of equivalent weights (e.g., '1 kg' and '1000 g'). Provide the label, pairId, and x, y coordinates for each point. The user connects the matching pairs. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2619,10 +2620,11 @@ export const generateWeightConnectFromAI = async (): Promise<WeightConnectData> 
         required: ["title", "prompt", "gridDim", "points"]
     };
     return generateWithSchema(prompt, schema) as Promise<WeightConnectData>;
-};
+}
 
-export const generateResfebeFromAI = async (): Promise<ResfebeData> => {
-    const prompt = `Create a Resfebe puzzle. Generate 4 puzzles. A Resfebe is a word puzzle that uses pictures and letters. For each puzzle, provide a list of clues (which can be text or an image placeholder) and the answer word. For image clues, provide a DALL-E 3 style prompt for a simple icon. You must not generate images; return an empty string for 'imageBase64'. Format as JSON.`;
+// FIX: Added missing function 'generateResfebeFromAI'
+export const generateResfebeFromAI = async(): Promise<ResfebeData> => {
+    const prompt = `Create a Resfebe puzzle. Generate 4 puzzles. Each puzzle consists of clues (text or image placeholders) that cryptically represent a word. Provide the clues and the final answer. For image clues, provide a DALL-E prompt and an empty 'imageBase64' string. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2654,10 +2656,11 @@ export const generateResfebeFromAI = async (): Promise<ResfebeData> => {
         required: ["title", "prompt", "puzzles"]
     };
     return generateWithSchema(prompt, schema) as Promise<ResfebeData>;
-};
+}
 
-export const generateFutoshikiLengthFromAI = async (): Promise<FutoshikiLengthData> => {
-    const prompt = `Create a 4x4 Futoshiki puzzle using length units. The units to place are 'mm', 'cm', 'm', 'km'. Pre-fill some cells. Provide 3-4 inequality constraints ('>' or '<') between adjacent cells. The user must fill the grid. Generate 1 puzzle. Format as JSON.`;
+// FIX: Added missing function 'generateFutoshikiLengthFromAI'
+export const generateFutoshikiLengthFromAI = async(): Promise<FutoshikiLengthData> => {
+    const prompt = `Create a Futoshiki puzzle with length units (e.g., '1m', '50cm'). Generate 1 puzzle of size 4x4. Provide the grid with some pre-filled units and inequality constraints. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2690,10 +2693,11 @@ export const generateFutoshikiLengthFromAI = async (): Promise<FutoshikiLengthDa
         required: ["title", "prompt", "puzzles"]
     };
     return generateWithSchema(prompt, schema) as Promise<FutoshikiLengthData>;
-};
+}
 
-export const generateMatchstickSymmetryFromAI = async (): Promise<MatchstickSymmetryData> => {
-    const prompt = `Create a matchstick symmetry puzzle. Generate 2 puzzles. For each, create a simple shape using 5-7 matchsticks on one side of a symmetry line. Provide the coordinates (x1, y1, x2, y2) for each line segment representing a matchstick. The user will draw the reflection. Format as JSON.`;
+// FIX: Added missing function 'generateMatchstickSymmetryFromAI'
+export const generateMatchstickSymmetryFromAI = async(): Promise<MatchstickSymmetryData> => {
+    const prompt = `Create a matchstick symmetry puzzle. Generate 3 puzzles. Each puzzle is a number (e.g., 3) made of matchsticks (represented by lines with x1,y1,x2,y2 coordinates). The user must draw the symmetrical reflection. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2724,10 +2728,11 @@ export const generateMatchstickSymmetryFromAI = async (): Promise<MatchstickSymm
         required: ["title", "prompt", "puzzles"]
     };
     return generateWithSchema(prompt, schema) as Promise<MatchstickSymmetryData>;
-};
+}
 
-export const generateWordWebFromAI = async (): Promise<WordWebData> => {
-    const prompt = `Create a 'Word Web' puzzle. Provide a list of 8 related Turkish words. Create a crossword-style grid (10x10) and place 7 of them. The letters in the intersecting cells should form a final key word. Use 'null' for black cells. Provide a prompt for the key word. Format as JSON.`;
+// FIX: Added missing function 'generateWordWebFromAI'
+export const generateWordWebFromAI = async(): Promise<WordWebData> => {
+    const prompt = `Create a Word Web puzzle. Provide a list of 8 related Turkish words to find. Provide a 12x12 grid with letters, where the words are interconnected like a crossword. One central word is the key. Use null for black cells. Provide a prompt for the key word. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2740,30 +2745,26 @@ export const generateWordWebFromAI = async (): Promise<WordWebData> => {
         required: ["title", "prompt", "wordsToFind", "grid", "keyWordPrompt"]
     };
     return generateWithSchema(prompt, schema) as Promise<WordWebData>;
-};
+}
 
-export const generateStarHuntFromAI = async (): Promise<StarHuntData> => {
-    const prompt = `Create a 'Star Hunt' puzzle based on geometric solids for kids. Generate a 5x5 grid. Place different solids ('cube', 'sphere', 'pyramid', 'cone') and 'star' symbols in some cells. The rule is: the number shown on a solid in a cell indicates how many stars are in that solid's row and column combined. One cell must contain a 'question' mark instead of a solid. The user must deduce which solid belongs in the question mark cell based on the star counts. Format as JSON.`;
+// FIX: Added missing function 'generateStarHuntFromAI'
+export const generateStarHuntFromAI = async(): Promise<StarHuntData> => {
+    const prompt = `Create a Star Hunt puzzle with geometric shapes. Generate a 6x6 grid. Each cell can contain a shape, a star, a question mark, or be empty (null). The numbers next to rows/columns indicate how many stars are in that row/column. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
-            grid: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.ARRAY,
-                    items: { type: Type.STRING }
-                }
-            }
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
         },
         required: ["title", "prompt", "grid"]
     };
     return generateWithSchema(prompt, schema) as Promise<StarHuntData>;
-};
+}
 
-export const generateLengthConnectFromAI = async (): Promise<LengthConnectData> => {
-    const prompt = `Create an 'ABC Connect (Length)' activity. On a 10x10 grid area (1000x1000 logical units), place 5 pairs of equal length units (e.g., '500 cm' and '5 m'). For each unit, provide a label, a unique pairId for matching, and random x, y coordinates between 50 and 950. The user connects the equal lengths. Format as JSON.`;
+// FIX: Added missing function 'generateLengthConnectFromAI'
+export const generateLengthConnectFromAI = async(): Promise<LengthConnectData> => {
+    const prompt = `Create a length connection puzzle. On a 10x10 grid, place 5 pairs of equivalent length units (e.g., '1 m' and '100 cm'). Provide the label, pairId, and x, y coordinates for each point. The user connects matching pairs. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2787,10 +2788,11 @@ export const generateLengthConnectFromAI = async (): Promise<LengthConnectData> 
         required: ["title", "prompt", "gridDim", "points"]
     };
     return generateWithSchema(prompt, schema) as Promise<LengthConnectData>;
-};
+}
 
-export const generateVisualNumberPatternFromAI = async (): Promise<VisualNumberPatternData> => {
-    const prompt = `Create a 'Visual Number Pattern' puzzle. Generate 2 puzzles. Each puzzle should have a sequence of 5 items. Each item has a number, a color, and a size multiplier. The numbers should follow a simple arithmetic rule. One number in the sequence should be 0 or -1, to be replaced with a '?'. The size and color should vary to create a visual pattern, but the core logic is in the numbers. Provide the rule and the correct answer for the '?'. Format as JSON.`;
+// FIX: Added missing function 'generateVisualNumberPatternFromAI'
+export const generateVisualNumberPatternFromAI = async(): Promise<VisualNumberPatternData> => {
+    const prompt = `Create a visual number pattern puzzle. Generate 2 puzzles. Each puzzle is a sequence of 4-5 items, where each item has a number, color, and size. There is a logical rule in the sequence. Provide the rule and the answer for the missing item. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2806,7 +2808,7 @@ export const generateVisualNumberPatternFromAI = async (): Promise<VisualNumberP
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    number: { type: Type.INTEGER },
+                                    number: { type: Type.NUMBER },
                                     color: { type: Type.STRING },
                                     size: { type: Type.NUMBER }
                                 },
@@ -2814,7 +2816,7 @@ export const generateVisualNumberPatternFromAI = async (): Promise<VisualNumberP
                             }
                         },
                         rule: { type: Type.STRING },
-                        answer: { type: Type.INTEGER }
+                        answer: { type: Type.NUMBER }
                     },
                     required: ["items", "rule", "answer"]
                 }
@@ -2823,10 +2825,11 @@ export const generateVisualNumberPatternFromAI = async (): Promise<VisualNumberP
         required: ["title", "prompt", "puzzles"]
     };
     return generateWithSchema(prompt, schema) as Promise<VisualNumberPatternData>;
-};
+}
 
-export const generateMissingPartsFromAI = async (): Promise<MissingPartsData> => {
-    const prompt = `Create a 'Missing Parts' word puzzle. Generate a list of 12 two-syllable Turkish words. For each word, create two "parts" by splitting the word into its syllables. Then, create a "leftParts" list containing the first syllables and a "rightParts" list containing the second syllables. These two lists should have their items shuffled so they don't correspond. Also provide the full list of given word parts (all 24 syllables) in a shuffled list. Format as JSON.`;
+// FIX: Added missing function 'generateMissingPartsFromAI'
+export const generateMissingPartsFromAI = async(): Promise<MissingPartsData> => {
+    const prompt = `Create a "Missing Parts" word puzzle. Provide two columns (left and right) of word parts. Also provide a list of complete words, showing which parts they are made of. The user matches the parts from the columns to form words. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2839,10 +2842,11 @@ export const generateMissingPartsFromAI = async (): Promise<MissingPartsData> =>
         required: ["title", "prompt", "leftParts", "rightParts", "givenParts"]
     };
     return generateWithSchema(prompt, schema) as Promise<MissingPartsData>;
-};
+}
 
-export const generateProfessionConnectFromAI = async (): Promise<ProfessionConnectData> => {
-    const prompt = `Create a 'Profession Connect' activity. Generate 6 pairs of points to be placed on a 1000x1000 logical grid. Each pair represents a profession. One point in the pair is the name of the profession (e.g., "Aşçı"). The other point is a simple image description of that profession (e.g., "Mutfakta yemek yapan bir kişi"). Assign random x,y coordinates (between 50-950) to each of the 12 points. For image points, the 'label' should be an empty string. For text points, the 'imageDescription' should be empty. Return an empty string for all 'imageBase64' fields. Format as JSON.`;
+// FIX: Added missing function 'generateProfessionConnectFromAI'
+export const generateProfessionConnectFromAI = async(): Promise<ProfessionConnectData> => {
+    const prompt = `Create a profession connection puzzle. On a 10x10 grid, place 5 professions and 5 related images/tools. Provide a label (profession or tool), an image description, x, y coordinates for each point. For images, provide a DALL-E prompt and an empty 'imageBase64' string. The user connects the pairs. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -2867,256 +2871,264 @@ export const generateProfessionConnectFromAI = async (): Promise<ProfessionConne
         required: ["title", "prompt", "gridDim", "points"]
     };
     return generateWithSchema(prompt, schema) as Promise<ProfessionConnectData>;
-};
+}
 
-
-// New functions for activities from images
-export const generateVisualOddOneOutThemedFromAI = async (topic: string): Promise<VisualOddOneOutThemedData> => {
-  const prompt = `Generate a 'Themed Visual Odd One Out' activity about professions. Create 4 rows. Each row is about one profession (e.g., 'Doktor', 'Öğretmen'). For each profession, provide 5 simple image descriptions for a DALL-E style prompt: 4 related to the profession and 1 unrelated. Specify the index of the unrelated (odd one out) description. The theme should be '${topic}'. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      rows: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            theme: { type: Type.STRING },
-            imageDescriptions: { type: Type.ARRAY, items: { type: Type.STRING } },
-            oddOneOutIndex: { type: Type.INTEGER },
-          },
-          required: ["theme", "imageDescriptions", "oddOneOutIndex"],
-        },
-      },
-    },
-    required: ["title", "prompt", "rows"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutThemedData>;
-};
-
-export const generateLogicGridPuzzleFromAI = async (): Promise<LogicGridPuzzleData> => {
-  const prompt = `Generate a logic grid puzzle for kids. The puzzle is about 4 students (Ahmet, Eda, Ali, Eylül) and 4 courses (painting, basketball, chess, guitar). Provide 4 clues to solve the puzzle, like "Ahmet goes to a course that uses paints and brushes." or "Ali did not go to a course related to music.". The goal is to match each student to their course. Provide the list of people and a list of categories with items (e.g., category 'Kurslar', items 'Resim', 'Basketbol', etc.). For each course, provide a simple image description. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      clues: { type: Type.ARRAY, items: { type: Type.STRING } },
-      people: { type: Type.ARRAY, items: { type: Type.STRING } },
-      categories: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
+// FIX: Added missing function 'generateVisualOddOneOutThemedFromAI'
+export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise<VisualOddOneOutThemedData> => {
+    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 3 rows. Each row has a theme (e.g., 'Doctor') and 5 image descriptions. Four descriptions relate to the theme, one does not. Identify the index of the odd one out. Do not generate images. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
             title: { type: Type.STRING },
-            items: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  name: { type: Type.STRING },
-                  imageDescription: { type: Type.STRING },
-                },
-                required: ["name", "imageDescription"],
-              },
+            prompt: { type: Type.STRING },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        theme: { type: Type.STRING },
+                        imageDescriptions: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        oddOneOutIndex: { type: Type.INTEGER }
+                    },
+                    required: ["theme", "imageDescriptions", "oddOneOutIndex"]
+                }
+            }
+        },
+        required: ["title", "prompt", "rows"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutThemedData>;
+}
+
+// FIX: Added missing function 'generateLogicGridPuzzleFromAI'
+export const generateLogicGridPuzzleFromAI = async(): Promise<LogicGridPuzzleData> => {
+    const prompt = `Create a logic grid puzzle. Define 3 people and 2 categories (e.g., 'Profession', 'City'). Provide a list of clues to solve the puzzle. For category items that are visual, provide an image description. Do not generate images. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            clues: { type: Type.ARRAY, items: { type: Type.STRING } },
+            people: { type: Type.ARRAY, items: { type: Type.STRING } },
+            categories: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        title: { type: Type.STRING },
+                        items: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    name: { type: Type.STRING },
+                                    imageDescription: { type: Type.STRING }
+                                },
+                                required: ["name", "imageDescription"]
+                            }
+                        }
+                    },
+                    required: ["title", "items"]
+                }
+            }
+        },
+        required: ["title", "prompt", "clues", "people", "categories"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<LogicGridPuzzleData>;
+}
+
+// FIX: Added missing function 'generateImageAnagramSortFromAI'
+export const generateImageAnagramSortFromAI = async(): Promise<ImageAnagramSortData> => {
+    const prompt = `Create an image anagram sorting puzzle. Generate 6 cards. Each card has an image description, a scrambled word, and the correct word. The user has to unscramble the words and sort the cards alphabetically. Do not generate images. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            cards: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        imageDescription: { type: Type.STRING },
+                        scrambledWord: { type: Type.STRING },
+                        correctWord: { type: Type.STRING }
+                    },
+                    required: ["imageDescription", "scrambledWord", "correctWord"]
+                }
+            }
+        },
+        required: ["title", "prompt", "cards"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ImageAnagramSortData>;
+}
+
+// FIX: Added missing function 'generateAnagramImageMatchFromAI'
+export const generateAnagramImageMatchFromAI = async(): Promise<AnagramImageMatchData> => {
+    const prompt = `Create an anagram-image matching puzzle. Provide a word bank of 6 correct words. Generate 6 puzzles. Each puzzle has an image description, a partially filled answer (like hangman), and the correct word (which is in the word bank). Do not generate images. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            wordBank: { type: Type.ARRAY, items: { type: Type.STRING } },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        imageDescription: { type: Type.STRING },
+                        partialAnswer: { type: Type.STRING },
+                        correctWord: { type: Type.STRING }
+                    },
+                    required: ["imageDescription", "partialAnswer", "correctWord"]
+                }
+            }
+        },
+        required: ["title", "prompt", "wordBank", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<AnagramImageMatchData>;
+}
+
+// FIX: Added missing function 'generateSyllableWordSearchFromAI'
+export const generateSyllableWordSearchFromAI = async(): Promise<SyllableWordSearchData> => {
+    const prompt = `Create a syllable word search. Provide a list of syllables. The user combines them to form words, then finds those words in a word search grid. Provide the syllables, the word combinations, the final words to find, and the grid. Also include a prompt for a hidden password in the grid. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            syllablesToCombine: { type: Type.ARRAY, items: { type: Type.STRING } },
+            wordsToCreate: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        syllable1: { type: Type.STRING },
+                        syllable2: { type: Type.STRING },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ["syllable1", "syllable2", "answer"]
+                }
             },
-          },
-          required: ["title", "items"],
+            wordsToFindInSearch: { type: Type.ARRAY, items: { type: Type.STRING } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            passwordPrompt: { type: Type.STRING }
         },
-      },
-    },
-    required: ["title", "prompt", "clues", "people", "categories"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<LogicGridPuzzleData>;
-};
+        required: ["title", "prompt", "syllablesToCombine", "wordsToCreate", "wordsToFindInSearch", "grid", "passwordPrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<SyllableWordSearchData>;
+}
 
-export const generateImageAnagramSortFromAI = async (): Promise<ImageAnagramSortData> => {
-  const prompt = `Generate an 'Image Anagram Sort' activity. Create 8 cards. Each card represents a profession. For each card, provide a simple image description (e.g., 'A chef cooking in a kitchen'), a scrambled version of the profession name (e.g., 'AŞÇI' -> 'IÇAŞ'), and the correct profession name. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      cards: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            imageDescription: { type: Type.STRING },
-            scrambledWord: { type: Type.STRING },
-            correctWord: { type: Type.STRING },
-          },
-          required: ["imageDescription", "scrambledWord", "correctWord"],
-        },
-      },
-    },
-    required: ["title", "prompt", "cards"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<ImageAnagramSortData>;
-};
-
-export const generateAnagramImageMatchFromAI = async (): Promise<AnagramImageMatchData> => {
-  const prompt = `Generate an 'Anagram Image Match' puzzle. Create a word bank of 8 scrambled Turkish words. Then, create 8 puzzles. Each puzzle consists of a simple image description and a 'partial answer' which is the correct word with some letters revealed as hints (e.g., '_Ü__Ü_' for 'GÜNLÜK'). The correct word should be one of the unscrambled words from the word bank. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      wordBank: { type: Type.ARRAY, items: { type: Type.STRING } },
-      puzzles: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            imageDescription: { type: Type.STRING },
-            partialAnswer: { type: Type.STRING },
-            correctWord: { type: Type.STRING },
-          },
-          required: ["imageDescription", "partialAnswer", "correctWord"],
-        },
-      },
-    },
-    required: ["title", "prompt", "wordBank", "puzzles"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<AnagramImageMatchData>;
-};
-
-export const generateSyllableWordSearchFromAI = async (): Promise<SyllableWordSearchData> => {
-  const prompt = `Generate a 'Syllable Word Search' activity. First, provide a list of 16 Turkish syllables. Then, provide 6 pairs of these syllables that can be combined to form 6 meaningful words, along with the correct answers. Next, create a list of 10 related words to find in a word search. Then, generate a 12x12 word search grid containing these 10 words. Finally, provide a prompt for a hidden password made from the unused letters in the word search. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      syllablesToCombine: { type: Type.ARRAY, items: { type: Type.STRING } },
-      wordsToCreate: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            syllable1: { type: Type.STRING },
-            syllable2: { type: Type.STRING },
-            answer: { type: Type.STRING },
-          },
-          required: ["syllable1", "syllable2", "answer"],
-        },
-      },
-      wordsToFindInSearch: { type: Type.ARRAY, items: { type: Type.STRING } },
-      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-      passwordPrompt: { type: Type.STRING },
-    },
-    required: ["title", "prompt", "syllablesToCombine", "wordsToCreate", "wordsToFindInSearch", "grid", "passwordPrompt"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<SyllableWordSearchData>;
-};
-
-export const generateWordSearchWithPasswordFromAI = async (): Promise<WordSearchWithPasswordData> => {
-  const prompt = `Generate a 'Word Search with Password' activity. Create a list of 12-15 related Turkish words. Place them in a 15x15 grid. Some cells in the grid, which may or may not be part of the hidden words, should be marked as password cells. These password cells, when read in order, will reveal a hidden word. Provide the grid, the list of words, and the coordinates of the password cells. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-      words: { type: Type.ARRAY, items: { type: Type.STRING } },
-      passwordCells: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            row: { type: Type.INTEGER },
-            col: { type: Type.INTEGER },
-          },
-          required: ["row", "col"],
-        },
-      },
-    },
-    required: ["title", "prompt", "grid", "words", "passwordCells"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<WordSearchWithPasswordData>;
-};
-
-export const generateWordWebWithPasswordFromAI = async (): Promise<WordWebWithPasswordData> => {
-  const prompt = `Generate a 'Word Web with Password' activity. It's a type of crossword. Provide a list of 12 thematically related Turkish words. Create a 12x12 grid and place these words in it like a crossword puzzle. Use 'null' for black cells. One column in the grid should be highlighted as the password column. The letters in this column will form a secret word. Provide the grid, the word list, and the 0-based index of the password column. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      words: { type: Type.ARRAY, items: { type: Type.STRING } },
-      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-      passwordColumnIndex: { type: Type.INTEGER },
-    },
-    required: ["title", "prompt", "words", "grid", "passwordColumnIndex"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<WordWebWithPasswordData>;
-};
-
-export const generateLetterGridWordFindFromAI = async (): Promise<LetterGridWordFindData> => {
-  const prompt = `Generate a 'Letter Grid Word Find' activity. Create a 10x8 grid of letters. This is NOT a standard word search; it's just a block of letters. Provide a list of 8 hidden words that can be found within this grid (they can be formed by adjacent letters, but not in straight lines). Finally, provide a prompt asking the user to write a short text using the found words. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      words: { type: Type.ARRAY, items: { type: Type.STRING } },
-      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-      writingPrompt: { type: Type.STRING },
-    },
-    required: ["title", "prompt", "words", "grid", "writingPrompt"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<LetterGridWordFindData>;
-};
-
-export const generateWordPlacementPuzzleFromAI = async (): Promise<WordPlacementPuzzleData> => {
-  const prompt = `Generate a 'Word Placement' puzzle. Create an empty crossword-style grid (approx 12x12). Use 'null' for black/unusable cells and an empty string "" for fillable cells. Provide a list of words, grouped by their length (e.g., 3-letter words, 4-letter words, etc.). Also, provide a prompt about an unused word after filling the puzzle. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-      wordGroups: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            length: { type: Type.INTEGER },
+// FIX: Added missing function 'generateWordSearchWithPasswordFromAI'
+export const generateWordSearchWithPasswordFromAI = async(): Promise<WordSearchWithPasswordData> => {
+    const prompt = `Create a word search with a hidden password. Provide a 12x12 grid, a list of 10 words to find, and the coordinates of the cells that form the password when read in order. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             words: { type: Type.ARRAY, items: { type: Type.STRING } },
-          },
-          required: ["length", "words"],
+            passwordCells: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        row: { type: Type.INTEGER },
+                        col: { type: Type.INTEGER }
+                    },
+                    required: ["row", "col"]
+                }
+            }
         },
-      },
-      unusedWordPrompt: { type: Type.STRING },
-    },
-    required: ["title", "prompt", "grid", "wordGroups", "unusedWordPrompt"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<WordPlacementPuzzleData>;
-};
+        required: ["title", "prompt", "grid", "words", "passwordCells"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordSearchWithPasswordData>;
+}
 
-export const generatePositionalAnagramFromAI = async (): Promise<PositionalAnagramData> => {
-  const prompt = `Generate a 'Positional Anagram' puzzle. Create 10 puzzles. For each puzzle, provide a scrambled Turkish word and its correct form. The puzzle involves rearranging the letters to find the correct word. The UI will show numbered boxes. Format as JSON.`;
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      prompt: { type: Type.STRING },
-      puzzles: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            id: { type: Type.INTEGER },
-            scrambled: { type: Type.STRING },
-            answer: { type: Type.STRING },
-          },
-          required: ["id", "scrambled", "answer"],
+// FIX: Added missing function 'generateWordWebWithPasswordFromAI'
+export const generateWordWebWithPasswordFromAI = async(): Promise<WordWebWithPasswordData> => {
+    const prompt = `Create a Word Web puzzle with a password. This is similar to a crossword. Provide a list of 10 words and a 12x12 grid where they are placed. One column should be specially marked to reveal a password. Provide the password column index. Use null for black cells. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            words: { type: Type.ARRAY, items: { type: Type.STRING } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            passwordColumnIndex: { type: Type.INTEGER }
         },
-      },
-    },
-    required: ["title", "prompt", "puzzles"],
-  };
-  return generateWithSchema(prompt, schema) as Promise<PositionalAnagramData>;
-};
+        required: ["title", "prompt", "words", "grid", "passwordColumnIndex"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordWebWithPasswordData>;
+}
+
+// FIX: Added missing function 'generateLetterGridWordFindFromAI'
+export const generateLetterGridWordFindFromAI = async(): Promise<LetterGridWordFindData> => {
+    const prompt = `Create a letter grid word find activity. Provide a list of 8 hidden words and a 12x12 grid containing them. Also, provide a writing prompt for the user to use the words they found. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            words: { type: Type.ARRAY, items: { type: Type.STRING } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            writingPrompt: { type: Type.STRING }
+        },
+        required: ["title", "prompt", "words", "grid", "writingPrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<LetterGridWordFindData>;
+}
+
+// FIX: Added missing function 'generateWordPlacementPuzzleFromAI'
+export const generateWordPlacementPuzzleFromAI = async(): Promise<WordPlacementPuzzleData> => {
+    const prompt = `Create a word placement puzzle. Provide an empty 10x10 crossword-style grid (null for black cells). Provide groups of words sorted by length (e.g., 3-letter words, 4-letter words). One word will be left over. Provide a prompt for what to do with the unused word. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            wordGroups: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        length: { type: Type.INTEGER },
+                        words: { type: Type.ARRAY, items: { type: Type.STRING } }
+                    },
+                    required: ["length", "words"]
+                }
+            },
+            unusedWordPrompt: { type: Type.STRING }
+        },
+        required: ["title", "prompt", "grid", "wordGroups", "unusedWordPrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordPlacementPuzzleData>;
+}
+
+// FIX: Added missing function 'generatePositionalAnagramFromAI'
+export const generatePositionalAnagramFromAI = async(): Promise<PositionalAnagramData> => {
+    const prompt = `Create a positional anagram puzzle. Generate 8 puzzles. Each puzzle has a scrambled word where letters in numbered positions need to be moved to solve it. Provide the scrambled word and the correct answer for each. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.INTEGER },
+                        scrambled: { type: Type.STRING },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ["id", "scrambled", "answer"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<PositionalAnagramData>;
+}

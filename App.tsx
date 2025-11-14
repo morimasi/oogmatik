@@ -5,7 +5,6 @@ import ContentArea from './components/ContentArea';
 import { ACTIVITIES } from './constants';
 
 export interface StyleSettings {
-  fontFamily: string;
   fontSize: number;
   borderColor: string;
   borderWidth: number;
@@ -17,7 +16,6 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [styleSettings, setStyleSettings] = useState<StyleSettings>({
-    fontFamily: 'sans-serif',
     fontSize: 16,
     borderColor: '#e5e7eb', // gray-200
     borderWidth: 1,
@@ -70,7 +68,6 @@ const App: React.FC = () => {
 
   const handleWorksheetStyle = (): CSSProperties => {
     return {
-      fontFamily: styleSettings.fontFamily,
       fontSize: `${styleSettings.fontSize}px`,
       '--worksheet-border-color': styleSettings.borderColor,
       '--worksheet-border-width': `${styleSettings.borderWidth}px`,

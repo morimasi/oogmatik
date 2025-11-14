@@ -22,21 +22,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
   return (
     <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md flex items-center justify-between gap-4 print-hidden">
         <div className="flex items-center gap-4">
-             {/* Font Family */}
-            <div className="flex items-center gap-2">
-                <label htmlFor="fontFamily" className="text-sm font-medium hidden sm:inline">Yazı Tipi:</label>
-                <select 
-                    id="fontFamily" 
-                    value={settings.fontFamily} 
-                    onChange={(e) => onSettingsChange({...settings, fontFamily: e.target.value})}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                >
-                    <option value="sans-serif">Sans-serif</option>
-                    <option value="serif">Serif</option>
-                    <option value="monospace">Monospace</option>
-                </select>
-            </div>
-
             {/* Font Size */}
             <div className="flex items-center gap-2">
                 <label htmlFor="fontSize" className="text-sm font-medium hidden sm:inline">Boyut:</label>
