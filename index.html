@@ -6,7 +6,9 @@
     <title>AI Etkinlik Üretici</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.0/build/css/opendyslexic.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap" rel="stylesheet">
   <script type="importmap">
 {
   "imports": {
@@ -23,16 +25,29 @@
     theme: {
       extend: {
         fontFamily: {
-          sans: ['OpenDyslexic', 'sans-serif'],
-          serif: ['OpenDyslexic', 'serif'],
-          mono: ['OpenDyslexicMono', 'monospace']
+          sans: ['Nunito Sans', 'sans-serif'],
+        },
+        colors: {
+            zinc: {
+                50: '#fafafa',
+                100: '#f4f4f5',
+                200: '#e4e4e7',
+                300: '#d4d4d8',
+                400: '#a1a1aa',
+                500: '#71717a',
+                600: '#52525b',
+                700: '#3f3f46',
+                800: '#27272a',
+                900: '#18181b',
+                950: '#09090b',
+            }
         }
       }
     }
   }
 </script>
 </head>
-  <body class="bg-stone-50 dark:bg-slate-900 text-gray-800 dark:text-gray-200">
+  <body class="bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 antialiased">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

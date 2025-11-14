@@ -20,7 +20,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 p-2 rounded-lg shadow-md flex items-center justify-between gap-4 print-hidden">
+    <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-700/50 p-2 rounded-lg shadow-md flex items-center justify-between gap-4 print-hidden">
         <div className="flex items-center gap-4">
             {/* Font Size */}
             <div className="flex items-center gap-2">
@@ -30,7 +30,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
                     id="fontSize"
                     value={settings.fontSize}
                     onChange={(e) => onSettingsChange({...settings, fontSize: Number(e.target.value)})}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-20 p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-20 p-1.5 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
                 />
             </div>
 
@@ -42,17 +42,17 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
                     id="borderColor"
                     value={settings.borderColor}
                     onChange={(e) => onSettingsChange({...settings, borderColor: e.target.value})}
-                    className="p-0.5 h-7 w-7 block bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-600 cursor-pointer rounded-lg"
+                    className="p-0.5 h-7 w-7 block bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 cursor-pointer rounded-lg"
                 />
             </div>
         </div>
       
         <div className="flex items-center gap-2">
-            <button onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-                <i className="fa-solid fa-save mr-2"></i>Kaydet
+            <button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
+                <i className="fa-solid fa-save"></i><span className="hidden sm:inline">Kaydet</span>
             </button>
-            <button onClick={handlePrint} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-                <i className="fa-solid fa-print mr-2"></i>Yazdır
+            <button onClick={handlePrint} className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
+                <i className="fa-solid fa-print"></i><span className="hidden sm:inline">Yazdır</span>
             </button>
         </div>
     </div>

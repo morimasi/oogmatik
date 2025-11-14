@@ -210,7 +210,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
     ];
 
     if (noSettings.includes(currentActivity.id)) {
-        return <p className="text-sm text-gray-500 dark:text-gray-400 p-4 text-center">Bu etkinlik için özel ayar bulunmamaktadır.</p>
+        return <p className="text-sm text-zinc-500 dark:text-zinc-400 p-4 text-center">Bu etkinlik için özel ayar bulunmamaktadır.</p>
     }
 
     const showTopic = ![
@@ -251,58 +251,58 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
     return (
       <div className="p-4">
         {showTopic && <div className="mb-4">
-          <label htmlFor="topic" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Konu</label>
+          <label htmlFor="topic" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Konu</label>
           <input type="text" id="topic" value={topic} onChange={(e) => setTopic(e.target.value)}
-            className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Örn: Meyveler, Uzay"
           />
         </div>}
 
         {showGridSize && (
           <div className="mb-4">
-            <label htmlFor="gridSize" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tablo Boyutu: {gridSize}x{gridSize}</label>
-            <input type="range" id="gridSize" min="8" max="20" value={gridSize} onChange={(e) => setGridSize(Number(e.target.value))} className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" />
+            <label htmlFor="gridSize" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Tablo Boyutu: {gridSize}x{gridSize}</label>
+            <input type="range" id="gridSize" min="8" max="20" value={gridSize} onChange={(e) => setGridSize(Number(e.target.value))} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" />
           </div>
         )}
         
         {showItemCount && (
             <div className="mb-4">
-            <label htmlFor="itemCount" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{itemCountLabel}: {itemCount}</label>
-            <input type="range" id="itemCount" min="4" max="16" step="2" value={itemCount} onChange={(e) => setItemCount(Number(e.target.value))} className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer" />
+            <label htmlFor="itemCount" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">{itemCountLabel}: {itemCount}</label>
+            <input type="range" id="itemCount" min="4" max="16" step="2" value={itemCount} onChange={(e) => setItemCount(Number(e.target.value))} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" />
             </div>
         )}
 
         {showTargetLetters && (
             <div className="mb-4">
-                <label htmlFor="targetLetters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Hedef Harfler (virgülle ayırın)</label>
-                <input type="text" id="targetLetters" value={targetLetters} onChange={(e) => setTargetLetters(e.target.value)} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="a, b, c" />
+                <label htmlFor="targetLetters" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Hedef Harfler (virgülle ayırın)</label>
+                <input type="text" id="targetLetters" value={targetLetters} onChange={(e) => setTargetLetters(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="a, b, c" />
             </div>
         )}
 
         {showTargetPair && (
             <div className="mb-4">
-                <label htmlFor="targetPair" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Hedef İkili</label>
-                <input type="text" id="targetPair" value={targetPair} maxLength={2} onChange={(e) => setTargetPair(e.target.value)} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="tr" />
+                <label htmlFor="targetPair" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Hedef İkili</label>
+                <input type="text" id="targetPair" value={targetPair} maxLength={2} onChange={(e) => setTargetPair(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="tr" />
             </div>
         )}
         
         {showTargetChars && (
              <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label htmlFor="targetChar" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Hedef Karakter</label>
-                    <input type="text" id="targetChar" value={targetChar} maxLength={1} onChange={(e) => setTargetChar(e.target.value)} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 sm:text-sm" />
+                    <label htmlFor="targetChar" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Hedef Karakter</label>
+                    <input type="text" id="targetChar" value={targetChar} maxLength={1} onChange={(e) => setTargetChar(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 sm:text-sm" />
                 </div>
                 <div>
-                    <label htmlFor="distractorChar" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Çeldirici</label>
-                    <input type="text" id="distractorChar" value={distractorChar} maxLength={1} onChange={(e) => setDistractorChar(e.target.value)} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 sm:text-sm" />
+                    <label htmlFor="distractorChar" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Çeldirici</label>
+                    <input type="text" id="distractorChar" value={distractorChar} maxLength={1} onChange={(e) => setDistractorChar(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 sm:text-sm" />
                 </div>
             </div>
         )}
 
         {showDifficulty && (
             <div className="mb-4">
-                 <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Zorluk</label>
-                 <select id="difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value as 'Kolay'|'Orta'|'Zor')} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
+                 <label htmlFor="difficulty" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Zorluk</label>
+                 <select id="difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value as 'Kolay'|'Orta'|'Zor')} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
                     <option>Kolay</option>
                     <option>Orta</option>
                     <option>Zor</option>
@@ -316,7 +316,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
   const ActivityButton: React.FC<{ activity: Activity }> = ({ activity }) => (
     <button
         onClick={() => onSelectActivity(activity.id)}
-        className="w-full text-left p-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-slate-700 transition-colors flex items-center"
+        className="w-full text-left p-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-zinc-700/80 transition-colors flex items-center"
     >
         <i className={`${activity.icon} w-6 text-center text-indigo-500 dark:text-indigo-400 mr-3`}></i>
         <span className="flex-1 text-sm">{activity.title}</span>
@@ -324,11 +324,11 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
   );
 
   return (
-    <aside className="w-96 bg-white dark:bg-slate-800 shadow-lg flex flex-col print:hidden overflow-y-auto">
+    <aside className="w-96 bg-white dark:bg-zinc-800 shadow-lg flex flex-col print:hidden overflow-y-auto border-r border-zinc-200 dark:border-zinc-700/50">
       {currentActivity ? (
         // Settings View
         <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
                 <button onClick={() => onSelectActivity(null)} className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm mb-4">
                     <i className="fa-solid fa-arrow-left mr-2"></i>Tüm Etkinlikler
                 </button>
@@ -338,7 +338,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                     </div>
                     <div>
                         <h2 className="text-lg font-bold">{currentActivity.title}</h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-xs">{currentActivity.description}</p>
+                        <p className="text-zinc-500 dark:text-zinc-400 text-xs">{currentActivity.description}</p>
                     </div>
                 </div>
             </div>
@@ -347,11 +347,11 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                 {renderSettings()}
             </div>
 
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
                  <button
                     onClick={handleGenerate}
                     disabled={isLoading}
-                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:bg-zinc-400 dark:disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center"
                     >
                     {isLoading ? (
                         <>
@@ -370,24 +370,24 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
       ) : (
         // Category List View
         <div className="p-4">
-             <div className="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
+             <div className="mb-6 border-b border-zinc-200 dark:border-zinc-700 pb-4">
                 <h2 className="text-xl font-bold mb-2 px-2">Kaydedilen Etkinlikler</h2>
                 {savedWorksheets.length === 0 ? (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 px-3">Henüz kaydedilmiş bir etkinlik yok.</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 px-3">Henüz kaydedilmiş bir etkinlik yok.</p>
                 ) : (
                     <div className="space-y-1 max-h-48 overflow-y-auto pr-2">
                     {savedWorksheets.map(ws => (
-                        <div key={ws.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-slate-700/80">
+                        <div key={ws.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-zinc-700/80">
                             <button onClick={() => onLoadSaved(ws)} className="flex-1 text-left flex items-center min-w-0" title={`'${ws.name}' etkinliğini yükle`}>
                                 <i className={`${ws.icon} w-6 text-center text-indigo-500 dark:text-indigo-400 mr-3`}></i>
                                 <div className="flex-1 truncate">
                                 <span className="text-sm font-medium block truncate">{ws.name}</span>
-                                <span className="block text-xs text-gray-400">{new Date(ws.createdAt).toLocaleDateString()}</span>
+                                <span className="block text-xs text-zinc-400">{new Date(ws.createdAt).toLocaleDateString()}</span>
                                 </div>
                             </button>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); onDeleteSaved(ws.id); }} 
-                                className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-2 px-2"
+                                className="text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-2 px-2"
                                 aria-label={`'${ws.name}' etkinliğini sil`}
                                 title={`'${ws.name}' etkinliğini sil`}
                             >
@@ -404,7 +404,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                     <div key={category.id}>
                         <button 
                             onClick={() => handleToggleCategory(category.id)}
-                            className="w-full flex justify-between items-center p-3 bg-stone-100 dark:bg-slate-700/50 hover:bg-stone-200 dark:hover:bg-slate-700 rounded-lg"
+                            className="w-full flex justify-between items-center p-3 bg-zinc-100 dark:bg-zinc-700/50 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg"
                         >
                             <div className="flex items-center">
                                 <i className={`${category.icon} mr-3 text-lg`}></i>
