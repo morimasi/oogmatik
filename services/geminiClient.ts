@@ -1,4 +1,4 @@
-
+// This function will now call our own backend proxy instead of Google's API directly.
 export const generateWithSchema = async (prompt: string, schema: any) => {
     try {
         const response = await fetch('/api/generate', {
@@ -10,14 +10,14 @@ export const generateWithSchema = async (prompt: string, schema: any) => {
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
+            const errorData = await response.json().catch(() => ({ error: 'Bilinmeyen API hatası' }));
+            throw new Error(`API hatası: ${response.status} - ${errorData.error}`);
         }
 
         const parsed = await response.json();
         return parsed;
     } catch (error) {
-        console.error("Error fetching from serverless function:", error);
-        throw new Error("Yapay zeka sunucusuna bağlanırken bir hata oluştu.");
+        console.error("İstemci tarafında API çağrısı sırasında hata:", error);
+        throw new Error("Yapay zeka sunucusuna bağlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
     }
 };
