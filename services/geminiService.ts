@@ -10,7 +10,18 @@ import {
     ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, PasswordFinderData,
     SyllableCompletionData, SynonymWordSearchData, WordConnectData, SpiralPuzzleData, CrosswordData,
     JumbledWordStoryData, HomonymSentenceData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData,
-    AntonymFlowerPuzzleData, ProverbWordChainData, ThematicOddOneOutData, SynonymAntonymGridData, PunctuationColoringData
+    AntonymFlowerPuzzleData, ProverbWordChainData, ThematicOddOneOutData, SynonymAntonymGridData, PunctuationColoringData,
+    PunctuationMazeData, AntonymResfebeData, ThematicWordSearchColorData, ThematicOddOneOutSentenceData, ProverbSentenceFinderData,
+    SynonymSearchAndStoryData, ColumnOddOneOutSentenceData, SynonymAntonymColoringData, PunctuationPhoneNumberData,
+    PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, FutoshikiData, NumberPyramidData,
+    NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData,
+    RomanNumeralMultiplicationData, ArithmeticConnectData, RomanArabicMatchConnectData, Sudoku6x6ShadedData, KendokuData,
+    DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData, OperationSquareFillInData,
+    MultiplicationWheelData, TargetNumberData, OperationSquareMultDivData, ShapeSudokuData, WeightConnectData,
+    ResfebeData, ResfebeClue, FutoshikiLengthData, MatchstickSymmetryData, WordWebData, StarHuntData,
+    LengthConnectData, VisualNumberPatternData, MissingPartsData, ProfessionConnectData, VisualOddOneOutThemedData,
+    LogicGridPuzzleData, ImageAnagramSortData, AnagramImageMatchData, SyllableWordSearchData, WordSearchWithPasswordData,
+    WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData
 } from '../types';
 
 if (!process.env.API_KEY) {
@@ -29,7 +40,11 @@ const generateWithSchema = async (prompt: string, schema: any) => {
                 responseSchema: schema,
             },
         });
-        const parsed = JSON.parse(response.text);
+        const jsonText = response.text;
+        if (!jsonText) {
+          throw new Error("AI returned an empty response.");
+        }
+        const parsed = JSON.parse(jsonText);
         return parsed;
     } catch (error) {
         console.error("Error generating content from AI:", error);
@@ -58,6 +73,7 @@ export const generateWordSearchFromAI = async (topic: string, gridSize: number, 
         items: { type: Type.STRING },
       },
     },
+    required: ['grid', 'words']
   };
   return generateWithSchema(prompt, schema) as Promise<WordSearchData>;
 };
@@ -75,6 +91,7 @@ export const generateAnagramsFromAI = async (topic: string, wordCount: number): 
         word: { type: Type.STRING, description: 'The original word.', },
         scrambled: { type: Type.STRING, description: 'The scrambled (anagram) version of the word.', },
       },
+      required: ['word', 'scrambled']
     },
   };
    return generateWithSchema(prompt, schema) as Promise<AnagramData[]>;
@@ -100,9 +117,11 @@ export const generateMathPuzzlesFromAI = async (topic: string, count: number): P
             question: { type: Type.STRING, description: 'The question to be solved, e.g., "What is the value of 🍌?"' },
             answer: { type: Type.STRING, description: 'The numerical answer.' },
           },
+          required: ['problem', 'question', 'answer']
         },
       },
     },
+    required: ['title', 'puzzles']
   };
   return generateWithSchema(prompt, schema) as Promise<MathPuzzleData>;
 };
@@ -129,9 +148,11 @@ export const generateStoryFromAI = async (topic: string): Promise<StoryData> => 
             options: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'An array of 3 possible answers.' },
             answerIndex: { type: Type.INTEGER, description: 'The 0-based index of the correct answer in the options array.' },
           },
+          required: ['question', 'options', 'answerIndex']
         },
       },
     },
+    required: ['title', 'story', 'questions']
   };
   return generateWithSchema(prompt, schema) as Promise<StoryData>;
 };
@@ -156,9 +177,11 @@ export const generateStroopTestFromAI = async (count: number): Promise<StroopTes
                         text: { type: Type.STRING, description: 'The color name in Turkish.' },
                         color: { type: Type.STRING, description: 'A CSS-compatible color name (e.g., "red").' },
                     },
+                    required: ['text', 'color']
                 },
             },
         },
+        required: ['title', 'items']
     };
     return generateWithSchema(prompt, schema) as Promise<StroopTestData>;
 };
@@ -186,9 +209,11 @@ export const generateNumberPatternsFromAI = async (count: number, difficulty: st
                         sequence: { type: Type.STRING, description: 'The number sequence with a question mark.' },
                         answer: { type: Type.STRING, description: 'The correct next number in the sequence.' },
                     },
+                     required: ['sequence', 'answer']
                 },
             },
         },
+        required: ['title', 'patterns']
     };
     return generateWithSchema(prompt, schema) as Promise<NumberPatternData>;
 };
@@ -211,9 +236,11 @@ export const generateSpellingChecksFromAI = async (topic: string, count: number)
                         correct: { type: Type.STRING, description: 'The correctly spelled word.' },
                         options: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'Array of 3 options, including the correct one.' },
                     },
+                    required: ['correct', 'options']
                 },
             },
         },
+        required: ['title', 'checks']
     };
     return generateWithSchema(prompt, schema) as Promise<SpellingCheckData>;
 };
@@ -223,7 +250,7 @@ export const generateLetterGridFromAI = async (gridSize: number, letters: string
     const prompt = `
     ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe küçük harflerle doldur.
-    Aranacak hedef harfler şunlar olacak: ${targetLetters.join(', ')}.
+    Aranacak hedef harfler şunlar: ${targetLetters.join(', ')}. Bu harfleri ızgaraya serpiştir.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -232,396 +259,413 @@ export const generateLetterGridFromAI = async (gridSize: number, letters: string
             title: { type: Type.STRING, description: 'The title for the letter grid test.' },
             grid: {
                 type: Type.ARRAY,
-                items: { type: Type.ARRAY, items: { type: Type.STRING } }
+                items: { type: Type.ARRAY, items: { type: Type.STRING } },
+                description: `A ${gridSize}x${gridSize} grid of random lowercase Turkish letters.`
             },
             targetLetters: {
                 type: Type.ARRAY,
-                items: { type: Type.STRING }
-            },
+                items: { type: Type.STRING },
+                description: 'The list of letters to be found in the grid.'
+            }
         },
+        required: ['title', 'grid', 'targetLetters']
     };
     return generateWithSchema(prompt, schema) as Promise<LetterGridTestData>;
 };
 
-export const generateNumberSearchFromAI = async (rangeStart: number, rangeEnd: number): Promise<NumberSearchData> => {
-    const numberCount = (rangeEnd - rangeStart + 1) * 3; // Fill with 3x the numbers needed
+export const generateNumberSearchFromAI = async (start: number, end: number): Promise<NumberSearchData> => {
     const prompt = `
-    ${rangeStart} ile ${rangeEnd} arasındaki tüm sayıları içeren, ancak toplamda ${numberCount} adet rastgele sayıdan oluşan bir liste oluştur. Sayılar 1 ile ${rangeEnd * 1.5} arasında olabilir.
-    Bu listeyi rastgele karıştır.
+    Bir sayı avı etkinliği oluştur. 
+    ${start} ile ${end} arasındaki sayıları içersin.
+    Bu sayıları ve dikkat dağıtıcı başka sayıları/karakterleri rastgele bir sırada içeren bir liste oluştur. Toplam 100 öğe olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title for the number search activity.' },
-            numbers: {
-                type: Type.ARRAY,
-                items: { type: Type.NUMBER },
-            },
+            title: { type: Type.STRING },
+            numbers: { type: Type.ARRAY, items: { type: Type.STRING } },
             range: {
                 type: Type.OBJECT,
                 properties: {
                     start: { type: Type.INTEGER },
-                    end: { type: Type.INTEGER },
-                }
-            },
+                    end: { type: Type.INTEGER }
+                },
+                required: ['start', 'end']
+            }
         },
+        required: ['title', 'numbers', 'range']
     };
     return generateWithSchema(prompt, schema) as Promise<NumberSearchData>;
 };
 
 export const generateWordMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<WordMemoryData> => {
     const prompt = `
-    Çocuklar için '${topic}' konusunda bir kelime hafıza oyunu oluştur.
-    İlk olarak, ezberlenmesi gereken ${memorizeCount} tane kelime seç.
-    İkinci olarak, bu ${memorizeCount} kelimeyi de içeren toplam ${testCount} kelimelik bir test listesi oluştur. Bu test listesindeki kelimelerin sırasını karıştır.
+    '${topic}' konusuyla ilgili bir kelime hafıza testi oluştur.
+    Ezberlenecek ${memorizeCount} kelime seç.
+    Test için ${testCount} kelimelik bir liste oluştur. Bu listenin içinde ezberlenecek kelimeler de bulunsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The main title of the activity.' },
-            memorizeTitle: { type: Type.STRING, description: 'Title for the memorization part, e.g., "Bu Kelimeleri Ezberle".' },
-            testTitle: { type: Type.STRING, description: 'Title for the test part, e.g., "Ezberlediğin Kelimeleri İşaretle".' },
+            title: { type: Type.STRING },
+            memorizeTitle: { type: Type.STRING },
+            testTitle: { type: Type.STRING },
             wordsToMemorize: { type: Type.ARRAY, items: { type: Type.STRING } },
-            testWords: { type: Type.ARRAY, items: { type: Type.STRING } },
+            testWords: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
+        required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords']
     };
     return generateWithSchema(prompt, schema) as Promise<WordMemoryData>;
 };
 
-export const generateStoryPromptFromAI = async (topic: string, keywordCount: number): Promise<StoryCreationPromptData> => {
+export const generateStoryCreationPromptFromAI = async (topic: string, keywordCount: number): Promise<StoryCreationPromptData> => {
     const prompt = `
-    Çocuklar için '${topic}' konusunda bir hikaye yazma etkinliği oluştur.
-    Hikayede kullanılması gereken ${keywordCount} tane anahtar kelime belirle.
-    Kısa ve teşvik edici bir başlık ve bir etkinlik açıklaması (prompt) yaz.
+    '${topic}' konusuyla ilgili bir hikaye yazma etkinliği oluştur.
+    Bir hikaye istemi (prompt) ve hikayede kullanılması gereken ${keywordCount} anahtar kelime oluştur.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            prompt: { type: Type.STRING, description: 'The instruction/prompt for the user.' },
-            keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            keywords: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
+        required: ['title', 'prompt', 'keywords']
     };
     return generateWithSchema(prompt, schema) as Promise<StoryCreationPromptData>;
 };
 
 export const generateFindTheDifferenceFromAI = async (topic: string, rowCount: number): Promise<FindTheDifferenceData> => {
     const prompt = `
-    Çocuklar için '${topic}' konusuyla ilgili bir 'farklı olanı bul' etkinliği oluştur. 
-    ${rowCount} tane satır oluştur. Her satırda, biri diğerlerinden farklı olan 4 tane basit kelime bulunsun.
-    Örneğin: [elma, elma, muz, elma].
+    '${topic}' konusuyla ilgili 'Farklı Olanı Bul' etkinliği için ${rowCount} satır oluştur.
+    Her satırda 4 kelime olsun. Bu kelimelerden 3'ü birbiriyle çok benzesin (görsel olarak), biri ise onlardan biraz farklı olsun.
+    Doğru olanın (farklı olanın) indeksini belirt.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
+            title: { type: Type.STRING },
             rows: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
                         items: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        correctIndex: { type: Type.INTEGER, description: '0-based index of the different item.' },
-                    }
+                        correctIndex: { type: Type.INTEGER }
+                    },
+                    required: ['items', 'correctIndex']
                 }
-            },
+            }
         },
+        required: ['title', 'rows']
     };
     return generateWithSchema(prompt, schema) as Promise<FindTheDifferenceData>;
 };
 
 export const generateWordComparisonFromAI = async (topic: string): Promise<WordComparisonData> => {
-    const prompt = `
-    Çocuklar için '${topic}' konusunda bir kelime karşılaştırma etkinliği oluştur. 
-    Her biri yaklaşık 10-12 kelime içeren iki liste hazırla. 
-    Listelerde bazı ortak kelimeler ve her listeye özgü bazı farklı kelimeler bulunsun.
+  const prompt = `
+    '${topic}' konusuyla ilgili, iki farklı kutu için 10'ar kelimelik iki liste oluştur. 
+    Listelerdeki kelimelerin çoğu aynı olsun ama her listede 3-4 tane farklı kelime bulunsun.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            box1Title: { type: Type.STRING, description: 'Title for the first list.' },
-            box2Title: { type: Type.STRING, description: 'Title for the second list.' },
-            wordList1: { type: Type.ARRAY, items: { type: Type.STRING } },
-            wordList2: { type: Type.ARRAY, items: { type: Type.STRING } },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<WordComparisonData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      box1Title: { type: Type.STRING },
+      box2Title: { type: Type.STRING },
+      wordList1: { type: Type.ARRAY, items: { type: Type.STRING } },
+      wordList2: { type: Type.ARRAY, items: { type: Type.STRING } },
+    },
+    required: ['title', 'box1Title', 'box2Title', 'wordList1', 'wordList2']
+  };
+  return generateWithSchema(prompt, schema) as Promise<WordComparisonData>;
 };
 
 export const generateWordsInStoryFromAI = async (topic: string): Promise<WordsInStoryData> => {
-    const prompt = `
-    7 yaşındaki bir çocuk için '${topic}' konusunda 100 kelimelik kısa bir Türkçe hikaye yaz.
-    Sonra, 12 kelimelik bir liste oluştur. Bu kelimelerin yaklaşık yarısı hikayede geçsin, yarısı geçmesin.
-    Her kelime için hikayede geçip geçmediğini boolean olarak belirt.
+  const prompt = `
+    '${topic}' konusunda 80-100 kelimelik kısa bir Türkçe hikaye yaz.
+    Daha sonra, 12 kelimelik bir liste oluştur. Bu kelimelerin yarısı hikayede geçsin, yarısı geçmesin.
+    Her kelime için hikayede olup olmadığını (isInStory: true/false) belirt.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the story.' },
-            story: { type: Type.STRING, description: 'The story text.' },
-            wordList: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        word: { type: Type.STRING },
-                        isInStory: { type: Type.BOOLEAN },
-                    }
-                }
-            },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<WordsInStoryData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      story: { type: Type.STRING },
+      wordList: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            word: { type: Type.STRING },
+            isInStory: { type: Type.BOOLEAN },
+          },
+          required: ['word', 'isInStory']
+        }
+      }
+    },
+    required: ['title', 'story', 'wordList']
+  };
+  return generateWithSchema(prompt, schema) as Promise<WordsInStoryData>;
 };
 
 export const generateOddOneOutFromAI = async (topic: string, groupCount: number): Promise<OddOneOutData> => {
-    const prompt = `
-    Çocuklar için '${topic}' konusunda bir 'Farkı Fark Et' (anlamsal olarak farklı olanı bulma) etkinliği oluştur.
-    ${groupCount} tane grup oluştur. Her grup, biri anlamsal olarak diğerleriyle alakasız olan 4 kelime içersin.
-    Örnek: ["kedi", "köpek", "elma", "kuş"] - burada "elma" farklıdır.
+  const prompt = `
+    '${topic}' konusuyla ilgili 'Farklı Olanı Bul' etkinliği için ${groupCount} grup oluştur.
+    Her grupta 4 kelime olsun. Bu kelimelerden 3'ü anlamsal olarak ilişkili, biri ise alakasız olsun.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            groups: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        words: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    }
-                }
-            },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<OddOneOutData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      groups: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            words: { type: Type.ARRAY, items: { type: Type.STRING } },
+          },
+          required: ['words']
+        }
+      }
+    },
+    required: ['title', 'groups']
+  };
+  return generateWithSchema(prompt, schema) as Promise<OddOneOutData>;
 };
 
+const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
+
 export const generateShapeMatchingFromAI = async (rowCount: number): Promise<ShapeMatchingData> => {
-    const shapes: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond'];
-    const prompt = `
-    Çocuklar için bir şekil eşleştirme etkinliği oluştur.
-    ${rowCount} tane öğe içeren bir sol sütun oluştur. Her öğe 4 farklı şekilden oluşan bir dizi olsun.
-    Bu ${rowCount} öğeyi içeren bir sağ sütun oluştur, ancak sağdaki öğelerin sırasını karıştır.
-    Kullanılacak şekiller: ${shapes.join(', ')}.
-    Sol sütundaki id'ler sayı, sağ sütundaki id'ler harf olsun (A, B, C...).
+  const prompt = `
+    Bir şekil eşleştirme etkinliği oluştur.
+    Solda ve sağda ${rowCount} tane satır olsun. Her satırda 3 tane şekil olsun.
+    Soldaki satırların birebir aynısı sağda da olsun ama sıraları karışık olsun.
+    Şekiller: ${SHAPE_TYPES.join(', ')}.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            leftColumn: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        id: { type: Type.INTEGER },
-                        shapes: { type: Type.ARRAY, items: { type: Type.STRING } }
-                    }
-                }
-            },
-            rightColumn: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        id: { type: Type.STRING },
-                        shapes: { type: Type.ARRAY, items: { type: Type.STRING } }
-                    }
-                }
-            }
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<ShapeMatchingData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      leftColumn: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            id: { type: Type.INTEGER },
+            shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } }
+          },
+          required: ['id', 'shapes']
+        }
+      },
+      rightColumn: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            id: { type: Type.STRING },
+            shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } }
+          },
+          required: ['id', 'shapes']
+        }
+      }
+    },
+    required: ['title', 'leftColumn', 'rightColumn']
+  };
+  return generateWithSchema(prompt, schema) as Promise<ShapeMatchingData>;
 };
 
 export const generateSymbolCipherFromAI = async (wordCount: number): Promise<SymbolCipherData> => {
-    const shapes: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
-    const prompt = `
-    Çocuklar için bir şekil şifre çözme etkinliği oluştur.
-    İlk olarak, 5-6 tane Türkçe harfi rastgele seç ve her birini şu şekillerden biriyle eşleştir: ${shapes.join(', ')}. Bu bizim şifre anahtarımız olacak.
-    İkinci olarak, bu harfleri kullanarak ${wordCount} tane 4-5 harfli kelime oluştur.
-    Bu kelimeleri şifre anahtarını kullanarak şekil dizilerine dönüştür.
+  const prompt = `
+    Bir şifre çözme etkinliği oluştur.
+    8 tane şekil-harf çiftinden oluşan bir şifre anahtarı oluştur. Şekiller: ${SHAPE_TYPES.join(', ')}.
+    Bu anahtarı kullanarak ${wordCount} tane şifreli kelime oluştur. Her kelime 4-6 harf uzunluğunda olsun.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            cipherKey: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        shape: { type: Type.STRING },
-                        letter: { type: Type.STRING },
-                    }
-                }
-            },
-            wordsToSolve: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        wordLength: { type: Type.INTEGER }
-                    }
-                }
-            }
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<SymbolCipherData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      cipherKey: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            shape: { type: Type.STRING, enum: SHAPE_TYPES },
+            letter: { type: Type.STRING }
+          },
+          required: ['shape', 'letter']
+        }
+      },
+      wordsToSolve: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } },
+            wordLength: { type: Type.INTEGER }
+          },
+          required: ['shapeSequence', 'wordLength']
+        }
+      }
+    },
+    required: ['title', 'cipherKey', 'wordsToSolve']
+  };
+  return generateWithSchema(prompt, schema) as Promise<SymbolCipherData>;
 };
 
 export const generateProverbFillFromAI = async (count: number): Promise<ProverbFillData> => {
-    const prompt = `
-    Çocukların anlayabileceği, yaygın olarak bilinen ${count} tane Türkçe atasözü seç.
-    Her atasözünün ortasından bir kelimeyi çıkar. Atasözünü bu eksik kelimeye kadar olan kısım (start) ve eksik kelimeden sonraki kısım (end) olarak ikiye ayır.
+  const prompt = `
+    ${count} tane Türkçe atasözü seç. Her atasözünde bir kelimeyi eksik bırak.
+    Atasözünün eksik kelimeden önceki ve sonraki kısımlarını ayrı ayrı ver.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            proverbs: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        start: { type: Type.STRING },
-                        end: { type: Type.STRING },
-                    }
-                }
-            }
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<ProverbFillData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      proverbs: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            start: { type: Type.STRING },
+            end: { type: Type.STRING }
+          },
+          required: ['start', 'end']
+        }
+      }
+    },
+    required: ['title', 'proverbs']
+  };
+  return generateWithSchema(prompt, schema) as Promise<ProverbFillData>;
 };
 
 export const generateLetterBridgeFromAI = async (count: number): Promise<LetterBridgeData> => {
-    const prompt = `
-    Bir 'Harf Köprüsü' etkinliği için ${count} tane kelime çifti oluştur. 
-    Her çiftte, birinci kelimenin sonuna ve ikinci kelimenin başına aynı harf eklendiğinde iki yeni anlamlı Türkçe kelime oluşmalıdır.
-    Örnek: DE(L) ve (L)AN. Ortak harf 'L'.
-    Sadece birinci ve ikinci kelimeyi döndür. Ortadaki harf kullanıcı tarafından bulunacak.
+  const prompt = `
+    'Harf Köprüsü' etkinliği için ${count} tane kelime çifti oluştur.
+    Her çiftte, birinci kelimenin sonuna ve ikinci kelimenin başına aynı harf eklendiğinde anlamlı iki yeni kelime oluşmalıdır. 
+    Örnek: (TARAF, İLMİK) -> A harfi -> (TARAFA, AİLMİK). Sen sadece 'TARAF' ve 'İLMİK' kısımlarını ver.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            pairs: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        word1: { type: Type.STRING },
-                        word2: { type: Type.STRING },
-                    }
-                }
-            }
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<LetterBridgeData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      pairs: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            word1: { type: Type.STRING },
+            word2: { type: Type.STRING }
+          },
+          required: ['word1', 'word2']
+        }
+      }
+    },
+    required: ['title', 'pairs']
+  };
+  return generateWithSchema(prompt, schema) as Promise<LetterBridgeData>;
 };
 
-export const generateFindDuplicateFromAI = async (rowCount: number, colCount: number): Promise<FindDuplicateData> => {
-    const prompt = `
-    Bir 'İkiliyi Bul' etkinliği oluştur.
-    Her biri ${colCount} karakterden oluşan ${rowCount} tane satır oluştur.
-    Her satıra rastgele harfler ve rakamlar yerleştir. Ancak her satırda, karakterlerden sadece BİR tanesi tam olarak iki kez tekrar etsin. Diğer tüm karakterler benzersiz olsun.
+export const generateFindDuplicateFromAI = async (rows: number, cols: number): Promise<FindDuplicateData> => {
+  const prompt = `
+    'İkiliyi Bul' etkinliği için ${rows} satır ve ${cols} sütundan oluşan bir tablo oluştur.
+    Her satıra rastgele harfler ve rakamlar yerleştir.
+    Her satırda, karakterlerden sadece bir tanesi iki defa tekrar etsin.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            rows: {
-                type: Type.ARRAY,
-                items: { type: Type.ARRAY, items: { type: Type.STRING } }
-            },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<FindDuplicateData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
+    },
+    required: ['title', 'rows']
+  };
+  return generateWithSchema(prompt, schema) as Promise<FindDuplicateData>;
 };
 
 export const generateWordLadderFromAI = async (count: number): Promise<WordLadderData> => {
-    const prompt = `
-    Çocuklar için bir 'Kelime Merdiveni' etkinliği oluştur. ${count} tane bulmaca üret.
-    Her bulmaca için, aynı sayıda harfe sahip bir başlangıç ve bitiş kelimesi seç (4 veya 5 harfli Türkçe kelimeler olsun).
-    Bir kelimeden diğerine her adımda sadece tek harf değiştirilerek ulaşılabilmeli.
-    Başlangıç ve bitiş kelimeleri ile toplam adım sayısını (boşluk sayısı, yani başlangıç ve bitiş hariç ara kelime sayısı) döndür.
-    Örnek: BAŞ -> KAŞ -> KIŞ. Adım sayısı: 1.
+  const prompt = `
+    'Kelime Merdiveni' etkinliği için ${count} tane bulmaca oluştur.
+    Her bulmaca için 4 harfli bir başlangıç ve bitiş kelimesi seç. 
+    İki kelime arasında en az 3 adım (değiştirilecek harf sayısı) olsun.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            ladders: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        startWord: { type: Type.STRING },
-                        endWord: { type: Type.STRING },
-                        steps: { type: Type.INTEGER, description: 'Number of intermediate words between start and end.' },
-                    }
-                }
-            }
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<WordLadderData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      ladders: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            startWord: { type: Type.STRING },
+            endWord: { type: Type.STRING },
+            steps: { type: Type.INTEGER }
+          },
+          required: ['startWord', 'endWord', 'steps']
+        }
+      }
+    },
+    required: ['title', 'ladders']
+  };
+  return generateWithSchema(prompt, schema) as Promise<WordLadderData>;
 };
 
 export const generateFindIdenticalWordFromAI = async (count: number): Promise<FindIdenticalWordData> => {
     const prompt = `
-    Çocuklar için bir 'Aynısını Bul' dikkat etkinliği oluştur. ${count} tane grup üret.
-    Her grup, iki kelimeden oluşan bir çift içersin.
-    Bu çiftlerden bazıları tamamen aynı iki kelimeden oluşsun (örn: ["masa", "masa"]).
-    Diğer çiftler ise birbirine çok benzeyen ama tek bir harfi farklı olan kelimelerden oluşsun (örn: ["kalem", "kelam"]).
-    Yaklaşık yarısı aynı, yarısı farklı olsun.
+    'Aynısını Bul' etkinliği için ${count} tane grup oluştur.
+    Her grupta, birbirine çok benzeyen ama sadece bir harfi farklı olan iki kelime olsun. Bunlardan birini baz alarak birebir aynısını da ekle. Yani grupta [benzer1, benzer2] şeklinde iki kelimeden oluşan çiftler olacak.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
+            title: { type: Type.STRING },
             groups: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        words: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'A pair of words.' }
-                    }
+                        words: {
+                            type: Type.ARRAY,
+                            items: { type: Type.STRING },
+                            minItems: 2,
+                            maxItems: 2
+                        }
+                    },
+                    required: ['words']
                 }
             }
         },
+        required: ['title', 'groups']
     };
     return generateWithSchema(prompt, schema) as Promise<FindIdenticalWordData>;
 };
 
+
 export const generateWordFormationFromAI = async (count: number): Promise<WordFormationData> => {
     const prompt = `
-    Çocuklar için bir 'Harflerden Kelime Türetme' etkinliği oluştur. ${count} tane harf seti üret.
-    Her set, 7-8 tane rastgele ama anlamlı kelimeler türetmeye uygun Türkçe harf içersin.
-    Her set için 1 veya 2 tane joker hakkı belirt.
+    'Harflerden Kelime Türetme' etkinliği için ${count} tane set oluştur.
+    Her set için 7-8 tane rastgele harf ve 1-2 tane joker hakkı belirle.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
+            title: { type: Type.STRING },
             sets: {
                 type: Type.ARRAY,
                 items: {
@@ -629,198 +673,195 @@ export const generateWordFormationFromAI = async (count: number): Promise<WordFo
                     properties: {
                         letters: { type: Type.ARRAY, items: { type: Type.STRING } },
                         jokerCount: { type: Type.INTEGER }
-                    }
+                    },
+                    required: ['letters', 'jokerCount']
                 }
             }
         },
+        required: ['title', 'sets']
     };
     return generateWithSchema(prompt, schema) as Promise<WordFormationData>;
 };
 
+
 export const generateReverseWordFromAI = async (topic: string, count: number): Promise<ReverseWordData> => {
     const prompt = `
-    Çocuklar için bir 'Ters Oku - Ters Uko' etkinliği oluştur. '${topic}' konusuyla ilgili ${count} tane Türkçe kelime seç.
-    Kelimeler 5 ila 10 harf uzunluğunda olabilir.
+    '${topic}' konusuyla ilgili ${count} tane Türkçe kelime seç.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
+            title: { type: Type.STRING },
             words: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
+        required: ['title', 'words']
     };
     return generateWithSchema(prompt, schema) as Promise<ReverseWordData>;
 };
 
+
 export const generateFindLetterPairFromAI = async (gridSize: number, targetPair: string): Promise<FindLetterPairData> => {
     const prompt = `
-    Bir 'Harf İkilisini Bul' dikkat testi oluştur.
-    Hedef harf ikilisi "${targetPair}" olsun.
-    ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
-    Izgarayı rastgele Türkçe küçük harflerle doldur.
-    Hedef harf ikilisini ("${targetPair}") bu ızgaranın içine yatay, dikey veya çapraz olarak en az 10-15 kez yerleştir.
+    'Harf İkilisini Bul' etkinliği için ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
+    Izgarayı rastgele Türkçe harflerle doldur.
+    Hedef harf ikilisi olan '${targetPair}' harflerini ızgarada yanyana olacak şekilde birkaç yere yerleştir.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
+            title: { type: Type.STRING },
             grid: {
                 type: Type.ARRAY,
                 items: { type: Type.ARRAY, items: { type: Type.STRING } }
             },
             targetPair: { type: Type.STRING }
         },
+        required: ['title', 'grid', 'targetPair']
     };
     return generateWithSchema(prompt, schema) as Promise<FindLetterPairData>;
 };
 
 export const generateWordGroupingFromAI = async (topic: string, wordCount: number, categoryCount: number): Promise<WordGroupingData> => {
-    const prompt = `
-    Çocuklar için bir kelime gruplama etkinliği oluştur. '${topic}' konusuyla ilgili olsun.
-    ${categoryCount} tane kategori ismi belirle (örn: Meyveler, Hayvanlar, Eşyalar).
-    Bu kategorilere dağıtılacak toplam ${wordCount} tane kelimeden oluşan bir kelime havuzu oluştur.
-    Sonucu aşağıdaki JSON formatında döndür. Kullanıcı kelimeleri kategorilere yerleştirecek.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            words: { type: Type.ARRAY, items: { type: Type.STRING } },
-            categoryNames: { type: Type.ARRAY, items: { type: Type.STRING } },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<WordGroupingData>;
+  const prompt = `
+    '${topic}' konusuyla ilgili bir kelime gruplama etkinliği oluştur.
+    ${categoryCount} tane kategori ismi belirle.
+    Bu kategorilere ait toplam ${wordCount} tane kelimeyi karışık bir sırada listele.
+    Sonucu aşağıdaki JSON formatında döndür.
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      words: { type: Type.ARRAY, items: { type: Type.STRING } },
+      categoryNames: { type: Type.ARRAY, items: { type: Type.STRING } }
+    },
+    required: ['title', 'words', 'categoryNames']
+  };
+  return generateWithSchema(prompt, schema) as Promise<WordGroupingData>;
 };
 
 export const generateVisualMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<VisualMemoryData> => {
-    const prompt = `
-    Çocuklar için '${topic}' konusunda bir görsel hafıza oyunu oluştur.
-    İlk olarak, ezberlenmesi gereken ${memorizeCount} tane basit, somut nesne adı veya hayvan adı seç. Bu kelimelerle birlikte ilgili bir emoji de ver. (örn: 'Kedi 🐱').
-    İkinci olarak, bu ${memorizeCount} öğeyi de içeren toplam ${testCount} öğelik bir test listesi oluştur. Bu test listesindeki öğelerin sırasını karıştır.
-    Sonucu aşağıdaki JSON formatında döndür. Öğe olarak sadece emoji ve kelime içeren string'i döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The main title of the activity.' },
-            memorizeTitle: { type: Type.STRING, description: 'Title for the memorization part.' },
-            testTitle: { type: Type.STRING, description: 'Title for the test part.' },
-            itemsToMemorize: { type: Type.ARRAY, items: { type: Type.STRING } },
-            testItems: { type: Type.ARRAY, items: { type: Type.STRING } },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<VisualMemoryData>;
+  const prompt = `
+    '${topic}' konusuyla ilgili bir görsel hafıza testi oluştur.
+    Ezberlenecek ${memorizeCount} tane basit nesne belirle (örn: "Kırmızı Araba 🚗"). İsmini ve emojisini ver.
+    Test için ${testCount} tane nesneden oluşan bir liste oluştur. Bu listenin içinde ezberlenecek nesneler de bulunsun.
+    Sonucu aşağıdaki JSON formatında döndür.
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      memorizeTitle: { type: Type.STRING },
+      testTitle: { type: Type.STRING },
+      itemsToMemorize: { type: Type.ARRAY, items: { type: Type.STRING } },
+      testItems: { type: Type.ARRAY, items: { type: Type.STRING } }
+    },
+    required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems']
+  };
+  return generateWithSchema(prompt, schema) as Promise<VisualMemoryData>;
 };
-
 
 export const generateStoryAnalysisFromAI = async (topic: string): Promise<StoryAnalysisData> => {
-    const prompt = `
-    7-8 yaşındaki bir çocuk için '${topic}' konusunda 150 kelimelik kısa ve basit bir Türkçe hikaye yaz.
-    Hikayeden sonra, hikayeyle ilgili 4 tane analiz sorusu oluştur.
-    Sorular şunlar gibi olabilir:
-    - Hikayedeki 'mutlu' kelimesinin eş anlamlısı nedir?
-    - Hikayedeki 'büyük' kelimesinin zıt anlamlısı nedir?
-    - [Karakterin adı] neden [bir eylem] yaptı?
-    - Hikayenin ana fikri nedir?
-    Her soru için, sorunun cevabını bulmak için hikayeden bir ipucu (context) ver.
+  const prompt = `
+    '${topic}' konusunda 150-200 kelimelik, içinde eş ve zıt anlamlı kelimeler barındıran bir hikaye yaz.
+    Hikaye sonrası için 3 tane analiz sorusu oluştur. Sorular "Hikayedeki 'mutlu' kelimesinin zıt anlamlısı nedir?" gibi olmalı.
+    Her soru için, cevabın bulunabileceği ipucu (context) metnini de belirt.
     Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the story.' },
-            story: { type: Type.STRING, description: 'The full text of the story.' },
-            questions: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        question: { type: Type.STRING, description: 'The analysis question.' },
-                        context: { type: Type.STRING, description: 'A hint or context from the story related to the question.'},
-                    },
-                },
-            },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<StoryAnalysisData>;
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      story: { type: Type.STRING },
+      questions: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            question: { type: Type.STRING },
+            context: { type: Type.STRING }
+          },
+          required: ['question', 'context']
+        }
+      }
+    },
+    required: ['title', 'story', 'questions']
+  };
+  return generateWithSchema(prompt, schema) as Promise<StoryAnalysisData>;
 };
 
-export const generateCoordinateCipherFromAI = async (topic: string, gridSize: number, cipherLength: number): Promise<CoordinateCipherData> => {
-    const prompt = `
-    Çocuklar için bir 'Gizemli Bulmaca' (koordinat şifresi) etkinliği oluştur.
-    1. ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur. Satır başlıkları A, B, C... ve sütun başlıkları 1, 2, 3... olmalı.
-    2. Izgarayı, '${topic}' konusuyla ilgili 8-10 tane kelimeyi gizleyerek doldur (kelime bulmacası gibi).
-    3. ${cipherLength} harflik, yine '${topic}' ile alakalı bir şifreli kelime veya kısa bir ifade seç.
-    4. Bu şifreli ifadenin harflerinin ızgaradaki konumlarını koordinat olarak belirle (örn: "A-1", "C-5").
-    5. Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-            wordsToFind: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'A list of words hidden in the grid for distraction.' },
-            cipherCoordinates: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'The list of coordinates that spell the secret message.' },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<CoordinateCipherData>;
+export const generateCoordinateCipherFromAI = async (topic: string, gridSize: number, wordCount: number): Promise<CoordinateCipherData> => {
+  const prompt = `
+    '${topic}' konusuyla ilgili bir koordinat şifreleme bulmacası oluştur.
+    ${gridSize}x${gridSize} boyutunda bir harf tablosu oluştur.
+    Tabloda gizli ${wordCount} tane kelime olsun.
+    Bu kelimeler bulunduktan sonra, koordinatları (örn: "A5", "C2") verilecek olan harfleri birleştirerek çözülecek 5-6 harfli bir şifre kelimesi oluştur.
+    Sonucu aşağıdaki JSON formatında döndür.
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+      wordsToFind: { type: Type.ARRAY, items: { type: Type.STRING } },
+      cipherCoordinates: { type: Type.ARRAY, items: { type: Type.STRING } }
+    },
+    required: ['title', 'grid', 'wordsToFind', 'cipherCoordinates']
+  };
+  return generateWithSchema(prompt, schema) as Promise<CoordinateCipherData>;
 };
 
 export const generateProverbSearchFromAI = async (gridSize: number): Promise<ProverbSearchData> => {
-    const prompt = `
-    Çocuklar için bir 'Atasözü Avı' kelime bulmaca etkinliği oluştur.
-    1. Yaygın olarak bilinen, basit bir Türkçe atasözü seç.
-    2. Bu atasözünü oluşturan tüm kelimeleri ${gridSize}x${gridSize} boyutunda bir harf bulmacasına yerleştir.
-    3. Boş kalan yerleri rastgele Türkçe harflerle doldur.
-    4. Sonucu aşağıdaki JSON formatında döndür. Atasözünün tam metnini de ekle.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-            proverb: { type: Type.STRING, description: 'The full proverb hidden in the grid.' },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<ProverbSearchData>;
+  const prompt = `
+    Bir 'Atasözü Avı' etkinliği oluştur.
+    ${gridSize}x${gridSize} boyutunda bir harf tablosu oluştur.
+    İçine iyi bilinen bir Türkçe atasözü gizle. Harfler soldan sağa, yukarıdan aşağıya veya çapraz olabilir.
+    Boş kalan yerleri rastgele harflerle doldur.
+    Sonucu aşağıdaki JSON formatında döndür.
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+      proverb: { type: Type.STRING }
+    },
+    required: ['title', 'grid', 'proverb']
+  };
+  return generateWithSchema(prompt, schema) as Promise<ProverbSearchData>;
 };
 
 export const generateTargetSearchFromAI = async (gridSize: number, target: string, distractor: string): Promise<TargetSearchData> => {
-    const prompt = `
-    Çocuklar için bir dikkat etkinliği oluştur.
-    1. ${gridSize}x${gridSize} boyutunda bir ızgara oluştur.
-    2. Izgaranın çoğunu "${distractor}" karakteriyle doldur.
-    3. Izgaranın içine rastgele konumlara 10-15 adet "${target}" karakteri yerleştir.
-    4. Başlık olarak "'${distractor}'ların arasında kaç tane '${target}' var?" gibi bir metin oluştur.
-    5. Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The title for the activity.' },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-            target: { type: Type.STRING },
-            distractor: { type: Type.STRING },
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<TargetSearchData>;
+  const prompt = `
+    'Dikkatli Göz' etkinliği oluştur.
+    ${gridSize}x${gridSize} boyutunda bir tabloyu '${distractor}' karakteriyle doldur.
+    İçine rastgele yerlere 15-20 tane '${target}' karakteri serpiştir.
+    Sonucu aşağıdaki JSON formatında döndür.
+  `;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+      target: { type: Type.STRING },
+      distractor: { type: Type.STRING }
+    },
+    required: ['title', 'grid', 'target', 'distractor']
+  };
+  return generateWithSchema(prompt, schema) as Promise<TargetSearchData>;
 };
 
 export const generateShapeNumberPatternFromAI = async (count: number): Promise<ShapeNumberPatternData> => {
-    const prompt = `
-    Çocuklar için ${count} tane 'Şekilli Sayı Örüntüsü' bulmacası oluştur.
-    Her bulmaca 3 tane üçgenden oluşsun. Her üçgenin köşelerinde veya içinde sayılar bulunsun.
-    Sayılar arasında basit bir kural olmalı (toplama, çıkarma, çarpma).
-    Üçüncü üçgende bir sayı eksik olsun ve '?' ile belirtilsin.
-    Örnek kural: Alttaki iki sayının toplamı üstteki sayıyı verir. Veya köşelerdeki sayıların toplamı ortadaki sayıyı verir.
-    Sonucu aşağıdaki JSON formatında döndür. numbers dizisindeki sayıları string olarak döndür.
-    `;
+    const prompt = `Generate ${count} shape-based number pattern puzzles for kids. Each puzzle should consist of a few shapes (only triangles for now) containing numbers. There must be a logical rule connecting the numbers in each shape. One number should be a question mark. Provide the rule and the answer.
+    Example: Corners sum up to the center.
+    Format the output as JSON.`;
+
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
+            title: { type: Type.STRING },
             patterns: {
                 type: Type.ARRAY,
                 items: {
@@ -831,37 +872,29 @@ export const generateShapeNumberPatternFromAI = async (count: number): Promise<S
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    type: { type: Type.STRING, description: "Must be 'triangle'" },
-                                    numbers: { 
-                                        type: Type.ARRAY, 
-                                        items: { type: Type.STRING },
-                                        description: "Array of 3 or 4 numbers as strings, one being '?'" 
-                                    }
-                                }
+                                    type: { type: Type.STRING, enum: ['triangle'] },
+                                    numbers: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                },
+                                required: ["type", "numbers"]
                             }
                         }
-                    }
+                    },
+                    required: ["shapes"]
                 }
             }
         },
+        required: ["title", "patterns"]
     };
     return generateWithSchema(prompt, schema) as Promise<ShapeNumberPatternData>;
 };
 
-export const generateGridDrawingFromAI = async (rowCount: number, gridDim: number): Promise<GridDrawingData> => {
-    const prompt = `
-    Çocuklar için bir 'Ayna Çizimi' etkinliği oluştur.
-    ${rowCount} tane çizim alıştırması oluştur.
-    Her alıştırma için, ${gridDim}x${gridDim} boyutunda bir ızgara üzerinde çizilecek basit bir geometrik desen oluştur.
-    Desen, ızgaranın köşe noktalarını birleştiren 3 ila 5 çizgiden oluşmalıdır.
-    Her çizgi için başlangıç [x1, y1] ve bitiş [x2, y2] koordinatlarını ver. Koordinatlar 0'dan ${gridDim}'e kadar olabilir.
-    Sonucu aşağıdaki JSON formatında döndür.
-    `;
+export const generateGridDrawingFromAI = async (gridDim: number, count: number): Promise<GridDrawingData> => {
+    const prompt = `Create a mirror drawing activity. Generate ${count} simple line patterns on a ${gridDim}x${gridDim} grid. Provide the line coordinates for each pattern. The user will copy the drawing to an empty grid. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            gridDim: { type: Type.INTEGER, description: 'The dimension of the grid (e.g., 4 for a 4x4 grid).' },
+            title: { type: Type.STRING },
+            gridDim: { type: Type.INTEGER },
             drawings: {
                 type: Type.ARRAY,
                 items: {
@@ -869,333 +902,233 @@ export const generateGridDrawingFromAI = async (rowCount: number, gridDim: numbe
                     properties: {
                         lines: {
                             type: Type.ARRAY,
-                            description: 'An array of lines, where each line is an array of two points [[x1, y1], [x2, y2]]',
                             items: {
                                 type: Type.ARRAY,
                                 items: {
                                     type: Type.ARRAY,
-                                    items: { type: Type.INTEGER }
-                                }
+                                    items: { type: Type.INTEGER },
+                                    minItems: 2,
+                                    maxItems: 2
+                                },
+                                minItems: 2,
+                                maxItems: 2
                             }
                         }
-                    }
+                    },
+                    required: ["lines"]
                 }
             }
         },
+        required: ["title", "gridDim", "drawings"]
     };
     return generateWithSchema(prompt, schema) as Promise<GridDrawingData>;
 };
 
-export const generateColorWheelMemoryFromAI = async (count: number): Promise<ColorWheelMemoryData> => {
-    const prompt = `
-    Çocuklar için bir "Renk Çemberi" hafıza etkinliği oluştur.
-    ${count} tane basit, somut nesne adı ve bu nesnelerle ilgili bir emoji oluştur (örn: "Kitap 📕").
-    Her bir nesne/emoji çifti için şu CSS renklerinden birini ata: "red", "yellow", "blue", "green", "orange", "purple", "pink", "brown". 
-    Bu renk, nesnenin yerleştirileceği çark diliminin rengi olacak. Her nesne için farklı bir renk ata.
-    Sonucu aşağıdaki JSON formatında döndür.
-    `;
+export const generateColorWheelMemoryFromAI = async (itemCount: number): Promise<ColorWheelMemoryData> => {
+    const prompt = `Create a color wheel memory game with ${itemCount} items. Each item must have a name (e.g., "Kitap 📕") and a unique hex color code. Format as JSON.`;
     const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The main title for the activity.' },
-            memorizeTitle: { type: Type.STRING, description: 'Title for the memorization page.' },
-            testTitle: { type: Type.STRING, description: 'Title for the test page.' },
-            items: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        name: { type: Type.STRING, description: 'The name of the object with its emoji (e.g., "Kitap 📕").' },
-                        color: { type: Type.STRING, description: 'The CSS color for the wheel segment.' },
-                    }
-                }
-            }
-        },
-    };
-    return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData>;
-};
-
-export const generateImageComprehensionFromAI = async (topic: string, questionCount: number): Promise<ImageComprehensionData> => {
-    // Step 1: Generate the text part (description + questions)
-    const textPrompt = `
-        Çocuklar için bir "Resme Dikkat" (metin tabanlı) etkinliği oluştur.
-        Konu: "${topic}".
-        Bu konu hakkında çok detaylı, canlı bir sahne tasvir et (yaklaşık 150 kelime). Bol miktarda nesne, renk, sayı ve eylem içersin.
-        Bu sahne açıklamasına dayanarak, sadece metinde cevaplanabilecek ${questionCount} tane detaylı soru oluştur.
-        Sorular "ne renk?", "kaç tane?", "kim ne yapıyor?" gibi olmalı.
-        Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const textSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: 'The main title for the activity.' },
-            memorizeTitle: { type: Type.STRING, description: 'Title for the scene description page.' },
-            testTitle: { type: Type.STRING, description: 'Title for the questions page.' },
-            sceneDescription: { type: Type.STRING, description: 'The detailed description of the scene.' },
-            questions: { type: Type.ARRAY, items: { type: Type.STRING } }
-        },
-    };
-    const textData = await generateWithSchema(textPrompt, textSchema);
-
-    // Step 2: Generate the image from the description
-    const imagePrompt = `A vibrant and detailed cartoon illustration for children, depicting the following scene: ${textData.sceneDescription}`;
-    const imageResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: imagePrompt }] },
-        config: { responseModalities: ['IMAGE'] },
-    });
-    
-    let imageBase64 = '';
-    const part = imageResponse.candidates?.[0]?.content?.parts?.[0];
-    if (part?.inlineData) {
-        imageBase64 = part.inlineData.data;
-    }
-
-    if (!imageBase64) {
-        throw new Error('Yapay zeka tarafından görsel üretilemedi. Lütfen tekrar deneyin.');
-    }
-
-    // Step 3: Combine and return
-    return {
-        ...textData,
-        imageBase64: imageBase64,
-    };
-};
-
-
-export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<CharacterMemoryData> => {
-    // Step 1: Generate text descriptions first
-    const textPrompt = `
-    Çocuklar için bir karakter hafıza oyunu oluştur.
-    Konu: "${topic}" (Örn: Kasaba halkı, Süper kahramanlar, Orman hayvanları).
-    1. Ezberlenmesi gereken ${memorizeCount} tane benzersiz ve akılda kalıcı çizgi film karakteri için detaylı ve görsel birer açıklama yaz. (örn: 'Kırmızı, çizgili bir tişört giyen, gözlüklü, sarı saçlı, uzun boylu bir adam').
-    2. Test için, bu ${memorizeCount} karakteri de içeren, toplam ${testCount} tane karakter açıklaması oluştur. Yeni karakterler de ekle. Bu test listesindeki karakter açıklamalarının sırasını karıştır.
-    3. Sonucu aşağıdaki JSON formatında döndür. Sadece metin açıklamalarını döndür, resim verisi ekleme.
-    `;
-    const textSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
-            charactersToMemorize: { type: Type.ARRAY, items: { type: Type.STRING } },
-            testCharacters: { type: Type.ARRAY, items: { type: Type.STRING } },
+            items: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        name: { type: Type.STRING },
+                        color: { type: Type.STRING }
+                    },
+                    required: ["name", "color"]
+                }
+            }
         },
+        required: ["title", "memorizeTitle", "testTitle", "items"]
     };
-    const textData: {
-        title: string;
-        memorizeTitle: string;
-        testTitle: string;
-        charactersToMemorize: string[];
-        testCharacters: string[];
-    } = await generateWithSchema(textPrompt, textSchema);
-
-    // Step 2: Generate images for each unique description
-    const allDescriptions = [...new Set([...textData.charactersToMemorize, ...textData.testCharacters])];
-    
-    const imagePromises = allDescriptions.map(async (description) => {
-        const imagePrompt = `A vibrant and detailed cartoon character for children, full body, on a plain white background. The character is: ${description}`;
-        const imageResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image',
-            contents: { parts: [{ text: imagePrompt }] },
-            config: { responseModalities: ['IMAGE'] },
-        });
-
-        let imageBase64 = '';
-        const part = imageResponse.candidates?.[0]?.content?.parts?.[0];
-        if (part?.inlineData) {
-            imageBase64 = part.inlineData.data;
-        }
-        if (!imageBase64) {
-             console.warn(`Could not generate image for description: ${description}`);
-        }
-        return { description, imageBase64 };
-    });
-
-    const generatedImages = await Promise.all(imagePromises);
-    const imageMap = new Map(generatedImages.map(item => [item.description, item.imageBase64]));
-
-    // Step 3: Combine descriptions with images
-    const charactersToMemorize = textData.charactersToMemorize.map(desc => ({
-        description: desc,
-        imageBase64: imageMap.get(desc) || '',
-    })).filter(char => char.imageBase64);
-
-    const testCharacters = textData.testCharacters.map(desc => ({
-        description: desc,
-        imageBase64: imageMap.get(desc) || '',
-    })).filter(char => char.imageBase64);
-
-    if (charactersToMemorize.length < textData.charactersToMemorize.length || testCharacters.length < textData.testCharacters.length) {
-        console.warn("Some character images could not be generated.");
-    }
-
-    return {
-        title: textData.title,
-        memorizeTitle: textData.memorizeTitle,
-        testTitle: textData.testTitle,
-        charactersToMemorize,
-        testCharacters,
-    };
+    return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData>;
 };
 
-export const generateStorySequencingFromAI = async (topic: string): Promise<StorySequencingData> => {
+
+export const generateImageComprehensionFromAI = async (topic: string, questionCount: number): Promise<ImageComprehensionData> => {
     const prompt = `
-    Çocuklar için bir "Hikaye Oluşturma (Sıralama)" etkinliği oluştur.
-    Konu: "${topic}".
-    Bu konuyla ilgili, 6 adımdan oluşan basit bir hikaye oluştur. Her adım, bir resim karesinde (panel) ne olduğunun görsel bir açıklaması olmalıdır.
-    Bu 6 panel açıklamasını DOĞRU sıralamada oluştur. Panelleri A'dan F'ye kadar ID'lerle etiketle.
-    Sonucu aşağıdaki JSON formatında döndür. UI, panelleri kendisi karıştıracaktır.
+    Generate a simple, detailed scene description about '${topic}' for an image comprehension test for a 7-year-old. The description should be around 50-70 words.
+    Also, create a DALL-E 3 style prompt based on this description to generate a simple, cartoonish, and clear image.
+    Then, create ${questionCount} open-ended questions about the details in the scene.
+    You MUST NOT generate the image itself, just provide the scene description and the prompt for image generation. For the 'imageBase64' field, return an empty string.
+    Format the output as JSON.
     `;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            prompt: { type: Type.STRING, description: 'Instruction for the user, e.g., "Aşağıdaki 6 kareyi öyle bir dizelim ki anlamlı bir hikaye oluşsun."' },
+            title: { type: Type.STRING },
+            memorizeTitle: { type: Type.STRING },
+            testTitle: { type: Type.STRING },
+            sceneDescription: { type: Type.STRING },
+            imageBase64: { type: Type.STRING, description: "This should be an empty string, as you cannot generate images." },
+            questions: { type: Type.ARRAY, items: { type: Type.STRING } }
+        },
+        required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imageBase64", "questions"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ImageComprehensionData>;
+};
+
+export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<CharacterMemoryData> => {
+    const prompt = `
+    Generate a character memory test about '${topic}'.
+    Create ${memorizeCount} unique, simple characters. For each, provide a short description (e.g., "Kırmızı şapkalı bir ayıcık").
+    Then, create a test list of ${testCount} characters, including the ones to be memorized.
+    You MUST NOT generate images. For 'imageBase64' fields, return an empty string.
+    Format the output as JSON.
+    `;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            memorizeTitle: { type: Type.STRING },
+            testTitle: { type: Type.STRING },
+            charactersToMemorize: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        description: { type: Type.STRING },
+                        imageBase64: { type: Type.STRING }
+                    },
+                    required: ["description", "imageBase64"]
+                }
+            },
+            testCharacters: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        description: { type: Type.STRING },
+                        imageBase64: { type: Type.STRING }
+                    },
+                    required: ["description", "imageBase64"]
+                }
+            }
+        },
+        required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData>;
+};
+
+export const generateStorySequencingFromAI = async (topic: string): Promise<StorySequencingData> => {
+    const prompt = `Create a story sequencing activity on the topic of '${topic}'. The story should have 4 simple, distinct steps. Provide a short description for each step (panel). The panels should be in a jumbled order. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
             panels: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        id: { type: Type.STRING, description: 'The panel ID (A, B, C, D, E, F).' },
-                        description: { type: Type.STRING, description: 'A visual description of what is happening in the panel.' },
-                    }
+                        id: { type: Type.STRING },
+                        description: { type: Type.STRING }
+                    },
+                    required: ["id", "description"]
                 }
             }
         },
+        required: ["title", "prompt", "panels"]
     };
     return generateWithSchema(prompt, schema) as Promise<StorySequencingData>;
 };
 
 export const generateChaoticNumberSearchFromAI = async (start: number, end: number): Promise<ChaoticNumberSearchData> => {
-    const prompt = `
-    Çocuklar için bir "Sayıları Bulma" etkinliği oluştur.
-    Hedef, ${start} ile ${end} arasındaki sayıları bulmak.
-    Bu aralıktaki her sayı için, onu bir tuval üzerinde konumlandırmak üzere bir nesne oluştur.
-    Her sayı nesnesi için:
-    - value: Sayının kendisi.
-    - x: Yatay konum (0 ile 95 arasında bir yüzde değeri).
-    - y: Dikey konum (0 ile 95 arasında bir yüzde değeri).
-    - size: Yazı tipi boyutu (1.5 ile 5 arasında bir 'rem' değeri).
-    - rotation: Dönme açısı (-45 ile 45 arasında bir derece değeri).
-    - color: Bir CSS renk adı (örn: "blue", "red", "green", "orange", "purple", "black", "navy").
-    Aynı zamanda, hedef aralığın dışında (örn: ${end + 1} ile ${end * 1.5} arası) yaklaşık 20 tane daha dikkat dağıtıcı sayı oluştur ve onları da tuvale yerleştir.
-    Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a chaotic number search puzzle. The user needs to find numbers from ${start} to ${end}. Generate about 100 numbers in total, including the target range and distractors. For each number, provide its value, position (x, y as percentages), size (in rem), rotation (in degrees), and a random hex color. Make the layout chaotic. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            prompt: { type: Type.STRING, description: `The prompt for the user, e.g., "Aşağıda 1'den 50'ye kadar olan sayılar karışık olarak verilmiştir. Bu sayıları sırasıyla bulup boyayalım."`},
-            range: {
-                type: Type.OBJECT,
-                properties: {
-                    start: { type: Type.INTEGER },
-                    end: { type: Type.INTEGER },
-                }
-            },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
             numbers: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
                         value: { type: Type.INTEGER },
-                        x: { type: Type.NUMBER, description: 'Horizontal position in %' },
-                        y: { type: Type.NUMBER, description: 'Vertical position in %' },
-                        size: { type: Type.NUMBER, description: 'Font size in rem' },
-                        rotation: { type: Type.NUMBER, description: 'Rotation in degrees' },
-                        color: { type: Type.STRING, description: 'CSS color name' },
-                    }
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER },
+                        size: { type: Type.NUMBER },
+                        rotation: { type: Type.NUMBER },
+                        color: { type: Type.STRING }
+                    },
+                    required: ["value", "x", "y", "size", "rotation", "color"]
                 }
+            },
+            range: {
+                type: Type.OBJECT, properties: {
+                    start: { type: Type.INTEGER }, end: { type: Type.INTEGER }
+                },
+                 required: ["start", "end"]
             }
         },
+        required: ["title", "prompt", "numbers", "range"]
     };
     return generateWithSchema(prompt, schema) as Promise<ChaoticNumberSearchData>;
 };
 
 export const generateBlockPaintingFromAI = async (): Promise<BlockPaintingData> => {
-    const prompt = `
-    Çocuklar için bir "Blok Boyama" etkinliği oluştur.
-    1. 12 satır ve 18 sütundan oluşan bir ızgara için bir yapı oluştur.
-    2. 4 farklı renkte (örn: 'limegreen', 'dodgerblue', 'deeppink', 'gold') 8 tane polyomino (tetris benzeri şekil) oluştur. Her renkten 2 şekil olsun.
-    3. Her şekli, 1'lerin dolu hücreleri gösterdiği bir 2D dizi (pattern) olarak tanımla. Şekiller 2x2, 3x2, 1x4 gibi boyutlarda olabilir.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a block painting activity. Define a 10x10 grid. Create 3-4 colored shapes (like Tetris blocks). For each shape, provide a color and a 2D array representing its pattern. The user's goal is to color the grid according to the given shapes. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity, e.g., "Blok Boyama".' },
-            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
-            grid: {
-                type: Type.OBJECT,
-                properties: {
-                    rows: { type: Type.INTEGER },
-                    cols: { type: Type.INTEGER },
-                }
-            },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            grid: { type: Type.OBJECT, properties: { rows: { type: Type.INTEGER }, cols: { type: Type.INTEGER } }, required: ["rows", "cols"]},
             shapes: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
                         color: { type: Type.STRING },
-                        pattern: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
-                    }
+                        pattern: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } }
+                    },
+                    required: ["color", "pattern"]
                 }
             }
         },
+        required: ["title", "prompt", "grid", "shapes"]
     };
     return generateWithSchema(prompt, schema) as Promise<BlockPaintingData>;
 };
 
 export const generateMiniWordGridFromAI = async (): Promise<MiniWordGridData> => {
-    const prompt = `
-    Çocuklar için 6 tane "Kelime Bulmaca (Mini)" oluştur.
-    1. Her bulmaca için 4x4 boyutunda bir harf ızgarası hazırla.
-    2. Her ızgaraya 5 harfli, yaygın bir Türkçe kelimeyi yatay veya dikey olarak yerleştir.
-    3. Kelimenin ilk harfinin konumunu (0-indeksli satır ve sütun) belirt. Bu harf kullanıcıya renkli gösterilecek.
-    4. Izgaranın geri kalan boşluklarını rastgele Türkçe harflerle doldur.
-    5. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a mini word grid puzzle. Generate 4 puzzles. Each puzzle is a 4x4 grid with a single 4-letter Turkish word hidden within. Specify the starting cell (row, col) of the word. The rest of the cells are filled with random letters. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
             puzzles: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
                         grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                        start: {
-                            type: Type.OBJECT,
-                            properties: {
-                                row: { type: Type.INTEGER },
-                                col: { type: Type.INTEGER },
-                            }
-                        },
-                    }
+                        start: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] }
+                    },
+                    required: ["grid", "start"]
                 }
             }
         },
+        required: ["title", "prompt", "puzzles"]
     };
     return generateWithSchema(prompt, schema) as Promise<MiniWordGridData>;
 };
 
 export const generateVisualOddOneOutFromAI = async (): Promise<VisualOddOneOutData> => {
-    const prompt = `
-    Çocuklar için bir "Görsel Fark Bulma" etkinliği oluştur.
-    1. Her birinde 7 öğe bulunan 4 satır oluştur.
-    2. Her öğe, 8 dilimli bir daireyi temsil eden 8 elemanlı bir boolean dizisi olsun ('segments'). 'true' dolu, 'false' boş dilimi temsil eder.
-    3. Her satırda, 6 öğe aynı desene sahip olsun, ancak bir tanesi farklı bir desene sahip olsun (bir dilimi farklı olsun).
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a visual odd one out puzzle. Generate 4 rows. Each row has 4 items. Each item is a simple shape made of 9 segments (like a digital clock digit). In each row, one item's segment pattern is slightly different. Describe each item by a boolean array of its 9 segments. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
             rows: {
                 type: Type.ARRAY,
                 items: {
@@ -1207,29 +1140,27 @@ export const generateVisualOddOneOutFromAI = async (): Promise<VisualOddOneOutDa
                                 type: Type.OBJECT,
                                 properties: {
                                     segments: { type: Type.ARRAY, items: { type: Type.BOOLEAN } }
-                                }
+                                },
+                                required: ["segments"]
                             }
                         }
-                    }
+                    },
+                    required: ["items"]
                 }
             }
         },
+        required: ["title", "prompt", "rows"]
     };
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData>;
 };
 
 export const generateShapeCountingFromAI = async (): Promise<ShapeCountingData> => {
-    const prompt = `
-    Çocuklar için bir "Şekil Sayma" etkinliği oluştur. Hedef şekil üçgen.
-    1. Karmaşık geometrik desenler içeren 4 farklı figür oluştur. Bu figürler, birleştirilmiş üçgenlerden oluşmalıdır.
-    2. Her figürü, çizilebilecek bir dizi SVG path elemanı olarak tanımla. Her path'in bir 'd' (path data) ve 'fill' (doldurma rengi) özelliği olsun.
-    3. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a 'count the triangles' puzzle. Generate 1 complex figure composed of overlapping triangles and other shapes. The figure should be represented as a list of SVG paths, each with a 'd' attribute and a fill color. The user's goal is to count all the triangles in the figure. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
             figures: {
                 type: Type.ARRAY,
                 items: {
@@ -1241,117 +1172,94 @@ export const generateShapeCountingFromAI = async (): Promise<ShapeCountingData> 
                                 type: Type.OBJECT,
                                 properties: {
                                     d: { type: Type.STRING },
-                                    fill: { type: Type.STRING },
-                                }
+                                    fill: { type: Type.STRING }
+                                },
+                                required: ["d", "fill"]
                             }
                         }
-                    }
+                    },
+                    required: ["svgPaths"]
                 }
             }
         },
+        required: ["title", "prompt", "figures"]
     };
     return generateWithSchema(prompt, schema) as Promise<ShapeCountingData>;
 };
 
 export const generateSymmetryDrawingFromAI = async (): Promise<SymmetryDrawingData> => {
-    const prompt = `
-    Çocuklar için bir "Simetri Çizimi" etkinliği oluştur.
-    1. 10x10'luk bir ızgara boyutu tanımla.
-    2. Dikey bir simetri ekseni belirle (x=5).
-    3. Bu eksenin sol tarafında (x < 5) kalacak şekilde, 10-15 tane noktanın (x, y) koordinatlarını oluşturarak bir desen oluştur.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a symmetry drawing activity. Define an 8x8 grid. Provide a set of dots (x, y coordinates) on one half of the grid (e.g., left half for a vertical axis). The user's goal is to draw the symmetrical reflection. Specify the axis of symmetry ('vertical' or 'horizontal'). Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
-            gridDim: { type: Type.INTEGER, description: 'The dimension of the grid (e.g., 10 for a 10x10 grid).' },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            gridDim: { type: Type.INTEGER },
             dots: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
                         x: { type: Type.INTEGER },
-                        y: { type: Type.INTEGER },
-                    }
+                        y: { type: Type.INTEGER }
+                    },
+                    required: ["x", "y"]
                 }
             },
-            axis: { type: Type.STRING, description: "'vertical' or 'horizontal'" }
+            axis: { type: Type.STRING, enum: ['vertical', 'horizontal'] }
         },
+        required: ["title", "prompt", "gridDim", "dots", "axis"]
     };
     return generateWithSchema(prompt, schema) as Promise<SymmetryDrawingData>;
 };
 
 export const generateBurdonTestFromAI = async (): Promise<LetterGridTestData> => {
-    const prompt = `
-    Bir "Burdon Dikkat Testi" oluştur. 30 satır ve 30 sütundan oluşan bir harf ızgarası oluştur.
-    Izgarayı rastgele küçük Türkçe harflerle doldur.
-    Aranacak hedef harfler "a, b, d, g" olsun.
-    Bu hedef harflerin ızgarada dengeli bir şekilde dağıldığından emin ol.
-    Başlık olarak "BURDON DİKKAT TESTİ" ve aranacak harfleri belirten bir açıklama ekle.
-    Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a Burdon Attention Test. Generate a 20x20 grid of random lowercase Turkish letters. The target letters to find are "a", "b", "d", "g". Ensure these letters are distributed throughout the grid. Format as JSON, using the LetterGridTestData schema.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title for the letter grid test.' },
-            grid: {
-                type: Type.ARRAY,
-                items: { type: Type.ARRAY, items: { type: Type.STRING } }
-            },
-            targetLetters: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING }
-            },
+            title: { type: Type.STRING },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            targetLetters: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
+        required: ['title', 'grid', 'targetLetters']
     };
     return generateWithSchema(prompt, schema) as Promise<LetterGridTestData>;
 };
 
 export const generateFindDifferentStringFromAI = async (): Promise<FindDifferentStringData> => {
-    const prompt = `
-    Bir "Farklı Olanı Bulma" etkinliği oluştur.
-    16 satır ve 6 sütundan oluşsun.
-    Her satırda, temel dize olarak "VWN" kullanılsın.
-    Her satırda bir konumda "VWN" yerine "VMN" gibi çok benzer bir varyasyon kullanılsın. Bu varyasyonun konumu her satır için rastgele olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a "Find the Different String" activity. Generate 10 rows. Each row contains 5 strings. Four of the strings are identical (e.g., "VWN"), and one is slightly different (e.g., "VNW"). The position of the different string should be random in each row. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title of the activity.' },
-            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
             rows: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        items: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    }
+                        items: { type: Type.ARRAY, items: { type: Type.STRING } }
+                    },
+                    required: ["items"]
                 }
             }
         },
+        required: ["title", "prompt", "rows"]
     };
     return generateWithSchema(prompt, schema) as Promise<FindDifferentStringData>;
 };
 
 export const generateDotPaintingFromAI = async (): Promise<DotPaintingData> => {
-    const prompt = `
-    Çocuklar için bir "Nokta Boyama" etkinliği oluştur.
-    1. 210x297 (A4 oranı) bir viewBox içinde, düzensiz dikdörtgen bölgelerden oluşan bir ızgara deseni oluştur. Bu deseni bir dizi SVG path 'd' özelliği olarak tanımla.
-    2. Bu bölgelerin içine 22 tane nokta yerleştir. Noktaların renkleri "orange", "blue", "deeppink", "black" olsun. Her renkten birkaç tane olsun.
-    3. Her noktanın 'cx' ve 'cy' koordinatlarını ve rengini döndür.
-    Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a dot painting activity. Design a simple hidden picture (e.g., a house) on a 15x15 grid. Provide the SVG path data for the grid lines and the viewBox. Provide a list of dots to be colored, with their cx, cy coordinates and a specific color. The user's goal is to color the dots to reveal the picture. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title.' },
-            prompt1: { type: Type.STRING, description: 'Prompt for the first part.' },
-            prompt2: { type: Type.STRING, description: 'Prompt for the second part.' },
-            svgViewBox: { type: Type.STRING, description: 'The SVG viewBox string, e.g., "0 0 210 297".' },
-            gridPaths: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'Array of SVG path d-strings for grid lines.' },
+            title: { type: Type.STRING },
+            prompt1: { type: Type.STRING },
+            prompt2: { type: Type.STRING },
+            svgViewBox: { type: Type.STRING },
+            gridPaths: { type: Type.ARRAY, items: { type: Type.STRING } },
             dots: {
                 type: Type.ARRAY,
                 items: {
@@ -1359,30 +1267,24 @@ export const generateDotPaintingFromAI = async (): Promise<DotPaintingData> => {
                     properties: {
                         cx: { type: Type.NUMBER },
                         cy: { type: Type.NUMBER },
-                        color: { type: Type.STRING },
-                    }
+                        color: { type: Type.STRING }
+                    },
+                    required: ["cx", "cy", "color"]
                 }
             }
         },
+        required: ["title", "prompt1", "prompt2", "svgViewBox", "gridPaths", "dots"]
     };
     return generateWithSchema(prompt, schema) as Promise<DotPaintingData>;
 };
 
 export const generateAbcConnectFromAI = async (): Promise<AbcConnectData> => {
-    const prompt = `
-    Çocuklar için bir "ABC Bağlama" etkinliği oluştur. 3 ayrı bulmaca üret.
-    1. Bulmaca: 5x5'lik bir ızgarada A, B, C, D harf çiftleri.
-    2. Bulmaca: 5x5'lik bir ızgarada A, B, C, D, E harf çiftleri.
-    3. Bulmaca: 8x8'lik bir ızgarada A, B, C, D, E harf çiftleri.
-    Her bulmaca için ızgara boyutunu ve her harfin 0-indeksli x, y koordinatlarını içeren bir liste döndür.
-    Harf çiftlerinin, yatay ve dikey çizgilerle, diğer yolları kesmeyecek şekilde birleştirilebilir olduğundan emin ol.
-    Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create an "ABC Connect" puzzle. Generate 2 puzzles on a 6x6 grid. For each puzzle, provide a list of points. Each point has a letter (e.g., 'A', 'B') and x, y coordinates. There should be two points for each letter. The user connects the matching letters. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title.' },
-            prompt: { type: Type.STRING, description: 'Instruction for the user.' },
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
             puzzles: {
                 type: Type.ARRAY,
                 items: {
@@ -1396,28 +1298,24 @@ export const generateAbcConnectFromAI = async (): Promise<AbcConnectData> => {
                                 type: Type.OBJECT,
                                 properties: {
                                     letter: { type: Type.STRING },
-                                    x: { type: Type.INTEGER },
-                                    y: { type: Type.INTEGER },
-                                }
+                                    x: { type: Type.NUMBER },
+                                    y: { type: Type.NUMBER }
+                                },
+                                required: ["letter", "x", "y"]
                             }
                         }
-                    }
+                    },
+                    required: ["id", "gridDim", "points"]
                 }
             }
         },
+        required: ["title", "prompt", "puzzles"]
     };
     return generateWithSchema(prompt, schema) as Promise<AbcConnectData>;
 };
 
 export const generatePasswordFinderFromAI = async (): Promise<PasswordFinderData> => {
-    const prompt = `
-    Çocuklar için bir "Şifre Bul" etkinliği oluştur.
-    1. Toplam 18 tane Türkçe kelime oluştur. Bunların yaklaşık yarısı özel isim (Ankara, Elif, Akdeniz gibi - ilk harfi büyük yazılması gerekenler), diğer yarısı cins isim (palto, vişne, gömlek gibi) olsun.
-    2. Her kelime için, şifre adayı olacak bir harf seç ve kelimenin kendisinden bağımsız olarak bu harfi belirt.
-    3. Her kelimenin özel isim olup olmadığını (isProperNoun) boolean olarak belirt.
-    4. Sadece özel isim olan kelimelerdeki şifre adayı harflerin birleşimiyle oluşacak şifrenin uzunluğunu hesapla.
-    5. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a "Password Finder" activity. Provide a list of 10 Turkish words. Some should be proper nouns that require a capital letter, others not. Identify which letter from the proper nouns will form a password. Specify the password length. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1430,25 +1328,20 @@ export const generatePasswordFinderFromAI = async (): Promise<PasswordFinderData
                     properties: {
                         word: { type: Type.STRING },
                         passwordLetter: { type: Type.STRING },
-                        isProperNoun: { type: Type.BOOLEAN },
-                    }
+                        isProperNoun: { type: Type.BOOLEAN }
+                    },
+                    required: ["word", "passwordLetter", "isProperNoun"]
                 }
             },
-            passwordLength: { type: Type.INTEGER },
+            passwordLength: { type: Type.INTEGER }
         },
+        required: ["title", "prompt", "words", "passwordLength"]
     };
     return generateWithSchema(prompt, schema) as Promise<PasswordFinderData>;
 };
 
-export const generateSyllableCompletionFromAI = async (theme: string): Promise<SyllableCompletionData> => {
-    const prompt = `
-    Çocuklar için bir "Eksik Kelimeler" etkinliği oluştur. Tema: "${theme}".
-    1. Bu temayla ilgili 10 tane 2 veya 3 heceli Türkçe kelime oluştur.
-    2. Her kelimeyi iki parçaya ayır.
-    3. Bu kelime parçalarını (first, second) ve eksik heceleri (syllables) ayrı listeler halinde döndür. 'syllables' listesi karıştırılmış olmalı.
-    4. Bulunan kelimelerin kullanılacağı bir hikaye yazma görevi (storyPrompt) ekle.
-    Sonucu aşağıdaki JSON formatında döndür.
-    `;
+export const generateSyllableCompletionFromAI = async (topic: string): Promise<SyllableCompletionData> => {
+    const prompt = `Create a syllable completion activity with the theme '${topic}'. Provide 5 Turkish words, split into two parts. Provide a list of 10 syllables, including the 5 correct missing ones and 5 distractors. Also provide a prompt for the user to write a story using the completed words. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1461,25 +1354,21 @@ export const generateSyllableCompletionFromAI = async (theme: string): Promise<S
                     type: Type.OBJECT,
                     properties: {
                         first: { type: Type.STRING },
-                        second: { type: Type.STRING },
-                    }
+                        second: { type: Type.STRING }
+                    },
+                    required: ["first", "second"]
                 }
             },
             syllables: { type: Type.ARRAY, items: { type: Type.STRING } },
-            storyPrompt: { type: Type.STRING },
+            storyPrompt: { type: Type.STRING }
         },
+        required: ["title", "prompt", "theme", "wordParts", "syllables", "storyPrompt"]
     };
     return generateWithSchema(prompt, schema) as Promise<SyllableCompletionData>;
 };
 
 export const generateSynonymWordSearchFromAI = async (): Promise<SynonymWordSearchData> => {
-    const prompt = `
-    Çocuklar için bir "Eş Anlamlı Kelime Avı" etkinliği oluştur.
-    1. Birbirinin eş anlamlısı olan 10 tane Türkçe kelime çifti oluştur (word, synonym).
-    2. Bu 10 eş anlamlı kelimeyi (synonym) 15x15'lik bir kelime arama bulmacasına (grid) yerleştir.
-    3. Boşlukları rastgele harflerle doldur.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a synonym word search puzzle. Provide a list of 8 Turkish words and their synonyms. Create a 12x12 grid and hide the synonyms within it. The user must find the synonyms. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1491,24 +1380,20 @@ export const generateSynonymWordSearchFromAI = async (): Promise<SynonymWordSear
                     type: Type.OBJECT,
                     properties: {
                         word: { type: Type.STRING },
-                        synonym: { type: Type.STRING },
-                    }
+                        synonym: { type: Type.STRING }
+                    },
+                    required: ["word", "synonym"]
                 }
             },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
         },
+        required: ["title", "prompt", "wordsToMatch", "grid"]
     };
     return generateWithSchema(prompt, schema) as Promise<SynonymWordSearchData>;
 };
 
 export const generateWordConnectFromAI = async (): Promise<WordConnectData> => {
-    const prompt = `
-    Çocuklar için bir "Kelime Bağlama" etkinliği oluştur.
-    1. Birbirinin zıt anlamlısı olan 6 tane Türkçe kelime çifti oluştur.
-    2. Bu 12 kelimeyi 8x8'lik bir ızgaraya, aralarında kesişmeyen yollarla birleştirilebilecek şekilde yerleştir.
-    3. Her kelimenin metnini, çift ID'sini (pairId) ve 0-indeksli x, y koordinatlarını döndür.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a "Word Connect" activity. On a 10x10 grid, place 5 pairs of related Turkish words (e.g., 'doktor' and 'hastane'). Provide the word, a pairId, and x, y coordinates for each point. The user connects the related words. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1522,24 +1407,20 @@ export const generateWordConnectFromAI = async (): Promise<WordConnectData> => {
                     properties: {
                         word: { type: Type.STRING },
                         pairId: { type: Type.INTEGER },
-                        x: { type: Type.INTEGER },
-                        y: { type: Type.INTEGER },
-                    }
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    },
+                    required: ["word", "pairId", "x", "y"]
                 }
-            },
+            }
         },
+        required: ["title", "prompt", "gridDim", "points"]
     };
     return generateWithSchema(prompt, schema) as Promise<WordConnectData>;
 };
 
 export const generateSpiralPuzzleFromAI = async (): Promise<SpiralPuzzleData> => {
-    const prompt = `
-    Çocuklar için bir "Sarmal Bulmaca" etkinliği oluştur.
-    1. Birbiriyle ilişkili 12 kelime için ipuçları oluştur (örn: "Öğüt kelimesinin eş anlamlısı").
-    2. Bu 12 kelimeyi 13x13'lük bir ızgaraya merkezden başlayıp dışa doğru sarmal şeklinde yerleştir.
-    3. Her kelimenin başlangıç konumunu (row, col) ve numarasını (id) belirt.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a spiral puzzle. Generate a 10x10 grid with letters forming a spiral of words. Provide 6-8 clues for the words hidden in the spiral. Also provide the starting coordinates (row, col) and ID for each word. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1554,24 +1435,19 @@ export const generateSpiralPuzzleFromAI = async (): Promise<SpiralPuzzleData> =>
                     properties: {
                         id: { type: Type.INTEGER },
                         row: { type: Type.INTEGER },
-                        col: { type: Type.INTEGER },
-                    }
+                        col: { type: Type.INTEGER }
+                    },
+                    required: ["id", "row", "col"]
                 }
-            },
+            }
         },
+        required: ["title", "prompt", "clues", "grid", "wordStarts"]
     };
     return generateWithSchema(prompt, schema) as Promise<SpiralPuzzleData>;
 };
 
 export const generateCrosswordFromAI = async (): Promise<CrosswordData> => {
-    const prompt = `
-    Çocuklar için bir "Çapraz Bulmaca" etkinliği oluştur.
-    1. 11 tane ipucu oluştur. İpuçları "YUMUŞAK kelimesinin eş anlamlısı" gibi olmalı.
-    2. Bu ipuçlarının cevaplarını, bazı harfleri renkli (şifre) olacak şekilde bir bulmaca ızgarasına yerleştir. Izgara yaklaşık 12x12 boyutunda olabilir.
-    3. Izgarayı, boş kareler için null ve dolu kareler için harf içeren bir 2D dizi olarak döndür.
-    4. Şifreyi oluşturan hücrelerin koordinatlarını (row, col) belirt.
-    5. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a simple 8x8 crossword puzzle for kids in Turkish. Provide 5-6 clues. Some cells should be part of a hidden password. Indicate the password cells and password length. The grid should use 'null' for black cells. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1583,35 +1459,32 @@ export const generateCrosswordFromAI = async (): Promise<CrosswordData> => {
                     type: Type.OBJECT,
                     properties: {
                         id: { type: Type.INTEGER },
-                        text: { type: Type.STRING },
-                    }
+                        text: { type: Type.STRING }
+                    },
+                    required: ["id", "text"]
                 }
             },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, nullable: true } } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             passwordCells: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
                         row: { type: Type.INTEGER },
-                        col: { type: Type.INTEGER },
-                    }
+                        col: { type: Type.INTEGER }
+                    },
+                    required: ["row", "col"]
                 }
             },
-            passwordLength: { type: Type.INTEGER },
+            passwordLength: { type: Type.INTEGER }
         },
+        required: ["title", "prompt", "clues", "grid", "passwordCells", "passwordLength"]
     };
     return generateWithSchema(prompt, schema) as Promise<CrosswordData>;
 };
 
-export const generateJumbledWordStoryFromAI = async (theme: string): Promise<JumbledWordStoryData> => {
-    const prompt = `
-    Çocuklar için bir "Kelime Bulma ve Hikaye Yazma" etkinliği oluştur. Tema: "${theme}".
-    1. Tema ile ilgili, her biri 4-7 harfli 8 kelime oluştur.
-    2. Her kelimenin harflerini karıştırarak bir jumbled listesi oluştur.
-    3. Bulunan kelimelerin kullanılacağı bir hikaye yazma görevi (storyPrompt) ekle.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+export const generateJumbledWordStoryFromAI = async (topic: string): Promise<JumbledWordStoryData> => {
+    const prompt = `Create a "Jumbled Word Story" activity with the theme '${topic}'. Provide 5 jumbled Turkish words related to the theme. Also provide the correct word for each. Finally, provide a prompt for the user to write a story using these words. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1624,24 +1497,21 @@ export const generateJumbledWordStoryFromAI = async (theme: string): Promise<Jum
                     type: Type.OBJECT,
                     properties: {
                         jumbled: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        word: { type: Type.STRING },
-                    }
+                        word: { type: Type.STRING }
+                    },
+                    required: ["jumbled", "word"]
                 }
             },
-            storyPrompt: { type: Type.STRING },
+            storyPrompt: { type: Type.STRING }
         },
+        required: ["title", "prompt", "theme", "puzzles", "storyPrompt"]
     };
     return generateWithSchema(prompt, schema) as Promise<JumbledWordStoryData>;
 };
 
 export const generateHomonymSentenceFromAI = async (): Promise<HomonymSentenceData> => {
-    const textPrompt = `
-        Çocuklar için bir "Kelime Ağı (Eş Sesli)" etkinliği oluştur.
-        1. 8 tane yaygın Türkçe eş sesli kelime seç (örn: yüz, dal, at, yaz, ben, dolu, alay, ekmek).
-        2. Her kelime için, kelimenin bir anlamını temsil eden basit bir görsel açıklaması yaz. (örn: 'yüz' için 'insan suratı', 'dal' için 'ağaç dalı').
-        3. Sonucu aşağıdaki JSON formatında döndür.
-    `;
-    const textSchema = {
+    const prompt = `Create a homonym (eş sesli) sentence writing activity. Provide 4 Turkish homonym words. For each word, generate a DALL-E 3 style prompt for a simple image representing one of its meanings. You must not generate the image itself; return an empty string for 'imageBase64'. The user will write two sentences for each word. Format as JSON.`;
+    const schema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -1652,44 +1522,19 @@ export const generateHomonymSentenceFromAI = async (): Promise<HomonymSentenceDa
                     type: Type.OBJECT,
                     properties: {
                         word: { type: Type.STRING },
-                        description: { type: Type.STRING },
-                    }
+                        imageBase64: { type: Type.STRING, description: "This should be an empty string." }
+                    },
+                    required: ["word", "imageBase64"]
                 }
-            },
+            }
         },
+        required: ["title", "prompt", "items"]
     };
-    const textData = await generateWithSchema(textPrompt, textSchema);
-
-    const imagePromises = textData.items.map(async (item: { word: string, description: string }) => {
-        const imagePrompt = `A simple, clear cartoon icon of a ${item.description}, on a white background.`;
-        const imageResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image',
-            contents: { parts: [{ text: imagePrompt }] },
-            config: { responseModalities: ['IMAGE'] },
-        });
-        const part = imageResponse.candidates?.[0]?.content?.parts?.[0];
-        const imageBase64 = part?.inlineData?.data || '';
-        return { word: item.word, imageBase64 };
-    });
-
-    const itemsWithImages = await Promise.all(imagePromises);
-
-    return {
-        title: textData.title,
-        prompt: textData.prompt,
-        items: itemsWithImages,
-    };
+    return generateWithSchema(prompt, schema) as Promise<HomonymSentenceData>;
 };
 
-export const generateWordGridPuzzleFromAI = async (theme: string): Promise<WordGridPuzzleData> => {
-    const prompt = `
-    Çocuklar için bir "Kelime Ağı (Yerleştirme)" etkinliği oluştur. Tema: "${theme}".
-    1. Tema ile ilgili 12 tane Türkçe kelime listesi oluştur.
-    2. Bu kelimelerden 8 tanesini, birbirine geçen bir 15x15'lik bulmaca ızgarasına (Scrabble gibi) yerleştir.
-    3. Izgarayı, boş kareler için null, dolu kareler için harf ve bazı ipucu harfleri içeren bir 2D dizi olarak döndür.
-    4. Kullanılmayan kelimeleri yazmak için bir talimat ekle.
-    5. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+export const generateWordGridPuzzleFromAI = async (topic: string): Promise<WordGridPuzzleData> => {
+    const prompt = `Create a word grid puzzle with the theme '${topic}'. Provide a list of 8 Turkish words. Create a 10x10 grid and place 7 of these words in it (horizontally or vertically). The remaining word is the one the user needs to find. Use 'null' for empty, unusable cells. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1697,20 +1542,16 @@ export const generateWordGridPuzzleFromAI = async (theme: string): Promise<WordG
             prompt: { type: Type.STRING },
             theme: { type: Type.STRING },
             wordList: { type: Type.ARRAY, items: { type: Type.STRING } },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, nullable: true } } },
-            unusedWordPrompt: { type: Type.STRING },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            unusedWordPrompt: { type: Type.STRING }
         },
+        required: ["title", "prompt", "theme", "wordList", "grid", "unusedWordPrompt"]
     };
     return generateWithSchema(prompt, schema) as Promise<WordGridPuzzleData>;
 };
 
 export const generateProverbSayingSortFromAI = async (): Promise<ProverbSayingSortData> => {
-    const prompt = `
-    Çocuklar için bir "Atasözü/Özdeyiş" sıralama etkinliği oluştur.
-    1. 5 tane yaygın Türkçe atasözü ve 5 tane ünlü özdeyiş bul.
-    2. Bunları karışık bir sırada listele ve her birinin türünü ('atasözü' veya 'özdeyiş') belirt.
-    3. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a proverb (atasözü) vs. saying (özdeyiş) sorting activity. Provide a list of 8 items, a mix of Turkish proverbs and sayings. For each item, specify its type. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1722,65 +1563,45 @@ export const generateProverbSayingSortFromAI = async (): Promise<ProverbSayingSo
                     type: Type.OBJECT,
                     properties: {
                         text: { type: Type.STRING },
-                        type: { type: Type.STRING },
-                    }
+                        type: { type: Type.STRING, enum: ['atasözü', 'özdeyiş'] }
+                    },
+                    required: ["text", "type"]
                 }
-            },
+            }
         },
+        required: ["title", "prompt", "items"]
     };
     return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData>;
 };
 
 export const generateHomonymImageMatchFromAI = async (): Promise<HomonymImageMatchData> => {
-    const prompt = `
-    Çocuklar için bir "Resim Eşleştirme (Eş Sesli)" etkinliği oluştur.
-    1. 5 tane yaygın Türkçe eş sesli kelime seç (örn: at, yüz, dil, ekmek, bin).
-    2. Her kelimenin iki farklı anlamını tanımlayan kısa açıklamalar yaz. (örn: 'at' için 'bir binek hayvanı' ve 'bir şeyi fırlatma eylemi').
-    3. Ayrıca, bu kelimelerle ilgisiz, harfleri karıştırılmış bir kelime bulmacası için bir kelime ve harfleri oluştur.
-    4. Sonucu aşağıdaki JSON formatında, sadece metin verisiyle döndür.
-    `;
-    const textSchema = {
+    const prompt = `Create a homonym image matching puzzle. Provide 3 Turkish homonym words. For each word, provide two different DALL-E 3 style image prompts, one for each meaning. These will be separated into left and right columns. You must not generate images; return an empty string for 'imageBase64'. Also, provide a scrambled word puzzle using one of the homonyms. Format as JSON.`;
+    const schema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
-            pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, desc1: { type: Type.STRING }, desc2: { type: Type.STRING } } } },
-            wordScramble: { type: Type.OBJECT, properties: { letters: { type: Type.ARRAY, items: { type: Type.STRING } }, word: { type: Type.STRING } } },
+            leftImages: {
+                type: Type.ARRAY, items: {
+                    type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imageBase64: { type: Type.STRING } }, required: ["id", "word", "imageBase64"]
+                }
+            },
+            rightImages: {
+                type: Type.ARRAY, items: {
+                    type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imageBase64: { type: Type.STRING } }, required: ["id", "word", "imageBase64"]
+                }
+            },
+            wordScramble: {
+                type: Type.OBJECT, properties: { letters: { type: Type.ARRAY, items: { type: Type.STRING } }, word: { type: Type.STRING } }, required: ["letters", "word"]
+            }
         },
+        required: ["title", "prompt", "leftImages", "rightImages", "wordScramble"]
     };
-    const textData = await generateWithSchema(prompt, textSchema);
-
-    const imagePromises = textData.pairs.flatMap((pair: any) => [
-        { word: pair.word, desc: pair.desc1 },
-        { word: pair.word, desc: pair.desc2 }
-    ]).map(async (item: { word: string, desc: string }) => {
-        const imagePrompt = `A simple, clear cartoon icon of: ${item.desc}. On a white background.`;
-        const imageResponse = await ai.models.generateContent({ model: 'gemini-2.5-flash-image', contents: { parts: [{ text: imagePrompt }] }, config: { responseModalities: ['IMAGE'] } });
-        const imageBase64 = imageResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || '';
-        return { ...item, imageBase64 };
-    });
-
-    const images = await Promise.all(imagePromises);
-    const leftImages = textData.pairs.map((p: any, i: number) => ({ id: i, word: p.word, imageBase64: images.find(img => img.desc === p.desc1)?.imageBase64 || '' }));
-    const rightImages = textData.pairs.map((p: any, i: number) => ({ id: i, word: p.word, imageBase64: images.find(img => img.desc === p.desc2)?.imageBase64 || '' }));
-
-    return {
-        title: textData.title,
-        prompt: textData.prompt,
-        leftImages,
-        rightImages,
-        wordScramble: textData.wordScramble,
-    };
+    return generateWithSchema(prompt, schema) as Promise<HomonymImageMatchData>;
 };
 
 export const generateAntonymFlowerPuzzleFromAI = async (): Promise<AntonymFlowerPuzzleData> => {
-    const prompt = `
-    Çocuklar için bir "Zıt Anlamlı Kelime Bulmacası" etkinliği oluştur.
-    1. 9 tane kelime ve zıt anlamlılarını bul (örn: uzun-kısa).
-    2. Her zıt anlamlı kelimenin harflerini, şifreyi oluşturacak 2-3 ekstra harfle birleştir ve karıştır. Bu harfler papatyanın yaprakları olacak.
-    3. Tüm ekstra harflerin birleşimiyle oluşacak 8 harfli bir şifre kelimesi belirle.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create an antonym flower puzzle. Generate 4 puzzles. Each puzzle has a center word. The user needs to find its antonym. Provide the antonym's letters mixed with distractor letters for the flower petals. The first letters of the antonyms will form a password. Specify the password length. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1793,25 +1614,20 @@ export const generateAntonymFlowerPuzzleFromAI = async (): Promise<AntonymFlower
                     properties: {
                         centerWord: { type: Type.STRING },
                         antonym: { type: Type.STRING },
-                        petalLetters: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    }
+                        petalLetters: { type: Type.ARRAY, items: { type: Type.STRING } }
+                    },
+                    required: ["centerWord", "antonym", "petalLetters"]
                 }
             },
-            passwordLength: { type: Type.INTEGER },
+            passwordLength: { type: Type.INTEGER }
         },
+        required: ["title", "prompt", "puzzles", "passwordLength"]
     };
     return generateWithSchema(prompt, schema) as Promise<AntonymFlowerPuzzleData>;
 };
 
 export const generateProverbWordChainFromAI = async (): Promise<ProverbWordChainData> => {
-    const prompt = `
-    Çocuklar için bir "Atasözü/Özdeyiş Bulma" etkinliği oluştur.
-    1. 8 tane kısa ve bilinen Türkçe atasözü veya özdeyiş seç.
-    2. Tüm bu cümlelerdeki kelimeleri tek bir listeye koy ve karıştır.
-    3. Her kelime için rastgele bir renk ata ('pink', 'orange', 'cyan', 'lime', 'purple', 'yellow', 'red', 'blue').
-    4. Çözüm olarak atasözlerinin tam listesini ver.
-    5. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a proverb word chain activity. Provide a word cloud of about 20 Turkish words. These words can be combined to form 3-4 proverbs or sayings. Provide the correct solutions. For the word cloud, assign a random hex color to each word. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1823,24 +1639,20 @@ export const generateProverbWordChainFromAI = async (): Promise<ProverbWordChain
                     type: Type.OBJECT,
                     properties: {
                         word: { type: Type.STRING },
-                        color: { type: Type.STRING },
-                    }
+                        color: { type: Type.STRING }
+                    },
+                    required: ["word", "color"]
                 }
             },
-            solutions: { type: Type.ARRAY, items: { type: Type.STRING } },
+            solutions: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
+        required: ["title", "prompt", "wordCloud", "solutions"]
     };
     return generateWithSchema(prompt, schema) as Promise<ProverbWordChainData>;
 };
 
-export const generateThematicOddOneOutFromAI = async (theme: string): Promise<ThematicOddOneOutData> => {
-    const prompt = `
-    Çocuklar için bir "Farklı Özelliği Bulma" etkinliği oluştur. Tema: "${theme}".
-    1. 4 satır oluştur. Her satırda, tema ile ilgili 4 kelime ve tema ile ilgisiz 1 kelime olsun.
-    2. Her satır için ilgisiz kelimeyi belirt.
-    3. Bulunan farklı kelimelerle cümle yazma görevi ekle.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+export const generateThematicOddOneOutFromAI = async (topic: string): Promise<ThematicOddOneOutData> => {
+    const prompt = `Create a thematic odd one out activity with the theme '${topic}'. Generate 4 rows of words. Each row has 4 words; 3 are related to the theme, one is not. Identify the odd word. Provide a prompt for the user to write a sentence with the odd words. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1853,46 +1665,36 @@ export const generateThematicOddOneOutFromAI = async (theme: string): Promise<Th
                     type: Type.OBJECT,
                     properties: {
                         words: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        oddWord: { type: Type.STRING },
-                    }
+                        oddWord: { type: Type.STRING }
+                    },
+                    required: ["words", "oddWord"]
                 }
             },
-            sentencePrompt: { type: Type.STRING },
+            sentencePrompt: { type: Type.STRING }
         },
+        required: ["title", "prompt", "theme", "rows", "sentencePrompt"]
     };
     return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutData>;
 };
 
 export const generateSynonymAntonymGridFromAI = async (): Promise<SynonymAntonymGridData> => {
-    const prompt = `
-    Çocuklar için bir "Eş ve Zıt Anlamlı Kelime Bulmacası" oluştur.
-    1. 10 kelime ve zıt anlamlılarını bul.
-    2. 10 kelime ve eş anlamlılarını bul.
-    3. Bu 20 zıt/eş anlamlı kelimeyi 15x15'lik bir harf ızgarasına yerleştir.
-    4. Boşlukları rastgele harflerle doldur.
-    5. Sonucu aşağıdaki JSON formatında döndür. Sadece orijinal kelimeleri ve ızgarayı döndür, cevapları kullanıcı bulacak.
-    `;
+    const prompt = `Create a synonym/antonym grid puzzle. Provide a list of 4 Turkish words for which to find antonyms, and another 4 for which to find synonyms. Create a 10x10 grid and hide all 8 antonyms and synonyms in it. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
-            antonyms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING } } } },
-            synonyms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING } } } },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            antonyms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING } }, required: ["word"] } },
+            synonyms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING } }, required: ["word"] } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
         },
+        required: ["title", "prompt", "antonyms", "synonyms", "grid"]
     };
     return generateWithSchema(prompt, schema) as Promise<SynonymAntonymGridData>;
 };
 
 export const generatePunctuationColoringFromAI = async (): Promise<PunctuationColoringData> => {
-    const prompt = `
-    Çocuklar için bir "Görsel Boyama (Noktalama)" etkinliği oluştur.
-    1. Her biri farklı bir noktalama işareti (., ?, !, :, ‘, “”, -) gerektiren 8 tane basit cümle oluştur. Cümlenin sonuna parantez içinde ( ) boşluk bırak.
-    2. Her cümle için bir renk ata ('salmon', 'skyblue', 'mediumpurple', 'limegreen', 'gold', 'hotpink', 'darkorange', 'deepskyblue').
-    3. Her cümlenin gerektirdiği doğru noktalama işaretini belirt.
-    4. Sonucu aşağıdaki JSON formatında döndür.
-    `;
+    const prompt = `Create a punctuation coloring activity. Provide 5 Turkish sentences, each missing a punctuation mark at the end (., ?, !). For each sentence, provide a color and the correct punctuation mark. The user will color a picture based on the correct mark. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -1905,11 +1707,1416 @@ export const generatePunctuationColoringFromAI = async (): Promise<PunctuationCo
                     properties: {
                         text: { type: Type.STRING },
                         color: { type: Type.STRING },
-                        correctMark: { type: Type.STRING },
-                    }
+                        correctMark: { type: Type.STRING }
+                    },
+                    required: ["text", "color", "correctMark"]
                 }
-            },
+            }
         },
+        required: ["title", "prompt", "sentences"]
     };
     return generateWithSchema(prompt, schema) as Promise<PunctuationColoringData>;
+};
+
+export const generatePunctuationMazeFromAI = async(): Promise<PunctuationMazeData> => {
+    const prompt = `Create a punctuation maze for the comma (virgül). Provide a title, prompt, and a list of 8 rules about comma usage in Turkish. Some rules should be correct, others incorrect. Mark which ones are correct. The user follows the path of correct rules. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            punctuationMark: { type: Type.STRING },
+            rules: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.INTEGER },
+                        text: { type: Type.STRING },
+                        isCorrect: { type: Type.BOOLEAN }
+                    },
+                    required: ["id", "text", "isCorrect"]
+                }
+            }
+        },
+        required: ["title", "prompt", "punctuationMark", "rules"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<PunctuationMazeData>;
+}
+
+export const generateAntonymResfebeFromAI = async(): Promise<AntonymResfebeData> => {
+    const prompt = `Create an antonym Resfebe puzzle. Generate 3 puzzles. For each, provide a word and its antonym. Also, provide a list of clues to form the Resfebe for the *original* word. One of the clues must be an image placeholder. For the image, provide a simple DALL-E style prompt. Return an empty string for 'imageBase64'. The user solves the Resfebe, finds the word, and then writes its antonym. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        antonym: { type: Type.STRING },
+                        imageBase64: { type: Type.STRING },
+                        clues: { type: Type.ARRAY, items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                type: { type: Type.STRING, enum: ['text', 'image'] },
+                            },
+                             required: ["type"]
+                        } }
+                    },
+                    required: ["word", "antonym", "imageBase64", "clues"]
+                }
+            },
+            antonymsPrompt: { type: Type.STRING }
+        },
+        required: ["title", "prompt", "puzzles", "antonymsPrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<AntonymResfebeData>;
+}
+
+export const generateThematicWordSearchColorFromAI = async(topic: string): Promise<ThematicWordSearchColorData> => {
+    const prompt = `Create a thematic word search with the theme '${topic}'. Generate a list of 10 Turkish words related to the theme. Create a 12x12 grid and hide these words. The user should find and color the words. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            theme: { type: Type.STRING },
+            words: { type: Type.ARRAY, items: { type: Type.STRING } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
+        },
+        required: ["title", "prompt", "theme", "words", "grid"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ThematicWordSearchColorData>;
+}
+
+export const generateThematicOddOneOutSentenceFromAI = async(topic: string): Promise<ThematicOddOneOutSentenceData> => {
+    const prompt = `Create a thematic odd one out activity similar to ThematicOddOneOutData. The theme is '${topic}'. Generate 4 rows of 4 words each. Three are related, one is not. The user finds the odd words and then writes a sentence with them. The password letters from the odd words form a secret word. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        words: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        oddWord: { type: Type.STRING }
+                    },
+                    required: ["words", "oddWord"]
+                }
+            },
+            sentencePrompt: { type: Type.STRING }
+        },
+        required: ["title", "prompt", "rows", "sentencePrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutSentenceData>;
+}
+
+export const generateProverbSentenceFinderFromAI = async(): Promise<ProverbSentenceFinderData> => {
+    const prompt = `Create a proverb sentence finder activity, similar to ProverbWordChainData. Provide a word cloud of about 20 Turkish words that can form 3-4 proverbs. Provide the solutions. Assign a random hex color to each word. The user should color the words of each proverb with the same color. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            wordCloud: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        color: { type: Type.STRING }
+                    },
+                    required: ["word", "color"]
+                }
+            },
+            solutions: { type: Type.ARRAY, items: { type: Type.STRING } }
+        },
+        required: ["title", "prompt", "wordCloud", "solutions"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ProverbSentenceFinderData>;
+}
+
+export const generateSynonymSearchAndStoryFromAI = async(): Promise<SynonymSearchAndStoryData> => {
+    const prompt = `Create a "Synonym Search and Story" activity. Provide a table of 6 Turkish words and their synonyms. Create a 12x12 grid and hide the synonyms. Finally, provide a prompt for the user to write a story using the original words. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            wordTable: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        synonym: { type: Type.STRING }
+                    },
+                    required: ["word", "synonym"]
+                }
+            },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            storyPrompt: { type: Type.STRING }
+        },
+        required: ["title", "prompt", "wordTable", "grid", "storyPrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<SynonymSearchAndStoryData>;
+}
+
+export const generateColumnOddOneOutSentenceFromAI = async(): Promise<ColumnOddOneOutSentenceData> => {
+    const prompt = `Create a "Column Odd One Out" activity. Provide 4 columns of words. Each column has 4 words. In each column, 3 words are related, and one is not. Identify the odd word for each column. Provide a prompt for the user to write a sentence with the odd words. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            columns: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        words: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        oddWord: { type: Type.STRING }
+                    },
+                    required: ["words", "oddWord"]
+                }
+            },
+            sentencePrompt: { type: Type.STRING }
+        },
+        required: ["title", "prompt", "columns", "sentencePrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ColumnOddOneOutSentenceData>;
+}
+
+export const generateSynonymAntonymColoringFromAI = async(): Promise<SynonymAntonymColoringData> => {
+    const prompt = `Create a synonym/antonym coloring activity. Provide a color key with 4 instructions, like "Find the antonym of 'Cömert' and color it red". Then, provide a list of words scattered on an image area, each with its x,y coordinates (percentages). The list should contain the target words (e.g., 'Cimri'). The user colors the words according to the key. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            colorKey: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        text: { type: Type.STRING },
+                        color: { type: Type.STRING }
+                    },
+                    required: ["text", "color"]
+                }
+            },
+            wordsOnImage: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    },
+                    required: ["word", "x", "y"]
+                }
+            }
+        },
+        required: ["title", "prompt", "colorKey", "wordsOnImage"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<SynonymAntonymColoringData>;
+}
+
+export const generatePunctuationPhoneNumberFromAI = async(): Promise<PunctuationPhoneNumberData> => {
+    const prompt = `Create a "Punctuation Phone Number" puzzle. Provide 7 clues related to Turkish punctuation rules. Each clue corresponds to a number. For example, "The mark at the end of a question sentence". The user must identify the punctuation mark from the clue. Create a solution map that links each punctuation mark to a digit (0-9). The user uses this map to find the secret phone number. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            clues: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.INTEGER },
+                        text: { type: Type.STRING }
+                    },
+                    required: ["id", "text"]
+                }
+            },
+            solution: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        punctuationMark: { type: Type.STRING },
+                        number: { type: Type.INTEGER }
+                    },
+                    required: ["punctuationMark", "number"]
+                }
+            }
+        },
+        required: ["title", "prompt", "instruction", "clues", "solution"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<PunctuationPhoneNumberData>;
+}
+
+export const generatePunctuationSpiralPuzzleFromAI = async(): Promise<PunctuationSpiralPuzzleData> => {
+    const prompt = `Create a spiral puzzle about punctuation, similar to the regular SpiralPuzzleData. Generate a 10x10 grid with a spiral of words. Provide 6-8 clues for these words, where the clues are about Turkish grammar and punctuation rules. Also provide the starting coordinates (row, col) and ID for each word. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            clues: { type: Type.ARRAY, items: { type: Type.STRING } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            wordStarts: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.INTEGER },
+                        row: { type: Type.INTEGER },
+                        col: { type: Type.INTEGER }
+                    },
+                    required: ["id", "row", "col"]
+                }
+            }
+        },
+        required: ["title", "prompt", "clues", "grid", "wordStarts"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<PunctuationSpiralPuzzleData>;
+}
+
+export const generateThematicJumbledWordStoryFromAI = async(topic: string): Promise<ThematicJumbledWordStoryData> => {
+    const prompt = `Create a "Thematic Jumbled Word Story" activity with the theme '${topic}'. Provide 5 jumbled Turkish words related to the theme, along with their correct forms. Then, provide a prompt for the user to write a short text using these words. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            theme: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        jumbled: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        word: { type: Type.STRING }
+                    },
+                    required: ["jumbled", "word"]
+                }
+            },
+            storyPrompt: { type: Type.STRING }
+        },
+        required: ["title", "prompt", "theme", "puzzles", "storyPrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ThematicJumbledWordStoryData>;
+}
+
+export const generateSynonymMatchingPatternFromAI = async(topic: string): Promise<SynonymMatchingPatternData> => {
+    const prompt = `Create a "Synonym Matching Pattern" activity with the theme '${topic}'. Provide 6 pairs of Turkish synonyms. The user's goal is to match them. This is a visual matching/connection activity. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            theme: { type: Type.STRING },
+            pairs: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        synonym: { type: Type.STRING }
+                    },
+                    required: ["word", "synonym"]
+                }
+            }
+        },
+        required: ["title", "prompt", "theme", "pairs"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<SynonymMatchingPatternData>;
+}
+
+export const generateNumberPyramidFromAI = async(): Promise<NumberPyramidData> => {
+    const prompt = `Create a number pyramid (addition) puzzle. Generate 2 pyramids. Each pyramid has 4-5 rows. A number in a cell is the sum of the two cells directly below it. Some cells should be empty (null). Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            pyramids: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        title: { type: Type.STRING },
+                        rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } }
+                    },
+                    required: ["title", "rows"]
+                }
+            }
+        },
+        required: ["title", "prompt", "pyramids"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<NumberPyramidData>;
+}
+
+export const generateNumberCapsuleFromAI = async(): Promise<NumberCapsuleData> => {
+    const prompt = `Create a number capsule (Kakuro-style) puzzle. Generate 1 puzzle on a 4x4 grid. Some cells are empty (null). Define several 'capsules' (groups of cells) and their target sums. The user must fill the grid with numbers from a given set (e.g., 1-9) without repetition in a capsule. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        title: { type: Type.STRING },
+                        numbersToUse: { type: Type.STRING },
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
+                        capsules: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } },
+                                    sum: { type: Type.INTEGER }
+                                },
+                                required: ["cells", "sum"]
+                            }
+                        }
+                    },
+                    required: ["title", "numbersToUse", "grid", "capsules"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<NumberCapsuleData>;
+}
+
+export const generateOddEvenSudokuFromAI = async(): Promise<OddEvenSudokuData> => {
+    const prompt = `Create a 6x6 Odd-Even Sudoku. Generate 1 puzzle. The grid has some pre-filled numbers. Some empty cells are marked (shaded) and must contain an even number, while unmarked empty cells must contain an odd number. Provide the grid and the coordinates of the shaded (even) cells. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        title: { type: Type.STRING },
+                        numbersToUse: { type: Type.STRING },
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
+                        constrainedCells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } }
+                    },
+                    required: ["title", "numbersToUse", "grid", "constrainedCells"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<OddEvenSudokuData>;
+}
+
+export const generateRomanNumeralConnectFromAI = async(): Promise<RomanNumeralConnectData> => {
+    const prompt = `Create a Roman Numeral Connect puzzle, similar to ABC Connect. Generate 1 puzzle on a 6x6 grid. Provide a list of points. Each point has a Roman numeral label ('I', 'II', 'III', etc.) and x, y coordinates. There should be two points for each numeral. The user connects the matching numerals. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        title: { type: Type.STRING },
+                        gridDim: { type: Type.INTEGER },
+                        points: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    label: { type: Type.STRING },
+                                    x: { type: Type.NUMBER },
+                                    y: { type: Type.NUMBER }
+                                },
+                                required: ["label", "x", "y"]
+                            }
+                        }
+                    },
+                    required: ["title", "gridDim", "points"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralConnectData>;
+}
+
+export const generateRomanNumeralStarHuntFromAI = async(): Promise<RomanNumeralStarHuntData> => {
+    const prompt = `Create a Roman Numeral Star Hunt puzzle. Generate a 6x6 grid. Some cells contain Roman numerals, which act as clues. The rule is that each cell with a Roman numeral must be adjacent (horizontally, vertically, or diagonally) to exactly that many stars. Generate the grid with the clues and specify the total number of stars to be found. Use 'null' for empty cells. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            starCount: { type: Type.INTEGER }
+        },
+        required: ["title", "prompt", "grid", "starCount"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralStarHuntData>;
+}
+
+export const generateRoundingConnectFromAI = async(): Promise<RoundingConnectData> => {
+    const prompt = `Create a Rounding Connect puzzle. Generate a set of 12 numbers to be placed randomly in a box. The numbers belong to 4 groups, where each group rounds to the same value (e.g., numbers that round to 50). Provide each number's value, its group ID, and its x, y coordinates (percentages). The user connects numbers in the same group. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            example: { type: Type.STRING },
+            numbers: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        value: { type: Type.INTEGER },
+                        group: { type: Type.INTEGER },
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    },
+                    required: ["value", "group", "x", "y"]
+                }
+            }
+        },
+        required: ["title", "prompt", "example", "numbers"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<RoundingConnectData>;
+}
+
+export const generateRomanNumeralMultiplicationFromAI = async(): Promise<RomanNumeralMultiplicationData> => {
+    const prompt = `Create a Roman Numeral Multiplication Square puzzle. Generate 2 puzzles. Each is a 2x2 grid where the user multiplies the numbers/numerals in the first row and column to fill the inner cells. Some cells should be pre-filled (with Roman numerals or Arabic numbers), others should be empty (null). Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        row1: { type: Type.STRING },
+                        row2: { type: Type.STRING },
+                        col1: { type: Type.STRING },
+                        col2: { type: Type.STRING },
+                        results: {
+                            type: Type.OBJECT,
+                            properties: {
+                                r1c1: { type: Type.STRING },
+                                r1c2: { type: Type.STRING },
+                                r2c1: { type: Type.STRING },
+                                r2c2: { type: Type.STRING }
+                            },
+                            required: ["r1c1", "r1c2", "r2c1", "r2c2"]
+                        }
+                    },
+                    required: ["row1", "row2", "col1", "col2", "results"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralMultiplicationData>;
+}
+
+export const generateArithmeticConnectFromAI = async(): Promise<ArithmeticConnectData> => {
+    const prompt = `Create an Arithmetic Connect puzzle. Generate a set of 12 arithmetic expressions (e.g., "50+27") to be placed randomly in a box. The expressions belong to 4 groups with the same result. Provide each expression's text, its result value, its group ID, and its x, y coordinates. The user connects expressions in the same group. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            example: { type: Type.STRING },
+            expressions: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        text: { type: Type.STRING },
+                        value: { type: Type.INTEGER },
+                        group: { type: Type.INTEGER },
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    },
+                    required: ["text", "value", "group", "x", "y"]
+                }
+            }
+        },
+        required: ["title", "prompt", "example", "expressions"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ArithmeticConnectData>;
+}
+
+export const generateRomanArabicMatchConnectFromAI = async(): Promise<RomanArabicMatchConnectData> => {
+    const prompt = `Create a Roman-Arabic numeral matching connect puzzle. On a 10x10 grid, place 5 pairs of matching numerals (e.g., 'IX' and '9'). Provide the label, a pairId, and x, y coordinates for each point. The user connects the matching pairs. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            gridDim: { type: Type.INTEGER },
+            points: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        label: { type: Type.STRING },
+                        pairId: { type: Type.INTEGER },
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    },
+                    required: ["label", "pairId", "x", "y"]
+                }
+            }
+        },
+        required: ["title", "prompt", "gridDim", "points"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<RomanArabicMatchConnectData>;
+}
+
+export const generateSudoku6x6ShadedFromAI = async(): Promise<Sudoku6x6ShadedData> => {
+    const prompt = `Create a 6x6 Sudoku with a twist. This is the same as OddEvenSudokuData, but specifically for a 6x6 grid. Generate 1 puzzle. Some empty cells are shaded and must contain even numbers. Provide the partially filled grid and the coordinates of the shaded cells. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
+                        shadedCells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } }
+                    },
+                    required: ["grid", "shadedCells"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<Sudoku6x6ShadedData>;
+}
+
+export const generateKendokuFromAI = async(): Promise<KendokuData> => {
+    const prompt = `Create a 4x4 Kendoku (Calcudoku) puzzle. Generate 1 puzzle. Provide the size, an empty grid, and a list of 'cages'. Each cage specifies the cells it contains, the arithmetic operation (+, −, ×, ÷), and the target number. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        size: { type: Type.INTEGER },
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
+                        cages: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } },
+                                    operation: { type: Type.STRING, enum: ['+', '−', '×', '÷'] },
+                                    target: { type: Type.INTEGER }
+                                },
+                                required: ["cells", "operation", "target"]
+                            }
+                        }
+                    },
+                    required: ["size", "grid", "cages"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<KendokuData>;
+}
+
+export const generateDivisionPyramidFromAI = async(): Promise<DivisionPyramidData> => {
+    const prompt = `Create a division number pyramid puzzle. Generate 2 pyramids. Each has 4-5 rows. A number in a cell is the result of dividing the number above it by the one to its left or right. Some cells should be empty (null). Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            pyramids: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } }
+                    },
+                    required: ["rows"]
+                }
+            }
+        },
+        required: ["title", "prompt", "pyramids"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<DivisionPyramidData>;
+}
+
+export const generateMultiplicationPyramidFromAI = async(): Promise<MultiplicationPyramidData> => {
+    const prompt = `Create a multiplication number pyramid puzzle. Generate 2 pyramids. Each has 4 rows. A number in a cell (above the base) is the product of the two cells directly below it. Some cells should be empty (null). Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            pyramids: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } }
+                    },
+                    required: ["rows"]
+                }
+            }
+        },
+        required: ["title", "prompt", "pyramids"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<MultiplicationPyramidData>;
+}
+
+export const generateOperationSquareSubtractionFromAI = async(): Promise<OperationSquareSubtractionData> => {
+    const prompt = `Create a 3x3 operation square puzzle using subtraction. Fill a grid with numbers and operation signs ('-', '=') such that the rows and columns form correct equations. Some numbers should be missing (represented by null). Generate 2 such puzzles. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
+                    },
+                    required: ["grid"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareSubtractionData>;
+}
+
+export const generateOperationSquareFillInDataFromAI = async(): Promise<OperationSquareFillInData> => {
+    const prompt = `Create a 3x3 operation square fill-in puzzle. Provide an empty grid with operations, a list of numbers to use, and the results for rows/columns. The user must place the numbers correctly. Generate 2 puzzles. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                        numbersToUse: { type: Type.ARRAY, items: { type: Type.INTEGER } },
+                        results: { type: Type.ARRAY, items: { type: Type.INTEGER } }
+                    },
+                    required: ["grid", "numbersToUse", "results"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareFillInData>;
+}
+
+export const generateMultiplicationWheelFromAI = async(): Promise<MultiplicationWheelData> => {
+    const prompt = `Create a multiplication wheel puzzle. Generate 2 puzzles. Each wheel has a center number (the multiplier). There are 8 outer numbers to be multiplied by the center number to get the inner results. Some outer numbers or inner results should be missing (null). Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        outerNumbers: { type: Type.ARRAY, items: { type: Type.INTEGER } },
+                        innerResult: { type: Type.INTEGER }
+                    },
+                    required: ["outerNumbers", "innerResult"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<MultiplicationWheelData>;
+}
+
+export const generateTargetNumberFromAI = async (mode: 'numbers' | 'currency'): Promise<TargetNumberData> => {
+    const prompt = `Create a 'Target Number' puzzle. Generate 3 puzzles. For each puzzle, provide a target number and 4-5 given numbers. The user must use arithmetic operations to reach the target. If mode is 'currency', use numbers that represent common Turkish Lira coin/bill values. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        target: { type: Type.INTEGER },
+                        givenNumbers: { type: Type.ARRAY, items: { type: Type.INTEGER } }
+                    },
+                    required: ["target", "givenNumbers"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<TargetNumberData>;
+};
+
+export const generateOperationSquareMultDivFromAI = async (): Promise<OperationSquareMultDivData> => {
+    const prompt = `Create a 3x3 operation square puzzle using multiplication and division. Fill a grid with numbers and operation signs ('x', '÷', '=') such that the rows and columns form correct equations. Some numbers should be missing (represented by null). Generate 2 such puzzles. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
+                    },
+                    required: ["grid"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareMultDivData>;
+};
+
+export const generateFutoshikiFromAI = async (): Promise<FutoshikiData> => {
+    const prompt = `Create a 4x4 Futoshiki puzzle. Pre-fill some cells with numbers. Provide 3-4 inequality constraints ('>' or '<') between adjacent cells. The user must fill the grid from 1-4. Generate 2 such puzzles. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        size: { type: Type.INTEGER },
+                        numbers: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
+                        constraints: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    row1: { type: Type.INTEGER }, col1: { type: Type.INTEGER },
+                                    row2: { type: Type.INTEGER }, col2: { type: Type.INTEGER },
+                                    symbol: { type: Type.STRING, enum: ['>', '<'] }
+                                },
+                                required: ["row1", "col1", "row2", "col2", "symbol"]
+                            }
+                        }
+                    },
+                    required: ["size", "numbers", "constraints"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<FutoshikiData>;
+};
+
+export const generateShapeSudokuFromAI = async (): Promise<ShapeSudokuData> => {
+    const prompt = `Create a 4x4 Shape Sudoku puzzle. Use 4 different shapes from this list: ${SHAPE_TYPES.join(', ')}. Pre-fill some cells in the grid with shapes. Provide the list of shapes to use. The user must complete the Sudoku. Generate 2 such puzzles. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                        shapesToUse: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    shape: { type: Type.STRING, enum: SHAPE_TYPES },
+                                    label: { type: Type.STRING }
+                                },
+                                required: ["shape", "label"]
+                            }
+                        }
+                    },
+                    required: ["grid", "shapesToUse"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ShapeSudokuData>;
+};
+
+export const generateWeightConnectFromAI = async (): Promise<WeightConnectData> => {
+    const prompt = `Create a 'Weight Connect' activity. On an 8x8 grid, place 5 pairs of equal weights (e.g., '1000 g' and '1 kg'). Provide the label, a pairId, and x, y coordinates for each point. The user connects the equal weights. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            gridDim: { type: Type.INTEGER },
+            points: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        label: { type: Type.STRING },
+                        pairId: { type: Type.INTEGER },
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    },
+                    required: ["label", "pairId", "x", "y"]
+                }
+            }
+        },
+        required: ["title", "prompt", "gridDim", "points"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<WeightConnectData>;
+};
+
+export const generateResfebeFromAI = async (): Promise<ResfebeData> => {
+    const prompt = `Create a Resfebe puzzle. Generate 4 puzzles. A Resfebe is a word puzzle that uses pictures and letters. For each puzzle, provide a list of clues (which can be text or an image placeholder) and the answer word. For image clues, provide a DALL-E 3 style prompt for a simple icon. You must not generate images; return an empty string for 'imageBase64'. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        clues: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    type: { type: Type.STRING, enum: ['text', 'image'] },
+                                    value: { type: Type.STRING },
+                                    imageBase64: { type: Type.STRING }
+                                },
+                                required: ["type", "value"]
+                            }
+                        },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ["clues", "answer"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ResfebeData>;
+};
+
+export const generateFutoshikiLengthFromAI = async (): Promise<FutoshikiLengthData> => {
+    const prompt = `Create a 4x4 Futoshiki puzzle using length units. The units to place are 'mm', 'cm', 'm', 'km'. Pre-fill some cells. Provide 3-4 inequality constraints ('>' or '<') between adjacent cells. The user must fill the grid. Generate 1 puzzle. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        size: { type: Type.INTEGER },
+                        units: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                        constraints: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    row1: { type: Type.INTEGER }, col1: { type: Type.INTEGER },
+                                    row2: { type: Type.INTEGER }, col2: { type: Type.INTEGER },
+                                    symbol: { type: Type.STRING, enum: ['>', '<'] }
+                                },
+                                required: ["row1", "col1", "row2", "col2", "symbol"]
+                            }
+                        }
+                    },
+                    required: ["size", "units", "constraints"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<FutoshikiLengthData>;
+};
+
+export const generateMatchstickSymmetryFromAI = async (): Promise<MatchstickSymmetryData> => {
+    const prompt = `Create a matchstick symmetry puzzle. Generate 2 puzzles. For each, create a simple shape using 5-7 matchsticks on one side of a symmetry line. Provide the coordinates (x1, y1, x2, y2) for each line segment representing a matchstick. The user will draw the reflection. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        number: { type: Type.INTEGER },
+                        lines: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    x1: { type: Type.NUMBER }, y1: { type: Type.NUMBER },
+                                    x2: { type: Type.NUMBER }, y2: { type: Type.NUMBER }
+                                },
+                                required: ["x1", "y1", "x2", "y2"]
+                            }
+                        }
+                    },
+                    required: ["number", "lines"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<MatchstickSymmetryData>;
+};
+
+export const generateWordWebFromAI = async (): Promise<WordWebData> => {
+    const prompt = `Create a 'Word Web' puzzle. Provide a list of 8 related Turkish words. Create a crossword-style grid (10x10) and place 7 of them. The letters in the intersecting cells should form a final key word. Use 'null' for black cells. Provide a prompt for the key word. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            wordsToFind: { type: Type.ARRAY, items: { type: Type.STRING } },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            keyWordPrompt: { type: Type.STRING }
+        },
+        required: ["title", "prompt", "wordsToFind", "grid", "keyWordPrompt"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordWebData>;
+};
+
+export const generateStarHuntFromAI = async (): Promise<StarHuntData> => {
+    const prompt = `Create a 'Star Hunt' puzzle based on geometric solids for kids. Generate a 5x5 grid. Place different solids ('cube', 'sphere', 'pyramid', 'cone') and 'star' symbols in some cells. The rule is: the number shown on a solid in a cell indicates how many stars are in that solid's row and column combined. One cell must contain a 'question' mark instead of a solid. The user must deduce which solid belongs in the question mark cell based on the star counts. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            grid: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING }
+                }
+            }
+        },
+        required: ["title", "prompt", "grid"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<StarHuntData>;
+};
+
+export const generateLengthConnectFromAI = async (): Promise<LengthConnectData> => {
+    const prompt = `Create an 'ABC Connect (Length)' activity. On a 10x10 grid area (1000x1000 logical units), place 5 pairs of equal length units (e.g., '500 cm' and '5 m'). For each unit, provide a label, a unique pairId for matching, and random x, y coordinates between 50 and 950. The user connects the equal lengths. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            gridDim: { type: Type.INTEGER },
+            points: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        label: { type: Type.STRING },
+                        pairId: { type: Type.INTEGER },
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    },
+                    required: ["label", "pairId", "x", "y"]
+                }
+            }
+        },
+        required: ["title", "prompt", "gridDim", "points"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<LengthConnectData>;
+};
+
+export const generateVisualNumberPatternFromAI = async (): Promise<VisualNumberPatternData> => {
+    const prompt = `Create a 'Visual Number Pattern' puzzle. Generate 2 puzzles. Each puzzle should have a sequence of 5 items. Each item has a number, a color, and a size multiplier. The numbers should follow a simple arithmetic rule. One number in the sequence should be 0 or -1, to be replaced with a '?'. The size and color should vary to create a visual pattern, but the core logic is in the numbers. Provide the rule and the correct answer for the '?'. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        items: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    number: { type: Type.INTEGER },
+                                    color: { type: Type.STRING },
+                                    size: { type: Type.NUMBER }
+                                },
+                                required: ["number", "color", "size"]
+                            }
+                        },
+                        rule: { type: Type.STRING },
+                        answer: { type: Type.INTEGER }
+                    },
+                    required: ["items", "rule", "answer"]
+                }
+            }
+        },
+        required: ["title", "prompt", "puzzles"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<VisualNumberPatternData>;
+};
+
+export const generateMissingPartsFromAI = async (): Promise<MissingPartsData> => {
+    const prompt = `Create a 'Missing Parts' word puzzle. Generate a list of 12 two-syllable Turkish words. For each word, create two "parts" by splitting the word into its syllables. Then, create a "leftParts" list containing the first syllables and a "rightParts" list containing the second syllables. These two lists should have their items shuffled so they don't correspond. Also provide the full list of given word parts (all 24 syllables) in a shuffled list. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            leftParts: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, text: { type: Type.STRING } }, required: ["id", "text"] } },
+            rightParts: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, text: { type: Type.STRING } }, required: ["id", "text"] } },
+            givenParts: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, parts: { type: Type.ARRAY, items: { type: Type.STRING } } }, required: ["word", "parts"] } }
+        },
+        required: ["title", "prompt", "leftParts", "rightParts", "givenParts"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<MissingPartsData>;
+};
+
+export const generateProfessionConnectFromAI = async (): Promise<ProfessionConnectData> => {
+    const prompt = `Create a 'Profession Connect' activity. Generate 6 pairs of points to be placed on a 1000x1000 logical grid. Each pair represents a profession. One point in the pair is the name of the profession (e.g., "Aşçı"). The other point is a simple image description of that profession (e.g., "Mutfakta yemek yapan bir kişi"). Assign random x,y coordinates (between 50-950) to each of the 12 points. For image points, the 'label' should be an empty string. For text points, the 'imageDescription' should be empty. Return an empty string for all 'imageBase64' fields. Format as JSON.`;
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            gridDim: { type: Type.INTEGER },
+            points: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        label: { type: Type.STRING },
+                        imageDescription: { type: Type.STRING },
+                        imageBase64: { type: Type.STRING },
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    },
+                    required: ["label", "imageDescription", "x", "y"]
+                }
+            }
+        },
+        required: ["title", "prompt", "gridDim", "points"]
+    };
+    return generateWithSchema(prompt, schema) as Promise<ProfessionConnectData>;
+};
+
+
+// New functions for activities from images
+export const generateVisualOddOneOutThemedFromAI = async (topic: string): Promise<VisualOddOneOutThemedData> => {
+  const prompt = `Generate a 'Themed Visual Odd One Out' activity about professions. Create 4 rows. Each row is about one profession (e.g., 'Doktor', 'Öğretmen'). For each profession, provide 5 simple image descriptions for a DALL-E style prompt: 4 related to the profession and 1 unrelated. Specify the index of the unrelated (odd one out) description. The theme should be '${topic}'. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      rows: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            theme: { type: Type.STRING },
+            imageDescriptions: { type: Type.ARRAY, items: { type: Type.STRING } },
+            oddOneOutIndex: { type: Type.INTEGER },
+          },
+          required: ["theme", "imageDescriptions", "oddOneOutIndex"],
+        },
+      },
+    },
+    required: ["title", "prompt", "rows"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutThemedData>;
+};
+
+export const generateLogicGridPuzzleFromAI = async (): Promise<LogicGridPuzzleData> => {
+  const prompt = `Generate a logic grid puzzle for kids. The puzzle is about 4 students (Ahmet, Eda, Ali, Eylül) and 4 courses (painting, basketball, chess, guitar). Provide 4 clues to solve the puzzle, like "Ahmet goes to a course that uses paints and brushes." or "Ali did not go to a course related to music.". The goal is to match each student to their course. Provide the list of people and a list of categories with items (e.g., category 'Kurslar', items 'Resim', 'Basketbol', etc.). For each course, provide a simple image description. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      clues: { type: Type.ARRAY, items: { type: Type.STRING } },
+      people: { type: Type.ARRAY, items: { type: Type.STRING } },
+      categories: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING },
+            items: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  imageDescription: { type: Type.STRING },
+                },
+                required: ["name", "imageDescription"],
+              },
+            },
+          },
+          required: ["title", "items"],
+        },
+      },
+    },
+    required: ["title", "prompt", "clues", "people", "categories"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<LogicGridPuzzleData>;
+};
+
+export const generateImageAnagramSortFromAI = async (): Promise<ImageAnagramSortData> => {
+  const prompt = `Generate an 'Image Anagram Sort' activity. Create 8 cards. Each card represents a profession. For each card, provide a simple image description (e.g., 'A chef cooking in a kitchen'), a scrambled version of the profession name (e.g., 'AŞÇI' -> 'IÇAŞ'), and the correct profession name. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      cards: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            imageDescription: { type: Type.STRING },
+            scrambledWord: { type: Type.STRING },
+            correctWord: { type: Type.STRING },
+          },
+          required: ["imageDescription", "scrambledWord", "correctWord"],
+        },
+      },
+    },
+    required: ["title", "prompt", "cards"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<ImageAnagramSortData>;
+};
+
+export const generateAnagramImageMatchFromAI = async (): Promise<AnagramImageMatchData> => {
+  const prompt = `Generate an 'Anagram Image Match' puzzle. Create a word bank of 8 scrambled Turkish words. Then, create 8 puzzles. Each puzzle consists of a simple image description and a 'partial answer' which is the correct word with some letters revealed as hints (e.g., '_Ü__Ü_' for 'GÜNLÜK'). The correct word should be one of the unscrambled words from the word bank. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      wordBank: { type: Type.ARRAY, items: { type: Type.STRING } },
+      puzzles: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            imageDescription: { type: Type.STRING },
+            partialAnswer: { type: Type.STRING },
+            correctWord: { type: Type.STRING },
+          },
+          required: ["imageDescription", "partialAnswer", "correctWord"],
+        },
+      },
+    },
+    required: ["title", "prompt", "wordBank", "puzzles"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<AnagramImageMatchData>;
+};
+
+export const generateSyllableWordSearchFromAI = async (): Promise<SyllableWordSearchData> => {
+  const prompt = `Generate a 'Syllable Word Search' activity. First, provide a list of 16 Turkish syllables. Then, provide 6 pairs of these syllables that can be combined to form 6 meaningful words, along with the correct answers. Next, create a list of 10 related words to find in a word search. Then, generate a 12x12 word search grid containing these 10 words. Finally, provide a prompt for a hidden password made from the unused letters in the word search. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      syllablesToCombine: { type: Type.ARRAY, items: { type: Type.STRING } },
+      wordsToCreate: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            syllable1: { type: Type.STRING },
+            syllable2: { type: Type.STRING },
+            answer: { type: Type.STRING },
+          },
+          required: ["syllable1", "syllable2", "answer"],
+        },
+      },
+      wordsToFindInSearch: { type: Type.ARRAY, items: { type: Type.STRING } },
+      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+      passwordPrompt: { type: Type.STRING },
+    },
+    required: ["title", "prompt", "syllablesToCombine", "wordsToCreate", "wordsToFindInSearch", "grid", "passwordPrompt"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<SyllableWordSearchData>;
+};
+
+export const generateWordSearchWithPasswordFromAI = async (): Promise<WordSearchWithPasswordData> => {
+  const prompt = `Generate a 'Word Search with Password' activity. Create a list of 12-15 related Turkish words. Place them in a 15x15 grid. Some cells in the grid, which may or may not be part of the hidden words, should be marked as password cells. These password cells, when read in order, will reveal a hidden word. Provide the grid, the list of words, and the coordinates of the password cells. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+      words: { type: Type.ARRAY, items: { type: Type.STRING } },
+      passwordCells: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            row: { type: Type.INTEGER },
+            col: { type: Type.INTEGER },
+          },
+          required: ["row", "col"],
+        },
+      },
+    },
+    required: ["title", "prompt", "grid", "words", "passwordCells"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<WordSearchWithPasswordData>;
+};
+
+export const generateWordWebWithPasswordFromAI = async (): Promise<WordWebWithPasswordData> => {
+  const prompt = `Generate a 'Word Web with Password' activity. It's a type of crossword. Provide a list of 12 thematically related Turkish words. Create a 12x12 grid and place these words in it like a crossword puzzle. Use 'null' for black cells. One column in the grid should be highlighted as the password column. The letters in this column will form a secret word. Provide the grid, the word list, and the 0-based index of the password column. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      words: { type: Type.ARRAY, items: { type: Type.STRING } },
+      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+      passwordColumnIndex: { type: Type.INTEGER },
+    },
+    required: ["title", "prompt", "words", "grid", "passwordColumnIndex"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<WordWebWithPasswordData>;
+};
+
+export const generateLetterGridWordFindFromAI = async (): Promise<LetterGridWordFindData> => {
+  const prompt = `Generate a 'Letter Grid Word Find' activity. Create a 10x8 grid of letters. This is NOT a standard word search; it's just a block of letters. Provide a list of 8 hidden words that can be found within this grid (they can be formed by adjacent letters, but not in straight lines). Finally, provide a prompt asking the user to write a short text using the found words. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      words: { type: Type.ARRAY, items: { type: Type.STRING } },
+      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+      writingPrompt: { type: Type.STRING },
+    },
+    required: ["title", "prompt", "words", "grid", "writingPrompt"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<LetterGridWordFindData>;
+};
+
+export const generateWordPlacementPuzzleFromAI = async (): Promise<WordPlacementPuzzleData> => {
+  const prompt = `Generate a 'Word Placement' puzzle. Create an empty crossword-style grid (approx 12x12). Use 'null' for black/unusable cells and an empty string "" for fillable cells. Provide a list of words, grouped by their length (e.g., 3-letter words, 4-letter words, etc.). Also, provide a prompt about an unused word after filling the puzzle. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+      wordGroups: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            length: { type: Type.INTEGER },
+            words: { type: Type.ARRAY, items: { type: Type.STRING } },
+          },
+          required: ["length", "words"],
+        },
+      },
+      unusedWordPrompt: { type: Type.STRING },
+    },
+    required: ["title", "prompt", "grid", "wordGroups", "unusedWordPrompt"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<WordPlacementPuzzleData>;
+};
+
+export const generatePositionalAnagramFromAI = async (): Promise<PositionalAnagramData> => {
+  const prompt = `Generate a 'Positional Anagram' puzzle. Create 10 puzzles. For each puzzle, provide a scrambled Turkish word and its correct form. The puzzle involves rearranging the letters to find the correct word. The UI will show numbered boxes. Format as JSON.`;
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      prompt: { type: Type.STRING },
+      puzzles: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            id: { type: Type.INTEGER },
+            scrambled: { type: Type.STRING },
+            answer: { type: Type.STRING },
+          },
+          required: ["id", "scrambled", "answer"],
+        },
+      },
+    },
+    required: ["title", "prompt", "puzzles"],
+  };
+  return generateWithSchema(prompt, schema) as Promise<PositionalAnagramData>;
 };

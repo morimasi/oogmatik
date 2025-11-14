@@ -1,35 +1,8 @@
-
-
 import React, { useState, CSSProperties } from 'react';
 import { Activity, ActivityType, WorksheetData } from '../types';
-import { 
-    generateWordSearchFromAI, 
-    generateAnagramsFromAI, 
-    generateMathPuzzlesFromAI, 
-    generateStoryFromAI,
-    generateStroopTestFromAI,
-    generateNumberPatternsFromAI,
-    generateSpellingChecksFromAI,
-    generateLetterGridFromAI,
-    generateNumberSearchFromAI,
-    generateWordMemoryFromAI,
-    generateStoryPromptFromAI,
-    generateFindTheDifferenceFromAI,
-    generateWordComparisonFromAI,
-    generateWordsInStoryFromAI,
-    generateOddOneOutFromAI,
-    generateShapeMatchingFromAI,
-    generateSymbolCipherFromAI,
-    generateProverbFillFromAI,
-    generateLetterBridgeFromAI,
-    generateFindDuplicateFromAI,
-    generateWordLadderFromAI,
-    generateFindIdenticalWordFromAI,
-    generateWordFormationFromAI,
-    generateReverseWordFromAI,
-    generateFindLetterPairFromAI,
-} from '../services/geminiService';
-import Worksheet from './Worksheet';
+import * as geminiService from '../services/geminiService';
+// FIX: Corrected import statement for the 'Worksheet' component to resolve a "no default export" error.
+import { default as Worksheet } from './Worksheet';
 
 interface GeneratorViewProps {
   activity: Activity;
@@ -58,79 +31,79 @@ const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onBack }) => {
       if (generationMode === 'ai') {
         switch (activity.id) {
           case ActivityType.WORD_SEARCH:
-            data = await generateWordSearchFromAI(topic, gridSize, itemCount);
+            data = await geminiService.generateWordSearchFromAI(topic, gridSize, itemCount);
             break;
           case ActivityType.ANAGRAM:
-            data = await generateAnagramsFromAI(topic, itemCount);
+            data = await geminiService.generateAnagramsFromAI(topic, itemCount);
             break;
           case ActivityType.MATH_PUZZLE:
-            data = await generateMathPuzzlesFromAI(topic, itemCount);
+            data = await geminiService.generateMathPuzzlesFromAI(topic, itemCount);
             break;
           case ActivityType.STORY_COMPREHENSION:
-            data = await generateStoryFromAI(topic);
+            data = await geminiService.generateStoryFromAI(topic);
             break;
           case ActivityType.STROOP_TEST:
-            data = await generateStroopTestFromAI(itemCount * 2);
+            data = await geminiService.generateStroopTestFromAI(itemCount * 2);
             break;
           case ActivityType.NUMBER_PATTERN:
-            data = await generateNumberPatternsFromAI(itemCount, difficulty);
+            data = await geminiService.generateNumberPatternsFromAI(itemCount, difficulty);
             break;
           case ActivityType.SPELLING_CHECK:
-            data = await generateSpellingChecksFromAI(topic, itemCount / 2);
+            data = await geminiService.generateSpellingChecksFromAI(topic, itemCount / 2);
             break;
           case ActivityType.LETTER_GRID_TEST:
-            data = await generateLetterGridFromAI(gridSize, targetLetters);
+            data = await geminiService.generateLetterGridFromAI(gridSize, targetLetters);
             break;
           case ActivityType.NUMBER_SEARCH:
-            data = await generateNumberSearchFromAI(1, 50);
+            data = await geminiService.generateNumberSearchFromAI(1, 50);
             break;
            case ActivityType.WORD_MEMORY:
-            data = await generateWordMemoryFromAI(topic, 10, 20); // 10 to memorize, 20 in test
+            data = await geminiService.generateWordMemoryFromAI(topic, 10, 20); // 10 to memorize, 20 in test
             break;
            case ActivityType.STORY_CREATION_PROMPT:
-            data = await generateStoryPromptFromAI(topic, 5);
+            data = await geminiService.generateStoryCreationPromptFromAI(topic, 5);
             break;
            case ActivityType.FIND_THE_DIFFERENCE:
-             data = await generateFindTheDifferenceFromAI(topic, itemCount);
+             data = await geminiService.generateFindTheDifferenceFromAI(topic, itemCount);
              break;
            case ActivityType.WORD_COMPARISON:
-             data = await generateWordComparisonFromAI(topic);
+             data = await geminiService.generateWordComparisonFromAI(topic);
              break;
            case ActivityType.WORDS_IN_STORY:
-             data = await generateWordsInStoryFromAI(topic);
+             data = await geminiService.generateWordsInStoryFromAI(topic);
              break;
            case ActivityType.ODD_ONE_OUT:
-             data = await generateOddOneOutFromAI(topic, itemCount / 2);
+             data = await geminiService.generateOddOneOutFromAI(topic, itemCount / 2);
              break;
            case ActivityType.SHAPE_MATCHING:
-             data = await generateShapeMatchingFromAI(itemCount);
+             data = await geminiService.generateShapeMatchingFromAI(itemCount);
              break;
            case ActivityType.SYMBOL_CIPHER:
-             data = await generateSymbolCipherFromAI(itemCount / 2);
+             data = await geminiService.generateSymbolCipherFromAI(itemCount / 2);
              break;
             case ActivityType.PROVERB_FILL_IN_THE_BLANK:
-                data = await generateProverbFillFromAI(itemCount);
+                data = await geminiService.generateProverbFillFromAI(itemCount);
                 break;
             case ActivityType.LETTER_BRIDGE:
-                data = await generateLetterBridgeFromAI(itemCount);
+                data = await geminiService.generateLetterBridgeFromAI(itemCount);
                 break;
             case ActivityType.FIND_THE_DUPLICATE_IN_ROW:
-                data = await generateFindDuplicateFromAI(10, 15); // 10 rows, 15 cols
+                data = await geminiService.generateFindDuplicateFromAI(10, 15); // 10 rows, 15 cols
                 break;
             case ActivityType.WORD_LADDER:
-                data = await generateWordLadderFromAI(itemCount / 2);
+                data = await geminiService.generateWordLadderFromAI(itemCount / 2);
                 break;
             case ActivityType.FIND_IDENTICAL_WORD:
-                data = await generateFindIdenticalWordFromAI(itemCount * 2);
+                data = await geminiService.generateFindIdenticalWordFromAI(itemCount * 2);
                 break;
             case ActivityType.WORD_FORMATION:
-                data = await generateWordFormationFromAI(itemCount / 2);
+                data = await geminiService.generateWordFormationFromAI(itemCount / 2);
                 break;
             case ActivityType.REVERSE_WORD:
-                data = await generateReverseWordFromAI(topic, itemCount);
+                data = await geminiService.generateReverseWordFromAI(topic, itemCount);
                 break;
             case ActivityType.FIND_LETTER_PAIR:
-                data = await generateFindLetterPairFromAI(gridSize, targetPair);
+                data = await geminiService.generateFindLetterPairFromAI(gridSize, targetPair);
                 break;
           default:
              alert('Yapay zeka üretici henüz bu etkinlik için mevcut değil.');
@@ -164,7 +137,7 @@ const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onBack }) => {
     }
 
 
-    const showTopic = ![ActivityType.STROOP_TEST, ActivityType.LETTER_GRID_TEST, ActivityType.NUMBER_SEARCH, ActivityType.NUMBER_PATTERN, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.FIND_THE_DUPLICATE_IN_ROW, ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.FIND_LETTER_PAIR].includes(activity.id);
+    const showTopic = ![ActivityType.STROOP_TEST, ActivityType.LETTER_GRID_TEST, ActivityType.NUMBER_SEARCH, ActivityType.NUMBER_PATTERN, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.FIND_LETTER_PAIR].includes(activity.id);
     const showItemCount = [ActivityType.WORD_SEARCH, ActivityType.ANAGRAM, ActivityType.MATH_PUZZLE, ActivityType.STROOP_TEST, ActivityType.NUMBER_PATTERN, ActivityType.SPELLING_CHECK, ActivityType.FIND_THE_DIFFERENCE, ActivityType.ODD_ONE_OUT, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.WORD_LADDER, ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.REVERSE_WORD].includes(activity.id);
     const showGridSize = [ActivityType.WORD_SEARCH, ActivityType.LETTER_GRID_TEST, ActivityType.FIND_LETTER_PAIR].includes(activity.id);
     const showTargetLetters = activity.id === ActivityType.LETTER_GRID_TEST;
@@ -271,7 +244,6 @@ const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onBack }) => {
       alert('Kaydetme özelliği yakında gelecek! Şimdilik yazdırma menüsünden PDF olarak kaydedebilirsiniz.');
   };
 
-  // FIX: Cast the style object to CSSProperties to allow for custom properties which are not in the standard type definition.
   const worksheetStyles: CSSProperties = {
     fontFamily: 'sans-serif',
     fontSize: '16px',
@@ -356,7 +328,6 @@ const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onBack }) => {
                             <i className="fa-solid fa-save mr-2"></i>Kaydet
                         </button>
                     </div>
-                    {/* FIX: Added missing 'styles' property */}
                     <Worksheet activityType={activity.id} data={worksheetData} styles={worksheetStyles} />
                 </>
             )}
