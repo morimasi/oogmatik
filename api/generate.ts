@@ -1,7 +1,8 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from "@google/genai";
 
 // This is a Vercel serverless function.
-export default async function handler(req, res) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
         // Handle preflight requests for CORS
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,14 +20,13 @@ export default async function handler(req, res) {
         const { prompt, schema } = req.body;
 
         if (!prompt || !schema) {
-            return res.status(400).json({ error: 'Prompt and schema are required.' });
+            return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
         }
         
-        // This is where we securely use the API key from Vercel's environment variables.
-        // It's never exposed to the client.
         const apiKey = process.env.API_KEY;
         if (!apiKey) {
-            return res.status(500).json({ error: 'API key is not configured on the server.' });
+            console.error("API_KEY environment variable is not set on Vercel.");
+            return res.status(500).json({ error: 'Sunucuda API anahtarı yapılandırılmamış.' });
         }
 
         const ai = new GoogleGenAI({ apiKey });
@@ -37,16 +37,23 @@ export default async function handler(req, res) {
             config: {
                 responseMimeType: "application/json",
                 responseSchema: schema,
-                temperature: 0.9, // Keep the creativity setting
+                temperature: 0.9,
             },
         });
 
         const jsonText = response.text;
         if (!jsonText) {
-             return res.status(500).json({ error: "AI returned an empty response." });
+             console.warn("AI returned an empty response text.");
+             return res.status(500).json({ error: "Yapay zekadan boş bir metin yanıtı alındı." });
         }
         
-        const parsed = JSON.parse(jsonText);
+        let parsed;
+        try {
+            parsed = JSON.parse(jsonText);
+        } catch (parseError) {
+            console.error("Failed to parse JSON response from AI:", jsonText);
+            return res.status(500).json({ error: "Yapay zekadan gelen yanıt ayrıştırılamadı (Geçersiz JSON)." });
+        }
         
         // Set CORS headers for local development and Vercel preview environments
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -56,8 +63,20 @@ export default async function handler(req, res) {
         return res.status(200).json(parsed);
 
     } catch (error) {
-        console.error("Error in serverless function:", error);
-        // Don't leak detailed server errors to the client
-        return res.status(500).json({ error: "Yapay zeka ile içerik oluşturulurken sunucu tarafında bir hata oluştu." });
+        // Log the full error on the server for debugging in Vercel logs
+        console.error("Sunucusuz fonksiyonda kritik hata:", error);
+        
+        let clientErrorMessage = "Yapay zeka ile içerik oluşturulurken sunucu tarafında bir hata oluştu.";
+        
+        if (error instanceof Error) {
+            // Provide more specific feedback for common API key issues
+            if (error.message.includes('API key not valid')) {
+                clientErrorMessage = 'Sunucuda yapılandırılan API anahtarı geçersiz. Lütfen Vercel proje ayarlarınızı kontrol edin.';
+            } else if (error.message.includes('permission denied')) {
+                 clientErrorMessage = 'API anahtarının bu modeli kullanma izni yok veya projeniz için faturalandırma etkin değil.';
+            }
+        }
+        
+        return res.status(500).json({ error: clientErrorMessage });
     }
 }
