@@ -38,7 +38,6 @@ export const ACTIVITIES: Activity[] = [
     icon: 'fa-solid fa-book-open',
   },
    {
-    // FIX: Corrected typo from STORY_COMPREHension to STORY_COMPREHENSION
     id: ActivityType.STORY_COMPREHENSION,
     title: 'Hikayeye Dikkat - 1',
     description: 'Yeni bir hikaye okuyun ve ilgili soruları yanıtlayın.',
@@ -839,7 +838,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     description: 'Hikaye okuma ve metin analizi',
     icon: 'fa-solid fa-book-open',
     activities: [
-      ActivityType.STORY_COMPREHENSION, // Also for "Hikayeye Dikkat"
+      ActivityType.STORY_COMPREHENSION,
       ActivityType.STORY_ANALYSIS,
       ActivityType.STORY_CREATION_PROMPT,
       ActivityType.WORDS_IN_STORY,
@@ -884,7 +883,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     icon: 'fa-solid fa-eye',
     activities: [
       ActivityType.FIND_THE_DIFFERENCE,
-      ActivityType.STROOP_TEST, // Also for "Sağ Beyin - Sol Beyin"
+      ActivityType.STROOP_TEST,
       ActivityType.ODD_ONE_OUT,
       ActivityType.FIND_IDENTICAL_WORD,
       ActivityType.GRID_DRAWING,

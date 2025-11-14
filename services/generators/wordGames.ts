@@ -12,17 +12,20 @@ import {
 } from '../../types';
 
 
+// FIX: Update the generator to include a title, matching the updated WordSearchData interface.
 export const generateWordSearchFromAI = async (topic: string, gridSize: number, wordCount: number): Promise<WordSearchData> => {
   const prompt = `
     ${topic} konusuyla ilgili ${wordCount} tane Türkçe kelime oluştur. 
     Bu kelimeleri ${gridSize}x${gridSize} boyutunda bir harf bulmacasına yerleştir. 
     Kelimeler yatay, dikey ve çapraz olarak yerleştirilebilir. 
     Boş kalan yerleri rastgele Türkçe harflerle doldur.
+    Bulmaca için '${topic}' konusuyla ilgili bir başlık (title) oluştur.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
     type: Type.OBJECT,
     properties: {
+      title: { type: Type.STRING, description: 'Title for the word search puzzle.' },
       grid: {
         type: Type.ARRAY, description: 'The word search grid.',
         items: { type: Type.ARRAY, items: { type: Type.STRING }, },
@@ -32,7 +35,7 @@ export const generateWordSearchFromAI = async (topic: string, gridSize: number, 
         items: { type: Type.STRING },
       },
     },
-    required: ['grid', 'words']
+    required: ['title', 'grid', 'words']
   };
   return generateWithSchema(prompt, schema) as Promise<WordSearchData>;
 };

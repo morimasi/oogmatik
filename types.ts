@@ -1,3 +1,4 @@
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -134,6 +135,8 @@ export interface ActivityCategory {
 
 // Data structures for generated worksheets
 export interface WordSearchData {
+  // FIX: Added 'title' to ensure all worksheet data types have a title property.
+  title: string;
   grid: string[][];
   words: string[];
 }

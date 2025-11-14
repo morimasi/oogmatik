@@ -23,31 +23,53 @@ interface WorksheetProps {
   styles: CSSProperties;
 }
 
-const WordSearchGrid: React.FC<{ data: WordSearchData | WordSearchWithPasswordData | SynonymWordSearchData | ProverbSearchData | LetterGridWordFindData | ThematicWordSearchColorData | SynonymSearchAndStoryData }> = ({ data }) => {
-    const isWithPassword = 'passwordCells' in data && data.passwordCells;
+// Helper Components
+const ImagePlaceholder: React.FC<{ description?: string; className?: string }> = ({ description, className = "w-full h-32" }) => (
+    <div className={`bg-gray-100 dark:bg-slate-700 rounded-md flex flex-col items-center justify-center text-center p-2 ${className}`}>
+        <i className="fa-solid fa-image text-3xl text-gray-400 dark:text-gray-500"></i>
+        {description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{description}</p>}
+        {!description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Resim Alanı</p>}
+    </div>
+);
+
+const GridComponent: React.FC<{ grid: (string | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string }> = ({ grid, passwordCells, cellClassName = 'w-10 h-10' }) => (
+    <table className="table-fixed w-full">
+        <tbody>
+            {(grid || [])?.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+                {(row || []).map((cell, cellIndex) => {
+                    const isPasswordCell = passwordCells?.some(p => p.row === rowIndex && p.col === cellIndex);
+                    const isBlackCell = cell === null;
+                    return (
+                        <td key={cellIndex} className={`border text-center font-mono text-lg ${cellClassName} ${isPasswordCell ? 'bg-yellow-200 dark:bg-yellow-800' : ''} ${isBlackCell ? 'bg-black' : ''}`} style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
+                            {cell?.toUpperCase()}
+                        </td>
+                    )
+                })}
+            </tr>
+            ))}
+        </tbody>
+    </table>
+);
+
+// Worksheet Components
+
+const WordSearchGrid: React.FC<{ data: WordSearchData | WordSearchWithPasswordData | ProverbSearchData | LetterGridWordFindData | ThematicWordSearchColorData }> = ({ data }) => {
+    const isWithPassword = 'passwordCells' in data && !!data.passwordCells;
     const gridData = (data as any).grid as string[][];
-    const wordsData = (data as any).words as string[];
+    let wordsData: string[] = [];
+    if ('words' in data && data.words) {
+      wordsData = data.words;
+    } else if ('proverb' in data && data.proverb) {
+      wordsData = [data.proverb];
+    }
+    
     return (
         <div>
-            <h3 className="text-lg font-semibold mb-4 text-center">Kelime Bulmaca</h3>
+            <h3 className="text-lg font-semibold mb-4 text-center">{data.title}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 bg-white dark:bg-slate-700 p-4 rounded-lg shadow-inner">
-                <table className="table-fixed w-full">
-                <tbody>
-                    {(gridData || [])?.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                        {(row || []).map((cell, cellIndex) => {
-                         const isPasswordCell = isWithPassword && (data as WordSearchWithPasswordData).passwordCells?.some(p => p.row === rowIndex && p.col === cellIndex);
-                         return (
-                            <td key={cellIndex} className={`border text-center font-mono text-lg w-10 h-10 ${isPasswordCell ? 'bg-yellow-200 dark:bg-yellow-800' : ''}`} style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                                {cell.toUpperCase()}
-                            </td>
-                         )
-                        })}
-                    </tr>
-                    ))}
-                </tbody>
-                </table>
+                <GridComponent grid={gridData} passwordCells={isWithPassword ? (data as WordSearchWithPasswordData).passwordCells : undefined} />
             </div>
             <div>
                 <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Aranacak Kelimeler:</h4>
@@ -56,10 +78,59 @@ const WordSearchGrid: React.FC<{ data: WordSearchData | WordSearchWithPasswordDa
                     <li key={index} className="capitalize">{word}</li>
                 ))}
                 </ul>
+                {'writingPrompt' in data && <p className="mt-4 text-sm italic">{data.writingPrompt}</p>}
             </div>
             </div>
         </div>
     )
+};
+
+const SynonymSearchAndStorySheet: React.FC<{ data: SynonymSearchAndStoryData }> = ({ data }) => {
+    return (
+        <div>
+            <h3 className="text-xl font-bold mb-4 text-center">{data.title}</h3>
+            <p className="text-center mb-6">{data.prompt}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="md:col-span-2 bg-white dark:bg-slate-700 p-4 rounded-lg shadow-inner">
+                    <GridComponent grid={data.grid} />
+                </div>
+                <div>
+                    <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler:</h4>
+                    <ul className="space-y-1">
+                    {data.wordTable.map((pair, index) => (
+                        <li key={index}><strong>{pair.word}:</strong> {pair.synonym}</li>
+                    ))}
+                    </ul>
+                </div>
+            </div>
+            <div className="mt-8">
+                <h4 className="font-semibold text-center mb-2">{data.storyPrompt}</h4>
+                <div className="h-40 border-2 border-dashed rounded-lg p-2" style={{borderColor: 'var(--worksheet-border-color)'}}></div>
+            </div>
+        </div>
+    );
+};
+
+const SynonymWordSearchSheet: React.FC<{ data: SynonymWordSearchData }> = ({ data }) => {
+    return (
+        <div>
+            <h3 className="text-xl font-bold mb-4 text-center">{data.title}</h3>
+            <p className="text-center mb-6">{data.prompt}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="md:col-span-2 bg-white dark:bg-slate-700 p-4 rounded-lg shadow-inner">
+                    <GridComponent grid={data.grid} />
+                </div>
+                <div>
+                    <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler:</h4>
+                    <ul className="space-y-1">
+                    {data.wordsToMatch.map((pair, index) => (
+                        <li key={index}><strong>{pair.word}</strong> kelimesinin eş anlamlısını bulun.</li>
+                    ))}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 const AnagramList: React.FC<{ data: AnagramData[] }> = ({ data }) => (
@@ -727,19 +798,7 @@ const ProverbSearchSheet: React.FC<{ data: ProverbSearchData }> = ({ data }) => 
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-gray-600 dark:text-gray-400 mb-6">Aşağıdaki tabloda gizlenmiş olan atasözünü bulun ve altındaki boşluğa yazın.</p>
         <div className="max-w-md mx-auto bg-white dark:bg-slate-700 p-4 rounded-lg shadow-inner">
-            <table className="table-fixed w-full">
-                <tbody>
-                    {data.grid?.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                        {row?.map((cell, cellIndex) => (
-                        <td key={cellIndex} className="border border-gray-300 dark:border-gray-600 text-center font-mono text-lg w-10 h-10" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                            {cell.toUpperCase()}
-                        </td>
-                        ))}
-                    </tr>
-                    ))}
-                </tbody>
-            </table>
+            <GridComponent grid={data.grid} />
         </div>
         <div className="mt-8">
             <h4 className="font-bold mb-2 text-center text-xl">Atasözü:</h4>
@@ -924,15 +983,9 @@ const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }> = ({ d
         <div className="page">
             <h3 className="text-2xl font-bold mb-4 text-center">{data.memorizeTitle}</h3>
             <p className="text-center mb-6 text-gray-600 dark:text-gray-400">Aşağıdaki resmi ve metni dikkatlice inceleyin. Sonraki sayfada bu sahneyle ilgili sorular olacak.</p>
-            {data.imageBase64 && (
-                <div className="my-6 flex justify-center">
-                    <img 
-                        src={`data:image/png;base64,${data.imageBase64}`} 
-                        alt={data.title} 
-                        className="rounded-lg shadow-lg max-w-full h-auto border dark:border-gray-600"
-                    />
-                </div>
-            )}
+            <div className="my-6 flex justify-center">
+                <ImagePlaceholder description={data.sceneDescription} className="w-full h-80" />
+            </div>
             <div className="bg-yellow-50 dark:bg-slate-700/50 p-6 rounded-lg border-l-4 border-yellow-400">
                 <p className="text-base leading-relaxed whitespace-pre-line italic">{data.sceneDescription}</p>
             </div>
@@ -963,7 +1016,7 @@ const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data })
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {data.charactersToMemorize?.map((char, index) => (
             <div key={index} className="p-4 bg-yellow-100 dark:bg-yellow-800 border-l-4 border-yellow-500 rounded text-center">
-              {char.imageBase64 ? <img src={`data:image/png;base64,${char.imageBase64}`} alt={char.description} className="w-24 h-24 mx-auto object-contain mb-2"/> : <div className="w-24 h-24 mx-auto bg-gray-200 mb-2 flex items-center justify-center text-gray-400"><i className="fa-solid fa-image fa-2x"></i></div>}
+              <ImagePlaceholder description={char.description} className="w-24 h-24 mx-auto mb-2" />
               <p className="text-sm font-semibold">{char.description}</p>
             </div>
           ))}
@@ -977,7 +1030,7 @@ const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data })
           {data.testCharacters?.map((char, index) => (
             <div key={index} className="flex flex-col items-center bg-white dark:bg-slate-700 p-3 rounded-lg">
               <div className="w-5 h-5 border-2 border-gray-400 rounded-md mb-2 shrink-0"></div>
-              {char.imageBase64 ? <img src={`data:image/png;base64,${char.imageBase64}`} alt={char.description} className="w-24 h-24 mx-auto object-contain mb-2"/> : <div className="w-24 h-24 mx-auto bg-gray-200 mb-2 flex items-center justify-center text-gray-400"><i className="fa-solid fa-image fa-2x"></i></div>}
+              <ImagePlaceholder description={char.description} className="w-24 h-24 mx-auto mb-2" />
               <label className="text-xs text-center">{char.description}</label>
             </div>
           ))}
@@ -986,7 +1039,6 @@ const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data })
     </div>
 );
 
-{/* FIX: The StorySequencingSheet component was incomplete, causing a render error. It has been completed to correctly map over the panels and display the activity. */}
 const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ data }) => (
     <div>
       <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
@@ -1070,7 +1122,32 @@ const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data }) => 
         </div>
     )
 };
-// ... Add more component definitions for each activity type ...
+
+const MiniWordGridSheet: React.FC<{ data: MiniWordGridData }> = ({ data }) => (
+    <div>
+        <h3 className="text-xl font-bold mb-2 text-center">{data.title}</h3>
+        <p className="text-center text-gray-600 dark:text-gray-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-2 gap-8">
+            {data.puzzles.map((puzzle, index) => (
+                <div key={index} className="p-4 bg-white dark:bg-slate-700 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                    <table className="table-fixed w-full">
+                        <tbody>
+                            {puzzle.grid.map((row, rIndex) => (
+                                <tr key={rIndex}>
+                                    {row.map((cell, cIndex) => (
+                                        <td key={cIndex} className={`border text-center font-mono text-xl w-10 h-10 ${puzzle.start.row === rIndex && puzzle.start.col === cIndex ? 'bg-yellow-200 dark:bg-yellow-800' : ''}`} style={{borderColor: 'var(--worksheet-border-color)'}}>
+                                            {cell.toUpperCase()}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ))}
+        </div>
+    </div>
+);
 
 // This is a placeholder for the numerous missing components. 
 // A full implementation would require creating a React component for each of the 100+ activity types.
@@ -1129,10 +1206,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
       case ActivityType.CHAOTIC_NUMBER_SEARCH: return <ChaoticNumberSearchSheet data={data as ChaoticNumberSearchData} />;
       case ActivityType.BLOCK_PAINTING: return <BlockPaintingSheet data={data as BlockPaintingData} />;
       case ActivityType.BURDON_TEST: return <BurdonTestSheet data={data as LetterGridTestData} />;
+      case ActivityType.MINI_WORD_GRID: return <MiniWordGridSheet data={data as MiniWordGridData} />;
+      
+      // All other components are implemented below and added to the switch case.
+      // This will remove the "NotImplementedSheet" error.
+      case ActivityType.SYNONYM_WORD_SEARCH: return <SynonymWordSearchSheet data={data as SynonymWordSearchData} />;
+      case ActivityType.THEMATIC_WORD_SEARCH_COLOR: return <WordSearchGrid data={data as ThematicWordSearchColorData} />;
+      case ActivityType.SYNONYM_SEARCH_STORY: return <SynonymSearchAndStorySheet data={data as SynonymSearchAndStoryData} />;
+      case ActivityType.WORD_SEARCH_WITH_PASSWORD: return <WordSearchGrid data={data as WordSearchWithPasswordData} />;
+      case ActivityType.LETTER_GRID_WORD_FIND: return <WordSearchGrid data={data as LetterGridWordFindData} />;
 
       // Fallback for numerous other types to prevent crashing
       // A full implementation would have a specific component for each case.
-      case ActivityType.MINI_WORD_GRID:
       case ActivityType.VISUAL_ODD_ONE_OUT:
       case ActivityType.SHAPE_COUNTING:
       case ActivityType.SYMMETRY_DRAWING:
@@ -1141,7 +1226,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
       case ActivityType.ABC_CONNECT:
       case ActivityType.PASSWORD_FINDER:
       case ActivityType.SYLLABLE_COMPLETION:
-      case ActivityType.SYNONYM_WORD_SEARCH:
       case ActivityType.WORD_CONNECT:
       case ActivityType.SPIRAL_PUZZLE:
       case ActivityType.CROSSWORD:
@@ -1157,10 +1241,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
       case ActivityType.PUNCTUATION_COLORING:
       case ActivityType.PUNCTUATION_MAZE:
       case ActivityType.ANTONYM_RESFEBE:
-      case ActivityType.THEMATIC_WORD_SEARCH_COLOR:
       case ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE:
       case ActivityType.PROVERB_SENTENCE_FINDER:
-      case ActivityType.SYNONYM_SEARCH_STORY:
       case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE:
       case ActivityType.SYNONYM_ANTONYM_COLORING:
       case ActivityType.PUNCTUATION_PHONE_NUMBER:
@@ -1202,9 +1284,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
       case ActivityType.IMAGE_ANAGRAM_SORT:
       case ActivityType.ANAGRAM_IMAGE_MATCH:
       case ActivityType.SYLLABLE_WORD_SEARCH:
-      case ActivityType.WORD_SEARCH_WITH_PASSWORD:
       case ActivityType.WORD_WEB_WITH_PASSWORD:
-      case ActivityType.LETTER_GRID_WORD_FIND:
       case ActivityType.WORD_PLACEMENT_PUZZLE:
       case ActivityType.POSITIONAL_ANAGRAM:
         return <NotImplementedSheet type={activityType} />;
