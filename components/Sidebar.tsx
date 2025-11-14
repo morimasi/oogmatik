@@ -253,7 +253,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
         {showTopic && <div className="mb-4">
           <label htmlFor="topic" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Konu</label>
           <input type="text" id="topic" value={topic} onChange={(e) => setTopic(e.target.value)}
-            className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+            className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Örn: Meyveler, Uzay"
           />
         </div>}
@@ -275,14 +275,14 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
         {showTargetLetters && (
             <div className="mb-4">
                 <label htmlFor="targetLetters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Hedef Harfler (virgülle ayırın)</label>
-                <input type="text" id="targetLetters" value={targetLetters} onChange={(e) => setTargetLetters(e.target.value)} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm" placeholder="a, b, c" />
+                <input type="text" id="targetLetters" value={targetLetters} onChange={(e) => setTargetLetters(e.target.value)} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="a, b, c" />
             </div>
         )}
 
         {showTargetPair && (
             <div className="mb-4">
                 <label htmlFor="targetPair" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Hedef İkili</label>
-                <input type="text" id="targetPair" value={targetPair} maxLength={2} onChange={(e) => setTargetPair(e.target.value)} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm" placeholder="tr" />
+                <input type="text" id="targetPair" value={targetPair} maxLength={2} onChange={(e) => setTargetPair(e.target.value)} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="tr" />
             </div>
         )}
         
@@ -302,7 +302,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
         {showDifficulty && (
             <div className="mb-4">
                  <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Zorluk</label>
-                 <select id="difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value as 'Kolay'|'Orta'|'Zor')} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm" >
+                 <select id="difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value as 'Kolay'|'Orta'|'Zor')} className="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
                     <option>Kolay</option>
                     <option>Orta</option>
                     <option>Zor</option>
@@ -316,24 +316,24 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
   const ActivityButton: React.FC<{ activity: Activity }> = ({ activity }) => (
     <button
         onClick={() => onSelectActivity(activity.id)}
-        className="w-full text-left p-3 rounded-lg hover:bg-teal-50 dark:hover:bg-gray-700 transition-colors flex items-center"
+        className="w-full text-left p-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-slate-700 transition-colors flex items-center"
     >
-        <i className={`${activity.icon} w-6 text-center text-teal-500 dark:text-teal-400 mr-3`}></i>
+        <i className={`${activity.icon} w-6 text-center text-indigo-500 dark:text-indigo-400 mr-3`}></i>
         <span className="flex-1 text-sm">{activity.title}</span>
     </button>
   );
 
   return (
-    <aside className="w-96 bg-white dark:bg-gray-800 shadow-lg flex flex-col print:hidden overflow-y-auto">
+    <aside className="w-96 bg-white dark:bg-slate-800 shadow-lg flex flex-col print:hidden overflow-y-auto">
       {currentActivity ? (
         // Settings View
         <div className="flex flex-col h-full">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <button onClick={() => onSelectActivity(null)} className="text-teal-600 dark:text-teal-400 hover:underline text-sm mb-4">
+                <button onClick={() => onSelectActivity(null)} className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm mb-4">
                     <i className="fa-solid fa-arrow-left mr-2"></i>Tüm Etkinlikler
                 </button>
                 <div className="flex items-center">
-                    <div className="w-12 h-12 bg-teal-500 dark:bg-teal-600 text-white rounded-lg flex items-center justify-center mr-4 shrink-0">
+                    <div className="w-12 h-12 bg-indigo-500 dark:bg-indigo-600 text-white rounded-lg flex items-center justify-center mr-4 shrink-0">
                         <i className={`${currentActivity.icon} fa-lg`}></i>
                     </div>
                     <div>
@@ -351,11 +351,11 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                  <button
                     onClick={handleGenerate}
                     disabled={isLoading}
-                    className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
                     >
                     {isLoading ? (
                         <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -377,9 +377,9 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                 ) : (
                     <div className="space-y-1 max-h-48 overflow-y-auto pr-2">
                     {savedWorksheets.map(ws => (
-                        <div key={ws.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-teal-50 dark:hover:bg-gray-700/80">
+                        <div key={ws.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-slate-700/80">
                             <button onClick={() => onLoadSaved(ws)} className="flex-1 text-left flex items-center min-w-0" title={`'${ws.name}' etkinliğini yükle`}>
-                                <i className={`${ws.icon} w-6 text-center text-teal-500 dark:text-teal-400 mr-3`}></i>
+                                <i className={`${ws.icon} w-6 text-center text-indigo-500 dark:text-indigo-400 mr-3`}></i>
                                 <div className="flex-1 truncate">
                                 <span className="text-sm font-medium block truncate">{ws.name}</span>
                                 <span className="block text-xs text-gray-400">{new Date(ws.createdAt).toLocaleDateString()}</span>
@@ -404,7 +404,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
                     <div key={category.id}>
                         <button 
                             onClick={() => handleToggleCategory(category.id)}
-                            className="w-full flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg"
+                            className="w-full flex justify-between items-center p-3 bg-stone-100 dark:bg-slate-700/50 hover:bg-stone-200 dark:hover:bg-slate-700 rounded-lg"
                         >
                             <div className="flex items-center">
                                 <i className={`${category.icon} mr-3 text-lg`}></i>

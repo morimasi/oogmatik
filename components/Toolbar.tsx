@@ -20,7 +20,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md flex items-center justify-between gap-4 print-hidden">
+    <div className="bg-white dark:bg-slate-800 p-2 rounded-lg shadow-md flex items-center justify-between gap-4 print-hidden">
         <div className="flex items-center gap-4">
             {/* Font Size */}
             <div className="flex items-center gap-2">
@@ -42,7 +42,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
                     id="borderColor"
                     value={settings.borderColor}
                     onChange={(e) => onSettingsChange({...settings, borderColor: e.target.value})}
-                    className="p-0.5 h-7 w-7 block bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 cursor-pointer rounded-lg"
+                    className="p-0.5 h-7 w-7 block bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-600 cursor-pointer rounded-lg"
                 />
             </div>
         </div>

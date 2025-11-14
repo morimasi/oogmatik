@@ -24,9 +24,8 @@ import {
     WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData
 } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 const generateWithSchema = async (prompt: string, schema: any) => {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -34,6 +33,7 @@ const generateWithSchema = async (prompt: string, schema: any) => {
             config: {
                 responseMimeType: "application/json",
                 responseSchema: schema,
+                temperature: 0.9,
             },
         });
         const jsonText = response.text;
