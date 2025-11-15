@@ -79,11 +79,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             config: { responseModalities: [Modality.IMAGE] },
                         });
                         
-                         for (const part of imageResponse.candidates[0].content.parts) {
-                            if (part.inlineData) {
-                                obj['imageBase64'] = part.inlineData.data;
-                                break;
-                            }
+                        const partWithImageData = imageResponse.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                        if (partWithImageData?.inlineData) {
+                            obj['imageBase64'] = partWithImageData.inlineData.data;
+                        } else {
+                            // If no image is returned (e.g., safety block), set to empty to avoid client errors.
+                            obj['imageBase64'] = '';
+                            console.warn(`No image data found in Gemini response for prompt: "${obj[key]}"`);
                         }
                      } catch (imgError) {
                         console.error("Image generation failed for prompt:", obj[key], imgError);
