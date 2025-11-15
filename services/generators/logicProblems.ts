@@ -586,7 +586,7 @@ export const generateProfessionConnectFromAI = async(): Promise<ProfessionConnec
 }
 
 export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise<VisualOddOneOutThemedData> => {
-    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 3 rows. Each row has a theme (e.g., 'Doctor') and 5 image descriptions. Four descriptions relate to the theme, one does not. For each description, create a detailed English image generation prompt. Identify the index of the odd one out. Format as JSON.`;
+    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 3 rows. Each row has a theme (e.g., 'Doctor') and 5 items. Four items relate to the theme, one does not. For each item, provide a short description and a detailed English image generation prompt. Identify the index of the odd one out. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -598,11 +598,20 @@ export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise
                     type: Type.OBJECT,
                     properties: {
                         theme: { type: Type.STRING },
-                        imageDescriptions: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        imagePrompts: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        items: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    description: { type: Type.STRING },
+                                    imagePrompt: { type: Type.STRING }
+                                },
+                                required: ["description", "imagePrompt"]
+                            }
+                        },
                         oddOneOutIndex: { type: Type.INTEGER }
                     },
-                    required: ["theme", "imageDescriptions", "imagePrompts", "oddOneOutIndex"]
+                    required: ["theme", "items", "oddOneOutIndex"]
                 }
             }
         },

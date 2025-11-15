@@ -1164,9 +1164,11 @@ export interface VisualOddOneOutThemedData {
     title: string;
     prompt: string;
     rows: {
-        theme: string; // e.g., "Doktor"
-        imageDescriptions: string[]; // 5 descriptions
-        imagesBase64: string[];
+        theme: string;
+        items: {
+            description: string;
+            imageBase64?: string;
+        }[];
         oddOneOutIndex: number;
     }[];
 }

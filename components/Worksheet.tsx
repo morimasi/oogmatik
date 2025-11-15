@@ -38,13 +38,13 @@ const ImageDisplay: React.FC<{ base64?: string; description?: string; className?
     );
 };
 
-const GridComponent: React.FC<{ grid: (string | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string }> = ({ grid, passwordCells, cellClassName = 'w-10 h-10' }) => (
+const GridComponent: React.FC<{ grid: (string | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string, passwordColumnIndex?: number }> = ({ grid, passwordCells, cellClassName = 'w-10 h-10', passwordColumnIndex }) => (
     <table className="table-fixed w-full">
         <tbody>
             {(grid || [])?.map((row, rowIndex) => (
             <tr key={rowIndex}>
                 {(row || []).map((cell, cellIndex) => {
-                    const isPasswordCell = passwordCells?.some(p => p.row === rowIndex && p.col === cellIndex);
+                    const isPasswordCell = passwordCells?.some(p => p.row === rowIndex && p.col === cellIndex) || passwordColumnIndex === cellIndex;
                     const isBlackCell = cell === null;
                     return (
                         <td key={cellIndex} className={`border text-center font-mono text-lg ${cellClassName} ${isPasswordCell ? 'bg-amber-200 dark:bg-amber-800' : ''} ${isBlackCell ? 'bg-black' : ''}`} style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
@@ -1334,7 +1334,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
       case ActivityType.VISUAL_MEMORY: return <VisualMemorySheet data={data as VisualMemoryData} />;
       case ActivityType.STORY_ANALYSIS: return <StoryAnalysisSheet data={data as StoryAnalysisData} />;
       case ActivityType.COORDINATE_CIPHER: return <CoordinateCipherSheet data={data as CoordinateCipherData} />;
-      case ActivityType.PROVERB_SEARCH: return <ProverbSearchSheet data={data as ProverbSearchData} />;
+      case ActivityType.PROVERB_SEARCH: return <WordSearchGrid data={data as ProverbSearchData} />;
       case ActivityType.TARGET_SEARCH: return <TargetSearchSheet data={data as TargetSearchData} />;
       case ActivityType.SHAPE_NUMBER_PATTERN: return <ShapeNumberPatternSheet data={data as ShapeNumberPatternData} />;
       case ActivityType.GRID_DRAWING: return <GridDrawingSheet data={data as GridDrawingData} />;
