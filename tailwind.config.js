@@ -24,7 +24,7 @@ export default {
               950: '#09090b',
           }
       }
-    }
+    },
   },
   plugins: [],
 }
