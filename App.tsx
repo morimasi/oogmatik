@@ -10,7 +10,10 @@ export interface StyleSettings {
   borderWidth: number;
 }
 
+export type View = 'generator' | 'savedList';
+
 const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<View>('generator');
   const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
   const [worksheetData, setWorksheetData] = useState<WorksheetData>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -63,6 +66,7 @@ const App: React.FC = () => {
   const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
     setSelectedActivity(worksheet.activityType);
     setWorksheetData(worksheet.worksheetData);
+    setCurrentView('generator');
   };
 
   const handleWorksheetStyle = (): CSSProperties => {
@@ -107,10 +111,15 @@ const App: React.FC = () => {
           setError={setError}
           isLoading={isLoading}
           savedWorksheets={savedWorksheets}
-          onLoadSaved={loadSavedWorksheet}
-          onDeleteSaved={deleteSavedWorksheet}
+          onShowSavedList={() => setCurrentView('savedList')}
         />
         <ContentArea
+          currentView={currentView}
+          onBackToGenerator={() => {
+            setCurrentView('generator');
+            setSelectedActivity(null);
+            setWorksheetData(null);
+          }}
           activityType={selectedActivity}
           worksheetData={worksheetData}
           isLoading={isLoading}
@@ -119,6 +128,9 @@ const App: React.FC = () => {
           onStyleChange={setStyleSettings}
           worksheetStyles={handleWorksheetStyle()}
           onSave={addSavedWorksheet}
+          savedWorksheets={savedWorksheets}
+          onLoadSaved={loadSavedWorksheet}
+          onDeleteSaved={deleteSavedWorksheet}
         />
       </div>
     </div>

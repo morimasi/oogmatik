@@ -11,11 +11,10 @@ interface SidebarProps {
   setError: (error: string | null) => void;
   isLoading: boolean;
   savedWorksheets: SavedWorksheet[];
-  onLoadSaved: (worksheet: SavedWorksheet) => void;
-  onDeleteSaved: (id: string) => void;
+  onShowSavedList: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, setWorksheetData, setIsLoading, setError, isLoading, savedWorksheets, onLoadSaved, onDeleteSaved }) => {
+const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, setWorksheetData, setIsLoading, setError, isLoading, savedWorksheets, onShowSavedList }) => {
   const [openCategory, setOpenCategory] = useState<string | null>(ACTIVITY_CATEGORIES[0]?.id || null);
   
   // Settings State
@@ -370,33 +369,14 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
       ) : (
         // Category List View
         <div className="p-4">
-             <div className="mb-6 border-b border-zinc-200 dark:border-zinc-700 pb-4">
-                <h2 className="text-xl font-bold mb-2 px-2">Kaydedilen Etkinlikler</h2>
-                {savedWorksheets.length === 0 ? (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 px-3">Henüz kaydedilmiş bir etkinlik yok.</p>
-                ) : (
-                    <div className="space-y-1 max-h-48 overflow-y-auto pr-2">
-                    {savedWorksheets.map(ws => (
-                        <div key={ws.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-zinc-700/80 transition-colors">
-                            <button onClick={() => onLoadSaved(ws)} className="flex-1 text-left flex items-center min-w-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-indigo-500 rounded-l-md" title={`'${ws.name}' etkinliğini yükle`}>
-                                <i className={`${ws.icon} w-6 text-center text-indigo-500 dark:text-indigo-400 mr-3`}></i>
-                                <div className="flex-1 truncate">
-                                <span className="text-sm font-medium block truncate">{ws.name}</span>
-                                <span className="block text-xs text-zinc-400">{new Date(ws.createdAt).toLocaleDateString()}</span>
-                                </div>
-                            </button>
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); onDeleteSaved(ws.id); }} 
-                                className="text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-2 px-2 focus:outline-none focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-red-500 rounded-r-md"
-                                aria-label={`'${ws.name}' etkinliğini sil`}
-                                title={`'${ws.name}' etkinliğini sil`}
-                            >
-                                <i className="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    ))}
-                    </div>
-                )}
+             <div className="mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-700">
+                 <button 
+                    onClick={onShowSavedList}
+                    className="w-full flex items-center justify-center p-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-lg shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800"
+                >
+                    <i className="fa-solid fa-folder-open mr-3"></i>
+                    <span>Tüm Kayıtları Görüntüle ({savedWorksheets.length})</span>
+                </button>
             </div>
              <h2 className="text-xl font-bold mb-4 px-2">Etkinlik Kategorileri</h2>
              <div className="space-y-2">
