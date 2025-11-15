@@ -1,7 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { ActivityType, WorksheetData } from '../types';
-// FIX: Corrected import statement for the 'Worksheet' component to resolve a "no default export" error.
-import { default as Worksheet } from './Worksheet';
+import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { StyleSettings } from '../App';
 import { ACTIVITIES } from '../constants';
