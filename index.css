@@ -1,26 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@media print {
-  .print-hidden {
-    display: none;
-  }
-  @page {
-    size: A4;
-    margin: 1cm;
-  }
-  body {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .worksheet-container {
-     box-shadow: none !important;
-     border-radius: 0 !important;
-     padding: 0 !important;
-     margin: 0 !important;
-  }
-  .page-break {
-    page-break-before: always;
-  }
-}
