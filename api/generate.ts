@@ -56,12 +56,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
+    console.log("--- New Generation Request ---");
+
     try {
         const { prompt, schema } = req.body;
 
         if (!prompt || !schema) {
+            console.error("Missing prompt or schema in request body.");
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
         }
+        
+        console.log("Generating content for prompt (first 200 chars):", prompt.substring(0, 200) + "...");
         
         const apiKey = process.env.API_KEY;
         if (!apiKey) {
@@ -71,7 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const ai = new GoogleGenAI({ apiKey });
         
-        // Step 1: Generate the main JSON structure with image prompts
+        console.log("Step 1: Generating main JSON structure with gemini-2.5-pro...");
         const textResponse = await ai.models.generateContent({
             model: "gemini-2.5-pro",
             contents: prompt,
@@ -81,10 +86,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 temperature: 0.5,
             },
         });
+        console.log("Step 1: JSON structure generation complete.");
+
 
         let jsonText = textResponse.text;
         if (!jsonText) {
              console.warn("AI returned an empty response text.");
+             console.error("Original prompt that led to empty response:", prompt);
              return res.status(500).json({ error: "Yapay zekadan boş bir metin yanıtı alındı." });
         }
         
@@ -98,11 +106,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             data = JSON.parse(jsonText);
         } catch (parseError) {
             console.error("Failed to parse JSON response from AI:", jsonText);
+            console.error("Original prompt that led to parse error:", prompt);
             return res.status(500).json({ error: "Yapay zekadan gelen yanıt ayrıştırılamadı (Geçersiz JSON)." });
         }
 
         // Step 2: Find all 'imagePrompt' fields and generate images in parallel to prevent timeouts
         const objectsToProcess = findObjectsWithImagePrompts(data);
+        console.log(`Step 2: Found ${objectsToProcess.length} image prompts to process.`);
+
 
         if (objectsToProcess.length > 0) {
             const imageGenerationPromises = objectsToProcess.map(async (obj) => {
@@ -131,6 +142,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
             
             await Promise.all(imageGenerationPromises);
+            console.log("Step 2: Image generation complete.");
         }
         
         // Set CORS headers for local development and Vercel preview environments
@@ -139,11 +151,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
         // Step 3: Return the final JSON with embedded image data
+        console.log("Step 3: Returning final data successfully.");
         return res.status(200).json(data);
 
     } catch (error) {
         // Log the full error on the server for debugging in Vercel logs
-        console.error("Sunucusuz fonksiyonda kritik hata:", error);
+        console.error("--- Critical Error in Serverless Function ---");
+        console.error("Error occurred for prompt:", req.body.prompt ? req.body.prompt.substring(0, 200) + "..." : "N/A");
+        console.error("Full Error:", error);
         
         let clientErrorMessage = "Yapay zeka ile içerik oluşturulurken sunucu tarafında bir hata oluştu.";
         
@@ -153,6 +168,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 clientErrorMessage = 'Sunucuda yapılandırılan API anahtarı geçersiz. Lütfen Vercel proje ayarlarınızı kontrol edin.';
             } else if (error.message.includes('permission denied')) {
                  clientErrorMessage = 'API anahtarının bu modeli kullanma izni yok veya projeniz için faturalandırma etkin değil.';
+            } else if (error.message.includes('timed out')) {
+                 clientErrorMessage = 'İstek zaman aşımına uğradı. Lütfen daha az karmaşık bir etkinlik oluşturmayı deneyin.';
             }
         }
         
