@@ -73,12 +73,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         // Step 1: Generate the main JSON structure with image prompts
         const textResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.5-pro",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: schema,
-                temperature: 0.9,
+                temperature: 0.5,
             },
         });
 
