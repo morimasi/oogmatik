@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -586,7 +587,7 @@ export const generateProfessionConnectFromAI = async(): Promise<ProfessionConnec
 }
 
 export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise<VisualOddOneOutThemedData> => {
-    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 2 rows. Each row has a theme (e.g., 'Doctor') and 3 items. Two items relate to the theme, one does not. For each item, provide a short description and a detailed English image generation prompt. Identify the index of the odd one out. Format as JSON.`;
+    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 1 row. Each row has a theme (e.g., 'Doctor') and 3 items. Two items relate to the theme, one does not. For each item, provide a short description and a detailed English image generation prompt. Identify the index of the odd one out. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {

@@ -40,6 +40,58 @@ const findObjectsWithImagePrompts = (obj: any): any[] => {
     return objectsToProcess;
 };
 
+/**
+ * A robust wrapper for generating and parsing JSON from the Gemini API, with built-in retries.
+ * @param ai The GoogleGenAI client instance.
+ * @param prompt The prompt to send to the model.
+ * @param schema The response schema for the JSON output.
+ * @param maxRetries The maximum number of times to retry on failure.
+ * @returns The parsed JSON data.
+ */
+const generateJsonWithRetries = async (ai: GoogleGenAI, prompt: string, schema: any, maxRetries: number = 3) => {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        console.log(`JSON Generation: Attempt ${attempt}/${maxRetries}...`);
+        try {
+            const textResponse = await ai.models.generateContent({
+                model: "gemini-2.5-pro",
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: schema,
+                    temperature: 0.5,
+                },
+            });
+
+            let jsonText = textResponse.text;
+            if (!jsonText) {
+                console.warn(`Attempt ${attempt} failed: AI returned an empty response text.`);
+                if (attempt < maxRetries) await new Promise(resolve => setTimeout(resolve, 500));
+                continue; // Retry
+            }
+            
+            console.log(`Attempt ${attempt}: Received raw text from AI. Length: ${jsonText.length}.`);
+
+            // Handle potential markdown code blocks
+            const match = jsonText.match(/```(json)?\s*([\s\S]*?)\s*```/);
+            if (match && match[2]) {
+                jsonText = match[2];
+            }
+            
+            const data = JSON.parse(jsonText);
+            console.log(`Attempt ${attempt}: JSON parsing successful.`);
+            return data; // Success, exit the loop and return data
+
+        } catch (error) {
+            console.error(`Attempt ${attempt} failed with error:`, error);
+            if (attempt === maxRetries) {
+                throw new Error(`Failed to generate and parse valid JSON after ${maxRetries} attempts.`);
+            }
+            await new Promise(resolve => setTimeout(resolve, 500)); 
+        }
+    }
+    throw new Error("Failed to get a valid response from the AI model after all retries.");
+};
+
 
 // This is a Vercel serverless function.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -76,39 +128,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const ai = new GoogleGenAI({ apiKey });
         
-        console.log("Step 1: Generating main JSON structure with gemini-2.5-pro...");
-        const textResponse = await ai.models.generateContent({
-            model: "gemini-2.5-pro",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: schema,
-                temperature: 0.5,
-            },
-        });
-        console.log("Step 1: JSON structure generation complete.");
-
-
-        let jsonText = textResponse.text;
-        if (!jsonText) {
-             console.warn("AI returned an empty response text.");
-             console.error("Original prompt that led to empty response:", prompt);
-             return res.status(500).json({ error: "Yapay zekadan boş bir metin yanıtı alındı." });
-        }
+        // Step 1: Generate main JSON structure with retries
+        const data = await generateJsonWithRetries(ai, prompt, schema, 3);
         
-        let data;
-        try {
-            // Handle potential markdown code blocks in the response for robust parsing
-            const match = jsonText.match(/```(json)?\s*([\s\S]*?)\s*```/);
-            if (match && match[2]) {
-                jsonText = match[2];
-            }
-            data = JSON.parse(jsonText);
-        } catch (parseError) {
-            console.error("Failed to parse JSON response from AI:", jsonText);
-            console.error("Original prompt that led to parse error:", prompt);
-            return res.status(500).json({ error: "Yapay zekadan gelen yanıt ayrıştırılamadı (Geçersiz JSON)." });
+        if (!data) {
+            console.error("JSON generation with retries failed to produce data.");
+            return res.status(500).json({ error: "Yapay zeka modeli tutarlı bir yanıt üretemedi." });
         }
+        console.log("Step 1: JSON structure generation successful.");
 
         // Step 2: Find all 'imagePrompt' fields and generate images in parallel to prevent timeouts
         const objectsToProcess = findObjectsWithImagePrompts(data);
@@ -121,6 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 if (!imagePrompt) return;
 
                 try {
+                    console.log(`Generating image for prompt: "${imagePrompt.substring(0, 50)}..."`);
                     const imageResponse = await ai.models.generateContent({
                         model: 'gemini-2.5-flash-image',
                         contents: { parts: [{ text: imagePrompt }] },
@@ -142,7 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
             
             await Promise.all(imageGenerationPromises);
-            console.log("Step 2: Image generation complete.");
+            console.log("Step 2: All image generations complete.");
         }
         
         // Set CORS headers for local development and Vercel preview environments
@@ -168,8 +196,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 clientErrorMessage = 'Sunucuda yapılandırılan API anahtarı geçersiz. Lütfen Vercel proje ayarlarınızı kontrol edin.';
             } else if (error.message.includes('permission denied')) {
                  clientErrorMessage = 'API anahtarının bu modeli kullanma izni yok veya projeniz için faturalandırma etkin değil.';
-            } else if (error.message.includes('timed out')) {
-                 clientErrorMessage = 'İstek zaman aşımına uğradı. Lütfen daha az karmaşık bir etkinlik oluşturmayı deneyin.';
+            } else if (error.message.includes('timed out') || error.message.includes('deadline exceeded')) {
+                 clientErrorMessage = 'İstek zaman aşımına uğradı. Lütfen daha az karmaşık bir etkinlik oluşturmayı deneyin veya bir süre sonra tekrar deneyin.';
+            } else if (error.message.includes('Failed to generate and parse valid JSON')) {
+                clientErrorMessage = 'Yapay zeka modeli tutarlı bir yanıt üretemedi. Lütfen tekrar deneyin.'
             }
         }
         

@@ -2,6 +2,8 @@
 
 
 
+
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -534,7 +536,7 @@ export const generateWordGridPuzzleFromAI = async (topic: string): Promise<WordG
 };
 
 export const generateHomonymImageMatchFromAI = async (): Promise<HomonymImageMatchData> => {
-    const prompt = `Create a homonym image matching puzzle. Provide 3 Turkish homonym words. For each word, provide two different detailed English image generation prompts, one for each meaning. These will be separated into left and right columns. Also, provide a scrambled word puzzle using one of the homonyms. Format as JSON.`;
+    const prompt = `Create a homonym image matching puzzle. Provide 2 Turkish homonym words. For each word, provide two different detailed English image generation prompts, one for each meaning. These will be separated into left and right columns. Also, provide a scrambled word puzzle using one of the homonyms. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
