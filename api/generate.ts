@@ -2,6 +2,45 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Modality } from "@google/genai";
 
+/**
+ * Finds all objects within a nested structure that contain an 'imagePrompt' key.
+ * This is used to gather all image generation tasks to run them in parallel.
+ * @param obj The object or array to search through.
+ * @returns An array of unique objects that have an 'imagePrompt'.
+ */
+const findObjectsWithImagePrompts = (obj: any): any[] => {
+    const objectsToProcess: any[] = [];
+    const visited = new Set();
+
+    function traverse(current: any) {
+        if (!current || typeof current !== 'object' || visited.has(current)) {
+            return;
+        }
+        visited.add(current);
+        
+        if (Array.isArray(current)) {
+            for (const item of current) {
+                traverse(item);
+            }
+            return;
+        }
+
+        if (current.hasOwnProperty('imagePrompt') && typeof current['imagePrompt'] === 'string' && current['imagePrompt'].length > 0) {
+            objectsToProcess.push(current);
+        }
+        
+        for (const key in current) {
+            if (current.hasOwnProperty(key)) {
+                traverse(current[key]);
+            }
+        }
+    }
+
+    traverse(obj);
+    return objectsToProcess;
+};
+
+
 // This is a Vercel serverless function.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
@@ -43,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             },
         });
 
-        const jsonText = textResponse.text;
+        let jsonText = textResponse.text;
         if (!jsonText) {
              console.warn("AI returned an empty response text.");
              return res.status(500).json({ error: "Yapay zekadan boş bir metin yanıtı alındı." });
@@ -51,54 +90,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         let data;
         try {
+            // Handle potential markdown code blocks in the response for robust parsing
+            const match = jsonText.match(/```(json)?\s*([\s\S]*?)\s*```/);
+            if (match && match[2]) {
+                jsonText = match[2];
+            }
             data = JSON.parse(jsonText);
         } catch (parseError) {
             console.error("Failed to parse JSON response from AI:", jsonText);
             return res.status(500).json({ error: "Yapay zekadan gelen yanıt ayrıştırılamadı (Geçersiz JSON)." });
         }
 
-        // Step 2: Recursively find 'imagePrompt' fields and generate images
-        const generateImagesInObject = async (obj: any) => {
-            if (!obj || typeof obj !== 'object') return;
+        // Step 2: Find all 'imagePrompt' fields and generate images in parallel to prevent timeouts
+        const objectsToProcess = findObjectsWithImagePrompts(data);
 
-            if (Array.isArray(obj)) {
-                for (const item of obj) {
-                    await generateImagesInObject(item);
+        if (objectsToProcess.length > 0) {
+            const imageGenerationPromises = objectsToProcess.map(async (obj) => {
+                const imagePrompt = obj.imagePrompt;
+                if (!imagePrompt) return;
+
+                try {
+                    const imageResponse = await ai.models.generateContent({
+                        model: 'gemini-2.5-flash-image',
+                        contents: { parts: [{ text: imagePrompt }] },
+                        config: { responseModalities: [Modality.IMAGE] },
+                    });
+                    
+                    const partWithImageData = imageResponse.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                    if (partWithImageData?.inlineData) {
+                        obj['imageBase64'] = partWithImageData.inlineData.data;
+                    } else {
+                        obj['imageBase64'] = '';
+                        console.warn(`No image data found in Gemini response for prompt: "${imagePrompt}"`);
+                    }
+                } catch (imgError) {
+                    console.error("Image generation failed for prompt:", imagePrompt, imgError);
+                    obj['imageBase64'] = ''; // Set empty on error to prevent client crashes
                 }
-                return;
-            }
-
-            const keys = Object.keys(obj);
-            for (const key of keys) {
-                // Check for the special key 'imagePrompt'
-                if (key === 'imagePrompt' && typeof obj[key] === 'string' && obj[key].length > 0) {
-                     try {
-                        const imageResponse = await ai.models.generateContent({
-                            model: 'gemini-2.5-flash-image',
-                            contents: { parts: [{ text: obj[key] }] },
-                            config: { responseModalities: [Modality.IMAGE] },
-                        });
-                        
-                        const partWithImageData = imageResponse.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-                        if (partWithImageData?.inlineData) {
-                            obj['imageBase64'] = partWithImageData.inlineData.data;
-                        } else {
-                            // If no image is returned (e.g., safety block), set to empty to avoid client errors.
-                            obj['imageBase64'] = '';
-                            console.warn(`No image data found in Gemini response for prompt: "${obj[key]}"`);
-                        }
-                     } catch (imgError) {
-                        console.error("Image generation failed for prompt:", obj[key], imgError);
-                        obj['imageBase64'] = ''; // Set empty on error to prevent client crashes
-                     }
-                     delete obj[key]; // Clean up the prompt field
-                } else {
-                     await generateImagesInObject(obj[key]); // Recurse into other properties
-                }
-            }
-        };
-
-        await generateImagesInObject(data);
+                delete obj.imagePrompt; // Clean up the prompt field after processing
+            });
+            
+            await Promise.all(imageGenerationPromises);
+        }
         
         // Set CORS headers for local development and Vercel preview environments
         res.setHeader('Access-Control-Allow-Origin', '*');
