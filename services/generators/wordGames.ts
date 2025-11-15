@@ -1,6 +1,7 @@
 
 
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -626,7 +627,15 @@ export const generatePunctuationColoringFromAI = async (): Promise<PunctuationCo
 };
 
 export const generateAntonymResfebeFromAI = async(): Promise<AntonymResfebeData> => {
-    const prompt = `Create an antonym Resfebe puzzle. Generate 3 puzzles. For each, provide a word and its antonym. Also, provide a list of clues to form the Resfebe for the *original* word. One of the clues must be an image placeholder. For the image, provide a simple, detailed English image generation prompt for 'imagePrompt'. The user solves the Resfebe, finds the word, and then writes its antonym. Format as JSON.`;
+    const prompt = `Create an antonym Resfebe puzzle. Generate 3 puzzles.
+For each puzzle, provide:
+1. A Turkish word and its antonym.
+2. A list of clues to form the Resfebe for the *original* word. One of the clues must be an image.
+   - For text clues, provide an object with \`type: 'text'\` and \`value: 'clue text'\`.
+   - For the image clue, provide an object with \`type: 'image'\` and \`value: ''\` (an empty string as a placeholder).
+3. A separate, simple, detailed English image generation prompt in a top-level \`imagePrompt\` field for that puzzle. This prompt corresponds to the image clue.
+The user solves the Resfebe, finds the word, and then writes its antonym.
+Format the output as a single JSON object.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -640,13 +649,17 @@ export const generateAntonymResfebeFromAI = async(): Promise<AntonymResfebeData>
                         word: { type: Type.STRING },
                         antonym: { type: Type.STRING },
                         imagePrompt: { type: Type.STRING },
-                        clues: { type: Type.ARRAY, items: {
-                            type: Type.OBJECT,
-                            properties: {
-                                type: { type: Type.STRING, enum: ['text', 'image'] },
-                            },
-                             required: ["type"]
-                        } }
+                        clues: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    type: { type: Type.STRING, enum: ['text', 'image'] },
+                                    value: { type: Type.STRING }
+                                },
+                                required: ["type", "value"]
+                            }
+                        }
                     },
                     required: ["word", "antonym", "imagePrompt", "clues"]
                 }

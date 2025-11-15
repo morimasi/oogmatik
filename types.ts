@@ -1,4 +1,5 @@
 
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -397,13 +398,13 @@ export interface ImageComprehensionData {
     memorizeTitle: string;
     testTitle: string;
     sceneDescription: string;
-    imageBase64: string;
+    imageBase64?: string;
     questions: string[];
 }
 
 export interface CharacterObject {
     description: string;
-    imageBase64: string;
+    imageBase64?: string;
 }
 
 export interface CharacterMemoryData {
@@ -613,7 +614,7 @@ export interface HomonymSentenceData {
     prompt: string;
     items: {
         word: string;
-        imageBase64: string;
+        imageBase64?: string;
     }[];
 }
 
@@ -638,8 +639,8 @@ export interface ProverbSayingSortData {
 export interface HomonymImageMatchData {
     title: string;
     prompt: string;
-    leftImages: { id: number; word: string; imageBase64: string }[];
-    rightImages: { id: number; word: string; imageBase64: string }[];
+    leftImages: { id: number; word: string; imageBase64?: string }[];
+    rightImages: { id: number; word: string; imageBase64?: string }[];
     wordScramble: {
         letters: string[];
         word: string;
@@ -713,8 +714,11 @@ export interface AntonymResfebeData {
     puzzles: {
         word: string;
         antonym: string;
-        imageBase64: string;
-        clues: (string | { type: 'image' })[];
+        imageBase64?: string;
+        clues: {
+            type: 'text' | 'image';
+            value: string;
+        }[];
     }[];
     antonymsPrompt: string;
 }
@@ -1183,7 +1187,7 @@ export interface LogicGridPuzzleData {
         items: {
             name: string;
             imageDescription: string;
-            imageBase64: string;
+            imageBase64?: string;
         }[];
     }[];
 }
@@ -1193,7 +1197,7 @@ export interface ImageAnagramSortData {
     prompt: string;
     cards: {
         imageDescription: string;
-        imageBase64: string;
+        imageBase64?: string;
         scrambledWord: string;
         correctWord: string;
     }[];
@@ -1205,7 +1209,7 @@ export interface AnagramImageMatchData {
     wordBank: string[];
     puzzles: {
         imageDescription: string;
-        imageBase64: string;
+        imageBase64?: string;
         partialAnswer: string;
         correctWord: string;
     }[];
