@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -143,7 +144,6 @@ export const generateCoordinateCipherFromAI = async (topic: string, gridSize: nu
 
 export const generateShapeNumberPatternFromAI = async (count: number): Promise<ShapeNumberPatternData> => {
     const prompt = `Generate ${count} shape-based number pattern puzzles for kids. Each puzzle should consist of a few shapes (only triangles for now) containing numbers. There must be a logical rule connecting the numbers in each shape. One number should be a question mark. Provide the rule and the answer.
-    Example: Corners sum up to the center.
     Format the output as JSON.`;
 
     const schema = {
@@ -460,7 +460,7 @@ export const generateWeightConnectFromAI = async(): Promise<WeightConnectData> =
 }
 
 export const generateResfebeFromAI = async(): Promise<ResfebeData> => {
-    const prompt = `Create a Resfebe puzzle. Generate 4 puzzles. Each puzzle consists of clues (text or image placeholders) that cryptically represent a word. Provide the clues and the final answer. For image clues, provide a DALL-E prompt and an empty 'imageBase64' string. Format as JSON.`;
+    const prompt = `Create a Resfebe puzzle. Generate 4 puzzles. Each puzzle consists of clues (text or image placeholders) that cryptically represent a word. Provide the clues and the final answer. For image clues, provide a detailed English image generation prompt for the 'imagePrompt' field. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -478,7 +478,7 @@ export const generateResfebeFromAI = async(): Promise<ResfebeData> => {
                                 properties: {
                                     type: { type: Type.STRING, enum: ['text', 'image'] },
                                     value: { type: Type.STRING },
-                                    imageBase64: { type: Type.STRING }
+                                    imagePrompt: { type: Type.STRING }
                                 },
                                 required: ["type", "value"]
                             }
@@ -558,7 +558,7 @@ export const generateVisualNumberPatternFromAI = async(): Promise<VisualNumberPa
 }
 
 export const generateProfessionConnectFromAI = async(): Promise<ProfessionConnectData> => {
-    const prompt = `Create a profession connection puzzle. On a 10x10 grid, place 5 professions and 5 related images/tools. Provide a label (profession or tool), an image description, x, y coordinates for each point. For images, provide a DALL-E prompt and an empty 'imageBase64' string. The user connects the pairs. Format as JSON.`;
+    const prompt = `Create a profession connection puzzle. On a 10x10 grid, place 5 professions and 5 related images/tools. Provide a label (profession or tool), an image description, x, y coordinates for each point. For images, provide a detailed English image generation prompt for the 'imagePrompt' field. The user connects the pairs. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -572,11 +572,11 @@ export const generateProfessionConnectFromAI = async(): Promise<ProfessionConnec
                     properties: {
                         label: { type: Type.STRING },
                         imageDescription: { type: Type.STRING },
-                        imageBase64: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING },
                         x: { type: Type.NUMBER },
                         y: { type: Type.NUMBER }
                     },
-                    required: ["label", "imageDescription", "x", "y"]
+                    required: ["label", "imageDescription", "x", "y", "imagePrompt"]
                 }
             }
         },
@@ -586,7 +586,7 @@ export const generateProfessionConnectFromAI = async(): Promise<ProfessionConnec
 }
 
 export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise<VisualOddOneOutThemedData> => {
-    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 3 rows. Each row has a theme (e.g., 'Doctor') and 5 image descriptions. Four descriptions relate to the theme, one does not. Identify the index of the odd one out. Do not generate images. Format as JSON.`;
+    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 3 rows. Each row has a theme (e.g., 'Doctor') and 5 image descriptions. Four descriptions relate to the theme, one does not. For each description, create a detailed English image generation prompt. Identify the index of the odd one out. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -599,9 +599,10 @@ export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise
                     properties: {
                         theme: { type: Type.STRING },
                         imageDescriptions: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        imagePrompts: { type: Type.ARRAY, items: { type: Type.STRING } },
                         oddOneOutIndex: { type: Type.INTEGER }
                     },
-                    required: ["theme", "imageDescriptions", "oddOneOutIndex"]
+                    required: ["theme", "imageDescriptions", "imagePrompts", "oddOneOutIndex"]
                 }
             }
         },
@@ -611,7 +612,7 @@ export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise
 }
 
 export const generateLogicGridPuzzleFromAI = async(): Promise<LogicGridPuzzleData> => {
-    const prompt = `Create a logic grid puzzle. Define 3 people and 2 categories (e.g., 'Profession', 'City'). Provide a list of clues to solve the puzzle. For category items that are visual, provide an image description. Do not generate images. Format as JSON.`;
+    const prompt = `Create a logic grid puzzle. Define 3 people and 2 categories (e.g., 'Profession', 'City'). Provide a list of clues to solve the puzzle. For category items that are visual, provide an image description and a detailed English image generation prompt. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -631,9 +632,10 @@ export const generateLogicGridPuzzleFromAI = async(): Promise<LogicGridPuzzleDat
                                 type: Type.OBJECT,
                                 properties: {
                                     name: { type: Type.STRING },
-                                    imageDescription: { type: Type.STRING }
+                                    imageDescription: { type: Type.STRING },
+                                    imagePrompt: { type: Type.STRING }
                                 },
-                                required: ["name", "imageDescription"]
+                                required: ["name", "imageDescription", "imagePrompt"]
                             }
                         }
                     },

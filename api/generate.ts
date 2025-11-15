@@ -1,5 +1,6 @@
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 
 // This is a Vercel serverless function.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -31,7 +32,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const ai = new GoogleGenAI({ apiKey });
         
-        const response = await ai.models.generateContent({
+        // Step 1: Generate the main JSON structure with image prompts
+        const textResponse = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
@@ -41,26 +43,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             },
         });
 
-        const jsonText = response.text;
+        const jsonText = textResponse.text;
         if (!jsonText) {
              console.warn("AI returned an empty response text.");
              return res.status(500).json({ error: "Yapay zekadan boş bir metin yanıtı alındı." });
         }
         
-        let parsed;
+        let data;
         try {
-            parsed = JSON.parse(jsonText);
+            data = JSON.parse(jsonText);
         } catch (parseError) {
             console.error("Failed to parse JSON response from AI:", jsonText);
             return res.status(500).json({ error: "Yapay zekadan gelen yanıt ayrıştırılamadı (Geçersiz JSON)." });
         }
+
+        // Step 2: Recursively find 'imagePrompt' fields and generate images
+        const generateImagesInObject = async (obj: any) => {
+            if (!obj || typeof obj !== 'object') return;
+
+            if (Array.isArray(obj)) {
+                for (const item of obj) {
+                    await generateImagesInObject(item);
+                }
+                return;
+            }
+
+            const keys = Object.keys(obj);
+            for (const key of keys) {
+                // Check for the special key 'imagePrompt'
+                if (key === 'imagePrompt' && typeof obj[key] === 'string' && obj[key].length > 0) {
+                     try {
+                        const imageResponse = await ai.models.generateContent({
+                            model: 'gemini-2.5-flash-image',
+                            contents: { parts: [{ text: obj[key] }] },
+                            config: { responseModalities: [Modality.IMAGE] },
+                        });
+                        
+                         for (const part of imageResponse.candidates[0].content.parts) {
+                            if (part.inlineData) {
+                                obj['imageBase64'] = part.inlineData.data;
+                                break;
+                            }
+                        }
+                     } catch (imgError) {
+                        console.error("Image generation failed for prompt:", obj[key], imgError);
+                        obj['imageBase64'] = ''; // Set empty on error to prevent client crashes
+                     }
+                     delete obj[key]; // Clean up the prompt field
+                } else {
+                     await generateImagesInObject(obj[key]); // Recurse into other properties
+                }
+            }
+        };
+
+        await generateImagesInObject(data);
         
         // Set CORS headers for local development and Vercel preview environments
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-        return res.status(200).json(parsed);
+        // Step 3: Return the final JSON with embedded image data
+        return res.status(200).json(data);
 
     } catch (error) {
         // Log the full error on the server for debugging in Vercel logs

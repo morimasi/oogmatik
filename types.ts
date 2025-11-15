@@ -577,14 +577,19 @@ export interface SpiralPuzzleData {
     }[];
 }
 
+export interface CrosswordClue {
+    id: number;
+    direction: 'across' | 'down';
+    text: string;
+    start: { row: number; col: number };
+    word: string;
+}
+
 export interface CrosswordData {
     title: string;
     prompt: string;
-    clues: {
-        id: number;
-        text: string;
-    }[];
     grid: (string | null)[][];
+    clues: CrosswordClue[];
     passwordCells: {
         row: number;
         col: number;
@@ -1161,6 +1166,7 @@ export interface VisualOddOneOutThemedData {
     rows: {
         theme: string; // e.g., "Doktor"
         imageDescriptions: string[]; // 5 descriptions
+        imagesBase64: string[];
         oddOneOutIndex: number;
     }[];
 }
@@ -1175,6 +1181,7 @@ export interface LogicGridPuzzleData {
         items: {
             name: string;
             imageDescription: string;
+            imageBase64: string;
         }[];
     }[];
 }
@@ -1184,6 +1191,7 @@ export interface ImageAnagramSortData {
     prompt: string;
     cards: {
         imageDescription: string;
+        imageBase64: string;
         scrambledWord: string;
         correctWord: string;
     }[];
@@ -1195,6 +1203,7 @@ export interface AnagramImageMatchData {
     wordBank: string[];
     puzzles: {
         imageDescription: string;
+        imageBase64: string;
         partialAnswer: string;
         correctWord: string;
     }[];

@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -189,9 +190,9 @@ export const generateColorWheelMemoryFromAI = async (itemCount: number): Promise
 export const generateImageComprehensionFromAI = async (topic: string, questionCount: number): Promise<ImageComprehensionData> => {
     const prompt = `
     Generate a simple, detailed scene description about '${topic}' for an image comprehension test for a 7-year-old. The description should be around 50-70 words.
-    Also, create a DALL-E 3 style prompt based on this description to generate a simple, cartoonish, and clear image.
+    Also, create a detailed, high-quality image generation prompt (in English) based on this description to generate a simple, cartoonish, and clear image.
     Then, create ${questionCount} open-ended questions about the details in the scene.
-    You MUST NOT generate the image itself, just provide the scene description and the prompt for image generation. For the 'imageBase64' field, return an empty string.
+    For the 'imagePrompt' field, return the generated image prompt.
     Format the output as JSON.
     `;
     const schema = {
@@ -201,10 +202,10 @@ export const generateImageComprehensionFromAI = async (topic: string, questionCo
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             sceneDescription: { type: Type.STRING },
-            imageBase64: { type: Type.STRING, description: "This should be an empty string, as you cannot generate images." },
+            imagePrompt: { type: Type.STRING, description: "A detailed English prompt for an image generation model." },
             questions: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
-        required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imageBase64", "questions"]
+        required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions"]
     };
     return generateWithSchema(prompt, schema) as Promise<ImageComprehensionData>;
 };
@@ -212,9 +213,8 @@ export const generateImageComprehensionFromAI = async (topic: string, questionCo
 export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<CharacterMemoryData> => {
     const prompt = `
     Generate a character memory test about '${topic}'.
-    Create ${memorizeCount} unique, simple characters. For each, provide a short description (e.g., "Kırmızı şapkalı bir ayıcık").
-    Then, create a test list of ${testCount} characters, including the ones to be memorized.
-    You MUST NOT generate images. For 'imageBase64' fields, return an empty string.
+    Create ${memorizeCount} unique, simple characters. For each, provide a short description (e.g., "Kırmızı şapkalı bir ayıcık") and a detailed English image generation prompt for it.
+    Then, create a test list of ${testCount} characters, including the ones to be memorized, each with a description and an image prompt.
     Format the output as JSON.
     `;
     const schema = {
@@ -229,9 +229,9 @@ export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount
                     type: Type.OBJECT,
                     properties: {
                         description: { type: Type.STRING },
-                        imageBase64: { type: Type.STRING }
+                        imagePrompt: { type: Type.STRING }
                     },
-                    required: ["description", "imageBase64"]
+                    required: ["description", "imagePrompt"]
                 }
             },
             testCharacters: {
@@ -240,9 +240,9 @@ export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount
                     type: Type.OBJECT,
                     properties: {
                         description: { type: Type.STRING },
-                        imageBase64: { type: Type.STRING }
+                        imagePrompt: { type: Type.STRING }
                     },
-                    required: ["description", "imageBase64"]
+                    required: ["description", "imagePrompt"]
                 }
             }
         },

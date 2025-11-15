@@ -1,3 +1,5 @@
+
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -402,24 +404,48 @@ export const generateSpiralPuzzleFromAI = async (): Promise<SpiralPuzzleData> =>
 };
 
 export const generateCrosswordFromAI = async (): Promise<CrosswordData> => {
-    const prompt = `Create a simple 8x8 crossword puzzle for kids in Turkish. Provide 5-6 clues. Some cells should be part of a hidden password. Indicate the password cells and password length. The grid should use 'null' for black cells. Format as JSON.`;
+    const prompt = `
+    "Hayvanlar" temalı, çocuklar için basit bir 10x10'luk Türkçe çapraz bulmaca oluştur.
+    1. Hayvan isimlerinden oluşan, birbiriyle kesişen kelimelerle 10x10'luk bir ızgara oluştur. Boş (siyah) kareler için null, harf olan kareler için büyük harf kullan.
+    2. Izgaradaki tüm "soldan sağa" (across) ve "yukarıdan aşağıya" (down) kelimelerini belirle.
+    3. Bu kelimeler için basit ve anlaşılır ipuçları oluştur.
+    4. Her ipucu için şunları sağla:
+        - Benzersiz bir numara (id).
+        - Yön ('across' veya 'down').
+        - İpucu metni (text).
+        - Kelimenin başlangıç koordinatları (start: {row, col}), 0-indeksli.
+        - Cevap kelimesi (word).
+    5. Kelimelerin içindeki bazı harf hücrelerini "şifre hücresi" olarak belirle ve koordinatlarını ver.
+    6. Toplam şifre uzunluğunu belirt.
+    7. Etkinlik için bir başlık (title) ve bir talimat metni (prompt) oluştur.
+    Tüm çıktıyı, sağlanan şemaya göre JSON formatında döndür.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             clues: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
                         id: { type: Type.INTEGER },
-                        text: { type: Type.STRING }
+                        direction: { type: Type.STRING, enum: ['across', 'down'] },
+                        text: { type: Type.STRING },
+                        start: {
+                            type: Type.OBJECT,
+                            properties: {
+                                row: { type: Type.INTEGER },
+                                col: { type: Type.INTEGER }
+                            },
+                            required: ["row", "col"]
+                        },
+                        word: { type: Type.STRING }
                     },
-                    required: ["id", "text"]
+                    required: ["id", "direction", "text", "start", "word"]
                 }
             },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             passwordCells: {
                 type: Type.ARRAY,
                 items: {
@@ -433,7 +459,7 @@ export const generateCrosswordFromAI = async (): Promise<CrosswordData> => {
             },
             passwordLength: { type: Type.INTEGER }
         },
-        required: ["title", "prompt", "clues", "grid", "passwordCells", "passwordLength"]
+        required: ["title", "prompt", "grid", "clues", "passwordCells", "passwordLength"]
     };
     return generateWithSchema(prompt, schema) as Promise<CrosswordData>;
 };
@@ -465,7 +491,7 @@ export const generateJumbledWordStoryFromAI = async (topic: string): Promise<Jum
 };
 
 export const generateHomonymSentenceFromAI = async (): Promise<HomonymSentenceData> => {
-    const prompt = `Create a homonym (eş sesli) sentence writing activity. Provide 4 Turkish homonym words. For each word, generate a DALL-E 3 style prompt for a simple image representing one of its meanings. You must not generate the image itself; return an empty string for 'imageBase64'. The user will write two sentences for each word. Format as JSON.`;
+    const prompt = `Create a homonym (eş sesli) sentence writing activity. Provide 4 Turkish homonym words. For each word, generate a detailed English image generation prompt for a simple image representing one of its meanings. The user will write two sentences for each word. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -477,9 +503,9 @@ export const generateHomonymSentenceFromAI = async (): Promise<HomonymSentenceDa
                     type: Type.OBJECT,
                     properties: {
                         word: { type: Type.STRING },
-                        imageBase64: { type: Type.STRING, description: "This should be an empty string." }
+                        imagePrompt: { type: Type.STRING, description: "A detailed English prompt for an image generation model." }
                     },
-                    required: ["word", "imageBase64"]
+                    required: ["word", "imagePrompt"]
                 }
             }
         },
@@ -506,7 +532,7 @@ export const generateWordGridPuzzleFromAI = async (topic: string): Promise<WordG
 };
 
 export const generateHomonymImageMatchFromAI = async (): Promise<HomonymImageMatchData> => {
-    const prompt = `Create a homonym image matching puzzle. Provide 3 Turkish homonym words. For each word, provide two different DALL-E 3 style image prompts, one for each meaning. These will be separated into left and right columns. You must not generate images; return an empty string for 'imageBase64'. Also, provide a scrambled word puzzle using one of the homonyms. Format as JSON.`;
+    const prompt = `Create a homonym image matching puzzle. Provide 3 Turkish homonym words. For each word, provide two different detailed English image generation prompts, one for each meaning. These will be separated into left and right columns. Also, provide a scrambled word puzzle using one of the homonyms. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -514,12 +540,12 @@ export const generateHomonymImageMatchFromAI = async (): Promise<HomonymImageMat
             prompt: { type: Type.STRING },
             leftImages: {
                 type: Type.ARRAY, items: {
-                    type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imageBase64: { type: Type.STRING } }, required: ["id", "word", "imageBase64"]
+                    type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["id", "word", "imagePrompt"]
                 }
             },
             rightImages: {
                 type: Type.ARRAY, items: {
-                    type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imageBase64: { type: Type.STRING } }, required: ["id", "word", "imageBase64"]
+                    type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["id", "word", "imagePrompt"]
                 }
             },
             wordScramble: {
@@ -599,7 +625,7 @@ export const generatePunctuationColoringFromAI = async (): Promise<PunctuationCo
 };
 
 export const generateAntonymResfebeFromAI = async(): Promise<AntonymResfebeData> => {
-    const prompt = `Create an antonym Resfebe puzzle. Generate 3 puzzles. For each, provide a word and its antonym. Also, provide a list of clues to form the Resfebe for the *original* word. One of the clues must be an image placeholder. For the image, provide a simple DALL-E style prompt. Return an empty string for 'imageBase64'. The user solves the Resfebe, finds the word, and then writes its antonym. Format as JSON.`;
+    const prompt = `Create an antonym Resfebe puzzle. Generate 3 puzzles. For each, provide a word and its antonym. Also, provide a list of clues to form the Resfebe for the *original* word. One of the clues must be an image placeholder. For the image, provide a simple, detailed English image generation prompt for 'imagePrompt'. The user solves the Resfebe, finds the word, and then writes its antonym. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -612,7 +638,7 @@ export const generateAntonymResfebeFromAI = async(): Promise<AntonymResfebeData>
                     properties: {
                         word: { type: Type.STRING },
                         antonym: { type: Type.STRING },
-                        imageBase64: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING },
                         clues: { type: Type.ARRAY, items: {
                             type: Type.OBJECT,
                             properties: {
@@ -621,7 +647,7 @@ export const generateAntonymResfebeFromAI = async(): Promise<AntonymResfebeData>
                              required: ["type"]
                         } }
                     },
-                    required: ["word", "antonym", "imageBase64", "clues"]
+                    required: ["word", "antonym", "imagePrompt", "clues"]
                 }
             },
             antonymsPrompt: { type: Type.STRING }
@@ -957,7 +983,7 @@ export const generatePositionalAnagramFromAI = async(): Promise<PositionalAnagra
 }
 
 export const generateImageAnagramSortFromAI = async(): Promise<ImageAnagramSortData> => {
-    const prompt = `Create an image anagram sorting puzzle. Generate 6 cards. Each card has an image description, a scrambled word, and the correct word. The user has to unscramble the words and sort the cards alphabetically. Do not generate images. Format as JSON.`;
+    const prompt = `Create an image anagram sorting puzzle. Generate 6 cards. Each card has an image description, a detailed English image generation prompt, a scrambled word, and the correct word. The user has to unscramble the words and sort the cards alphabetically. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -969,10 +995,11 @@ export const generateImageAnagramSortFromAI = async(): Promise<ImageAnagramSortD
                     type: Type.OBJECT,
                     properties: {
                         imageDescription: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING },
                         scrambledWord: { type: Type.STRING },
                         correctWord: { type: Type.STRING }
                     },
-                    required: ["imageDescription", "scrambledWord", "correctWord"]
+                    required: ["imageDescription", "imagePrompt", "scrambledWord", "correctWord"]
                 }
             }
         },
@@ -982,7 +1009,7 @@ export const generateImageAnagramSortFromAI = async(): Promise<ImageAnagramSortD
 }
 
 export const generateAnagramImageMatchFromAI = async(): Promise<AnagramImageMatchData> => {
-    const prompt = `Create an anagram-image matching puzzle. Provide a word bank of 6 correct words. Generate 6 puzzles. Each puzzle has an image description, a partially filled answer (like hangman), and the correct word (which is in the word bank). Do not generate images. Format as JSON.`;
+    const prompt = `Create an anagram-image matching puzzle. Provide a word bank of 6 correct words. Generate 6 puzzles. Each puzzle has an image description, a detailed English image generation prompt, a partially filled answer (like hangman), and the correct word (which is in the word bank). Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -995,10 +1022,11 @@ export const generateAnagramImageMatchFromAI = async(): Promise<AnagramImageMatc
                     type: Type.OBJECT,
                     properties: {
                         imageDescription: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING },
                         partialAnswer: { type: Type.STRING },
                         correctWord: { type: Type.STRING }
                     },
-                    required: ["imageDescription", "partialAnswer", "correctWord"]
+                    required: ["imageDescription", "imagePrompt", "partialAnswer", "correctWord"]
                 }
             }
         },
