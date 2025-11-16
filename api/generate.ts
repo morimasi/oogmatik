@@ -19,12 +19,13 @@ const generateJsonWithRetries = async (ai: GoogleGenAI, prompt: string, schema: 
             let jsonText = textResponse.text;
             if (!jsonText) {
                 console.warn(`Attempt ${attempt} failed: AI returned an empty response text.`);
-                if (attempt < maxRetries) await new Promise(resolve => setTimeout(resolve, 500));
+                if (attempt < maxRetries) await new Promise(resolve => setTimeout(resolve, 500 * attempt));
                 continue;
             }
             
             console.log(`Attempt ${attempt}: Received raw text from AI. Length: ${jsonText.length}.`);
 
+            // responseMimeType: "application/json" should prevent markdown, but as a fallback:
             const match = jsonText.match(/```(json)?\s*([\s\S]*?)\s*```/);
             if (match && match[2]) {
                 jsonText = match[2];
@@ -34,15 +35,19 @@ const generateJsonWithRetries = async (ai: GoogleGenAI, prompt: string, schema: 
             console.log(`Attempt ${attempt}: JSON parsing successful.`);
             return data;
 
-        } catch (error) {
-            console.error(`Attempt ${attempt} failed with error:`, error);
+        } catch (error: any) {
+            console.error(`Attempt ${attempt} failed.`);
+            if (error.message) console.error("Error Message:", error.message);
+            // Vercel logs might truncate, so substring the stack
+            if (error.stack) console.error("Error Stack:", error.stack.substring(0, 1000));
+            
             if (attempt === maxRetries) {
-                throw new Error(`Failed to generate and parse valid JSON after ${maxRetries} attempts.`);
+                throw new Error(`Yapay zeka ${maxRetries} denemeden sonra geçerli bir JSON üretemedi. Son hata: ${error.message}`);
             }
-            await new Promise(resolve => setTimeout(resolve, 500)); 
+            await new Promise(resolve => setTimeout(resolve, 500 * attempt)); 
         }
     }
-    throw new Error("Failed to get a valid response from the AI model after all retries.");
+    throw new Error("Tüm denemelerden sonra yapay zeka modelinden geçerli bir yanıt alınamadı.");
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -93,8 +98,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (error instanceof Error) {
             if (error.message.includes('API key not valid')) {
                 clientErrorMessage = 'Sunucuda yapılandırılan API anahtarı geçersiz.';
-            } else if (error.message.includes('Failed to generate and parse valid JSON')) {
-                clientErrorMessage = 'Yapay zeka modeli tutarlı bir yanıt üretemedi. Lütfen tekrar deneyin.'
+            } else {
+                clientErrorMessage = error.message;
             }
         }
         
