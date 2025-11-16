@@ -60,7 +60,7 @@ export const generateShapeMatchingFromAI = async (rowCount: number): Promise<Sha
           type: Type.OBJECT,
           properties: {
             id: { type: Type.INTEGER },
-            shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } }
+            shapes: { type: Type.ARRAY, items: { type: Type.STRING } }
           },
           required: ['id', 'shapes']
         }
@@ -71,7 +71,7 @@ export const generateShapeMatchingFromAI = async (rowCount: number): Promise<Sha
           type: Type.OBJECT,
           properties: {
             id: { type: Type.STRING },
-            shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } }
+            shapes: { type: Type.ARRAY, items: { type: Type.STRING } }
           },
           required: ['id', 'shapes']
         }
@@ -98,7 +98,7 @@ export const generateSymbolCipherFromAI = async (wordCount: number): Promise<Sym
         items: {
           type: Type.OBJECT,
           properties: {
-            shape: { type: Type.STRING, enum: SHAPE_TYPES },
+            shape: { type: Type.STRING },
             letter: { type: Type.STRING }
           },
           required: ['shape', 'letter']
@@ -109,7 +109,7 @@ export const generateSymbolCipherFromAI = async (wordCount: number): Promise<Sym
         items: {
           type: Type.OBJECT,
           properties: {
-            shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } },
+            shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING } },
             wordLength: { type: Type.INTEGER }
           },
           required: ['shapeSequence', 'wordLength']
@@ -160,7 +160,7 @@ export const generateShapeNumberPatternFromAI = async (count: number): Promise<S
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    type: { type: Type.STRING, enum: ['triangle'] },
+                                    type: { type: Type.STRING },
                                     numbers: { type: Type.ARRAY, items: { type: Type.STRING } }
                                 },
                                 required: ["type", "numbers"]
@@ -429,6 +429,7 @@ export const generateRomanArabicMatchConnectFromAI = async(): Promise<RomanArabi
         },
         required: ["title", "prompt", "gridDim", "points"]
     };
+    // FIX: Changed RomanArabicMatchConnectFromAI to RomanArabicMatchConnectData to fix typo.
     return generateWithSchema(prompt, schema) as Promise<RomanArabicMatchConnectData>;
 }
 
@@ -476,7 +477,7 @@ export const generateResfebeFromAI = async(): Promise<ResfebeData> => {
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    type: { type: Type.STRING, enum: ['text', 'image'] },
+                                    type: { type: Type.STRING },
                                     value: { type: Type.STRING },
                                     imagePrompt: { type: Type.STRING }
                                 },

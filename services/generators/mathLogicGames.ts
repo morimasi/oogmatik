@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -29,7 +30,7 @@ export const generateFutoshikiFromAI = async(): Promise<FutoshikiData> => {
                                 properties: {
                                     row1: { type: Type.INTEGER }, col1: { type: Type.INTEGER },
                                     row2: { type: Type.INTEGER }, col2: { type: Type.INTEGER },
-                                    symbol: { type: Type.STRING, enum: ['>', '<'] }
+                                    symbol: { type: Type.STRING }
                                 },
                                 required: ["row1", "col1", "row2", "col2", "symbol"]
                             }
@@ -288,7 +289,7 @@ export const generateKendokuFromAI = async(): Promise<KendokuData> => {
                                 type: Type.OBJECT,
                                 properties: {
                                     cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } },
-                                    operation: { type: Type.STRING, enum: ['+', '−', '×', '÷'] },
+                                    operation: { type: Type.STRING },
                                     target: { type: Type.INTEGER }
                                 },
                                 required: ["cells", "operation", "target"]
@@ -481,13 +482,13 @@ export const generateShapeSudokuFromAI = async(): Promise<ShapeSudokuData> => {
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } } },
+                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
                         shapesToUse: {
                             type: Type.ARRAY,
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    shape: { type: Type.STRING, enum: SHAPE_TYPES },
+                                    shape: { type: Type.STRING },
                                     label: { type: Type.STRING }
                                 },
                                 required: ["shape", "label"]
@@ -524,7 +525,7 @@ export const generateFutoshikiLengthFromAI = async(): Promise<FutoshikiLengthDat
                                 properties: {
                                     row1: { type: Type.INTEGER }, col1: { type: Type.INTEGER },
                                     row2: { type: Type.INTEGER }, col2: { type: Type.INTEGER },
-                                    symbol: { type: Type.STRING, enum: ['>', '<'] }
+                                    symbol: { type: Type.STRING }
                                 },
                                 required: ["row1", "col1", "row2", "col2", "symbol"]
                             }

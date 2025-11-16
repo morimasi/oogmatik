@@ -1,7 +1,4 @@
 
-
-
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -433,7 +430,7 @@ export const generateCrosswordFromAI = async (): Promise<CrosswordData> => {
                     type: Type.OBJECT,
                     properties: {
                         id: { type: Type.INTEGER },
-                        direction: { type: Type.STRING, enum: ['across', 'down'] },
+                        direction: { type: Type.STRING },
                         text: { type: Type.STRING },
                         start: {
                             type: Type.OBJECT,
@@ -654,7 +651,7 @@ Format the output as a single JSON object.`;
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    type: { type: Type.STRING, enum: ['text', 'image'] },
+                                    type: { type: Type.STRING },
                                     value: { type: Type.STRING }
                                 },
                                 required: ["type", "value"]
