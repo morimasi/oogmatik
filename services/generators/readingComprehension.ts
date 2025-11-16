@@ -146,7 +146,7 @@ export const generateProverbSayingSortFromAI = async (): Promise<ProverbSayingSo
                     type: Type.OBJECT,
                     properties: {
                         text: { type: Type.STRING },
-                        type: { type: Type.STRING, enum: ['atasözü', 'özdeyiş'] }
+                        type: { type: Type.STRING }
                     },
                     required: ["text", "type"]
                 }

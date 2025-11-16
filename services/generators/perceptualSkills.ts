@@ -105,9 +105,7 @@ export const generateFindIdenticalWordFromAI = async (count: number): Promise<Fi
                     properties: {
                         words: {
                             type: Type.ARRAY,
-                            items: { type: Type.STRING },
-                            minItems: 2,
-                            maxItems: 2
+                            items: { type: Type.STRING }
                         }
                     },
                     required: ['words']
@@ -265,7 +263,7 @@ export const generateSymmetryDrawingFromAI = async (): Promise<SymmetryDrawingDa
                     required: ["x", "y"]
                 }
             },
-            axis: { type: Type.STRING, enum: ['vertical', 'horizontal'] }
+            axis: { type: Type.STRING }
         },
         required: ["title", "prompt", "gridDim", "dots", "axis"]
     };
