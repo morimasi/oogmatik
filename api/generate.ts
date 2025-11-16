@@ -1,57 +1,11 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 
-const generateJsonWithRetries = async (ai: GoogleGenAI, prompt: string, schema: any, maxRetries: number = 3) => {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        console.log(`JSON Generation: Attempt ${attempt}/${maxRetries}...`);
-        try {
-            const textResponse = await ai.models.generateContent({
-                model: "gemini-2.5-pro",
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: schema,
-                    temperature: 0.5,
-                },
-            });
-
-            let jsonText = textResponse.text;
-            if (!jsonText) {
-                console.warn(`Attempt ${attempt} failed: AI returned an empty response text.`);
-                if (attempt < maxRetries) await new Promise(resolve => setTimeout(resolve, 500 * attempt));
-                continue;
-            }
-            
-            console.log(`Attempt ${attempt}: Received raw text from AI. Length: ${jsonText.length}.`);
-
-            // responseMimeType: "application/json" should prevent markdown, but as a fallback:
-            const match = jsonText.match(/```(json)?\s*([\s\S]*?)\s*```/);
-            if (match && match[2]) {
-                jsonText = match[2];
-            }
-            
-            const data = JSON.parse(jsonText);
-            console.log(`Attempt ${attempt}: JSON parsing successful.`);
-            return data;
-
-        } catch (error: any) {
-            console.error(`Attempt ${attempt} failed.`);
-            if (error.message) console.error("Error Message:", error.message);
-            // Vercel logs might truncate, so substring the stack
-            if (error.stack) console.error("Error Stack:", error.stack.substring(0, 1000));
-            
-            if (attempt === maxRetries) {
-                throw new Error(`Yapay zeka ${maxRetries} denemeden sonra geçerli bir JSON üretemedi. Son hata: ${error.message}`);
-            }
-            await new Promise(resolve => setTimeout(resolve, 500 * attempt)); 
-        }
-    }
-    throw new Error("Tüm denemelerden sonra yapay zeka modelinden geçerli bir yanıt alınamadı.");
-};
-
+// This is a Vercel serverless function.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
+        // Handle preflight requests for CORS
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -63,8 +17,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
-    console.log("--- New Text Generation Request ---");
-
     try {
         const { prompt, schema } = req.body;
 
@@ -74,32 +26,100 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         const apiKey = process.env.API_KEY;
         if (!apiKey) {
+            console.error("API_KEY environment variable is not set on Vercel.");
             return res.status(500).json({ error: 'Sunucuda API anahtarı yapılandırılmamış.' });
         }
 
         const ai = new GoogleGenAI({ apiKey });
         
-        const data = await generateJsonWithRetries(ai, prompt, schema, 3);
+        // Step 1: Generate the main JSON structure with image prompts
+        const textResponse = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: schema,
+                temperature: 0.9,
+            },
+        });
+
+        const jsonText = textResponse.text;
+        if (!jsonText) {
+             console.warn("AI returned an empty response text.");
+             return res.status(500).json({ error: "Yapay zekadan boş bir metin yanıtı alındı." });
+        }
         
-        if (!data) {
-            return res.status(500).json({ error: "Yapay zeka modeli tutarlı bir yanıt üretemedi." });
+        let data;
+        try {
+            data = JSON.parse(jsonText);
+        } catch (parseError) {
+            console.error("Failed to parse JSON response from AI:", jsonText);
+            return res.status(500).json({ error: "Yapay zekadan gelen yanıt ayrıştırılamadı (Geçersiz JSON)." });
         }
 
+        // Step 2: Recursively find 'imagePrompt' fields and generate images
+        const generateImagesInObject = async (obj: any) => {
+            if (!obj || typeof obj !== 'object') return;
+
+            if (Array.isArray(obj)) {
+                for (const item of obj) {
+                    await generateImagesInObject(item);
+                }
+                return;
+            }
+
+            const keys = Object.keys(obj);
+            for (const key of keys) {
+                // Check for the special key 'imagePrompt'
+                if (key === 'imagePrompt' && typeof obj[key] === 'string' && obj[key].length > 0) {
+                     try {
+                        const imageResponse = await ai.models.generateContent({
+                            model: 'gemini-2.5-flash-image',
+                            contents: { parts: [{ text: obj[key] }] },
+                            config: { responseModalities: [Modality.IMAGE] },
+                        });
+                        
+                        const partWithImageData = imageResponse.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                        if (partWithImageData?.inlineData) {
+                            obj['imageBase64'] = partWithImageData.inlineData.data;
+                        } else {
+                            // If no image is returned (e.g., safety block), set to empty to avoid client errors.
+                            obj['imageBase64'] = '';
+                            console.warn(`No image data found in Gemini response for prompt: "${obj[key]}"`);
+                        }
+                     } catch (imgError) {
+                        console.error("Image generation failed for prompt:", obj[key], imgError);
+                        obj['imageBase64'] = ''; // Set empty on error to prevent client crashes
+                     }
+                     delete obj[key]; // Clean up the prompt field
+                } else {
+                     await generateImagesInObject(obj[key]); // Recurse into other properties
+                }
+            }
+        };
+
+        await generateImagesInObject(data);
+        
+        // Set CORS headers for local development and Vercel preview environments
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+        // Step 3: Return the final JSON with embedded image data
         return res.status(200).json(data);
 
     } catch (error) {
-        console.error("--- Critical Error in /api/generate ---", error);
+        // Log the full error on the server for debugging in Vercel logs
+        console.error("Sunucusuz fonksiyonda kritik hata:", error);
         
         let clientErrorMessage = "Yapay zeka ile içerik oluşturulurken sunucu tarafında bir hata oluştu.";
+        
         if (error instanceof Error) {
+            // Provide more specific feedback for common API key issues
             if (error.message.includes('API key not valid')) {
-                clientErrorMessage = 'Sunucuda yapılandırılan API anahtarı geçersiz.';
-            } else {
-                clientErrorMessage = error.message;
+                clientErrorMessage = 'Sunucuda yapılandırılan API anahtarı geçersiz. Lütfen Vercel proje ayarlarınızı kontrol edin.';
+            } else if (error.message.includes('permission denied')) {
+                 clientErrorMessage = 'API anahtarının bu modeli kullanma izni yok veya projeniz için faturalandırma etkin değil.';
             }
         }
         

@@ -1,6 +1,5 @@
 import { Type } from "@google/genai";
-// FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-import { generateWorksheetData } from '../geminiClient';
+import { generateWithSchema } from '../geminiClient';
 import {
     FindTheDifferenceData, StroopTestData, OddOneOutData, FindIdenticalWordData, GridDrawingData, ChaoticNumberSearchData,
     BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData
@@ -31,8 +30,7 @@ export const generateFindTheDifferenceFromAI = async (topic: string, rowCount: n
         },
         required: ['title', 'rows']
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<FindTheDifferenceData>;
+    return generateWithSchema(prompt, schema) as Promise<FindTheDifferenceData>;
 };
 
 export const generateStroopTestFromAI = async (count: number): Promise<StroopTestData> => {
@@ -61,8 +59,7 @@ export const generateStroopTestFromAI = async (count: number): Promise<StroopTes
         },
         required: ['title', 'items']
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<StroopTestData>;
+    return generateWithSchema(prompt, schema) as Promise<StroopTestData>;
 };
 
 export const generateOddOneOutFromAI = async (topic: string, groupCount: number): Promise<OddOneOutData> => {
@@ -88,8 +85,7 @@ export const generateOddOneOutFromAI = async (topic: string, groupCount: number)
     },
     required: ['title', 'groups']
   };
-  // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-  return generateWorksheetData(prompt, schema) as Promise<OddOneOutData>;
+  return generateWithSchema(prompt, schema) as Promise<OddOneOutData>;
 };
 
 export const generateFindIdenticalWordFromAI = async (count: number): Promise<FindIdenticalWordData> => {
@@ -120,8 +116,7 @@ export const generateFindIdenticalWordFromAI = async (count: number): Promise<Fi
         },
         required: ['title', 'groups']
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<FindIdenticalWordData>;
+    return generateWithSchema(prompt, schema) as Promise<FindIdenticalWordData>;
 };
 
 export const generateGridDrawingFromAI = async (gridDim: number, count: number): Promise<GridDrawingData> => {
@@ -157,8 +152,7 @@ export const generateGridDrawingFromAI = async (gridDim: number, count: number):
         },
         required: ["title", "gridDim", "drawings"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<GridDrawingData>;
+    return generateWithSchema(prompt, schema) as Promise<GridDrawingData>;
 };
 
 export const generateChaoticNumberSearchFromAI = async (start: number, end: number): Promise<ChaoticNumberSearchData> => {
@@ -192,8 +186,7 @@ export const generateChaoticNumberSearchFromAI = async (start: number, end: numb
         },
         required: ["title", "prompt", "numbers", "range"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<ChaoticNumberSearchData>;
+    return generateWithSchema(prompt, schema) as Promise<ChaoticNumberSearchData>;
 };
 
 export const generateBlockPaintingFromAI = async (): Promise<BlockPaintingData> => {
@@ -218,8 +211,7 @@ export const generateBlockPaintingFromAI = async (): Promise<BlockPaintingData> 
         },
         required: ["title", "prompt", "grid", "shapes"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<BlockPaintingData>;
+    return generateWithSchema(prompt, schema) as Promise<BlockPaintingData>;
 };
 
 export const generateVisualOddOneOutFromAI = async (): Promise<VisualOddOneOutData> => {
@@ -251,8 +243,7 @@ export const generateVisualOddOneOutFromAI = async (): Promise<VisualOddOneOutDa
         },
         required: ["title", "prompt", "rows"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<VisualOddOneOutData>;
+    return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData>;
 };
 
 export const generateSymmetryDrawingFromAI = async (): Promise<SymmetryDrawingData> => {
@@ -278,8 +269,7 @@ export const generateSymmetryDrawingFromAI = async (): Promise<SymmetryDrawingDa
         },
         required: ["title", "prompt", "gridDim", "dots", "axis"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<SymmetryDrawingData>;
+    return generateWithSchema(prompt, schema) as Promise<SymmetryDrawingData>;
 };
 
 export const generateFindDifferentStringFromAI = async (): Promise<FindDifferentStringData> => {
@@ -302,8 +292,7 @@ export const generateFindDifferentStringFromAI = async (): Promise<FindDifferent
         },
         required: ["title", "prompt", "rows"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<FindDifferentStringData>;
+    return generateWithSchema(prompt, schema) as Promise<FindDifferentStringData>;
 };
 
 export const generateDotPaintingFromAI = async (): Promise<DotPaintingData> => {
@@ -331,6 +320,5 @@ export const generateDotPaintingFromAI = async (): Promise<DotPaintingData> => {
         },
         required: ["title", "prompt1", "prompt2", "svgViewBox", "gridPaths", "dots"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<DotPaintingData>;
+    return generateWithSchema(prompt, schema) as Promise<DotPaintingData>;
 };

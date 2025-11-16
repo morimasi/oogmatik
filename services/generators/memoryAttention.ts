@@ -1,8 +1,6 @@
 
-
 import { Type } from "@google/genai";
-// FIX: Corrected import path from non-existent 'apiClient' to 'geminiClient'.
-import { generateWorksheetData } from '../geminiClient';
+import { generateWithSchema } from '../geminiClient';
 import {
     WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, SynonymSearchAndStoryData, StarHuntData, ShapeType
@@ -26,7 +24,7 @@ export const generateWordMemoryFromAI = async (topic: string, memorizeCount: num
         },
         required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords']
     };
-    return generateWorksheetData(prompt, schema) as Promise<WordMemoryData>;
+    return generateWithSchema(prompt, schema) as Promise<WordMemoryData>;
 };
 
 export const generateVisualMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<VisualMemoryData> => {
@@ -47,7 +45,7 @@ export const generateVisualMemoryFromAI = async (topic: string, memorizeCount: n
     },
     required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems']
   };
-  return generateWorksheetData(prompt, schema) as Promise<VisualMemoryData>;
+  return generateWithSchema(prompt, schema) as Promise<VisualMemoryData>;
 };
 
 export const generateNumberSearchFromAI = async (start: number, end: number): Promise<NumberSearchData> => {
@@ -73,7 +71,7 @@ export const generateNumberSearchFromAI = async (start: number, end: number): Pr
         },
         required: ['title', 'numbers', 'range']
     };
-    return generateWorksheetData(prompt, schema) as Promise<NumberSearchData>;
+    return generateWithSchema(prompt, schema) as Promise<NumberSearchData>;
 };
 
 export const generateFindDuplicateFromAI = async (rows: number, cols: number): Promise<FindDuplicateData> => {
@@ -91,7 +89,7 @@ export const generateFindDuplicateFromAI = async (rows: number, cols: number): P
     },
     required: ['title', 'rows']
   };
-  return generateWorksheetData(prompt, schema) as Promise<FindDuplicateData>;
+  return generateWithSchema(prompt, schema) as Promise<FindDuplicateData>;
 };
 
 export const generateLetterGridFromAI = async (gridSize: number, letters: string): Promise<LetterGridTestData> => {
@@ -119,7 +117,7 @@ export const generateLetterGridFromAI = async (gridSize: number, letters: string
         },
         required: ['title', 'grid', 'targetLetters']
     };
-    return generateWorksheetData(prompt, schema) as Promise<LetterGridTestData>;
+    return generateWithSchema(prompt, schema) as Promise<LetterGridTestData>;
 };
 
 export const generateFindLetterPairFromAI = async (gridSize: number, targetPair: string): Promise<FindLetterPairData> => {
@@ -141,7 +139,7 @@ export const generateFindLetterPairFromAI = async (gridSize: number, targetPair:
         },
         required: ['title', 'grid', 'targetPair']
     };
-    return generateWorksheetData(prompt, schema) as Promise<FindLetterPairData>;
+    return generateWithSchema(prompt, schema) as Promise<FindLetterPairData>;
 };
 
 export const generateTargetSearchFromAI = async (gridSize: number, target: string, distractor: string): Promise<TargetSearchData> => {
@@ -161,7 +159,7 @@ export const generateTargetSearchFromAI = async (gridSize: number, target: strin
     },
     required: ['title', 'grid', 'target', 'distractor']
   };
-  return generateWorksheetData(prompt, schema) as Promise<TargetSearchData>;
+  return generateWithSchema(prompt, schema) as Promise<TargetSearchData>;
 };
 
 export const generateColorWheelMemoryFromAI = async (itemCount: number): Promise<ColorWheelMemoryData> => {
@@ -186,7 +184,7 @@ export const generateColorWheelMemoryFromAI = async (itemCount: number): Promise
         },
         required: ["title", "memorizeTitle", "testTitle", "items"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ColorWheelMemoryData>;
+    return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData>;
 };
 
 export const generateImageComprehensionFromAI = async (topic: string, questionCount: number): Promise<ImageComprehensionData> => {
@@ -209,7 +207,7 @@ export const generateImageComprehensionFromAI = async (topic: string, questionCo
         },
         required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ImageComprehensionData>;
+    return generateWithSchema(prompt, schema) as Promise<ImageComprehensionData>;
 };
 
 export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<CharacterMemoryData> => {
@@ -250,7 +248,7 @@ export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount
         },
         required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<CharacterMemoryData>;
+    return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData>;
 };
 
 export const generateBurdonTestFromAI = async (): Promise<LetterGridTestData> => {
@@ -264,7 +262,7 @@ export const generateBurdonTestFromAI = async (): Promise<LetterGridTestData> =>
         },
         required: ['title', 'grid', 'targetLetters']
     };
-    return generateWorksheetData(prompt, schema) as Promise<LetterGridTestData>;
+    return generateWithSchema(prompt, schema) as Promise<LetterGridTestData>;
 };
 
 export const generateSynonymSearchAndStoryFromAI = async(): Promise<SynonymSearchAndStoryData> => {
@@ -290,7 +288,7 @@ export const generateSynonymSearchAndStoryFromAI = async(): Promise<SynonymSearc
         },
         required: ["title", "prompt", "wordTable", "grid", "storyPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<SynonymSearchAndStoryData>;
+    return generateWithSchema(prompt, schema) as Promise<SynonymSearchAndStoryData>;
 }
 
 export const generateStarHuntFromAI = async(): Promise<StarHuntData> => {
@@ -304,5 +302,5 @@ export const generateStarHuntFromAI = async(): Promise<StarHuntData> => {
         },
         required: ["title", "prompt", "grid"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<StarHuntData>;
+    return generateWithSchema(prompt, schema) as Promise<StarHuntData>;
 }

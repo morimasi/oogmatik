@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { Activity, ActivityType, WorksheetData, SavedWorksheet } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
@@ -88,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
         case ActivityType.GRID_DRAWING: data = await generators.generateGridDrawingFromAI(10, 2); break;
         case ActivityType.COLOR_WHEEL_MEMORY: data = await generators.generateColorWheelMemoryFromAI(8); break;
         case ActivityType.IMAGE_COMPREHENSION: data = await generators.generateImageComprehensionFromAI(topic, 4); break;
-        case ActivityType.CHARACTER_MEMORY: data = await generators.generateCharacterMemoryFromAI(topic, 2, 2); break;
+        case ActivityType.CHARACTER_MEMORY: data = await generators.generateCharacterMemoryFromAI(topic, 4, 8); break;
         case ActivityType.STORY_SEQUENCING: data = await generators.generateStorySequencingFromAI(topic); break;
         case ActivityType.CHAOTIC_NUMBER_SEARCH: data = await generators.generateChaoticNumberSearchFromAI(1, 50); break;
         case ActivityType.BLOCK_PAINTING: data = await generators.generateBlockPaintingFromAI(); break;

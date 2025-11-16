@@ -1,10 +1,6 @@
-
 {
   "functions": {
     "api/generate.ts": {
-      "maxDuration": 60
-    },
-    "api/generate-image.ts": {
       "maxDuration": 60
     }
   }

@@ -136,6 +136,7 @@ export interface ActivityCategory {
 
 // Data structures for generated worksheets
 export interface WordSearchData {
+  // FIX: Added 'title' to ensure all worksheet data types have a title property.
   title: string;
   grid: string[][];
   words: string[];
@@ -397,14 +398,12 @@ export interface ImageComprehensionData {
     memorizeTitle: string;
     testTitle: string;
     sceneDescription: string;
-    imagePrompt?: string;
     imageBase64?: string;
     questions: string[];
 }
 
 export interface CharacterObject {
     description: string;
-    imagePrompt?: string;
     imageBase64?: string;
 }
 
@@ -615,7 +614,6 @@ export interface HomonymSentenceData {
     prompt: string;
     items: {
         word: string;
-        imagePrompt?: string;
         imageBase64?: string;
     }[];
 }
@@ -641,8 +639,8 @@ export interface ProverbSayingSortData {
 export interface HomonymImageMatchData {
     title: string;
     prompt: string;
-    leftImages: { id: number; word: string; imagePrompt?: string; imageBase64?: string }[];
-    rightImages: { id: number; word: string; imagePrompt?: string; imageBase64?: string }[];
+    leftImages: { id: number; word: string; imageBase64?: string }[];
+    rightImages: { id: number; word: string; imageBase64?: string }[];
     wordScramble: {
         letters: string[];
         word: string;
@@ -716,7 +714,6 @@ export interface AntonymResfebeData {
     puzzles: {
         word: string;
         antonym: string;
-        imagePrompt?: string;
         imageBase64?: string;
         clues: {
             type: 'text' | 'image';
@@ -803,6 +800,7 @@ export interface PunctuationPhoneNumberData {
     }[];
 }
 
+// FIX: Added missing interface definition for PunctuationSpiralPuzzleData.
 export interface PunctuationSpiralPuzzleData {
     title: string;
     prompt: string;
@@ -1069,7 +1067,6 @@ export interface WeightConnectData {
 export interface ResfebeClue {
     type: 'text' | 'image';
     value: string; 
-    imagePrompt?: string;
     imageBase64?: string;
 }
 
@@ -1160,7 +1157,6 @@ export interface ProfessionConnectData {
     points: {
         label: string;
         imageDescription: string;
-        imagePrompt?: string;
         imageBase64?: string;
         x: number;
         y: number;
@@ -1175,7 +1171,6 @@ export interface VisualOddOneOutThemedData {
         theme: string;
         items: {
             description: string;
-            imagePrompt?: string;
             imageBase64?: string;
         }[];
         oddOneOutIndex: number;
@@ -1192,7 +1187,6 @@ export interface LogicGridPuzzleData {
         items: {
             name: string;
             imageDescription: string;
-            imagePrompt?: string;
             imageBase64?: string;
         }[];
     }[];
@@ -1203,7 +1197,6 @@ export interface ImageAnagramSortData {
     prompt: string;
     cards: {
         imageDescription: string;
-        imagePrompt?: string;
         imageBase64?: string;
         scrambledWord: string;
         correctWord: string;
@@ -1216,7 +1209,6 @@ export interface AnagramImageMatchData {
     wordBank: string[];
     puzzles: {
         imageDescription: string;
-        imagePrompt?: string;
         imageBase64?: string;
         partialAnswer: string;
         correctWord: string;

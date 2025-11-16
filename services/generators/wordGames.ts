@@ -1,8 +1,9 @@
 
 
+
+
 import { Type } from "@google/genai";
-// FIX: Corrected import path from non-existent 'apiClient' to 'geminiClient'.
-import { generateWorksheetData } from '../geminiClient';
+import { generateWithSchema } from '../geminiClient';
 import {
     WordSearchData, AnagramData, SpellingCheckData, WordComparisonData, ProverbFillData, LetterBridgeData, WordLadderData,
     WordFormationData, ReverseWordData, WordGroupingData, MiniWordGridData, PasswordFinderData, SyllableCompletionData,
@@ -40,7 +41,7 @@ export const generateWordSearchFromAI = async (topic: string, gridSize: number, 
     },
     required: ['title', 'grid', 'words']
   };
-  return generateWorksheetData(prompt, schema) as Promise<WordSearchData>;
+  return generateWithSchema(prompt, schema) as Promise<WordSearchData>;
 };
 
 export const generateProverbSearchFromAI = async (gridSize: number): Promise<ProverbSearchData> => {
@@ -60,7 +61,7 @@ export const generateProverbSearchFromAI = async (gridSize: number): Promise<Pro
     },
     required: ['title', 'grid', 'proverb']
   };
-  return generateWorksheetData(prompt, schema) as Promise<ProverbSearchData>;
+  return generateWithSchema(prompt, schema) as Promise<ProverbSearchData>;
 };
 
 export const generateAnagramsFromAI = async (topic: string, wordCount: number): Promise<AnagramData[]> => {
@@ -79,7 +80,7 @@ export const generateAnagramsFromAI = async (topic: string, wordCount: number): 
       required: ['word', 'scrambled']
     },
   };
-   return generateWorksheetData(prompt, schema) as Promise<AnagramData[]>;
+   return generateWithSchema(prompt, schema) as Promise<AnagramData[]>;
 };
 
 export const generateSpellingChecksFromAI = async (topic: string, count: number): Promise<SpellingCheckData> => {
@@ -106,7 +107,7 @@ export const generateSpellingChecksFromAI = async (topic: string, count: number)
         },
         required: ['title', 'checks']
     };
-    return generateWorksheetData(prompt, schema) as Promise<SpellingCheckData>;
+    return generateWithSchema(prompt, schema) as Promise<SpellingCheckData>;
 };
 
 export const generateWordComparisonFromAI = async (topic: string): Promise<WordComparisonData> => {
@@ -126,7 +127,7 @@ export const generateWordComparisonFromAI = async (topic: string): Promise<WordC
     },
     required: ['title', 'box1Title', 'box2Title', 'wordList1', 'wordList2']
   };
-  return generateWorksheetData(prompt, schema) as Promise<WordComparisonData>;
+  return generateWithSchema(prompt, schema) as Promise<WordComparisonData>;
 };
 
 export const generateProverbFillFromAI = async (count: number): Promise<ProverbFillData> => {
@@ -153,7 +154,7 @@ export const generateProverbFillFromAI = async (count: number): Promise<ProverbF
     },
     required: ['title', 'proverbs']
   };
-  return generateWorksheetData(prompt, schema) as Promise<ProverbFillData>;
+  return generateWithSchema(prompt, schema) as Promise<ProverbFillData>;
 };
 
 export const generateLetterBridgeFromAI = async (count: number): Promise<LetterBridgeData> => {
@@ -181,7 +182,7 @@ export const generateLetterBridgeFromAI = async (count: number): Promise<LetterB
     },
     required: ['title', 'pairs']
   };
-  return generateWorksheetData(prompt, schema) as Promise<LetterBridgeData>;
+  return generateWithSchema(prompt, schema) as Promise<LetterBridgeData>;
 };
 
 export const generateWordLadderFromAI = async (count: number): Promise<WordLadderData> => {
@@ -210,7 +211,7 @@ export const generateWordLadderFromAI = async (count: number): Promise<WordLadde
     },
     required: ['title', 'ladders']
   };
-  return generateWorksheetData(prompt, schema) as Promise<WordLadderData>;
+  return generateWithSchema(prompt, schema) as Promise<WordLadderData>;
 };
 
 export const generateWordFormationFromAI = async (count: number): Promise<WordFormationData> => {
@@ -237,7 +238,7 @@ export const generateWordFormationFromAI = async (count: number): Promise<WordFo
         },
         required: ['title', 'sets']
     };
-    return generateWorksheetData(prompt, schema) as Promise<WordFormationData>;
+    return generateWithSchema(prompt, schema) as Promise<WordFormationData>;
 };
 
 export const generateReverseWordFromAI = async (topic: string, count: number): Promise<ReverseWordData> => {
@@ -253,7 +254,7 @@ export const generateReverseWordFromAI = async (topic: string, count: number): P
         },
         required: ['title', 'words']
     };
-    return generateWorksheetData(prompt, schema) as Promise<ReverseWordData>;
+    return generateWithSchema(prompt, schema) as Promise<ReverseWordData>;
 };
 
 export const generateWordGroupingFromAI = async (topic: string, wordCount: number, categoryCount: number): Promise<WordGroupingData> => {
@@ -272,7 +273,7 @@ export const generateWordGroupingFromAI = async (topic: string, wordCount: numbe
     },
     required: ['title', 'words', 'categoryNames']
   };
-  return generateWorksheetData(prompt, schema) as Promise<WordGroupingData>;
+  return generateWithSchema(prompt, schema) as Promise<WordGroupingData>;
 };
 
 export const generateMiniWordGridFromAI = async (): Promise<MiniWordGridData> => {
@@ -296,7 +297,7 @@ export const generateMiniWordGridFromAI = async (): Promise<MiniWordGridData> =>
         },
         required: ["title", "prompt", "puzzles"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<MiniWordGridData>;
+    return generateWithSchema(prompt, schema) as Promise<MiniWordGridData>;
 };
 
 export const generatePasswordFinderFromAI = async (): Promise<PasswordFinderData> => {
@@ -322,7 +323,7 @@ export const generatePasswordFinderFromAI = async (): Promise<PasswordFinderData
         },
         required: ["title", "prompt", "words", "passwordLength"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<PasswordFinderData>;
+    return generateWithSchema(prompt, schema) as Promise<PasswordFinderData>;
 };
 
 export const generateSyllableCompletionFromAI = async (topic: string): Promise<SyllableCompletionData> => {
@@ -349,7 +350,7 @@ export const generateSyllableCompletionFromAI = async (topic: string): Promise<S
         },
         required: ["title", "prompt", "theme", "wordParts", "syllables", "storyPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<SyllableCompletionData>;
+    return generateWithSchema(prompt, schema) as Promise<SyllableCompletionData>;
 };
 
 export const generateSynonymWordSearchFromAI = async (): Promise<SynonymWordSearchData> => {
@@ -374,7 +375,7 @@ export const generateSynonymWordSearchFromAI = async (): Promise<SynonymWordSear
         },
         required: ["title", "prompt", "wordsToMatch", "grid"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<SynonymWordSearchData>;
+    return generateWithSchema(prompt, schema) as Promise<SynonymWordSearchData>;
 };
 
 export const generateSpiralPuzzleFromAI = async (): Promise<SpiralPuzzleData> => {
@@ -401,7 +402,7 @@ export const generateSpiralPuzzleFromAI = async (): Promise<SpiralPuzzleData> =>
         },
         required: ["title", "prompt", "clues", "grid", "wordStarts"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<SpiralPuzzleData>;
+    return generateWithSchema(prompt, schema) as Promise<SpiralPuzzleData>;
 };
 
 export const generateCrosswordFromAI = async (): Promise<CrosswordData> => {
@@ -462,7 +463,7 @@ export const generateCrosswordFromAI = async (): Promise<CrosswordData> => {
         },
         required: ["title", "prompt", "grid", "clues", "passwordCells", "passwordLength"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<CrosswordData>;
+    return generateWithSchema(prompt, schema) as Promise<CrosswordData>;
 };
 
 export const generateJumbledWordStoryFromAI = async (topic: string): Promise<JumbledWordStoryData> => {
@@ -488,7 +489,7 @@ export const generateJumbledWordStoryFromAI = async (topic: string): Promise<Jum
         },
         required: ["title", "prompt", "theme", "puzzles", "storyPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<JumbledWordStoryData>;
+    return generateWithSchema(prompt, schema) as Promise<JumbledWordStoryData>;
 };
 
 export const generateHomonymSentenceFromAI = async (): Promise<HomonymSentenceData> => {
@@ -512,7 +513,7 @@ export const generateHomonymSentenceFromAI = async (): Promise<HomonymSentenceDa
         },
         required: ["title", "prompt", "items"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<HomonymSentenceData>;
+    return generateWithSchema(prompt, schema) as Promise<HomonymSentenceData>;
 };
 
 export const generateWordGridPuzzleFromAI = async (topic: string): Promise<WordGridPuzzleData> => {
@@ -529,11 +530,11 @@ export const generateWordGridPuzzleFromAI = async (topic: string): Promise<WordG
         },
         required: ["title", "prompt", "theme", "wordList", "grid", "unusedWordPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<WordGridPuzzleData>;
+    return generateWithSchema(prompt, schema) as Promise<WordGridPuzzleData>;
 };
 
 export const generateHomonymImageMatchFromAI = async (): Promise<HomonymImageMatchData> => {
-    const prompt = `Create a homonym image matching puzzle. Provide 2 Turkish homonym words. For each word, provide two different detailed English image generation prompts, one for each meaning. These will be separated into left and right columns. Also, provide a scrambled word puzzle using one of the homonyms. Format as JSON.`;
+    const prompt = `Create a homonym image matching puzzle. Provide 3 Turkish homonym words. For each word, provide two different detailed English image generation prompts, one for each meaning. These will be separated into left and right columns. Also, provide a scrambled word puzzle using one of the homonyms. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -555,7 +556,7 @@ export const generateHomonymImageMatchFromAI = async (): Promise<HomonymImageMat
         },
         required: ["title", "prompt", "leftImages", "rightImages", "wordScramble"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<HomonymImageMatchData>;
+    return generateWithSchema(prompt, schema) as Promise<HomonymImageMatchData>;
 };
 
 export const generateAntonymFlowerPuzzleFromAI = async (): Promise<AntonymFlowerPuzzleData> => {
@@ -581,7 +582,7 @@ export const generateAntonymFlowerPuzzleFromAI = async (): Promise<AntonymFlower
         },
         required: ["title", "prompt", "puzzles", "passwordLength"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<AntonymFlowerPuzzleData>;
+    return generateWithSchema(prompt, schema) as Promise<AntonymFlowerPuzzleData>;
 };
 
 export const generateSynonymAntonymGridFromAI = async (): Promise<SynonymAntonymGridData> => {
@@ -597,7 +598,7 @@ export const generateSynonymAntonymGridFromAI = async (): Promise<SynonymAntonym
         },
         required: ["title", "prompt", "antonyms", "synonyms", "grid"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<SynonymAntonymGridData>;
+    return generateWithSchema(prompt, schema) as Promise<SynonymAntonymGridData>;
 };
 
 export const generatePunctuationColoringFromAI = async (): Promise<PunctuationColoringData> => {
@@ -622,7 +623,7 @@ export const generatePunctuationColoringFromAI = async (): Promise<PunctuationCo
         },
         required: ["title", "prompt", "sentences"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<PunctuationColoringData>;
+    return generateWithSchema(prompt, schema) as Promise<PunctuationColoringData>;
 };
 
 export const generateAntonymResfebeFromAI = async(): Promise<AntonymResfebeData> => {
@@ -631,8 +632,8 @@ For each puzzle, provide:
 1. A Turkish word and its antonym.
 2. A list of clues to form the Resfebe for the *original* word. One of the clues must be an image.
    - For text clues, provide an object with \`type: 'text'\` and \`value: 'clue text'\`.
-   - For the image clue, provide an object with \`type: 'image'\` and \`value: ''\`.
-3. A separate, simple, detailed English image generation prompt in an \`imagePrompt\` field for that puzzle.
+   - For the image clue, provide an object with \`type: 'image'\` and \`value: ''\` (an empty string as a placeholder).
+3. A separate, simple, detailed English image generation prompt in a top-level \`imagePrompt\` field for that puzzle. This prompt corresponds to the image clue.
 The user solves the Resfebe, finds the word, and then writes its antonym.
 Format the output as a single JSON object.`;
     const schema = {
@@ -667,7 +668,7 @@ Format the output as a single JSON object.`;
         },
         required: ["title", "prompt", "puzzles", "antonymsPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<AntonymResfebeData>;
+    return generateWithSchema(prompt, schema) as Promise<AntonymResfebeData>;
 }
 
 export const generateThematicWordSearchColorFromAI = async(topic: string): Promise<ThematicWordSearchColorData> => {
@@ -683,7 +684,7 @@ export const generateThematicWordSearchColorFromAI = async(topic: string): Promi
         },
         required: ["title", "prompt", "theme", "words", "grid"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ThematicWordSearchColorData>;
+    return generateWithSchema(prompt, schema) as Promise<ThematicWordSearchColorData>;
 }
 
 export const generateProverbSentenceFinderFromAI = async(): Promise<ProverbSentenceFinderData> => {
@@ -708,7 +709,7 @@ export const generateProverbSentenceFinderFromAI = async(): Promise<ProverbSente
         },
         required: ["title", "prompt", "wordCloud", "solutions"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ProverbSentenceFinderData>;
+    return generateWithSchema(prompt, schema) as Promise<ProverbSentenceFinderData>;
 }
 
 export const generatePunctuationSpiralPuzzleFromAI = async(): Promise<PunctuationSpiralPuzzleData> => {
@@ -735,7 +736,7 @@ export const generatePunctuationSpiralPuzzleFromAI = async(): Promise<Punctuatio
         },
         required: ["title", "prompt", "clues", "grid", "wordStarts"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<PunctuationSpiralPuzzleData>;
+    return generateWithSchema(prompt, schema) as Promise<PunctuationSpiralPuzzleData>;
 }
 
 export const generateSynonymAntonymColoringFromAI = async(): Promise<SynonymAntonymColoringData> => {
@@ -771,7 +772,7 @@ export const generateSynonymAntonymColoringFromAI = async(): Promise<SynonymAnto
         },
         required: ["title", "prompt", "colorKey", "wordsOnImage"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<SynonymAntonymColoringData>;
+    return generateWithSchema(prompt, schema) as Promise<SynonymAntonymColoringData>;
 }
 
 export const generateThematicJumbledWordStoryFromAI = async(topic: string): Promise<ThematicJumbledWordStoryData> => {
@@ -797,7 +798,7 @@ export const generateThematicJumbledWordStoryFromAI = async(topic: string): Prom
         },
         required: ["title", "prompt", "theme", "puzzles", "storyPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ThematicJumbledWordStoryData>;
+    return generateWithSchema(prompt, schema) as Promise<ThematicJumbledWordStoryData>;
 }
 
 export const generateSynonymMatchingPatternFromAI = async(topic: string): Promise<SynonymMatchingPatternData> => {
@@ -822,7 +823,7 @@ export const generateSynonymMatchingPatternFromAI = async(topic: string): Promis
         },
         required: ["title", "prompt", "theme", "pairs"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<SynonymMatchingPatternData>;
+    return generateWithSchema(prompt, schema) as Promise<SynonymMatchingPatternData>;
 }
 
 export const generateMissingPartsFromAI = async(): Promise<MissingPartsData> => {
@@ -838,7 +839,7 @@ export const generateMissingPartsFromAI = async(): Promise<MissingPartsData> => 
         },
         required: ["title", "prompt", "leftParts", "rightParts", "givenParts"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<MissingPartsData>;
+    return generateWithSchema(prompt, schema) as Promise<MissingPartsData>;
 }
 
 export const generateWordWebFromAI = async(): Promise<WordWebData> => {
@@ -854,7 +855,7 @@ export const generateWordWebFromAI = async(): Promise<WordWebData> => {
         },
         required: ["title", "prompt", "wordsToFind", "grid", "keyWordPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<WordWebData>;
+    return generateWithSchema(prompt, schema) as Promise<WordWebData>;
 }
 
 export const generateSyllableWordSearchFromAI = async(): Promise<SyllableWordSearchData> => {
@@ -883,7 +884,7 @@ export const generateSyllableWordSearchFromAI = async(): Promise<SyllableWordSea
         },
         required: ["title", "prompt", "syllablesToCombine", "wordsToCreate", "wordsToFindInSearch", "grid", "passwordPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<SyllableWordSearchData>;
+    return generateWithSchema(prompt, schema) as Promise<SyllableWordSearchData>;
 }
 
 export const generateWordSearchWithPasswordFromAI = async(): Promise<WordSearchWithPasswordData> => {
@@ -909,7 +910,7 @@ export const generateWordSearchWithPasswordFromAI = async(): Promise<WordSearchW
         },
         required: ["title", "prompt", "grid", "words", "passwordCells"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<WordSearchWithPasswordData>;
+    return generateWithSchema(prompt, schema) as Promise<WordSearchWithPasswordData>;
 }
 
 export const generateWordWebWithPasswordFromAI = async(): Promise<WordWebWithPasswordData> => {
@@ -925,7 +926,7 @@ export const generateWordWebWithPasswordFromAI = async(): Promise<WordWebWithPas
         },
         required: ["title", "prompt", "words", "grid", "passwordColumnIndex"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<WordWebWithPasswordData>;
+    return generateWithSchema(prompt, schema) as Promise<WordWebWithPasswordData>;
 }
 
 export const generateLetterGridWordFindFromAI = async(): Promise<LetterGridWordFindData> => {
@@ -941,7 +942,7 @@ export const generateLetterGridWordFindFromAI = async(): Promise<LetterGridWordF
         },
         required: ["title", "prompt", "words", "grid", "writingPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<LetterGridWordFindData>;
+    return generateWithSchema(prompt, schema) as Promise<LetterGridWordFindData>;
 }
 
 export const generateWordPlacementPuzzleFromAI = async(): Promise<WordPlacementPuzzleData> => {
@@ -967,7 +968,7 @@ export const generateWordPlacementPuzzleFromAI = async(): Promise<WordPlacementP
         },
         required: ["title", "prompt", "grid", "wordGroups", "unusedWordPrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<WordPlacementPuzzleData>;
+    return generateWithSchema(prompt, schema) as Promise<WordPlacementPuzzleData>;
 }
 
 export const generatePositionalAnagramFromAI = async(): Promise<PositionalAnagramData> => {
@@ -992,7 +993,7 @@ export const generatePositionalAnagramFromAI = async(): Promise<PositionalAnagra
         },
         required: ["title", "prompt", "puzzles"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<PositionalAnagramData>;
+    return generateWithSchema(prompt, schema) as Promise<PositionalAnagramData>;
 }
 
 export const generateImageAnagramSortFromAI = async(): Promise<ImageAnagramSortData> => {
@@ -1018,7 +1019,7 @@ export const generateImageAnagramSortFromAI = async(): Promise<ImageAnagramSortD
         },
         required: ["title", "prompt", "cards"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ImageAnagramSortData>;
+    return generateWithSchema(prompt, schema) as Promise<ImageAnagramSortData>;
 }
 
 export const generateAnagramImageMatchFromAI = async(): Promise<AnagramImageMatchData> => {
@@ -1045,5 +1046,5 @@ export const generateAnagramImageMatchFromAI = async(): Promise<AnagramImageMatc
         },
         required: ["title", "prompt", "wordBank", "puzzles"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<AnagramImageMatchData>;
+    return generateWithSchema(prompt, schema) as Promise<AnagramImageMatchData>;
 }

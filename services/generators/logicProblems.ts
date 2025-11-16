@@ -1,8 +1,6 @@
 
-
 import { Type } from "@google/genai";
-// FIX: Corrected import path from non-existent 'apiClient' to 'geminiClient'.
-import { generateWorksheetData } from '../geminiClient';
+import { generateWithSchema } from '../geminiClient';
 import {
     NumberPatternData, ShapeMatchingData, ShapeType, SymbolCipherData, CoordinateCipherData, ShapeNumberPatternData, AbcConnectData, WordConnectData,
     ThematicOddOneOutData, PunctuationMazeData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationPhoneNumberData,
@@ -41,7 +39,7 @@ export const generateNumberPatternsFromAI = async (count: number, difficulty: st
         },
         required: ['title', 'patterns']
     };
-    return generateWorksheetData(prompt, schema) as Promise<NumberPatternData>;
+    return generateWithSchema(prompt, schema) as Promise<NumberPatternData>;
 };
 
 export const generateShapeMatchingFromAI = async (rowCount: number): Promise<ShapeMatchingData> => {
@@ -81,7 +79,7 @@ export const generateShapeMatchingFromAI = async (rowCount: number): Promise<Sha
     },
     required: ['title', 'leftColumn', 'rightColumn']
   };
-  return generateWorksheetData(prompt, schema) as Promise<ShapeMatchingData>;
+  return generateWithSchema(prompt, schema) as Promise<ShapeMatchingData>;
 };
 
 export const generateSymbolCipherFromAI = async (wordCount: number): Promise<SymbolCipherData> => {
@@ -120,7 +118,7 @@ export const generateSymbolCipherFromAI = async (wordCount: number): Promise<Sym
     },
     required: ['title', 'cipherKey', 'wordsToSolve']
   };
-  return generateWorksheetData(prompt, schema) as Promise<SymbolCipherData>;
+  return generateWithSchema(prompt, schema) as Promise<SymbolCipherData>;
 };
 
 export const generateCoordinateCipherFromAI = async (topic: string, gridSize: number, wordCount: number): Promise<CoordinateCipherData> => {
@@ -141,7 +139,7 @@ export const generateCoordinateCipherFromAI = async (topic: string, gridSize: nu
     },
     required: ['title', 'grid', 'wordsToFind', 'cipherCoordinates']
   };
-  return generateWorksheetData(prompt, schema) as Promise<CoordinateCipherData>;
+  return generateWithSchema(prompt, schema) as Promise<CoordinateCipherData>;
 };
 
 export const generateShapeNumberPatternFromAI = async (count: number): Promise<ShapeNumberPatternData> => {
@@ -175,7 +173,7 @@ export const generateShapeNumberPatternFromAI = async (count: number): Promise<S
         },
         required: ["title", "patterns"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ShapeNumberPatternData>;
+    return generateWithSchema(prompt, schema) as Promise<ShapeNumberPatternData>;
 };
 
 export const generateAbcConnectFromAI = async (): Promise<AbcConnectData> => {
@@ -211,7 +209,7 @@ export const generateAbcConnectFromAI = async (): Promise<AbcConnectData> => {
         },
         required: ["title", "prompt", "puzzles"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<AbcConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<AbcConnectData>;
 };
 
 export const generateWordConnectFromAI = async (): Promise<WordConnectData> => {
@@ -238,7 +236,7 @@ export const generateWordConnectFromAI = async (): Promise<WordConnectData> => {
         },
         required: ["title", "prompt", "gridDim", "points"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<WordConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<WordConnectData>;
 };
 
 export const generateThematicOddOneOutFromAI = async (topic: string): Promise<ThematicOddOneOutData> => {
@@ -264,7 +262,7 @@ export const generateThematicOddOneOutFromAI = async (topic: string): Promise<Th
         },
         required: ["title", "prompt", "theme", "rows", "sentencePrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ThematicOddOneOutData>;
+    return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutData>;
 };
 
 export const generatePunctuationMazeFromAI = async(): Promise<PunctuationMazeData> => {
@@ -290,7 +288,7 @@ export const generatePunctuationMazeFromAI = async(): Promise<PunctuationMazeDat
         },
         required: ["title", "prompt", "punctuationMark", "rules"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<PunctuationMazeData>;
+    return generateWithSchema(prompt, schema) as Promise<PunctuationMazeData>;
 }
 
 export const generateThematicOddOneOutSentenceFromAI = async(topic: string): Promise<ThematicOddOneOutSentenceData> => {
@@ -315,7 +313,7 @@ export const generateThematicOddOneOutSentenceFromAI = async(topic: string): Pro
         },
         required: ["title", "prompt", "rows", "sentencePrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ThematicOddOneOutSentenceData>;
+    return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutSentenceData>;
 }
 
 export const generateColumnOddOneOutSentenceFromAI = async(): Promise<ColumnOddOneOutSentenceData> => {
@@ -340,7 +338,7 @@ export const generateColumnOddOneOutSentenceFromAI = async(): Promise<ColumnOddO
         },
         required: ["title", "prompt", "columns", "sentencePrompt"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ColumnOddOneOutSentenceData>;
+    return generateWithSchema(prompt, schema) as Promise<ColumnOddOneOutSentenceData>;
 }
 
 export const generatePunctuationPhoneNumberFromAI = async(): Promise<PunctuationPhoneNumberData> => {
@@ -376,7 +374,7 @@ export const generatePunctuationPhoneNumberFromAI = async(): Promise<Punctuation
         },
         required: ["title", "prompt", "instruction", "clues", "solution"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<PunctuationPhoneNumberData>;
+    return generateWithSchema(prompt, schema) as Promise<PunctuationPhoneNumberData>;
 }
 
 export const generateArithmeticConnectFromAI = async(): Promise<ArithmeticConnectData> => {
@@ -404,7 +402,7 @@ export const generateArithmeticConnectFromAI = async(): Promise<ArithmeticConnec
         },
         required: ["title", "prompt", "example", "expressions"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ArithmeticConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<ArithmeticConnectData>;
 }
 
 export const generateRomanArabicMatchConnectFromAI = async(): Promise<RomanArabicMatchConnectData> => {
@@ -431,7 +429,7 @@ export const generateRomanArabicMatchConnectFromAI = async(): Promise<RomanArabi
         },
         required: ["title", "prompt", "gridDim", "points"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<RomanArabicMatchConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<RomanArabicMatchConnectData>;
 }
 
 export const generateWeightConnectFromAI = async(): Promise<WeightConnectData> => {
@@ -458,7 +456,7 @@ export const generateWeightConnectFromAI = async(): Promise<WeightConnectData> =
         },
         required: ["title", "prompt", "gridDim", "points"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<WeightConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<WeightConnectData>;
 }
 
 export const generateResfebeFromAI = async(): Promise<ResfebeData> => {
@@ -482,7 +480,7 @@ export const generateResfebeFromAI = async(): Promise<ResfebeData> => {
                                     value: { type: Type.STRING },
                                     imagePrompt: { type: Type.STRING }
                                 },
-                                required: ["type", "value", "imagePrompt"]
+                                required: ["type", "value"]
                             }
                         },
                         answer: { type: Type.STRING }
@@ -493,7 +491,7 @@ export const generateResfebeFromAI = async(): Promise<ResfebeData> => {
         },
         required: ["title", "prompt", "puzzles"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ResfebeData>;
+    return generateWithSchema(prompt, schema) as Promise<ResfebeData>;
 }
 
 export const generateLengthConnectFromAI = async(): Promise<LengthConnectData> => {
@@ -520,7 +518,7 @@ export const generateLengthConnectFromAI = async(): Promise<LengthConnectData> =
         },
         required: ["title", "prompt", "gridDim", "points"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<LengthConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<LengthConnectData>;
 }
 
 export const generateVisualNumberPatternFromAI = async(): Promise<VisualNumberPatternData> => {
@@ -556,7 +554,7 @@ export const generateVisualNumberPatternFromAI = async(): Promise<VisualNumberPa
         },
         required: ["title", "prompt", "puzzles"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<VisualNumberPatternData>;
+    return generateWithSchema(prompt, schema) as Promise<VisualNumberPatternData>;
 }
 
 export const generateProfessionConnectFromAI = async(): Promise<ProfessionConnectData> => {
@@ -584,11 +582,11 @@ export const generateProfessionConnectFromAI = async(): Promise<ProfessionConnec
         },
         required: ["title", "prompt", "gridDim", "points"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<ProfessionConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<ProfessionConnectData>;
 }
 
 export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise<VisualOddOneOutThemedData> => {
-    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 1 row. Each row has a theme (e.g., 'Doctor') and 3 items. Two items relate to the theme, one does not. For each item, provide a short description and a detailed English image generation prompt. Identify the index of the odd one out. Format as JSON.`;
+    const prompt = `Create a themed visual odd-one-out puzzle on '${topic}'. Generate 3 rows. Each row has a theme (e.g., 'Doctor') and 5 items. Four items relate to the theme, one does not. For each item, provide a short description and a detailed English image generation prompt. Identify the index of the odd one out. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -619,7 +617,7 @@ export const generateVisualOddOneOutThemedFromAI = async(topic: string): Promise
         },
         required: ["title", "prompt", "rows"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<VisualOddOneOutThemedData>;
+    return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutThemedData>;
 }
 
 export const generateLogicGridPuzzleFromAI = async(): Promise<LogicGridPuzzleData> => {
@@ -656,5 +654,5 @@ export const generateLogicGridPuzzleFromAI = async(): Promise<LogicGridPuzzleDat
         },
         required: ["title", "prompt", "clues", "people", "categories"]
     };
-    return generateWorksheetData(prompt, schema) as Promise<LogicGridPuzzleData>;
+    return generateWithSchema(prompt, schema) as Promise<LogicGridPuzzleData>;
 }

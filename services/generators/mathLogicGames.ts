@@ -1,6 +1,5 @@
 import { Type } from "@google/genai";
-// FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-import { generateWorksheetData } from '../geminiClient';
+import { generateWithSchema } from '../geminiClient';
 import {
     FutoshikiData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData,
     RomanNumeralMultiplicationData, Sudoku6x6ShadedData, KendokuData, DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData,
@@ -42,8 +41,7 @@ export const generateFutoshikiFromAI = async(): Promise<FutoshikiData> => {
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<FutoshikiData>;
+    return generateWithSchema(prompt, schema) as Promise<FutoshikiData>;
 }
 
 export const generateNumberPyramidFromAI = async(): Promise<NumberPyramidData> => {
@@ -67,8 +65,7 @@ export const generateNumberPyramidFromAI = async(): Promise<NumberPyramidData> =
         },
         required: ["title", "prompt", "pyramids"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<NumberPyramidData>;
+    return generateWithSchema(prompt, schema) as Promise<NumberPyramidData>;
 }
 
 export const generateNumberCapsuleFromAI = async(): Promise<NumberCapsuleData> => {
@@ -104,8 +101,7 @@ export const generateNumberCapsuleFromAI = async(): Promise<NumberCapsuleData> =
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<NumberCapsuleData>;
+    return generateWithSchema(prompt, schema) as Promise<NumberCapsuleData>;
 }
 
 export const generateOddEvenSudokuFromAI = async(): Promise<OddEvenSudokuData> => {
@@ -131,8 +127,7 @@ export const generateOddEvenSudokuFromAI = async(): Promise<OddEvenSudokuData> =
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<OddEvenSudokuData>;
+    return generateWithSchema(prompt, schema) as Promise<OddEvenSudokuData>;
 }
 
 export const generateRomanNumeralConnectFromAI = async(): Promise<RomanNumeralConnectData> => {
@@ -168,8 +163,7 @@ export const generateRomanNumeralConnectFromAI = async(): Promise<RomanNumeralCo
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<RomanNumeralConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralConnectData>;
 }
 
 export const generateRomanNumeralStarHuntFromAI = async(): Promise<RomanNumeralStarHuntData> => {
@@ -184,8 +178,7 @@ export const generateRomanNumeralStarHuntFromAI = async(): Promise<RomanNumeralS
         },
         required: ["title", "prompt", "grid", "starCount"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<RomanNumeralStarHuntData>;
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralStarHuntData>;
 }
 
 export const generateRoundingConnectFromAI = async(): Promise<RoundingConnectData> => {
@@ -212,8 +205,7 @@ export const generateRoundingConnectFromAI = async(): Promise<RoundingConnectDat
         },
         required: ["title", "prompt", "example", "numbers"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<RoundingConnectData>;
+    return generateWithSchema(prompt, schema) as Promise<RoundingConnectData>;
 }
 
 export const generateRomanNumeralMultiplicationFromAI = async(): Promise<RomanNumeralMultiplicationData> => {
@@ -249,8 +241,7 @@ export const generateRomanNumeralMultiplicationFromAI = async(): Promise<RomanNu
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<RomanNumeralMultiplicationData>;
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralMultiplicationData>;
 }
 
 export const generateSudoku6x6ShadedFromAI = async(): Promise<Sudoku6x6ShadedData> => {
@@ -274,8 +265,7 @@ export const generateSudoku6x6ShadedFromAI = async(): Promise<Sudoku6x6ShadedDat
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<Sudoku6x6ShadedData>;
+    return generateWithSchema(prompt, schema) as Promise<Sudoku6x6ShadedData>;
 }
 
 export const generateKendokuFromAI = async(): Promise<KendokuData> => {
@@ -311,8 +301,7 @@ export const generateKendokuFromAI = async(): Promise<KendokuData> => {
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<KendokuData>;
+    return generateWithSchema(prompt, schema) as Promise<KendokuData>;
 }
 
 export const generateDivisionPyramidFromAI = async(): Promise<DivisionPyramidData> => {
@@ -335,8 +324,7 @@ export const generateDivisionPyramidFromAI = async(): Promise<DivisionPyramidDat
         },
         required: ["title", "prompt", "pyramids"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<DivisionPyramidData>;
+    return generateWithSchema(prompt, schema) as Promise<DivisionPyramidData>;
 }
 
 export const generateMultiplicationPyramidFromAI = async(): Promise<MultiplicationPyramidData> => {
@@ -359,8 +347,7 @@ export const generateMultiplicationPyramidFromAI = async(): Promise<Multiplicati
         },
         required: ["title", "prompt", "pyramids"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<MultiplicationPyramidData>;
+    return generateWithSchema(prompt, schema) as Promise<MultiplicationPyramidData>;
 }
 
 export const generateOperationSquareSubtractionFromAI = async(): Promise<OperationSquareSubtractionData> => {
@@ -383,8 +370,7 @@ export const generateOperationSquareSubtractionFromAI = async(): Promise<Operati
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<OperationSquareSubtractionData>;
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareSubtractionData>;
 }
 
 export const generateOperationSquareFillInDataFromAI = async(): Promise<OperationSquareFillInData> => {
@@ -409,8 +395,7 @@ export const generateOperationSquareFillInDataFromAI = async(): Promise<Operatio
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<OperationSquareFillInData>;
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareFillInData>;
 }
 
 export const generateMultiplicationWheelFromAI = async(): Promise<MultiplicationWheelData> => {
@@ -434,8 +419,7 @@ export const generateMultiplicationWheelFromAI = async(): Promise<Multiplication
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<MultiplicationWheelData>;
+    return generateWithSchema(prompt, schema) as Promise<MultiplicationWheelData>;
 }
 
 export const generateTargetNumberFromAI = async (mode: 'numbers' | 'currency'): Promise<TargetNumberData> => {
@@ -459,8 +443,7 @@ export const generateTargetNumberFromAI = async (mode: 'numbers' | 'currency'): 
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<TargetNumberData>;
+    return generateWithSchema(prompt, schema) as Promise<TargetNumberData>;
 };
 
 export const generateOperationSquareMultDivFromAI = async(): Promise<OperationSquareMultDivData> => {
@@ -483,8 +466,7 @@ export const generateOperationSquareMultDivFromAI = async(): Promise<OperationSq
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<OperationSquareMultDivData>;
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareMultDivData>;
 }
 
 export const generateShapeSudokuFromAI = async(): Promise<ShapeSudokuData> => {
@@ -518,8 +500,7 @@ export const generateShapeSudokuFromAI = async(): Promise<ShapeSudokuData> => {
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<ShapeSudokuData>;
+    return generateWithSchema(prompt, schema) as Promise<ShapeSudokuData>;
 }
 
 export const generateFutoshikiLengthFromAI = async(): Promise<FutoshikiLengthData> => {
@@ -555,6 +536,5 @@ export const generateFutoshikiLengthFromAI = async(): Promise<FutoshikiLengthDat
         },
         required: ["title", "prompt", "puzzles"]
     };
-    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
-    return generateWorksheetData(prompt, schema) as Promise<FutoshikiLengthData>;
+    return generateWithSchema(prompt, schema) as Promise<FutoshikiLengthData>;
 }
