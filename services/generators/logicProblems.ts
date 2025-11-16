@@ -429,7 +429,6 @@ export const generateRomanArabicMatchConnectFromAI = async(): Promise<RomanArabi
         },
         required: ["title", "prompt", "gridDim", "points"]
     };
-    // FIX: Changed RomanArabicMatchConnectFromAI to RomanArabicMatchConnectData to fix typo.
     return generateWithSchema(prompt, schema) as Promise<RomanArabicMatchConnectData>;
 }
 
@@ -461,7 +460,7 @@ export const generateWeightConnectFromAI = async(): Promise<WeightConnectData> =
 }
 
 export const generateResfebeFromAI = async(): Promise<ResfebeData> => {
-    const prompt = `Create a Resfebe puzzle. Generate 4 puzzles. Each puzzle consists of clues (text or image placeholders) that cryptically represent a word. Provide the clues and the final answer. For image clues, provide a detailed English image generation prompt for the 'imagePrompt' field. Format as JSON.`;
+    const prompt = `Create a Resfebe puzzle. Generate 4 puzzles. Each puzzle consists of clues (text or image placeholders) that cryptically represent a word. The clue type should be 'text' or 'image'. Provide the clues and the final answer. For image clues, provide a detailed English image generation prompt for the 'imagePrompt' field. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {

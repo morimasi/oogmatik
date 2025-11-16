@@ -118,7 +118,7 @@ export const generateFindIdenticalWordFromAI = async (count: number): Promise<Fi
 };
 
 export const generateGridDrawingFromAI = async (gridDim: number, count: number): Promise<GridDrawingData> => {
-    const prompt = `Create a mirror drawing activity. Generate ${count} simple line patterns on a ${gridDim}x${gridDim} grid. Provide the line coordinates for each pattern. The user will copy the drawing to an empty grid. Format as JSON.`;
+    const prompt = `Create a mirror drawing activity. Generate ${count} simple line patterns on a ${gridDim}x${gridDim} grid. Provide the line coordinates for each pattern as an array of lines, where each line is an array of two points [start, end], and each point is an array of two numbers [x, y]. The user will copy the drawing to an empty grid. Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -136,11 +136,7 @@ export const generateGridDrawingFromAI = async (gridDim: number, count: number):
                                 items: {
                                     type: Type.ARRAY,
                                     items: { type: Type.INTEGER },
-                                    minItems: 2,
-                                    maxItems: 2
                                 },
-                                minItems: 2,
-                                maxItems: 2
                             }
                         }
                     },
@@ -263,7 +259,9 @@ export const generateSymmetryDrawingFromAI = async (): Promise<SymmetryDrawingDa
                     required: ["x", "y"]
                 }
             },
-            axis: { type: Type.STRING }
+            axis: { 
+                type: Type.STRING
+            }
         },
         required: ["title", "prompt", "gridDim", "dots", "axis"]
     };

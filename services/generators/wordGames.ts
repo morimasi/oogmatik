@@ -13,7 +13,6 @@ import {
 } from '../../types';
 
 
-// FIX: Update the generator to include a title, matching the updated WordSearchData interface.
 export const generateWordSearchFromAI = async (topic: string, gridSize: number, wordCount: number): Promise<WordSearchData> => {
   const prompt = `
     ${topic} konusuyla ilgili ${wordCount} tane Türkçe kelime oluştur. 
