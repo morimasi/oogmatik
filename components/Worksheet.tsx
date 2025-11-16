@@ -1,5 +1,6 @@
 
-import React, { CSSProperties } from 'react';
+
+import React, { CSSProperties, useState, useEffect } from 'react';
 import { 
     ActivityType, WorksheetData, WordSearchData, AnagramData, MathPuzzleData, StoryData, 
     StroopTestData, NumberPatternData, SpellingCheckData, LetterGridTestData, NumberSearchData, 
@@ -17,6 +18,8 @@ import {
     VisualOddOneOutThemedData, LogicGridPuzzleData, ImageAnagramSortData, AnagramImageMatchData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, CrosswordClue
 } from '../types';
 import Shape from './Shape';
+// FIX: Corrected import path from non-existent 'apiClient' to 'geminiClient'.
+import { generateImageFromPrompt } from '../services/geminiClient';
 
 interface WorksheetProps {
   activityType: ActivityType | null;
@@ -25,12 +28,75 @@ interface WorksheetProps {
 }
 
 // Helper Components
-const ImageDisplay: React.FC<{ base64?: string; description?: string; className?: string }> = ({ base64, description, className = "w-full h-32" }) => {
-    if (base64) {
-        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-zinc-100 dark:bg-zinc-700`} />;
+const ImageDisplay: React.FC<{ base64?: string; description?: string; imagePrompt?: string; className?: string }> = ({ base64: initialBase64, description, imagePrompt, className = "w-full h-32" }) => {
+    const [loadedBase64, setLoadedBase64] = useState<string | undefined>(initialBase64);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Reset state when props change
+        setLoadedBase64(initialBase64);
+        setError(null);
+
+        if (imagePrompt && !initialBase64) {
+            let isCancelled = false;
+            const fetchImage = async () => {
+                setIsLoading(true);
+                try {
+                    const result = await generateImageFromPrompt(imagePrompt);
+                    if (!isCancelled) {
+                        setLoadedBase64(result.imageBase64);
+                    }
+                } catch (err) {
+                     if (!isCancelled) {
+                        console.error("Image loading failed:", err);
+                        setError("Resim yüklenemedi.");
+                     }
+                } finally {
+                     if (!isCancelled) {
+                        setIsLoading(false);
+                     }
+                }
+            };
+            fetchImage();
+            
+            return () => {
+                isCancelled = true;
+            };
+        }
+    }, [imagePrompt, initialBase64]);
+
+
+    const baseClasses = `bg-zinc-100 dark:bg-zinc-700/50 rounded-md flex flex-col items-center justify-center text-center p-2 ${className}`;
+
+    if (isLoading) {
+        return (
+            <div className={baseClasses}>
+                <svg className="animate-spin h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Yükleniyor...</p>
+            </div>
+        );
     }
+    
+    if (error) {
+         return (
+            <div className={`${baseClasses} border-2 border-dashed border-red-400`}>
+                 <i className="fa-solid fa-image-slash text-3xl text-red-400 dark:text-red-500"></i>
+                 <p className="text-xs text-red-500 dark:text-red-400 mt-2">{error}</p>
+            </div>
+        );
+    }
+
+    if (loadedBase64) {
+        return <img src={`data:image/png;base64,${loadedBase64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-white dark:bg-zinc-700`} />;
+    }
+    
+    // Placeholder for when there's no prompt and no initial image
     return (
-        <div className={`bg-zinc-100 dark:bg-zinc-700 rounded-md flex flex-col items-center justify-center text-center p-2 ${className}`}>
+        <div className={baseClasses}>
             <i className="fa-solid fa-image text-3xl text-zinc-400 dark:text-zinc-500"></i>
             {description && <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">{description}</p>}
             {!description && <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Resim Alanı</p>}
@@ -990,7 +1056,7 @@ const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }> = ({ d
             <h3 className="text-2xl font-bold mb-4 text-center">{data.memorizeTitle}</h3>
             <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">Aşağıdaki resmi ve metni dikkatlice inceleyin. Sonraki sayfada bu sahneyle ilgili sorular olacak.</p>
             <div className="my-6 flex justify-center">
-                <ImageDisplay base64={data.imageBase64} description={data.sceneDescription} className="w-full h-80" />
+                <ImageDisplay imagePrompt={data.imagePrompt} description={data.sceneDescription} className="w-full h-80" />
             </div>
             <div className="bg-amber-50 dark:bg-zinc-700/50 p-6 rounded-lg border-l-4 border-amber-400">
                 <p className="text-base leading-relaxed whitespace-pre-line italic">{data.sceneDescription}</p>
@@ -1022,7 +1088,7 @@ const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data })
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {data.charactersToMemorize?.map((char, index) => (
             <div key={index} className="p-4 bg-amber-100 dark:bg-amber-800/50 border-l-4 border-amber-500 rounded text-center">
-              <ImageDisplay base64={char.imageBase64} description={char.description} className="w-24 h-24 mx-auto mb-2" />
+              <ImageDisplay imagePrompt={char.imagePrompt} description={char.description} className="w-24 h-24 mx-auto mb-2" />
               <p className="text-sm font-semibold">{char.description}</p>
             </div>
           ))}
@@ -1036,7 +1102,7 @@ const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data })
           {data.testCharacters?.map((char, index) => (
             <div key={index} className="flex flex-col items-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg">
               <div className="w-5 h-5 border-2 border-zinc-400 rounded-md mb-2 shrink-0"></div>
-              <ImageDisplay base64={char.imageBase64} description={char.description} className="w-24 h-24 mx-auto mb-2" />
+              <ImageDisplay imagePrompt={char.imagePrompt} description={char.description} className="w-24 h-24 mx-auto mb-2" />
               <label className="text-xs text-center">{char.description}</label>
             </div>
           ))}
@@ -1277,7 +1343,7 @@ const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = ({ data })
         {data.items?.map((item, index) => (
           <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-4 border rounded-lg bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)'}}>
             <div className="flex flex-col items-center">
-              <ImageDisplay base64={item.imageBase64} description={item.word} className="w-40 h-40" />
+              <ImageDisplay imagePrompt={item.imagePrompt} description={item.word} className="w-40 h-40" />
               <p className="text-xl font-bold mt-2 capitalize">{item.word}</p>
             </div>
             <div className="md:col-span-2 space-y-4">

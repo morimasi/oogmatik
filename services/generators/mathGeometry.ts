@@ -1,5 +1,6 @@
 import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
+// FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+import { generateWorksheetData } from '../geminiClient';
 import { MathPuzzleData, ShapeCountingData, MatchstickSymmetryData } from '../../types';
 
 export const generateMathPuzzlesFromAI = async (topic: string, count: number): Promise<MathPuzzleData> => {
@@ -28,7 +29,8 @@ export const generateMathPuzzlesFromAI = async (topic: string, count: number): P
     },
     required: ['title', 'puzzles']
   };
-  return generateWithSchema(prompt, schema) as Promise<MathPuzzleData>;
+  // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+  return generateWorksheetData(prompt, schema) as Promise<MathPuzzleData>;
 };
 
 export const generateShapeCountingFromAI = async (): Promise<ShapeCountingData> => {
@@ -61,7 +63,8 @@ export const generateShapeCountingFromAI = async (): Promise<ShapeCountingData> 
         },
         required: ["title", "prompt", "figures"]
     };
-    return generateWithSchema(prompt, schema) as Promise<ShapeCountingData>;
+    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+    return generateWorksheetData(prompt, schema) as Promise<ShapeCountingData>;
 };
 
 export const generateMatchstickSymmetryFromAI = async(): Promise<MatchstickSymmetryData> => {
@@ -95,5 +98,6 @@ export const generateMatchstickSymmetryFromAI = async(): Promise<MatchstickSymme
         },
         required: ["title", "prompt", "puzzles"]
     };
-    return generateWithSchema(prompt, schema) as Promise<MatchstickSymmetryData>;
+    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+    return generateWorksheetData(prompt, schema) as Promise<MatchstickSymmetryData>;
 }

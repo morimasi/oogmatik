@@ -1,5 +1,6 @@
 import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
+// FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+import { generateWorksheetData } from '../geminiClient';
 import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbSayingSortData, ProverbWordChainData } from '../../types';
 
 export const generateStoryFromAI = async (topic: string): Promise<StoryData> => {
@@ -30,7 +31,8 @@ export const generateStoryFromAI = async (topic: string): Promise<StoryData> => 
     },
     required: ['title', 'story', 'questions']
   };
-  return generateWithSchema(prompt, schema) as Promise<StoryData>;
+  // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+  return generateWorksheetData(prompt, schema) as Promise<StoryData>;
 };
 
 export const generateStoryAnalysisFromAI = async (topic: string): Promise<StoryAnalysisData> => {
@@ -59,7 +61,8 @@ export const generateStoryAnalysisFromAI = async (topic: string): Promise<StoryA
     },
     required: ['title', 'story', 'questions']
   };
-  return generateWithSchema(prompt, schema) as Promise<StoryAnalysisData>;
+  // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+  return generateWorksheetData(prompt, schema) as Promise<StoryAnalysisData>;
 };
 
 export const generateStoryCreationPromptFromAI = async (topic: string, keywordCount: number): Promise<StoryCreationPromptData> => {
@@ -77,7 +80,8 @@ export const generateStoryCreationPromptFromAI = async (topic: string, keywordCo
         },
         required: ['title', 'prompt', 'keywords']
     };
-    return generateWithSchema(prompt, schema) as Promise<StoryCreationPromptData>;
+    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+    return generateWorksheetData(prompt, schema) as Promise<StoryCreationPromptData>;
 };
 
 export const generateWordsInStoryFromAI = async (topic: string): Promise<WordsInStoryData> => {
@@ -106,7 +110,8 @@ export const generateWordsInStoryFromAI = async (topic: string): Promise<WordsIn
     },
     required: ['title', 'story', 'wordList']
   };
-  return generateWithSchema(prompt, schema) as Promise<WordsInStoryData>;
+  // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+  return generateWorksheetData(prompt, schema) as Promise<WordsInStoryData>;
 };
 
 export const generateStorySequencingFromAI = async (topic: string): Promise<StorySequencingData> => {
@@ -130,7 +135,8 @@ export const generateStorySequencingFromAI = async (topic: string): Promise<Stor
         },
         required: ["title", "prompt", "panels"]
     };
-    return generateWithSchema(prompt, schema) as Promise<StorySequencingData>;
+    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+    return generateWorksheetData(prompt, schema) as Promise<StorySequencingData>;
 };
 
 export const generateProverbSayingSortFromAI = async (): Promise<ProverbSayingSortData> => {
@@ -154,7 +160,8 @@ export const generateProverbSayingSortFromAI = async (): Promise<ProverbSayingSo
         },
         required: ["title", "prompt", "items"]
     };
-    return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData>;
+    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+    return generateWorksheetData(prompt, schema) as Promise<ProverbSayingSortData>;
 };
 
 export const generateProverbWordChainFromAI = async (): Promise<ProverbWordChainData> => {
@@ -179,5 +186,6 @@ export const generateProverbWordChainFromAI = async (): Promise<ProverbWordChain
         },
         required: ["title", "prompt", "wordCloud", "solutions"]
     };
-    return generateWithSchema(prompt, schema) as Promise<ProverbWordChainData>;
+    // FIX: Replaced non-existent 'generateWithSchema' with 'generateWorksheetData'.
+    return generateWorksheetData(prompt, schema) as Promise<ProverbWordChainData>;
 };
