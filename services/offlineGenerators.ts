@@ -1,6 +1,7 @@
 import { 
     WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData, WorksheetData,
-    SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, FindLetterPairData, MiniWordGridData
+    SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, FindLetterPairData, MiniWordGridData,
+    StroopTestData, NumberPatternData, NumberSearchData, SymbolCipherData, ShapeType, TargetNumberData, NumberPyramidData, FindDifferentStringData
 } from '../types';
 
 // Önbellekleme mekanizması
@@ -662,6 +663,243 @@ export const generateOfflineMiniWordGrid = async (options: OfflineGeneratorOptio
             title: 'Mini Kelime Bulmaca',
             prompt: 'Renkli harften başlayarak kelimeleri bulun.',
             puzzles
+        });
+    }
+    return results;
+};
+
+const colors = [
+    { name: 'KIRMIZI', css: 'red' },
+    { name: 'MAVİ', css: 'blue' },
+    { name: 'YEŞİL', css: 'green' },
+    { name: 'SARI', css: 'yellow' },
+    { name: 'TURUNCU', css: 'orange' },
+    { name: 'MOR', css: 'purple' },
+    { name: 'PEMBE', css: 'pink' },
+    { name: 'SİYAH', css: 'black' },
+];
+
+export const generateOfflineStroopTest = async (options: OfflineGeneratorOptions): Promise<StroopTestData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const results: StroopTestData[] = [];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const items = [];
+        for (let j = 0; j < itemCount * 2; j++) {
+            const textItem = getRandomItems(colors, 1)[0];
+            let colorItem = getRandomItems(colors, 1)[0];
+            // Metin ve rengin çoğunlukla farklı olmasını sağla
+            if (Math.random() > 0.2) {
+                while (colorItem.css === textItem.css) {
+                    colorItem = getRandomItems(colors, 1)[0];
+                }
+            }
+            items.push({ text: textItem.name, color: colorItem.css });
+        }
+        results.push({
+            title: 'Stroop Testi',
+            items: shuffle(items)
+        });
+    }
+    return results;
+};
+
+export const generateOfflineNumberPattern = async (options: OfflineGeneratorOptions): Promise<NumberPatternData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    const results: NumberPatternData[] = [];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const patterns = [];
+        for (let j = 0; j < itemCount; j++) {
+            let start = getRandomInt(1, 10);
+            let step = difficulty === 'Kolay' ? getRandomInt(1, 5) : getRandomInt(2, 10);
+            const type = Math.random();
+
+            const sequence = [start];
+            for(let k=0; k < 4; k++) {
+                if (type < 0.5) { // Toplama
+                    sequence.push(sequence[k] + step);
+                } else { // Çıkarma
+                    if (sequence[k] - step < 0) { // Çocuklar için negatif sayılardan kaçın
+                        start = getRandomInt(step * 5, step * 10);
+                        sequence[0] = start;
+                        for(let l=1; l<=k; l++) {
+                             sequence[l] = sequence[l-1] - step;
+                        }
+                    }
+                    sequence.push(sequence[k] - step);
+                }
+            }
+            const answer = sequence.pop()!.toString();
+            patterns.push({
+                sequence: sequence.join(', ') + ', ?',
+                answer: answer
+            });
+        }
+        results.push({
+            title: 'Sayı Örüntüsü',
+            patterns
+        });
+    }
+    return results;
+};
+
+export const generateOfflineNumberSearch = async (options: OfflineGeneratorOptions): Promise<NumberSearchData[]> => {
+    const { worksheetCount } = options;
+    const results: NumberSearchData[] = [];
+    const range = { start: 1, end: 50 };
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const numbersToFind = Array.from({ length: range.end - range.start + 1 }, (_, k) => k + range.start);
+        const distractors = Array.from({ length: 50 }, () => getRandomInt(1, 100));
+        const allNumbers = shuffle([...numbersToFind, ...distractors]);
+        
+        results.push({
+            title: 'Sayı Avı',
+            numbers: allNumbers,
+            range
+        });
+    }
+    return results;
+};
+
+const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
+
+export const generateOfflineSymbolCipher = async (options: OfflineGeneratorOptions): Promise<SymbolCipherData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: SymbolCipherData[] = [];
+    const availableWords = Object.values(wordlist).flat().filter(w => w.length >= 4 && w.length <= 6);
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const lettersForKey = shuffle(turkishAlphabet.split('')).slice(0, 8);
+        const shapesForKey = shuffle(SHAPE_TYPES);
+        const cipherKey = lettersForKey.map((letter, index) => ({
+            shape: shapesForKey[index],
+            letter
+        }));
+        
+        const letterToShapeMap = new Map<string, ShapeType>();
+        cipherKey.forEach(key => letterToShapeMap.set(key.letter, key.shape));
+
+        const wordsToSolve = [];
+        const words = getRandomItems(availableWords.filter(w => w.split('').every(l => letterToShapeMap.has(l))), Math.floor(itemCount / 2));
+        
+        for (const word of words) {
+            const shapeSequence = word.split('').map(l => letterToShapeMap.get(l)!);
+            wordsToSolve.push({
+                shapeSequence,
+                wordLength: word.length
+            });
+        }
+
+        results.push({
+            title: 'Şifre Çözme',
+            cipherKey,
+            wordsToSolve
+        });
+    }
+    return results;
+};
+
+export const generateOfflineTargetNumber = async (options: OfflineGeneratorOptions): Promise<TargetNumberData[]> => {
+    const { worksheetCount } = options;
+    const results: TargetNumberData[] = [];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const puzzles = [];
+        for (let j = 0; j < 3; j++) { // Her sayfada 3 bulmaca
+            const smallNums = [getRandomInt(1, 10), getRandomInt(1, 10)];
+            const bigNum = getRandomInt(10, 25);
+            const givenNumbers = shuffle([ ...smallNums, bigNum, getRandomInt(1, 25) ]);
+            
+            // basit bir hedef oluştur
+            let target;
+            const op = Math.random();
+            if (op < 0.33) target = smallNums[0] + bigNum;
+            else if (op < 0.66) target = bigNum - smallNums[0];
+            else target = smallNums[0] * smallNums[1];
+            
+            puzzles.push({ target, givenNumbers });
+        }
+        results.push({
+            title: 'Hedef Sayı',
+            prompt: 'Verilen sayıları ve dört işlemi (+, -, ×, ÷) kullanarak hedef sayıya ulaşın. Her sayıyı sadece bir kez kullanabilirsiniz.',
+            puzzles
+        });
+    }
+    return results;
+};
+
+export const generateOfflineNumberPyramid = async (options: OfflineGeneratorOptions): Promise<NumberPyramidData[]> => {
+    const { worksheetCount } = options;
+    const results: NumberPyramidData[] = [];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const pyramids = [];
+        for (let j = 0; j < 2; j++) { // Her sayfada 2 piramit
+            const baseSize = 4;
+            const rows: number[][] = [];
+            rows[baseSize - 1] = Array.from({ length: baseSize }, () => getRandomInt(1, 15));
+
+            for (let r = baseSize - 2; r >= 0; r--) {
+                rows[r] = [];
+                for (let c = 0; c < r + 1; c++) {
+                    rows[r][c] = rows[r + 1][c] + rows[r + 1][c + 1];
+                }
+            }
+            
+            const puzzleRows: (number | null)[][] = rows.map(row => [...row]);
+            let removedCount = 0;
+            while(removedCount < 4) { // 4 sayı kaldır
+                const r = getRandomInt(0, baseSize - 1);
+                const c = getRandomInt(0, puzzleRows[r].length - 1);
+                if (puzzleRows[r][c] !== null) {
+                    puzzleRows[r][c] = null;
+                    removedCount++;
+                }
+            }
+
+            pyramids.push({
+                title: `${j + 1}. Piramit`,
+                rows: puzzleRows
+            });
+        }
+        results.push({
+            title: 'Sayı Piramidi (Toplama)',
+            prompt: 'Bir üstteki sayı, altındaki iki sayının toplamıdır. Boşlukları doldurun.',
+            pyramids
+        });
+    }
+    return results;
+};
+
+export const generateOfflineFindDifferentString = async (options: OfflineGeneratorOptions): Promise<FindDifferentStringData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const results: FindDifferentStringData[] = [];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const rows = [];
+        for (let j = 0; j < itemCount; j++) {
+            const baseString = [
+                turkishAlphabet[getRandomInt(0, 28)].toUpperCase(),
+                turkishAlphabet[getRandomInt(0, 28)].toUpperCase(),
+                turkishAlphabet[getRandomInt(0, 28)].toUpperCase()
+            ].join('');
+
+            const items = Array(5).fill(baseString);
+            const diffIndex = getRandomInt(0, 4);
+            const chars = baseString.split('');
+            const swapIndex = getRandomInt(0, chars.length - 2);
+            [chars[swapIndex], chars[swapIndex+1]] = [chars[swapIndex+1], chars[swapIndex]];
+            items[diffIndex] = chars.join('');
+
+            rows.push({ items: shuffle(items) });
+        }
+        results.push({
+            title: 'Farklı Diziyi Bul',
+            prompt: `Her satırda diğerlerinden farklı olan harf grubunu bulun.`,
+            rows
         });
     }
     return results;

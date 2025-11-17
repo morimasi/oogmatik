@@ -37,6 +37,13 @@ const offlineGeneratorMap: { [key in ActivityType]?: (options: offlineGenerators
     [ActivityType.LETTER_BRIDGE]: offlineGenerators.generateOfflineLetterBridge,
     [ActivityType.FIND_LETTER_PAIR]: offlineGenerators.generateOfflineFindLetterPair,
     [ActivityType.MINI_WORD_GRID]: offlineGenerators.generateOfflineMiniWordGrid,
+    [ActivityType.STROOP_TEST]: offlineGenerators.generateOfflineStroopTest,
+    [ActivityType.NUMBER_PATTERN]: offlineGenerators.generateOfflineNumberPattern,
+    [ActivityType.NUMBER_SEARCH]: offlineGenerators.generateOfflineNumberSearch,
+    [ActivityType.SYMBOL_CIPHER]: offlineGenerators.generateOfflineSymbolCipher,
+    [ActivityType.TARGET_NUMBER]: offlineGenerators.generateOfflineTargetNumber,
+    [ActivityType.NUMBER_PYRAMID]: offlineGenerators.generateOfflineNumberPyramid,
+    [ActivityType.FIND_DIFFERENT_STRING]: offlineGenerators.generateOfflineFindDifferentString,
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -261,7 +268,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ActivityType.ODD_ONE_OUT, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, 
         ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.WORD_LADDER, 
         ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.REVERSE_WORD,
-        ActivityType.FIND_THE_DUPLICATE_IN_ROW,
+        ActivityType.FIND_THE_DUPLICATE_IN_ROW, ActivityType.FIND_DIFFERENT_STRING
     ].includes(currentActivity.id);
     const showGridSize = [
         ActivityType.WORD_SEARCH, ActivityType.LETTER_GRID_TEST, ActivityType.FIND_LETTER_PAIR, 
@@ -277,7 +284,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     if ([ActivityType.MATH_PUZZLE, ActivityType.WORD_LADDER].includes(currentActivity.id)) itemCountLabel = "Bulmaca Sayısı";
     if (currentActivity.id === ActivityType.STROOP_TEST) itemCountLabel = "Renk/Kelime Sayısı";
     if (currentActivity.id === ActivityType.NUMBER_PATTERN) itemCountLabel = "Örüntü Sayısı";
-    if ([ActivityType.FIND_THE_DIFFERENCE, ActivityType.SHAPE_MATCHING, ActivityType.FIND_THE_DUPLICATE_IN_ROW].includes(currentActivity.id)) itemCountLabel = "Satır Sayısı";
+    if ([ActivityType.FIND_THE_DIFFERENCE, ActivityType.SHAPE_MATCHING, ActivityType.FIND_THE_DUPLICATE_IN_ROW, ActivityType.FIND_DIFFERENT_STRING].includes(currentActivity.id)) itemCountLabel = "Satır Sayısı";
     if ([ActivityType.ODD_ONE_OUT, ActivityType.FIND_IDENTICAL_WORD].includes(currentActivity.id)) itemCountLabel = "Grup Sayısı";
     if (currentActivity.id === ActivityType.SYMBOL_CIPHER) itemCountLabel = "Şifreli Kelime Sayısı";
     if (currentActivity.id === ActivityType.PROVERB_FILL_IN_THE_BLANK) itemCountLabel = "Atasözü Sayısı";
