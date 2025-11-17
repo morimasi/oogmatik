@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSettings } from '../App';
+import { SingleWorksheetData } from '../types';
 
 interface ToolbarProps {
   settings: StyleSettings;

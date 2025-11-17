@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { 
-    ActivityType, WorksheetData, WordSearchData, AnagramData, MathPuzzleData, StoryData, 
+    ActivityType, SingleWorksheetData, WordSearchData, AnagramData, MathPuzzleData, StoryData, 
     StroopTestData, NumberPatternData, SpellingCheckData, LetterGridTestData, NumberSearchData, 
     WordMemoryData, StoryCreationPromptData, FindTheDifferenceData, WordComparisonData, 
     WordsInStoryData, OddOneOutData, ShapeMatchingData, SymbolCipherData, ProverbFillData,
@@ -19,7 +19,7 @@ import Shape from './Shape';
 
 interface WorksheetProps {
   activityType: ActivityType | null;
-  data: WorksheetData;
+  data: SingleWorksheetData[] | null;
   styles: CSSProperties;
 }
 
@@ -1920,22 +1920,22 @@ const componentMap: { [key in ActivityType]?: React.FC<any> } = {
 
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => {
-  if (!data) {
+  if (!data || data.length === 0) {
     return <div style={styles}></div>;
   }
   
-  const renderContent = () => {
+  const renderSingleSheet = (sheetData: SingleWorksheetData, activityType: ActivityType | null) => {
     if (!activityType) {
         return <NotImplementedSheet type={null} />;
     }
     const Component = componentMap[activityType];
     if (Component) {
-        return <Component data={data} />;
+        return <Component data={sheetData} />;
     }
     // Fallback for any components that might still be missing in the map.
     switch (activityType) {
         case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE:
-             const colData = data as ColumnOddOneOutSentenceData;
+             const colData = sheetData as ColumnOddOneOutSentenceData;
             return (<div>
                 <h3 className="text-2xl font-bold mb-4 text-center">{colData.title}</h3>
                 <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{colData.prompt}</p>
@@ -1950,7 +1950,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
                 <div className="h-20 mt-2 border-2 border-dashed rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}></div>
             </div>);
         case ActivityType.TARGET_NUMBER:
-             const targetData = data as TargetNumberData;
+             const targetData = sheetData as TargetNumberData;
             return (<div>
                 <h3 className="text-2xl font-bold mb-4 text-center">{targetData.title}</h3>
                 <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{targetData.prompt}</p>
@@ -1974,8 +1974,22 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
   };
 
   return (
-    <div className="worksheet-container p-8 bg-white dark:bg-zinc-800 rounded-xl shadow-lg print:shadow-none print:p-0 print:m-0" style={styles}>
-      {renderContent()}
+    <div className="worksheet-container" style={styles}>
+      {data.map((sheetData, index) => (
+        <div key={index} className="worksheet-page p-8 bg-white dark:bg-zinc-800 rounded-xl shadow-lg print:shadow-none print:p-0 print:m-0 print:border-none print:rounded-none mb-8 last:mb-0 print:mb-0">
+          {renderSingleSheet(sheetData, activityType)}
+        </div>
+      ))}
+       <style>{`
+        @media print {
+          .worksheet-page {
+            page-break-after: always;
+          }
+          .worksheet-page:last-child {
+            page-break-after: auto;
+          }
+        }
+      `}</style>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, CSSProperties } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES } from './constants';
@@ -41,7 +41,7 @@ const App: React.FC = () => {
     localStorage.setItem('savedWorksheets', JSON.stringify(worksheets));
   };
 
-  const addSavedWorksheet = (name: string, activityType: ActivityType, data: WorksheetData) => {
+  const addSavedWorksheet = (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
     const activity = ACTIVITIES.find(a => a.id === activityType);
     const icon = activity?.icon || 'fa-solid fa-file';
     const newWorksheet: SavedWorksheet = {

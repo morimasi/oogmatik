@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet } from '../types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { StyleSettings, View } from '../App';
@@ -15,7 +15,7 @@ interface ContentAreaProps {
   styleSettings: StyleSettings;
   onStyleChange: (settings: StyleSettings) => void;
   worksheetStyles: CSSProperties;
-  onSave: (name: string, activityType: ActivityType, data: WorksheetData) => void;
+  onSave: (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => void;
   savedWorksheets: SavedWorksheet[];
   onLoadSaved: (worksheet: SavedWorksheet) => void;
   onDeleteSaved: (id: string) => void;

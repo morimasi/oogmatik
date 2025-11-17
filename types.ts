@@ -1,5 +1,6 @@
 
 
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -1274,16 +1275,7 @@ export interface PositionalAnagramData {
     }[];
 }
 
-export interface SavedWorksheet {
-  id: string;
-  name: string;
-  activityType: ActivityType;
-  worksheetData: WorksheetData;
-  createdAt: string;
-  icon: string;
-}
-
-export type WorksheetData = 
+export type SingleWorksheetData = 
   | WordSearchData 
   | AnagramData[] 
   | MathPuzzleData 
@@ -1397,5 +1389,15 @@ export type WorksheetData =
   | WordWebWithPasswordData
   | LetterGridWordFindData
   | WordPlacementPuzzleData
-  | PositionalAnagramData
-  | null;
+  | PositionalAnagramData;
+
+export type WorksheetData = SingleWorksheetData[] | null;
+
+export interface SavedWorksheet {
+  id: string;
+  name: string;
+  activityType: ActivityType;
+  worksheetData: SingleWorksheetData[];
+  createdAt: string;
+  icon: string;
+}
