@@ -31,6 +31,12 @@ const offlineGeneratorMap: { [key in ActivityType]?: (options: offlineGenerators
     [ActivityType.REVERSE_WORD]: offlineGenerators.generateOfflineReverseWord,
     [ActivityType.FIND_THE_DUPLICATE_IN_ROW]: offlineGenerators.generateOfflineFindDuplicateInRow,
     [ActivityType.WORD_GROUPING]: offlineGenerators.generateOfflineWordGrouping,
+    [ActivityType.WORD_LADDER]: offlineGenerators.generateOfflineWordLadder,
+    [ActivityType.WORD_FORMATION]: offlineGenerators.generateOfflineWordFormation,
+    [ActivityType.FIND_IDENTICAL_WORD]: offlineGenerators.generateOfflineFindIdenticalWord,
+    [ActivityType.LETTER_BRIDGE]: offlineGenerators.generateOfflineLetterBridge,
+    [ActivityType.FIND_LETTER_PAIR]: offlineGenerators.generateOfflineFindLetterPair,
+    [ActivityType.MINI_WORD_GRID]: offlineGenerators.generateOfflineMiniWordGrid,
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -93,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         try {
             const offlineGenerator = selectedActivity ? offlineGeneratorMap[selectedActivity] : undefined;
             if (offlineGenerator) {
-                const options: offlineGenerators.OfflineGeneratorOptions = { topic, itemCount, gridSize, worksheetCount, difficulty };
+                const options: offlineGenerators.OfflineGeneratorOptions = { topic, itemCount, gridSize, worksheetCount, difficulty, targetPair };
                 const data = await offlineGenerator(options);
                 setWorksheetData(data);
             } else {

@@ -1,6 +1,6 @@
 import { 
     WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData, WorksheetData,
-    SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData
+    SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, FindLetterPairData, MiniWordGridData
 } from '../types';
 
 // Önbellekleme mekanizması
@@ -63,6 +63,7 @@ export interface OfflineGeneratorOptions {
     gridSize: number;
     worksheetCount: number;
     difficulty: 'Kolay' | 'Orta' | 'Zor';
+    targetPair?: string;
 }
 
 // --- Üretici Fonksiyonları ---
@@ -472,6 +473,195 @@ export const generateOfflineWordGrouping = async (options: OfflineGeneratorOptio
             title: 'Kelime Gruplama',
             words: shuffle(words),
             categoryNames
+        });
+    }
+    return results;
+};
+
+export const generateOfflineWordLadder = async (options: OfflineGeneratorOptions): Promise<WordLadderData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: WordLadderData[] = [];
+    const fourLetterWords = Object.values(wordlist).flat().filter(w => w.length === 4);
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const ladders = [];
+        for (let j = 0; j < Math.floor(itemCount / 2); j++) {
+            const pair = getRandomItems(fourLetterWords, 2);
+            if (pair.length === 2) {
+                ladders.push({
+                    startWord: pair[0],
+                    endWord: pair[1],
+                    steps: 3
+                });
+            }
+        }
+        results.push({
+            title: 'Kelime Merdiveni',
+            ladders
+        });
+    }
+    return results;
+};
+
+export const generateOfflineWordFormation = async (options: OfflineGeneratorOptions): Promise<WordFormationData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: WordFormationData[] = [];
+    const longWords = Object.values(wordlist).flat().filter(w => w.length >= 7 && w.length <= 9);
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const sets = [];
+        const selectedWords = getRandomItems(longWords, Math.floor(itemCount / 2));
+        for (const word of selectedWords) {
+            sets.push({
+                letters: shuffle(word.split('')),
+                jokerCount: getRandomInt(1, 2)
+            });
+        }
+        results.push({
+            title: 'Harflerden Kelime Türetme',
+            sets
+        });
+    }
+    return results;
+};
+
+export const generateOfflineFindIdenticalWord = async (options: OfflineGeneratorOptions): Promise<FindIdenticalWordData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: FindIdenticalWordData[] = [];
+    const availableWords = Object.values(wordlist).flat().filter(w => w.length > 4);
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const groups = [];
+        for (let j = 0; j < itemCount * 2; j++) {
+            const word = getRandomItems(availableWords, 1)[0];
+            let pair: [string, string];
+            
+            if (Math.random() > 0.5) {
+                pair = [word, word];
+            } else {
+                const chars = word.split('');
+                const changeIndex = getRandomInt(0, chars.length - 1);
+                let newChar = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+                while(newChar === chars[changeIndex]) {
+                    newChar = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+                }
+                chars[changeIndex] = newChar;
+                const modifiedWord = chars.join('');
+                pair = [word, modifiedWord];
+            }
+            groups.push({ words: pair });
+        }
+        results.push({
+            title: 'Aynısını Bul',
+            groups: shuffle(groups)
+        });
+    }
+    return results;
+};
+
+export const generateOfflineLetterBridge = async (options: OfflineGeneratorOptions): Promise<LetterBridgeData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: LetterBridgeData[] = [];
+    const availableWords = Object.values(wordlist).flat();
+
+    for(let i = 0; i < worksheetCount; i++) {
+        const pairs = [];
+        for (let j = 0; j < itemCount; j++) {
+            const selectedWords = getRandomItems(availableWords, 2);
+            if (selectedWords.length === 2) {
+                pairs.push({
+                    word1: selectedWords[0],
+                    word2: selectedWords[1]
+                });
+            }
+        }
+        results.push({
+            title: 'Harf Köprüsü',
+            pairs
+        });
+    }
+    return results;
+};
+
+export const generateOfflineFindLetterPair = async (options: OfflineGeneratorOptions): Promise<FindLetterPairData[]> => {
+    const { gridSize, worksheetCount, targetPair = 'tr' } = options;
+    const results: FindLetterPairData[] = [];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const grid: string[][] = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
+        
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c < gridSize; c++) {
+                grid[r][c] = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+            }
+        }
+        
+        const pairCount = Math.floor(gridSize / 2);
+        for (let p = 0; p < pairCount; p++) {
+            const row = getRandomInt(0, gridSize - 1);
+            const col = getRandomInt(0, gridSize - 2);
+            grid[row][col] = targetPair[0];
+            grid[row][col+1] = targetPair[1];
+        }
+
+        results.push({
+            title: `Harf İkilisi Bul (${targetPair.toUpperCase()})`,
+            grid,
+            targetPair
+        });
+    }
+    return results;
+};
+
+export const generateOfflineMiniWordGrid = async (options: OfflineGeneratorOptions): Promise<MiniWordGridData[]> => {
+    const { worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: MiniWordGridData[] = [];
+    const fourLetterWords = Object.values(wordlist).flat().filter(w => w.length === 4);
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const puzzles = [];
+        for (let j = 0; j < 4; j++) {
+            const grid: string[][] = Array.from({ length: 4 }, () => Array(4).fill(''));
+            const word = getRandomItems(fourLetterWords, 1)[0];
+            
+            let start: { row: number, col: number };
+            const direction = Math.random() > 0.5 ? 'horizontal' : 'vertical';
+
+            if (direction === 'horizontal') {
+                const row = getRandomInt(0, 3);
+                const col = 0;
+                for (let k = 0; k < 4; k++) {
+                    grid[row][col + k] = word[k];
+                }
+                start = { row, col };
+            } else { // vertical
+                const row = 0;
+                const col = getRandomInt(0, 3);
+                for (let k = 0; k < 4; k++) {
+                    grid[row + k][col] = word[k];
+                }
+                start = { row, col };
+            }
+
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    if (grid[r][c] === '') {
+                        grid[r][c] = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+                    }
+                }
+            }
+            puzzles.push({ grid, start });
+        }
+        
+        results.push({
+            title: 'Mini Kelime Bulmaca',
+            prompt: 'Renkli harften başlayarak kelimeleri bulun.',
+            puzzles
         });
     }
     return results;
