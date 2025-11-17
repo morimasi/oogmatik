@@ -18,6 +18,7 @@ const App: React.FC = () => {
   const [worksheetData, setWorksheetData] = useState<WorksheetData>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [styleSettings, setStyleSettings] = useState<StyleSettings>({
     fontSize: 16,
     borderColor: '#d4d4d8', // zinc-300
@@ -80,14 +81,21 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-sans">
       <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <i className="fa-solid fa-brain text-4xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500 mr-3"></i>
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 mr-3 p-2 -ml-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
+              aria-label="Menüyü aç"
+            >
+              <i className="fa-solid fa-bars fa-lg"></i>
+            </button>
+            <i className="fa-solid fa-brain text-4xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500 mr-3 hidden sm:block"></i>
             <div>
-                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
+                 <h1 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
                     AI Etkinlik Üretici
                 </h1>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Çocuklar için Eğitici ve Eğlenceli Çalışma Sayfaları</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">Çocuklar için Eğitici ve Eğlenceli Çalışma Sayfaları</p>
             </div>
           </div>
           <a 
@@ -103,7 +111,16 @@ const App: React.FC = () => {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
+        {isSidebarOpen && (
+            <div 
+                className="fixed inset-0 bg-black/50 z-20 md:hidden" 
+                onClick={() => setIsSidebarOpen(false)}
+                aria-hidden="true"
+            ></div>
+        )}
         <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          closeSidebar={() => setIsSidebarOpen(false)}
           selectedActivity={selectedActivity}
           onSelectActivity={setSelectedActivity}
           setWorksheetData={setWorksheetData}

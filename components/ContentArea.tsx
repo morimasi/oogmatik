@@ -83,8 +83,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   );
 
   return (
-    <main className="flex-1 bg-zinc-50 dark:bg-zinc-900 p-6 overflow-y-auto">
-      <div className="max-w-4xl mx-auto">
+    <main className="flex-1 bg-zinc-50 dark:bg-zinc-900 p-2 sm:p-6 overflow-y-auto">
+      <div className="max-w-5xl mx-auto">
         {currentView === 'savedList' ? (
           <SavedWorksheetsView 
             savedWorksheets={savedWorksheets}

@@ -4,13 +4,13 @@ import {
     NumberPatternData, ShapeMatchingData, ShapeType, SymbolCipherData, CoordinateCipherData, ShapeNumberPatternData, AbcConnectData, WordConnectData,
     ThematicOddOneOutData, PunctuationMazeData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationPhoneNumberData,
     ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, ResfebeData, LengthConnectData, VisualNumberPatternData,
-    ProfessionConnectData, VisualOddOneOutThemedData, LogicGridPuzzleData, NumberPatternData as SingleNumberPatternData, ShapeMatchingData as SingleShapeMatchingData, SymbolCipherData as SingleSymbolCipherData, CoordinateCipherData as SingleCoordinateCipherData, ShapeNumberPatternData as SingleShapeNumberPatternData, AbcConnectData as SingleAbcConnectData, WordConnectData as SingleWordConnectData, ThematicOddOneOutData as SingleThematicOddOneOutData, PunctuationMazeData as SinglePunctuationMazeData, ThematicOddOneOutSentenceData as SingleThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData as SingleColumnOddOneOutSentenceData, PunctuationPhoneNumberData as SinglePunctuationPhoneNumberData, ArithmeticConnectData as SingleArithmeticConnectData, RomanArabicMatchConnectData as SingleRomanArabicMatchConnectData, WeightConnectData as SingleWeightConnectData, ResfebeData as SingleResfebeData, LengthConnectData as SingleLengthConnectData, VisualNumberPatternData as SingleVisualNumberPatternData, ProfessionConnectData as SingleProfessionConnectData, VisualOddOneOutThemedData as SingleVisualOddOneOutThemedData, LogicGridPuzzleData as SingleLogicGridPuzzleData
+    ProfessionConnectData, VisualOddOneOutThemedData, LogicGridPuzzleData,
 } from '../../types';
 
 const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
 
 // FIX: Updated function to return an array of worksheets and accept consistent parameters.
-export const generateNumberPatternsFromAI = async (count: number, difficulty: string, difficultyLevel: string, worksheetCount: number): Promise<SingleNumberPatternData[]> => {
+export const generateNumberPatternsFromAI = async (count: number, difficulty: string, difficultyLevel: string, worksheetCount: number): Promise<NumberPatternData[]> => {
     const prompt = `
     "${difficultyLevel}" zorluk seviyesindeki bir öğrenciye uygun, ${difficulty} zorlukta ${count} tane sayı örüntüsü bulmacası oluştur.
     Her örüntü bir dizi sayı içermeli ve sonunda bir soru işareti olmalıdır. (örn: "2, 4, 6, 8, ?").
@@ -37,11 +37,11 @@ export const generateNumberPatternsFromAI = async (count: number, difficulty: st
         required: ['title', 'patterns']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<SingleNumberPatternData[]>;
+    return generateWithSchema(prompt, schema) as Promise<NumberPatternData[]>;
 };
 
 // FIX: Updated function to return an array of worksheets and accept consistent parameters.
-export const generateShapeMatchingFromAI = async (rowCount: number, difficultyLevel: string, worksheetCount: number): Promise<SingleShapeMatchingData[]> => {
+export const generateShapeMatchingFromAI = async (rowCount: number, difficultyLevel: string, worksheetCount: number): Promise<ShapeMatchingData[]> => {
   const prompt = `
     "${difficultyLevel}" zorluk seviyesindeki bir öğrenciye uygun bir şekil eşleştirme etkinliği oluştur.
     Solda ve sağda ${rowCount} tane satır olsun. Her satırda 3 tane şekil olsun.
@@ -60,7 +60,7 @@ export const generateShapeMatchingFromAI = async (rowCount: number, difficultyLe
           type: Type.OBJECT,
           properties: {
             id: { type: Type.INTEGER },
-            shapes: { type: Type.ARRAY, items: { type: Type.STRING } }
+            shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } }
           },
           required: ['id', 'shapes']
         }
@@ -71,7 +71,7 @@ export const generateShapeMatchingFromAI = async (rowCount: number, difficultyLe
           type: Type.OBJECT,
           properties: {
             id: { type: Type.STRING },
-            shapes: { type: Type.ARRAY, items: { type: Type.STRING } }
+            shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } }
           },
           required: ['id', 'shapes']
         }
@@ -80,11 +80,11 @@ export const generateShapeMatchingFromAI = async (rowCount: number, difficultyLe
     required: ['title', 'leftColumn', 'rightColumn']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<SingleShapeMatchingData[]>;
+  return generateWithSchema(prompt, schema) as Promise<ShapeMatchingData[]>;
 };
 
 // FIX: Updated function to return an array of worksheets and accept consistent parameters.
-export const generateSymbolCipherFromAI = async (wordCount: number, difficultyLevel: string, worksheetCount: number): Promise<SingleSymbolCipherData[]> => {
+export const generateSymbolCipherFromAI = async (wordCount: number, difficultyLevel: string, worksheetCount: number): Promise<SymbolCipherData[]> => {
   const prompt = `
     "${difficultyLevel}" zorluk seviyesindeki bir öğrenciye uygun bir şifre çözme etkinliği oluştur.
     8 tane şekil-harf çiftinden oluşan bir şifre anahtarı oluştur. Şekiller: ${SHAPE_TYPES.join(', ')}.
@@ -101,7 +101,7 @@ export const generateSymbolCipherFromAI = async (wordCount: number, difficultyLe
         items: {
           type: Type.OBJECT,
           properties: {
-            shape: { type: Type.STRING },
+            shape: { type: Type.STRING, enum: SHAPE_TYPES },
             letter: { type: Type.STRING }
           },
           required: ['shape', 'letter']
@@ -112,7 +112,7 @@ export const generateSymbolCipherFromAI = async (wordCount: number, difficultyLe
         items: {
           type: Type.OBJECT,
           properties: {
-            shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING } },
+            shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } },
             wordLength: { type: Type.INTEGER }
           },
           required: ['shapeSequence', 'wordLength']
@@ -122,11 +122,11 @@ export const generateSymbolCipherFromAI = async (wordCount: number, difficultyLe
     required: ['title', 'cipherKey', 'wordsToSolve']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<SingleSymbolCipherData[]>;
+  return generateWithSchema(prompt, schema) as Promise<SymbolCipherData[]>;
 };
 
 // FIX: Updated function to return an array of worksheets and accept consistent parameters.
-export const generateCoordinateCipherFromAI = async (topic: string, gridSize: number, wordCount: number, difficultyLevel: string, worksheetCount: number): Promise<SingleCoordinateCipherData[]> => {
+export const generateCoordinateCipherFromAI = async (topic: string, gridSize: number, wordCount: number, difficultyLevel: string, worksheetCount: number): Promise<CoordinateCipherData[]> => {
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficultyLevel}" zorluk seviyesindeki bir öğrenciye uygun bir koordinat şifreleme bulmacası oluştur.
     ${gridSize}x${gridSize} boyutunda bir harf tablosu oluştur.
@@ -146,14 +146,14 @@ export const generateCoordinateCipherFromAI = async (topic: string, gridSize: nu
     required: ['title', 'grid', 'wordsToFind', 'cipherCoordinates']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<SingleCoordinateCipherData[]>;
+  return generateWithSchema(prompt, schema) as Promise<CoordinateCipherData[]>;
 };
 
 // FIX: Updated function to return an array of worksheets and accept consistent parameters.
-export const generateShapeNumberPatternFromAI = async (count: number, difficultyLevel: string, worksheetCount: number): Promise<SingleShapeNumberPatternData[]> => {
-    const prompt = `Generate ${count} shape-based number pattern puzzles for kids, appropriate for difficulty level "${difficultyLevel}". Each puzzle should consist of a few shapes (only triangles for now) containing numbers. There must be a logical rule connecting the numbers in each shape. One number should be a question mark.
+export const generateShapeNumberPatternFromAI = async (count: number, difficultyLevel: string, worksheetCount: number): Promise<ShapeNumberPatternData[]> => {
+    const prompt = `Generate ${worksheetCount} unique worksheets for a shape-based number pattern puzzle for kids, appropriate for difficulty level "${difficultyLevel}". Each worksheet should contain ${count} puzzles. Each puzzle should consist of a few shapes (only triangles for now) containing numbers. There must be a logical rule connecting the numbers in each shape. One number should be a question mark.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
+    Return the data in a JSON array.`;
 
     const singleSchema = {
         type: Type.OBJECT,
@@ -169,7 +169,7 @@ export const generateShapeNumberPatternFromAI = async (count: number, difficulty
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    type: { type: Type.STRING },
+                                    type: { type: Type.STRING, enum: ['triangle'] },
                                     numbers: { type: Type.ARRAY, items: { type: Type.STRING } }
                                 },
                                 required: ["type", "numbers"]
@@ -183,12 +183,12 @@ export const generateShapeNumberPatternFromAI = async (count: number, difficulty
         required: ["title", "patterns"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<SingleShapeNumberPatternData[]>;
+    return generateWithSchema(prompt, schema) as Promise<ShapeNumberPatternData[]>;
 };
 
-// FIX: Fixed broken schema, added missing return statement, and updated function to return an array of worksheets.
-export const generateAbcConnectFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<SingleAbcConnectData[]> => {
-    const prompt = `Create an "ABC Connect" puzzle, appropriate for difficulty level "${difficultyLevel}". Generate 2 puzzles on a 6x6 grid. For each puzzle, provide a list of points. Each point has a letter (e.g., 'A', 'B') and x, y coordinates. There should be two points for each letter. The user connects the matching letters. 
+// FIX: Fixed broken schema, updated function to return an array of worksheets.
+export const generateAbcConnectFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<AbcConnectData[]> => {
+    const prompt = `Create an "ABC Connect" puzzle, appropriate for difficulty level "${difficultyLevel}". Generate a worksheet containing 2 puzzles on a 6x6 grid. For each puzzle, provide a list of points. Each point has a letter (e.g., 'A', 'B') and x, y coordinates. There should be two points for each letter. The user connects the matching letters. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -223,12 +223,12 @@ export const generateAbcConnectFromAI = async (difficultyLevel: string, workshee
         required: ["title", "prompt", "puzzles"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<SingleAbcConnectData[]>;
+    return generateWithSchema(prompt, schema) as Promise<AbcConnectData[]>;
 };
 
 // FIX: Added missing function `generateWordConnectFromAI`
 export const generateWordConnectFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<WordConnectData[]> => {
-    const prompt = `Create a "Word Connect" puzzle, appropriate for difficulty level "${difficultyLevel}". Generate a worksheet with a 10x10 grid. Provide a list of points with semantically related words. Each point has a word, a pairId, and x, y coordinates. The user connects the words with the same pairId. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Word Connect" puzzle, appropriate for difficulty level "${difficultyLevel}". Generate a worksheet with a 10x10 grid. Provide a list of points with semantically related words. Each point has a word, a pairId, and x, y coordinates. The user connects the words with the same pairId. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -257,7 +257,7 @@ export const generateWordConnectFromAI = async (difficultyLevel: string, workshe
 
 // FIX: Added missing function `generateThematicOddOneOutFromAI`
 export const generateThematicOddOneOutFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<ThematicOddOneOutData[]> => {
-    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficultyLevel}". Generate 5 rows of words. In each row, one word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficultyLevel}". Generate 5 rows of words. In each row, one word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -285,7 +285,7 @@ export const generateThematicOddOneOutFromAI = async (topic: string, difficultyL
 
 // FIX: Added missing function `generatePunctuationMazeFromAI`
 export const generatePunctuationMazeFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<PunctuationMazeData[]> => {
-    const prompt = `Create a "Punctuation Maze" puzzle for difficulty level "${difficultyLevel}". Specify a punctuation mark (e.g., '.'). Provide a list of 8 rules about its usage, some correct and some incorrect. The user follows the path of correct rules in a conceptual maze. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Punctuation Maze" puzzle for difficulty level "${difficultyLevel}". Specify a punctuation mark (e.g., '.'). Provide a list of 8 rules about its usage, some correct and some incorrect. The user follows the path of correct rules in a conceptual maze. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -313,7 +313,7 @@ export const generatePunctuationMazeFromAI = async (difficultyLevel: string, wor
 
 // FIX: Added missing function `generateThematicOddOneOutSentenceFromAI`
 export const generateThematicOddOneOutSentenceFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<ThematicOddOneOutSentenceData[]> => {
-    const prompt = `Create a "Thematic Odd One Out Sentence" puzzle with theme '${topic}' for difficulty level "${difficultyLevel}". Provide 5 rows of words, where one is the odd one out. The user must then write a sentence with the odd words. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Thematic Odd One Out Sentence" puzzle with theme '${topic}' for difficulty level "${difficultyLevel}". Provide 5 rows of words, where one is the odd one out. The user must then write a sentence with the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -340,7 +340,7 @@ export const generateThematicOddOneOutSentenceFromAI = async (topic: string, dif
 
 // FIX: Added missing function `generateColumnOddOneOutSentenceFromAI`
 export const generateColumnOddOneOutSentenceFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<ColumnOddOneOutSentenceData[]> => {
-    const prompt = `Create a "Column Odd One Out Sentence" puzzle for difficulty level "${difficultyLevel}". Provide 4 columns of words, where one in each column is the odd one out. The user must write a sentence with the odd words. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Column Odd One Out Sentence" puzzle for difficulty level "${difficultyLevel}". Provide 4 columns of words, where one in each column is the odd one out. The user must write a sentence with the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -367,7 +367,7 @@ export const generateColumnOddOneOutSentenceFromAI = async (difficultyLevel: str
 
 // FIX: Added missing function `generatePunctuationPhoneNumberFromAI`
 export const generatePunctuationPhoneNumberFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<PunctuationPhoneNumberData[]> => {
-    const prompt = `Create a "Punctuation Phone Number" puzzle for difficulty level "${difficultyLevel}". Provide 7 clues related to punctuation that resolve to numbers, forming a phone number. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Punctuation Phone Number" puzzle for difficulty level "${difficultyLevel}". Provide 7 clues related to punctuation that resolve to numbers, forming a phone number. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -405,7 +405,7 @@ export const generatePunctuationPhoneNumberFromAI = async (difficultyLevel: stri
 
 // FIX: Added missing function `generateArithmeticConnectFromAI`
 export const generateArithmeticConnectFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<ArithmeticConnectData[]> => {
-    const prompt = `Create an "Arithmetic Connect" puzzle for difficulty level "${difficultyLevel}". Provide a set of 12 arithmetic expressions placed randomly. The expressions belong to groups with the same result. Provide each expression's text, value, group ID, and coordinates. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create an "Arithmetic Connect" puzzle for difficulty level "${difficultyLevel}". Provide a set of 12 arithmetic expressions placed randomly. The expressions belong to groups with the same result. Provide each expression's text, value, group ID, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -435,7 +435,7 @@ export const generateArithmeticConnectFromAI = async (difficultyLevel: string, w
 
 // FIX: Added missing function `generateRomanArabicMatchConnectFromAI`
 export const generateRomanArabicMatchConnectFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<RomanArabicMatchConnectData[]> => {
-    const prompt = `Create a "Roman-Arabic Match Connect" puzzle for difficulty level "${difficultyLevel}". Provide a list of points on a 10x10 grid. Each point has a label (Roman or Arabic number), a pairId, and coordinates. The user connects points with the same pairId. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Roman-Arabic Match Connect" puzzle for difficulty level "${difficultyLevel}". Provide a list of points on a 10x10 grid. Each point has a label (Roman or Arabic number), a pairId, and coordinates. The user connects points with the same pairId. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -464,7 +464,7 @@ export const generateRomanArabicMatchConnectFromAI = async (difficultyLevel: str
 
 // FIX: Added missing function `generateWeightConnectFromAI`
 export const generateWeightConnectFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<WeightConnectData[]> => {
-    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficultyLevel}". Provide points on a 10x10 grid with labels like '1kg' and '1000g'. The user connects equivalent weights. Provide pairIds for matching. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficultyLevel}". Provide points on a 10x10 grid with labels like '1kg' and '1000g'. The user connects equivalent weights. Provide pairIds for matching. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -493,7 +493,7 @@ export const generateWeightConnectFromAI = async (difficultyLevel: string, works
 
 // FIX: Added missing function `generateResfebeFromAI`
 export const generateResfebeFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<ResfebeData[]> => {
-    const prompt = `Create a "Resfebe" puzzle for difficulty level "${difficultyLevel}". Generate 4 puzzles. For each, provide clues (text or image prompts) and the answer. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Resfebe" puzzle for difficulty level "${difficultyLevel}". Generate 4 puzzles. For each, provide clues (text or image prompts) and the answer. For image prompts, create a detailed prompt for an image generator. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -509,7 +509,7 @@ export const generateResfebeFromAI = async (difficultyLevel: string, worksheetCo
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    type: { type: Type.STRING },
+                                    type: { type: Type.STRING, enum: ['text', 'image'] },
                                     value: { type: Type.STRING },
                                     imagePrompt: { type: Type.STRING }
                                 },
@@ -530,7 +530,7 @@ export const generateResfebeFromAI = async (difficultyLevel: string, worksheetCo
 
 // FIX: Added missing function `generateLengthConnectFromAI`
 export const generateLengthConnectFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<LengthConnectData[]> => {
-    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficultyLevel}". Provide points on a 10x10 grid with labels like '1m' and '100cm'. The user connects equivalent lengths. Provide pairIds for matching. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficultyLevel}". Provide points on a 10x10 grid with labels like '1m' and '100cm'. The user connects equivalent lengths. Provide pairIds for matching. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -559,7 +559,7 @@ export const generateLengthConnectFromAI = async (difficultyLevel: string, works
 
 // FIX: Added missing function `generateVisualNumberPatternFromAI`
 export const generateVisualNumberPatternFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<VisualNumberPatternData[]> => {
-    const prompt = `Create a "Visual Number Pattern" puzzle for difficulty level "${difficultyLevel}". Generate 3 puzzles. Each puzzle is a sequence of items with a number, color, and size, following a specific rule. Provide the rule and the answer. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Visual Number Pattern" puzzle for difficulty level "${difficultyLevel}". Generate 3 puzzles. Each puzzle is a sequence of items with a number, color, and size, following a specific rule. Provide the rule and the answer. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -597,7 +597,7 @@ export const generateVisualNumberPatternFromAI = async (difficultyLevel: string,
 
 // FIX: Added missing function `generateProfessionConnectFromAI`
 export const generateProfessionConnectFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<ProfessionConnectData[]> => {
-    const prompt = `Create a "Profession Connect" puzzle for difficulty level "${difficultyLevel}". Provide points on a 10x10 grid. Each point has a profession label, an image description, an image prompt, and coordinates. The user connects related items. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Profession Connect" puzzle for difficulty level "${difficultyLevel}". Provide points on a 10x10 grid. Each point has a profession label, an image description, an image prompt, and coordinates. The user connects related items. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -627,7 +627,7 @@ export const generateProfessionConnectFromAI = async (difficultyLevel: string, w
 
 // FIX: Added missing function `generateVisualOddOneOutThemedFromAI`
 export const generateVisualOddOneOutThemedFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<VisualOddOneOutThemedData[]> => {
-    const prompt = `Create a "Themed Visual Odd One Out" puzzle with theme '${topic}' for difficulty level "${difficultyLevel}". Generate 3 rows, each with its own theme. Each row has 4 items (with descriptions and image prompts), where one doesn't fit the theme. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Themed Visual Odd One Out" puzzle with theme '${topic}' for difficulty level "${difficultyLevel}". Generate 3 rows, each with its own theme. Each row has 4 items (with descriptions and image prompts), where one doesn't fit the theme. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -664,7 +664,7 @@ export const generateVisualOddOneOutThemedFromAI = async (topic: string, difficu
 
 // FIX: Added missing function `generateLogicGridPuzzleFromAI`
 export const generateLogicGridPuzzleFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<LogicGridPuzzleData[]> => {
-    const prompt = `Create a "Logic Grid Puzzle" for difficulty level "${difficultyLevel}". Provide a list of clues, a list of people, and categories with items (including image prompts). The user solves the puzzle using the grid. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create a "Logic Grid Puzzle" for difficulty level "${difficultyLevel}". Provide a list of clues, a list of people, and categories with items (including image prompts). The user solves the puzzle using the grid. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {

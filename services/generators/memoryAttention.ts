@@ -5,15 +5,15 @@ import {
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, SynonymSearchAndStoryData, StarHuntData, ShapeType
 } from '../../types';
 
-export const generateWordMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<WordMemoryData> => {
+export const generateWordMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number, difficultyLevel: string, worksheetCount: number): Promise<WordMemoryData[]> => {
     const prompt = `
-    '${topic}' konusuyla ilgili bir kelime hafıza testi oluştur.
+    '${topic}' konusuyla ilgili ve "${difficultyLevel}" zorluk seviyesine uygun bir kelime hafıza testi oluştur.
     Ezberlenecek ${memorizeCount} kelime seç.
     Test için ${testCount} kelimelik bir liste oluştur. Bu listenin içinde ezberlenecek kelimeler de bulunsun.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
-    const schema = {
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -24,18 +24,19 @@ export const generateWordMemoryFromAI = async (topic: string, memorizeCount: num
         },
         required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords']
     };
-    return generateWithSchema(prompt, schema) as Promise<WordMemoryData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<WordMemoryData[]>;
 };
 
-export const generateVisualMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<VisualMemoryData> => {
+export const generateVisualMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number, difficultyLevel: string, worksheetCount: number): Promise<VisualMemoryData[]> => {
   const prompt = `
-    '${topic}' konusuyla ilgili bir görsel hafıza testi oluştur.
+    '${topic}' konusuyla ilgili ve "${difficultyLevel}" zorluk seviyesine uygun bir görsel hafıza testi oluştur.
     Ezberlenecek ${memorizeCount} tane basit nesne belirle (örn: "Kırmızı Araba 🚗"). İsmini ve emojisini ver.
     Test için ${testCount} tane nesneden oluşan bir liste oluştur. Bu listenin içinde ezberlenecek nesneler de bulunsun.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
-  const schema = {
+  const singleSchema = {
     type: Type.OBJECT,
     properties: {
       title: { type: Type.STRING },
@@ -46,18 +47,19 @@ export const generateVisualMemoryFromAI = async (topic: string, memorizeCount: n
     },
     required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems']
   };
-  return generateWithSchema(prompt, schema) as Promise<VisualMemoryData>;
+  const schema = { type: Type.ARRAY, items: singleSchema };
+  return generateWithSchema(prompt, schema) as Promise<VisualMemoryData[]>;
 };
 
-export const generateNumberSearchFromAI = async (start: number, end: number): Promise<NumberSearchData> => {
+export const generateNumberSearchFromAI = async (start: number, end: number, difficultyLevel: string, worksheetCount: number): Promise<NumberSearchData[]> => {
     const prompt = `
-    Bir sayı avı etkinliği oluştur. 
+    "${difficultyLevel}" zorluk seviyesine uygun bir sayı avı etkinliği oluştur. 
     ${start} ile ${end} arasındaki sayıları içersin.
     Bu sayıları ve dikkat dağıtıcı başka sayıları/karakterleri rastgele bir sırada içeren bir liste oluştur. Toplam 100 öğe olsun.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
-    const schema = {
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -73,18 +75,19 @@ export const generateNumberSearchFromAI = async (start: number, end: number): Pr
         },
         required: ['title', 'numbers', 'range']
     };
-    return generateWithSchema(prompt, schema) as Promise<NumberSearchData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<NumberSearchData[]>;
 };
 
-export const generateFindDuplicateFromAI = async (rows: number, cols: number): Promise<FindDuplicateData> => {
+export const generateFindDuplicateFromAI = async (rows: number, cols: number, difficultyLevel: string, worksheetCount: number): Promise<FindDuplicateData[]> => {
   const prompt = `
-    'İkiliyi Bul' etkinliği için ${rows} satır ve ${cols} sütundan oluşan bir tablo oluştur.
+    "${difficultyLevel}" zorluk seviyesine uygun 'İkiliyi Bul' etkinliği için ${rows} satır ve ${cols} sütundan oluşan bir tablo oluştur.
     Her satıra rastgele harfler ve rakamlar yerleştir.
     Her satırda, karakterlerden sadece bir tanesi iki defa tekrar etsin.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
-  const schema = {
+  const singleSchema = {
     type: Type.OBJECT,
     properties: {
       title: { type: Type.STRING },
@@ -92,19 +95,20 @@ export const generateFindDuplicateFromAI = async (rows: number, cols: number): P
     },
     required: ['title', 'rows']
   };
-  return generateWithSchema(prompt, schema) as Promise<FindDuplicateData>;
+  const schema = { type: Type.ARRAY, items: singleSchema };
+  return generateWithSchema(prompt, schema) as Promise<FindDuplicateData[]>;
 };
 
-export const generateLetterGridFromAI = async (gridSize: number, letters: string): Promise<LetterGridTestData> => {
+export const generateLetterGridFromAI = async (gridSize: number, letters: string, difficultyLevel: string, worksheetCount: number): Promise<LetterGridTestData[]> => {
     const targetLetters = letters.split(',').map(l => l.trim().toLowerCase());
     const prompt = `
-    ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
+    ${gridSize}x${gridSize} boyutunda ve "${difficultyLevel}" zorluk seviyesine uygun bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe küçük harflerle doldur.
     Aranacak hedef harfler şunlar: ${targetLetters.join(', ')}. Bu harfleri ızgaraya serpiştir.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
-    const schema = {
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING, description: 'The title for the letter grid test.' },
@@ -121,18 +125,19 @@ export const generateLetterGridFromAI = async (gridSize: number, letters: string
         },
         required: ['title', 'grid', 'targetLetters']
     };
-    return generateWithSchema(prompt, schema) as Promise<LetterGridTestData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<LetterGridTestData[]>;
 };
 
-export const generateFindLetterPairFromAI = async (gridSize: number, targetPair: string): Promise<FindLetterPairData> => {
+export const generateFindLetterPairFromAI = async (gridSize: number, targetPair: string, difficultyLevel: string, worksheetCount: number): Promise<FindLetterPairData[]> => {
     const prompt = `
-    'Harf İkilisini Bul' etkinliği için ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
+    'Harf İkilisini Bul' etkinliği için ${gridSize}x${gridSize} boyutunda ve "${difficultyLevel}" zorluk seviyesine uygun bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe harflerle doldur.
     Hedef harf ikilisi olan '${targetPair}' harflerini ızgarada yanyana olacak şekilde birkaç yere yerleştir.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
-    const schema = {
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -144,18 +149,19 @@ export const generateFindLetterPairFromAI = async (gridSize: number, targetPair:
         },
         required: ['title', 'grid', 'targetPair']
     };
-    return generateWithSchema(prompt, schema) as Promise<FindLetterPairData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<FindLetterPairData[]>;
 };
 
-export const generateTargetSearchFromAI = async (gridSize: number, target: string, distractor: string): Promise<TargetSearchData> => {
+export const generateTargetSearchFromAI = async (gridSize: number, target: string, distractor: string, difficultyLevel: string, worksheetCount: number): Promise<TargetSearchData[]> => {
   const prompt = `
-    'Dikkatli Göz' etkinliği oluştur.
+    "${difficultyLevel}" zorluk seviyesine uygun 'Dikkatli Göz' etkinliği oluştur.
     ${gridSize}x${gridSize} boyutunda bir tabloyu '${distractor}' karakteriyle doldur.
     İçine rastgele yerlere 15-20 tane '${target}' karakteri serpiştir.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
-  const schema = {
+  const singleSchema = {
     type: Type.OBJECT,
     properties: {
       title: { type: Type.STRING },
@@ -165,14 +171,15 @@ export const generateTargetSearchFromAI = async (gridSize: number, target: strin
     },
     required: ['title', 'grid', 'target', 'distractor']
   };
-  return generateWithSchema(prompt, schema) as Promise<TargetSearchData>;
+  const schema = { type: Type.ARRAY, items: singleSchema };
+  return generateWithSchema(prompt, schema) as Promise<TargetSearchData[]>;
 };
 
-export const generateColorWheelMemoryFromAI = async (itemCount: number): Promise<ColorWheelMemoryData> => {
-    const prompt = `Create a color wheel memory game with ${itemCount} items. Each item must have a name (e.g., "Kitap 📕") and a unique hex color code. 
+export const generateColorWheelMemoryFromAI = async (itemCount: number, difficultyLevel: string, worksheetCount: number): Promise<ColorWheelMemoryData[]> => {
+    const prompt = `Create a color wheel memory game with ${itemCount} items, appropriate for difficulty level "${difficultyLevel}". Each item must have a name (e.g., "Kitap 📕") and a unique hex color code. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format as JSON.`;
-    const schema = {
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -192,19 +199,20 @@ export const generateColorWheelMemoryFromAI = async (itemCount: number): Promise
         },
         required: ["title", "memorizeTitle", "testTitle", "items"]
     };
-    return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData[]>;
 };
 
-export const generateImageComprehensionFromAI = async (topic: string, questionCount: number): Promise<ImageComprehensionData> => {
+export const generateImageComprehensionFromAI = async (topic: string, questionCount: number, difficultyLevel: string, worksheetCount: number): Promise<ImageComprehensionData[]> => {
     const prompt = `
-    Generate a simple, detailed scene description about '${topic}' for an image comprehension test for a 7-year-old. The description should be around 50-70 words.
+    Generate a simple, detailed scene description about '${topic}' for an image comprehension test, appropriate for difficulty level "${difficultyLevel}". The description should be around 50-70 words.
     Also, create a detailed, high-quality image generation prompt (in English) based on this description to generate a simple, cartoonish, and clear image.
     Then, create ${questionCount} open-ended questions about the details in the scene.
     For the 'imagePrompt' field, return the generated image prompt.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format the output as JSON.
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.
     `;
-    const schema = {
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -216,18 +224,19 @@ export const generateImageComprehensionFromAI = async (topic: string, questionCo
         },
         required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions"]
     };
-    return generateWithSchema(prompt, schema) as Promise<ImageComprehensionData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<ImageComprehensionData[]>;
 };
 
-export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number): Promise<CharacterMemoryData> => {
+export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount: number, testCount: number, difficultyLevel: string, worksheetCount: number): Promise<CharacterMemoryData[]> => {
     const prompt = `
-    Generate a character memory test about '${topic}'.
+    Generate a character memory test about '${topic}', appropriate for difficulty level "${difficultyLevel}".
     Create ${memorizeCount} unique, simple characters. For each, provide a short description (e.g., "Kırmızı şapkalı bir ayıcık") and a detailed English image generation prompt for it.
     Then, create a test list of ${testCount} characters, including the ones to be memorized, each with a description and an image prompt.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format the output as JSON.
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.
     `;
-    const schema = {
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -258,14 +267,15 @@ export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount
         },
         required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters"]
     };
-    return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData[]>;
 };
 
-export const generateBurdonTestFromAI = async (): Promise<LetterGridTestData> => {
-    const prompt = `Create a Burdon Attention Test. Generate a 20x20 grid of random lowercase Turkish letters. The target letters to find are "a", "b", "d", "g". Ensure these letters are distributed throughout the grid. 
+export const generateBurdonTestFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<LetterGridTestData[]> => {
+    const prompt = `Create a Burdon Attention Test appropriate for difficulty level "${difficultyLevel}". Generate a 20x20 grid of random lowercase Turkish letters. The target letters to find are "a", "b", "d", "g". Ensure these letters are distributed throughout the grid. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format as JSON, using the LetterGridTestData schema.`;
-    const schema = {
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array, using the LetterGridTestData schema.`;
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -274,14 +284,15 @@ export const generateBurdonTestFromAI = async (): Promise<LetterGridTestData> =>
         },
         required: ['title', 'grid', 'targetLetters']
     };
-    return generateWithSchema(prompt, schema) as Promise<LetterGridTestData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<LetterGridTestData[]>;
 };
 
-export const generateSynonymSearchAndStoryFromAI = async(): Promise<SynonymSearchAndStoryData> => {
-    const prompt = `Create a "Synonym Search and Story" activity. Provide a table of 6 Turkish words and their synonyms. Create a 12x12 grid and hide the synonyms. Finally, provide a prompt for the user to write a story using the original words. 
+export const generateSynonymSearchAndStoryFromAI = async(difficultyLevel: string, worksheetCount: number): Promise<SynonymSearchAndStoryData[]> => {
+    const prompt = `Create a "Synonym Search and Story" activity appropriate for difficulty level "${difficultyLevel}". Provide a table of 6 Turkish words and their synonyms. Create a 12x12 grid and hide the synonyms. Finally, provide a prompt for the user to write a story using the original words. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format as JSON.`;
-    const schema = {
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -302,14 +313,15 @@ export const generateSynonymSearchAndStoryFromAI = async(): Promise<SynonymSearc
         },
         required: ["title", "prompt", "wordTable", "grid", "storyPrompt"]
     };
-    return generateWithSchema(prompt, schema) as Promise<SynonymSearchAndStoryData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<SynonymSearchAndStoryData[]>;
 }
 
-export const generateStarHuntFromAI = async(): Promise<StarHuntData> => {
-    const prompt = `Create a Star Hunt puzzle with geometric shapes. Generate a 6x6 grid. Each cell can contain a shape, a star, a question mark, or be empty (null). The numbers next to rows/columns indicate how many stars are in that row/column. 
+export const generateStarHuntFromAI = async(difficultyLevel: string, worksheetCount: number): Promise<StarHuntData[]> => {
+    const prompt = `Create a Star Hunt puzzle with geometric shapes, appropriate for difficulty level "${difficultyLevel}". Generate a 6x6 grid. Each cell can contain a shape, a star, a question mark, or be empty (null). The numbers next to rows/columns indicate how many stars are in that row/column. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format as JSON.`;
-    const schema = {
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -318,5 +330,6 @@ export const generateStarHuntFromAI = async(): Promise<StarHuntData> => {
         },
         required: ["title", "prompt", "grid"]
     };
-    return generateWithSchema(prompt, schema) as Promise<StarHuntData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<StarHuntData[]>;
 }

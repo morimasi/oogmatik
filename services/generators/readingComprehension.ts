@@ -2,16 +2,16 @@ import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbSayingSortData, ProverbWordChainData } from '../../types';
 
-export const generateStoryFromAI = async (topic: string): Promise<StoryData> => {
+export const generateStoryFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<StoryData[]> => {
     const prompt = `
-    7 yaşındaki bir çocuk için '${topic}' konusunda 100-150 kelimelik kısa ve basit bir Türkçe hikaye yaz. 
+    "${difficultyLevel}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda 100-150 kelimelik kısa ve basit bir Türkçe hikaye yaz. 
     Hikayenin bir başlığı olsun.
     Hikayeden sonra, hikayeyle ilgili 3 tane çoktan seçmeli anlama sorusu oluştur. 
     Her soru için 3 seçenek sun ve doğru seçeneğin indeksini (0, 1 veya 2) belirt.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun. Mümkün olduğunda emoji kullan.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
-    const schema = {
+    const singleSchema = {
     type: Type.OBJECT,
     properties: {
       title: { type: Type.STRING, description: 'The title of the story.' },
@@ -31,18 +31,19 @@ export const generateStoryFromAI = async (topic: string): Promise<StoryData> => 
     },
     required: ['title', 'story', 'questions']
   };
-  return generateWithSchema(prompt, schema) as Promise<StoryData>;
+  const schema = { type: Type.ARRAY, items: singleSchema };
+  return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
 };
 
-export const generateStoryAnalysisFromAI = async (topic: string): Promise<StoryAnalysisData> => {
+export const generateStoryAnalysisFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<StoryAnalysisData[]> => {
   const prompt = `
-    '${topic}' konusunda 150-200 kelimelik, içinde eş ve zıt anlamlı kelimeler barındıran bir hikaye yaz.
+    '${topic}' konusunda ve "${difficultyLevel}" zorluk seviyesine uygun, içinde eş ve zıt anlamlı kelimeler barındıran 150-200 kelimelik bir hikaye yaz.
     Hikaye sonrası için 3 tane analiz sorusu oluştur. Sorular "Hikayedeki 'mutlu' kelimesinin zıt anlamlısı nedir?" gibi olmalı.
     Her soru için, cevabın bulunabileceği ipucu (context) metnini de belirt.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
-  const schema = {
+  const singleSchema = {
     type: Type.OBJECT,
     properties: {
       title: { type: Type.STRING },
@@ -61,18 +62,19 @@ export const generateStoryAnalysisFromAI = async (topic: string): Promise<StoryA
     },
     required: ['title', 'story', 'questions']
   };
-  return generateWithSchema(prompt, schema) as Promise<StoryAnalysisData>;
+  const schema = { type: Type.ARRAY, items: singleSchema };
+  return generateWithSchema(prompt, schema) as Promise<StoryAnalysisData[]>;
 };
 
-export const generateStoryCreationPromptFromAI = async (topic: string, keywordCount: number): Promise<StoryCreationPromptData> => {
+export const generateStoryCreationPromptFromAI = async (topic: string, keywordCount: number, difficultyLevel: string, worksheetCount: number): Promise<StoryCreationPromptData[]> => {
   const prompt = `
-    '${topic}' konusuyla ilgili bir hikaye oluşturma etkinliği hazırla.
+    '${topic}' konusuyla ilgili ve "${difficultyLevel}" zorluk seviyesine uygun bir hikaye oluşturma etkinliği hazırla.
     Hikayede kullanılması gereken ${keywordCount} tane anahtar kelime belirle.
     Çocuğun bu kelimeleri kullanarak hikaye yazması için bir yönlendirme (prompt) metni oluştur.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
-  const schema = {
+  const singleSchema = {
     type: Type.OBJECT,
     properties: {
       title: { type: Type.STRING },
@@ -81,18 +83,19 @@ export const generateStoryCreationPromptFromAI = async (topic: string, keywordCo
     },
     required: ['title', 'prompt', 'keywords']
   };
-  return generateWithSchema(prompt, schema) as Promise<StoryCreationPromptData>;
+  const schema = { type: Type.ARRAY, items: singleSchema };
+  return generateWithSchema(prompt, schema) as Promise<StoryCreationPromptData[]>;
 };
 
-export const generateWordsInStoryFromAI = async (topic: string): Promise<WordsInStoryData> => {
+export const generateWordsInStoryFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<WordsInStoryData[]> => {
   const prompt = `
-    '${topic}' konusunda 100-120 kelimelik kısa bir hikaye yaz.
+    '${topic}' konusunda ve "${difficultyLevel}" zorluk seviyesine uygun 100-120 kelimelik kısa bir hikaye yaz.
     Ardından, 12 kelimelik bir liste oluştur. Bu listenin yarısı hikayede geçen kelimelerden, diğer yarısı ise geçmeyen kelimelerden oluşsun.
     Her kelimenin hikayede olup olmadığını (isInStory) boolean olarak belirt.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Sonucu aşağıdaki JSON formatında döndür.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
-  const schema = {
+  const singleSchema = {
     type: Type.OBJECT,
     properties: {
       title: { type: Type.STRING },
@@ -111,19 +114,20 @@ export const generateWordsInStoryFromAI = async (topic: string): Promise<WordsIn
     },
     required: ['title', 'story', 'wordList']
   };
-  return generateWithSchema(prompt, schema) as Promise<WordsInStoryData>;
+  const schema = { type: Type.ARRAY, items: singleSchema };
+  return generateWithSchema(prompt, schema) as Promise<WordsInStoryData[]>;
 };
 
-export const generateStorySequencingFromAI = async (topic: string): Promise<StorySequencingData> => {
+export const generateStorySequencingFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<StorySequencingData[]> => {
     const prompt = `
-    Create a story sequencing activity about '${topic}'.
+    Create a story sequencing activity about '${topic}', appropriate for difficulty level "${difficultyLevel}".
     Generate a simple 4-panel story. For each panel, provide a short description of the scene.
     The panels should be given in a jumbled order. Each panel needs a letter ID (A, B, C, D).
     The user's goal is to put the panels in the correct chronological order to tell the story.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format the output as JSON.
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.
     `;
-    const schema = {
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -142,14 +146,15 @@ export const generateStorySequencingFromAI = async (topic: string): Promise<Stor
         },
         required: ["title", "prompt", "panels"]
     };
-    return generateWithSchema(prompt, schema) as Promise<StorySequencingData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<StorySequencingData[]>;
 };
 
-export const generateProverbSayingSortFromAI = async(): Promise<ProverbSayingSortData> => {
-    const prompt = `Create a "Proverb or Saying" sorting activity. Provide a list of 10 Turkish items. Each item is either a proverb ('atasözü') or a saying ('özdeyiş'). The user must classify each one. 
+export const generateProverbSayingSortFromAI = async(difficultyLevel: string, worksheetCount: number): Promise<ProverbSayingSortData[]> => {
+    const prompt = `Create a "Proverb or Saying" sorting activity, appropriate for difficulty level "${difficultyLevel}". Provide a list of 10 Turkish items. Each item is either a proverb ('atasözü') or a saying ('özdeyiş'). The user must classify each one. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format as JSON.`;
-    const schema = {
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -160,7 +165,7 @@ export const generateProverbSayingSortFromAI = async(): Promise<ProverbSayingSor
                     type: Type.OBJECT,
                     properties: {
                         text: { type: Type.STRING },
-                        type: { type: Type.STRING }
+                        type: { type: Type.STRING, enum: ['atasözü', 'özdeyiş'] }
                     },
                     required: ["text", "type"]
                 }
@@ -168,14 +173,15 @@ export const generateProverbSayingSortFromAI = async(): Promise<ProverbSayingSor
         },
         required: ["title", "prompt", "items"]
     };
-    return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData[]>;
 }
 
-export const generateProverbWordChainFromAI = async(): Promise<ProverbWordChainData> => {
-    const prompt = `Create a proverb word chain activity. Provide a word cloud of about 20 Turkish words that can form 3-4 proverbs or sayings. Also provide the full solutions. Assign a random hex color to each word. 
+export const generateProverbWordChainFromAI = async(difficultyLevel: string, worksheetCount: number): Promise<ProverbWordChainData[]> => {
+    const prompt = `Create a proverb word chain activity, appropriate for difficulty level "${difficultyLevel}". Provide a word cloud of about 20 Turkish words that can form 3-4 proverbs or sayings. Also provide the full solutions. Assign a random hex color to each word. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Format as JSON.`;
-    const schema = {
+    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
@@ -195,5 +201,6 @@ export const generateProverbWordChainFromAI = async(): Promise<ProverbWordChainD
         },
         required: ["title", "prompt", "wordCloud", "solutions"]
     };
-    return generateWithSchema(prompt, schema) as Promise<ProverbWordChainData>;
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<ProverbWordChainData[]>;
 }
