@@ -1,4 +1,3 @@
-
 import React, { CSSProperties } from 'react';
 import { 
     ActivityType, WorksheetData, WordSearchData, AnagramData, MathPuzzleData, StoryData, 
@@ -1290,6 +1289,126 @@ const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = ({ data })
     </div>
 );
 
+// Helper for VisualOddOneOutSheet
+const SegmentDisplay: React.FC<{ segments: boolean[] }> = ({ segments }) => {
+    const segmentClasses = (isActive: boolean) => isActive ? 'bg-zinc-800 dark:bg-zinc-100' : 'bg-zinc-200 dark:bg-zinc-700';
+    return (
+        <div className="grid grid-cols-3 grid-rows-3 w-12 h-16 gap-0.5">
+            {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className={segmentClasses(segments[i] ?? false)}></div>
+            ))}
+        </div>
+    );
+};
+
+const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="space-y-6">
+            {data.rows.map((row, index) => (
+                <div key={index} className="flex items-center justify-around p-4 border rounded-lg bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                    {row.items.map((item, itemIndex) => (
+                        <div key={itemIndex} className="flex flex-col items-center gap-2">
+                            <SegmentDisplay segments={item.segments} />
+                            <div className="w-6 h-6 border-2 border-zinc-400 rounded-full"></div>
+                        </div>
+                    ))}
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="space-y-8 flex flex-col items-center">
+            {data.figures.map((figure, index) => (
+                <div key={index} className="flex flex-col items-center">
+                    <svg viewBox="0 0 100 100" className="w-64 h-64 border rounded-md" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                        {figure.svgPaths.map((path, pathIndex) => (
+                            <path key={pathIndex} d={path.d} fill={path.fill} stroke="var(--worksheet-border-color)" strokeWidth="0.5" />
+                        ))}
+                    </svg>
+                </div>
+            ))}
+             <div className="mt-4 flex items-center gap-4">
+                <h4 className="font-bold text-xl">Toplam Üçgen Sayısı:</h4>
+                <div className="w-24 h-16 border-2 border-zinc-400 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+);
+
+const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data }) => {
+    const { gridDim, dots, axis } = data;
+    const cellSize = 30;
+    const totalSize = gridDim * cellSize;
+
+    const renderGrid = (dotsToDraw: { x: number; y: number }[] | null) => (
+        <svg width={totalSize} height={totalSize} className="bg-white dark:bg-zinc-700/50 border border-zinc-300 dark:border-zinc-600">
+            {/* Grid lines */}
+            {Array.from({ length: gridDim + 1 }).map((_, i) => (
+                <g key={i}>
+                    <line x1={i * cellSize} y1="0" x2={i * cellSize} y2={totalSize} className="stroke-zinc-200 dark:stroke-zinc-500" strokeWidth="0.5" />
+                    <line x1="0" y1={i * cellSize} x2={totalSize} y2={i * cellSize} className="stroke-zinc-200 dark:stroke-zinc-500" strokeWidth="0.5" />
+                </g>
+            ))}
+            {/* Symmetry axis */}
+            <line
+                x1={axis === 'vertical' ? totalSize / 2 : 0}
+                y1={axis === 'vertical' ? 0 : totalSize / 2}
+                x2={axis === 'vertical' ? totalSize / 2 : totalSize}
+                y2={axis === 'vertical' ? totalSize : totalSize / 2}
+                className="stroke-red-500"
+                strokeWidth="2"
+                strokeDasharray="4"
+            />
+            {/* Dots */}
+            {dotsToDraw?.map((dot, index) => (
+                <circle key={index} cx={dot.x * cellSize + cellSize / 2} cy={dot.y * cellSize + cellSize / 2} r="5" className="fill-blue-500" />
+            ))}
+        </svg>
+    );
+
+    return (
+        <div>
+            <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+            <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-items-center">
+                {renderGrid(dots)}
+                {renderGrid(null)}
+            </div>
+        </div>
+    );
+};
+
+const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData }> = ({ data }) => (
+    <div>
+        <h3 className="text-xl font-bold mb-2 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="mb-8 p-4 bg-amber-100 dark:bg-amber-900/50 border-2 border-dashed border-amber-400 rounded-lg">
+            <h4 className="font-bold text-center mb-3 text-amber-800 dark:text-amber-200">Tema: {data.theme}</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {data.puzzles.map((puzzle, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                        <span className="font-mono tracking-widest">{puzzle.jumbled.join('')}</span>
+                        <span>&rarr;</span>
+                        <div className="flex-1 h-8 border-b-2 border-zinc-400"></div>
+                    </div>
+                ))}
+            </div>
+        </div>
+        <div>
+            <h4 className="font-semibold text-center mb-2">{data.storyPrompt}</h4>
+            <div className="h-48 border-2 border-dashed rounded-lg p-2" style={{borderColor: 'var(--worksheet-border-color)'}}></div>
+        </div>
+    </div>
+);
+
+
 const NotImplementedSheet: React.FC<{ type: ActivityType | null }> = ({ type }) => (
     <div className="text-center p-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
         <h3 className="font-bold text-amber-700 dark:text-amber-300">Bu etkinlik türü için çalışma sayfası görünümü henüz oluşturulmadı.</h3>
@@ -1297,137 +1416,76 @@ const NotImplementedSheet: React.FC<{ type: ActivityType | null }> = ({ type }) 
     </div>
 );
 
+const componentMap: { [key in ActivityType]?: React.FC<any> } = {
+    [ActivityType.WORD_SEARCH]: WordSearchGrid,
+    [ActivityType.ANAGRAM]: AnagramList,
+    [ActivityType.MATH_PUZZLE]: MathPuzzleSheet,
+    [ActivityType.STORY_COMPREHENSION]: StoryComprehensionSheet,
+    [ActivityType.STROOP_TEST]: StroopTestSheet,
+    [ActivityType.NUMBER_PATTERN]: NumberPatternSheet,
+    [ActivityType.SPELLING_CHECK]: SpellingCheckSheet,
+    [ActivityType.LETTER_GRID_TEST]: LetterGridTestSheet,
+    [ActivityType.NUMBER_SEARCH]: NumberSearchSheet,
+    [ActivityType.WORD_MEMORY]: WordMemorySheet,
+    [ActivityType.STORY_CREATION_PROMPT]: StoryCreationPromptSheet,
+    [ActivityType.FIND_THE_DIFFERENCE]: FindTheDifferenceSheet,
+    [ActivityType.WORD_COMPARISON]: WordComparisonSheet,
+    [ActivityType.WORDS_IN_STORY]: WordsInStorySheet,
+    [ActivityType.ODD_ONE_OUT]: OddOneOutSheet,
+    [ActivityType.SHAPE_MATCHING]: ShapeMatchingSheet,
+    [ActivityType.SYMBOL_CIPHER]: SymbolCipherSheet,
+    [ActivityType.PROVERB_FILL_IN_THE_BLANK]: ProverbFillSheet,
+    [ActivityType.LETTER_BRIDGE]: LetterBridgeSheet,
+    [ActivityType.FIND_THE_DUPLICATE_IN_ROW]: FindDuplicateSheet,
+    [ActivityType.WORD_LADDER]: WordLadderSheet,
+    [ActivityType.FIND_IDENTICAL_WORD]: FindIdenticalWordSheet,
+    [ActivityType.WORD_FORMATION]: WordFormationSheet,
+    [ActivityType.REVERSE_WORD]: ReverseWordSheet,
+    [ActivityType.FIND_LETTER_PAIR]: FindLetterPairSheet,
+    [ActivityType.WORD_GROUPING]: WordGroupingSheet,
+    [ActivityType.VISUAL_MEMORY]: VisualMemorySheet,
+    [ActivityType.STORY_ANALYSIS]: StoryAnalysisSheet,
+    [ActivityType.COORDINATE_CIPHER]: CoordinateCipherSheet,
+    [ActivityType.PROVERB_SEARCH]: WordSearchGrid,
+    [ActivityType.TARGET_SEARCH]: TargetSearchSheet,
+    [ActivityType.SHAPE_NUMBER_PATTERN]: ShapeNumberPatternSheet,
+    [ActivityType.GRID_DRAWING]: GridDrawingSheet,
+    [ActivityType.COLOR_WHEEL_MEMORY]: ColorWheelSheet,
+    [ActivityType.IMAGE_COMPREHENSION]: ImageComprehensionSheet,
+    [ActivityType.CHARACTER_MEMORY]: CharacterMemorySheet,
+    [ActivityType.STORY_SEQUENCING]: StorySequencingSheet,
+    [ActivityType.CHAOTIC_NUMBER_SEARCH]: ChaoticNumberSearchSheet,
+    [ActivityType.BLOCK_PAINTING]: BlockPaintingSheet,
+    [ActivityType.BURDON_TEST]: BurdonTestSheet,
+    [ActivityType.MINI_WORD_GRID]: MiniWordGridSheet,
+    [ActivityType.SYNONYM_WORD_SEARCH]: SynonymWordSearchSheet,
+    [ActivityType.THEMATIC_WORD_SEARCH_COLOR]: WordSearchGrid,
+    [ActivityType.SYNONYM_SEARCH_STORY]: SynonymSearchAndStorySheet,
+    [ActivityType.WORD_SEARCH_WITH_PASSWORD]: WordSearchGrid,
+    [ActivityType.LETTER_GRID_WORD_FIND]: WordSearchGrid,
+    [ActivityType.CROSSWORD]: CrosswordSheet,
+    [ActivityType.HOMONYM_SENTENCE_WRITING]: HomonymSentenceSheet,
+    [ActivityType.JUMBLED_WORD_STORY]: JumbledWordStorySheet,
+    [ActivityType.VISUAL_ODD_ONE_OUT]: VisualOddOneOutSheet,
+    [ActivityType.SHAPE_COUNTING]: ShapeCountingSheet,
+    [ActivityType.SYMMETRY_DRAWING]: SymmetryDrawingSheet,
+};
+
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => {
   if (!data) {
     return <div style={styles}></div>;
   }
-
+  
   const renderContent = () => {
-    switch (activityType) {
-      case ActivityType.WORD_SEARCH: return <WordSearchGrid data={data as WordSearchData} />;
-      case ActivityType.ANAGRAM: return <AnagramList data={data as AnagramData[]} />;
-      case ActivityType.MATH_PUZZLE: return <MathPuzzleSheet data={data as MathPuzzleData} />;
-      case ActivityType.STORY_COMPREHENSION: return <StoryComprehensionSheet data={data as StoryData} />;
-      case ActivityType.STROOP_TEST: return <StroopTestSheet data={data as StroopTestData} />;
-      case ActivityType.NUMBER_PATTERN: return <NumberPatternSheet data={data as NumberPatternData} />;
-      case ActivityType.SPELLING_CHECK: return <SpellingCheckSheet data={data as SpellingCheckData} />;
-      case ActivityType.LETTER_GRID_TEST: return <LetterGridTestSheet data={data as LetterGridTestData} />;
-      case ActivityType.NUMBER_SEARCH: return <NumberSearchSheet data={data as NumberSearchData} />;
-      case ActivityType.WORD_MEMORY: return <WordMemorySheet data={data as WordMemoryData} />;
-      case ActivityType.STORY_CREATION_PROMPT: return <StoryCreationPromptSheet data={data as StoryCreationPromptData} />;
-      case ActivityType.FIND_THE_DIFFERENCE: return <FindTheDifferenceSheet data={data as FindTheDifferenceData} />;
-      case ActivityType.WORD_COMPARISON: return <WordComparisonSheet data={data as WordComparisonData} />;
-      case ActivityType.WORDS_IN_STORY: return <WordsInStorySheet data={data as WordsInStoryData} />;
-      case ActivityType.ODD_ONE_OUT: return <OddOneOutSheet data={data as OddOneOutData} />;
-      case ActivityType.SHAPE_MATCHING: return <ShapeMatchingSheet data={data as ShapeMatchingData} />;
-      case ActivityType.SYMBOL_CIPHER: return <SymbolCipherSheet data={data as SymbolCipherData} />;
-      case ActivityType.PROVERB_FILL_IN_THE_BLANK: return <ProverbFillSheet data={data as ProverbFillData} />;
-      case ActivityType.LETTER_BRIDGE: return <LetterBridgeSheet data={data as LetterBridgeData} />;
-      case ActivityType.FIND_THE_DUPLICATE_IN_ROW: return <FindDuplicateSheet data={data as FindDuplicateData} />;
-      case ActivityType.WORD_LADDER: return <WordLadderSheet data={data as WordLadderData} />;
-      case ActivityType.FIND_IDENTICAL_WORD: return <FindIdenticalWordSheet data={data as FindIdenticalWordData} />;
-      case ActivityType.WORD_FORMATION: return <WordFormationSheet data={data as WordFormationData} />;
-      case ActivityType.REVERSE_WORD: return <ReverseWordSheet data={data as ReverseWordData} />;
-      case ActivityType.FIND_LETTER_PAIR: return <FindLetterPairSheet data={data as FindLetterPairData} />;
-      case ActivityType.WORD_GROUPING: return <WordGroupingSheet data={data as WordGroupingData} />;
-      case ActivityType.VISUAL_MEMORY: return <VisualMemorySheet data={data as VisualMemoryData} />;
-      case ActivityType.STORY_ANALYSIS: return <StoryAnalysisSheet data={data as StoryAnalysisData} />;
-      case ActivityType.COORDINATE_CIPHER: return <CoordinateCipherSheet data={data as CoordinateCipherData} />;
-      case ActivityType.PROVERB_SEARCH: return <WordSearchGrid data={data as ProverbSearchData} />;
-      case ActivityType.TARGET_SEARCH: return <TargetSearchSheet data={data as TargetSearchData} />;
-      case ActivityType.SHAPE_NUMBER_PATTERN: return <ShapeNumberPatternSheet data={data as ShapeNumberPatternData} />;
-      case ActivityType.GRID_DRAWING: return <GridDrawingSheet data={data as GridDrawingData} />;
-      case ActivityType.COLOR_WHEEL_MEMORY: return <ColorWheelSheet data={data as ColorWheelMemoryData} />;
-      case ActivityType.IMAGE_COMPREHENSION: return <ImageComprehensionSheet data={data as ImageComprehensionData} />;
-      case ActivityType.CHARACTER_MEMORY: return <CharacterMemorySheet data={data as CharacterMemoryData} />;
-      case ActivityType.STORY_SEQUENCING: return <StorySequencingSheet data={data as StorySequencingData} />;
-      case ActivityType.CHAOTIC_NUMBER_SEARCH: return <ChaoticNumberSearchSheet data={data as ChaoticNumberSearchData} />;
-      case ActivityType.BLOCK_PAINTING: return <BlockPaintingSheet data={data as BlockPaintingData} />;
-      case ActivityType.BURDON_TEST: return <BurdonTestSheet data={data as LetterGridTestData} />;
-      case ActivityType.MINI_WORD_GRID: return <MiniWordGridSheet data={data as MiniWordGridData} />;
-      case ActivityType.SYNONYM_WORD_SEARCH: return <SynonymWordSearchSheet data={data as SynonymWordSearchData} />;
-      case ActivityType.THEMATIC_WORD_SEARCH_COLOR: return <WordSearchGrid data={data as ThematicWordSearchColorData} />;
-      case ActivityType.SYNONYM_SEARCH_STORY: return <SynonymSearchAndStorySheet data={data as SynonymSearchAndStoryData} />;
-      case ActivityType.WORD_SEARCH_WITH_PASSWORD: return <WordSearchGrid data={data as WordSearchWithPasswordData} />;
-      case ActivityType.LETTER_GRID_WORD_FIND: return <WordSearchGrid data={data as LetterGridWordFindData} />;
-      case ActivityType.CROSSWORD: return <CrosswordSheet data={data as CrosswordData} />;
-      case ActivityType.HOMONYM_SENTENCE_WRITING: return <HomonymSentenceSheet data={data as HomonymSentenceData} />;
-
-      // Fallback for numerous other types to prevent crashing
-      // A full implementation would have a specific component for each case.
-      case ActivityType.VISUAL_ODD_ONE_OUT:
-      case ActivityType.SHAPE_COUNTING:
-      case ActivityType.SYMMETRY_DRAWING:
-      case ActivityType.FIND_DIFFERENT_STRING:
-      case ActivityType.DOT_PAINTING:
-      case ActivityType.ABC_CONNECT:
-      case ActivityType.PASSWORD_FINDER:
-      case ActivityType.SYLLABLE_COMPLETION:
-      case ActivityType.WORD_CONNECT:
-      case ActivityType.SPIRAL_PUZZLE:
-      case ActivityType.JUMBLED_WORD_STORY:
-      case ActivityType.WORD_GRID_PUZZLE:
-      case ActivityType.PROVERB_SAYING_SORT:
-      case ActivityType.HOMONYM_IMAGE_MATCH:
-      case ActivityType.ANTONYM_FLOWER_PUZZLE:
-      case ActivityType.PROVERB_WORD_CHAIN:
-      case ActivityType.THEMATIC_ODD_ONE_OUT:
-      case ActivityType.SYNONYM_ANTONYM_GRID:
-      case ActivityType.PUNCTUATION_COLORING:
-      case ActivityType.PUNCTUATION_MAZE:
-      case ActivityType.ANTONYM_RESFEBE:
-      case ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE:
-      case ActivityType.PROVERB_SENTENCE_FINDER:
-      case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE:
-      case ActivityType.SYNONYM_ANTONYM_COLORING:
-      case ActivityType.PUNCTUATION_PHONE_NUMBER:
-      case ActivityType.PUNCTUATION_SPIRAL_PUZZLE:
-      case ActivityType.THEMATIC_JUMBLED_WORD_STORY:
-      case ActivityType.SYNONYM_MATCHING_PATTERN:
-      case ActivityType.FUTOSHIKI:
-      case ActivityType.NUMBER_PYRAMID:
-      case ActivityType.NUMBER_CAPSULE:
-      case ActivityType.ODD_EVEN_SUDOKU:
-      case ActivityType.ROMAN_NUMERAL_CONNECT:
-      case ActivityType.ROMAN_NUMERAL_STAR_HUNT:
-      case ActivityType.ROUNDING_CONNECT:
-      case ActivityType.ROMAN_NUMERAL_MULTIPLICATION:
-      case ActivityType.ARITHMETIC_CONNECT:
-      case ActivityType.ROMAN_ARABIC_MATCH_CONNECT:
-      case ActivityType.SUDOKU_6X6_SHADED:
-      case ActivityType.KENDOKU:
-      case ActivityType.DIVISION_PYRAMID:
-      case ActivityType.MULTIPLICATION_PYRAMID:
-      case ActivityType.OPERATION_SQUARE_SUBTRACTION:
-      case ActivityType.OPERATION_SQUARE_FILL_IN:
-      case ActivityType.MULTIPLICATION_WHEEL:
-      case ActivityType.TARGET_NUMBER:
-      case ActivityType.OPERATION_SQUARE_MULT_DIV:
-      case ActivityType.SHAPE_SUDOKU:
-      case ActivityType.WEIGHT_CONNECT:
-      case ActivityType.RESFEBE:
-      case ActivityType.FUTOSHIKI_LENGTH:
-      case ActivityType.MATCHSTICK_SYMMETRY:
-      case ActivityType.WORD_WEB:
-      case ActivityType.STAR_HUNT:
-      case ActivityType.LENGTH_CONNECT:
-      case ActivityType.VISUAL_NUMBER_PATTERN:
-      case ActivityType.MISSING_PARTS:
-      case ActivityType.PROFESSION_CONNECT:
-      case ActivityType.VISUAL_ODD_ONE_OUT_THEMED:
-      case ActivityType.LOGIC_GRID_PUZZLE:
-      case ActivityType.IMAGE_ANAGRAM_SORT:
-      case ActivityType.ANAGRAM_IMAGE_MATCH:
-      case ActivityType.SYLLABLE_WORD_SEARCH:
-      case ActivityType.WORD_WEB_WITH_PASSWORD:
-      case ActivityType.WORD_PLACEMENT_PUZZLE:
-      case ActivityType.POSITIONAL_ANAGRAM:
-        return <NotImplementedSheet type={activityType} />;
-
-      default:
-        return <NotImplementedSheet type={activityType} />;
+    if (!activityType) {
+        return <NotImplementedSheet type={null} />;
     }
+    const Component = componentMap[activityType];
+    if (Component) {
+        return <Component data={data} />;
+    }
+    return <NotImplementedSheet type={activityType} />;
   };
 
   return (

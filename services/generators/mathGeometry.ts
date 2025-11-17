@@ -7,6 +7,7 @@ export const generateMathPuzzlesFromAI = async (topic: string, count: number): P
     Çocuklar için '${topic}' konusuyla ilgili ${count} tane basit matematik bulmacası oluştur. 
     Bulmacalar nesneler veya meyveler kullanarak toplama, çıkarma gibi basit denklemler içermelidir.
     Her bulmaca için bir problem metni (örn: '2 elma + 3 muz = ?'), bir soru (örn: 'Sonuç kaçtır?') ve bir cevap ver.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
     const schema = {
@@ -32,7 +33,9 @@ export const generateMathPuzzlesFromAI = async (topic: string, count: number): P
 };
 
 export const generateShapeCountingFromAI = async (): Promise<ShapeCountingData> => {
-    const prompt = `Create a 'count the triangles' puzzle. Generate 1 complex figure composed of overlapping triangles and other shapes. The figure should be represented as a list of SVG paths, each with a 'd' attribute and a fill color. The user's goal is to count all the triangles in the figure. Format as JSON.`;
+    const prompt = `Create a 'count the triangles' puzzle. Generate 1 complex figure composed of overlapping triangles and other shapes. The figure should be represented as a list of SVG paths, each with a 'd' attribute and a fill color. The user's goal is to count all the triangles in the figure. 
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -65,7 +68,9 @@ export const generateShapeCountingFromAI = async (): Promise<ShapeCountingData> 
 };
 
 export const generateMatchstickSymmetryFromAI = async(): Promise<MatchstickSymmetryData> => {
-    const prompt = `Create a matchstick symmetry puzzle. Generate 3 puzzles. Each puzzle is a number (e.g., 3) made of matchsticks (represented by lines with x1,y1,x2,y2 coordinates). The user must draw the symmetrical reflection. Format as JSON.`;
+    const prompt = `Create a matchstick symmetry puzzle. Generate 3 puzzles. Each puzzle is a number (e.g., 3) made of matchsticks (represented by lines with x1,y1,x2,y2 coordinates). The user must draw the symmetrical reflection. 
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {

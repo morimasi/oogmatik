@@ -209,7 +209,15 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedActivity, onSelectActivity, s
     ];
 
     if (noSettings.includes(currentActivity.id)) {
-        return <p className="text-sm text-zinc-500 dark:text-zinc-400 p-4 text-center">Bu etkinlik için özel ayar bulunmamaktadır.</p>
+        return (
+            <div className="p-6 text-center">
+                <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-500 dark:text-indigo-400 rounded-full flex items-center justify-center mb-4 mx-auto">
+                    <i className={`${currentActivity.icon} fa-2x`}></i>
+                </div>
+                <h3 className="font-semibold text-lg">{currentActivity.title}</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">Bu etkinlik için özel ayar bulunmamaktadır. "Etkinlik Oluştur" düğmesine tıklayarak başlayabilirsiniz.</p>
+            </div>
+        );
     }
 
     const showTopic = ![

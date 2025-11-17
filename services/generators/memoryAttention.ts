@@ -1,4 +1,3 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -11,6 +10,7 @@ export const generateWordMemoryFromAI = async (topic: string, memorizeCount: num
     '${topic}' konusuyla ilgili bir kelime hafıza testi oluştur.
     Ezberlenecek ${memorizeCount} kelime seç.
     Test için ${testCount} kelimelik bir liste oluştur. Bu listenin içinde ezberlenecek kelimeler de bulunsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -32,6 +32,7 @@ export const generateVisualMemoryFromAI = async (topic: string, memorizeCount: n
     '${topic}' konusuyla ilgili bir görsel hafıza testi oluştur.
     Ezberlenecek ${memorizeCount} tane basit nesne belirle (örn: "Kırmızı Araba 🚗"). İsmini ve emojisini ver.
     Test için ${testCount} tane nesneden oluşan bir liste oluştur. Bu listenin içinde ezberlenecek nesneler de bulunsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
@@ -53,6 +54,7 @@ export const generateNumberSearchFromAI = async (start: number, end: number): Pr
     Bir sayı avı etkinliği oluştur. 
     ${start} ile ${end} arasındaki sayıları içersin.
     Bu sayıları ve dikkat dağıtıcı başka sayıları/karakterleri rastgele bir sırada içeren bir liste oluştur. Toplam 100 öğe olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -79,6 +81,7 @@ export const generateFindDuplicateFromAI = async (rows: number, cols: number): P
     'İkiliyi Bul' etkinliği için ${rows} satır ve ${cols} sütundan oluşan bir tablo oluştur.
     Her satıra rastgele harfler ve rakamlar yerleştir.
     Her satırda, karakterlerden sadece bir tanesi iki defa tekrar etsin.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
@@ -98,6 +101,7 @@ export const generateLetterGridFromAI = async (gridSize: number, letters: string
     ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe küçük harflerle doldur.
     Aranacak hedef harfler şunlar: ${targetLetters.join(', ')}. Bu harfleri ızgaraya serpiştir.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -125,6 +129,7 @@ export const generateFindLetterPairFromAI = async (gridSize: number, targetPair:
     'Harf İkilisini Bul' etkinliği için ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe harflerle doldur.
     Hedef harf ikilisi olan '${targetPair}' harflerini ızgarada yanyana olacak şekilde birkaç yere yerleştir.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -147,6 +152,7 @@ export const generateTargetSearchFromAI = async (gridSize: number, target: strin
     'Dikkatli Göz' etkinliği oluştur.
     ${gridSize}x${gridSize} boyutunda bir tabloyu '${distractor}' karakteriyle doldur.
     İçine rastgele yerlere 15-20 tane '${target}' karakteri serpiştir.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
@@ -163,7 +169,9 @@ export const generateTargetSearchFromAI = async (gridSize: number, target: strin
 };
 
 export const generateColorWheelMemoryFromAI = async (itemCount: number): Promise<ColorWheelMemoryData> => {
-    const prompt = `Create a color wheel memory game with ${itemCount} items. Each item must have a name (e.g., "Kitap 📕") and a unique hex color code. Format as JSON.`;
+    const prompt = `Create a color wheel memory game with ${itemCount} items. Each item must have a name (e.g., "Kitap 📕") and a unique hex color code. 
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -193,6 +201,7 @@ export const generateImageComprehensionFromAI = async (topic: string, questionCo
     Also, create a detailed, high-quality image generation prompt (in English) based on this description to generate a simple, cartoonish, and clear image.
     Then, create ${questionCount} open-ended questions about the details in the scene.
     For the 'imagePrompt' field, return the generated image prompt.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Format the output as JSON.
     `;
     const schema = {
@@ -215,6 +224,7 @@ export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount
     Generate a character memory test about '${topic}'.
     Create ${memorizeCount} unique, simple characters. For each, provide a short description (e.g., "Kırmızı şapkalı bir ayıcık") and a detailed English image generation prompt for it.
     Then, create a test list of ${testCount} characters, including the ones to be memorized, each with a description and an image prompt.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Format the output as JSON.
     `;
     const schema = {
@@ -252,7 +262,9 @@ export const generateCharacterMemoryFromAI = async (topic: string, memorizeCount
 };
 
 export const generateBurdonTestFromAI = async (): Promise<LetterGridTestData> => {
-    const prompt = `Create a Burdon Attention Test. Generate a 20x20 grid of random lowercase Turkish letters. The target letters to find are "a", "b", "d", "g". Ensure these letters are distributed throughout the grid. Format as JSON, using the LetterGridTestData schema.`;
+    const prompt = `Create a Burdon Attention Test. Generate a 20x20 grid of random lowercase Turkish letters. The target letters to find are "a", "b", "d", "g". Ensure these letters are distributed throughout the grid. 
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Format as JSON, using the LetterGridTestData schema.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -266,7 +278,9 @@ export const generateBurdonTestFromAI = async (): Promise<LetterGridTestData> =>
 };
 
 export const generateSynonymSearchAndStoryFromAI = async(): Promise<SynonymSearchAndStoryData> => {
-    const prompt = `Create a "Synonym Search and Story" activity. Provide a table of 6 Turkish words and their synonyms. Create a 12x12 grid and hide the synonyms. Finally, provide a prompt for the user to write a story using the original words. Format as JSON.`;
+    const prompt = `Create a "Synonym Search and Story" activity. Provide a table of 6 Turkish words and their synonyms. Create a 12x12 grid and hide the synonyms. Finally, provide a prompt for the user to write a story using the original words. 
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -292,7 +306,9 @@ export const generateSynonymSearchAndStoryFromAI = async(): Promise<SynonymSearc
 }
 
 export const generateStarHuntFromAI = async(): Promise<StarHuntData> => {
-    const prompt = `Create a Star Hunt puzzle with geometric shapes. Generate a 6x6 grid. Each cell can contain a shape, a star, a question mark, or be empty (null). The numbers next to rows/columns indicate how many stars are in that row/column. Format as JSON.`;
+    const prompt = `Create a Star Hunt puzzle with geometric shapes. Generate a 6x6 grid. Each cell can contain a shape, a star, a question mark, or be empty (null). The numbers next to rows/columns indicate how many stars are in that row/column. 
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
