@@ -39,10 +39,9 @@ export const generateStoryAnalysisFromAI = async (topic: string): Promise<StoryA
     '${topic}' konusunda 150-200 kelimelik, içinde eş ve zıt anlamlı kelimeler barındıran bir hikaye yaz.
     Hikaye sonrası için 3 tane analiz sorusu oluştur. Sorular "Hikayedeki 'mutlu' kelimesinin zıt anlamlısı nedir?" gibi olmalı.
     Her soru için, cevabın bulunabileceği ipucu (context) metnini de belirt.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
-  // FIX: Added missing schema and return statement for the function.
   const schema = {
     type: Type.OBJECT,
     properties: {
@@ -65,7 +64,6 @@ export const generateStoryAnalysisFromAI = async (topic: string): Promise<StoryA
   return generateWithSchema(prompt, schema) as Promise<StoryAnalysisData>;
 };
 
-// FIX: Added missing function implementation.
 export const generateStoryCreationPromptFromAI = async (topic: string, keywordCount: number): Promise<StoryCreationPromptData> => {
   const prompt = `
     '${topic}' konusuyla ilgili bir hikaye oluşturma etkinliği hazırla.
@@ -86,13 +84,12 @@ export const generateStoryCreationPromptFromAI = async (topic: string, keywordCo
   return generateWithSchema(prompt, schema) as Promise<StoryCreationPromptData>;
 };
 
-// FIX: Added missing function implementation.
 export const generateWordsInStoryFromAI = async (topic: string): Promise<WordsInStoryData> => {
   const prompt = `
     '${topic}' konusunda 100-120 kelimelik kısa bir hikaye yaz.
     Ardından, 12 kelimelik bir liste oluştur. Bu listenin yarısı hikayede geçen kelimelerden, diğer yarısı ise geçmeyen kelimelerden oluşsun.
     Her kelimenin hikayede olup olmadığını (isInStory) boolean olarak belirt.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
@@ -117,7 +114,6 @@ export const generateWordsInStoryFromAI = async (topic: string): Promise<WordsIn
   return generateWithSchema(prompt, schema) as Promise<WordsInStoryData>;
 };
 
-// FIX: Added missing function implementation.
 export const generateStorySequencingFromAI = async (topic: string): Promise<StorySequencingData> => {
     const prompt = `
     Create a story sequencing activity about '${topic}'.
@@ -149,9 +145,10 @@ export const generateStorySequencingFromAI = async (topic: string): Promise<Stor
     return generateWithSchema(prompt, schema) as Promise<StorySequencingData>;
 };
 
-// FIX: Added missing function implementation.
 export const generateProverbSayingSortFromAI = async(): Promise<ProverbSayingSortData> => {
-    const prompt = `Create a "Proverb or Saying" sorting activity. Provide a list of 10 Turkish items. Each item is either a proverb ('atasözü') or a saying ('özdeyiş'). The user must classify each one. Format as JSON.`;
+    const prompt = `Create a "Proverb or Saying" sorting activity. Provide a list of 10 Turkish items. Each item is either a proverb ('atasözü') or a saying ('özdeyiş'). The user must classify each one. 
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {
@@ -174,9 +171,10 @@ export const generateProverbSayingSortFromAI = async(): Promise<ProverbSayingSor
     return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData>;
 }
 
-// FIX: Added missing function implementation.
 export const generateProverbWordChainFromAI = async(): Promise<ProverbWordChainData> => {
-    const prompt = `Create a proverb word chain activity. Provide a word cloud of about 20 Turkish words that can form 3-4 proverbs or sayings. Also provide the full solutions. Assign a random hex color to each word. Format as JSON.`;
+    const prompt = `Create a proverb word chain activity. Provide a word cloud of about 20 Turkish words that can form 3-4 proverbs or sayings. Also provide the full solutions. Assign a random hex color to each word. 
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Format as JSON.`;
     const schema = {
         type: Type.OBJECT,
         properties: {

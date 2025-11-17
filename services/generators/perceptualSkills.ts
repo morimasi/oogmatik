@@ -10,7 +10,7 @@ export const generateFindTheDifferenceFromAI = async (topic: string, rowCount: n
     '${topic}' konusuyla ilgili 'Farklı Olanı Bul' etkinliği için ${rowCount} satır oluştur.
     Her satırda 4 kelime olsun. Bu kelimelerden 3'ü birbiriyle çok benzesin (görsel olarak), biri ise onlardan biraz farklı olsun.
     Doğru olanın (farklı olanın) indeksini belirt.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -40,7 +40,7 @@ export const generateStroopTestFromAI = async (count: number): Promise<StroopTes
     Metin ve renk genellikle birbiriyle eşleşmemelidir. Örneğin, metin "MAVİ" olabilirken renk "red" olabilir.
     Kullanılacak renkler: red, blue, green, yellow, orange, purple, pink, black.
     Kullanılacak metinler: KIRMIZI, MAVİ, YEŞİL, SARI, TURUNCU, MOR, PEMBE, SİYAH.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -68,7 +68,7 @@ export const generateOddOneOutFromAI = async (topic: string, groupCount: number)
   const prompt = `
     '${topic}' konusuyla ilgili 'Farklı Olanı Bul' etkinliği için ${groupCount} grup oluştur.
     Her grupta 4 kelime olsun. Bu kelimelerden 3'ü anlamsal olarak ilişkili, biri ise alakasız olsun.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
@@ -95,7 +95,7 @@ export const generateFindIdenticalWordFromAI = async (count: number): Promise<Fi
     const prompt = `
     'Aynısını Bul' etkinliği için ${count} tane grup oluştur.
     Her grupta, birbirine çok benzeyen ama sadece bir harfi farklı olan iki kelime olsun. Bunlardan birini baz alarak birebir aynısını da ekle. Yani grupta [benzer1, benzer2] şeklinde iki kelimeden oluşan çiftler olacak.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {

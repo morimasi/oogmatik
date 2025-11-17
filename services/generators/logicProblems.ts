@@ -18,7 +18,7 @@ export const generateNumberPatternsFromAI = async (count: number, difficulty: st
     - Kolay: Basit toplama/çıkarma (örn: +2, -1)
     - Orta: İki adımlı işlemler veya basit çarpma (örn: *2, +1)
     - Zor: Daha karmaşık kurallar.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -48,7 +48,7 @@ export const generateShapeMatchingFromAI = async (rowCount: number): Promise<Sha
     Solda ve sağda ${rowCount} tane satır olsun. Her satırda 3 tane şekil olsun.
     Soldaki satırların birebir aynısı sağda da olsun ama sıraları karışık olsun.
     Şekiller: ${SHAPE_TYPES.join(', ')}.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
@@ -88,7 +88,7 @@ export const generateSymbolCipherFromAI = async (wordCount: number): Promise<Sym
     Bir şifre çözme etkinliği oluştur.
     8 tane şekil-harf çiftinden oluşan bir şifre anahtarı oluştur. Şekiller: ${SHAPE_TYPES.join(', ')}.
     Bu anahtarı kullanarak ${wordCount} tane şifreli kelime oluştur. Her kelime 4-6 harf uzunluğunda olsun.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
@@ -129,7 +129,7 @@ export const generateCoordinateCipherFromAI = async (topic: string, gridSize: nu
     ${gridSize}x${gridSize} boyutunda bir harf tablosu oluştur.
     Tabloda gizli ${wordCount} tane kelime olsun.
     Bu kelimeler bulunduktan sonra, koordinatları (örn: "A5", "C2") verilecek olan harfleri birleştirerek çözülecek 5-6 harfli bir şifre kelimesi oluştur.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {

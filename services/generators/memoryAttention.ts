@@ -54,7 +54,7 @@ export const generateNumberSearchFromAI = async (start: number, end: number): Pr
     Bir sayı avı etkinliği oluştur. 
     ${start} ile ${end} arasındaki sayıları içersin.
     Bu sayıları ve dikkat dağıtıcı başka sayıları/karakterleri rastgele bir sırada içeren bir liste oluştur. Toplam 100 öğe olsun.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -81,7 +81,7 @@ export const generateFindDuplicateFromAI = async (rows: number, cols: number): P
     'İkiliyi Bul' etkinliği için ${rows} satır ve ${cols} sütundan oluşan bir tablo oluştur.
     Her satıra rastgele harfler ve rakamlar yerleştir.
     Her satırda, karakterlerden sadece bir tanesi iki defa tekrar etsin.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
@@ -101,7 +101,7 @@ export const generateLetterGridFromAI = async (gridSize: number, letters: string
     ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe küçük harflerle doldur.
     Aranacak hedef harfler şunlar: ${targetLetters.join(', ')}. Bu harfleri ızgaraya serpiştir.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -129,7 +129,7 @@ export const generateFindLetterPairFromAI = async (gridSize: number, targetPair:
     'Harf İkilisini Bul' etkinliği için ${gridSize}x${gridSize} boyutunda bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe harflerle doldur.
     Hedef harf ikilisi olan '${targetPair}' harflerini ızgarada yanyana olacak şekilde birkaç yere yerleştir.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
     `;
     const schema = {
@@ -152,7 +152,7 @@ export const generateTargetSearchFromAI = async (gridSize: number, target: strin
     'Dikkatli Göz' etkinliği oluştur.
     ${gridSize}x${gridSize} boyutunda bir tabloyu '${distractor}' karakteriyle doldur.
     İçine rastgele yerlere 15-20 tane '${target}' karakteri serpiştir.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar ve talimatlar çocuklar için eğlenceli ve ilgi çekici olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu aşağıdaki JSON formatında döndür.
   `;
   const schema = {
