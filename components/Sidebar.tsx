@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Activity, ActivityType, WorksheetData, SavedWorksheet } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import * as generators from '../services/generators';
+import * as offlineGenerators from '../services/offlineGenerators';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -15,6 +16,14 @@ interface SidebarProps {
   isSidebarOpen: boolean;
   closeSidebar: () => void;
 }
+
+const offlineGeneratorMap: { [key in ActivityType]?: (options: offlineGenerators.OfflineGeneratorOptions) => Promise<WorksheetData> } = {
+    [ActivityType.WORD_SEARCH]: offlineGenerators.generateOfflineWordSearch,
+    [ActivityType.ANAGRAM]: offlineGenerators.generateOfflineAnagrams,
+    [ActivityType.MATH_PUZZLE]: offlineGenerators.generateOfflineMathPuzzles,
+    [ActivityType.FIND_THE_DIFFERENCE]: offlineGenerators.generateOfflineFindTheDifference,
+    [ActivityType.PROVERB_FILL_IN_THE_BLANK]: offlineGenerators.generateOfflineProverbFill,
+};
 
 const Sidebar: React.FC<SidebarProps> = ({ 
     selectedActivity, 
@@ -31,6 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [openCategory, setOpenCategory] = useState<string | null>(ACTIVITY_CATEGORIES[0]?.id || null);
   
   // Global Settings
+  const [generationMode, setGenerationMode] = useState<'ai' | 'offline'>('ai');
   const [difficultyLevel, setDifficultyLevel] = useState<string>('Seviye 2: 2. Sınıf');
   const [worksheetCount, setWorksheetCount] = useState<number>(1);
 
@@ -71,6 +81,25 @@ const Sidebar: React.FC<SidebarProps> = ({
     setError(null);
     setWorksheetData(null);
 
+    if (generationMode === 'offline') {
+        try {
+            const offlineGenerator = selectedActivity ? offlineGeneratorMap[selectedActivity] : undefined;
+            if (offlineGenerator) {
+                const options: offlineGenerators.OfflineGeneratorOptions = { topic, itemCount, gridSize, worksheetCount, difficulty };
+                const data = await offlineGenerator(options);
+                setWorksheetData(data);
+            } else {
+                 setError('Bu etkinlik için Hızlı Mod (Çevrimdışı) henüz mevcut değil. Lütfen Yapay Zeka Modu\'nu kullanın.');
+            }
+        } catch(e: any) {
+            setError(e.message || 'Çevrimdışı içerik oluşturulurken bir hata oluştu.');
+        } finally {
+            setIsLoading(false);
+        }
+        return;
+    }
+    
+    // AI Mode
     try {
       let data: WorksheetData = null;
       switch (selectedActivity) {
@@ -246,6 +275,27 @@ const Sidebar: React.FC<SidebarProps> = ({
     return (
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
+             <div className="mb-4">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Üretim Modu</label>
+                <div className="flex rounded-md shadow-sm">
+                    <button 
+                        onClick={() => setGenerationMode('ai')}
+                        className={`relative inline-flex items-center justify-center w-1/2 px-4 py-2 text-sm font-medium rounded-l-md border transition-colors focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${generationMode === 'ai' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-600'}`}
+                    >
+                       ☁️ Yapay Zeka Modu
+                    </button>
+                    <button 
+                        onClick={() => setGenerationMode('offline')}
+                        className={`relative inline-flex items-center justify-center w-1/2 px-4 py-2 text-sm font-medium rounded-r-md border transition-colors focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${generationMode === 'offline' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-600'}`}
+                    >
+                       ⚡ Hızlı Mod (Çevrimdışı)
+                    </button>
+                </div>
+                 {generationMode === 'offline' && !offlineGeneratorMap[currentActivity.id] && (
+                     <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">Bu etkinlik için Hızlı Mod henüz mevcut değil. Yapay Zeka Modu kullanılacak.</p>
+                 )}
+            </div>
+
             <div className="mb-4">
                 <label htmlFor="difficultyLevel" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Zorluk Seviyesi</label>
                 <select id="difficultyLevel" value={difficultyLevel} onChange={(e) => setDifficultyLevel(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -382,7 +432,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     >
                     {isLoading ? (
                         <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
