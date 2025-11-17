@@ -40,7 +40,7 @@ const ImageDisplay: React.FC<{ base64?: string; description?: string; className?
 const GridComponent: React.FC<{ grid: (string | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string, passwordColumnIndex?: number, showLetters?: boolean }> = ({ grid, passwordCells, cellClassName = 'w-10 h-10', passwordColumnIndex, showLetters = true }) => (
     <table className="table-fixed w-full border-collapse">
         <tbody>
-            {(grid || [])?.map((row, rowIndex) => (
+            {(grid || []).map((row, rowIndex) => (
             <tr key={rowIndex}>
                 {(row || []).map((cell, cellIndex) => {
                     const isPasswordCell = passwordCells?.some(p => p.row === rowIndex && p.col === cellIndex) || passwordColumnIndex === cellIndex;
@@ -102,7 +102,7 @@ const SynonymSearchAndStorySheet: React.FC<{ data: SynonymSearchAndStoryData }> 
                 <div>
                     <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler:</h4>
                     <ul className="space-y-1">
-                    {data.wordTable.map((pair, index) => (
+                    {(data.wordTable || []).map((pair, index) => (
                         <li key={index}><strong>{pair.word}:</strong> {pair.synonym}</li>
                     ))}
                     </ul>
@@ -128,7 +128,7 @@ const SynonymWordSearchSheet: React.FC<{ data: SynonymWordSearchData }> = ({ dat
                 <div>
                     <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler:</h4>
                     <ul className="space-y-1">
-                    {data.wordsToMatch.map((pair, index) => (
+                    {(data.wordsToMatch || []).map((pair, index) => (
                         <li key={index}><strong>{pair.word}</strong> kelimesinin eş anlamlısını bulun.</li>
                     ))}
                     </ul>
@@ -142,7 +142,7 @@ const AnagramList: React.FC<{ data: AnagramData[] }> = ({ data }) => (
   <div>
     <h3 className="text-lg font-semibold mb-4 text-center">Anagram Bulmaca</h3>
     <div className="space-y-4 max-w-md mx-auto">
-      {data?.map((item, index) => (
+      {(data || []).map((item, index) => (
         <div key={index} className="flex items-center justify-between bg-white dark:bg-zinc-700/50 p-3 rounded-lg shadow-sm">
           <p className="font-mono text-xl tracking-widest">{item.scrambled.toUpperCase()}</p>
           <div className="w-2/3 h-8 bg-zinc-200 dark:bg-zinc-600 rounded-md border-b-2 border-zinc-400"></div>
@@ -156,7 +156,7 @@ const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) => (
   <div>
     <h3 className="text-xl font-bold mb-6 text-center">{data.title}</h3>
     <div className="space-y-8">
-      {data.puzzles?.map((puzzle, index) => (
+      {(data.puzzles || []).map((puzzle, index) => (
         <div key={index} className="flex flex-col md:flex-row items-center gap-4 p-4 border rounded-lg bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
            <span className="text-2xl font-bold text-indigo-500">{index + 1}.</span>
            <div className="flex-1">
@@ -182,11 +182,11 @@ const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data }) => (
     
     <h4 className="text-xl font-semibold mb-4 text-center">Sorular</h4>
     <div className="space-y-6">
-        {data.questions?.map((q, index) => (
+        {(data.questions || []).map((q, index) => (
             <div key={index}>
                 <p className="font-semibold mb-2">{index + 1}. {q.question}</p>
                 <div className="space-y-2">
-                    {q.options?.map((option, optIndex) => (
+                    {(q.options || []).map((option, optIndex) => (
                         <div key={optIndex} className="flex items-center">
                             <div className="w-5 h-5 border-2 border-zinc-400 rounded-full mr-3"></div>
                             <label>{option}</label>
@@ -204,7 +204,7 @@ const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) => (
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Aşağıdaki kelimelerin hangi renkte yazıldığını söylemeye çalışın, kelimenin kendisini okumayın.</p>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-6 text-center">
-            {data.items?.map((item, index) => (
+            {(data.items || []).map((item, index) => (
                 <div key={index} className="p-4 rounded-lg bg-white dark:bg-zinc-700/50 shadow-sm">
                     <p className="text-2xl font-extrabold" style={{ color: item.color }}>
                         {item.text}
@@ -219,7 +219,7 @@ const NumberPatternSheet: React.FC<{ data: NumberPatternData }> = ({ data }) => 
     <div>
         <h3 className="text-2xl font-bold mb-6 text-center">{data.title}</h3>
         <div className="space-y-6 max-w-lg mx-auto">
-            {data.patterns?.map((p, index) => (
+            {(data.patterns || []).map((p, index) => (
                 <div key={index} className="flex items-center gap-4 p-4 border rounded-lg bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                     <span className="text-lg font-bold text-violet-500">{index + 1}.</span>
                     <p className="flex-1 text-xl font-mono tracking-wider text-center">{p.sequence}</p>
@@ -234,11 +234,11 @@ const SpellingCheckSheet: React.FC<{ data: SpellingCheckData }> = ({ data }) => 
     <div>
         <h3 className="text-2xl font-bold mb-6 text-center">{data.title}</h3>
         <div className="space-y-6">
-            {data.checks?.map((check, index) => (
+            {(data.checks || []).map((check, index) => (
                 <div key={index} className="p-4 rounded-lg bg-white dark:bg-zinc-700/50">
                     <p className="font-semibold mb-3 text-lg">{index + 1}. Aşağıdaki kelimelerden hangisi doğru yazılmıştır?</p>
                     <div className="flex flex-col sm:flex-row justify-around gap-4">
-                        {check.options?.map((option, optIndex) => (
+                        {(check.options || []).map((option, optIndex) => (
                              <div key={optIndex} className="flex items-center">
                                 <div className="w-5 h-5 border-2 border-zinc-400 rounded-md mr-3"></div>
                                 <label className="text-lg">{option}</label>
@@ -254,13 +254,13 @@ const SpellingCheckSheet: React.FC<{ data: SpellingCheckData }> = ({ data }) => 
 const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
     <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
-        <p className="text-center mb-4">Aşağıdaki tabloda <strong className="text-indigo-500">{data.targetLetters?.join(', ')}</strong> harflerini bulun ve daire içine alın.</p>
+        <p className="text-center mb-4">Aşağıdaki tabloda <strong className="text-indigo-500">{(data.targetLetters || []).join(', ')}</strong> harflerini bulun ve daire içine alın.</p>
         <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
             <table className="table-fixed w-full">
                 <tbody>
-                    {data.grid?.map((row, rowIndex) => (
+                    {(data.grid || []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
-                            {row?.map((cell, cellIndex) => (
+                            {(row || []).map((cell, cellIndex) => (
                                 <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-xs w-5 h-5" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                                     {cell}
                                 </td>
@@ -282,13 +282,13 @@ const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
             <div><label className="block text-sm font-semibold">Yaşı:</label><div className="h-6 mt-1 border-b-2 border-dotted"></div></div>
             <div><label className="block text-sm font-semibold">Yanlış Çizilen Harf Sayısı:</label><div className="h-6 mt-1 border-b-2 border-dotted"></div></div>
         </div>
-        <p className="text-center mb-4">Aşağıdaki satırlarda <strong className="text-indigo-500">{data.targetLetters?.join(', ')}</strong> harflerini bulup yuvarlak içine alalım.</p>
+        <p className="text-center mb-4">Aşağıdaki satırlarda <strong className="text-indigo-500">{(data.targetLetters || []).join(', ')}</strong> harflerini bulup yuvarlak içine alalım.</p>
         <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
             <table className="table-fixed w-full">
                 <tbody>
-                    {data.grid?.map((row, rowIndex) => (
+                    {(data.grid || []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
-                            {row?.map((cell, cellIndex) => (
+                            {(row || []).map((cell, cellIndex) => (
                                 <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-xs w-5 h-5" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                                     {cell}
                                 </td>
@@ -306,7 +306,7 @@ const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }) => (
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center mb-6">Aşağıdaki sayılar arasından <strong className="text-indigo-500">{data.range?.start}</strong>'den <strong className="text-indigo-500">{data.range?.end}</strong>'e kadar olan sayıları sırasıyla bulun ve işaretleyin.</p>
         <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-x-2 gap-y-4 text-center p-4 bg-white dark:bg-zinc-700/50 rounded-lg">
-            {data.numbers?.map((num, index) => (
+            {(data.numbers || []).map((num, index) => (
                 <span key={index} className="font-mono text-lg">{num}</span>
             ))}
         </div>
@@ -319,7 +319,7 @@ const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) => (
             <h3 className="text-2xl font-bold mb-4 text-center">{data.memorizeTitle}</h3>
             <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">Bu kelimelere bir süre dikkatlice bakın ve ezberlemeye çalışın.</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
-                {data.wordsToMemorize?.map((word, index) => (
+                {(data.wordsToMemorize || []).map((word, index) => (
                     <div key={index} className="p-4 bg-amber-100 dark:bg-amber-800/50 border-l-4 border-amber-500 rounded text-center">
                         <p className="text-lg font-semibold">{word}</p>
                     </div>
@@ -333,7 +333,7 @@ const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) => (
             <h3 className="text-2xl font-bold mb-4 text-center">{data.testTitle}</h3>
             <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">Bir önceki sayfada gördüğünüz kelimeleri bu listeden bulup işaretleyin.</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {data.testWords?.map((word, index) => (
+                {(data.testWords || []).map((word, index) => (
                     <div key={index} className="flex items-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg">
                         <div className="w-5 h-5 border-2 border-zinc-400 rounded-md mr-3 shrink-0"></div>
                         <label className="text-md">{word}</label>
@@ -351,7 +351,7 @@ const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData }> = ({
         <div className="text-center mb-8">
             <h4 className="font-semibold mb-2">Anahtar Kelimeler:</h4>
             <div className="flex justify-center flex-wrap gap-3">
-                {data.keywords?.map((word, index) => (
+                {(data.keywords || []).map((word, index) => (
                     <span key={index} className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-200 rounded-full font-medium">{word}</span>
                 ))}
             </div>
@@ -367,9 +367,9 @@ const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ dat
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Her satırda diğerlerinden farklı olan kelimeyi bulup işaretleyin.</p>
         <div className="space-y-4 max-w-2xl mx-auto">
-            {data.rows?.map((row, index) => (
+            {(data.rows || []).map((row, index) => (
                 <div key={index} className="flex items-center justify-around p-4 border rounded-lg bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                    {row.items?.map((item, itemIndex) => (
+                    {(row.items || []).map((item, itemIndex) => (
                          <div key={itemIndex} className="flex items-center gap-2">
                              <div className="w-6 h-6 border-2 border-zinc-400 rounded-full shrink-0"></div>
                              <span className="text-lg capitalize">{item}</span>
@@ -389,13 +389,13 @@ const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) =
             <div className="p-4 border-4 border-dashed border-sky-300 rounded-lg">
                 <h4 className="text-lg font-bold mb-2 text-center text-sky-700 dark:text-sky-300">{data.box1Title}</h4>
                 <ul className="space-y-1 text-center">
-                    {data.wordList1?.map((word, i) => <li key={i} className="capitalize">{word}</li>)}
+                    {(data.wordList1 || []).map((word, i) => <li key={i} className="capitalize">{word}</li>)}
                 </ul>
             </div>
             <div className="p-4 border-4 border-dashed border-rose-300 rounded-lg">
                 <h4 className="text-lg font-bold mb-2 text-center text-rose-700 dark:text-rose-300">{data.box2Title}</h4>
                 <ul className="space-y-1 text-center">
-                     {data.wordList2?.map((word, i) => <li key={i} className="capitalize">{word}</li>)}
+                     {(data.wordList2 || []).map((word, i) => <li key={i} className="capitalize">{word}</li>)}
                 </ul>
             </div>
         </div>
@@ -414,7 +414,7 @@ const WordsInStorySheet: React.FC<{ data: WordsInStoryData }> = ({ data }) => (
         </div>
         <h4 className="text-xl font-semibold mb-4 text-center">Aşağıdaki kelimelerden hangileri metinde <strong className="text-red-500">GEÇMEMEKTEDİR</strong>? İşaretleyiniz.</h4>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {data.wordList?.map((item, index) => (
+            {(data.wordList || []).map((item, index) => (
                  <div key={index} className="flex items-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg">
                     <div className="w-5 h-5 border-2 border-zinc-400 rounded-md mr-3 shrink-0"></div>
                     <label className="text-md capitalize">{item.word}</label>
@@ -429,10 +429,10 @@ const OddOneOutSheet: React.FC<{ data: OddOneOutData }> = ({ data }) => (
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Aşağıdaki her grupta, anlamsal olarak diğerlerinden farklı olan kelimeyi bulup işaretleyin.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {data.groups?.map((group, index) => (
+            {(data.groups || []).map((group, index) => (
                 <div key={index} className="p-4 border rounded-lg bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                     <div className="space-y-3">
-                        {group.words?.map((word, wordIndex) => (
+                        {(group.words || []).map((word, wordIndex) => (
                             <div key={wordIndex} className="flex items-center">
                                 <div className="w-6 h-6 border-2 border-zinc-400 rounded-full mr-4"></div>
                                 <span className="text-lg capitalize">{word}</span>
@@ -447,7 +447,7 @@ const OddOneOutSheet: React.FC<{ data: OddOneOutData }> = ({ data }) => (
 
 const ShapeDisplay: React.FC<{ shapes: ShapeType[] }> = ({ shapes }) => (
     <div className="flex items-center justify-center gap-2">
-        {shapes?.map((shape, i) => <Shape key={i} name={shape} className="w-8 h-8 text-zinc-700 dark:text-zinc-300" />)}
+        {(shapes || []).map((shape, i) => <Shape key={i} name={shape} className="w-8 h-8 text-zinc-700 dark:text-zinc-300" />)}
     </div>
 );
 
@@ -459,7 +459,7 @@ const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data }) => 
             <div className="grid grid-cols-2 gap-x-16 gap-y-4">
                 {/* Left Column */}
                 <div className="space-y-4">
-                    {data.leftColumn?.map(item => (
+                    {(data.leftColumn || []).map(item => (
                         <div key={item.id} className="flex items-center gap-4 p-2 border-2 border-blue-300 rounded-lg bg-blue-50 dark:bg-zinc-700/50">
                             <span className="flex items-center justify-center w-8 h-8 bg-blue-500 text-white font-bold rounded-full">{item.id}</span>
                             <ShapeDisplay shapes={item.shapes} />
@@ -468,7 +468,7 @@ const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data }) => 
                 </div>
                 {/* Right Column */}
                 <div className="space-y-4">
-                    {data.rightColumn?.map(item => (
+                    {(data.rightColumn || []).map(item => (
                         <div key={item.id} className="flex items-center gap-4 p-2 border-2 border-red-300 rounded-lg bg-red-50 dark:bg-zinc-700/50">
                             <span className="flex items-center justify-center w-8 h-8 bg-red-500 text-white font-bold rounded-full">{item.id}</span>
                             <ShapeDisplay shapes={item.shapes} />
@@ -486,7 +486,7 @@ const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }) => (
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Aşağıdaki anahtarı kullanarak şekillerle yazılmış kelimeleri çözün.</p>
         {/* Key */}
         <div className="flex justify-center items-center gap-4 flex-wrap p-4 bg-amber-100 dark:bg-zinc-700/50 rounded-lg mb-8 border-2 border-dashed border-amber-400">
-            {data.cipherKey?.map(keyItem => (
+            {(data.cipherKey || []).map(keyItem => (
                 <div key={keyItem.letter} className="flex items-center gap-2">
                     <Shape name={keyItem.shape} className="w-8 h-8" />
                     <span className="font-bold text-xl">=</span>
@@ -496,7 +496,7 @@ const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }) => (
         </div>
         {/* Words to solve */}
         <div className="space-y-6 max-w-lg mx-auto">
-            {data.wordsToSolve?.map((word, index) => (
+            {(data.wordsToSolve || []).map((word, index) => (
                 <div key={index} className="flex items-center gap-4">
                     <div className="flex-1 p-2 rounded-lg bg-white dark:bg-zinc-700/50">
                         <ShapeDisplay shapes={word.shapeSequence} />
@@ -518,7 +518,7 @@ const ProverbFillSheet: React.FC<{ data: ProverbFillData }> = ({ data }) => (
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Aşağıdaki atasözlerinde boş bırakılan yerleri doğru kelimelerle doldurun.</p>
         <div className="space-y-6 max-w-2xl mx-auto">
-            {data.proverbs?.map((proverb, index) => (
+            {(data.proverbs || []).map((proverb, index) => (
                 <div key={index} className="flex items-center text-lg">
                     <span>{index + 1}.</span>
                     <p className="ml-2">{proverb.start}</p>
@@ -535,7 +535,7 @@ const LetterBridgeSheet: React.FC<{ data: LetterBridgeData }> = ({ data }) => (
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Ortadaki kutucuğa öyle bir harf yerleştirin ki, hem soldaki kelimenin son harfi, hem de sağdaki kelimenin ilk harfi olsun.</p>
         <div className="space-y-6 max-w-md mx-auto">
-            {data.pairs?.map((pair, index) => (
+            {(data.pairs || []).map((pair, index) => (
                 <div key={index} className="flex items-center justify-center gap-2 text-xl font-semibold tracking-widest">
                     <span>{pair.word1.toUpperCase()}</span>
                     <div className="w-10 h-10 border-2 border-zinc-400 rounded-md"></div>
@@ -553,9 +553,9 @@ const FindDuplicateSheet: React.FC<{ data: FindDuplicateData }> = ({ data }) => 
         <div className="p-4 bg-white dark:bg-zinc-700/30 rounded-lg shadow-inner">
             <table className="w-full">
                 <tbody>
-                {data.rows?.map((row, rowIndex) => (
+                {(data.rows || []).map((row, rowIndex) => (
                     <tr key={rowIndex}>
-                        {row?.map((char, charIndex) => (
+                        {(row || []).map((char, charIndex) => (
                             <td key={charIndex} className="text-center font-mono text-xl p-2">
                                 {char}
                             </td>
@@ -573,7 +573,7 @@ const WordLadderSheet: React.FC<{ data: WordLadderData }> = ({ data }) => (
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">İlk kelimeden başlayarak her adımda bir harfi değiştirerek son kelimeye ulaşmaya çalışın.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {data.ladders?.map((ladder, index) => (
+            {(data.ladders || []).map((ladder, index) => (
                 <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                     <div className="flex flex-col items-center space-y-2 font-mono text-xl tracking-widest">
                         <div className="px-4 py-2 border-2 border-zinc-300 rounded-md w-full text-center">{ladder.startWord.toUpperCase()}</div>
@@ -593,7 +593,7 @@ const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> = ({ dat
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Aşağıdaki her grupta birbirinin aynısı olan kelime çiftini bulup işaretleyin.</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {data.groups?.map((group, index) => (
+            {(data.groups || []).map((group, index) => (
                 <div key={index} className="flex items-center p-3 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                     <div className="w-6 h-6 border-2 border-zinc-400 rounded-full mr-4 shrink-0"></div>
                     <div className="flex flex-col">
@@ -611,10 +611,10 @@ const WordFormationSheet: React.FC<{ data: WordFormationData }> = ({ data }) => 
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Aşağıdaki harfleri kullanarak anlamlı kelimeler türetin. Joker hakkınızı unutmayın!</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {data.sets?.map((set, index) => (
+            {(data.sets || []).map((set, index) => (
                 <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                     <div className="flex justify-center items-center gap-2 flex-wrap mb-4 p-3 bg-amber-100 dark:bg-amber-900/50 border-2 border-dashed border-amber-400 rounded">
-                        {set.letters?.map((letter, i) => (
+                        {(set.letters || []).map((letter, i) => (
                             <span key={i} className="flex items-center justify-center w-10 h-10 bg-white dark:bg-zinc-600 rounded shadow text-2xl font-bold">{letter.toUpperCase()}</span>
                         ))}
                     </div>
@@ -635,7 +635,7 @@ const ReverseWordSheet: React.FC<{ data: ReverseWordData }> = ({ data }) => (
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Aşağıdaki kelimeleri okuyup, karşılarındaki boşluklara tersten yazın.</p>
         <div className="space-y-4 max-w-lg mx-auto">
-            {data.words?.map((word, index) => (
+            {(data.words || []).map((word, index) => (
                 <div key={index} className="flex items-center justify-between gap-4 p-3 bg-white dark:bg-zinc-700/50 rounded-lg">
                     <p className="font-semibold text-lg w-1/3">{word}</p>
                     <div className="w-2/3 h-8 border-b-2 border-dotted border-zinc-500"></div>
@@ -652,9 +652,9 @@ const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ data }) =
         <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
             <table className="table-fixed w-full">
                 <tbody>
-                    {data.grid?.map((row, rowIndex) => (
+                    {(data.grid || []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
-                            {row?.map((cell, cellIndex) => (
+                            {(row || []).map((cell, cellIndex) => (
                                 <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-lg w-8 h-8 md:w-10 md:h-10" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                                     {cell}
                                 </td>
@@ -674,13 +674,13 @@ const WordGroupingSheet: React.FC<{ data: WordGroupingData }> = ({ data }) => (
         <div className="mb-8 p-4 bg-amber-100 dark:bg-amber-900/50 border-2 border-dashed border-amber-400 rounded-lg">
             <h4 className="font-bold text-center mb-2 text-amber-800 dark:text-amber-200">Kelime Havuzu</h4>
             <div className="flex justify-center flex-wrap gap-x-4 gap-y-2">
-                {data.words?.map((word, index) => (
+                {(data.words || []).map((word, index) => (
                     <span key={index} className="text-lg capitalize">{word}</span>
                 ))}
             </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.categoryNames?.map((name, index) => (
+            {(data.categoryNames || []).map((name, index) => (
                 <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                     <h4 className="font-bold text-center mb-3 text-indigo-600 dark:text-indigo-400">{name}</h4>
                     <div className="space-y-2 h-40">
@@ -700,7 +700,7 @@ const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }) => (
             <h3 className="text-2xl font-bold mb-4 text-center">{data.memorizeTitle}</h3>
             <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">Bu görsellere bir süre dikkatlice bakın ve ezberlemeye çalışın.</p>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-w-xl mx-auto">
-                {data.itemsToMemorize?.map((item, index) => (
+                {(data.itemsToMemorize || []).map((item, index) => (
                     <div key={index} className="p-4 bg-amber-100 dark:bg-amber-800/50 border-l-4 border-amber-500 rounded text-center flex flex-col items-center justify-center aspect-square">
                         <p className="text-4xl sm:text-5xl">{item.split(' ').pop()}</p>
                         <p className="text-sm font-semibold mt-2">{item.split(' ')[0]}</p>
@@ -713,7 +713,7 @@ const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }) => (
             <h3 className="text-2xl font-bold mb-4 text-center">{data.testTitle}</h3>
             <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">Bir önceki sayfada gördüğünüz görselleri bu listeden bulup işaretleyin.</p>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                {data.testItems?.map((item, index) => (
+                {(data.testItems || []).map((item, index) => (
                     <div key={index} className="flex flex-col items-center justify-center text-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                         <div className="w-6 h-6 border-2 border-zinc-400 rounded-full mb-3 shrink-0"></div>
                         <p className="text-4xl sm:text-5xl">{item.split(' ').pop()}</p>
@@ -733,7 +733,7 @@ const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data }) => 
         </div>
         <h4 className="text-xl font-semibold mb-4 text-center">Sorular</h4>
         <div className="space-y-6">
-            {data.questions?.map((q, index) => (
+            {(data.questions || []).map((q, index) => (
                 <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                     <p className="font-semibold mb-2">{index + 1}. {q.question}</p>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-3 italic">İpucu: "{q.context}"</p>
@@ -755,16 +755,16 @@ const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = ({ data 
                     <thead>
                         <tr>
                             <th className="w-6 h-6"></th>
-                            {data.grid?.[0]?.map((_, colIndex) => (
+                            {(data.grid?.[0] || []).map((_, colIndex) => (
                                 <th key={colIndex} className="font-mono text-center">{colIndex + 1}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {data.grid?.map((row, rowIndex) => (
+                        {(data.grid || []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             <th className="font-mono text-center">{String.fromCharCode(65 + rowIndex)}</th>
-                            {row?.map((cell, cellIndex) => (
+                            {(row || []).map((cell, cellIndex) => (
                             <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-lg w-8 h-8" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                                 {cell.toUpperCase()}
                             </td>
@@ -777,7 +777,7 @@ const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = ({ data 
             <div>
                 <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Aranacak Kelimeler:</h4>
                 <ul className="list-disc list-inside space-y-1">
-                {data.wordsToFind?.map((word, index) => (
+                {(data.wordsToFind || []).map((word, index) => (
                     <li key={index} className="capitalize">{word}</li>
                 ))}
                 </ul>
@@ -787,7 +787,7 @@ const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = ({ data 
         <div className="mt-8">
             <h4 className="font-bold mb-4 text-center text-xl">ŞİFRE</h4>
             <div className="flex justify-center flex-wrap gap-3">
-                {data.cipherCoordinates?.map((coord, index) => (
+                {(data.cipherCoordinates || []).map((coord, index) => (
                     <div key={index} className="flex flex-col items-center">
                         <div className="w-12 h-12 border-b-2 border-zinc-500"></div>
                         <div className="px-2 py-1 bg-zinc-200 dark:bg-zinc-600 text-xs font-mono rounded-b-md">{coord}</div>
@@ -819,9 +819,9 @@ const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }) => (
         <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner max-w-xl mx-auto">
             <table className="table-fixed w-full">
                 <tbody>
-                    {data.grid?.map((row, rowIndex) => (
+                    {(data.grid || []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
-                            {row?.map((cell, cellIndex) => (
+                            {(row || []).map((cell, cellIndex) => (
                                 <td key={cellIndex} className="text-center font-mono text-xl p-1" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                                     {cell}
                                 </td>
@@ -843,14 +843,14 @@ const ShapeNumberPatternSheet: React.FC<{ data: ShapeNumberPatternData }> = ({ d
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-8">Aşağıdaki şekillerde sayılar belirli bir kurala göre yerleştirilmiştir. Bu kuralı bularak soru işareti (?) olan yere hangi sayının gelmesi gerektiğini bulun.</p>
         <div className="space-y-12">
-            {data.patterns?.map((pattern, index) => (
+            {(data.patterns || []).map((pattern, index) => (
                 <div key={index} className="flex flex-col sm:flex-row items-center justify-center gap-8">
-                    {pattern.shapes?.map((shape, shapeIndex) => (
+                    {(pattern.shapes || []).map((shape, shapeIndex) => (
                         <div key={shapeIndex} className="relative w-40 h-40">
                             <svg viewBox="0 0 100 100" className="w-full h-full text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor" strokeWidth="2">
                                 <polygon points="50,5 95,95 5,95" />
                             </svg>
-                            {shape.numbers?.length === 4 ? ( // 3 corners + center
+                            {(shape.numbers || []).length === 4 ? ( // 3 corners + center
                                 <>
                                     <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 font-bold text-xl">{shape.numbers[0]}</span>
                                     <span className="absolute bottom-4 left-4 font-bold text-xl">{shape.numbers[1]}</span>
@@ -859,9 +859,9 @@ const ShapeNumberPatternSheet: React.FC<{ data: ShapeNumberPatternData }> = ({ d
                                 </>
                             ) : ( // 3 corners
                                 <>
-                                    <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 font-bold text-xl">{shape.numbers[0]}</span>
-                                    <span className="absolute bottom-4 left-4 font-bold text-xl">{shape.numbers[1]}</span>
-                                    <span className="absolute bottom-4 right-4 font-bold text-xl">{shape.numbers[2]}</span>
+                                    <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 font-bold text-xl">{(shape.numbers || [])[0]}</span>
+                                    <span className="absolute bottom-4 left-4 font-bold text-xl">{(shape.numbers || [])[1]}</span>
+                                    <span className="absolute bottom-4 right-4 font-bold text-xl">{(shape.numbers || [])[2]}</span>
                                 </>
                             )}
                         </div>
@@ -887,7 +887,7 @@ const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
                 </g>
             ))}
             {/* Pattern lines */}
-            {lines?.map((line, index) => (
+            {(lines || []).map((line, index) => (
                 <line
                     key={index}
                     x1={line[0][0] * cellSize}
@@ -907,7 +907,7 @@ const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
             <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
             <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">Soldaki görsellerin aynısını sağ taraftaki alana çizin.</p>
             <div className="space-y-8">
-                {data.drawings?.map((drawing, index) => (
+                {(data.drawings || []).map((drawing, index) => (
                     <div key={index} className="grid grid-cols-2 gap-8 items-center justify-items-center">
                         {renderGrid(drawing.lines)}
                         {renderGrid(null)}
@@ -931,7 +931,7 @@ const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data }) => 
     const renderWheel = (showItems: boolean) => (
         <svg viewBox="0 0 100 100" className="w-full h-full max-w-lg mx-auto">
             <circle cx="50" cy="50" r="48" stroke="var(--worksheet-border-color)" strokeWidth="1" fill="none" />
-            {items?.map((item, index) => {
+            {(items || []).map((item, index) => {
                 const startAngle = index * angleStep - 90;
                 const endAngle = (index + 1) * angleStep - 90;
                 const midAngle = startAngle + angleStep / 2;
@@ -971,7 +971,7 @@ const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data }) => 
                 <h3 className="text-2xl font-bold mb-4 text-center">{data.testTitle}</h3>
                 <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">Görselleri ok işaretiyle yerlerine götürün.</p>
                 <div className="flex justify-center items-center gap-4 flex-wrap mb-8">
-                    {items?.map((item, index) => (
+                    {(items || []).map((item, index) => (
                         <div key={index} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-700 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)'}}>
                             <span className="text-lg font-semibold">{item.name}</span>
                         </div>
@@ -1002,7 +1002,7 @@ const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }> = ({ d
             <h3 className="text-2xl font-bold mb-4 text-center">{data.testTitle}</h3>
             <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">İncelediğiniz sahneyle ilgili aşağıdaki soruları yanıtlayın.</p>
             <div className="space-y-6">
-                {data.questions?.map((q, index) => (
+                {(data.questions || []).map((q, index) => (
                     <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                         <p className="font-semibold mb-2">{index + 1}. {q}</p>
                         <div className="w-full h-8 border-b-2 border-dotted border-zinc-400"></div>
@@ -1019,7 +1019,7 @@ const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data })
         <h3 className="text-2xl font-bold mb-4 text-center">{data.memorizeTitle}</h3>
         <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">Bu karakterlere dikkatlice bakın ve ezberlemeye çalışın.</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {data.charactersToMemorize?.map((char, index) => (
+          {(data.charactersToMemorize || []).map((char, index) => (
             <div key={index} className="p-4 bg-amber-100 dark:bg-amber-800/50 border-l-4 border-amber-500 rounded text-center">
               <ImageDisplay base64={char.imageBase64} description={char.description} className="w-24 h-24 mx-auto mb-2" />
               <p className="text-sm font-semibold">{char.description}</p>
@@ -1032,7 +1032,7 @@ const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data })
         <h3 className="text-2xl font-bold mb-4 text-center">{data.testTitle}</h3>
         <p className="text-center mb-6 text-zinc-600 dark:text-zinc-400">Bir önceki sayfada gördüğünüz karakterleri bu listeden bulup işaretleyin.</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {data.testCharacters?.map((char, index) => (
+          {(data.testCharacters || []).map((char, index) => (
             <div key={index} className="flex flex-col items-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg">
               <div className="w-5 h-5 border-2 border-zinc-400 rounded-md mb-2 shrink-0"></div>
               <ImageDisplay base64={char.imageBase64} description={char.description} className="w-24 h-24 mx-auto mb-2" />
@@ -1049,7 +1049,7 @@ const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ data })
       <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
       <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
       <div className="grid grid-cols-2 gap-4">
-        {data.panels?.map((panel) => (
+        {(data.panels || []).map((panel) => (
           <div key={panel.id} className="p-4 border-2 border-dashed rounded-lg flex flex-col items-center text-center" style={{borderColor: 'var(--worksheet-border-color)'}}>
             <div className="w-12 h-12 border-2 rounded-full flex items-center justify-center font-bold text-2xl mb-4">{panel.id}</div>
              <ImageDisplay description={panel.description} className="w-full h-24" />
@@ -1059,7 +1059,7 @@ const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ data })
       <div className="mt-8">
         <h4 className="text-lg font-semibold text-center mb-4">Doğru Sıralama:</h4>
         <div className="flex justify-center gap-4">
-          {Array.from({ length: data.panels?.length || 0 }).map((_, index) => (
+          {Array.from({ length: (data.panels || []).length || 0 }).map((_, index) => (
             <div key={index} className="w-16 h-16 border-2 border-zinc-400 rounded-lg flex items-center justify-center text-xl font-bold">{index + 1}.</div>
           ))}
         </div>
@@ -1072,7 +1072,7 @@ const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData }> = ({
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center mb-6">{data.prompt}</p>
         <div className="relative w-full h-[600px] bg-white dark:bg-zinc-700/30 rounded-lg shadow-inner overflow-hidden border" style={{borderColor: 'var(--worksheet-border-color)'}}>
-            {data.numbers.map((num, index) => (
+            {(data.numbers || []).map((num, index) => (
                 <span
                     key={index}
                     className="absolute font-bold"
@@ -1109,10 +1109,10 @@ const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data }) => 
                 <div>
                     <h4 className="font-semibold text-center mb-2">Bloklar</h4>
                     <div className="space-y-4">
-                        {shapes.map((shape, i) => (
+                        {(shapes || []).map((shape, i) => (
                             <div key={i} className="flex items-center gap-2">
-                                <div className={`grid gap-px`} style={{gridTemplateColumns: `repeat(${shape.pattern[0].length}, 15px)`}}>
-                                    {shape.pattern.flat().map((cell, j) => (
+                                <div className={`grid gap-px`} style={{gridTemplateColumns: `repeat(${(shape.pattern || [[]])[0].length}, 15px)`}}>
+                                    {(shape.pattern || []).flat().map((cell, j) => (
                                         <div key={j} className="w-[15px] h-[15px]" style={{backgroundColor: cell ? shape.color : 'transparent'}}></div>
                                     ))}
                                 </div>
@@ -1130,13 +1130,13 @@ const MiniWordGridSheet: React.FC<{ data: MiniWordGridData }> = ({ data }) => (
         <h3 className="text-xl font-bold mb-2 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="grid grid-cols-2 gap-8">
-            {data.puzzles.map((puzzle, index) => (
+            {(data.puzzles || []).map((puzzle, index) => (
                 <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)'}}>
                     <table className="table-fixed w-full">
                         <tbody>
-                            {puzzle.grid.map((row, rIndex) => (
+                            {(puzzle.grid || []).map((row, rIndex) => (
                                 <tr key={rIndex}>
-                                    {row.map((cell, cIndex) => (
+                                    {(row || []).map((cell, cIndex) => (
                                         <td key={cIndex} className={`border text-center font-mono text-xl w-10 h-10 ${puzzle.start.row === rIndex && puzzle.start.col === cIndex ? 'bg-amber-200 dark:bg-amber-800' : ''}`} style={{borderColor: 'var(--worksheet-border-color)'}}>
                                             {cell.toUpperCase()}
                                         </td>
@@ -1155,10 +1155,10 @@ const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => {
     const { title, prompt, grid, clues, passwordCells, passwordLength } = data;
 
     // Re-number clues to follow standard crossword convention (shared number for same start cell)
-    const processedClues: CrosswordClue[] = JSON.parse(JSON.stringify(clues)); 
+    const processedClues: CrosswordClue[] = JSON.parse(JSON.stringify(clues || [])); 
 
     const uniqueStarts: {row: number, col: number}[] = [];
-    processedClues.forEach(clue => {
+    (processedClues || []).forEach(clue => {
         if (!uniqueStarts.some(s => s.row === clue.start.row && s.col === clue.start.col)) {
             uniqueStarts.push(clue.start);
         }
@@ -1170,23 +1170,23 @@ const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => {
     });
     
     const positionToNumberMap = new Map<string, number>();
-    uniqueStarts.forEach((start, index) => {
+    (uniqueStarts || []).forEach((start, index) => {
         positionToNumberMap.set(`${start.row}-${start.col}`, index + 1);
     });
 
-    processedClues.forEach(clue => {
+    (processedClues || []).forEach(clue => {
         const key = `${clue.start.row}-${clue.start.col}`;
         clue.id = positionToNumberMap.get(key)!;
     });
 
-    const acrossClues = processedClues.filter(c => c.direction === 'across').sort((a, b) => a.id - b.id);
-    const downClues = processedClues.filter(c => c.direction === 'down').sort((a, b) => a.id - b.id);
+    const acrossClues = (processedClues || []).filter(c => c.direction === 'across').sort((a, b) => a.id - b.id);
+    const downClues = (processedClues || []).filter(c => c.direction === 'down').sort((a, b) => a.id - b.id);
 
     const isPasswordCell = (r: number, c: number) => {
-        return passwordCells.some(p => p.row === r && p.col === c);
+        return (passwordCells || []).some(p => p.row === r && p.col === c);
     };
 
-    const gridSize = grid.length;
+    const gridSize = (grid || []).length;
 
     return (
         <div>
@@ -1203,8 +1203,8 @@ const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => {
                             aspectRatio: '1 / 1',
                         }}
                     >
-                        {grid.map((row, r) =>
-                            row.map((cell, c) => {
+                        {(grid || []).map((row, r) =>
+                            (row || []).map((cell, c) => {
                                 const key = `${r}-${c}`;
                                 const clueNumber = positionToNumberMap.get(key);
                                 const isBlack = cell === null;
@@ -1236,7 +1236,7 @@ const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => {
                     <div>
                         <h4 className="font-bold text-lg mb-2 text-indigo-600 dark:text-indigo-400">Soldan Sağa</h4>
                         <ul className="space-y-2">
-                            {acrossClues.map(clue => (
+                            {(acrossClues || []).map(clue => (
                                 <li key={`across-${clue.id}`}>
                                     <strong>{clue.id}.</strong> {clue.text}
                                 </li>
@@ -1246,7 +1246,7 @@ const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => {
                     <div className="mt-6">
                          <h4 className="font-bold text-lg mb-2 text-violet-600 dark:text-violet-400">Yukarıdan Aşağıya</h4>
                         <ul className="space-y-2">
-                            {downClues.map(clue => (
+                            {(downClues || []).map(clue => (
                                 <li key={`down-${clue.id}`}>
                                     <strong>{clue.id}.</strong> {clue.text}
                                 </li>
@@ -1272,7 +1272,7 @@ const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = ({ data })
       <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
       <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
       <div className="space-y-8">
-        {data.items?.map((item, index) => (
+        {(data.items || []).map((item, index) => (
           <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-4 border rounded-lg bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)'}}>
             <div className="flex flex-col items-center">
               <ImageDisplay base64={item.imageBase64} description={item.word} className="w-40 h-40" />
@@ -1294,7 +1294,7 @@ const SegmentDisplay: React.FC<{ segments: boolean[] }> = ({ segments }) => {
     return (
         <div className="grid grid-cols-3 grid-rows-3 w-12 h-16 gap-0.5">
             {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className={segmentClasses(segments[i] ?? false)}></div>
+                <div key={i} className={segmentClasses((segments || [])[i] ?? false)}></div>
             ))}
         </div>
     );
@@ -1305,9 +1305,9 @@ const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ data })
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="space-y-6">
-            {data.rows.map((row, index) => (
+            {(data.rows || []).map((row, index) => (
                 <div key={index} className="flex items-center justify-around p-4 border rounded-lg bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                    {row.items.map((item, itemIndex) => (
+                    {(row.items || []).map((item, itemIndex) => (
                         <div key={itemIndex} className="flex flex-col items-center gap-2">
                             <SegmentDisplay segments={item.segments} />
                             <div className="w-6 h-6 border-2 border-zinc-400 rounded-full"></div>
@@ -1324,10 +1324,10 @@ const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data }) => 
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="space-y-8 flex flex-col items-center">
-            {data.figures.map((figure, index) => (
+            {(data.figures || []).map((figure, index) => (
                 <div key={index} className="flex flex-col items-center">
                     <svg viewBox="0 0 100 100" className="w-64 h-64 border rounded-md" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                        {figure.svgPaths.map((path, pathIndex) => (
+                        {(figure.svgPaths || []).map((path, pathIndex) => (
                             <path key={pathIndex} d={path.d} fill={path.fill} stroke="var(--worksheet-border-color)" strokeWidth="0.5" />
                         ))}
                     </svg>
@@ -1366,7 +1366,7 @@ const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data })
                 strokeDasharray="4"
             />
             {/* Dots */}
-            {dotsToDraw?.map((dot, index) => (
+            {(dotsToDraw || []).map((dot, index) => (
                 <circle key={index} cx={dot.x * cellSize + cellSize / 2} cy={dot.y * cellSize + cellSize / 2} r="5" className="fill-blue-500" />
             ))}
         </svg>
@@ -1391,9 +1391,9 @@ const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData }> = ({ data 
         <div className="mb-8 p-4 bg-amber-100 dark:bg-amber-900/50 border-2 border-dashed border-amber-400 rounded-lg">
             <h4 className="font-bold text-center mb-3 text-amber-800 dark:text-amber-200">Tema: {data.theme}</h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {data.puzzles.map((puzzle, index) => (
+                {(data.puzzles || []).map((puzzle, index) => (
                     <div key={index} className="flex items-center gap-2">
-                        <span className="font-mono tracking-widest">{puzzle.jumbled.join('')}</span>
+                        <span className="font-mono tracking-widest">{(puzzle.jumbled || []).join('')}</span>
                         <span>&rarr;</span>
                         <div className="flex-1 h-8 border-b-2 border-zinc-400"></div>
                     </div>
@@ -1414,9 +1414,9 @@ const FindDifferentStringSheet: React.FC<{ data: FindDifferentStringData }> = ({
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="space-y-4">
-            {data.rows.map((row, index) => (
+            {(data.rows || []).map((row, index) => (
                 <div key={index} className="flex items-center justify-around p-3 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{ borderColor: 'var(--worksheet-border-color)' }}>
-                    {row.items.map((item, itemIndex) => (
+                    {(row.items || []).map((item, itemIndex) => (
                         <div key={itemIndex} className="flex items-center gap-2">
                             <span className="font-mono text-lg">{item}</span>
                         </div>
@@ -1434,10 +1434,10 @@ const DotPaintingSheet: React.FC<{ data: DotPaintingData }> = ({ data }) => (
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt2}</p>
         <div className="flex justify-center">
             <svg viewBox={data.svgViewBox} className="w-full max-w-lg border rounded-lg" style={{ borderColor: 'var(--worksheet-border-color)' }}>
-                {data.gridPaths.map((path, index) => (
+                {(data.gridPaths || []).map((path, index) => (
                     <path key={`grid-${index}`} d={path} className="stroke-zinc-200 dark:stroke-zinc-600" strokeWidth="0.5" />
                 ))}
-                {data.dots.map((dot, index) => (
+                {(data.dots || []).map((dot, index) => (
                     <circle key={`dot-${index}`} cx={dot.cx} cy={dot.cy} r="1.5" style={{ fill: dot.color }} />
                 ))}
             </svg>
@@ -1450,7 +1450,7 @@ const AbcConnectSheet: React.FC<{ data: AbcConnectData }> = ({ data }) => (
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
-            {data.puzzles.map(puzzle => {
+            {(data.puzzles || []).map(puzzle => {
                 const cellSize = 40;
                 const totalSize = puzzle.gridDim * cellSize;
                 return (
@@ -1461,7 +1461,7 @@ const AbcConnectSheet: React.FC<{ data: AbcConnectData }> = ({ data }) => (
                                 <line x1="0" y1={i * cellSize} x2={totalSize} y2={i * cellSize} className="stroke-zinc-200 dark:stroke-zinc-500" strokeWidth="0.5" />
                             </g>
                         ))}
-                        {puzzle.points.map((p, i) => (
+                        {(puzzle.points || []).map((p, i) => (
                              <text key={i} x={p.x * cellSize + cellSize / 2} y={p.y * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="font-bold text-lg fill-current">{p.letter}</text>
                         ))}
                     </svg>
@@ -1476,7 +1476,7 @@ const PasswordFinderSheet: React.FC<{ data: PasswordFinderData }> = ({ data }) =
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="grid grid-cols-2 gap-4 mb-8">
-            {data.words.map((item, index) => (
+            {(data.words || []).map((item, index) => (
                 <div key={index} className="flex items-center gap-2 p-2 bg-white dark:bg-zinc-700/50 rounded-lg">
                      <div className="w-5 h-5 border-2 border-zinc-400 rounded-md shrink-0"></div>
                      <span className="text-lg">{item.word}</span>
@@ -1501,13 +1501,13 @@ const SyllableCompletionSheet: React.FC<{ data: SyllableCompletionData }> = ({ d
       <div className="mb-8 p-4 bg-amber-100 dark:bg-amber-900/50 border-2 border-dashed border-amber-400 rounded-lg">
           <h4 className="font-bold text-center mb-3 text-amber-800 dark:text-amber-200">Heceler</h4>
           <div className="flex justify-center flex-wrap gap-3">
-              {data.syllables.map((syllable, index) => (
+              {(data.syllables || []).map((syllable, index) => (
                   <span key={index} className="px-3 py-1 bg-white dark:bg-zinc-700 rounded-md shadow-sm">{syllable}</span>
               ))}
           </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          {data.wordParts.map((part, index) => (
+          {(data.wordParts || []).map((part, index) => (
               <div key={index} className="flex items-center justify-center p-3 text-lg">
                   <span>{part.first}</span>
                   <div className="w-16 mx-2 border-b-2 border-dotted border-zinc-400"></div>
@@ -1531,7 +1531,7 @@ const WordConnectSheet: React.FC<{ data: WordConnectData }> = ({ data }) => {
             <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
             <div className="flex justify-center">
                  <svg width={totalSize} height={totalSize} className="bg-white dark:bg-zinc-700/50 border border-zinc-300 dark:border-zinc-600 rounded-lg">
-                    {data.points.map((p, i) => (
+                    {(data.points || []).map((p, i) => (
                          <text key={i} x={p.x * cellSize + cellSize / 2} y={p.y * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="font-semibold text-sm fill-current">{p.word}</text>
                     ))}
                 </svg>
@@ -1551,7 +1551,7 @@ const SpiralPuzzleSheet: React.FC<{ data: SpiralPuzzleData }> = ({ data }) => (
             <div>
                  <h4 className="font-bold text-lg mb-2 text-indigo-600 dark:text-indigo-400">İpuçları</h4>
                  <ul className="space-y-2">
-                     {data.clues.map((clue, index) => (
+                     {(data.clues || []).map((clue, index) => (
                          <li key={index}><strong>{index + 1}.</strong> {clue}</li>
                      ))}
                  </ul>
@@ -1571,7 +1571,7 @@ const WordGridPuzzleSheet: React.FC<{ data: WordGridPuzzleData }> = ({ data }) =
             <div className="w-full md:w-1/3">
                  <h4 className="font-bold text-lg mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler ({data.theme})</h4>
                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg space-y-2">
-                    {data.wordList.map((word, i) => <p key={i} className="text-center font-semibold">{word}</p>)}
+                    {(data.wordList || []).map((word, i) => <p key={i} className="text-center font-semibold">{word}</p>)}
                 </div>
                 <p className="text-sm italic mt-4">{data.unusedWordPrompt}</p>
                 <div className="h-10 mt-2 border-b-2 border-dotted border-zinc-400"></div>
@@ -1585,7 +1585,7 @@ const ProverbSayingSortSheet: React.FC<{ data: ProverbSayingSortData }> = ({ dat
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="p-4 bg-amber-100 dark:bg-amber-900/50 border-2 border-dashed border-amber-400 rounded-lg mb-8">
-            {data.items.map((item, index) => <p key={index} className="p-1">{index+1}. {item.text}</p>)}
+            {(data.items || []).map((item, index) => <p key={index} className="p-1">{index+1}. {item.text}</p>)}
         </div>
         <div className="grid grid-cols-2 gap-8">
             <div className="p-4 border-2 rounded-lg border-sky-400">
@@ -1606,7 +1606,7 @@ const HomonymImageMatchSheet: React.FC<{ data: HomonymImageMatchData }> = ({ dat
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="flex justify-center gap-8 md:gap-16 items-center mb-8">
             <div className="space-y-4">
-                {data.leftImages.map(img => (
+                {(data.leftImages || []).map(img => (
                     <div key={img.id} className="flex items-center gap-4">
                          <span className="flex items-center justify-center w-8 h-8 bg-blue-500 text-white font-bold rounded-full">{img.id}</span>
                         <ImageDisplay base64={img.imageBase64} description={img.word} className="w-24 h-24" />
@@ -1614,7 +1614,7 @@ const HomonymImageMatchSheet: React.FC<{ data: HomonymImageMatchData }> = ({ dat
                 ))}
             </div>
             <div className="space-y-4">
-                 {data.rightImages.map(img => (
+                 {(data.rightImages || []).map(img => (
                     <div key={img.id} className="flex items-center gap-4">
                         <ImageDisplay base64={img.imageBase64} description={img.word} className="w-24 h-24" />
                          <span className="flex items-center justify-center w-8 h-8 bg-red-500 text-white font-bold rounded-full">{img.id}</span>
@@ -1623,7 +1623,7 @@ const HomonymImageMatchSheet: React.FC<{ data: HomonymImageMatchData }> = ({ dat
             </div>
         </div>
          <div className="flex justify-center items-center gap-4 p-4 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg">
-             <p className="font-mono text-xl tracking-widest">{data.wordScramble.letters.join(' ')}</p>
+             <p className="font-mono text-xl tracking-widest">{(data.wordScramble?.letters || []).join(' ')}</p>
              <i className="fa-solid fa-arrow-right text-2xl text-zinc-400"></i>
              <div className="w-40 h-10 border-b-2 border-zinc-400"></div>
          </div>
@@ -1635,12 +1635,12 @@ const AntonymFlowerPuzzleSheet: React.FC<{ data: AntonymFlowerPuzzleData }> = ({
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            {data.puzzles.map((puzzle, index) => (
+            {(data.puzzles || []).map((puzzle, index) => (
                 <div key={index} className="flex flex-col items-center">
                     <div className="relative w-32 h-32 mb-2">
                         {/* Petals */}
-                        {puzzle.petalLetters.map((letter, i) => {
-                            const angle = (i / puzzle.petalLetters.length) * 360;
+                        {(puzzle.petalLetters || []).map((letter, i) => {
+                            const angle = (i / (puzzle.petalLetters || []).length) * 360;
                             return (
                                 <div key={i} className="absolute w-10 h-10 bg-yellow-200 dark:bg-yellow-800 border border-yellow-400 rounded-full flex items-center justify-center font-bold"
                                      style={{ top: '50%', left: '50%', transform: `translate(-50%, -50%) rotate(${angle}deg) translate(40px) rotate(-${angle}deg)`}}>
@@ -1671,12 +1671,12 @@ const ProverbWordChainSheet: React.FC<{ data: ProverbWordChainData }> = ({ data 
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="flex justify-center flex-wrap gap-4 p-4 mb-8 border-2 border-dashed rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
-            {data.wordCloud.map((item, index) => (
+            {(data.wordCloud || []).map((item, index) => (
                 <span key={index} className="px-3 py-1.5 rounded-md text-lg" style={{backgroundColor: item.color, color: '#fff'}}>{item.word}</span>
             ))}
         </div>
         <div className="space-y-4">
-             {data.solutions.map((_, index) => (
+             {(data.solutions || []).map((_, index) => (
                 <div key={index} className="w-full h-10 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg border-b-2 border-zinc-400"></div>
             ))}
         </div>
@@ -1689,9 +1689,9 @@ const ThematicOddOneOutSheet: React.FC<{ data: ThematicOddOneOutData }> = ({ dat
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-2">{data.prompt}</p>
         <p className="text-center font-semibold text-indigo-600 dark:text-indigo-400 mb-6">Tema: {data.theme}</p>
          <div className="space-y-4">
-            {data.rows.map((row, index) => (
+            {(data.rows || []).map((row, index) => (
                 <div key={index} className="flex flex-wrap items-center justify-around p-3 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{ borderColor: 'var(--worksheet-border-color)' }}>
-                    {row.words.map((word, wordIndex) => (
+                    {(row.words || []).map((word, wordIndex) => (
                         <div key={wordIndex} className="flex items-center gap-2 m-2">
                              <div className="w-5 h-5 border-2 border-zinc-400 rounded-full shrink-0"></div>
                              <span className="text-lg capitalize">{word}</span>
@@ -1716,11 +1716,11 @@ const SynonymAntonymGridSheet: React.FC<{ data: SynonymAntonymGridData }> = ({ d
             <div>
                  <h4 className="font-bold text-lg mb-2 text-sky-600 dark:text-sky-400">Eş Anlamlılar</h4>
                  <ul className="list-disc list-inside space-y-1 mb-4">
-                     {data.synonyms.map((item, i) => <li key={i}>{item.word}</li>)}
+                     {(data.synonyms || []).map((item, i) => <li key={i}>{item.word}</li>)}
                  </ul>
                  <h4 className="font-bold text-lg mb-2 text-rose-600 dark:text-rose-400">Zıt Anlamlılar</h4>
                  <ul className="list-disc list-inside space-y-1">
-                     {data.antonyms.map((item, i) => <li key={i}>{item.word}</li>)}
+                     {(data.antonyms || []).map((item, i) => <li key={i}>{item.word}</li>)}
                  </ul>
             </div>
         </div>
@@ -1737,7 +1737,7 @@ const PunctuationColoringSheet: React.FC<{ data: PunctuationColoringData }> = ({
             </div>
         </div>
         <div className="space-y-4">
-            {data.sentences.map((sentence, index) => (
+            {(data.sentences || []).map((sentence, index) => (
                 <div key={index} className="flex items-center gap-4 p-3 bg-white dark:bg-zinc-700/50 rounded-lg">
                     <div className="w-8 h-8 rounded-full" style={{backgroundColor: sentence.color}}></div>
                     <p className="flex-1 text-lg">{sentence.text}</p>
@@ -1759,7 +1759,7 @@ const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ data })
             </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {data.rules.map(rule => (
+            {(data.rules || []).map(rule => (
                 <div key={rule.id} className="p-3 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg text-sm border" style={{borderColor: 'var(--worksheet-border-color)'}}>
                    <strong>{rule.id}.</strong> {rule.text}
                 </div>
@@ -1773,10 +1773,10 @@ const AntonymResfebeSheet: React.FC<{ data: AntonymResfebeData }> = ({ data }) =
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="space-y-6">
-            {data.puzzles.map((puzzle, index) => (
+            {(data.puzzles || []).map((puzzle, index) => (
                 <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)'}}>
                     <div className="flex justify-center items-center gap-2">
-                        {puzzle.clues.map((clue, i) => (
+                        {(puzzle.clues || []).map((clue, i) => (
                             clue.type === 'text' ? 
                             <span key={i} className="text-3xl font-bold">{clue.value}</span> :
                             <ImageDisplay key={i} base64={puzzle.imageBase64} description="resfebe ipucu" className="w-20 h-20" />
@@ -1798,9 +1798,9 @@ const ThematicOddOneOutSentenceSheet: React.FC<{ data: ThematicOddOneOutSentence
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
          <div className="space-y-4">
-            {data.rows.map((row, index) => (
+            {(data.rows || []).map((row, index) => (
                 <div key={index} className="flex flex-wrap items-center justify-around p-3 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{ borderColor: 'var(--worksheet-border-color)' }}>
-                    {row.words.map((word, wordIndex) => (
+                    {(row.words || []).map((word, wordIndex) => (
                         <div key={wordIndex} className="flex items-center gap-2 m-2">
                              <div className="w-5 h-5 border-2 border-zinc-400 rounded-full shrink-0"></div>
                              <span className="text-lg capitalize">{word}</span>
@@ -1819,12 +1819,12 @@ const ProverbSentenceFinderSheet: React.FC<{ data: ProverbSentenceFinderData }> 
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="flex justify-center flex-wrap gap-4 p-4 mb-8 border-2 border-dashed rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
-            {data.wordCloud.map((item, index) => (
+            {(data.wordCloud || []).map((item, index) => (
                 <span key={index} className="px-3 py-1.5 rounded-md text-lg" style={{backgroundColor: item.color, color: '#fff'}}>{item.word}</span>
             ))}
         </div>
         <div className="space-y-4">
-             {data.solutions.map((_, index) => (
+             {(data.solutions || []).map((_, index) => (
                 <div key={index} className="w-full h-10 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg border-b-2 border-zinc-400"></div>
             ))}
         </div>
@@ -1940,9 +1940,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
                 <h3 className="text-2xl font-bold mb-4 text-center">{colData.title}</h3>
                 <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{colData.prompt}</p>
                 <div className="grid grid-cols-4 gap-4 mb-6">
-                    {colData.columns.map((col, i) => (
+                    {(colData.columns || []).map((col, i) => (
                         <div key={i} className="p-2 border rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                            {col.words.map((word, j) => <p key={j} className="text-center p-1">{word}</p>)}
+                            {(col.words || []).map((word, j) => <p key={j} className="text-center p-1">{word}</p>)}
                         </div>
                     ))}
                 </div>
@@ -1955,14 +1955,14 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
                 <h3 className="text-2xl font-bold mb-4 text-center">{targetData.title}</h3>
                 <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{targetData.prompt}</p>
                 <div className="space-y-4">
-                    {targetData.puzzles.map((p, i) => (
+                    {(targetData.puzzles || []).map((p, i) => (
                         <div key={i} className="flex items-center gap-4 p-4 border rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
                             <div className="text-center">
                                 <p className="font-bold text-lg">Hedef</p>
                                 <div className="w-16 h-16 flex items-center justify-center bg-red-500 text-white font-bold text-2xl rounded-full">{p.target}</div>
                             </div>
                             <div className="flex-1 flex gap-2 justify-center">
-                                {p.givenNumbers.map((n, j) => <div key={j} className="w-12 h-12 flex items-center justify-center bg-zinc-200 dark:bg-zinc-600 font-bold text-xl rounded-md">{n}</div>)}
+                                {(p.givenNumbers || []).map((n, j) => <div key={j} className="w-12 h-12 flex items-center justify-center bg-zinc-200 dark:bg-zinc-600 font-bold text-xl rounded-md">{n}</div>)}
                             </div>
                         </div>
                     ))}
@@ -1975,7 +1975,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
 
   return (
     <div className="worksheet-container" style={styles}>
-      {data.map((sheetData, index) => (
+      {(data || []).map((sheetData, index) => (
         <div key={index} className="worksheet-page p-8 bg-white dark:bg-zinc-800 rounded-xl shadow-lg print:shadow-none print:p-0 print:m-0 print:border-none print:rounded-none mb-8 last:mb-0 print:mb-0">
           {renderSingleSheet(sheetData, activityType)}
         </div>
