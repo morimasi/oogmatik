@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const ai = new GoogleGenAI({ apiKey });
-        const maxRetries = 3;
+        const maxRetries = 4; // Yeniden deneme sayısı 3'ten 4'e çıkarıldı
         
         // Adım 1: Ana JSON yapısını resim istemleriyle birlikte oluştur (yeniden deneme mantığıyla)
         let data;
@@ -62,8 +62,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 break; // Başarılı, döngüden çık
             } catch (error: any) {
                 if (error.status === 503 && attempt < maxRetries - 1) {
-                    console.warn(`Deneme ${attempt + 1} 503 hatasıyla başarısız oldu. ${1000 * (attempt + 1)}ms içinde yeniden denenecek...`);
-                    await sleep(1000 * (attempt + 1)); // Doğrusal bekleme
+                    const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000; // Üstel geri çekilme + Jitter
+                    console.warn(`Deneme ${attempt + 1} 503 hatasıyla başarısız oldu. Yaklaşık ${Math.round(delay / 1000)}s içinde yeniden denenecek...`);
+                    await sleep(delay);
                 } else {
                     throw error; // 503 değilse veya yeniden denemeler bittiyse hatayı tekrar fırlat
                 }
@@ -119,8 +120,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             return; // Bu resim için başarılı, iç döngüden çık
                         } catch (imgError: any) {
                              if (imgError.status === 503 && attempt < maxRetries - 1) {
-                                console.warn(`Resim oluşturma denemesi ${attempt + 1} "${imagePrompt}" için başarısız oldu. Yeniden denenecek...`);
-                                await sleep(1000 * (attempt + 1));
+                                const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000; // Üstel geri çekilme + Jitter
+                                console.warn(`Resim oluşturma denemesi ${attempt + 1} "${imagePrompt}" için başarısız oldu. Yaklaşık ${Math.round(delay / 1000)}s içinde yeniden denenecek...`);
+                                await sleep(delay);
                             } else {
                                 console.error(`"${imagePrompt}" istemi için resim oluşturma başarısız oldu:`, imgError);
                                 obj['imageBase64'] = ''; // Son hatada istemci çökmesini önlemek için boş ata
