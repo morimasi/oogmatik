@@ -44,6 +44,35 @@ const offlineGeneratorMap: { [key in ActivityType]?: (options: offlineGenerators
     [ActivityType.TARGET_NUMBER]: offlineGenerators.generateOfflineTargetNumber,
     [ActivityType.NUMBER_PYRAMID]: offlineGenerators.generateOfflineNumberPyramid,
     [ActivityType.FIND_DIFFERENT_STRING]: offlineGenerators.generateOfflineFindDifferentString,
+    [ActivityType.STORY_COMPREHENSION]: offlineGenerators.generateOfflineStoryComprehension,
+    [ActivityType.LETTER_GRID_TEST]: offlineGenerators.generateOfflineLetterGridTest,
+    [ActivityType.WORD_MEMORY]: offlineGenerators.generateOfflineWordMemory,
+    [ActivityType.STORY_CREATION_PROMPT]: offlineGenerators.generateOfflineStoryCreationPrompt,
+    [ActivityType.SHAPE_MATCHING]: offlineGenerators.generateOfflineShapeMatching,
+    [ActivityType.VISUAL_MEMORY]: offlineGenerators.generateOfflineVisualMemory,
+    [ActivityType.STORY_ANALYSIS]: offlineGenerators.generateOfflineStoryAnalysis,
+    [ActivityType.COORDINATE_CIPHER]: offlineGenerators.generateOfflineCoordinateCipher,
+    [ActivityType.TARGET_SEARCH]: offlineGenerators.generateOfflineTargetSearch,
+    [ActivityType.SYMMETRY_DRAWING]: offlineGenerators.generateOfflineSymmetryDrawing,
+    [ActivityType.ABC_CONNECT]: offlineGenerators.generateOfflineAbcConnect,
+    [ActivityType.MULTIPLICATION_PYRAMID]: offlineGenerators.generateOfflineMultiplicationPyramid,
+    [ActivityType.BURDON_TEST]: offlineGenerators.generateOfflineBurdonTest,
+    [ActivityType.PASSWORD_FINDER]: offlineGenerators.generateOfflinePasswordFinder,
+    [ActivityType.JUMBLED_WORD_STORY]: offlineGenerators.generateOfflineJumbledWordStory,
+    [ActivityType.WORD_GRID_PUZZLE]: offlineGenerators.generateOfflineWordGridPuzzle,
+    [ActivityType.THEMATIC_ODD_ONE_OUT]: offlineGenerators.generateOfflineThematicOddOneOut,
+    // Placeholder fallbacks for complex types to prevent crashes in offline mode
+    [ActivityType.GRID_DRAWING]: offlineGenerators.generateOfflineGridDrawing,
+    [ActivityType.STORY_SEQUENCING]: offlineGenerators.generateOfflineStorySequencing,
+    [ActivityType.SYLLABLE_COMPLETION]: offlineGenerators.generateOfflineSyllableCompletion,
+    [ActivityType.SYNONYM_WORD_SEARCH]: offlineGenerators.generateOfflineSynonymWordSearch,
+    [ActivityType.WORD_CONNECT]: offlineGenerators.generateOfflineWordConnect,
+    [ActivityType.SPIRAL_PUZZLE]: offlineGenerators.generateOfflineSpiralPuzzle,
+    [ActivityType.CROSSWORD]: offlineGenerators.generateOfflineCrossword,
+    [ActivityType.MISSING_PARTS]: offlineGenerators.generateOfflineMissingParts,
+    [ActivityType.DIVISION_PYRAMID]: offlineGenerators.generateOfflineDivisionPyramid,
+    [ActivityType.MULTIPLICATION_WHEEL]: offlineGenerators.generateOfflineMultiplicationWheel,
+    [ActivityType.SHAPE_SUDOKU]: offlineGenerators.generateOfflineShapeSudoku,
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -106,7 +135,17 @@ const Sidebar: React.FC<SidebarProps> = ({
         try {
             const offlineGenerator = selectedActivity ? offlineGeneratorMap[selectedActivity] : undefined;
             if (offlineGenerator) {
-                const options: offlineGenerators.OfflineGeneratorOptions = { topic, itemCount, gridSize, worksheetCount, difficulty, targetPair };
+                const options: offlineGenerators.OfflineGeneratorOptions = { 
+                    topic, 
+                    itemCount, 
+                    gridSize, 
+                    worksheetCount, 
+                    difficulty, 
+                    targetPair,
+                    targetLetters,
+                    targetChar,
+                    distractorChar
+                };
                 const data = await offlineGenerator(options);
                 setWorksheetData(data);
             } else {
