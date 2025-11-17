@@ -74,7 +74,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                   <p>{error}</p>
               </div>
           ) : worksheetData ? (
-              <Worksheet activityType={activityType} data={worksheetData} styles={worksheetStyles} />
+              <div className="printable-area">
+                <Worksheet activityType={activityType} data={worksheetData} styles={worksheetStyles} />
+              </div>
           ) : (
               <WelcomePlaceholder />
           )}

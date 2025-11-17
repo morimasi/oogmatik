@@ -35,6 +35,41 @@
     }
   }
 </script>
+<style>
+  @media print {
+    @page {
+      size: A4;
+      margin: 20mm;
+    }
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    /* Hide everything by default */
+    body * {
+      visibility: hidden;
+    }
+    /* Only show the printable area and its children */
+    .printable-area, .printable-area * {
+      visibility: visible;
+    }
+    /* Position the printable area to take up the whole page */
+    .printable-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .worksheet-page {
+      page-break-after: always;
+    }
+    .worksheet-page:last-child {
+      page-break-after: auto;
+    }
+  }
+</style>
 <script type="importmap">
 {
   "imports": {

@@ -21,7 +21,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
   };
 
   return (
-    <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-700/50 p-2 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 print-hidden">
+    <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-700/50 p-2 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-4">
             {/* Font Size */}
             <div className="flex items-center gap-2">

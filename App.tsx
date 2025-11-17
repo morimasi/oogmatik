@@ -2,7 +2,7 @@ import React, { useState, useEffect, CSSProperties } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
-import { ACTIVITIES } from './constants';
+import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
 
 export interface StyleSettings {
   fontSize: number;
@@ -44,14 +44,25 @@ const App: React.FC = () => {
 
   const addSavedWorksheet = (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
     const activity = ACTIVITIES.find(a => a.id === activityType);
-    const icon = activity?.icon || 'fa-solid fa-file';
+    const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
+
+    if (!activity || !category) {
+        console.error("Kaydedilecek etkinlik veya kategori bulunamadı.");
+        // Optionally, show an error to the user
+        return;
+    }
+
     const newWorksheet: SavedWorksheet = {
       id: new Date().toISOString() + Math.random(),
       name,
       activityType,
       worksheetData: data,
       createdAt: new Date().toISOString(),
-      icon,
+      icon: activity.icon || 'fa-solid fa-file',
+      category: {
+        id: category.id,
+        title: category.title,
+      },
     };
     const updated = [...savedWorksheets, newWorksheet];
     setSavedWorksheets(updated);

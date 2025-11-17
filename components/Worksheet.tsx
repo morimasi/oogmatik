@@ -1976,20 +1976,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
   return (
     <div className="worksheet-container" style={styles}>
       {(data || []).map((sheetData, index) => (
-        <div key={index} className="worksheet-page p-8 bg-white dark:bg-zinc-800 rounded-xl shadow-lg print:shadow-none print:p-0 print:m-0 print:border-none print:rounded-none mb-8 last:mb-0 print:mb-0">
+        <div key={index} className="worksheet-page p-8 bg-white dark:bg-zinc-800 rounded-xl shadow-lg mb-8 last:mb-0">
           {renderSingleSheet(sheetData, activityType)}
         </div>
       ))}
-       <style>{`
-        @media print {
-          .worksheet-page {
-            page-break-after: always;
-          }
-          .worksheet-page:last-child {
-            page-break-after: auto;
-          }
-        }
-      `}</style>
     </div>
   );
 };

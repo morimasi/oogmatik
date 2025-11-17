@@ -1400,4 +1400,8 @@ export interface SavedWorksheet {
   worksheetData: SingleWorksheetData[];
   createdAt: string;
   icon: string;
+  category: {
+    id: string;
+    title: string;
+  };
 }
