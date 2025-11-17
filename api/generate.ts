@@ -2,15 +2,18 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Modality } from "@google/genai";
 
-// This is a Vercel serverless function.
+// Basit bir bekleme (sleep) yardımcı fonksiyonu
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Bu bir Vercel sunucusuz işlevidir.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Set CORS headers for all responses, including errors
+    // Tüm yanıtlar için CORS başlıklarını ayarla, hatalar dahil
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
-        // Handle preflight requests for CORS
+        // CORS için ön kontrol isteklerini işle
         return res.status(200).end();
     }
     
@@ -33,35 +36,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const ai = new GoogleGenAI({ apiKey });
+        const maxRetries = 3;
         
-        // Step 1: Generate the main JSON structure with image prompts
-        const textResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: schema,
-                temperature: 0.9,
-            },
-        });
-
-        const jsonText = textResponse.text;
-        if (!jsonText) {
-             console.warn("AI returned an empty response text for the main structure.");
-             return res.status(500).json({ error: "Yapay zekadan boş bir metin yanıtı alındı." });
-        }
-        
+        // Adım 1: Ana JSON yapısını resim istemleriyle birlikte oluştur (yeniden deneme mantığıyla)
         let data;
-        try {
-            // It's possible the model returns markdown with ```json ... ```, so let's clean it.
-            const cleanedJsonText = jsonText.replace(/^```json\s*|```\s*$/g, '').trim();
-            data = JSON.parse(cleanedJsonText);
-        } catch (parseError) {
-            console.error("Failed to parse JSON response from AI for main structure:", jsonText, parseError);
-            return res.status(500).json({ error: "Yapay zekadan gelen yanıt ayrıştırılamadı (Geçersiz JSON)." });
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                const textResponse = await ai.models.generateContent({
+                    model: "gemini-2.5-flash",
+                    contents: prompt,
+                    config: {
+                        responseMimeType: "application/json",
+                        responseSchema: schema,
+                        temperature: 0.9,
+                    },
+                });
+
+                const jsonText = textResponse.text;
+                if (!jsonText) {
+                     throw new Error("Yapay zekadan boş bir metin yanıtı alındı.");
+                }
+                
+                const cleanedJsonText = jsonText.replace(/^```json\s*|```\s*$/g, '').trim();
+                data = JSON.parse(cleanedJsonText);
+                break; // Başarılı, döngüden çık
+            } catch (error: any) {
+                if (error.status === 503 && attempt < maxRetries - 1) {
+                    console.warn(`Deneme ${attempt + 1} 503 hatasıyla başarısız oldu. ${1000 * (attempt + 1)}ms içinde yeniden denenecek...`);
+                    await sleep(1000 * (attempt + 1)); // Doğrusal bekleme
+                } else {
+                    throw error; // 503 değilse veya yeniden denemeler bittiyse hatayı tekrar fırlat
+                }
+            }
         }
 
-        // Step 2: Recursively find 'imagePrompt' fields and generate images with concurrency control
+        if (!data) {
+             return res.status(500).json({ error: "Yapay zeka tüm denemelere rağmen yanıt vermedi." });
+        }
+
+        // Adım 2: 'imagePrompt' alanlarını özyinelemeli olarak bul ve eşzamanlılık kontrolü ile resimleri oluştur
         const imagePromptsToProcess: { obj: any, imagePrompt: string }[] = [];
         const findImagePrompts = (obj: any) => {
             if (!obj || typeof obj !== 'object') return;
@@ -75,7 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 if (key === 'imagePrompt' && typeof obj[key] === 'string' && obj[key].length > 0) {
                     imagePromptsToProcess.push({ obj: obj, imagePrompt: obj[key] });
                 } else {
-                    findImagePrompts(obj[key]); // Recurse into other properties
+                    findImagePrompts(obj[key]); // Diğer özelliklere özyinelemeli olarak devam et
                 }
             });
         };
@@ -83,58 +96,71 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         findImagePrompts(data);
         
         if (imagePromptsToProcess.length > 0) {
-            const CONCURRENCY_LIMIT = 4; // Process up to 4 images at a time to manage resources
+            const CONCURRENCY_LIMIT = 4; // Kaynakları yönetmek için aynı anda 4 resim işle
             for (let i = 0; i < imagePromptsToProcess.length; i += CONCURRENCY_LIMIT) {
                 const chunk = imagePromptsToProcess.slice(i, i + CONCURRENCY_LIMIT);
                 const promises = chunk.map(async ({ obj, imagePrompt }) => {
-                    try {
-                        const imageResponse = await ai.models.generateContent({
-                            model: 'gemini-2.5-flash-image',
-                            contents: { parts: [{ text: imagePrompt }] },
-                            config: { responseModalities: [Modality.IMAGE] },
-                        });
-                        
-                        const partWithImageData = imageResponse.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-                        if (partWithImageData?.inlineData) {
-                            obj['imageBase64'] = partWithImageData.inlineData.data;
-                        } else {
-                            obj['imageBase64'] = ''; // Set to empty string if no image is returned
-                            console.warn(`No image data found for prompt: "${imagePrompt}"`);
+                    for (let attempt = 0; attempt < maxRetries; attempt++) {
+                        try {
+                            const imageResponse = await ai.models.generateContent({
+                                model: 'gemini-2.5-flash-image',
+                                contents: { parts: [{ text: imagePrompt }] },
+                                config: { responseModalities: [Modality.IMAGE] },
+                            });
+                            
+                            const partWithImageData = imageResponse.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                            if (partWithImageData?.inlineData) {
+                                obj['imageBase64'] = partWithImageData.inlineData.data;
+                            } else {
+                                obj['imageBase64'] = ''; // Resim döndürülmezse boş dize ata
+                                console.warn(`"${imagePrompt}" istemi için resim verisi bulunamadı.`);
+                            }
+                            delete obj['imagePrompt']; // Sonuç ne olursa olsun istem alanını temizle
+                            return; // Bu resim için başarılı, iç döngüden çık
+                        } catch (imgError: any) {
+                             if (imgError.status === 503 && attempt < maxRetries - 1) {
+                                console.warn(`Resim oluşturma denemesi ${attempt + 1} "${imagePrompt}" için başarısız oldu. Yeniden denenecek...`);
+                                await sleep(1000 * (attempt + 1));
+                            } else {
+                                console.error(`"${imagePrompt}" istemi için resim oluşturma başarısız oldu:`, imgError);
+                                obj['imageBase64'] = ''; // Son hatada istemci çökmesini önlemek için boş ata
+                                delete obj['imagePrompt'];
+                                return; // Bu resimden vazgeç
+                            }
                         }
-                    } catch (imgError) {
-                        console.error(`Image generation failed for prompt: "${imagePrompt}"`, imgError);
-                        obj['imageBase64'] = ''; // Set empty on error to prevent client crashes
-                    } finally {
-                        delete obj['imagePrompt']; // Clean up the prompt field regardless of outcome
                     }
                 });
                 await Promise.all(promises);
             }
         }
         
-        // Step 3: Return the final JSON with embedded image data
+        // Adım 3: Gömülü resim verileriyle son JSON'u döndür
         return res.status(200).json(data);
 
     } catch (error: unknown) {
-        // Log the full error on the server for debugging in Vercel logs
+        // Sunucuda tam hatayı Vercel günlüklerinde hata ayıklama için kaydet
         console.error("Sunucusuz fonksiyonda kritik hata:", error);
         
         let clientErrorMessage = "Yapay zeka ile içerik oluşturulurken sunucu tarafında bir hata oluştu.";
         let statusCode = 500;
         let errorDetails = 'Bilinmeyen hata.';
 
-        if (error instanceof Error) {
-            errorDetails = error.message;
-            if (error.message.includes('API key not valid')) {
+        if (error instanceof Error && 'status' in error) {
+            const apiError = error as { status?: number; message: string };
+            errorDetails = apiError.message;
+            if (apiError.status === 503) {
+                clientErrorMessage = 'Model şu anda aşırı yüklü. Lütfen daha sonra tekrar deneyin.';
+                statusCode = 503;
+            } else if (apiError.message.includes('API key not valid')) {
                 clientErrorMessage = 'Sunucuda yapılandırılan API anahtarı geçersiz. Lütfen Vercel proje ayarlarınızı kontrol edin.';
                 statusCode = 401;
-            } else if (error.message.includes('permission denied') || error.message.includes('billing')) {
+            } else if (apiError.message.includes('permission denied') || apiError.message.includes('billing')) {
                  clientErrorMessage = 'API anahtarının bu modeli kullanma izni yok veya projeniz için faturalandırma etkin değil.';
                  statusCode = 403;
-            } else if (error.message.includes('timed out')) {
+            } else if (apiError.message.includes('timed out')) {
                 clientErrorMessage = 'Yapay zeka sunucusundan yanıt alınamadı, zaman aşımına uğradı.';
                 statusCode = 504;
-            } else if (error.message.includes('400 BAD REQUEST')) {
+            } else if (apiError.message.includes('400 BAD REQUEST')) {
                 clientErrorMessage = 'Yapay zekaya geçersiz bir istek gönderildi. Lütfen girdilerinizi kontrol edin.';
                 statusCode = 400;
             }
