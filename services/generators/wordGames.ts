@@ -1,6 +1,3 @@
-
-
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import {
@@ -336,11 +333,9 @@ export const generatePasswordFinderFromAI = async (): Promise<PasswordFinderData
         },
         required: ["title", "prompt", "words", "passwordLength"]
     };
-    // FIX: Added missing return statement.
     return generateWithSchema(prompt, schema) as Promise<PasswordFinderData>;
 };
 
-// FIX: Added missing generator functions.
 export const generateSyllableCompletionFromAI = async (topic: string): Promise<SyllableCompletionData> => {
     const prompt = `Create a syllable completion activity with the theme '${topic}'. Provide a list of first and second parts of 8 Turkish words. Also provide a list of the missing syllables for the user to choose from. Finally, provide a prompt for the user to write a story using the completed words. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
