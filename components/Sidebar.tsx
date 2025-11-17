@@ -23,6 +23,14 @@ const offlineGeneratorMap: { [key in ActivityType]?: (options: offlineGenerators
     [ActivityType.MATH_PUZZLE]: offlineGenerators.generateOfflineMathPuzzles,
     [ActivityType.FIND_THE_DIFFERENCE]: offlineGenerators.generateOfflineFindTheDifference,
     [ActivityType.PROVERB_FILL_IN_THE_BLANK]: offlineGenerators.generateOfflineProverbFill,
+    [ActivityType.SPELLING_CHECK]: offlineGenerators.generateOfflineSpellingCheck,
+    [ActivityType.ODD_ONE_OUT]: offlineGenerators.generateOfflineOddOneOut,
+    [ActivityType.WORD_COMPARISON]: offlineGenerators.generateOfflineWordComparison,
+    [ActivityType.WORDS_IN_STORY]: offlineGenerators.generateOfflineWordsInStory,
+    [ActivityType.PROVERB_SEARCH]: offlineGenerators.generateOfflineProverbSearch,
+    [ActivityType.REVERSE_WORD]: offlineGenerators.generateOfflineReverseWord,
+    [ActivityType.FIND_THE_DUPLICATE_IN_ROW]: offlineGenerators.generateOfflineFindDuplicateInRow,
+    [ActivityType.WORD_GROUPING]: offlineGenerators.generateOfflineWordGrouping,
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -246,7 +254,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         ActivityType.NUMBER_PATTERN, ActivityType.SPELLING_CHECK, ActivityType.FIND_THE_DIFFERENCE, 
         ActivityType.ODD_ONE_OUT, ActivityType.SHAPE_MATCHING, ActivityType.SYMBOL_CIPHER, 
         ActivityType.PROVERB_FILL_IN_THE_BLANK, ActivityType.LETTER_BRIDGE, ActivityType.WORD_LADDER, 
-        ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.REVERSE_WORD
+        ActivityType.FIND_IDENTICAL_WORD, ActivityType.WORD_FORMATION, ActivityType.REVERSE_WORD,
+        ActivityType.FIND_THE_DUPLICATE_IN_ROW,
     ].includes(currentActivity.id);
     const showGridSize = [
         ActivityType.WORD_SEARCH, ActivityType.LETTER_GRID_TEST, ActivityType.FIND_LETTER_PAIR, 
@@ -258,13 +267,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     const showTargetChars = currentActivity.id === ActivityType.TARGET_SEARCH;
 
     let itemCountLabel = "Öğe Sayısı";
-    if (currentActivity.id === ActivityType.WORD_SEARCH || currentActivity.id === ActivityType.ANAGRAM || currentActivity.id === ActivityType.REVERSE_WORD) itemCountLabel = "Kelime Sayısı";
-    if (currentActivity.id === ActivityType.MATH_PUZZLE || currentActivity.id === ActivityType.WORD_LADDER) itemCountLabel = "Bulmaca Sayısı";
+    if ([ActivityType.WORD_SEARCH, ActivityType.ANAGRAM, ActivityType.REVERSE_WORD, ActivityType.SPELLING_CHECK].includes(currentActivity.id)) itemCountLabel = "Kelime Sayısı";
+    if ([ActivityType.MATH_PUZZLE, ActivityType.WORD_LADDER].includes(currentActivity.id)) itemCountLabel = "Bulmaca Sayısı";
     if (currentActivity.id === ActivityType.STROOP_TEST) itemCountLabel = "Renk/Kelime Sayısı";
     if (currentActivity.id === ActivityType.NUMBER_PATTERN) itemCountLabel = "Örüntü Sayısı";
-    if (currentActivity.id === ActivityType.SPELLING_CHECK) itemCountLabel = "Soru Sayısı";
-    if (currentActivity.id === ActivityType.FIND_THE_DIFFERENCE || currentActivity.id === ActivityType.SHAPE_MATCHING) itemCountLabel = "Satır Sayısı";
-    if (currentActivity.id === ActivityType.ODD_ONE_OUT || currentActivity.id === ActivityType.FIND_IDENTICAL_WORD) itemCountLabel = "Grup Sayısı";
+    if ([ActivityType.FIND_THE_DIFFERENCE, ActivityType.SHAPE_MATCHING, ActivityType.FIND_THE_DUPLICATE_IN_ROW].includes(currentActivity.id)) itemCountLabel = "Satır Sayısı";
+    if ([ActivityType.ODD_ONE_OUT, ActivityType.FIND_IDENTICAL_WORD].includes(currentActivity.id)) itemCountLabel = "Grup Sayısı";
     if (currentActivity.id === ActivityType.SYMBOL_CIPHER) itemCountLabel = "Şifreli Kelime Sayısı";
     if (currentActivity.id === ActivityType.PROVERB_FILL_IN_THE_BLANK) itemCountLabel = "Atasözü Sayısı";
     if (currentActivity.id === ActivityType.LETTER_BRIDGE) itemCountLabel = "Kelime Çifti Sayısı";

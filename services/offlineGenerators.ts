@@ -1,4 +1,7 @@
-import { WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData, WorksheetData } from '../types';
+import { 
+    WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData, WorksheetData,
+    SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData
+} from '../types';
 
 // Önbellekleme mekanizması
 let wordlistCache: Record<string, string[]> | null = null;
@@ -242,6 +245,233 @@ export const generateOfflineProverbFill = async (options: OfflineGeneratorOption
         results.push({
             title: 'Atasözünü Tamamla',
             proverbs: proverbPuzzles,
+        });
+    }
+    return results;
+};
+
+export const generateOfflineSpellingCheck = async (options: OfflineGeneratorOptions): Promise<SpellingCheckData[]> => {
+    const { topic, itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: SpellingCheckData[] = [];
+    const availableWords = wordlist[topic] || wordlist.Rastgele;
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const selectedWords = getRandomItems(availableWords.filter(w => w.length > 4), itemCount);
+        const checks = selectedWords.map(correct => {
+            const chars = correct.split('');
+            
+            // Mistake 1: swap adjacent letters
+            const swapIndex = getRandomInt(0, chars.length - 2);
+            const swappedChars = [...chars];
+            [swappedChars[swapIndex], swappedChars[swapIndex + 1]] = [swappedChars[swapIndex + 1], swappedChars[swapIndex]];
+            const mistake1 = swappedChars.join('');
+
+            // Mistake 2: change one letter
+            const changeIndex = getRandomInt(0, chars.length - 1);
+            const changedChars = [...chars];
+            let newChar = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+            while(newChar === changedChars[changeIndex]) {
+                 newChar = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+            }
+            changedChars[changeIndex] = newChar;
+            const mistake2 = changedChars.join('');
+
+            const options = shuffle([correct, mistake1, mistake2]);
+            return { correct, options };
+        });
+
+        results.push({
+            title: 'Doğru Yazılışı Bul',
+            checks
+        });
+    }
+
+    return results;
+};
+
+export const generateOfflineOddOneOut = async (options: OfflineGeneratorOptions): Promise<OddOneOutData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: OddOneOutData[] = [];
+    const categories = Object.keys(wordlist);
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const groups = [];
+        for (let j = 0; j < itemCount; j++) {
+            let mainCatIndex = getRandomInt(0, categories.length - 1);
+            let outlierCatIndex = getRandomInt(0, categories.length - 1);
+            while (mainCatIndex === outlierCatIndex) {
+                 outlierCatIndex = getRandomInt(0, categories.length - 1);
+            }
+            const mainCategory = categories[mainCatIndex];
+            const outlierCategory = categories[outlierCatIndex];
+
+            const mainWords = getRandomItems(wordlist[mainCategory], 3);
+            const outlierWord = getRandomItems(wordlist[outlierCategory], 1);
+
+            const words = shuffle([...mainWords, ...outlierWord]);
+            groups.push({ words });
+        }
+        results.push({
+            title: 'Anlamsal Olarak Farklı Olanı Bul',
+            groups
+        });
+    }
+
+    return results;
+};
+
+export const generateOfflineWordComparison = async (options: OfflineGeneratorOptions): Promise<WordComparisonData[]> => {
+    const { topic, itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: WordComparisonData[] = [];
+    const availableWords = wordlist[topic] || wordlist.Rastgele;
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const wordPool = getRandomItems(availableWords, itemCount + 4);
+        const commonWords = wordPool.slice(0, itemCount - 2);
+        const list1Only = [wordPool[itemCount-2], wordPool[itemCount-1]];
+        const list2Only = [wordPool[itemCount], wordPool[itemCount+1]];
+
+        const wordList1 = shuffle([...commonWords, ...list1Only]);
+        const wordList2 = shuffle([...commonWords, ...list2Only]);
+
+        results.push({
+            title: 'Kelime Karşılaştırma',
+            box1Title: 'Kutu 1',
+            box2Title: 'Kutu 2',
+            wordList1,
+            wordList2
+        });
+    }
+    return results;
+};
+
+export const generateOfflineWordsInStory = async (options: OfflineGeneratorOptions): Promise<WordsInStoryData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const { wordlist, proverbs } = await loadData();
+    const results: WordsInStoryData[] = [];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const storyProverbs = getRandomItems(proverbs, 3);
+        const story = storyProverbs.join(' ');
+        const storyWords = Array.from(new Set(story.toLowerCase().replace(/[.,]/g, '').split(' ')));
+
+        const inStoryCount = Math.floor(itemCount / 2);
+        const notInStoryCount = itemCount - inStoryCount;
+
+        const wordsInStory = getRandomItems(storyWords, inStoryCount);
+        const allWords = Object.values(wordlist).flat();
+        const wordsNotInStory = getRandomItems(allWords.filter(w => !storyWords.includes(w)), notInStoryCount);
+
+        const wordList = shuffle([
+            ...wordsInStory.map(word => ({ word, isInStory: true })),
+            ...wordsNotInStory.map(word => ({ word, isInStory: false }))
+        ]);
+
+        results.push({
+            title: 'Metindeki Kelimeler',
+            story,
+            wordList
+        });
+    }
+    return results;
+};
+
+export const generateOfflineProverbSearch = async (options: OfflineGeneratorOptions): Promise<ProverbSearchData[]> => {
+    const { gridSize, worksheetCount } = options;
+    const { proverbs } = await loadData();
+    const results: ProverbSearchData[] = [];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const proverb = getRandomItems(proverbs, 1)[0];
+        const word = proverb.replace(/[.,\s]/g, '').toLowerCase();
+        
+        const grid: string[][] = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
+        
+        if (word.length <= gridSize) {
+             const row = getRandomInt(0, gridSize - 1);
+             const col = getRandomInt(0, gridSize - word.length);
+             for (let k = 0; k < word.length; k++) {
+                 grid[row][col + k] = word[k];
+             }
+        }
+
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c < gridSize; c++) {
+                if (grid[r][c] === '') {
+                    grid[r][c] = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+                }
+            }
+        }
+        
+        results.push({
+            title: `Atasözü Avı`,
+            proverb,
+            grid,
+        });
+    }
+
+    return results;
+};
+
+export const generateOfflineReverseWord = async (options: OfflineGeneratorOptions): Promise<ReverseWordData[]> => {
+    const { topic, itemCount, worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: ReverseWordData[] = [];
+    const availableWords = wordlist[topic] || wordlist.Rastgele;
+
+    for(let i=0; i < worksheetCount; i++) {
+        const words = getRandomItems(availableWords, itemCount);
+        results.push({
+            title: 'Kelimeleri Ters Çevir',
+            words
+        });
+    }
+    return results;
+};
+
+
+export const generateOfflineFindDuplicateInRow = async (options: OfflineGeneratorOptions): Promise<FindDuplicateData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const results: FindDuplicateData[] = [];
+    const chars = (turkishAlphabet + '0123456789').split('');
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const rows = [];
+        for (let j = 0; j < itemCount; j++) {
+            const rowChars = getRandomItems(chars, 14);
+            const duplicateChar = rowChars[getRandomInt(0, rowChars.length - 1)];
+            const insertIndex = getRandomInt(0, rowChars.length);
+            rowChars.splice(insertIndex, 0, duplicateChar);
+            rows.push(shuffle(rowChars));
+        }
+        results.push({
+            title: 'Satırda Tekrar Edeni Bul',
+            rows
+        });
+    }
+    return results;
+};
+
+export const generateOfflineWordGrouping = async (options: OfflineGeneratorOptions): Promise<WordGroupingData[]> => {
+    const { worksheetCount } = options;
+    const { wordlist } = await loadData();
+    const results: WordGroupingData[] = [];
+    const allCategories = Object.keys(wordlist).filter(k => k !== 'Rastgele');
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const categoryNames = getRandomItems(allCategories, 3);
+        const words = [];
+        for (const catName of categoryNames) {
+            words.push(...getRandomItems(wordlist[catName], 5));
+        }
+        
+        results.push({
+            title: 'Kelime Gruplama',
+            words: shuffle(words),
+            categoryNames
         });
     }
     return results;
