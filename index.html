@@ -42,6 +42,23 @@
     font-family: 'OpenDyslexic', sans-serif !important;
   }
 
+  /* Dyslexia logo animation */
+  @keyframes fadeB {
+    0%, 15% { opacity: 1; }
+    35%, 100% { opacity: 0; }
+  }
+  @keyframes fadeD {
+    0%, 35% { opacity: 0; }
+    50%, 85% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .dyslexia-logo .letter-b {
+    animation: fadeB 4s infinite ease-in-out;
+  }
+  .dyslexia-logo .letter-d {
+    animation: fadeD 4s infinite ease-in-out;
+  }
+
   @media print {
     @page {
       size: A4;
