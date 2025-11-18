@@ -8,6 +8,7 @@ export interface StyleSettings {
   fontSize: number;
   borderColor: string;
   borderWidth: number;
+  dyslexiaFriendlyFont: boolean;
 }
 
 export type View = 'generator' | 'savedList';
@@ -23,6 +24,7 @@ const App: React.FC = () => {
     fontSize: 16,
     borderColor: '#d4d4d8', // zinc-300
     borderWidth: 1,
+    dyslexiaFriendlyFont: false,
   });
   const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
 
@@ -82,11 +84,17 @@ const App: React.FC = () => {
   };
 
   const handleWorksheetStyle = (): CSSProperties => {
-    return {
+    const styles: CSSProperties = {
       fontSize: `${styleSettings.fontSize}px`,
       '--worksheet-border-color': styleSettings.borderColor,
       '--worksheet-border-width': `${styleSettings.borderWidth}px`,
-    } as CSSProperties;
+    };
+     if (styleSettings.dyslexiaFriendlyFont) {
+      styles.fontFamily = "'Lexend', sans-serif";
+    } else {
+      styles.fontFamily = "'Nunito Sans', sans-serif";
+    }
+    return styles;
   }
 
   return (

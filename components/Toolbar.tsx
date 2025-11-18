@@ -22,7 +22,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
 
   return (
     <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-700/50 p-2 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 print:hidden">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
             {/* Font Size */}
             <div className="flex items-center gap-2">
                 <label htmlFor="fontSize" className="text-sm font-medium hidden sm:inline">Boyut:</label>
@@ -45,6 +45,21 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
                     onChange={(e) => onSettingsChange({...settings, borderColor: e.target.value})}
                     className="p-0.5 h-7 w-7 block bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 cursor-pointer rounded-lg"
                 />
+            </div>
+             {/* Dyslexia Friendly Font Toggle */}
+            <div className="flex items-center gap-2">
+                <label htmlFor="dyslexiaFontToggle" className="text-sm font-medium">Disleksi Dostu Font:</label>
+                <button
+                    id="dyslexiaFontToggle"
+                    role="switch"
+                    aria-checked={settings.dyslexiaFriendlyFont}
+                    onClick={() => onSettingsChange({ ...settings, dyslexiaFriendlyFont: !settings.dyslexiaFriendlyFont })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800 ${settings.dyslexiaFriendlyFont ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-600'}`}
+                >
+                    <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.dyslexiaFriendlyFont ? 'translate-x-6' : 'translate-x-1'}`}
+                    />
+                </button>
             </div>
         </div>
       
