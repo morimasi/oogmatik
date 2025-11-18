@@ -1980,14 +1980,89 @@ const NumberPyramidSheet: React.FC<{ data: NumberPyramidData | DivisionPyramidDa
     </div>
 );
 
+const CagedGridSvg: React.FC<{
+    size: number;
+    cages: { cells: { row: number; col: number }[]; operation?: string; target: number }[];
+    gridData: (number | null)[][];
+}> = ({ size, cages, gridData }) => {
+    const cellSize = 50;
+    const totalSize = size * cellSize;
+
+    const isEdge = (r: number, c: number, dir: 'top' | 'bottom' | 'left' | 'right') => {
+        const cage = cages.find(ca => ca.cells.some(cell => cell.row === r && cell.col === c));
+        if (!cage) return false;
+
+        const neighbor = {
+            top: { r: r - 1, c: c },
+            bottom: { r: r + 1, c: c },
+            left: { r: r, c: c - 1 },
+            right: { r: r, c: c + 1 },
+        }[dir];
+
+        return !cage.cells.some(cell => cell.row === neighbor.r && cell.col === neighbor.c);
+    };
+
+    return (
+        <div className="flex justify-center p-2">
+            <svg width={totalSize} height={totalSize} className="bg-white dark:bg-zinc-700/50">
+                {/* Thin grid lines */}
+                {Array.from({ length: size + 1 }).map((_, i) => (
+                    <g key={i}>
+                        <line x1={i * cellSize} y1="0" x2={i * cellSize} y2={totalSize} className="stroke-zinc-300 dark:stroke-zinc-600" strokeWidth="1" />
+                        <line x1="0" y1={i * cellSize} x2={totalSize} y2={i * cellSize} className="stroke-zinc-300 dark:stroke-zinc-600" strokeWidth="1" />
+                    </g>
+                ))}
+                
+                {/* Thick cage lines and numbers */}
+                {Array.from({ length: size * size }).map((_, i) => {
+                    const r = Math.floor(i / size);
+                    const c = i % size;
+                    return (
+                        <g key={`${r}-${c}`}>
+                            {isEdge(r, c, 'top') && <line x1={c * cellSize} y1={r * cellSize} x2={(c + 1) * cellSize} y2={r * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
+                            {isEdge(r, c, 'bottom') && <line x1={c * cellSize} y1={(r + 1) * cellSize} x2={(c + 1) * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
+                            {isEdge(r, c, 'left') && <line x1={c * cellSize} y1={r * cellSize} x2={c * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
+                            {isEdge(r, c, 'right') && <line x1={(c + 1) * cellSize} y1={r * cellSize} x2={(c + 1) * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
+                            <text x={c * cellSize + cellSize / 2} y={r * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-current">
+                                {gridData?.[r]?.[c]}
+                            </text>
+                        </g>
+                    );
+                })}
+
+                 {/* Cage clues */}
+                {(cages || []).map((cage, i) => {
+                    const firstCell = cage.cells.reduce((prev, curr) => (curr.row < prev.row || (curr.row === prev.row && curr.col < prev.col)) ? curr : prev);
+                    return (
+                        <text key={i} x={firstCell.col * cellSize + 5} y={firstCell.row * cellSize + 15} className="text-sm font-bold fill-current">
+                            {cage.target}{cage.operation}
+                        </text>
+                    );
+                })}
+
+            </svg>
+        </div>
+    );
+};
+
+
 const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data }) => (
-    <div>
+     <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        {/* Placeholder for now - complex to render with just divs */}
-        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+        {(data.puzzles || []).map((puzzle, index) => (
+             <div key={index}>
+                <h4 className="font-semibold text-center mb-2">{puzzle.title} (Kullanılacak sayılar: {puzzle.numbersToUse})</h4>
+                <CagedGridSvg 
+                    size={puzzle.grid.length}
+                    cages={puzzle.capsules.map(cap => ({ cells: cap.cells, target: cap.sum }))}
+                    gridData={puzzle.grid}
+                />
+             </div>
+        ))}
     </div>
 );
+
 
 const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData | Sudoku6x6ShadedData }> = ({ data }) => (
      <div>
@@ -2064,11 +2139,19 @@ const RomanNumeralMultiplicationSheet: React.FC<{data: RomanNumeralMultiplicatio
     </div>
 )
 
-const KendokuSheet: React.FC<{data: KendokuData}> = ({data}) => (
-     <div>
+const KendokuSheet: React.FC<{ data: KendokuData }> = ({ data }) => (
+    <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+        {(data.puzzles || []).map((puzzle, index) => (
+             <div key={index}>
+                <CagedGridSvg 
+                    size={puzzle.size}
+                    cages={puzzle.cages}
+                    gridData={puzzle.grid}
+                />
+             </div>
+        ))}
     </div>
 )
 
@@ -2079,7 +2162,8 @@ const OperationSquareSheet: React.FC<{data: OperationSquareSubtractionData | Ope
         <div className="grid grid-cols-2 gap-8 justify-items-center">
             {(data.puzzles || []).map((p, i) => <GridComponent key={i} grid={p.grid} cellClassName="w-12 h-12" />)}
         </div>
-        {'numbersToUse' in data && (
+        {/* FIX: Check for 'numbersToUse' on the puzzle object, not the top-level data object. */}
+        {data.puzzles && data.puzzles.length > 0 && 'numbersToUse' in data.puzzles[0] && (
             <div className="mt-6 text-center">
                 <h4 className="font-bold">Kullanılacak Sayılar</h4>
                 <p className="font-mono text-lg">{data.puzzles[0].numbersToUse.join(', ')}</p>
@@ -2108,24 +2192,46 @@ const ResfebeSheet: React.FC<{data: ResfebeData}> = ({data}) => (
     </div>
 )
 
-const MatchstickSymmetrySheet: React.FC<{data: MatchstickSymmetryData}> = ({data}) => (
-    <div>
-        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
-        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-         <div className="grid grid-cols-3 gap-8 justify-items-center">
-            {(data.puzzles || []).map((p, i) => (
-                <div key={i} className="w-24 h-32 border-2 relative">
-                    {(p.lines || []).map((line, j) => (
-                        <div key={j} className="absolute bg-zinc-800 dark:bg-zinc-200" style={{
-                            left: `${line.x1}%`, top: `${line.y1}%`,
-                            width: `1px`, height: `1px` /* Placeholder */
-                        }}></div>
-                    ))}
-                </div>
-            ))}
-         </div>
-    </div>
-);
+const MatchstickSymmetrySheet: React.FC<{data: MatchstickSymmetryData}> = ({data}) => {
+    const viewBoxSize = 100;
+    
+    return (
+        <div>
+            <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+            <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 justify-items-center">
+                {(data.puzzles || []).map((puzzle, i) => (
+                    <div key={i} className="w-full aspect-[2/1] border-2 rounded-lg" style={{ borderColor: 'var(--worksheet-border-color)' }}>
+                        <svg viewBox={`0 0 ${viewBoxSize * 2} ${viewBoxSize}`} className="w-full h-full">
+                            {/* Left Side (Puzzle) */}
+                            {(puzzle.lines || []).map((line, j) => (
+                                <line
+                                    key={`line-${j}`}
+                                    x1={line.x1} y1={line.y1}
+                                    x2={line.x2} y2={line.y2}
+                                    className="stroke-zinc-800 dark:stroke-zinc-200"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                />
+                            ))}
+                            {/* Symmetry Axis */}
+                            <line x1={viewBoxSize} y1="0" x2={viewBoxSize} y2={viewBoxSize} className="stroke-red-500" strokeWidth="1" strokeDasharray="4" />
+                            
+                            {/* Right Side Grid (for drawing) */}
+                            {Array.from({ length: 11 }).map((_, k) => (
+                                <g key={`grid-${k}`} className="stroke-zinc-200 dark:stroke-zinc-600" strokeWidth="0.5">
+                                    <line x1={viewBoxSize} y1={k * 10} x2={viewBoxSize * 2} y2={k * 10} />
+                                    <line x1={viewBoxSize + k * 10} y1="0" x2={viewBoxSize + k * 10} y2={viewBoxSize} />
+                                </g>
+                            ))}
+                        </svg>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 
 const WordWebSheet: React.FC<{data: WordWebData | WordWebWithPasswordData}> = ({data}) => (
     <div>
@@ -2146,16 +2252,28 @@ const WordWebSheet: React.FC<{data: WordWebData | WordWebWithPasswordData}> = ({
     </div>
 );
 
+// FIX: Replaced GridComponent with a custom table to correctly render shapes and emojis, resolving a ReactNode type error.
 const StarHuntSheet: React.FC<{data: StarHuntData}> = ({data}) => (
      <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="flex justify-center">
-            <GridComponent grid={data.grid.map(row => row.map(cell => {
-                if(cell === 'star') return '⭐';
-                if(cell === 'question') return '?';
-                return cell; // This might be a shape name which isn't rendered by GridComponent well
-            }))} cellClassName="w-12 h-12" />
+            <table className="table-fixed border-collapse">
+                <tbody>
+                    {(data.grid || []).map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                            {(row || []).map((cell, cellIndex) => (
+                                <td key={cellIndex} className="border text-center w-12 h-12 bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
+                                    {cell === 'star' ? '⭐' :
+                                     cell === 'question' ? '?' :
+                                     cell ? <Shape name={cell as ShapeType} className="w-8 h-8 mx-auto text-zinc-700 dark:text-zinc-300" /> :
+                                     null}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     </div>
 );
@@ -2187,10 +2305,11 @@ const MissingPartsSheet: React.FC<{data: MissingPartsData}> = ({data}) => (
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="grid grid-cols-2 gap-8 mb-8">
             <div className="space-y-2">
-                 {(data.leftParts || []).map(p => <div key={p.id} className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center">{p.text}</div>)}
+                {/* FIX: Explicitly type 'p' to fix type inference issue where it becomes 'never'. */}
+                 {(data.leftParts || []).map((p: { id: number; text: string }) => <div key={p.id} className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center">{p.text}</div>)}
             </div>
              <div className="space-y-2">
-                 {(data.rightParts || []).map(p => <div key={p.id} className="p-3 bg-rose-100 dark:bg-rose-900/50 rounded-lg text-center">{p.text}</div>)}
+                 {(data.rightParts || []).map((p: { id: number; text: string }) => <div key={p.id} className="p-3 bg-rose-100 dark:bg-rose-900/50 rounded-lg text-center">{p.text}</div>)}
             </div>
         </div>
         <h4 className="font-bold text-center mb-2">Örnekler</h4>
@@ -2237,20 +2356,58 @@ const VisualOddOneOutThemedSheet: React.FC<{data: VisualOddOneOutThemedData}> = 
     </div>
 );
 
-const LogicGridPuzzleSheet: React.FC<{data: LogicGridPuzzleData}> = ({data}) => (
-    <div>
-        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
-        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        <div className="p-4 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg mb-6">
-            <h4 className="font-bold mb-2">İpuçları</h4>
-            <ul className="list-disc list-inside space-y-1">
-                {(data.clues || []).map((clue, i) => <li key={i}>{clue}</li>)}
-            </ul>
+const LogicGridPuzzleSheet: React.FC<{data: LogicGridPuzzleData}> = ({data}) => {
+    const { people, categories } = data;
+    
+    return (
+        <div className="flex flex-col h-full">
+            <h3 className="text-xl font-bold mb-2 text-center">{data.title}</h3>
+            <p className="text-center text-sm text-zinc-600 dark:text-zinc-400 mb-4">{data.prompt}</p>
+            <div className="flex flex-col md:flex-row gap-4 flex-1">
+                <div className="w-full md:w-1/3">
+                    <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">İpuçları</h4>
+                    <ul className="list-disc list-inside space-y-1 text-sm bg-zinc-50 dark:bg-zinc-700/50 p-3 rounded-lg">
+                        {(data.clues || []).map((clue, i) => <li key={i}>{clue}</li>)}
+                    </ul>
+                </div>
+                <div className="flex-1 overflow-x-auto">
+                    <table className="border-collapse w-full text-xs">
+                        <thead>
+                            <tr>
+                                <th className="border p-1" style={{borderColor: 'var(--worksheet-border-color)'}}></th>
+                                {(categories || []).map(cat => (
+                                    <th key={cat.title} colSpan={cat.items.length} className="border p-1 text-center" style={{borderColor: 'var(--worksheet-border-color)'}}>{cat.title}</th>
+                                ))}
+                            </tr>
+                            <tr>
+                                <th className="border p-1" style={{borderColor: 'var(--worksheet-border-color)'}}></th>
+                                {(categories || []).flatMap(cat => cat.items).map((item, i) => (
+                                    <th key={i} className="border p-1" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                                        <div className="flex justify-center items-center h-full -rotate-45 whitespace-nowrap">
+                                            <span>{item.name}</span>
+                                        </div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {people.map((person) => (
+                                <tr key={person}>
+                                    <th className="border p-1 text-left" style={{borderColor: 'var(--worksheet-border-color)'}}>{person}</th>
+                                    {(categories || []).flatMap(cat => cat.items).map((item, i) => (
+                                        <td key={i} className="border text-center" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                                            <div className="w-6 h-6 mx-auto"></div>
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        {/* Placeholder for now - complex grid */}
-         <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Mantık Tablosu görünümü yapım aşamasındadır.</div>
-    </div>
-)
+    );
+};
 
 const ImageAnagramSortSheet: React.FC<{data: ImageAnagramSortData}> = ({data}) => (
     <div>
@@ -2287,12 +2444,45 @@ const AnagramImageMatchSheet: React.FC<{data: AnagramImageMatchData}> = ({data})
 
 const SyllableWordSearchSheet: React.FC<{data: SyllableWordSearchData}> = ({data}) => (
      <div>
-        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
-        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        {/* Placeholder for now - too complex */}
-        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+        <h3 className="text-xl font-bold mb-2 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-4">{data.prompt}</p>
+        
+        <div className="mb-6 p-3 bg-amber-100 dark:bg-amber-900/50 border-2 border-dashed border-amber-400 rounded-lg">
+            <h4 className="font-bold text-center mb-2 text-amber-800 dark:text-amber-200">Heceler</h4>
+            <div className="flex justify-center flex-wrap gap-2">
+                {(data.syllablesToCombine || []).map((syllable, index) => (
+                    <span key={index} className="px-3 py-1 bg-white dark:bg-zinc-700 rounded-md shadow-sm font-semibold">{syllable}</span>
+                ))}
+            </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                 <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeleri Oluştur</h4>
+                 <div className="space-y-3">
+                     {(data.wordsToCreate || []).map((puzzle, i) => (
+                         <div key={i} className="flex items-center gap-2 text-sm">
+                             <span>{puzzle.syllable1}</span>
+                             <span>+</span>
+                              <span>{puzzle.syllable2}</span>
+                             <span>&rarr;</span>
+                             <div className="flex-1 h-6 border-b-2 border-dotted border-zinc-400"></div>
+                         </div>
+                     ))}
+                 </div>
+            </div>
+            <div>
+                <h4 className="font-bold mb-2 text-violet-600 dark:text-violet-400">Bulmacada Ara</h4>
+                <GridComponent grid={data.grid} />
+            </div>
+        </div>
+        <div className="mt-4 text-center">
+            <p className="font-semibold">{data.passwordPrompt}</p>
+            <div className="h-8 max-w-sm mx-auto border-b-2 border-zinc-400 mt-2"></div>
+        </div>
     </div>
 );
+
 
 const WordPlacementPuzzleSheet: React.FC<{data: WordPlacementPuzzleData}> = ({data}) => (
     <div>
@@ -2332,23 +2522,106 @@ const PositionalAnagramSheet: React.FC<{data: PositionalAnagramData}> = ({data})
     </div>
 )
 
-// FIX: Added placeholder components for missing activity types to prevent crashes.
-const MultiplicationWheelSheet: React.FC<{ data: MultiplicationWheelData }> = ({ data }) => (
-    <div>
-        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
-        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
-    </div>
-);
+const MultiplicationWheelSheet: React.FC<{ data: MultiplicationWheelData }> = ({ data }) => {
+    return (
+        <div>
+            <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+            <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 justify-items-center">
+                {(data.puzzles || []).map((puzzle, index) => {
+                    const numSectors = puzzle.outerNumbers.length;
+                    const angleStep = 360 / numSectors;
+
+                    return (
+                        <div key={index} className="w-full max-w-xs aspect-square">
+                            <svg viewBox="0 0 100 100" className="w-full h-full">
+                                {/* Center Circle */}
+                                <circle cx="50" cy="50" r="15" className="fill-amber-300 dark:fill-amber-700 stroke-amber-500" strokeWidth="1" />
+                                <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" className="text-xl font-bold fill-current">
+                                    {puzzle.innerResult}
+                                </text>
+
+                                {/* Sectors */}
+                                {puzzle.outerNumbers.map((num, i) => {
+                                    const angle = i * angleStep - 90;
+                                    const midAngle = angle + angleStep / 2;
+                                    
+                                    const [outerX, outerY] = [50 + 28 * Math.cos(midAngle * Math.PI / 180), 50 + 28 * Math.sin(midAngle * Math.PI / 180)];
+                                    const [resultX, resultY] = [50 + 42 * Math.cos(midAngle * Math.PI / 180), 50 + 42 * Math.sin(midAngle * Math.PI / 180)];
+
+                                    return (
+                                        <g key={i}>
+                                            {/* Lines */}
+                                            <line x1="50" y1="50" x2={50 + 50 * Math.cos(angle * Math.PI / 180)} y2={50 + 50 * Math.sin(angle * Math.PI / 180)} className="stroke-zinc-300 dark:stroke-zinc-600" strokeWidth="0.5" />
+                                            <circle cx={outerX} cy={outerY} r="8" className="fill-white dark:fill-zinc-700 stroke-zinc-400" strokeWidth="0.5"/>
+                                             <text x={outerX} y={outerY} textAnchor="middle" dominantBaseline="middle" className="text-sm font-bold fill-current">
+                                                {num}
+                                            </text>
+                                            <circle cx={resultX} cy={resultY} r="8" className="fill-sky-100 dark:fill-sky-900/50 stroke-sky-400" strokeWidth="0.5"/>
+                                            <text x={resultX} y={resultY} textAnchor="middle" dominantBaseline="middle" className="text-sm font-bold fill-current">
+                                                {num !== null ? num * puzzle.innerResult : ''}
+                                            </text>
+                                        </g>
+                                    );
+                                })}
+                            </svg>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
 
 const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) => (
     <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+        {(data.puzzles || []).map((puzzle, index) => {
+            const gridSize = puzzle.grid.length;
+            const subgridSize = Math.sqrt(gridSize); // e.g., 2 for 4x4, 3 for 9x9
+
+            return (
+                <div key={index} className="flex flex-col md:flex-row gap-8 items-start">
+                    <div className="flex-1">
+                        <div
+                            className="grid border-2 border-zinc-900 dark:border-zinc-500"
+                            style={{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }}
+                        >
+                            {puzzle.grid.flat().map((cell, i) => {
+                                const row = Math.floor(i / gridSize);
+                                const col = i % gridSize;
+                                const borderRight = (col + 1) % subgridSize === 0 && col !== gridSize - 1 ? 'border-r-2 border-zinc-900 dark:border-zinc-500' : '';
+                                const borderBottom = (row + 1) % subgridSize === 0 && row !== gridSize - 1 ? 'border-b-2 border-zinc-900 dark:border-zinc-500' : '';
+                                
+                                return (
+                                    <div
+                                        key={i}
+                                        className={`aspect-square flex items-center justify-center border bg-white dark:bg-zinc-700/50 ${borderRight} ${borderBottom}`}
+                                        style={{ borderColor: 'var(--worksheet-border-color)' }}
+                                    >
+                                        {cell && <Shape name={cell} className="w-3/4 h-3/4 text-zinc-800 dark:text-zinc-200" />}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                    <div className="w-full md:w-1/3">
+                        <h4 className="font-bold text-lg mb-2 text-indigo-600 dark:text-indigo-400">Kullanılacak Şekiller</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                            {(puzzle.shapesToUse || []).map(item => (
+                                <div key={item.shape} className="flex flex-col items-center p-2 bg-zinc-100 dark:bg-zinc-700 rounded-md">
+                                    <Shape name={item.shape} className="w-10 h-10 mb-1 text-zinc-800 dark:text-zinc-200" />
+                                    <p className="text-xs font-semibold">{item.label}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        })}
     </div>
 );
-
 
 const componentMap: { [key in ActivityType]?: React.FC<any> } = {
     [ActivityType.WORD_SEARCH]: WordSearchGrid,
@@ -2476,12 +2749,13 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
   
   const { fontSize, borderColor, borderWidth, dyslexiaFriendlyFont, layout, margin, pageView } = settings;
 
+  // FIX: Cast style object to React.CSSProperties to allow for CSS custom properties.
   const worksheetStyles: CSSProperties = {
     fontSize: `${fontSize}px`,
     '--worksheet-border-color': borderColor,
     '--worksheet-border-width': `${borderWidth}px`,
     fontFamily: dyslexiaFriendlyFont ? "'Lexend', sans-serif" : "'Nunito Sans', sans-serif",
-  };
+  } as React.CSSProperties;
 
   const getLayoutConfig = (l: typeof layout) => {
     switch (l) {
