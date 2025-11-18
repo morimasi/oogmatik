@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, CSSProperties, ReactNode } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme } from './types';
 // FIX: Error on line 3: Module '"file:///components/Sidebar"' has no default export. Fixed by adding a default export to Sidebar.tsx
@@ -11,7 +10,6 @@ export interface StyleSettings {
   borderColor: string;
   borderWidth: number;
   margin: number;
-  pageView: 'single' | 'double';
 }
 
 const initialStyleSettings: StyleSettings = {
@@ -19,7 +17,6 @@ const initialStyleSettings: StyleSettings = {
     borderColor: '#d4d4d8', // zinc-300
     borderWidth: 1,
     margin: 32, // p-8 tailwind değeri
-    pageView: 'single',
 };
 
 export type View = 'generator' | 'savedList';
@@ -185,23 +182,12 @@ const App: React.FC = () => {
             >
               <i className="fa-solid fa-bars fa-lg"></i>
             </button>
-             <button onClick={handleResetApp} className="flex-shrink-0" aria-label="Uygulamayı sıfırla">
-                <svg
-                className="w-12 h-12 text-indigo-500 mr-3 hidden sm:block"
-                viewBox="0 0 50 50"
-                xmlns="http://www.w3.org/2000/svg"
-                strokeWidth="2.5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                >
-                <g className="animated-logo">
-                    <path d="M 35,25 a 10,10 0 1,1 -20,0 a 10,10 0 1,1 20,0" />
-                    <path id="stem-b" d="M 15 15 V 35" />
-                    <path id="stem-d" d="M 35 15 V 35" />
-                </g>
-                </svg>
+             <button onClick={handleResetApp} className="flex-shrink-0 flex items-center" aria-label="Uygulamayı sıfırla">
+                <img 
+                  src="/a.jpg" 
+                  alt="Bursa Disleksi Merkezi Logo" 
+                  className="h-12 w-auto mr-3 hidden sm:block object-contain"
+                />
             </button>
             <div>
                  <h1 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
@@ -348,7 +334,7 @@ const App: React.FC = () => {
               <li><strong>Kategori ve Etkinlik Seçin:</strong> Sol taraftaki menüden bir kategori seçin (örn: Kelime Oyunları) ve ardından ilginizi çeken bir etkinliğe (örn: Kelime Bulmaca) tıklayın.</li>
               <li><strong>Ayarları Yapılandırın:</strong> Etkinlik seçtikten sonra, üretim ayarları ekranı açılacaktır. Buradan "Yapay Zeka" veya "Hızlı Mod"u seçebilir, zorluk seviyesini, sayfa sayısını ve etkinliğe özel diğer ayarları (konu, kelime sayısı vb.) düzenleyebilirsiniz.</li>
               <li><strong>Etkinliği Oluşturun:</strong> Ayarlarınızı yaptıktan sonra "Etkinlik Oluştur" butonuna tıklayın. Yapay zeka sizin için benzersiz bir çalışma sayfası hazırlayacaktır.</li>
-              <li><strong>Görüntüleyin ve Düzenleyin:</strong> Oluşturulan etkinlik ekranda belirecektir. Üstteki araç çubuğunu kullanarak yazı tipi boyutunu, sayfa düzenini ve kenar boşluklarını istediğiniz gibi ayarlayabilirsiniz.</li>
+              <li><strong>Görüntüleyin ve Düzenleyin:</strong> Oluşturulan etkinlik ekranda belirecektir. Üstteki araç çubuğunu kullanarak yazı tipi boyutunu, kenar boşluklarını istediğiniz gibi ayarlayabilirsiniz.</li>
               <li><strong>Kaydedin veya Yazdırın:</strong> Hazırladığınız etkinliği daha sonra tekrar kullanmak için "Kaydet" butonuna tıklayabilir veya "Yazdır" butonuyla doğrudan çıktısını alabilirsiniz. Kaydedilen etkinliklere sağ üstteki Arşiv ikonundan ulaşabilirsiniz.</li>
           </ol>
       </Modal>

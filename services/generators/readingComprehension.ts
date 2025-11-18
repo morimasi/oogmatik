@@ -1,4 +1,3 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
@@ -8,21 +7,32 @@ export const generateStoryComprehensionFromAI = async (options: OfflineGenerator
     const { topic, difficulty, worksheetCount } = options;
     
     let wordCount = "50-80";
-    let style = "çok basit, kısa cümleler";
+    let style = "çok basit, kısa ve anlaşılır cümleler. Karmaşık kelime olmasın.";
+    let questionStyle = "Doğrudan metinde cevabı olan, basit 5N1K soruları.";
     
     if (difficulty === 'Orta') {
         wordCount = "100-150";
-        style = "ortalama uzunlukta cümleler, biraz betimleme";
+        style = "ortalama uzunlukta cümleler, biraz betimleme, günlük konuşma dili.";
+        questionStyle = "Metindeki olay örgüsünü takip etmeyi gerektiren sorular.";
     } else if (difficulty === 'Zor') {
         wordCount = "200-250";
-        style = "uzun ve karmaşık cümleler, zengin kelime dağarcığı, çıkarım yapmayı gerektiren";
+        style = "uzun ve karmaşık cümleler, zengin kelime dağarcığı, deyimler, mecaz anlamlar.";
+        questionStyle = "Çıkarım yapmayı, ana fikri bulmayı gerektiren, metinde doğrudan yazmayan sorular.";
+    } else if (difficulty === 'Uzman') {
+        wordCount = "300-400";
+        style = "Akademik veya edebi dil, eski Türkçe kelimeler, soyut kavramlar, yoğun betimlemeler.";
+        questionStyle = "Metnin tonunu, yazarın amacını veya karakterin psikolojisini analiz eden derinlemesine sorular.";
     }
 
     const prompt = `
-    "${difficulty}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda ${wordCount} kelimelik ${style} içeren Türkçe bir hikaye yaz. 
-    Hikayenin bir başlığı olsun.
+    "${difficulty}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda bir hikaye yaz.
+    Hikaye Uzunluğu: ${wordCount} kelime.
+    Dil ve Üslup: ${style}
+    
     Hikayeden sonra, hikayeyle ilgili 3 tane çoktan seçmeli anlama sorusu oluştur. 
+    Soru Tarzı: ${questionStyle}
     Her soru için 3 seçenek sun ve doğru seçeneğin indeksini (0, 1 veya 2) belirt.
+    
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun. Mümkün olduğunda emoji kullan.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -52,11 +62,16 @@ export const generateStoryComprehensionFromAI = async (options: OfflineGenerator
 
 export const generateStoryAnalysisFromAI = async (options: OfflineGeneratorOptions): Promise<StoryAnalysisData[]> => {
   const { topic, difficulty, worksheetCount } = options;
+  
+  let difficultyInstruction = "Metin çok kısa olsun. Sorular çok basit olsun.";
+  if (difficulty === 'Zor') difficultyInstruction = "Metin karmaşık olsun. Sorular detaylı analiz gerektirsin.";
+  
   const prompt = `
-    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun, içinde eş ve zıt anlamlı kelimeler barındıran 150-200 kelimelik bir hikaye yaz.
-    Hikaye sonrası için 3 tane analiz sorusu oluştur. Sorular "Hikayedeki 'mutlu' kelimesinin zıt anlamlısı nedir?" gibi olmalı.
+    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun, içinde eş ve zıt anlamlı kelimeler barındıran bir hikaye yaz.
+    ZORLUK DETAYI: ${difficultyInstruction}
+    Hikaye sonrası için 3 tane analiz sorusu oluştur. Sorular "Hikayedeki 'mutlu' kelimesinin zıt anlamlısı nedir?" gibi dil bilgisi veya detay analizi odaklı olmalı.
     Her soru için, cevabın bulunabileceği ipucu (context) metnini de belirt.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -84,11 +99,15 @@ export const generateStoryAnalysisFromAI = async (options: OfflineGeneratorOptio
 
 export const generateStoryCreationPromptFromAI = async (options: OfflineGeneratorOptions): Promise<StoryCreationPromptData[]> => {
   const { topic, itemCount: keywordCount, difficulty, worksheetCount } = options;
+  
+  let keywordType = "Basit, somut kelimeler (top, ev, kedi).";
+  if (difficulty === 'Zor') keywordType = "Soyut, duygusal kelimeler (cesaret, hüzün, macera).";
+  
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir hikaye oluşturma etkinliği hazırla.
     Hikayede kullanılması gereken ${keywordCount} tane anahtar kelime belirle.
-    Çocuğun bu kelimeleri kullanarak hikaye yazması için bir yönlendirme (prompt) metni oluştur.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    KELİME TÜRÜ: ${keywordType}
+    Çocuğun bu kelimeleri kullanarak hikaye yazması için ilham verici bir yönlendirme (prompt) metni oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -107,10 +126,9 @@ export const generateStoryCreationPromptFromAI = async (options: OfflineGenerato
 export const generateWordsInStoryFromAI = async (options: OfflineGeneratorOptions): Promise<WordsInStoryData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun 100-120 kelimelik kısa bir hikaye yaz.
-    Ardından, 12 kelimelik bir liste oluştur. Bu listenin yarısı hikayede geçen kelimelerden, diğer yarısı ise geçmeyen kelimelerden oluşsun.
+    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun kısa bir hikaye yaz.
+    Ardından, 12 kelimelik bir liste oluştur. Bu listenin yarısı hikayede geçen kelimelerden, diğer yarısı ise geçmeyen (ama konuya yakın çeldirici) kelimelerden oluşsun.
     Her kelimenin hikayede olup olmadığını (isInStory) boolean olarak belirt.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -138,12 +156,16 @@ export const generateWordsInStoryFromAI = async (options: OfflineGeneratorOption
 
 export const generateStorySequencingFromAI = async (options: OfflineGeneratorOptions): Promise<StorySequencingData[]> => {
     const { topic, difficulty, worksheetCount } = options;
+    
+    let complexity = "Olay örgüsü çok net ve basit.";
+    if (difficulty === 'Zor' || difficulty === 'Uzman') complexity = "Olay örgüsü karmaşık, sebep-sonuç ilişkisi dikkat gerektirsin.";
+
     const prompt = `
     Create a story sequencing activity about '${topic}', appropriate for difficulty level "${difficulty}".
-    Generate a simple 4-panel story. For each panel, provide a short description of the scene.
+    COMPLEXITY: ${complexity}
+    Generate a 4-panel story. For each panel, provide a short description of the scene.
     The panels should be given in a jumbled order. Each panel needs a letter ID (A, B, C, D).
     The user's goal is to put the panels in the correct chronological order to tell the story.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.
     `;
     const singleSchema = {

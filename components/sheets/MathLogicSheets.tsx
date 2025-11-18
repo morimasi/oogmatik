@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
     MathPuzzleData, NumberPatternData, OddOneOutData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData, ShapeCountingData, FutoshikiData, FutoshikiLengthData, NumberPyramidData, DivisionPyramidData, MultiplicationPyramidData, NumberCapsuleData, OddEvenSudokuData, Sudoku6x6ShadedData, RomanNumeralStarHuntData, RoundingConnectData, ArithmeticConnectData, RomanNumeralMultiplicationData, KendokuData, OperationSquareSubtractionData, OperationSquareFillInData, OperationSquareMultDivData, TargetNumberData, MultiplicationWheelData, ShapeSudokuData, VisualNumberPatternData, LogicGridPuzzleData, ShapeType
@@ -222,14 +223,14 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData | FutoshikiLengthDat
                 const cellSize = 50;
                 const gap = 20;
                 const totalSize = puzzle.size * cellSize + (puzzle.size - 1) * gap;
-                const numbers = 'units' in puzzle ? puzzle.units : puzzle.numbers;
+                // Cast numbers to ensure flat() works as expected on the union
+                const numbers = ('units' in puzzle ? puzzle.units : puzzle.numbers) as (string | number | null)[][];
 
                 return (
                     <div key={index} className="flex justify-center">
                         <svg width={totalSize} height={totalSize}>
                             {/* Cells */}
-                            {/* FIX: Explicitly typed `num` in the `.map()` callback to resolve a TypeScript error where its type was being inferred as 'unknown' due to the `flat()` method being used on a union of array types. The type `string | number | null` is now correctly recognized as a valid ReactNode. */}
-                            {(numbers || []).flat().map((num: string | number | null, i) => {
+                            {(numbers || []).flat().map((num, i) => {
                                 const row = Math.floor(i / puzzle.size);
                                 const col = i % puzzle.size;
                                 return (
@@ -320,7 +321,7 @@ export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData | Sudoku6x6S
                             const borderBottom = (row === 1 || row === 3) ? 'border-b-2 border-zinc-900 dark:border-zinc-500' : '';
                             return(
                                 <div key={i} className={`w-16 h-16 flex items-center justify-center border text-2xl font-bold ${isConstrained ? 'bg-zinc-200 dark:bg-zinc-600' : 'bg-white dark:bg-zinc-700'} ${borderRight} ${borderBottom}`} style={{borderColor: 'var(--worksheet-border-color)'}}>
-                                    {cell}
+                                    {cell as React.ReactNode}
                                 </div>
                             )
                         })}

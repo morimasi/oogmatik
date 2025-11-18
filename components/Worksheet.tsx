@@ -180,7 +180,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
     return (
         <div className="worksheet-container" style={worksheetStyles}>
-            <div className={`page-grid ${settings.pageView === 'double' ? 'page-grid-double' : ''}`}>
+            <div className="page-grid">
             {data.map((singleData, index) => (
                 <div key={index} className={pageClasses} style={{padding: `var(--worksheet-margin)`, overflow: 'hidden'}}>
                      <div style={{

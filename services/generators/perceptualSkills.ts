@@ -8,11 +8,15 @@ import {
 
 export const generateFindTheDifferenceFromAI = async (options: OfflineGeneratorOptions): Promise<FindTheDifferenceData[]> => {
     const { topic, itemCount: rowCount, difficulty, worksheetCount } = options;
+    
+    let similarity = "Fark çok belirgin olsun (örn: 3 elma, 1 armut).";
+    if (difficulty === 'Zor' || difficulty === 'Uzman') similarity = "Fark çok küçük olsun (örn: kelimede 1 harf değişik, görselde küçük bir detay farklı).";
+
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun 'Farklı Olanı Bul' etkinliği için ${rowCount} satır oluştur.
+    BENZERLİK: ${similarity}
     Her satırda 4 kelime olsun. Bu kelimelerden 3'ü birbiriyle çok benzesin (görsel olarak), biri ise onlardan biraz farklı olsun.
     Doğru olanın (farklı olanın) indeksini belirt.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
@@ -44,7 +48,6 @@ export const generateStroopTestFromAI = async (options: OfflineGeneratorOptions)
     Metin ve renk genellikle birbiriyle eşleşmemelidir. Örneğin, metin "MAVİ" olabilirken renk "red" olabilir.
     Kullanılacak renkler: red, blue, green, yellow, orange, purple, pink, black.
     Kullanılacak metinler: KIRMIZI, MAVİ, YEŞİL, SARI, TURUNCU, MOR, PEMBE, SİYAH.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
@@ -71,10 +74,14 @@ export const generateStroopTestFromAI = async (options: OfflineGeneratorOptions)
 
 export const generateOddOneOutFromAI = async (options: OfflineGeneratorOptions): Promise<OddOneOutData[]> => {
   const { topic, itemCount: groupCount, difficulty, worksheetCount } = options;
+  
+  let relation = "Alakasız kelime çok bariz olsun (kedi, köpek, kuş, masa).";
+  if (difficulty === 'Zor' || difficulty === 'Uzman') relation = "Alakasız kelime, diğerleriyle ilişkili gibi görünsün ama ince bir fark olsun (elma, armut, muz, domates - hepsi meyve gibi ama domates sebze sayılır).";
+
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun 'Farklı Olanı Bul' etkinliği için ${groupCount} grup oluştur.
+    İLİŞKİ TÜRÜ: ${relation}
     Her grupta 4 kelime olsun. Bu kelimelerden 3'ü anlamsal olarak ilişkili, biri ise alakasız olsun.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -103,7 +110,6 @@ export const generateFindIdenticalWordFromAI = async (options: OfflineGeneratorO
     const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'Aynısını Bul' etkinliği için ${count} tane grup oluştur.
     Her grupta, birbirine çok benzeyen ama sadece bir harfi farklı olan iki kelime olsun. Bunlardan birini baz alarak birebir aynısını da ekle. Yani grupta [benzer1, benzer2] şeklinde iki kelimeden oluşan çiftler olacak.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {

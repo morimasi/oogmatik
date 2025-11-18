@@ -1,4 +1,3 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
@@ -102,14 +101,14 @@ export const generateProverbSearchFromAI = async (options: OfflineGeneratorOptio
 export const generateAnagramFromAI = async (options: OfflineGeneratorOptions): Promise<(AnagramData[])[]> => {
   const { topic, itemCount: wordCount, difficulty, worksheetCount } = options;
   
-  let wordLengthInstruction = "Kelimeler 3-4 harfli ve basit olmalı.";
-  if (difficulty === 'Orta') wordLengthInstruction = "Kelimeler 5-6 harfli olmalı.";
-  if (difficulty === 'Zor') wordLengthInstruction = "Kelimeler 7-9 harfli olmalı.";
-  if (difficulty === 'Uzman') wordLengthInstruction = "Kelimeler 10+ harfli veya bileşik kelimeler olmalı. Çok zorlayıcı olmalı.";
+  let wordLengthInstruction = "Kelimeler 3-4 harfli ve basit olmalı (örn: top, kuş).";
+  if (difficulty === 'Orta') wordLengthInstruction = "Kelimeler 5-6 harfli olmalı (örn: kalem, masa).";
+  if (difficulty === 'Zor') wordLengthInstruction = "Kelimeler 7-9 harfli olmalı (örn: telefon, bilgisayar).";
+  if (difficulty === 'Uzman') wordLengthInstruction = "Kelimeler 10+ harfli, soyut veya bileşik kelimeler olmalı (örn: çekoslovakya, bağımsızlık). Çok zorlayıcı olmalı.";
 
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun, ${topic} konusuyla ilgili, her biri ${wordCount} tane Türkçe kelime seç.
-    ${wordLengthInstruction}
+    KELİME UZUNLUĞU VE TÜRÜ: ${wordLengthInstruction}
     Bu kelimelerin harflerini karıştırarak anagramlarını oluştur.
     ÖNEMLİ: Her seferinde daha önce kullanmadığın farklı kelimeler seçmeye çalış.
     Sonucu, her biri bir çalışma sayfasını temsil eden anagram nesneleri dizilerinden oluşan bir JSON dizisi olarak döndür.
@@ -139,15 +138,15 @@ export const generateAnagramFromAI = async (options: OfflineGeneratorOptions): P
 export const generateSpellingCheckFromAI = async (options: OfflineGeneratorOptions): Promise<SpellingCheckData[]> => {
     const { topic, itemCount: count, difficulty, worksheetCount } = options;
     
-    let difficultyInstruction = "Çok bariz ve basit yazım hataları (örn: 'soğan' yerine 'sogan').";
-    if (difficulty === 'Orta') difficultyInstruction = "Orta seviye hatalar (de/da ayrımı, ki eki, yumuşak g).";
-    if (difficulty === 'Zor') difficultyInstruction = "Kafa karıştırıcı, çift ünsüzler veya düzeltme işaretleri.";
-    if (difficulty === 'Uzman') difficultyInstruction = "Akademik kelimeler, köken bilgisi gerektiren çok ince nüanslı hatalar, bitişik/ayrı yazılan birleşik kelimeler.";
+    let difficultyInstruction = "Çok bariz ve basit yazım hataları (örn: 'soğan' yerine 'sogan', 'ağaç' yerine 'agac'). Kelimeler kısa ve yaygın olsun.";
+    if (difficulty === 'Orta') difficultyInstruction = "Orta seviye hatalar (de/da ayrımı, ki eki, yumuşak g kullanımı, 'herkes' yerine 'herkez').";
+    if (difficulty === 'Zor') difficultyInstruction = "Kafa karıştırıcı, çift ünsüzler, düzeltme işaretleri veya yabancı kökenli kelimelerin yazımı (örn: 'şoför', 'orijinal').";
+    if (difficulty === 'Uzman') difficultyInstruction = "Akademik kelimeler, köken bilgisi gerektiren çok ince nüanslı hatalar, bitişik/ayrı yazılan birleşik kelimeler, satır sonu bölmeleri.";
 
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun, Türkçede sıkça yanlış yazılan ${count} kelime bul.
-    Kriter: ${difficultyInstruction}
-    Her kelime için, doğru yazılışını ve 2 tane yanlış varyasyonunu içeren 3 seçenekli bir liste oluştur.
+    ZORLUK KRİTERİ: ${difficultyInstruction}
+    Her kelime için, doğru yazılışını ve 2 tane yaygın yapılan yanlış varyasyonunu içeren 3 seçenekli bir liste oluştur.
     ÖNEMLİ: Her üretimde farklı kelimeler kullan.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
@@ -176,15 +175,15 @@ export const generateSpellingCheckFromAI = async (options: OfflineGeneratorOptio
 export const generateWordComparisonFromAI = async (options: OfflineGeneratorOptions): Promise<WordComparisonData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   
-  let similarityInstruction = "Kelimeler birbirinden görsel ve işitsel olarak tamamen farklı olsun.";
-  if (difficulty === 'Orta') similarityInstruction = "Kelimeler görsel olarak biraz benzesin (örn: kalem - kelam).";
-  if (difficulty === 'Zor') similarityInstruction = "Kelimeler anagram gibi olsun veya sadece 1 harf fark olsun.";
-  if (difficulty === 'Uzman') similarityInstruction = "Kelimeler neredeyse aynı olsun, sadece çok dikkatli bakınca fark edilen harf değişiklikleri olsun (örn: I/İ, O/Ö, b/d/p karışıklığı).";
+  let similarityInstruction = "Kelimeler birbirinden görsel ve işitsel olarak tamamen farklı olsun. Ayırt etmek çok kolay olsun.";
+  if (difficulty === 'Orta') similarityInstruction = "Kelimeler görsel olarak biraz benzesin (örn: kalem - kelam, masa - kasa).";
+  if (difficulty === 'Zor') similarityInstruction = "Kelimeler anagram gibi olsun veya sadece 1 harf fark olsun (örn: kitap - katip).";
+  if (difficulty === 'Uzman') similarityInstruction = "Kelimeler neredeyse aynı olsun, sadece çok dikkatli bakınca fark edilen harf değişiklikleri olsun (örn: I/İ, O/Ö, b/d/p karışıklığı, 'şemsiye' - 'şemşiye').";
 
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun, iki farklı kutu için 10'ar kelimelik iki liste oluştur. 
     Listelerdeki kelimelerin çoğu aynı olsun ama her listede 3-4 tane farklı kelime bulunsun.
-    BENZERLİK KRİTERİ: ${similarityInstruction}
+    BENZERLİK VE ZORLUK KRİTERİ: ${similarityInstruction}
     Her seferinde tamamen benzersiz kelime setleri üret.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -240,9 +239,16 @@ export const generateProverbFillInTheBlankFromAI = async (options: OfflineGenera
 
 export const generateLetterBridgeFromAI = async (options: OfflineGeneratorOptions): Promise<LetterBridgeData[]> => {
   const { itemCount: count, difficulty, worksheetCount } = options;
+  
+  let difficultyInstruction = "Kelimeler 3-4 harfli olsun. Ortak harf ünsüz olsun.";
+  if (difficulty === 'Orta') difficultyInstruction = "Kelimeler 5 harfli olsun.";
+  if (difficulty === 'Zor') difficultyInstruction = "Kelimeler 6-7 harfli olsun. Ortak harf nadir kullanılan bir harf olabilir.";
+  if (difficulty === 'Uzman') difficultyInstruction = "Kelimeler 8+ harfli ve soyut kavramlar olsun. Bulması zor olsun.";
+
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'Harf Köprüsü' etkinliği için ${count} tane kelime çifti oluştur.
-    ${difficulty === 'Uzman' ? 'Kelimeler 6+ harfli ve soyut kavramlar olsun.' : difficulty === 'Zor' ? 'Kelimeler 5-6 harfli olsun.' : 'Kelimeler 3-4 harfli olsun.'}
+    Kelimeler öyle seçilmeli ki, birinci kelimenin son harfi ile ikinci kelimenin ilk harfi aynı olsun.
+    ZORLUK KRİTERİ: ${difficultyInstruction}
     Her seferinde tamamen yeni kelimeler kullan.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -270,7 +276,20 @@ export const generateLetterBridgeFromAI = async (options: OfflineGeneratorOption
 
 
 export const generateWordLadderFromAI = async (options: OfflineGeneratorOptions): Promise<WordLadderData[]> => {
-    return generateWithSchema(`Create Word Ladder puzzles for difficulty ${options.difficulty}, count ${options.itemCount}. Unique every time.`, {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {title: {type: Type.STRING}, ladders: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {startWord: {type: Type.STRING}, endWord: {type: Type.STRING}, steps: {type: Type.INTEGER}}, required: ['startWord', 'endWord', 'steps']}}}, required: ['title', 'ladders']}}) as Promise<WordLadderData[]>;
+    const { difficulty, worksheetCount } = options;
+    let steps = 3;
+    if (difficulty === 'Orta') steps = 4;
+    if (difficulty === 'Zor') steps = 5;
+    if (difficulty === 'Uzman') steps = 6;
+
+    const prompt = `
+    Create a Word Ladder puzzle for difficulty level "${difficulty}". 
+    Generate ${worksheetCount} worksheets. Each worksheet should have a start word and an end word of the same length.
+    The transformation should take ideally ${steps} steps.
+    Ensure the words are valid Turkish words.
+    Return as a JSON array.
+    `;
+    return generateWithSchema(prompt, {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {title: {type: Type.STRING}, ladders: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {startWord: {type: Type.STRING}, endWord: {type: Type.STRING}, steps: {type: Type.INTEGER}}, required: ['startWord', 'endWord', 'steps']}}}, required: ['title', 'ladders']}}) as Promise<WordLadderData[]>;
 };
 
 // Re-exporting placeholders for functions not fully expanded in this snippet due to length limits, 

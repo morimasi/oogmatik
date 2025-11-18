@@ -19,8 +19,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
     }
   };
   
-  const pageViewOptions: StyleSettings['pageView'][] = ['single', 'double'];
-
   return (
     <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-700/50 p-2 rounded-lg shadow-md flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 print:hidden">
         {/* Ayarlar */}
@@ -49,16 +47,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
                 <div className="flex-1 flex items-center gap-2 min-w-[150px]">
                     <label htmlFor="margin" className="text-sm font-medium">Kenar Boşluğu:</label>
                     <input type="range" id="margin" min="0" max="80" value={settings.margin} onChange={(e) => onSettingsChange({...settings, margin: Number(e.target.value)})} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" aria-label="Kenar Boşluğu"/>
-                </div>
-                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Sayfa Görünümü:</span>
-                    <div className="flex rounded-md shadow-sm">
-                        {pageViewOptions.map(view => (
-                             <button key={view} onClick={() => onSettingsChange({...settings, pageView: view})} className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800 ${settings.pageView === view ? 'bg-indigo-600 text-white shadow' : 'bg-zinc-200 dark:bg-zinc-600 hover:bg-zinc-300 dark:hover:bg-zinc-500'}`} aria-pressed={settings.pageView === view}>
-                                {view === 'single' ? 'Tek Sayfa' : 'Çift Sayfa'}
-                            </button>
-                        ))}
-                    </div>
                 </div>
             </div>
         </div>

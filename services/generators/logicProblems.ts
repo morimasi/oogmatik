@@ -1,4 +1,3 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
@@ -13,11 +12,18 @@ const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'st
 
 export const generateNumberPatternFromAI = async (options: OfflineGeneratorOptions): Promise<NumberPatternData[]> => {
     const { itemCount: count, difficulty, worksheetCount } = options;
+    
+    let patternRules = "Basit artışlar (örn: +2, +5).";
+    if (difficulty === 'Orta') patternRules = "Artış ve azalış karışık, veya çarpma (örn: x2).";
+    if (difficulty === 'Zor') patternRules = "İki aşamalı kurallar (örn: x2 +1) veya Fibonacci benzeri.";
+    if (difficulty === 'Uzman') patternRules = "Karmaşık matematiksel diziler, üslü sayılar veya asal sayılar.";
+
     const prompt = `
     "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, ${count} tane sayı örüntüsü bulmacası oluştur.
+    KURAL TÜRÜ: ${patternRules}
     Her örüntü bir dizi sayı içermeli ve sonunda bir soru işareti olmalıdır. (örn: "2, 4, 6, 8, ?").
     Her örüntü için doğru cevabı da belirt.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
@@ -46,10 +52,10 @@ export const generateShapeMatchingFromAI = async (options: OfflineGeneratorOptio
   const { itemCount: rowCount, difficulty, worksheetCount } = options;
   const prompt = `
     "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun bir şekil eşleştirme etkinliği oluştur.
-    Solda ve sağda ${rowCount} tane satır olsun. Her satırda 3 tane şekil olsun.
+    Solda ve sağda ${rowCount} tane satır olsun. Her satırda ${difficulty === 'Başlangıç' ? '1-2' : '3-4'} tane şekil olsun.
     Soldaki satırların birebir aynısı sağda da olsun ama sıraları karışık olsun.
     Şekiller: ${SHAPE_TYPES.join(', ')}.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -90,8 +96,9 @@ export const generateSymbolCipherFromAI = async (options: OfflineGeneratorOption
   const prompt = `
     "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun bir şifre çözme etkinliği oluştur.
     8 tane şekil-harf çiftinden oluşan bir şifre anahtarı oluştur. Şekiller: ${SHAPE_TYPES.join(', ')}.
-    Bu anahtarı kullanarak ${wordCount} tane şifreli kelime oluştur. Her kelime 4-6 harf uzunluğunda olsun.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Bu anahtarı kullanarak ${wordCount} tane şifreli kelime oluştur. 
+    ${difficulty === 'Başlangıç' ? 'Kelimeler 3-4 harfli ve basit olsun.' : 'Kelimeler uzun ve karmaşık olsun.'}
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -134,7 +141,7 @@ export const generateCoordinateCipherFromAI = async (options: OfflineGeneratorOp
     ${gridSize}x${gridSize} boyutunda bir harf tablosu oluştur.
     Tabloda gizli ${wordCount} tane kelime olsun.
     Bu kelimeler bulunduktan sonra, koordinatları (örn: "A5", "C2") verilecek olan harfleri birleştirerek çözülecek 5-6 harfli bir şifre kelimesi oluştur.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {

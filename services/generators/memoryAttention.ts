@@ -1,4 +1,3 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
@@ -15,8 +14,9 @@ export const generateWordMemoryFromAI = async (options: OfflineGeneratorOptions)
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir kelime hafıza testi oluştur.
     Ezberlenecek ${memorizeCount} kelime seç.
+    ${difficulty === 'Başlangıç' ? 'Kelimeler kısa (3-4 harf) ve somut olsun.' : difficulty === 'Uzman' ? 'Kelimeler uzun, soyut ve birbirine benzer olsun.' : 'Kelimeler orta zorlukta olsun.'}
     Test için ${testCount} kelimelik bir liste oluştur. Bu listenin içinde ezberlenecek kelimeler de bulunsun.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
@@ -40,9 +40,9 @@ export const generateVisualMemoryFromAI = async (options: OfflineGeneratorOption
   const testCount = itemCount;
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir görsel hafıza testi oluştur.
-    Ezberlenecek ${memorizeCount} tane basit nesne belirle (örn: "Kırmızı Araba 🚗"). İsmini ve emojisini ver.
+    Ezberlenecek ${memorizeCount} tane nesne belirle (örn: "Kırmızı Araba 🚗"). İsmini ve emojisini ver.
     Test için ${testCount} tane nesneden oluşan bir liste oluştur. Bu listenin içinde ezberlenecek nesneler de bulunsun.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
+    ${difficulty === 'Zor' ? 'Nesneler birbirine çok benzesin (örn: Kırmızı Elma, Yeşil Elma).' : 'Nesneler birbirinden tamamen farklı olsun.'}
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -62,12 +62,15 @@ export const generateVisualMemoryFromAI = async (options: OfflineGeneratorOption
 
 export const generateNumberSearchFromAI = async (options: OfflineGeneratorOptions): Promise<NumberSearchData[]> => {
     const { difficulty, worksheetCount } = options;
-    const [start, end] = [1, 50]; // Sabit aralık
+    let range = { start: 1, end: 20 };
+    if (difficulty === 'Orta') range = { start: 1, end: 50 };
+    if (difficulty === 'Zor') range = { start: 100, end: 150 };
+    if (difficulty === 'Uzman') range = { start: 1000, end: 1100 };
+
     const prompt = `
     "${difficulty}" zorluk seviyesine uygun bir sayı avı etkinliği oluştur. 
-    ${start} ile ${end} arasındaki sayıları içersin.
+    ${range.start} ile ${range.end} arasındaki sayıları içersin.
     Bu sayıları ve dikkat dağıtıcı başka sayıları/karakterleri rastgele bir sırada içeren bir liste oluştur. Toplam 100 öğe olsun.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
@@ -96,8 +99,8 @@ export const generateFindTheDuplicateInRowFromAI = async (options: OfflineGenera
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'İkiliyi Bul' etkinliği için ${rows} satır ve ${cols} sütundan oluşan bir tablo oluştur.
     Her satıra rastgele harfler ve rakamlar yerleştir.
+    ${difficulty === 'Zor' ? 'Karakterler birbirine çok benzer olsun (b, d, p, q gibi).' : 'Karakterler birbirinden farklı olsun.'}
     Her satırda, karakterlerden sadece bir tanesi iki defa tekrar etsin.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -120,7 +123,6 @@ export const generateLetterGridTestFromAI = async (options: OfflineGeneratorOpti
     ${gridSize}x${gridSize} boyutunda ve "${difficulty}" zorluk seviyesine uygun bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe küçük harflerle doldur.
     Aranacak hedef harfler şunlar: ${targetLettersArray.join(', ')}. Bu harfleri ızgaraya serpiştir.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
@@ -151,7 +153,6 @@ export const generateFindLetterPairFromAI = async (options: OfflineGeneratorOpti
     'Harf İkilisini Bul' etkinliği için ${gridSize}x${gridSize} boyutunda ve "${difficulty}" zorluk seviyesine uygun bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe harflerle doldur.
     Hedef harf ikilisi olan '${pair}' harflerini ızgarada yanyana olacak şekilde birkaç yere yerleştir.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
@@ -178,7 +179,6 @@ export const generateTargetSearchFromAI = async (options: OfflineGeneratorOption
     "${difficulty}" zorluk seviyesine uygun 'Dikkatli Göz' etkinliği oluştur.
     ${gridSize}x${gridSize} boyutunda bir tabloyu '${distractor}' karakteriyle doldur.
     İçine rastgele yerlere 15-20 tane '${target}' karakteri serpiştir.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
