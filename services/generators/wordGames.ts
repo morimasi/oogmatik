@@ -15,11 +15,27 @@ import {
 
 
 export const generateWordSearchFromAI = async (options: OfflineGeneratorOptions): Promise<WordSearchData[]> => {
-  const { topic, gridSize, itemCount: wordCount, difficulty, worksheetCount } = options;
+  const { topic, itemCount: wordCount, difficulty, worksheetCount } = options;
+  
+  // Zorluk seviyesine göre grid boyutu ve kurallar
+  let gridSize = 10;
+  let rules = "Kelimeler sadece soldan sağa (yatay) ve yukarıdan aşağıya (dikey) yerleştirilmeli. Çapraz veya ters yerleşim OLMAMALI.";
+  
+  if (difficulty === 'Orta') {
+      gridSize = 14;
+      rules = "Kelimeler yatay, dikey ve çapraz yerleştirilebilir. Ters yerleşim OLMAMALI.";
+  } else if (difficulty === 'Zor') {
+      gridSize = 18;
+      rules = "Kelimeler yatay, dikey, çapraz ve ters (tersten okunuş) şekilde her yöne yerleştirilebilir. Zorlayıcı olmalı.";
+  }
+
+  // Kullanıcı özel bir boyut seçtiyse onu kullan, yoksa zorluğa göre olanı kullan
+  const finalGridSize = options.gridSize || gridSize;
+
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun, ${topic} konusuyla ilgili ${wordCount} tane Türkçe kelime oluştur. 
-    Bu kelimeleri ${gridSize}x${gridSize} boyutunda bir harf bulmacasına yerleştir. 
-    Kelimeler yatay, dikey ve çapraz olarak yerleştirilebilir. 
+    Bu kelimeleri ${finalGridSize}x${finalGridSize} boyutunda bir harf bulmacasına yerleştir. 
+    YERLEŞTİRME KURALLARI: ${rules}
     Boş kalan yerleri rastgele Türkçe harflerle doldur.
     Bulmaca için '${topic}' konusuyla ilgili bir başlık (title) oluştur.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -45,11 +61,18 @@ export const generateWordSearchFromAI = async (options: OfflineGeneratorOptions)
 };
 
 export const generateProverbSearchFromAI = async (options: OfflineGeneratorOptions): Promise<ProverbSearchData[]> => {
-  const { gridSize, difficulty, worksheetCount } = options;
+  const { difficulty, worksheetCount } = options;
+  
+  let gridSize = 10;
+  if (difficulty === 'Orta') gridSize = 12;
+  if (difficulty === 'Zor') gridSize = 15;
+  const finalGridSize = options.gridSize || gridSize;
+
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun bir 'Atasözü Avı' etkinliği oluştur.
-    ${gridSize}x${gridSize} boyutunda bir harf tablosu oluştur.
-    İçine iyi bilinen bir Türkçe atasözü gizle. Harfler soldan sağa, yukarıdan aşağıya veya çapraz olabilir.
+    ${finalGridSize}x${finalGridSize} boyutunda bir harf tablosu oluştur.
+    İçine ${difficulty === 'Kolay' ? 'kısa ve çok bilinen' : 'uzun ve daha az bilinen'} bir Türkçe atasözü gizle.
+    ${difficulty === 'Kolay' ? 'Harfler sadece soldan sağa ve yukarıdan aşağıya olsun.' : 'Harfler karmaşık yönlerde (çapraz dahil) olabilir.'}
     Boş kalan yerleri rastgele harflerle doldur.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
@@ -69,8 +92,15 @@ export const generateProverbSearchFromAI = async (options: OfflineGeneratorOptio
 
 export const generateAnagramFromAI = async (options: OfflineGeneratorOptions): Promise<(AnagramData[])[]> => {
   const { topic, itemCount: wordCount, difficulty, worksheetCount } = options;
+  
+  let wordLengthInstruction = "Kelimeler 3-4 harfli olmalı.";
+  if (difficulty === 'Orta') wordLengthInstruction = "Kelimeler 5-6 harfli olmalı.";
+  if (difficulty === 'Zor') wordLengthInstruction = "Kelimeler 7 ve üzeri harfli, karmaşık yapılı olmalı.";
+
   const prompt = `
-    "${difficulty}" zorluk seviyesine uygun, ${topic} konusuyla ilgili, her biri ${wordCount} tane Türkçe kelime ve bu kelimelerin karıştırılmış (anagram) hallerini içeren ${worksheetCount} tane çalışma sayfası oluştur.
+    "${difficulty}" zorluk seviyesine uygun, ${topic} konusuyla ilgili, her biri ${wordCount} tane Türkçe kelime seç.
+    ${wordLengthInstruction}
+    Bu kelimelerin harflerini karıştırarak anagramlarını oluştur.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Sonucu, her biri bir çalışma sayfasını temsil eden anagram nesneleri dizilerinden oluşan bir JSON dizisi olarak döndür.
   `;
@@ -98,8 +128,14 @@ export const generateAnagramFromAI = async (options: OfflineGeneratorOptions): P
 
 export const generateSpellingCheckFromAI = async (options: OfflineGeneratorOptions): Promise<SpellingCheckData[]> => {
     const { topic, itemCount: count, difficulty, worksheetCount } = options;
+    
+    let difficultyInstruction = "Yaygın ve basit yazım hataları (örn: 'soğan' yerine 'sogan').";
+    if (difficulty === 'Orta') difficultyInstruction = "Orta seviye yazım kuralları (de/da ayrımı, ki eki vb.).";
+    if (difficulty === 'Zor') difficultyInstruction = "Kafa karıştırıcı, akademik veya yabancı kökenli kelimelerin zor yazımları.";
+
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun, Türkçede sıkça yanlış yazılan ${count} kelime bul.
+    Kriter: ${difficultyInstruction}
     Her kelime için, doğru yazılışını ve 2 tane yanlış yazılmış varyasyonunu içeren 3 seçenekli bir liste oluştur. Seçeneklerin sırasını karıştır.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
@@ -128,9 +164,15 @@ export const generateSpellingCheckFromAI = async (options: OfflineGeneratorOptio
 
 export const generateWordComparisonFromAI = async (options: OfflineGeneratorOptions): Promise<WordComparisonData[]> => {
   const { topic, difficulty, worksheetCount } = options;
+  
+  let similarityInstruction = "Kelimeler birbirinden oldukça farklı olsun.";
+  if (difficulty === 'Orta') similarityInstruction = "Kelimeler görsel olarak biraz benzesin (örn: kalem - kelam).";
+  if (difficulty === 'Zor') similarityInstruction = "Kelimeler görsel olarak çok benzesin, anagram gibi olsun veya sadece 1 harf fark olsun.";
+
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun, iki farklı kutu için 10'ar kelimelik iki liste oluştur. 
     Listelerdeki kelimelerin çoğu aynı olsun ama her listede 3-4 tane farklı kelime bulunsun.
+    ${similarityInstruction}
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -152,7 +194,9 @@ export const generateWordComparisonFromAI = async (options: OfflineGeneratorOpti
 export const generateProverbFillInTheBlankFromAI = async (options: OfflineGeneratorOptions): Promise<ProverbFillData[]> => {
   const { itemCount: count, difficulty, worksheetCount } = options;
   const prompt = `
-    "${difficulty}" zorluk seviyesine uygun ${count} tane Türkçe atasözü seç. Her atasözünde bir kelimeyi eksik bırak.
+    "${difficulty}" zorluk seviyesine uygun ${count} tane Türkçe atasözü seç. 
+    ${difficulty === 'Kolay' ? 'Çok bilinen, kısa atasözleri olsun.' : difficulty === 'Orta' ? 'Orta uzunlukta atasözleri olsun.' : 'Uzun, karmaşık veya mecaz anlamı derin atasözleri olsun.'}
+    Her atasözünde bir kelimeyi eksik bırak.
     Atasözünün eksik kelimeden önceki ve sonraki kısımlarını ayrı ayrı ver.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
@@ -185,6 +229,7 @@ export const generateLetterBridgeFromAI = async (options: OfflineGeneratorOption
     "${difficulty}" zorluk seviyesine uygun 'Harf Köprüsü' etkinliği için ${count} tane kelime çifti oluştur.
     Her çiftte, birinci kelimenin sonuna ve ikinci kelimenin başına aynı harf eklendiğinde anlamlı iki yeni kelime oluşmalıdır. 
     Örnek: (TARAF, İLMİK) -> A harfi -> (TARAFA, AİLMİK). Sen sadece 'TARAF' ve 'İLMİK' kısımlarını ver.
+    ${difficulty === 'Zor' ? 'Kelimeler daha uzun ve nadir kullanılanlardan seçilsin.' : 'Yaygın ve basit kelimeler kullanılsın.'}
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -212,10 +257,14 @@ export const generateLetterBridgeFromAI = async (options: OfflineGeneratorOption
 
 export const generateWordLadderFromAI = async (options: OfflineGeneratorOptions): Promise<WordLadderData[]> => {
   const { itemCount: count, difficulty, worksheetCount } = options;
+  let steps = 3;
+  if (difficulty === 'Orta') steps = 4;
+  if (difficulty === 'Zor') steps = 5;
+
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'Kelime Merdiveni' etkinliği için ${count} tane bulmaca oluştur.
-    Her bulmaca için 4 harfli bir başlangıç ve bitiş kelimesi seç. 
-    İki kelime arasında en az 3 adım (değiştirilecek harf sayısı) olsun.
+    Her bulmaca için ${steps + 1} veya ${steps + 2} harfli bir başlangıç ve bitiş kelimesi seç. 
+    İki kelime arasında en az ${steps} adım (değiştirilecek harf sayısı) olsun.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -244,9 +293,16 @@ export const generateWordLadderFromAI = async (options: OfflineGeneratorOptions)
 
 export const generateWordFormationFromAI = async (options: OfflineGeneratorOptions): Promise<WordFormationData[]> => {
     const { itemCount: count, difficulty, worksheetCount } = options;
+    let letterCount = 6;
+    let jokerCount = 1;
+    
+    if (difficulty === 'Orta') { letterCount = 8; jokerCount = 2; }
+    if (difficulty === 'Zor') { letterCount = 10; jokerCount = 2; }
+
     const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'Harflerden Kelime Türetme' etkinliği için ${count} tane set oluştur.
-    Her set için 7-8 tane rastgele harf ve 1-2 tane joker hakkı belirle.
+    Her set için ${letterCount} tane rastgele harf ve ${jokerCount} tane joker hakkı belirle.
+    ${difficulty === 'Zor' ? 'Harflerden en az bir tane uzun kelime türetilebilmeli.' : ''}
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
@@ -276,6 +332,7 @@ export const generateReverseWordFromAI = async (options: OfflineGeneratorOptions
     const { topic, itemCount: count, difficulty, worksheetCount } = options;
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun ${count} tane Türkçe kelime seç.
+    ${difficulty === 'Kolay' ? 'Kelimeler 3-4 harfli olsun.' : difficulty === 'Orta' ? 'Kelimeler 5-7 harfli olsun.' : 'Kelimeler 8+ harfli ve zor olsun.'}
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
@@ -293,11 +350,12 @@ export const generateReverseWordFromAI = async (options: OfflineGeneratorOptions
 
 export const generateWordGroupingFromAI = async (options: OfflineGeneratorOptions): Promise<WordGroupingData[]> => {
   const { topic, itemCount: wordCount, difficulty, worksheetCount } = options;
-  const categoryCount = 3;
+  const categoryCount = difficulty === 'Kolay' ? 2 : difficulty === 'Orta' ? 3 : 4;
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir kelime gruplama etkinliği oluştur.
     ${categoryCount} tane kategori ismi belirle.
     Bu kategorilere ait toplam ${wordCount} tane kelimeyi karışık bir sırada listele.
+    ${difficulty === 'Zor' ? 'Kategoriler birbirine yakın veya karıştırılabilir olsun.' : 'Kategoriler birbirinden çok net ayrılsın.'}
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -316,7 +374,9 @@ export const generateWordGroupingFromAI = async (options: OfflineGeneratorOption
 
 export const generateMiniWordGridFromAI = async (options: OfflineGeneratorOptions): Promise<MiniWordGridData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a mini word grid puzzle appropriate for difficulty level "${difficulty}". Generate a worksheet with 4 puzzles. Each puzzle is a 4x4 grid with a single 4-letter Turkish word hidden within. Specify the starting cell (row, col) of the word. The rest of the cells are filled with random letters.
+    const gridSize = difficulty === 'Kolay' ? 3 : difficulty === 'Orta' ? 4 : 5;
+    
+    const prompt = `Create a mini word grid puzzle appropriate for difficulty level "${difficulty}". Generate a worksheet with 4 puzzles. Each puzzle is a ${gridSize}x${gridSize} grid with a single Turkish word hidden within. Specify the starting cell (row, col) of the word. The rest of the cells are filled with random letters.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -345,6 +405,7 @@ export const generateMiniWordGridFromAI = async (options: OfflineGeneratorOption
 export const generatePasswordFinderFromAI = async (options: OfflineGeneratorOptions): Promise<PasswordFinderData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a "Password Finder" activity appropriate for difficulty level "${difficulty}". Provide a list of 12 Turkish words. Some of them must be proper nouns that should be capitalized. The user must identify these. The first letter of each proper noun forms a secret password.
+    ${difficulty === 'Zor' ? 'Include tricky words that might look like proper nouns but are not.' : ''}
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -375,6 +436,7 @@ export const generatePasswordFinderFromAI = async (options: OfflineGeneratorOpti
 export const generateSyllableCompletionFromAI = async (options: OfflineGeneratorOptions): Promise<SyllableCompletionData[]> => {
     const { topic, difficulty, worksheetCount } = options;
     const prompt = `Create a syllable completion activity with the theme '${topic}', appropriate for difficulty level "${difficulty}". Provide a list of first and second parts of 8 Turkish words. Also provide a list of the missing syllables for the user to choose from. Finally, provide a prompt for the user to write a story using the completed words. 
+    ${difficulty === 'Zor' ? 'Use 3-syllable or 4-syllable words where the middle syllable is missing.' : 'Use simple 2-syllable words.'}
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -405,7 +467,11 @@ export const generateSyllableCompletionFromAI = async (options: OfflineGenerator
 
 export const generateSynonymWordSearchFromAI = async (options: OfflineGeneratorOptions): Promise<SynonymWordSearchData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Synonym Word Search" activity appropriate for difficulty level "${difficulty}". Provide a list of 6 Turkish words to match. Create a 12x12 grid and hide the synonyms of these words in it. 
+    let gridSize = 10;
+    if (difficulty === 'Orta') gridSize = 12;
+    if (difficulty === 'Zor') gridSize = 15;
+
+    const prompt = `Create a "Synonym Word Search" activity appropriate for difficulty level "${difficulty}". Provide a list of 6 Turkish words to match. Create a ${gridSize}x${gridSize} grid and hide the synonyms of these words in it. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -434,7 +500,11 @@ export const generateSynonymWordSearchFromAI = async (options: OfflineGeneratorO
 
 export const generateSpiralPuzzleFromAI = async (options: OfflineGeneratorOptions): Promise<SpiralPuzzleData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a Spiral Puzzle appropriate for difficulty level "${difficulty}". Generate a 10x10 grid with a spiral path for words. Provide 6-8 clues for Turkish words that fit into the spiral. Also provide the starting coordinates for each word. The grid should contain the solution letters. 
+    let gridSize = 8;
+    if (difficulty === 'Orta') gridSize = 10;
+    if (difficulty === 'Zor') gridSize = 12;
+
+    const prompt = `Create a Spiral Puzzle appropriate for difficulty level "${difficulty}". Generate a ${gridSize}x${gridSize} grid with a spiral path for words. Provide clues for Turkish words that fit into the spiral. Also provide the starting coordinates for each word. The grid should contain the solution letters. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -465,7 +535,12 @@ export const generateSpiralPuzzleFromAI = async (options: OfflineGeneratorOption
 
 export const generateCrosswordFromAI = async (options: OfflineGeneratorOptions): Promise<CrosswordData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a 10x10 crossword puzzle appropriate for difficulty level "${difficulty}". Generate about 5 across and 5 down clues for Turkish words. Provide the grid with solution letters and null for black cells. Also define a 5-6 letter password hidden in specific cells. Provide the password cell coordinates and the password length. 
+    let gridSize = 8;
+    let wordCount = 4;
+    if (difficulty === 'Orta') { gridSize = 10; wordCount = 6; }
+    if (difficulty === 'Zor') { gridSize = 12; wordCount = 8; }
+
+    const prompt = `Create a ${gridSize}x${gridSize} crossword puzzle appropriate for difficulty level "${difficulty}". Generate about ${wordCount} across and ${wordCount} down clues for Turkish words. Provide the grid with solution letters and null for black cells. Also define a 5-6 letter password hidden in specific cells. Provide the password cell coordinates and the password length. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -560,7 +635,10 @@ export const generateHomonymSentenceWritingFromAI = async (options: OfflineGener
 
 export const generateWordGridPuzzleFromAI = async (options: OfflineGeneratorOptions): Promise<WordGridPuzzleData[]> => {
     const { topic, difficulty, worksheetCount } = options;
-    const prompt = `Create a word grid puzzle (like Word-Fill-In) with the theme '${topic}', appropriate for difficulty level "${difficulty}". Create a 10x10 grid with some black cells (null). Provide a list of 8-10 Turkish words related to the theme to be placed in the grid. Provide a prompt about what to do with the one unused word. 
+    let gridSize = 10;
+    if (difficulty === 'Zor') gridSize = 12;
+
+    const prompt = `Create a word grid puzzle (like Word-Fill-In) with the theme '${topic}', appropriate for difficulty level "${difficulty}". Create a ${gridSize}x${gridSize} grid with some black cells (null). Provide a list of 8-10 Turkish words related to the theme to be placed in the grid. Provide a prompt about what to do with the one unused word. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {

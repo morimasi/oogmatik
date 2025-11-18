@@ -15,19 +15,20 @@ import {
 const wordlist: Record<string, string[]> = {
   "Hayvanlar": [
     "kedi", "köpek", "aslan", "kaplan", "fil", "zürafa", "ayı", "kurt", "tilki", "tavşan", 
-    "maymun", "yılan", "balık", "kuş", "ördek", "at", "eşek", "deve", "fare", "sincap"
+    "maymun", "yılan", "balık", "kuş", "ördek", "at", "eşek", "deve", "fare", "sincap", "timsah", "leopar", "penguen"
   ],
   "Meyveler": [
     "elma", "armut", "kiraz", "çilek", "muz", "portakal", "kavun", "karpuz", "üzüm", "erik",
-    "şeftali", "kayısı", "incir", "nar", "mandalina", "limon", "ananas", "mango", "kivi", "dut"
+    "şeftali", "kayısı", "incir", "nar", "mandalina", "limon", "ananas", "mango", "kivi", "dut", "böğürtlen"
   ],
   "Meslekler": [
     "doktor", "öğretmen", "polis", "avukat", "mühendis", "hemşire", "itfaiyeci", "aşçı", "pilot", "asker",
-    "terzi", "berber", "şoför", "çiftçi", "marangoz", "ressam", "mimar", "hakim", "savcı", "eczacı"
+    "terzi", "berber", "şoför", "çiftçi", "marangoz", "ressam", "mimar", "hakim", "savcı", "eczacı", "veteriner", "dişçi"
   ],
   "Rastgele": [
     "kitap", "kalem", "masa", "ev", "araba", "güneş", "ay", "yıldız", "su", "hava", "toprak", "ateş",
-    "okul", "sınıf", "tahta", "silgi", "defter", "çanta", "oyun", "park"
+    "okul", "sınıf", "tahta", "silgi", "defter", "çanta", "oyun", "park", "bilgisayar", "telefon", "televizyon",
+    "mutluluk", "heyecan", "macera", "kütüphane", "üniversite", "laboratuvar", "okyanus", "gezegen", "galaksi"
   ]
 };
 
@@ -41,7 +42,12 @@ const proverbs: string[] = [
   "Tatlı dil yılanı deliğinden çıkarır.",
   "Bir elin nesi var, iki elin sesi var.",
   "Ak akçe kara gün içindir.",
-  "Güneş balçıkla sıvanmaz."
+  "Güneş balçıkla sıvanmaz.",
+  "Acele işe şeytan karışır.",
+  "Besle kargayı oysun gözünü.",
+  "Dost kara günde belli olur.",
+  "El elden üstündür.",
+  "İşleyen demir ışıldar."
 ];
 
 const turkishAlphabet = 'abcçdefgğhıijklmnoöprsştuüvyz';
@@ -70,6 +76,7 @@ const getRandomInt = (min: number, max: number): number => {
 };
 
 const getRandomItems = <T>(arr: T[], count: number): T[] => {
+    if (count > arr.length) count = arr.length;
     return shuffle(arr).slice(0, count);
 };
 
@@ -90,63 +97,97 @@ export interface OfflineGeneratorOptions {
 // --- Generator Functions ---
 
 export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions): Promise<WordSearchData[]> => {
-    const { topic, itemCount, gridSize, worksheetCount } = options;
+    const { topic, itemCount, difficulty, worksheetCount } = options;
     const results: WordSearchData[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
 
+    // Zorluk seviyesine göre ayarlar
+    let size = 10;
+    let allowedDirections = [0, 1]; // 0: Yatay, 1: Dikey
+    let maxWordLength = 6;
+
+    if (difficulty === 'Orta') {
+        size = 14;
+        allowedDirections = [0, 1, 2]; // + Çapraz
+        maxWordLength = 8;
+    } else if (difficulty === 'Zor') {
+        size = 18;
+        allowedDirections = [0, 1, 2, 3]; // + Ters
+        maxWordLength = 15;
+    }
+
     for (let i = 0; i < worksheetCount; i++) {
-        const words = getRandomItems(availableWords.filter(w => w.length <= gridSize), itemCount);
-        const grid: string[][] = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
+        const words = getRandomItems(availableWords.filter(w => w.length <= maxWordLength && w.length >= 3), itemCount);
+        const grid: string[][] = Array.from({ length: size }, () => Array(size).fill(''));
         
         words.forEach(word => {
             let placed = false;
             let attempts = 0;
             while (!placed && attempts < 50) {
-                const direction = Math.floor(Math.random() * 3); // 0: horizontal, 1: vertical, 2: diagonal
-                if (direction === 0) { 
-                    const row = getRandomInt(0, gridSize - 1);
-                    const col = getRandomInt(0, gridSize - word.length);
-                    if (Array.from({ length: word.length }).every((_, k) => grid[row][col + k] === '' || grid[row][col + k] === word[k])) {
-                        for (let k = 0; k < word.length; k++) grid[row][col + k] = word[k];
-                        placed = true;
+                const direction = allowedDirections[getRandomInt(0, allowedDirections.length - 1)];
+                let row = 0, col = 0, dRow = 0, dCol = 0;
+
+                // Yön ayarları
+                if (direction === 0) { // Yatay
+                    dRow = 0; dCol = 1;
+                    row = getRandomInt(0, size - 1);
+                    col = getRandomInt(0, size - word.length);
+                } else if (direction === 1) { // Dikey
+                    dRow = 1; dCol = 0;
+                    row = getRandomInt(0, size - word.length);
+                    col = getRandomInt(0, size - 1);
+                } else if (direction === 2) { // Çapraz
+                    dRow = 1; dCol = 1;
+                    row = getRandomInt(0, size - word.length);
+                    col = getRandomInt(0, size - word.length);
+                } else if (direction === 3) { // Ters Yatay (Zor için)
+                    dRow = 0; dCol = -1;
+                    row = getRandomInt(0, size - 1);
+                    col = getRandomInt(word.length - 1, size - 1);
+                }
+
+                let fits = true;
+                for (let k = 0; k < word.length; k++) {
+                     if (grid[row + k * dRow][col + k * dCol] !== '' && grid[row + k * dRow][col + k * dCol] !== word[k]) {
+                         fits = false;
+                         break;
+                     }
+                }
+
+                if (fits) {
+                    for (let k = 0; k < word.length; k++) {
+                        grid[row + k * dRow][col + k * dCol] = word[k];
                     }
-                } else if (direction === 1) { 
-                    const row = getRandomInt(0, gridSize - word.length);
-                    const col = getRandomInt(0, gridSize - 1);
-                    if (Array.from({ length: word.length }).every((_, k) => grid[row + k][col] === '' || grid[row + k][col] === word[k])) {
-                        for (let k = 0; k < word.length; k++) grid[row + k][col] = word[k];
-                        placed = true;
-                    }
-                } else { 
-                     const row = getRandomInt(0, gridSize - word.length);
-                     const col = getRandomInt(0, gridSize - word.length);
-                     if (Array.from({ length: word.length }).every((_, k) => grid[row + k][col + k] === '' || grid[row + k][col + k] === word[k])) {
-                        for (let k = 0; k < word.length; k++) grid[row + k][col + k] = word[k];
-                        placed = true;
-                    }
+                    placed = true;
                 }
                 attempts++;
             }
         });
 
-        for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c < gridSize; c++) {
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
                 if (grid[r][c] === '') grid[r][c] = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
             }
         }
         
-        results.push({ title: `${topic} Kelime Bulmaca`, words, grid });
+        results.push({ title: `${topic} Kelime Bulmaca (${difficulty})`, words, grid });
     }
     return results;
 };
 
 export const generateOfflineAnagram = async (options: OfflineGeneratorOptions): Promise<(AnagramData[])[]> => {
-    const { topic, itemCount, worksheetCount } = options;
+    const { topic, itemCount, worksheetCount, difficulty } = options;
     const results: (AnagramData[])[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
+    
+    let minLen = 3, maxLen = 5;
+    if (difficulty === 'Orta') { minLen = 5; maxLen = 7; }
+    if (difficulty === 'Zor') { minLen = 7; maxLen = 20; }
+
+    const filteredWords = availableWords.filter(w => w.length >= minLen && w.length <= maxLen);
 
     for (let i = 0; i < worksheetCount; i++) {
-        const words = getRandomItems(availableWords, itemCount);
+        const words = getRandomItems(filteredWords.length > 0 ? filteredWords : availableWords, itemCount);
         const anagrams: AnagramData[] = words.map(word => ({ word, scrambled: shuffle(word.split('')).join('') }));
         results.push(anagrams);
     }
@@ -159,9 +200,9 @@ export const generateOfflineMathPuzzle = async (options: OfflineGeneratorOptions
     
     let valueMin = 1, valueMax = 5, ops = ['+'];
     if (difficulty === 'Orta') {
-        valueMin = 1; valueMax = 10; ops = ['+', '-'];
+        valueMin = 1; valueMax = 20; ops = ['+', '-'];
     } else if (difficulty === 'Zor') {
-        valueMin = 5; valueMax = 20; ops = ['+', '-'];
+        valueMin = 10; valueMax = 50; ops = ['+', '-', '*'];
     }
 
     const results: MathPuzzleData[] = [];
@@ -175,15 +216,20 @@ export const generateOfflineMathPuzzle = async (options: OfflineGeneratorOptions
             let val2 = values[idx2];
             let problemStr = `${objects[idx1]} ${op} ${objects[idx2]} = ?`;
 
+            // Negatif sonuç engelleme
             if (op === '-' && val1 < val2) {
-                [val1, val2] = [val2, val1]; // Swap to avoid negative results
+                [val1, val2] = [val2, val1]; 
                 problemStr = `${objects[idx2]} ${op} ${objects[idx1]} = ?`;
             }
 
-            const answer = op === '+' ? val1 + val2 : val1 - val2;
-            return { problem: problemStr, question: `(İpucu: ${objects[0]}=${values[0]}, ${objects[1]}=${values[1]}, ... )`, answer: answer.toString() };
+            let answer = 0;
+            if (op === '+') answer = val1 + val2;
+            else if (op === '-') answer = val1 - val2;
+            else if (op === '*') answer = val1 * val2;
+
+            return { problem: problemStr, question: `(İpucu: ${objects[0]}=${values[0]}, ${objects[1]}=${values[1]}...)`, answer: answer.toString() };
         });
-        results.push({ title: 'Meyveli Matematik', puzzles });
+        results.push({ title: `Meyveli Matematik (${difficulty})`, puzzles });
     }
     return results;
 };
@@ -192,23 +238,26 @@ export const generateOfflineFindTheDifference = async (options: OfflineGenerator
     const { topic, itemCount, worksheetCount, difficulty } = options;
     const results: FindTheDifferenceData[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
+    
+    const minLen = difficulty === 'Kolay' ? 3 : difficulty === 'Orta' ? 5 : 7;
+    const filteredWords = availableWords.filter(w => w.length >= minLen);
+
     for (let i = 0; i < worksheetCount; i++) {
-        const words = getRandomItems(availableWords.filter(w => w.length > 4), itemCount);
+        const words = getRandomItems(filteredWords.length > 0 ? filteredWords : availableWords, itemCount);
         const rows = words.map(word => {
             const correctIndex = getRandomInt(0, 3);
             const items = Array.from({ length: 4 }).map((_, k) => {
                 if (k === correctIndex) {
                     const chars = word.split('');
                     if (difficulty === 'Kolay') {
+                        // Basit değişiklik: ilk ve son harf yer değiş
                         [chars[0], chars[chars.length - 1]] = [chars[chars.length - 1], chars[0]];
                     } else if (difficulty === 'Orta') {
-                        let pos1 = getRandomInt(0, chars.length - 1);
-                        let pos2 = getRandomInt(0, chars.length - 1);
-                        while (Math.abs(pos1 - pos2) <= 1) {
-                            pos2 = getRandomInt(0, chars.length - 1);
-                        }
-                        [chars[pos1], chars[pos2]] = [chars[pos2], chars[pos1]];
+                        // Orta değişiklik: iç harflerden biri değiş
+                         const pos = getRandomInt(1, chars.length - 2);
+                         chars[pos] = turkishAlphabet[getRandomInt(0, turkishAlphabet.length-1)];
                     } else { 
+                        // Zor: yanyana iki harf yer değiştir (gözden kaçması kolay)
                         const pos = getRandomInt(0, chars.length - 2);
                         [chars[pos], chars[pos + 1]] = [chars[pos + 1], chars[pos]];
                     }
@@ -298,16 +347,25 @@ export const generateOfflineWordComparison = async (options: OfflineGeneratorOpt
 };
 
 export const generateOfflineStoryComprehension = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, difficulty } = options;
     const results: StoryData[] = [];
+    
+    let story = 'Bir zamanlar küçük bir köyde Ali adında bir çocuk yaşarmış. Ali hayvanları çok severmiş. Bir gün ormanda yaralı bir kuş bulmuş ve ona yardım etmiş.';
+    let questions = [
+        { question: 'Çocuğun adı neydi?', options: ['Veli', 'Ali', 'Can'], answerIndex: 1 },
+        { question: 'Ali nerede yaşarmış?', options: ['Şehirde', 'Kasabada', 'Köyde'], answerIndex: 2 },
+    ];
+
+    if (difficulty === 'Zor') {
+        story += ' Kuş iyileşince Ali\'ye teşekkür etmek için ona sihirli bir tüy vermiş. Bu tüy sayesinde Ali hayvanlarla konuşabilmeye başlamış. Artık ormandaki tüm canlılar onun en yakın arkadaşı olmuş.';
+        questions.push({question: 'Kuş Ali\'ye ne vermiş?', options: ['Para', 'Sihirli Tüy', 'Yiyecek'], answerIndex: 1});
+    }
+
     for (let i = 0; i < worksheetCount; i++) {
         results.push({
-            title: `Çevrimdışı Hikaye ${i + 1}`,
-            story: 'Bir zamanlar küçük bir köyde Ali adında bir çocuk yaşarmış. Ali hayvanları çok severmiş. Bir gün ormanda yaralı bir kuş bulmuş ve ona yardım etmiş.',
-            questions: [
-                { question: 'Çocuğun adı neydi?', options: ['Veli', 'Ali', 'Can'], answerIndex: 1 },
-                { question: 'Ali nerede yaşarmış?', options: ['Şehirde', 'Kasabada', 'Köyde'], answerIndex: 2 },
-            ],
+            title: `Hikaye Anlama (${difficulty})`,
+            story: story,
+            questions: questions,
         });
     }
     return results;
@@ -328,51 +386,86 @@ export const generateOfflineStroopTest = async (options: OfflineGeneratorOptions
 };
 
 export const generateOfflineNumberPattern = async (options: OfflineGeneratorOptions): Promise<NumberPatternData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount, difficulty } = options;
     const results: NumberPatternData[] = [];
+    
     for (let i = 0; i < worksheetCount; i++) {
         const patterns = Array.from({ length: itemCount }).map(() => {
             const start = getRandomInt(1, 10);
-            const step = getRandomInt(2, 5);
-            const sequence = Array.from({ length: 4 }).map((_, k) => start + k * step).join(', ') + ', ?';
-            const answer = (start + 4 * step).toString();
+            let step = getRandomInt(1, 3);
+            let sequence = "";
+            let answer = "";
+
+            if (difficulty === 'Kolay') {
+                // Basit artış: 2, 4, 6, 8...
+                sequence = Array.from({ length: 4 }).map((_, k) => start + k * step).join(', ') + ', ?';
+                answer = (start + 4 * step).toString();
+            } else if (difficulty === 'Orta') {
+                // Çarpma veya büyük artış: 3, 6, 12...
+                step = getRandomInt(2, 3);
+                 sequence = Array.from({ length: 4 }).map((_, k) => start * Math.pow(step, k)).join(', ') + ', ?';
+                 answer = (start * Math.pow(step, 4)).toString();
+            } else {
+                // Fibonacci benzeri veya karışık: 1, 1, 2, 3, 5...
+                let n1 = 1, n2 = 1, next;
+                let seq = [1, 1];
+                for(let k=0; k<3; k++) { next = n1 + n2; seq.push(next); n1=n2; n2=next; }
+                sequence = seq.join(', ') + ', ?';
+                answer = (n1 + n2).toString();
+            }
+            
             return { sequence, answer };
         });
-        results.push({ title: 'Sayı Örüntüsü (Çevrimdışı)', patterns });
+        results.push({ title: `Sayı Örüntüsü (${difficulty})`, patterns });
     }
     return results;
 };
 
 export const generateOfflineLetterGridTest = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
-    const { gridSize, worksheetCount, targetLetters } = options;
+    const { difficulty, worksheetCount, targetLetters } = options;
     const results: LetterGridTestData[] = [];
     const targets = (targetLetters || "a,b,d,g").split(',').map(t => t.trim());
+    
+    let gridSize = 10;
+    if(difficulty === 'Orta') gridSize = 15;
+    if(difficulty === 'Zor') gridSize = 20;
+
     for (let i = 0; i < worksheetCount; i++) {
         const grid = Array.from({ length: gridSize }, () => 
             Array.from({ length: gridSize }, () => turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)])
         );
-        results.push({ title: 'Harf Izgara Testi (Çevrimdışı)', grid, targetLetters: targets });
+        results.push({ title: `Harf Izgara Testi (${difficulty})`, grid, targetLetters: targets });
     }
     return results;
 };
 
 export const generateOfflineNumberSearch = async (options: OfflineGeneratorOptions): Promise<NumberSearchData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, difficulty } = options;
     const results: NumberSearchData[] = [];
+    
+    let rangeEnd = 50;
+    if (difficulty === 'Orta') rangeEnd = 100;
+    if (difficulty === 'Zor') rangeEnd = 200;
+
     for (let i = 0; i < worksheetCount; i++) {
-        const numbers = Array.from({ length: 100 }, () => getRandomInt(1, 100));
-        results.push({ title: 'Sayı Avı (Çevrimdışı)', numbers, range: { start: 1, end: 50 } });
+        const numbers = Array.from({ length: 100 }, () => getRandomInt(1, rangeEnd));
+        results.push({ title: `Sayı Avı (${difficulty})`, numbers, range: { start: 1, end: 50 } });
     }
     return results;
 };
 
 export const generateOfflineWordMemory = async (options: OfflineGeneratorOptions): Promise<WordMemoryData[]> => {
-    const { topic, worksheetCount } = options;
+    const { topic, worksheetCount, difficulty } = options;
     const availableWords = wordlist[topic] || wordlist.Rastgele;
     const results: WordMemoryData[] = [];
+    
+    let memCount = 5;
+    if(difficulty === 'Orta') memCount = 10;
+    if(difficulty === 'Zor') memCount = 15;
+
     for (let i = 0; i < worksheetCount; i++) {
-        const wordsToMemorize = getRandomItems(availableWords, 10);
-        const otherWords = getRandomItems(availableWords.filter(w => !wordsToMemorize.includes(w)), 10);
+        const wordsToMemorize = getRandomItems(availableWords, memCount);
+        const otherWords = getRandomItems(availableWords.filter(w => !wordsToMemorize.includes(w)), memCount);
         results.push({
             title: 'Kelime Hafıza (Çevrimdışı)',
             memorizeTitle: 'Bu Kelimeleri Ezberle',

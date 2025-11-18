@@ -12,7 +12,12 @@ const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'st
 
 export const generateFutoshikiFromAI = async(options: OfflineGeneratorOptions): Promise<FutoshikiData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a Futoshiki puzzle appropriate for difficulty level "${difficulty}". Generate a worksheet with 2 puzzles of size 4x4. Provide the grid with some pre-filled numbers (null for empty cells) and a set of inequality constraints between adjacent cells. 
+    
+    let size = 4;
+    if (difficulty === 'Orta') size = 5;
+    if (difficulty === 'Zor') size = 6;
+
+    const prompt = `Create a Futoshiki puzzle appropriate for difficulty level "${difficulty}". Generate a worksheet with 2 puzzles of size ${size}x${size}. Provide the grid with some pre-filled numbers (null for empty cells) and a set of inequality constraints between adjacent cells. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -52,7 +57,12 @@ export const generateFutoshikiFromAI = async(options: OfflineGeneratorOptions): 
 
 export const generateNumberPyramidFromAI = async(options: OfflineGeneratorOptions): Promise<NumberPyramidData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a number pyramid (addition) puzzle appropriate for difficulty level "${difficulty}". Generate a worksheet with 2 pyramids. Each pyramid has 4-5 rows. A number in a cell is the sum of the two cells directly below it. Some cells should be empty (null). 
+    
+    let rows = 3;
+    if (difficulty === 'Orta') rows = 4;
+    if (difficulty === 'Zor') rows = 5;
+
+    const prompt = `Create a number pyramid (addition) puzzle appropriate for difficulty level "${difficulty}". Generate a worksheet with 2 pyramids. Each pyramid has ${rows} rows. A number in a cell is the sum of the two cells directly below it. Some cells should be empty (null). 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {

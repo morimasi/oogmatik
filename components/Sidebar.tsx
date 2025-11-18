@@ -90,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white shadow-lg transition-transform duration-300 ease-in-out dark:bg-zinc-800 md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
+      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-zinc-100 shadow-lg transition-transform duration-300 ease-in-out dark:bg-zinc-900 md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
       aria-label="Etkinlik Menüsü"
@@ -123,7 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <div key={category.id} className="py-1">
                                 <button
                                     onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
-                                    className="w-full flex items-center justify-between p-3 text-left font-semibold text-zinc-700 dark:text-zinc-200 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                    className="w-full flex items-center justify-between p-3 text-left font-semibold text-zinc-700 dark:text-zinc-200 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                                     aria-expanded={openCategoryId === category.id}
                                 >
                                     <span>{category.title}</span>

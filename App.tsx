@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, CSSProperties, ReactNode } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme } from './types';
 // FIX: Error on line 3: Module '"file:///components/Sidebar"' has no default export. Fixed by adding a default export to Sidebar.tsx
@@ -173,7 +174,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
+    <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
       <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
           <div className="flex items-center">

@@ -6,8 +6,20 @@ import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData
 
 export const generateStoryComprehensionFromAI = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
     const { topic, difficulty, worksheetCount } = options;
+    
+    let wordCount = "50-80";
+    let style = "çok basit, kısa cümleler";
+    
+    if (difficulty === 'Orta') {
+        wordCount = "100-150";
+        style = "ortalama uzunlukta cümleler, biraz betimleme";
+    } else if (difficulty === 'Zor') {
+        wordCount = "200-250";
+        style = "uzun ve karmaşık cümleler, zengin kelime dağarcığı, çıkarım yapmayı gerektiren";
+    }
+
     const prompt = `
-    "${difficulty}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda 100-150 kelimelik kısa ve basit bir Türkçe hikaye yaz. 
+    "${difficulty}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda ${wordCount} kelimelik ${style} içeren Türkçe bir hikaye yaz. 
     Hikayenin bir başlığı olsun.
     Hikayeden sonra, hikayeyle ilgili 3 tane çoktan seçmeli anlama sorusu oluştur. 
     Her soru için 3 seçenek sun ve doğru seçeneğin indeksini (0, 1 veya 2) belirt.
