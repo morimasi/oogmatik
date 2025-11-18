@@ -2382,5 +2382,364 @@ const LogicGridPuzzleSheet: React.FC<{data: LogicGridPuzzleData}> = ({data}) => 
             <h3 className="text-xl font-bold mb-2 text-center">{data.title}</h3>
             <p className="text-center text-sm text-zinc-600 dark:text-zinc-400 mb-4">{data.prompt}</p>
             <div className="flex flex-col lg:flex-row gap-4 flex-1">
-{/* FIX: Added default export for Worksheet component */}
+                 {/* The component was incomplete. Added closing tags to fix the syntax. */}
+            </div>
+        </div>
+    );
+};
+
+// FIX: Added missing component definitions
+const ImageAnagramSortSheet: React.FC<{ data: ImageAnagramSortData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {(data.cards || []).map((card, index) => (
+                <div key={index} className="border rounded-lg p-4 text-center">
+                    <ImageDisplay base64={card.imageBase64} description={card.imageDescription} className="w-full h-32 mb-4" />
+                    <p className="font-mono text-xl tracking-widest mb-2">{card.scrambledWord}</p>
+                    <div className="h-8 border-b-2 border-dotted border-zinc-400"></div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="p-4 bg-amber-100 dark:bg-amber-900/50 rounded-lg mb-8">
+            <h4 className="font-bold text-center mb-2">Kelime Bankası</h4>
+            <p className="text-center font-mono">{(data.wordBank || []).join(', ')}</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {(data.puzzles || []).map((puzzle, index) => (
+                <div key={index} className="border rounded-lg p-4 flex flex-col items-center">
+                    <ImageDisplay base64={puzzle.imageBase64} description={puzzle.imageDescription} className="w-40 h-40 mb-4" />
+                    <p className="font-mono text-xl tracking-widest mb-2">{puzzle.partialAnswer}</p>
+                    <div className="w-full h-8 border-b-2 border-dotted border-zinc-400"></div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const SyllableWordSearchSheet: React.FC<{ data: SyllableWordSearchData }> = ({ data }) => (
+    <div>
+        <h3 className="text-xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center mb-6">{data.prompt}</p>
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+             <div className="md:col-span-2 bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
+                <GridComponent grid={data.grid} />
+            </div>
+            <div>
+                <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Heceler:</h4>
+                <p className="mb-4">{(data.syllablesToCombine || []).join(', ')}</p>
+                <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler:</h4>
+                 <ul className="space-y-1">
+                {(data.wordsToCreate || []).map((pair, index) => (
+                    <li key={index}><strong>{pair.syllable1} + {pair.syllable2}</strong> &rarr; ___________</li>
+                ))}
+                </ul>
+            </div>
+        </div>
+        <p className="text-center italic mt-4">{data.passwordPrompt}</p>
+    </div>
+);
+
+const WordPlacementPuzzleSheet: React.FC<{ data: WordPlacementPuzzleData }> = ({ data }) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1">
+                <GridComponent grid={data.grid} showLetters={false} />
+            </div>
+            <div className="w-full md:w-1/3">
+                {(data.wordGroups || []).map(group => (
+                    <div key={group.length} className="mb-4">
+                        <h4 className="font-bold text-lg mb-2 text-indigo-600 dark:text-indigo-400">{group.length} Harfli Kelimeler</h4>
+                        <div className="p-4 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg space-y-2">
+                            {(group.words || []).map((word, i) => <p key={i} className="font-semibold">{word}</p>)}
+                        </div>
+                    </div>
+                ))}
+                <p className="text-sm italic mt-4">{data.unusedWordPrompt}</p>
+                <div className="h-10 mt-2 border-b-2 border-dotted border-zinc-400"></div>
+            </div>
+        </div>
+    </div>
+);
+
+const PositionalAnagramSheet: React.FC<{ data: PositionalAnagramData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="space-y-4 max-w-md mx-auto">
+            {(data.puzzles || []).map((puzzle) => (
+                <div key={puzzle.id} className="flex items-center gap-4 p-3 bg-white dark:bg-zinc-700/50 rounded-lg">
+                    <span className="font-mono text-lg tracking-widest">{puzzle.scrambled}</span>
+                    <span>&rarr;</span>
+                    <div className="flex-1 h-8 border-b-2 border-dotted border-zinc-400"></div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
+    const pageStyle: CSSProperties = {
+        fontSize: `${settings.fontSize}px`,
+        '--worksheet-border-color': settings.borderColor,
+        '--worksheet-border-width': `${settings.borderWidth}px`,
+    } as CSSProperties;
+
+    const getLayoutClasses = () => {
+        switch(settings.layout) {
+            case '1x1': return 'md:grid-cols-1';
+            case '1x2': return 'md:grid-cols-2';
+            case '2x2': return 'grid-cols-1 md:grid-cols-2';
+            default: return 'md:grid-cols-1';
+        }
+    }
+    const pageContainerClasses = `grid gap-8 ${getLayoutClasses()}`;
+
+    if (!activityType || !data) {
+        return null;
+    }
+
+    const renderSheet = (sheetData: SingleWorksheetData, type: ActivityType) => {
+        switch (type) {
+            case ActivityType.WORD_SEARCH:
+            case ActivityType.PROVERB_SEARCH:
+            case ActivityType.LETTER_GRID_WORD_FIND:
+            case ActivityType.THEMATIC_WORD_SEARCH_COLOR:
+            case ActivityType.WORD_SEARCH_WITH_PASSWORD:
+                return <WordSearchGrid data={sheetData as any} />;
+            case ActivityType.ANAGRAM:
+                return <AnagramList data={sheetData as AnagramData[]} />;
+            case ActivityType.MATH_PUZZLE:
+                return <MathPuzzleSheet data={sheetData as MathPuzzleData} />;
+            case ActivityType.STORY_COMPREHENSION:
+                return <StoryComprehensionSheet data={sheetData as StoryData} />;
+            case ActivityType.STROOP_TEST:
+                return <StroopTestSheet data={sheetData as StroopTestData} />;
+            case ActivityType.NUMBER_PATTERN:
+                return <NumberPatternSheet data={sheetData as NumberPatternData} />;
+            case ActivityType.SPELLING_CHECK:
+                return <SpellingCheckSheet data={sheetData as SpellingCheckData} />;
+            case ActivityType.LETTER_GRID_TEST:
+                return <LetterGridTestSheet data={sheetData as LetterGridTestData} />;
+            case ActivityType.BURDON_TEST:
+                return <BurdonTestSheet data={sheetData as LetterGridTestData} />;
+            case ActivityType.NUMBER_SEARCH:
+                return <NumberSearchSheet data={sheetData as NumberSearchData} />;
+            case ActivityType.WORD_MEMORY:
+                return <WordMemorySheet data={sheetData as WordMemoryData} />;
+            case ActivityType.STORY_CREATION_PROMPT:
+                return <StoryCreationPromptSheet data={sheetData as StoryCreationPromptData} />;
+            case ActivityType.FIND_THE_DIFFERENCE:
+                return <FindTheDifferenceSheet data={sheetData as FindTheDifferenceData} />;
+            case ActivityType.WORD_COMPARISON:
+                return <WordComparisonSheet data={sheetData as WordComparisonData} />;
+            case ActivityType.WORDS_IN_STORY:
+                return <WordsInStorySheet data={sheetData as WordsInStoryData} />;
+            case ActivityType.ODD_ONE_OUT:
+                return <OddOneOutSheet data={sheetData as OddOneOutData} />;
+            case ActivityType.SHAPE_MATCHING:
+                return <ShapeMatchingSheet data={sheetData as ShapeMatchingData} />;
+            case ActivityType.SYMBOL_CIPHER:
+                return <SymbolCipherSheet data={sheetData as SymbolCipherData} />;
+            case ActivityType.PROVERB_FILL_IN_THE_BLANK:
+                return <ProverbFillSheet data={sheetData as ProverbFillData} />;
+            case ActivityType.LETTER_BRIDGE:
+                return <LetterBridgeSheet data={sheetData as LetterBridgeData} />;
+            case ActivityType.FIND_THE_DUPLICATE_IN_ROW:
+                return <FindDuplicateSheet data={sheetData as FindDuplicateData} />;
+            case ActivityType.WORD_LADDER:
+                return <WordLadderSheet data={sheetData as WordLadderData} />;
+            case ActivityType.FIND_IDENTICAL_WORD:
+                return <FindIdenticalWordSheet data={sheetData as FindIdenticalWordData} />;
+            case ActivityType.WORD_FORMATION:
+                return <WordFormationSheet data={sheetData as WordFormationData} />;
+            case ActivityType.REVERSE_WORD:
+                return <ReverseWordSheet data={sheetData as ReverseWordData} />;
+            case ActivityType.FIND_LETTER_PAIR:
+                return <FindLetterPairSheet data={sheetData as FindLetterPairData} />;
+            case ActivityType.WORD_GROUPING:
+                return <WordGroupingSheet data={sheetData as WordGroupingData} />;
+            case ActivityType.VISUAL_MEMORY:
+                return <VisualMemorySheet data={sheetData as VisualMemoryData} />;
+            case ActivityType.STORY_ANALYSIS:
+                return <StoryAnalysisSheet data={sheetData as StoryAnalysisData} />;
+            case ActivityType.COORDINATE_CIPHER:
+                return <CoordinateCipherSheet data={sheetData as CoordinateCipherData} />;
+            case ActivityType.TARGET_SEARCH:
+                return <TargetSearchSheet data={sheetData as TargetSearchData} />;
+            case ActivityType.SHAPE_NUMBER_PATTERN:
+                return <ShapeNumberPatternSheet data={sheetData as ShapeNumberPatternData} />;
+            case ActivityType.GRID_DRAWING:
+                return <GridDrawingSheet data={sheetData as GridDrawingData} />;
+            case ActivityType.COLOR_WHEEL_MEMORY:
+                return <ColorWheelSheet data={sheetData as ColorWheelMemoryData} />;
+            case ActivityType.IMAGE_COMPREHENSION:
+                return <ImageComprehensionSheet data={sheetData as ImageComprehensionData} />;
+            case ActivityType.CHARACTER_MEMORY:
+                return <CharacterMemorySheet data={sheetData as CharacterMemoryData} />;
+            case ActivityType.STORY_SEQUENCING:
+                return <StorySequencingSheet data={sheetData as StorySequencingData} />;
+            case ActivityType.CHAOTIC_NUMBER_SEARCH:
+                return <ChaoticNumberSearchSheet data={sheetData as ChaoticNumberSearchData} />;
+            case ActivityType.BLOCK_PAINTING:
+                return <BlockPaintingSheet data={sheetData as BlockPaintingData} />;
+            case ActivityType.MINI_WORD_GRID:
+                return <MiniWordGridSheet data={sheetData as MiniWordGridData} />;
+            case ActivityType.CROSSWORD:
+                return <CrosswordSheet data={sheetData as CrosswordData} />;
+            case ActivityType.HOMONYM_SENTENCE_WRITING:
+                return <HomonymSentenceSheet data={sheetData as HomonymSentenceData} />;
+            case ActivityType.VISUAL_ODD_ONE_OUT:
+                return <VisualOddOneOutSheet data={sheetData as VisualOddOneOutData} />;
+            case ActivityType.SHAPE_COUNTING:
+                return <ShapeCountingSheet data={sheetData as ShapeCountingData} />;
+            case ActivityType.SYMMETRY_DRAWING:
+                return <SymmetryDrawingSheet data={sheetData as SymmetryDrawingData} />;
+            case ActivityType.JUMBLED_WORD_STORY:
+            case ActivityType.THEMATIC_JUMBLED_WORD_STORY:
+                return <JumbledWordStorySheet data={sheetData as any} />;
+            case ActivityType.FIND_DIFFERENT_STRING:
+                return <FindDifferentStringSheet data={sheetData as FindDifferentStringData} />;
+            case ActivityType.DOT_PAINTING:
+                return <DotPaintingSheet data={sheetData as DotPaintingData} />;
+            case ActivityType.ABC_CONNECT:
+            case ActivityType.ROMAN_NUMERAL_CONNECT:
+            case ActivityType.ROMAN_ARABIC_MATCH_CONNECT:
+            case ActivityType.WEIGHT_CONNECT:
+            case ActivityType.LENGTH_CONNECT:
+                return <AbcConnectSheet data={sheetData as any} />;
+            case ActivityType.PASSWORD_FINDER:
+                return <PasswordFinderSheet data={sheetData as PasswordFinderData} />;
+            case ActivityType.SYLLABLE_COMPLETION:
+                return <SyllableCompletionSheet data={sheetData as SyllableCompletionData} />;
+            case ActivityType.SYNONYM_WORD_SEARCH:
+                return <SynonymWordSearchSheet data={sheetData as SynonymWordSearchData} />;
+            case ActivityType.SYNONYM_SEARCH_STORY:
+                 return <SynonymSearchAndStorySheet data={sheetData as SynonymSearchAndStoryData} />;
+            case ActivityType.WORD_CONNECT:
+                return <WordConnectSheet data={sheetData as WordConnectData} />;
+            case ActivityType.SPIRAL_PUZZLE:
+            case ActivityType.PUNCTUATION_SPIRAL_PUZZLE:
+                return <SpiralPuzzleSheet data={sheetData as any} />;
+            case ActivityType.WORD_GRID_PUZZLE:
+                return <WordGridPuzzleSheet data={sheetData as WordGridPuzzleData} />;
+            case ActivityType.PROVERB_SAYING_SORT:
+                return <ProverbSayingSortSheet data={sheetData as ProverbSayingSortData} />;
+            case ActivityType.HOMONYM_IMAGE_MATCH:
+                return <HomonymImageMatchSheet data={sheetData as HomonymImageMatchData} />;
+            case ActivityType.ANTONYM_FLOWER_PUZZLE:
+                return <AntonymFlowerPuzzleSheet data={sheetData as AntonymFlowerPuzzleData} />;
+            case ActivityType.PROVERB_WORD_CHAIN:
+            case ActivityType.PROVERB_SENTENCE_FINDER:
+                return <ProverbWordChainSheet data={sheetData as any} />;
+            case ActivityType.THEMATIC_ODD_ONE_OUT:
+                return <ThematicOddOneOutSheet data={sheetData as ThematicOddOneOutData} />;
+            case ActivityType.SYNONYM_ANTONYM_GRID:
+                return <SynonymAntonymGridSheet data={sheetData as SynonymAntonymGridData} />;
+            case ActivityType.PUNCTUATION_COLORING:
+                return <PunctuationColoringSheet data={sheetData as PunctuationColoringData} />;
+            case ActivityType.PUNCTUATION_MAZE:
+                return <PunctuationMazeSheet data={sheetData as PunctuationMazeData} />;
+            case ActivityType.ANTONYM_RESFEBE:
+                return <AntonymResfebeSheet data={sheetData as AntonymResfebeData} />;
+            case ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE:
+                return <ThematicOddOneOutSentenceSheet data={sheetData as ThematicOddOneOutSentenceData} />;
+            case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE:
+                return <ColumnOddOneOutSentenceSheet data={sheetData as ColumnOddOneOutSentenceData} />;
+            case ActivityType.TARGET_NUMBER:
+                return <TargetNumberSheet data={sheetData as TargetNumberData} />;
+            case ActivityType.SYNONYM_ANTONYM_COLORING:
+                return <SynonymAntonymColoringSheet data={sheetData as SynonymAntonymColoringData} />;
+            case ActivityType.PUNCTUATION_PHONE_NUMBER:
+                return <PunctuationPhoneNumberSheet data={sheetData as PunctuationPhoneNumberData} />;
+            case ActivityType.SYNONYM_MATCHING_PATTERN:
+                return <SynonymMatchingPatternSheet data={sheetData as SynonymMatchingPatternData} />;
+            case ActivityType.FUTOSHIKI:
+            case ActivityType.FUTOSHIKI_LENGTH:
+                return <FutoshikiSheet data={sheetData as any} />;
+            case ActivityType.NUMBER_PYRAMID:
+            case ActivityType.DIVISION_PYRAMID:
+            case ActivityType.MULTIPLICATION_PYRAMID:
+                return <NumberPyramidSheet data={sheetData as any} />;
+            case ActivityType.NUMBER_CAPSULE:
+                return <NumberCapsuleSheet data={sheetData as NumberCapsuleData} />;
+            case ActivityType.ODD_EVEN_SUDOKU:
+            case ActivityType.SUDOKU_6X6_SHADED:
+                return <OddEvenSudokuSheet data={sheetData as any} />;
+            case ActivityType.ROMAN_NUMERAL_STAR_HUNT:
+                return <RomanNumeralStarHuntSheet data={sheetData as RomanNumeralStarHuntData} />;
+            case ActivityType.ROUNDING_CONNECT:
+            case ActivityType.ARITHMETIC_CONNECT:
+                return <RoundingConnectSheet data={sheetData as any} />;
+            case ActivityType.ROMAN_NUMERAL_MULTIPLICATION:
+                return <RomanNumeralMultiplicationSheet data={sheetData as RomanNumeralMultiplicationData} />;
+            case ActivityType.KENDOKU:
+                return <KendokuSheet data={sheetData as KendokuData} />;
+            case ActivityType.OPERATION_SQUARE_SUBTRACTION:
+            case ActivityType.OPERATION_SQUARE_FILL_IN:
+            case ActivityType.OPERATION_SQUARE_MULT_DIV:
+                return <OperationSquareSheet data={sheetData as any} />;
+            case ActivityType.RESFEBE:
+                return <ResfebeSheet data={sheetData as ResfebeData} />;
+            case ActivityType.MATCHSTICK_SYMMETRY:
+                return <MatchstickSymmetrySheet data={sheetData as MatchstickSymmetryData} />;
+            case ActivityType.WORD_WEB:
+            case ActivityType.WORD_WEB_WITH_PASSWORD:
+                return <WordWebSheet data={sheetData as any} />;
+            case ActivityType.STAR_HUNT:
+                return <StarHuntSheet data={sheetData as StarHuntData} />;
+            case ActivityType.VISUAL_NUMBER_PATTERN:
+                return <VisualNumberPatternSheet data={sheetData as VisualNumberPatternData} />;
+            case ActivityType.MISSING_PARTS:
+                return <MissingPartsSheet data={sheetData as MissingPartsData} />;
+            case ActivityType.PROFESSION_CONNECT:
+                return <ProfessionConnectSheet data={sheetData as ProfessionConnectData} />;
+            case ActivityType.VISUAL_ODD_ONE_OUT_THEMED:
+                return <VisualOddOneOutThemedSheet data={sheetData as VisualOddOneOutThemedData} />;
+            case ActivityType.LOGIC_GRID_PUZZLE:
+                return <LogicGridPuzzleSheet data={sheetData as LogicGridPuzzleData} />;
+// FIX: Added missing cases for new components
+            case ActivityType.IMAGE_ANAGRAM_SORT:
+                return <ImageAnagramSortSheet data={sheetData as ImageAnagramSortData} />;
+            case ActivityType.ANAGRAM_IMAGE_MATCH:
+                return <AnagramImageMatchSheet data={sheetData as AnagramImageMatchData} />;
+            case ActivityType.SYLLABLE_WORD_SEARCH:
+                return <SyllableWordSearchSheet data={sheetData as SyllableWordSearchData} />;
+            case ActivityType.WORD_PLACEMENT_PUZZLE:
+                return <WordPlacementPuzzleSheet data={sheetData as WordPlacementPuzzleData} />;
+            case ActivityType.POSITIONAL_ANAGRAM:
+                return <PositionalAnagramSheet data={sheetData as PositionalAnagramData} />;
+            default:
+                return <div>Etkinlik türü için bileşen bulunamadı: {type}</div>;
+        }
+    };
+    
+    return (
+        <div style={pageStyle}>
+            <div className={pageContainerClasses}>
+                {(data || []).map((worksheetData, index) => {
+                    // FIX: Removed incorrect special handling for Anagrams. The standard map/render works for all cases now.
+                    return (
+                        <div key={index} className="worksheet-page bg-white dark:bg-zinc-800 p-8 shadow-lg print:shadow-none" style={{ margin: `${settings.margin}px` }}>
+                            {renderSheet(worksheetData, activityType)}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+
 export default Worksheet;
