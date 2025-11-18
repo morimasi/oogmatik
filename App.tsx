@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, CSSProperties, ReactNode } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme } from './types';
 // FIX: Error on line 3: Module '"file:///components/Sidebar"' has no default export. Fixed by adding a default export to Sidebar.tsx

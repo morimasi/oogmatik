@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
@@ -8,44 +9,30 @@ import {
     SpiralPuzzleData, PunctuationSpiralPuzzleData, CrosswordData, CrosswordClue, JumbledWordStoryData, ThematicJumbledWordStoryData, HomonymSentenceData,
     WordGridPuzzleData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, AntonymResfebeData,
     SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordWebWithPasswordData,
-    WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ProverbFillData, WordComparisonData
+    WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ProverbFillData, WordComparisonData,
+    GeneratorOptions
 } from '../../types';
 
 
-export const generateWordSearchFromAI = async (options: OfflineGeneratorOptions): Promise<WordSearchData[]> => {
-  const { topic, itemCount: wordCount, difficulty, worksheetCount } = options;
+export const generateWordSearchFromAI = async (options: GeneratorOptions): Promise<WordSearchData[]> => {
+  const { topic, itemCount: wordCount, difficulty, worksheetCount, gridSize, directions, case: letterCase } = options;
   
-  // 4 Seviyeli Zorluk Yapılandırması
-  let gridSize = 10;
-  let rules = "Kelimeler sadece soldan sağa (yatay) ve yukarıdan aşağıya (dikey) yerleştirilmeli. Çapraz veya ters yerleşim OLMAMALI.";
-  let complexity = "Basit, günlük hayattan kelimeler.";
+  let rules = "Kelimeler sadece soldan sağa ve yukarıdan aşağıya.";
+  if (directions === 'diagonal') rules = "Kelimeler yatay, dikey ve çapraz olabilir.";
+  if (directions === 'all') rules = "Kelimeler her yöne (ters dahil) yerleştirilebilir.";
 
-  if (difficulty === 'Orta') {
-      gridSize = 14;
-      rules = "Kelimeler yatay, dikey ve çapraz yerleştirilebilir. Ters yerleşim OLMAMALI.";
-      complexity = "Ortalama uzunlukta kelimeler.";
-  } else if (difficulty === 'Zor') {
-      gridSize = 16;
-      rules = "Kelimeler yatay, dikey, çapraz ve ters (tersten okunuş) şekilde her yöne yerleştirilebilir.";
-      complexity = "Daha uzun ve karmaşık kelimeler.";
-  } else if (difficulty === 'Uzman') {
-      gridSize = 20;
-      rules = "Kelimeler HER YÖNE (ters çapraz dahil) yerleştirilmeli. Kelimeler birbirini kesmeli. Çok zorlayıcı olmalı.";
-      complexity = "Akademik, uzun, nadir veya soyut kelimeler.";
-  }
-
-  // Kullanıcı özel bir boyut seçtiyse onu kullan
-  const finalGridSize = options.gridSize || gridSize;
+  const finalGridSize = gridSize || (difficulty === 'Orta' ? 12 : 10);
+  const caseInstruction = letterCase === 'lower' ? "Tüm harfler küçük harf olmalı." : "Tüm harfler BÜYÜK HARF olmalı.";
 
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun, ${topic} konusuyla ilgili ${wordCount} tane Türkçe kelime seç.
-    KELİME KARMAŞIKLIĞI: ${complexity}
     Bu kelimeleri ${finalGridSize}x${finalGridSize} boyutunda bir harf bulmacasına yerleştir. 
     YERLEŞTİRME KURALLARI: ${rules}
+    ${caseInstruction}
     Boş kalan yerleri rastgele Türkçe harflerle doldur.
     Bulmaca için '${topic}' konusuyla ilgili yaratıcı bir başlık (title) oluştur.
     
-    ÖNEMLİ: Her çalıştırmada tamamen FARKLI kelimeler ve FARKLI bir yerleşim düzeni kullan. Asla aynı bulmacayı tekrar üretme.
+    ÖNEMLİ: Her çalıştırmada tamamen FARKLI kelimeler kullan.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -67,15 +54,10 @@ export const generateWordSearchFromAI = async (options: OfflineGeneratorOptions)
   return generateWithSchema(prompt, schema) as Promise<WordSearchData[]>;
 };
 
-export const generateProverbSearchFromAI = async (options: OfflineGeneratorOptions): Promise<ProverbSearchData[]> => {
-  const { difficulty, worksheetCount } = options;
+export const generateProverbSearchFromAI = async (options: GeneratorOptions): Promise<ProverbSearchData[]> => {
+  const { difficulty, worksheetCount, gridSize } = options;
   
-  let gridSize = 10;
-  if (difficulty === 'Orta') gridSize = 12;
-  if (difficulty === 'Zor') gridSize = 15;
-  if (difficulty === 'Uzman') gridSize = 18;
-  
-  const finalGridSize = options.gridSize || gridSize;
+  const finalGridSize = gridSize || 12;
 
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun bir 'Atasözü Avı' etkinliği oluştur.
@@ -98,8 +80,8 @@ export const generateProverbSearchFromAI = async (options: OfflineGeneratorOptio
   return generateWithSchema(prompt, schema) as Promise<ProverbSearchData[]>;
 };
 
-export const generateAnagramFromAI = async (options: OfflineGeneratorOptions): Promise<(AnagramData[])[]> => {
-  const { topic, itemCount: wordCount, difficulty, worksheetCount } = options;
+export const generateAnagramFromAI = async (options: GeneratorOptions): Promise<(AnagramData[])[]> => {
+  const { topic, itemCount: wordCount, difficulty, worksheetCount, showImages } = options;
   
   let wordLengthInstruction = "Kelimeler 3-4 harfli ve basit olmalı (örn: top, kuş).";
   if (difficulty === 'Orta') wordLengthInstruction = "Kelimeler 5-6 harfli olmalı (örn: kalem, masa).";
@@ -110,6 +92,7 @@ export const generateAnagramFromAI = async (options: OfflineGeneratorOptions): P
     "${difficulty}" zorluk seviyesine uygun, ${topic} konusuyla ilgili, her biri ${wordCount} tane Türkçe kelime seç.
     KELİME UZUNLUĞU VE TÜRÜ: ${wordLengthInstruction}
     Bu kelimelerin harflerini karıştırarak anagramlarını oluştur.
+    ${showImages ? 'Eğer mümkünse bu kelimeler görselleştirilebilir somut nesneler olsun.' : ''}
     ÖNEMLİ: Her seferinde daha önce kullanmadığın farklı kelimeler seçmeye çalış.
     Sonucu, her biri bir çalışma sayfasını temsil eden anagram nesneleri dizilerinden oluşan bir JSON dizisi olarak döndür.
   `;
@@ -135,7 +118,7 @@ export const generateAnagramFromAI = async (options: OfflineGeneratorOptions): P
    return generateWithSchema(prompt, schema) as Promise<(AnagramData[])[]>;
 };
 
-export const generateSpellingCheckFromAI = async (options: OfflineGeneratorOptions): Promise<SpellingCheckData[]> => {
+export const generateSpellingCheckFromAI = async (options: GeneratorOptions): Promise<SpellingCheckData[]> => {
     const { topic, itemCount: count, difficulty, worksheetCount } = options;
     
     let difficultyInstruction = "Çok bariz ve basit yazım hataları (örn: 'soğan' yerine 'sogan', 'ağaç' yerine 'agac'). Kelimeler kısa ve yaygın olsun.";
@@ -172,7 +155,7 @@ export const generateSpellingCheckFromAI = async (options: OfflineGeneratorOptio
     return generateWithSchema(prompt, schema) as Promise<SpellingCheckData[]>;
 };
 
-export const generateWordComparisonFromAI = async (options: OfflineGeneratorOptions): Promise<WordComparisonData[]> => {
+export const generateWordComparisonFromAI = async (options: GeneratorOptions): Promise<WordComparisonData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   
   let similarityInstruction = "Kelimeler birbirinden görsel ve işitsel olarak tamamen farklı olsun. Ayırt etmek çok kolay olsun.";
@@ -202,42 +185,8 @@ export const generateWordComparisonFromAI = async (options: OfflineGeneratorOpti
   return generateWithSchema(prompt, schema) as Promise<WordComparisonData[]>;
 };
 
-export const generateProverbFillInTheBlankFromAI = async (options: OfflineGeneratorOptions): Promise<ProverbFillData[]> => {
-  const { itemCount: count, difficulty, worksheetCount } = options;
-  const prompt = `
-    "${difficulty}" zorluk seviyesine uygun ${count} tane Türkçe atasözü seç. 
-    ${difficulty === 'Başlangıç' ? 'Herkesin bildiği en basit atasözleri.' : 
-      difficulty === 'Orta' ? 'Yaygın kullanılan atasözleri.' : 
-      difficulty === 'Zor' ? 'Az bilinen, mecazi anlamı kuvvetli atasözleri.' : 
-      'Çok nadir duyulan, edebi veya eski Türkçe kökenli zorlayıcı atasözleri.'}
-    Her atasözünde bir kelimeyi eksik bırak.
-    ÖNEMLİ: Her üretimde farklı atasözleri kullanmaya çalış.
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-  `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      proverbs: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            start: { type: Type.STRING },
-            end: { type: Type.STRING }
-          },
-          required: ['start', 'end']
-        }
-      }
-    },
-    required: ['title', 'proverbs']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<ProverbFillData[]>;
-};
 
-
-export const generateLetterBridgeFromAI = async (options: OfflineGeneratorOptions): Promise<LetterBridgeData[]> => {
+export const generateLetterBridgeFromAI = async (options: GeneratorOptions): Promise<LetterBridgeData[]> => {
   const { itemCount: count, difficulty, worksheetCount } = options;
   
   let difficultyInstruction = "Kelimeler 3-4 harfli olsun. Ortak harf ünsüz olsun.";
@@ -275,21 +224,52 @@ export const generateLetterBridgeFromAI = async (options: OfflineGeneratorOption
 };
 
 
-export const generateWordLadderFromAI = async (options: OfflineGeneratorOptions): Promise<WordLadderData[]> => {
-    const { difficulty, worksheetCount } = options;
-    let steps = 3;
-    if (difficulty === 'Orta') steps = 4;
-    if (difficulty === 'Zor') steps = 5;
-    if (difficulty === 'Uzman') steps = 6;
-
+export const generateWordLadderFromAI = async (options: GeneratorOptions): Promise<WordLadderData[]> => {
+    const { difficulty, worksheetCount, steps } = options;
+    let stepCount = steps || 3;
+    
     const prompt = `
     Create a Word Ladder puzzle for difficulty level "${difficulty}". 
     Generate ${worksheetCount} worksheets. Each worksheet should have a start word and an end word of the same length.
-    The transformation should take ideally ${steps} steps.
+    The transformation should take ideally ${stepCount} steps.
     Ensure the words are valid Turkish words.
     Return as a JSON array.
     `;
     return generateWithSchema(prompt, {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {title: {type: Type.STRING}, ladders: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {startWord: {type: Type.STRING}, endWord: {type: Type.STRING}, steps: {type: Type.INTEGER}}, required: ['startWord', 'endWord', 'steps']}}}, required: ['title', 'ladders']}}) as Promise<WordLadderData[]>;
+};
+
+export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {
+  const { itemCount: count, difficulty, worksheetCount } = options;
+  const prompt = `
+    "${difficulty}" zorluk seviyesine uygun ${count} tane Türkçe atasözü seç. 
+    ${difficulty === 'Başlangıç' ? 'Herkesin bildiği en basit atasözleri.' : 
+      difficulty === 'Orta' ? 'Yaygın kullanılan atasözleri.' : 
+      difficulty === 'Zor' ? 'Az bilinen, mecazi anlamı kuvvetli atasözleri.' : 
+      'Çok nadir duyulan, edebi veya eski Türkçe kökenli zorlayıcı atasözleri.'}
+    Her atasözünde bir kelimeyi eksik bırak.
+    ÖNEMLİ: Her üretimde farklı atasözleri kullanmaya çalış.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+  `;
+  const singleSchema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      proverbs: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            start: { type: Type.STRING },
+            end: { type: Type.STRING }
+          },
+          required: ['start', 'end']
+        }
+      }
+    },
+    required: ['title', 'proverbs']
+  };
+  const schema = { type: Type.ARRAY, items: singleSchema };
+  return generateWithSchema(prompt, schema) as Promise<ProverbFillData[]>;
 };
 
 // Re-exporting placeholders for functions not fully expanded in this snippet due to length limits, 

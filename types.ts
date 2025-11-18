@@ -1,7 +1,4 @@
 
-
-
-
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -122,6 +119,15 @@ export enum ActivityType {
 }
 
 export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel';
+
+// NEW: Interface for dynamic generation options
+export interface GeneratorOptions {
+    mode: 'ai' | 'fast';
+    difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
+    worksheetCount: number;
+    // Dynamic fields
+    [key: string]: any;
+}
 
 export interface Activity {
   id: ActivityType;

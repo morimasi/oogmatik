@@ -1,36 +1,33 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
-import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbSayingSortData, ProverbWordChainData } from '../../types';
+import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbSayingSortData, ProverbWordChainData, GeneratorOptions } from '../../types';
 
-export const generateStoryComprehensionFromAI = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
+export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
+    const { topic, difficulty, worksheetCount, characterName, storyLength, genre } = options;
     
     let wordCount = "50-80";
+    if (storyLength === 'short') wordCount = "50-80";
+    else if (storyLength === 'medium') wordCount = "100-150";
+    else if (storyLength === 'long') wordCount = "200-250";
+    else if (difficulty === 'Orta') wordCount = "100-150"; // Fallback
+    else if (difficulty === 'Zor') wordCount = "200-250"; // Fallback
+
     let style = "çok basit, kısa ve anlaşılır cümleler. Karmaşık kelime olmasın.";
-    let questionStyle = "Doğrudan metinde cevabı olan, basit 5N1K soruları.";
+    if (difficulty === 'Zor') style = "zengin kelime dağarcığı, deyimler, mecaz anlamlar.";
     
-    if (difficulty === 'Orta') {
-        wordCount = "100-150";
-        style = "ortalama uzunlukta cümleler, biraz betimleme, günlük konuşma dili.";
-        questionStyle = "Metindeki olay örgüsünü takip etmeyi gerektiren sorular.";
-    } else if (difficulty === 'Zor') {
-        wordCount = "200-250";
-        style = "uzun ve karmaşık cümleler, zengin kelime dağarcığı, deyimler, mecaz anlamlar.";
-        questionStyle = "Çıkarım yapmayı, ana fikri bulmayı gerektiren, metinde doğrudan yazmayan sorular.";
-    } else if (difficulty === 'Uzman') {
-        wordCount = "300-400";
-        style = "Akademik veya edebi dil, eski Türkçe kelimeler, soyut kavramlar, yoğun betimlemeler.";
-        questionStyle = "Metnin tonunu, yazarın amacını veya karakterin psikolojisini analiz eden derinlemesine sorular.";
-    }
+    const charInstruction = characterName ? `Ana karakterin adı: ${characterName}.` : "";
+    const genreInstruction = genre ? `Hikaye türü: ${genre}.` : "";
 
     const prompt = `
     "${difficulty}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda bir hikaye yaz.
+    ${charInstruction}
+    ${genreInstruction}
     Hikaye Uzunluğu: ${wordCount} kelime.
     Dil ve Üslup: ${style}
     
     Hikayeden sonra, hikayeyle ilgili 3 tane çoktan seçmeli anlama sorusu oluştur. 
-    Soru Tarzı: ${questionStyle}
     Her soru için 3 seçenek sun ve doğru seçeneğin indeksini (0, 1 veya 2) belirt.
     
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun. Mümkün olduğunda emoji kullan.
@@ -60,7 +57,7 @@ export const generateStoryComprehensionFromAI = async (options: OfflineGenerator
   return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
 };
 
-export const generateStoryAnalysisFromAI = async (options: OfflineGeneratorOptions): Promise<StoryAnalysisData[]> => {
+export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Promise<StoryAnalysisData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   
   let difficultyInstruction = "Metin çok kısa olsun. Sorular çok basit olsun.";
@@ -97,7 +94,7 @@ export const generateStoryAnalysisFromAI = async (options: OfflineGeneratorOptio
   return generateWithSchema(prompt, schema) as Promise<StoryAnalysisData[]>;
 };
 
-export const generateStoryCreationPromptFromAI = async (options: OfflineGeneratorOptions): Promise<StoryCreationPromptData[]> => {
+export const generateStoryCreationPromptFromAI = async (options: GeneratorOptions): Promise<StoryCreationPromptData[]> => {
   const { topic, itemCount: keywordCount, difficulty, worksheetCount } = options;
   
   let keywordType = "Basit, somut kelimeler (top, ev, kedi).";
@@ -123,7 +120,7 @@ export const generateStoryCreationPromptFromAI = async (options: OfflineGenerato
   return generateWithSchema(prompt, schema) as Promise<StoryCreationPromptData[]>;
 };
 
-export const generateWordsInStoryFromAI = async (options: OfflineGeneratorOptions): Promise<WordsInStoryData[]> => {
+export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   const prompt = `
     '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun kısa bir hikaye yaz.
@@ -154,7 +151,7 @@ export const generateWordsInStoryFromAI = async (options: OfflineGeneratorOption
   return generateWithSchema(prompt, schema) as Promise<WordsInStoryData[]>;
 };
 
-export const generateStorySequencingFromAI = async (options: OfflineGeneratorOptions): Promise<StorySequencingData[]> => {
+export const generateStorySequencingFromAI = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
     const { topic, difficulty, worksheetCount } = options;
     
     let complexity = "Olay örgüsü çok net ve basit.";
@@ -191,7 +188,7 @@ export const generateStorySequencingFromAI = async (options: OfflineGeneratorOpt
     return generateWithSchema(prompt, schema) as Promise<StorySequencingData[]>;
 };
 
-export const generateProverbSayingSortFromAI = async(options: OfflineGeneratorOptions): Promise<ProverbSayingSortData[]> => {
+export const generateProverbSayingSortFromAI = async(options: GeneratorOptions): Promise<ProverbSayingSortData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a "Proverb or Saying" sorting activity, appropriate for difficulty level "${difficulty}". Provide a list of 10 Turkish items. Each item is either a proverb ('atasözü') or a saying ('özdeyiş'). The user must classify each one. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -219,7 +216,7 @@ export const generateProverbSayingSortFromAI = async(options: OfflineGeneratorOp
     return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData[]>;
 }
 
-export const generateProverbWordChainFromAI = async(options: OfflineGeneratorOptions): Promise<ProverbWordChainData[]> => {
+export const generateProverbWordChainFromAI = async(options: GeneratorOptions): Promise<ProverbWordChainData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a proverb word chain activity, appropriate for difficulty level "${difficulty}". Provide a word cloud of about 20 Turkish words that can form 3-4 proverbs or sayings. Also provide the full solutions. Assign a random hex color to each word. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.

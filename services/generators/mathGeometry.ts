@@ -1,33 +1,31 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
-import { MathPuzzleData, ShapeCountingData, MatchstickSymmetryData } from '../../types';
+import { MathPuzzleData, ShapeCountingData, MatchstickSymmetryData, GeneratorOptions } from '../../types';
 
-export const generateMathPuzzleFromAI = async (options: OfflineGeneratorOptions): Promise<MathPuzzleData[]> => {
-  const { topic, itemCount: count, difficulty, worksheetCount } = options;
+export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
+  const { topic, itemCount: count, difficulty, worksheetCount, operations, numberRange } = options;
   
-  let range = "1-10";
-  let operations = "sadece toplama (+)";
-  let complexity = "çok basit, tek işlem";
+  let rangeDesc = "1-10";
+  if (numberRange) rangeDesc = numberRange;
+  else if (difficulty === 'Orta') rangeDesc = "1-50";
+  else if (difficulty === 'Zor') rangeDesc = "1-100";
+  else if (difficulty === 'Uzman') rangeDesc = "1-1000";
 
-  if (difficulty === 'Orta') {
-      range = "10-50";
-      operations = "toplama (+) ve çıkarma (-)";
-      complexity = "iki basamaklı sayılar";
-  } else if (difficulty === 'Zor') {
-      range = "10-100";
-      operations = "toplama, çıkarma ve çarpma (*)";
-      complexity = "parantezli işlemler veya 3 elemanlı denklemler";
-  } else if (difficulty === 'Uzman') {
-      range = "100-1000";
-      operations = "dört işlem (+, -, *, /)";
-      complexity = "zihinden hesaplaması zor, karmaşık denklemler";
-  }
+  let opsDesc = "sadece toplama (+)";
+  if (operations === 'addsub') opsDesc = "toplama ve çıkarma";
+  else if (operations === 'mult') opsDesc = "toplama, çıkarma ve çarpma";
+  else if (operations === 'all') opsDesc = "dört işlem (+, -, *, /)";
+  else if (difficulty === 'Orta') opsDesc = "toplama (+) ve çıkarma (-)";
+  
+  let complexity = "basit";
+  if (difficulty === 'Uzman') complexity = "karmaşık denklemler";
 
   const prompt = `
     "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, '${topic}' konusuyla ilgili ${count} tane matematik bulmacası oluştur.
-    SAYI ARALIĞI: ${range}
-    İŞLEMLER: ${operations}
+    SAYI ARALIĞI: ${rangeDesc}
+    İŞLEMLER: ${opsDesc}
     KARMAŞIKLIK: ${complexity}
     Bulmacalar nesneler veya meyveler kullanarak (örn: '2 elma + 3 muz = ?') hazırlanmalı.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
@@ -56,7 +54,7 @@ export const generateMathPuzzleFromAI = async (options: OfflineGeneratorOptions)
   return generateWithSchema(prompt, schema) as Promise<MathPuzzleData[]>;
 };
 
-export const generateShapeCountingFromAI = async (options: OfflineGeneratorOptions): Promise<ShapeCountingData[]> => {
+export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
     const { difficulty, worksheetCount } = options;
     
     let complexity = "Çok basit, az sayıda şekil, örtüşme yok.";
@@ -99,7 +97,7 @@ export const generateShapeCountingFromAI = async (options: OfflineGeneratorOptio
     return generateWithSchema(prompt, schema) as Promise<ShapeCountingData[]>;
 };
 
-export const generateMatchstickSymmetryFromAI = async(options: OfflineGeneratorOptions): Promise<MatchstickSymmetryData[]> => {
+export const generateMatchstickSymmetryFromAI = async(options: GeneratorOptions): Promise<MatchstickSymmetryData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a matchstick symmetry puzzle appropriate for difficulty level "${difficulty}". Generate 3 puzzles. Each puzzle is a number (e.g., 3) made of matchsticks (represented by lines with x1,y1,x2,y2 coordinates). The user must draw the symmetrical reflection. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
