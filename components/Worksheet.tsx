@@ -1904,12 +1904,450 @@ const SynonymMatchingPatternSheet: React.FC<{data: SynonymMatchingPatternData}> 
     </div>
 );
 
-const NotImplementedSheet: React.FC<{ type: ActivityType | null }> = ({ type }) => (
-    <div className="text-center p-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-        <h3 className="font-bold text-amber-700 dark:text-amber-300">Bu etkinlik türü için çalışma sayfası görünümü henüz oluşturulmadı.</h3>
-        <p className="text-amber-600 dark:text-amber-400 mt-2">Activity ID: {type}</p>
+// --- NEWLY IMPLEMENTED SHEETS ---
+
+const FutoshikiSheet: React.FC<{ data: FutoshikiData | FutoshikiLengthData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 justify-items-center">
+            {(data.puzzles || []).map((puzzle, index) => {
+                const cellSize = 50;
+                const gap = 20;
+                const totalSize = puzzle.size * cellSize + (puzzle.size - 1) * gap;
+                const numbers = 'units' in puzzle ? puzzle.units : puzzle.numbers;
+
+                return (
+                    <div key={index} className="flex justify-center">
+                        <svg width={totalSize} height={totalSize}>
+                            {/* Cells */}
+                            {(numbers || []).flat().map((num, i) => {
+                                const row = Math.floor(i / puzzle.size);
+                                const col = i % puzzle.size;
+                                return (
+                                    <g key={`cell-${row}-${col}`}>
+                                        <rect x={col * (cellSize + gap)} y={row * (cellSize + gap)} width={cellSize} height={cellSize}
+                                            className="fill-white dark:fill-zinc-700 stroke-zinc-400 dark:stroke-zinc-500" strokeWidth="2" />
+                                        <text x={col * (cellSize + gap) + cellSize / 2} y={row * (cellSize + gap) + cellSize / 2}
+                                            textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-current">
+                                            {num}
+                                        </text>
+                                    </g>
+                                )
+                            })}
+                            {/* Constraints */}
+                            {(puzzle.constraints || []).map((c, i) => {
+                                const isHorizontal = c.row1 === c.row2;
+                                const x = isHorizontal ? c.col1 * (cellSize + gap) + cellSize + gap / 2 : c.col1 * (cellSize + gap) + cellSize / 2;
+                                const y = isHorizontal ? c.row1 * (cellSize + gap) + cellSize / 2 : c.row1 * (cellSize + gap) + cellSize + gap / 2;
+                                return (
+                                    <text key={`c-${i}`} x={x} y={y} textAnchor="middle" dominantBaseline="middle" className="text-3xl font-bold fill-red-500">
+                                        {c.symbol}
+                                    </text>
+                                )
+                            })}
+                        </svg>
+                    </div>
+                );
+            })}
+        </div>
     </div>
 );
+
+const NumberPyramidSheet: React.FC<{ data: NumberPyramidData | DivisionPyramidData | MultiplicationPyramidData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 justify-items-center">
+            {(data.pyramids || []).map((pyramid, index) => (
+                <div key={index}>
+                    {'title' in pyramid && <h4 className="font-bold text-center mb-2">{pyramid.title}</h4>}
+                    <div className="flex flex-col items-center gap-1">
+                        {(pyramid.rows || []).map((row, rIndex) => (
+                            <div key={rIndex} className="flex gap-1">
+                                {(row || []).map((cell, cIndex) => (
+                                    <div key={cIndex} className="w-12 h-12 flex items-center justify-center border-2 rounded-md bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                                        {cell !== null ? <span className="text-lg font-bold">{cell}</span> : ''}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        {/* Placeholder for now - complex to render with just divs */}
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+    </div>
+);
+
+const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData | Sudoku6x6ShadedData }> = ({ data }) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-1 gap-8 justify-items-center">
+            {(data.puzzles || []).map((puzzle, index) => (
+                 <div key={index} className="w-96">
+                    <div className="grid grid-cols-6 border-2 border-zinc-900 dark:border-zinc-500">
+                        {(puzzle.grid || []).flat().map((cell, i) => {
+                            const row = Math.floor(i / 6);
+                            const col = i % 6;
+                            const isConstrained = ('constrainedCells' in puzzle ? puzzle.constrainedCells : puzzle.shadedCells).some(c => c.row === row && c.col === col);
+                            const borderRight = (col === 2) ? 'border-r-2 border-zinc-900 dark:border-zinc-500' : '';
+                            const borderBottom = (row === 1 || row === 3) ? 'border-b-2 border-zinc-900 dark:border-zinc-500' : '';
+                            return(
+                                <div key={i} className={`w-16 h-16 flex items-center justify-center border text-2xl font-bold ${isConstrained ? 'bg-zinc-200 dark:bg-zinc-600' : 'bg-white dark:bg-zinc-700'} ${borderRight} ${borderBottom}`} style={{borderColor: 'var(--worksheet-border-color)'}}>
+                                    {cell}
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const RomanNumeralStarHuntSheet: React.FC<{data: RomanNumeralStarHuntData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <GridComponent grid={data.grid} cellClassName="w-12 h-12" />
+        <p className="text-center font-bold mt-4">Toplam Yıldız Sayısı: {data.starCount}</p>
+    </div>
+)
+
+const RoundingConnectSheet: React.FC<{data: RoundingConnectData | ArithmeticConnectData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <p className="text-center font-semibold text-indigo-500 mb-6">{data.example}</p>
+        <div className="relative w-full h-[400px] border-2 border-dashed rounded-lg p-4" style={{borderColor: 'var(--worksheet-border-color)'}}>
+            {('numbers' in data ? data.numbers : data.expressions).map((item, index) => (
+                <div key={index} className="absolute p-2 bg-amber-100 dark:bg-amber-800/50 rounded-lg" style={{left: `${item.x}%`, top: `${item.y}%`}}>
+                    {'value' in item ? item.value : item.text}
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const RomanNumeralMultiplicationSheet: React.FC<{data: RomanNumeralMultiplicationData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+         <div className="grid grid-cols-2 gap-8 justify-items-center">
+            {(data.puzzles || []).map((p, i) => (
+                <div key={i} className="grid grid-cols-3 w-48 text-center text-lg font-bold">
+                    <div className="w-16 h-16 flex items-center justify-center text-red-500"><i className="fa-solid fa-times"></i></div>
+                    <div className="w-16 h-16 flex items-center justify-center border-2 rounded-t-lg">{p.col1}</div>
+                    <div className="w-16 h-16 flex items-center justify-center border-2 rounded-t-lg">{p.col2}</div>
+
+                    <div className="w-16 h-16 flex items-center justify-center border-2 rounded-l-lg">{p.row1}</div>
+                    <div className="w-16 h-16 flex items-center justify-center border-2 bg-zinc-100 dark:bg-zinc-700/50">{p.results.r1c1}</div>
+                    <div className="w-16 h-16 flex items-center justify-center border-2 bg-zinc-100 dark:bg-zinc-700/50">{p.results.r1c2}</div>
+
+                    <div className="w-16 h-16 flex items-center justify-center border-2 rounded-l-lg">{p.row2}</div>
+                    <div className="w-16 h-16 flex items-center justify-center border-2 bg-zinc-100 dark:bg-zinc-700/50">{p.results.r2c1}</div>
+                    <div className="w-16 h-16 flex items-center justify-center border-2 bg-zinc-100 dark:bg-zinc-700/50">{p.results.r2c2}</div>
+                </div>
+            ))}
+        </div>
+    </div>
+)
+
+const KendokuSheet: React.FC<{data: KendokuData}> = ({data}) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+    </div>
+)
+
+const OperationSquareSheet: React.FC<{data: OperationSquareSubtractionData | OperationSquareFillInData | OperationSquareMultDivData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-2 gap-8 justify-items-center">
+            {(data.puzzles || []).map((p, i) => <GridComponent key={i} grid={p.grid} cellClassName="w-12 h-12" />)}
+        </div>
+        {'numbersToUse' in data && (
+            <div className="mt-6 text-center">
+                <h4 className="font-bold">Kullanılacak Sayılar</h4>
+                <p className="font-mono text-lg">{data.puzzles[0].numbersToUse.join(', ')}</p>
+            </div>
+        )}
+    </div>
+)
+
+const ResfebeSheet: React.FC<{data: ResfebeData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="space-y-4">
+            {(data.puzzles || []).map((p, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 border rounded-lg">
+                    <div className="flex-1 flex items-center gap-2">
+                        {(p.clues || []).map((clue, j) => (
+                            clue.type === 'text' ? <span key={j} className="text-3xl font-bold">{clue.value}</span> : <ImageDisplay key={j} base64={clue.imageBase64} className="w-16 h-16" />
+                        ))}
+                    </div>
+                    <span>&rarr;</span>
+                    <div className="w-40 h-10 border-b-2"></div>
+                </div>
+            ))}
+        </div>
+    </div>
+)
+
+const MatchstickSymmetrySheet: React.FC<{data: MatchstickSymmetryData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+         <div className="grid grid-cols-3 gap-8 justify-items-center">
+            {(data.puzzles || []).map((p, i) => (
+                <div key={i} className="w-24 h-32 border-2 relative">
+                    {(p.lines || []).map((line, j) => (
+                        <div key={j} className="absolute bg-zinc-800 dark:bg-zinc-200" style={{
+                            left: `${line.x1}%`, top: `${line.y1}%`,
+                            width: `1px`, height: `1px` /* Placeholder */
+                        }}></div>
+                    ))}
+                </div>
+            ))}
+         </div>
+    </div>
+);
+
+const WordWebSheet: React.FC<{data: WordWebData | WordWebWithPasswordData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+         <div className="flex gap-8">
+            <div className="w-1/3">
+                <h4 className="font-bold mb-2">Kelimeler</h4>
+                <ul className="list-disc list-inside">
+                    {('wordsToFind' in data ? data.wordsToFind : data.words).map((w,i) => <li key={i}>{w}</li>)}
+                </ul>
+            </div>
+            <div className="flex-1">
+                <GridComponent grid={data.grid} showLetters={false} passwordColumnIndex={'passwordColumnIndex' in data ? data.passwordColumnIndex : undefined} />
+            </div>
+         </div>
+         <p className="text-center italic mt-4">{'keyWordPrompt' in data ? data.keyWordPrompt : 'Renkli sütundaki harflerle şifreyi bulun.'}</p>
+    </div>
+);
+
+const StarHuntSheet: React.FC<{data: StarHuntData}> = ({data}) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="flex justify-center">
+            <GridComponent grid={data.grid.map(row => row.map(cell => {
+                if(cell === 'star') return '⭐';
+                if(cell === 'question') return '?';
+                return cell; // This might be a shape name which isn't rendered by GridComponent well
+            }))} cellClassName="w-12 h-12" />
+        </div>
+    </div>
+);
+
+const VisualNumberPatternSheet: React.FC<{data: VisualNumberPatternData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        {(data.puzzles || []).map((p, i) => (
+            <div key={i} className="p-4 border rounded-lg mb-4">
+                <div className="flex justify-center items-center gap-4">
+                    {(p.items || []).map((item, j) => (
+                        <div key={j} className="flex items-center justify-center rounded-full text-white font-bold"
+                        style={{backgroundColor: item.color, width: `${item.size * 3}rem`, height: `${item.size * 3}rem`}}>
+                            {item.number}
+                        </div>
+                    ))}
+                    <div className="w-12 h-12 flex items-center justify-center border-2 border-dashed rounded-full font-bold text-2xl">?</div>
+                </div>
+                <p className="text-sm text-center italic mt-4">Kural: {p.rule}</p>
+            </div>
+        ))}
+    </div>
+);
+
+const MissingPartsSheet: React.FC<{data: MissingPartsData}> = ({data}) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-2 gap-8 mb-8">
+            <div className="space-y-2">
+                 {(data.leftParts || []).map(p => <div key={p.id} className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center">{p.text}</div>)}
+            </div>
+             <div className="space-y-2">
+                 {(data.rightParts || []).map(p => <div key={p.id} className="p-3 bg-rose-100 dark:bg-rose-900/50 rounded-lg text-center">{p.text}</div>)}
+            </div>
+        </div>
+        <h4 className="font-bold text-center mb-2">Örnekler</h4>
+         <div className="flex justify-center gap-4">
+            {(data.givenParts || []).map(p => <div key={p.word}>{p.parts.join(' + ')} = {p.word}</div>)}
+         </div>
+    </div>
+);
+
+const ProfessionConnectSheet: React.FC<{data: ProfessionConnectData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="relative w-full h-[400px] border-2 border-dashed rounded-lg p-4" style={{borderColor: 'var(--worksheet-border-color)'}}>
+            {(data.points || []).map((item, index) => (
+                <div key={index} className="absolute text-center" style={{left: `${item.x}%`, top: `${item.y}%`}}>
+                    <ImageDisplay base64={item.imageBase64} description={item.imageDescription} className="w-16 h-16 mb-1"/>
+                    <p className="font-semibold">{item.label}</p>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const VisualOddOneOutThemedSheet: React.FC<{data: VisualOddOneOutThemedData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="space-y-6">
+            {(data.rows || []).map((row, i) =>(
+                <div key={i}>
+                    <h4 className="font-bold text-lg mb-2 text-indigo-500">Tema: {row.theme}</h4>
+                    <div className="grid grid-cols-4 gap-4">
+                        {(row.items || []).map((item, j) => (
+                            <div key={j} className="border rounded-lg p-2 text-center">
+                                <ImageDisplay base64={item.imageBase64} description={item.description} className="w-full h-24 mb-2" />
+                                <div className="w-6 h-6 border-2 mx-auto rounded-full"></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const LogicGridPuzzleSheet: React.FC<{data: LogicGridPuzzleData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg mb-6">
+            <h4 className="font-bold mb-2">İpuçları</h4>
+            <ul className="list-disc list-inside space-y-1">
+                {(data.clues || []).map((clue, i) => <li key={i}>{clue}</li>)}
+            </ul>
+        </div>
+        {/* Placeholder for now - complex grid */}
+         <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Mantık Tablosu görünümü yapım aşamasındadır.</div>
+    </div>
+)
+
+const ImageAnagramSortSheet: React.FC<{data: ImageAnagramSortData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {(data.cards || []).map((card, i) =>(
+                <div key={i} className="border p-2 rounded-lg text-center">
+                    <ImageDisplay base64={card.imageBase64} description={card.imageDescription} className="w-full h-24 mb-2" />
+                    <p className="font-mono text-lg tracking-widest">{card.scrambledWord}</p>
+                </div>
+            ))}
+        </div>
+    </div>
+)
+
+const AnagramImageMatchSheet: React.FC<{data: AnagramImageMatchData}> = ({data}) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="p-2 bg-amber-100 dark:bg-amber-800/50 rounded-lg mb-6 flex justify-center gap-4 flex-wrap">
+             {(data.wordBank || []).map(w => <span key={w} className="px-3 py-1 bg-white dark:bg-zinc-700 rounded-md">{w}</span>)}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+            {(data.puzzles || []).map((p, i) =>(
+                <div key={i} className="flex items-center gap-4 p-2 border rounded-lg">
+                    <ImageDisplay base64={p.imageBase64} description={p.imageDescription} className="w-24 h-24" />
+                    <div className="flex-1 h-10 border-b-2 font-mono text-center text-lg">{p.partialAnswer}</div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const SyllableWordSearchSheet: React.FC<{data: SyllableWordSearchData}> = ({data}) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        {/* Placeholder for now - too complex */}
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+    </div>
+);
+
+const WordPlacementPuzzleSheet: React.FC<{data: WordPlacementPuzzleData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1">
+                <GridComponent grid={data.grid} showLetters={false} />
+            </div>
+            <div className="w-full md:w-1/3 space-y-4">
+                {(data.wordGroups || []).map(group => (
+                    <div key={group.length}>
+                        <h4 className="font-bold">{group.length} Harfli Kelimeler</h4>
+                        <ul className="text-sm list-disc list-inside">
+                            {(group.words || []).map(w => <li key={w}>{w}</li>)}
+                        </ul>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
+const PositionalAnagramSheet: React.FC<{data: PositionalAnagramData}> = ({data}) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="space-y-4">
+            {(data.puzzles || []).map(p => (
+                <div key={p.id} className="flex items-center gap-4 p-3 bg-white dark:bg-zinc-700/50 rounded-lg">
+                    <span className="font-mono text-lg">{p.scrambled}</span>
+                    <span>&rarr;</span>
+                    <div className="flex-1 h-8 border-b-2"></div>
+                </div>
+            ))}
+        </div>
+    </div>
+)
+
+// FIX: Added placeholder components for missing activity types to prevent crashes.
+const MultiplicationWheelSheet: React.FC<{ data: MultiplicationWheelData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+    </div>
+);
+
+const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 text-center rounded-lg">Bu etkinlik için Hızlı Mod görünümü yapım aşamasındadır.</div>
+    </div>
+);
+
 
 const componentMap: { [key in ActivityType]?: React.FC<any> } = {
     [ActivityType.WORD_SEARCH]: WordSearchGrid,
@@ -1982,52 +2420,52 @@ const componentMap: { [key in ActivityType]?: React.FC<any> } = {
     [ActivityType.PUNCTUATION_MAZE]: PunctuationMazeSheet,
     [ActivityType.ANTONYM_RESFEBE]: AntonymResfebeSheet,
     [ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE]: ThematicOddOneOutSentenceSheet,
-    [ActivityType.PROVERB_SENTENCE_FINDER]: ProverbWordChainSheet, // Reuse
-    [ActivityType.PUNCTUATION_SPIRAL_PUZZLE]: SpiralPuzzleSheet, // Reuse
+    [ActivityType.PROVERB_SENTENCE_FINDER]: ProverbWordChainSheet, 
+    [ActivityType.PUNCTUATION_SPIRAL_PUZZLE]: SpiralPuzzleSheet, 
     [ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE]: ColumnOddOneOutSentenceSheet,
     [ActivityType.TARGET_NUMBER]: TargetNumberSheet,
     [ActivityType.SYNONYM_ANTONYM_COLORING]: SynonymAntonymColoringSheet,
     [ActivityType.PUNCTUATION_PHONE_NUMBER]: PunctuationPhoneNumberSheet,
-    [ActivityType.THEMATIC_JUMBLED_WORD_STORY]: JumbledWordStorySheet, // Reuse
+    [ActivityType.THEMATIC_JUMBLED_WORD_STORY]: JumbledWordStorySheet, 
     [ActivityType.SYNONYM_MATCHING_PATTERN]: SynonymMatchingPatternSheet,
-    // Add all new component mappings here
-    [ActivityType.FUTOSHIKI]: NotImplementedSheet,
-    [ActivityType.NUMBER_PYRAMID]: NotImplementedSheet,
-    [ActivityType.NUMBER_CAPSULE]: NotImplementedSheet,
-    [ActivityType.ODD_EVEN_SUDOKU]: NotImplementedSheet,
-    [ActivityType.ROMAN_NUMERAL_CONNECT]: AbcConnectSheet, // Reuse
-    [ActivityType.ROMAN_NUMERAL_STAR_HUNT]: NotImplementedSheet,
-    [ActivityType.ROUNDING_CONNECT]: NotImplementedSheet,
-    [ActivityType.ROMAN_NUMERAL_MULTIPLICATION]: NotImplementedSheet,
-    [ActivityType.ARITHMETIC_CONNECT]: AbcConnectSheet, // Reuse
-    [ActivityType.ROMAN_ARABIC_MATCH_CONNECT]: AbcConnectSheet, // Reuse
-    [ActivityType.SUDOKU_6X6_SHADED]: NotImplementedSheet,
-    [ActivityType.KENDOKU]: NotImplementedSheet,
-    [ActivityType.DIVISION_PYRAMID]: NotImplementedSheet,
-    [ActivityType.MULTIPLICATION_PYRAMID]: NotImplementedSheet,
-    [ActivityType.OPERATION_SQUARE_SUBTRACTION]: NotImplementedSheet,
-    [ActivityType.OPERATION_SQUARE_FILL_IN]: NotImplementedSheet,
-    [ActivityType.MULTIPLICATION_WHEEL]: NotImplementedSheet,
-    [ActivityType.OPERATION_SQUARE_MULT_DIV]: NotImplementedSheet,
-    [ActivityType.SHAPE_SUDOKU]: NotImplementedSheet,
-    [ActivityType.WEIGHT_CONNECT]: AbcConnectSheet, // Reuse
-    [ActivityType.RESFEBE]: NotImplementedSheet,
-    [ActivityType.FUTOSHIKI_LENGTH]: NotImplementedSheet,
-    [ActivityType.MATCHSTICK_SYMMETRY]: NotImplementedSheet,
-    [ActivityType.WORD_WEB]: NotImplementedSheet,
-    [ActivityType.STAR_HUNT]: NotImplementedSheet,
-    [ActivityType.LENGTH_CONNECT]: AbcConnectSheet, // Reuse
-    [ActivityType.VISUAL_NUMBER_PATTERN]: NotImplementedSheet,
-    [ActivityType.MISSING_PARTS]: NotImplementedSheet,
-    [ActivityType.PROFESSION_CONNECT]: NotImplementedSheet,
-    [ActivityType.VISUAL_ODD_ONE_OUT_THEMED]: NotImplementedSheet,
-    [ActivityType.LOGIC_GRID_PUZZLE]: NotImplementedSheet,
-    [ActivityType.IMAGE_ANAGRAM_SORT]: NotImplementedSheet,
-    [ActivityType.ANAGRAM_IMAGE_MATCH]: NotImplementedSheet,
-    [ActivityType.SYLLABLE_WORD_SEARCH]: NotImplementedSheet,
-    [ActivityType.WORD_WEB_WITH_PASSWORD]: NotImplementedSheet,
-    [ActivityType.WORD_PLACEMENT_PUZZLE]: NotImplementedSheet,
-    [ActivityType.POSITIONAL_ANAGRAM]: NotImplementedSheet,
+    [ActivityType.FUTOSHIKI]: FutoshikiSheet,
+    [ActivityType.NUMBER_PYRAMID]: NumberPyramidSheet,
+    [ActivityType.NUMBER_CAPSULE]: NumberCapsuleSheet,
+    [ActivityType.ODD_EVEN_SUDOKU]: OddEvenSudokuSheet,
+    [ActivityType.ROMAN_NUMERAL_CONNECT]: AbcConnectSheet, 
+    [ActivityType.ROMAN_NUMERAL_STAR_HUNT]: RomanNumeralStarHuntSheet,
+    [ActivityType.ROUNDING_CONNECT]: RoundingConnectSheet,
+    [ActivityType.ROMAN_NUMERAL_MULTIPLICATION]: RomanNumeralMultiplicationSheet,
+    [ActivityType.ARITHMETIC_CONNECT]: RoundingConnectSheet, 
+    [ActivityType.ROMAN_ARABIC_MATCH_CONNECT]: AbcConnectSheet,
+    [ActivityType.SUDOKU_6X6_SHADED]: OddEvenSudokuSheet,
+    [ActivityType.KENDOKU]: KendokuSheet,
+    [ActivityType.DIVISION_PYRAMID]: NumberPyramidSheet,
+    [ActivityType.MULTIPLICATION_PYRAMID]: NumberPyramidSheet,
+    [ActivityType.OPERATION_SQUARE_SUBTRACTION]: OperationSquareSheet,
+    [ActivityType.OPERATION_SQUARE_FILL_IN]: OperationSquareSheet,
+// FIX: Changed type references to component references for MultiplicationWheel and ShapeSudoku.
+    [ActivityType.MULTIPLICATION_WHEEL]: MultiplicationWheelSheet,
+    [ActivityType.OPERATION_SQUARE_MULT_DIV]: OperationSquareSheet,
+    [ActivityType.SHAPE_SUDOKU]: ShapeSudokuSheet,
+    [ActivityType.WEIGHT_CONNECT]: AbcConnectSheet,
+    [ActivityType.RESFEBE]: ResfebeSheet,
+    [ActivityType.FUTOSHIKI_LENGTH]: FutoshikiSheet,
+    [ActivityType.MATCHSTICK_SYMMETRY]: MatchstickSymmetrySheet,
+    [ActivityType.WORD_WEB]: WordWebSheet,
+    [ActivityType.STAR_HUNT]: StarHuntSheet,
+    [ActivityType.LENGTH_CONNECT]: AbcConnectSheet,
+    [ActivityType.VISUAL_NUMBER_PATTERN]: VisualNumberPatternSheet,
+    [ActivityType.MISSING_PARTS]: MissingPartsSheet,
+    [ActivityType.PROFESSION_CONNECT]: ProfessionConnectSheet,
+    [ActivityType.VISUAL_ODD_ONE_OUT_THEMED]: VisualOddOneOutThemedSheet,
+    [ActivityType.LOGIC_GRID_PUZZLE]: LogicGridPuzzleSheet,
+    [ActivityType.IMAGE_ANAGRAM_SORT]: ImageAnagramSortSheet,
+    [ActivityType.ANAGRAM_IMAGE_MATCH]: AnagramImageMatchSheet,
+    [ActivityType.SYLLABLE_WORD_SEARCH]: SyllableWordSearchSheet,
+    [ActivityType.WORD_WEB_WITH_PASSWORD]: WordWebSheet,
+    [ActivityType.WORD_PLACEMENT_PUZZLE]: WordPlacementPuzzleSheet,
+    [ActivityType.POSITIONAL_ANAGRAM]: PositionalAnagramSheet,
 };
 
 
@@ -2038,14 +2476,13 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
   
   const renderSingleSheet = (sheetData: SingleWorksheetData, activityType: ActivityType | null) => {
     if (!activityType) {
-        return <NotImplementedSheet type={null} />;
+        return <div className="text-center p-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg">Etkinlik türü seçilmedi.</div>;
     }
     const Component = componentMap[activityType];
     if (Component) {
-        return <Component data={sheetData} />;
+        return <Component data={sheetData} type={activityType} />;
     }
-    // Fallback for any components that might still be missing in the map.
-    return <NotImplementedSheet type={activityType} />;
+    return <div className="text-center p-8 bg-red-100 dark:bg-red-900/50 rounded-lg">Etkinlik için bileşen bulunamadı: {activityType}</div>;
   };
 
   return (

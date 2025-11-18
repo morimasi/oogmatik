@@ -30,8 +30,8 @@ const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedWorkshee
     }, {} as Record<string, { title: string; worksheets: SavedWorksheet[] }>);
 
     // Sort worksheets within each group by date (newest first)
-    // FIX: Added explicit type to 'acc' in reduce to solve type inference issue.
-    Object.values(grouped).forEach(group => {
+    // FIX: Explicitly typed 'group' to resolve a TypeScript inference issue where it was 'unknown'.
+    Object.values(grouped).forEach((group: { title: string; worksheets: SavedWorksheet[] }) => {
       group.worksheets.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     });
 
