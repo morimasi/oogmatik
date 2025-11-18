@@ -2319,6 +2319,7 @@ const MissingPartsSheet: React.FC<{data: MissingPartsData}> = ({data}) => (
                  {(data.leftParts || []).map((p: { id: number; text: string }) => <div key={p.id} className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center">{p.text}</div>)}
             </div>
              <div className="space-y-2">
+{/* FIX: Explicitly type 'p' to fix type inference issue where it becomes 'never'. */}
                  {(data.rightParts || []).map((p: { id: number; text: string }) => <div key={p.id} className="p-3 bg-rose-100 dark:bg-rose-900/50 rounded-lg text-center">{p.text}</div>)}
             </div>
         </div>
