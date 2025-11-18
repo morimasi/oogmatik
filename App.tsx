@@ -1,4 +1,4 @@
-import React, { useState, useEffect, CSSProperties } from 'react';
+import React, { useState, useEffect, CSSProperties, ReactNode } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
@@ -8,13 +8,56 @@ export interface StyleSettings {
   fontSize: number;
   borderColor: string;
   borderWidth: number;
-  dyslexiaFriendlyFont: boolean;
   layout: '1x1' | '1x2' | '2x2';
   margin: number;
   pageView: 'single' | 'double';
 }
 
 export type View = 'generator' | 'savedList';
+type ModalType = 'how-to-use' | 'about' | 'contact';
+
+
+// Modal Component
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" 
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div 
+        className="bg-white dark:bg-zinc-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+        onClick={e => e.stopPropagation()} // Prevent closing when clicking inside
+      >
+        <header className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
+          <h2 id="modal-title" className="text-xl font-bold text-zinc-800 dark:text-zinc-200">{title}</h2>
+          <button 
+            onClick={onClose} 
+            className="text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-full w-8 h-8 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            aria-label="Kapat"
+          >
+            <i className="fa-solid fa-times"></i>
+          </button>
+        </header>
+        <div className="p-6 overflow-y-auto space-y-4 text-zinc-600 dark:text-zinc-300">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('generator');
@@ -23,11 +66,12 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [openModal, setOpenModal] = useState<ModalType | null>(null);
+
   const [styleSettings, setStyleSettings] = useState<StyleSettings>({
     fontSize: 16,
     borderColor: '#d4d4d8', // zinc-300
     borderWidth: 1,
-    dyslexiaFriendlyFont: false,
     layout: '1x1',
     margin: 32, // p-8 tailwind değeri
     pageView: 'single',
@@ -124,15 +168,29 @@ const App: React.FC = () => {
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">Disleksi Dostu Yapay Zeka Destekli Etkinlikler</p>
             </div>
           </div>
-          <a 
-            href="https://github.com/google-gemini" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
-            aria-label="Google Gemini on GitHub"
-          >
-            <i className="fa-brands fa-github fa-2x"></i>
-          </a>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setOpenModal('how-to-use')}
+              className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
+              aria-label="Nasıl kullanılır modülünü aç"
+            >
+              <i className="fa-solid fa-circle-question fa-2x"></i>
+            </button>
+             <button 
+              onClick={() => setOpenModal('about')}
+              className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
+              aria-label="Hakkımızda modülünü aç"
+            >
+              <i className="fa-solid fa-circle-info fa-2x"></i>
+            </button>
+             <button 
+              onClick={() => setOpenModal('contact')}
+              className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
+              aria-label="İletişim modülünü aç"
+            >
+              <i className="fa-solid fa-envelope fa-2x"></i>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -175,6 +233,41 @@ const App: React.FC = () => {
           onDeleteSaved={deleteSavedWorksheet}
         />
       </div>
+
+      <Modal isOpen={openModal === 'how-to-use'} onClose={() => setOpenModal(null)} title="Nasıl Kullanılır?">
+          <p>Bursa Disleksi Ai uygulamasıyla kişiselleştirilmiş etkinlikler oluşturmak çok kolay! Aşağıdaki adımları takip edebilirsiniz:</p>
+          <ol className="list-decimal list-inside space-y-2">
+              <li><strong>Kategori ve Etkinlik Seçin:</strong> Sol taraftaki menüden bir kategori seçin (örn: Kelime Oyunları) ve ardından ilginizi çeken bir etkinliğe (örn: Kelime Bulmaca) tıklayın.</li>
+              <li><strong>Ayarları Yapılandırın:</strong> Etkinlik seçtikten sonra, üretim ayarları ekranı açılacaktır. Buradan "Yapay Zeka" veya "Hızlı Mod"u seçebilir, zorluk seviyesini, sayfa sayısını ve etkinliğe özel diğer ayarları (konu, kelime sayısı vb.) düzenleyebilirsiniz.</li>
+              <li><strong>Etkinliği Oluşturun:</strong> Ayarlarınızı yaptıktan sonra "Etkinlik Oluştur" butonuna tıklayın. Yapay zeka sizin için benzersiz bir çalışma sayfası hazırlayacaktır.</li>
+              <li><strong>Görüntüleyin ve Düzenleyin:</strong> Oluşturulan etkinlik ekranda belirecektir. Üstteki araç çubuğunu kullanarak yazı tipi boyutunu, sayfa düzenini ve kenar boşluklarını istediğiniz gibi ayarlayabilirsiniz.</li>
+              <li><strong>Kaydedin veya Yazdırın:</strong> Hazırladığınız etkinliği daha sonra tekrar kullanmak için "Kaydet" butonuna tıklayabilir veya "Yazdır" butonuyla doğrudan çıktısını alabilirsiniz.</li>
+          </ol>
+      </Modal>
+
+      <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">
+          <p>Bursa Disleksi Ai, disleksi gibi öğrenme güçlüğü yaşayan çocuklara ve onlara destek olan eğitimcilere ve ailelere yardımcı olmak amacıyla tasarlanmış bir yapay zeka destekli platformdur.</p>
+          <p><strong>Misyonumuz</strong>, en son yapay zeka teknolojilerini kullanarak her çocuğun ihtiyacına uygun, eğlenceli, ilgi çekici ve pedagojik olarak değerli eğitici materyaller üretmektir. Uygulamamız, dikkat, hafıza, okuma-anlama ve mantıksal düşünme gibi temel becerileri geliştirmeye yönelik onlarca farklı etkinlik türü sunar.</p>
+          <p>Disleksi dostu tasarım anlayışımız ve kişiselleştirilebilir içerik seçeneklerimizle, öğrenme sürecini daha keyifli ve etkili hale getirmeyi hedefliyoruz.</p>
+      </Modal>
+
+      <Modal isOpen={openModal === 'contact'} onClose={() => setOpenModal(null)} title="İletişim">
+          <p>Bizimle iletişime geçmekten çekinmeyin. Her türlü soru, öneri ve iş birliği teklifleriniz için aşağıdaki kanalları kullanabilirsiniz.</p>
+          <div className="space-y-3 mt-4">
+              <div className="flex items-center gap-4">
+                  <i className="fa-solid fa-envelope fa-fw text-zinc-500"></i>
+                  <a href="mailto:info@bursadisleksi.ai" className="text-indigo-500 hover:underline">info@bursadisleksi.ai</a>
+              </div>
+              <div className="flex items-center gap-4">
+                  <i className="fa-solid fa-phone fa-fw text-zinc-500"></i>
+                  <span>+90 (555) 123 45 67 (Örnek)</span>
+              </div>
+               <div className="flex items-start gap-4">
+                  <i className="fa-solid fa-map-marker-alt fa-fw text-zinc-500 mt-1"></i>
+                  <span>Örnek Mah. Teknoloji Cad. No:123<br/>Nilüfer / Bursa, Türkiye (Örnek)</span>
+              </div>
+          </div>
+      </Modal>
     </div>
   );
 };

@@ -2175,8 +2175,8 @@ const OperationSquareSheet: React.FC<{data: OperationSquareSubtractionData | Ope
         {data.puzzles && data.puzzles.length > 0 && 'numbersToUse' in data.puzzles[0] && (
             <div className="mt-6 text-center">
                 <h4 className="font-bold">Kullanılacak Sayılar</h4>
-                {/* FIX: Cast puzzle object to resolve type inference issue with 'unknown' type. */}
-                <p className="font-mono text-lg">{(data.puzzles[0] as { numbersToUse: number[] }).numbersToUse.join(', ')}</p>
+                {/* FIX: Cast the puzzles array to the correct type to resolve the 'unknown' type error. */}
+                <p className="font-mono text-lg">{(data.puzzles as OperationSquareFillInData['puzzles'])[0].numbersToUse.join(', ')}</p>
             </div>
         )}
     </div>
@@ -2315,12 +2315,12 @@ const MissingPartsSheet: React.FC<{data: MissingPartsData}> = ({data}) => (
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="grid grid-cols-2 gap-8 mb-8">
             <div className="space-y-2">
-                {/* FIX: Explicitly type 'p' to fix type inference issue where it becomes 'never'. */}
-                 {(data.leftParts || []).map((p: { id: number; text: string }) => <div key={p.id} className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center">{p.text}</div>)}
+                {/* FIX: Removed explicit typing for 'p' to resolve 'never' type inference issue. */}
+                 {(data.leftParts || []).map(p => <div key={p.id} className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center">{p.text}</div>)}
             </div>
              <div className="space-y-2">
-{/* FIX: Explicitly type 'p' to fix type inference issue where it becomes 'never'. */}
-                 {(data.rightParts || []).map((p: { id: number; text: string }) => <div key={p.id} className="p-3 bg-rose-100 dark:bg-rose-900/50 rounded-lg text-center">{p.text}</div>)}
+{/* FIX: Removed explicit typing for 'p' to resolve 'never' type inference issue. */}
+                 {(data.rightParts || []).map(p => <div key={p.id} className="p-3 bg-rose-100 dark:bg-rose-900/50 rounded-lg text-center">{p.text}</div>)}
             </div>
         </div>
         <h4 className="font-bold text-center mb-2">Örnekler</h4>
@@ -2805,14 +2805,14 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     return <div></div>;
   }
   
-  const { fontSize, borderColor, borderWidth, dyslexiaFriendlyFont, layout, margin, pageView } = settings;
+  const { fontSize, borderColor, borderWidth, layout, margin, pageView } = settings;
 
   {/* FIX: Cast style object to React.CSSProperties to allow for CSS custom properties. */}
   const worksheetStyles: CSSProperties = {
     fontSize: `${fontSize}px`,
     '--worksheet-border-color': borderColor,
     '--worksheet-border-width': `${borderWidth}px`,
-    fontFamily: dyslexiaFriendlyFont ? "'Lexend', sans-serif" : "'Nunito Sans', sans-serif",
+    fontFamily: "'Lexend', sans-serif",
   } as React.CSSProperties;
 
   const getLayoutConfig = (l: typeof layout) => {
