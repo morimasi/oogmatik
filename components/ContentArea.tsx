@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from '../types';
+// FIX: Error on line 3: Module '"file:///components/Worksheet"' has no default export. Fixed by adding a default export to Worksheet.tsx
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { StyleSettings, View } from '../App';

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, CSSProperties, ReactNode } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from './types';
+// FIX: Error on line 3: Module '"file:///components/Sidebar"' has no default export. Fixed by adding a default export to Sidebar.tsx
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -13,8 +14,17 @@ export interface StyleSettings {
   pageView: 'single' | 'double';
 }
 
+const initialStyleSettings: StyleSettings = {
+    fontSize: 16,
+    borderColor: '#d4d4d8', // zinc-300
+    borderWidth: 1,
+    layout: '1x1',
+    margin: 32, // p-8 tailwind değeri
+    pageView: 'single',
+};
+
 export type View = 'generator' | 'savedList';
-type ModalType = 'how-to-use' | 'about' | 'contact';
+type ModalType = 'how-to-use' | 'about' | 'contact' | 'history';
 
 
 // Modal Component
@@ -68,14 +78,7 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
 
-  const [styleSettings, setStyleSettings] = useState<StyleSettings>({
-    fontSize: 16,
-    borderColor: '#d4d4d8', // zinc-300
-    borderWidth: 1,
-    layout: '1x1',
-    margin: 32, // p-8 tailwind değeri
-    pageView: 'single',
-  });
+  const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
   const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
 
   useEffect(() => {
@@ -89,6 +92,15 @@ const App: React.FC = () => {
       setSavedWorksheets([]);
     }
   }, []);
+
+  const handleResetApp = () => {
+    setCurrentView('generator');
+    setSelectedActivity(null);
+    setWorksheetData(null);
+    setError(null);
+    setStyleSettings(initialStyleSettings);
+    // Not resetting savedWorksheets as it's persistent storage
+  };
 
   const updateLocalStorage = (worksheets: SavedWorksheet[]) => {
     localStorage.setItem('savedWorksheets', JSON.stringify(worksheets));
@@ -145,22 +157,24 @@ const App: React.FC = () => {
             >
               <i className="fa-solid fa-bars fa-lg"></i>
             </button>
-             <svg
-              className="w-12 h-12 text-indigo-500 mr-3 hidden sm:block"
-              viewBox="0 0 50 50"
-              xmlns="http://www.w3.org/2000/svg"
-              strokeWidth="2.5"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <g className="animated-logo">
-                <path d="M 35,25 a 10,10 0 1,1 -20,0 a 10,10 0 1,1 20,0" />
-                <path id="stem-b" d="M 15 5 L 15 45" />
-                <path id="stem-d" d="M 35 5 L 35 45" />
-              </g>
-            </svg>
+             <button onClick={handleResetApp} className="flex-shrink-0" aria-label="Uygulamayı sıfırla">
+                <svg
+                className="w-12 h-12 text-indigo-500 mr-3 hidden sm:block"
+                viewBox="0 0 50 50"
+                xmlns="http://www.w3.org/2000/svg"
+                strokeWidth="2.5"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                >
+                <g className="animated-logo">
+                    <path d="M 35,25 a 10,10 0 1,1 -20,0 a 10,10 0 1,1 20,0" />
+                    <path id="stem-b" d="M 15 15 V 35" />
+                    <path id="stem-d" d="M 35 15 V 35" />
+                </g>
+                </svg>
+            </button>
             <div>
                  <h1 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
                     Bursa Disleksi Ai
@@ -170,25 +184,39 @@ const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <button 
+              onClick={() => setCurrentView('savedList')}
+              className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
+              aria-label="Arşivi aç"
+            >
+              <i className="fa-solid fa-box-archive fa-lg"></i>
+            </button>
+             <button 
+              onClick={() => setOpenModal('history')}
+              className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
+              aria-label="Geçmişi aç"
+            >
+              <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
+            </button>
+            <button 
               onClick={() => setOpenModal('how-to-use')}
               className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
               aria-label="Nasıl kullanılır modülünü aç"
             >
-              <i className="fa-solid fa-circle-question fa-2x"></i>
+              <i className="fa-solid fa-circle-question fa-lg"></i>
             </button>
              <button 
               onClick={() => setOpenModal('about')}
               className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
               aria-label="Hakkımızda modülünü aç"
             >
-              <i className="fa-solid fa-circle-info fa-2x"></i>
+              <i className="fa-solid fa-circle-info fa-lg"></i>
             </button>
              <button 
               onClick={() => setOpenModal('contact')}
               className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
               aria-label="İletişim modülünü aç"
             >
-              <i className="fa-solid fa-envelope fa-2x"></i>
+              <i className="fa-solid fa-envelope fa-lg"></i>
             </button>
           </div>
         </div>
@@ -211,8 +239,6 @@ const App: React.FC = () => {
           setIsLoading={setIsLoading}
           setError={setError}
           isLoading={isLoading}
-          savedWorksheets={savedWorksheets}
-          onShowSavedList={() => setCurrentView('savedList')}
         />
         <ContentArea
           currentView={currentView}
@@ -241,7 +267,7 @@ const App: React.FC = () => {
               <li><strong>Ayarları Yapılandırın:</strong> Etkinlik seçtikten sonra, üretim ayarları ekranı açılacaktır. Buradan "Yapay Zeka" veya "Hızlı Mod"u seçebilir, zorluk seviyesini, sayfa sayısını ve etkinliğe özel diğer ayarları (konu, kelime sayısı vb.) düzenleyebilirsiniz.</li>
               <li><strong>Etkinliği Oluşturun:</strong> Ayarlarınızı yaptıktan sonra "Etkinlik Oluştur" butonuna tıklayın. Yapay zeka sizin için benzersiz bir çalışma sayfası hazırlayacaktır.</li>
               <li><strong>Görüntüleyin ve Düzenleyin:</strong> Oluşturulan etkinlik ekranda belirecektir. Üstteki araç çubuğunu kullanarak yazı tipi boyutunu, sayfa düzenini ve kenar boşluklarını istediğiniz gibi ayarlayabilirsiniz.</li>
-              <li><strong>Kaydedin veya Yazdırın:</strong> Hazırladığınız etkinliği daha sonra tekrar kullanmak için "Kaydet" butonuna tıklayabilir veya "Yazdır" butonuyla doğrudan çıktısını alabilirsiniz.</li>
+              <li><strong>Kaydedin veya Yazdırın:</strong> Hazırladığınız etkinliği daha sonra tekrar kullanmak için "Kaydet" butonuna tıklayabilir veya "Yazdır" butonuyla doğrudan çıktısını alabilirsiniz. Kaydedilen etkinliklere sağ üstteki Arşiv ikonundan ulaşabilirsiniz.</li>
           </ol>
       </Modal>
 
@@ -249,6 +275,11 @@ const App: React.FC = () => {
           <p>Bursa Disleksi Ai, disleksi gibi öğrenme güçlüğü yaşayan çocuklara ve onlara destek olan eğitimcilere ve ailelere yardımcı olmak amacıyla tasarlanmış bir yapay zeka destekli platformdur.</p>
           <p><strong>Misyonumuz</strong>, en son yapay zeka teknolojilerini kullanarak her çocuğun ihtiyacına uygun, eğlenceli, ilgi çekici ve pedagojik olarak değerli eğitici materyaller üretmektir. Uygulamamız, dikkat, hafıza, okuma-anlama ve mantıksal düşünme gibi temel becerileri geliştirmeye yönelik onlarca farklı etkinlik türü sunar.</p>
           <p>Disleksi dostu tasarım anlayışımız ve kişiselleştirilebilir içerik seçeneklerimizle, öğrenme sürecini daha keyifli ve etkili hale getirmeyi hedefliyoruz.</p>
+      </Modal>
+
+       <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="Geçmiş">
+          <p>Bu özellik yakında eklenecektir.</p>
+          <p>Bu alanda, oturumunuz sırasında oluşturduğunuz son etkinliklerin bir listesini görebileceksiniz. Bu sayede, kaydetmeyi unuttuğunuz bir çalışmaya kolayca geri dönme imkanınız olacak.</p>
       </Modal>
 
       <Modal isOpen={openModal === 'contact'} onClose={() => setOpenModal(null)} title="İletişim">
