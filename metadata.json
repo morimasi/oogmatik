@@ -1,5 +1,5 @@
 {
-  "name": "Bursa Disleksi Ai",
-  "description": "Bursa Disleksi Ai, disleksi dostu bir yaklaşımla çocuklar için yapay zeka destekli eğitici etkinlikler üreten bir uygulamadır.",
+  "name": "AI Etkinlik Üretici",
+  "description": "Yapay zeka ve algoritmalar kullanarak çocuklar için çeşitli eğitici çalışma sayfaları ve etkinlikler oluşturan bir web uygulaması. Kelime bulmacaları, anagramlar ve daha fazlasını dinamik olarak oluşturun, yazdırın ve kaydedin.",
   "requestFramePermissions": []
 }

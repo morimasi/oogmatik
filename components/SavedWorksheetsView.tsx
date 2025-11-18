@@ -9,7 +9,7 @@ interface SavedWorksheetsViewProps {
   onBack: () => void;
 }
 
-export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedWorksheets, onLoad, onDelete, onBack }) => {
+const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedWorksheets, onLoad, onDelete, onBack }) => {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
 
   const getActivityTitle = (type: SavedWorksheet['activityType']) => {
@@ -85,43 +85,43 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
                                 <table className="min-w-full">
                                     <thead className="sr-only md:not-sr-only">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Etkinlik</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Oluşturulma Tarihi</th>
-                                            <th className="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Eylemler</th>
+                                            <th scope="col" className="py-2 pr-4 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Etkinlik Adı</th>
+                                            <th scope="col" className="py-2 px-4 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden lg:table-cell">Türü</th>
+                                            <th scope="col" className="py-2 px-4 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden sm:table-cell">Tarih</th>
+                                            <th scope="col" className="relative py-2 pl-4">
+                                                <span className="sr-only">İşlemler</span>
+                                            </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white dark:bg-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-700">
-                                        {group.worksheets.map(ws => (
-                                            <tr key={ws.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
+                                        {group.worksheets.map((ws) => (
+                                            <tr key={ws.id}>
+                                                <td className="py-3 pr-4 whitespace-nowrap">
                                                     <div className="flex items-center">
-                                                        <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center mr-4 shrink-0">
-                                                            <i className={`${ws.icon} fa-lg`}></i>
+                                                        <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-md flex items-center justify-center mr-3 shrink-0">
+                                                            <i className={ws.icon}></i>
                                                         </div>
                                                         <div>
-                                                            <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{ws.name}</div>
-                                                            <div className="text-xs text-zinc-500 dark:text-zinc-400">{getActivityTitle(ws.activityType)}</div>
+                                                           <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{ws.name}</div>
+                                                            <div className="text-sm text-zinc-500 dark:text-zinc-400 lg:hidden">{getActivityTitle(ws.activityType)}</div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
-                                                    {new Date(ws.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                                <td className="py-3 px-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400 hidden lg:table-cell">
+                                                    {getActivityTitle(ws.activityType)}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button onClick={() => onLoad(ws)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" title="Yükle">
-                                                            <i className="fa-solid fa-upload"></i>
-                                                        </button>
-                                                        <button onClick={() => { if(confirm(`'${ws.name}' etkinliğini silmek istediğinizden emin misiniz?`)) onDelete(ws.id) }} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Sil">
-                                                            <i className="fa-solid fa-trash-alt"></i>
-                                                        </button>
-                                                    </div>
+                                                <td className="py-3 px-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400 hidden sm:table-cell">
+                                                    {new Date(ws.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                                </td>
+                                                <td className="py-3 pl-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+                                                    <button onClick={() => onLoad(ws)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 transition-colors p-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">Yükle</button>
+                                                    <button onClick={() => onDelete(ws.id)} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 transition-colors p-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">Sil</button>
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
-                             </div>
+                            </div>
                          </div>
                     )}
                 </div>
@@ -131,3 +131,5 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
     </div>
   );
 };
+
+export default SavedWorksheetsView;

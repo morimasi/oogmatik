@@ -288,292 +288,74 @@ export const generateOfflineWordComparison = async (options: OfflineGeneratorOpt
     const { topic, itemCount, worksheetCount } = options;
     const results: WordComparisonData[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
-
     for (let i = 0; i < worksheetCount; i++) {
-        const commonWords = getRandomItems(availableWords, 10);
-        const list1_diff = getRandomItems(availableWords.filter(w => !commonWords.includes(w)), 3);
-        const list2_diff = getRandomItems(availableWords.filter(w => !commonWords.includes(w) && !list1_diff.includes(w)), 3);
-        
+        const wordPool = getRandomItems(availableWords, itemCount + 4);
+        const common = wordPool.slice(0, itemCount - 2);
+        const list1Only = wordPool.slice(itemCount - 2, itemCount);
+        const list2Only = wordPool.slice(itemCount, itemCount + 2);
         results.push({
-            title: "Kelime Karşılaştırma",
-            box1Title: "Kutu 1",
-            box2Title: "Kutu 2",
-            wordList1: shuffle([...commonWords, ...list1_diff]),
-            wordList2: shuffle([...commonWords, ...list2_diff]),
-        });
-    }
-    return results;
-};
-
-// FIX: Added all missing offline generator function stubs to resolve export errors.
-
-export const generateOfflineStoryComprehension = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
-    const { worksheetCount } = options;
-    const results: StoryData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        results.push({
-            title: `Çevrimdışı Hikaye ${i + 1}`,
-            story: 'Bir zamanlar küçük bir köyde Ali adında bir çocuk yaşarmış. Ali hayvanları çok severmiş. Bir gün ormanda yaralı bir kuş bulmuş ve ona yardım etmiş.',
-            questions: [
-                { question: 'Çocuğun adı neydi?', options: ['Veli', 'Ali', 'Can'], answerIndex: 1 },
-                { question: 'Ali nerede yaşarmış?', options: ['Şehirde', 'Kasabada', 'Köyde'], answerIndex: 2 },
-            ],
-        });
-    }
-    return results;
-};
-
-export const generateOfflineStroopTest = async (options: OfflineGeneratorOptions): Promise<StroopTestData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: StroopTestData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const items = Array.from({ length: itemCount }).map(() => {
-            const color1 = getRandomItems(COLORS, 1)[0];
-            const color2 = getRandomItems(COLORS.filter(c => c.css !== color1.css), 1)[0];
-            return { text: color1.name, color: color2.css };
-        });
-        results.push({ title: 'Stroop Testi (Çevrimdışı)', items });
-    }
-    return results;
-};
-
-export const generateOfflineNumberPattern = async (options: OfflineGeneratorOptions): Promise<NumberPatternData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: NumberPatternData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const patterns = Array.from({ length: itemCount }).map(() => {
-            const start = getRandomInt(1, 10);
-            const step = getRandomInt(2, 5);
-            const sequence = Array.from({ length: 4 }).map((_, k) => start + k * step).join(', ') + ', ?';
-            const answer = (start + 4 * step).toString();
-            return { sequence, answer };
-        });
-        results.push({ title: 'Sayı Örüntüsü (Çevrimdışı)', patterns });
-    }
-    return results;
-};
-
-export const generateOfflineLetterGridTest = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
-    const { gridSize, worksheetCount, targetLetters } = options;
-    const results: LetterGridTestData[] = [];
-    const targets = (targetLetters || "a,b,d,g").split(',').map(t => t.trim());
-    for (let i = 0; i < worksheetCount; i++) {
-        const grid = Array.from({ length: gridSize }, () => 
-            Array.from({ length: gridSize }, () => turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)])
-        );
-        results.push({ title: 'Harf Izgara Testi (Çevrimdışı)', grid, targetLetters: targets });
-    }
-    return results;
-};
-
-export const generateOfflineNumberSearch = async (options: OfflineGeneratorOptions): Promise<NumberSearchData[]> => {
-    const { worksheetCount } = options;
-    const results: NumberSearchData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const numbers = Array.from({ length: 100 }, () => getRandomInt(1, 100));
-        results.push({ title: 'Sayı Avı (Çevrimdışı)', numbers, range: { start: 1, end: 50 } });
-    }
-    return results;
-};
-
-export const generateOfflineWordMemory = async (options: OfflineGeneratorOptions): Promise<WordMemoryData[]> => {
-    const { topic, worksheetCount } = options;
-    const availableWords = wordlist[topic] || wordlist.Rastgele;
-    const results: WordMemoryData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const wordsToMemorize = getRandomItems(availableWords, 10);
-        const otherWords = getRandomItems(availableWords.filter(w => !wordsToMemorize.includes(w)), 10);
-        results.push({
-            title: 'Kelime Hafıza (Çevrimdışı)',
-            memorizeTitle: 'Bu Kelimeleri Ezberle',
-            testTitle: 'Ezberlediklerini İşaretle',
-            wordsToMemorize,
-            testWords: shuffle([...wordsToMemorize, ...otherWords]),
-        });
-    }
-    return results;
-};
-
-export const generateOfflineStoryCreationPrompt = async (options: OfflineGeneratorOptions): Promise<StoryCreationPromptData[]> => {
-    const { topic, worksheetCount } = options;
-    const availableWords = wordlist[topic] || wordlist.Rastgele;
-    const results: StoryCreationPromptData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        results.push({
-            title: 'Hikaye Oluşturma (Çevrimdışı)',
-            prompt: 'Bu kelimeleri kullanarak bir hikaye yaz.',
-            keywords: getRandomItems(availableWords, 5),
+            title: 'Kelime Karşılaştırma', box1Title: 'Kutu 1', box2Title: 'Kutu 2',
+            wordList1: shuffle([...common, ...list1Only]),
+            wordList2: shuffle([...common, ...list2Only])
         });
     }
     return results;
 };
 
 export const generateOfflineWordsInStory = async (options: OfflineGeneratorOptions): Promise<WordsInStoryData[]> => {
-    const { topic, worksheetCount } = options;
-    const availableWords = wordlist[topic] || wordlist.Rastgele;
+    const { itemCount, worksheetCount } = options;
     const results: WordsInStoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const inStoryWords = getRandomItems(availableWords, 6);
-        const notInStoryWords = getRandomItems(availableWords.filter(w => !inStoryWords.includes(w)), 6);
-        const story = `İşte ${topic} hakkında bir hikaye. İçinde ${inStoryWords.join(', ')} kelimeleri geçiyor. Ama ${notInStoryWords.join(', ')} kelimeleri geçmiyor.`;
-        const wordList = shuffle([
-            ...inStoryWords.map(word => ({ word, isInStory: true })),
-            ...notInStoryWords.map(word => ({ word, isInStory: false })),
-        ]);
-        results.push({ title: 'Metindeki Kelimeler (Çevrimdışı)', story, wordList });
+        const story = getRandomItems(proverbs, 3).join(' ');
+        const storyWords = Array.from(new Set(story.toLowerCase().replace(/[.,]/g, '').split(' ')));
+        const inStoryCount = Math.floor(itemCount / 2);
+        const wordsInStory = getRandomItems(storyWords, inStoryCount);
+        const wordsNotInStory = getRandomItems(Object.values(wordlist).flat().filter(w => !storyWords.includes(w)), itemCount - inStoryCount);
+        const wordList = shuffle([...wordsInStory.map(word => ({ word, isInStory: true })), ...wordsNotInStory.map(word => ({ word, isInStory: false }))]);
+        results.push({ title: 'Metindeki Kelimeler', story, wordList });
     }
     return results;
 };
 
-export const generateOfflineShapeMatching = async (options: OfflineGeneratorOptions): Promise<ShapeMatchingData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: ShapeMatchingData[] = [];
+export const generateOfflineProverbSearch = async (options: OfflineGeneratorOptions): Promise<ProverbSearchData[]> => {
+    const { gridSize, worksheetCount } = options;
+    const results: ProverbSearchData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const leftColumn = Array.from({ length: itemCount }, (_, k) => ({
-            id: k + 1,
-            shapes: getRandomItems(SHAPE_TYPES, 3),
-        }));
-        const rightColumn = shuffle(leftColumn).map((item, k) => ({
-            ...item,
-            id: String.fromCharCode(65 + k),
-        }));
-        results.push({ title: 'Şekil Eşleştirme (Çevrimdışı)', leftColumn, rightColumn });
+        const proverb = getRandomItems(proverbs, 1)[0];
+        const word = proverb.replace(/[.,\s]/g, '').toLowerCase();
+        const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
+        if (word.length <= gridSize) {
+            const row = getRandomInt(0, gridSize - 1);
+            const col = getRandomInt(0, gridSize - word.length);
+            for (let k = 0; k < word.length; k++) grid[row][col + k] = word[k];
+        }
+        for (let r = 0; r < gridSize; r++) for (let c = 0; c < gridSize; c++) if (grid[r][c] === '') grid[r][c] = turkishAlphabet[getRandomInt(0, 28)];
+        results.push({ title: 'Atasözü Avı', proverb, grid });
     }
     return results;
 };
-
-export const generateOfflineSymbolCipher = async (options: OfflineGeneratorOptions): Promise<SymbolCipherData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: SymbolCipherData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const cipherKey = getRandomItems(SHAPE_TYPES, 8).map((shape, k) => ({ shape, letter: turkishAlphabet[k] }));
-        const wordsToSolve = Array.from({ length: itemCount }).map(() => {
-            const wordLength = getRandomInt(4, 6);
-            const shapeSequence = getRandomItems(cipherKey, wordLength).map(ck => ck.shape);
-            return { shapeSequence, wordLength };
-        });
-        results.push({ title: 'Şifre Çözme (Çevrimdışı)', cipherKey, wordsToSolve });
-    }
-    return results;
-};
-
-export const generateOfflineLetterBridge = async (options: OfflineGeneratorOptions): Promise<LetterBridgeData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: LetterBridgeData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        results.push({
-            title: 'Harf Köprüsü (Çevrimdışı)',
-            pairs: Array.from({ length: itemCount }).map(() => ({ word1: 'ÖRNEK', word2: 'SÖZCÜK' })),
-        });
-    }
-    return results;
-};
-
-export const generateOfflineWordLadder = async (options: OfflineGeneratorOptions): Promise<WordLadderData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: WordLadderData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        results.push({
-            title: 'Kelime Merdiveni (Çevrimdışı)',
-            ladders: Array.from({ length: itemCount }).map(() => ({ startWord: 'BAŞLA', endWord: 'BİTİR', steps: 3 })),
-        });
-    }
-    return results;
-};
-
-export const generateOfflineFindIdenticalWord = async (options: OfflineGeneratorOptions): Promise<FindIdenticalWordData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: FindIdenticalWordData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        results.push({
-            title: 'Aynısını Bul (Çevrimdışı)',
-            groups: Array.from({ length: itemCount }).map(() => ({ words: ['benzer', 'benzeş'] })),
-        });
-    }
-    return results;
-};
-
-export const generateOfflineWordFormation = async (options: OfflineGeneratorOptions): Promise<WordFormationData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: WordFormationData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        results.push({
-            title: 'Kelime Türetme (Çevrimdışı)',
-            sets: Array.from({ length: itemCount }).map(() => ({ letters: ['a', 'b', 'c', 'd', 'e', 'f'], jokerCount: 1 })),
-        });
-    }
-    return results;
-};
-
-export const generateOfflineFindLetterPair = async (options: OfflineGeneratorOptions): Promise<FindLetterPairData[]> => {
-    const { gridSize, targetPair, worksheetCount } = options;
-    const results: FindLetterPairData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const grid = Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => 'x'));
-        results.push({ title: 'Harf İkilisi Bul (Çevrimdışı)', grid, targetPair: targetPair || 'tr' });
-    }
-    return results;
-};
-
-export const generateOfflineVisualMemory = async (options: OfflineGeneratorOptions): Promise<VisualMemoryData[]> => {
-    const { worksheetCount } = options;
-    const results: VisualMemoryData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const itemsToMemorize = getRandomItems(EMOJIS, 8);
-        const otherItems = getRandomItems(EMOJIS.filter(e => !itemsToMemorize.includes(e)), 8);
-        results.push({
-            title: 'Görsel Hafıza (Çevrimdışı)',
-            memorizeTitle: 'Bunları Ezberle',
-            testTitle: 'Gördüklerini İşaretle',
-            itemsToMemorize,
-            testItems: shuffle([...itemsToMemorize, ...otherItems]),
-        });
-    }
-    return results;
-};
-
-export const generateOfflineStoryAnalysis = async (options: OfflineGeneratorOptions): Promise<StoryAnalysisData[]> => {
-    const { worksheetCount } = options;
-    const results: StoryAnalysisData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        results.push({
-            title: 'Hikaye Analizi (Çevrimdışı)',
-            story: 'Mutlu çocuk parkta hızlıca koşuyordu. Annesi ona yavaş olmasını söyledi.',
-            questions: [
-                { question: "'Mutlu' kelimesinin zıt anlamlısı nedir?", context: 'Mutlu çocuk' },
-                { question: "'Hızlı' kelimesinin eş anlamlısı nedir?", context: 'hızlıca koşuyordu' }
-            ],
-        });
-    }
-    return results;
-};
-
-// --- START OF MISSING FUNCTION STUBS ---
-// The following functions are placeholders to resolve missing export errors.
-
-export const generateOfflineFindDuplicateInRow = async (options: OfflineGeneratorOptions): Promise<FindDuplicateData[]> => {
-    const { itemCount, worksheetCount } = options;
-    const results: FindDuplicateData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const rows = Array.from({ length: itemCount }).map(() => {
-            const row = getRandomItems(turkishAlphabet.split(''), 15);
-            const duplicateIndex = getRandomInt(0, 14);
-            const insertIndex = getRandomInt(0, 14);
-            row.splice(insertIndex, 0, row[duplicateIndex]);
-            return row;
-        });
-        results.push({ title: 'İkiliyi Bul (Çevrimdışı)', rows });
-    }
-    return results;
-}
 
 export const generateOfflineReverseWord = async (options: OfflineGeneratorOptions): Promise<ReverseWordData[]> => {
     const { topic, itemCount, worksheetCount } = options;
     const availableWords = wordlist[topic] || wordlist.Rastgele;
-    const results: ReverseWordData[] = [];
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Kelimeleri Ters Çevir',
+        words: getRandomItems(availableWords, itemCount)
+    }));
+};
+
+export const generateOfflineFindDuplicateInRow = async (options: OfflineGeneratorOptions): Promise<FindDuplicateData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const chars = (turkishAlphabet + '0123456789').split('');
+    const results: FindDuplicateData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const words = getRandomItems(availableWords, itemCount);
-        results.push({ title: 'Ters Kelime (Çevrimdışı)', words });
+        const rows = Array.from({ length: itemCount }).map(() => {
+            const rowChars = getRandomItems(chars, 14);
+            const duplicateChar = rowChars[getRandomInt(0, 13)];
+            rowChars.splice(getRandomInt(0, 14), 0, duplicateChar);
+            return shuffle(rowChars);
+        });
+        results.push({ title: 'Satırda Tekrar Edeni Bul', rows });
     }
     return results;
 };
@@ -581,260 +363,1011 @@ export const generateOfflineReverseWord = async (options: OfflineGeneratorOption
 export const generateOfflineWordGrouping = async (options: OfflineGeneratorOptions): Promise<WordGroupingData[]> => {
     const { worksheetCount } = options;
     const results: WordGroupingData[] = [];
+    const allCategories = Object.keys(wordlist).filter(k => k !== 'Rastgele');
     for (let i = 0; i < worksheetCount; i++) {
-        const categoryNames = ['Meyveler', 'Hayvanlar', 'Meslekler'];
-        const words = [...getRandomItems(wordlist.Meyveler, 4), ...getRandomItems(wordlist.Hayvanlar, 4), ...getRandomItems(wordlist.Meslekler, 4)];
-        results.push({ title: 'Kelime Gruplama (Çevrimdışı)', words: shuffle(words), categoryNames });
+        const categoryNames = getRandomItems(allCategories, 3);
+        const words = categoryNames.flatMap(cat => getRandomItems(wordlist[cat], 5));
+        results.push({ title: 'Kelime Gruplama', words: shuffle(words), categoryNames });
     }
     return results;
 };
 
-export const generateOfflineProverbSearch = async (options: OfflineGeneratorOptions): Promise<ProverbSearchData[]> => {
-    const { worksheetCount, gridSize } = options;
-    const results: ProverbSearchData[] = [];
+export const generateOfflineWordLadder = async (options: OfflineGeneratorOptions): Promise<WordLadderData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const fourLetterWords = Object.values(wordlist).flat().filter(w => w.length === 4);
+    const results: WordLadderData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const grid = Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => 'x'));
-        results.push({ title: 'Atasözü Avı (Çevrimdışı)', grid, proverb: 'Damlaya damlaya göl olur.' });
+        const ladders = Array.from({ length: Math.floor(itemCount / 2) }).map(() => {
+            const [startWord, endWord] = getRandomItems(fourLetterWords, 2);
+            return { startWord, endWord, steps: 3 };
+        });
+        results.push({ title: 'Kelime Merdiveni', ladders });
+    }
+    return results;
+};
+
+export const generateOfflineWordFormation = async (options: OfflineGeneratorOptions): Promise<WordFormationData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const longWords = Object.values(wordlist).flat().filter(w => w.length >= 7 && w.length <= 9);
+    const results: WordFormationData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const sets = getRandomItems(longWords, Math.floor(itemCount / 2)).map(word => ({
+            letters: shuffle(word.split('')),
+            jokerCount: getRandomInt(1, 2)
+        }));
+        results.push({ title: 'Harflerden Kelime Türetme', sets });
+    }
+    return results;
+};
+
+export const generateOfflineFindIdenticalWord = async (options: OfflineGeneratorOptions): Promise<FindIdenticalWordData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const availableWords = Object.values(wordlist).flat().filter(w => w.length > 4);
+    const results: FindIdenticalWordData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const groups = Array.from({ length: itemCount }).map(() => {
+            const word = getRandomItems(availableWords, 1)[0];
+            const chars = word.split('');
+            const swapIndex = getRandomInt(0, chars.length - 2);
+            const similarWord = [...chars.slice(0, swapIndex), chars[swapIndex + 1], chars[swapIndex], ...chars.slice(swapIndex + 2)].join('');
+            const pair: [string, string] = Math.random() > 0.5 ? [word, similarWord] : [similarWord, word];
+            return { words: pair };
+        });
+
+        // Add some actual identical pairs
+        for (let j = 0; j < 3; j++) {
+            const word = getRandomItems(availableWords, 1)[0];
+            groups.push({ words: [word, word] });
+        }
+
+        results.push({ title: 'Aynısını Bul', groups: shuffle(groups) });
+    }
+    return results;
+};
+
+export const generateOfflineLetterBridge = async (options: OfflineGeneratorOptions): Promise<LetterBridgeData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const availableWords = Object.values(wordlist).flat();
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Harf Köprüsü',
+        pairs: Array.from({ length: itemCount }).map(() => {
+            const [word1, word2] = getRandomItems(availableWords, 2);
+            return { word1, word2 };
+        })
+    }));
+};
+
+export const generateOfflineFindLetterPair = async (options: OfflineGeneratorOptions): Promise<FindLetterPairData[]> => {
+    const { gridSize, worksheetCount, targetPair = 'tr' } = options;
+    const results: FindLetterPairData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const grid = Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => turkishAlphabet[getRandomInt(0, 28)]));
+        for (let p = 0; p < Math.floor(gridSize / 2); p++) {
+            const row = getRandomInt(0, gridSize - 1);
+            const col = getRandomInt(0, gridSize - 2);
+            grid[row][col] = targetPair[0];
+            grid[row][col + 1] = targetPair[1];
+        }
+        results.push({ title: `Harf İkilisi Bul (${targetPair.toUpperCase()})`, grid, targetPair });
     }
     return results;
 };
 
 export const generateOfflineMiniWordGrid = async (options: OfflineGeneratorOptions): Promise<MiniWordGridData[]> => {
     const { worksheetCount } = options;
+    const fourLetterWords = Object.values(wordlist).flat().filter(w => w.length === 4);
     const results: MiniWordGridData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        results.push({
-            title: 'Mini Kelime Bulmaca (Çevrimdışı)',
-            prompt: 'Kelimeyi bul.',
-            puzzles: [{ grid: [['e', 'l'], ['m', 'a']], start: { row: 0, col: 0 } }]
+        const puzzles = Array.from({ length: 4 }).map(() => {
+            const grid = Array.from({ length: 4 }, () => Array(4).fill(''));
+            const word = getRandomItems(fourLetterWords, 1)[0];
+            const isHorizontal = Math.random() > 0.5;
+            const start = { row: isHorizontal ? getRandomInt(0, 3) : 0, col: isHorizontal ? 0 : getRandomInt(0, 3) };
+            for (let k = 0; k < 4; k++) isHorizontal ? grid[start.row][start.col + k] = word[k] : grid[start.row + k][start.col] = word[k];
+            for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) if (grid[r][c] === '') grid[r][c] = turkishAlphabet[getRandomInt(0, 28)];
+            return { grid, start };
         });
+        results.push({ title: 'Mini Kelime Bulmaca', prompt: 'Renkli harften başlayarak kelimeleri bulun.', puzzles });
+    }
+    return results;
+};
+
+export const generateOfflineStroopTest = async (options: OfflineGeneratorOptions): Promise<StroopTestData[]> => {
+    const { itemCount, worksheetCount } = options;
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Stroop Testi',
+        items: shuffle(Array.from({ length: itemCount * 2 }).map(() => {
+            const textItem = getRandomItems(COLORS, 1)[0];
+            let colorItem = getRandomItems(COLORS, 1)[0];
+            if (Math.random() > 0.2) while (colorItem.css === textItem.css) colorItem = getRandomItems(COLORS, 1)[0];
+            return { text: textItem.name, color: colorItem.css };
+        }))
+    }));
+};
+
+export const generateOfflineNumberPattern = async (options: OfflineGeneratorOptions): Promise<NumberPatternData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Sayı Örüntüsü',
+        patterns: Array.from({ length: itemCount }).map(() => {
+            let start = getRandomInt(1, 10);
+            const step = difficulty === 'Kolay' ? getRandomInt(1, 5) : (difficulty === 'Orta' ? getRandomInt(2, 10) : getRandomInt(5, 15));
+            const sequence = [start];
+            for (let k = 0; k < 4; k++) sequence.push(sequence[k] + step);
+            const answer = sequence.pop()!.toString();
+            return { sequence: sequence.join(', ') + ', ?', answer };
+        })
+    }));
+};
+
+export const generateOfflineNumberSearch = async (options: OfflineGeneratorOptions): Promise<NumberSearchData[]> => {
+    const { worksheetCount } = options;
+    const range = { start: 1, end: 50 };
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Sayı Avı',
+        numbers: shuffle([...Array.from({ length: 50 }, (_, k) => k + 1), ...Array.from({ length: 50 }, () => getRandomInt(1, 100))]),
+        range
+    }));
+};
+
+export const generateOfflineSymbolCipher = async (options: OfflineGeneratorOptions): Promise<SymbolCipherData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const availableWords = Object.values(wordlist).flat().filter(w => w.length >= 4 && w.length <= 6);
+    const results: SymbolCipherData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const lettersForKey = shuffle(turkishAlphabet.split('')).slice(0, 8);
+        const shapesForKey = shuffle(SHAPE_TYPES);
+        const cipherKey = lettersForKey.map((letter, index) => ({ shape: shapesForKey[index], letter }));
+        const letterToShapeMap = new Map(cipherKey.map(k => [k.letter, k.shape]));
+        const words = getRandomItems(availableWords.filter(w => w.split('').every(l => letterToShapeMap.has(l))), Math.floor(itemCount / 2));
+        const wordsToSolve = words.map(word => ({ shapeSequence: word.split('').map(l => letterToShapeMap.get(l)!), wordLength: word.length }));
+        results.push({ title: 'Şifre Çözme', cipherKey, wordsToSolve });
+    }
+    return results;
+};
+
+export const generateOfflineTargetNumber = async (options: OfflineGeneratorOptions): Promise<TargetNumberData[]> => {
+    const { worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Hedef Sayı',
+        prompt: 'Verilen sayıları ve dört işlemi (+, -, ×, ÷) kullanarak hedef sayıya ulaşın.',
+        puzzles: Array.from({ length: 3 }).map(() => {
+             if (difficulty === 'Kolay') {
+                const nums = [getRandomInt(1, 10), getRandomInt(1, 10), getRandomInt(1, 10), getRandomInt(1, 10)];
+                const target = nums[0] + nums[1];
+                return { target, givenNumbers: shuffle(nums) };
+            } else if (difficulty === 'Orta') {
+                const nums = [getRandomInt(1, 20), getRandomInt(1, 20), getRandomInt(1, 25), getRandomInt(1, 25)];
+                const target = nums[0] + nums[2];
+                return { target, givenNumbers: shuffle(nums) };
+            } else { // Zor
+                const nums = [getRandomInt(2, 10), getRandomInt(2, 10), getRandomInt(1, 25), getRandomInt(25, 100)];
+                const target = (nums[0] * nums[1]) + nums[2];
+                return { target, givenNumbers: shuffle(nums) };
+            }
+        })
+    }));
+};
+
+export const generateOfflineNumberPyramid = async (options: OfflineGeneratorOptions): Promise<NumberPyramidData[]> => {
+    const { worksheetCount, difficulty } = options;
+    const results: NumberPyramidData[] = [];
+
+    let baseSize = 4, baseMin = 1, baseMax = 10, blanks = 3;
+    if (difficulty === 'Orta') {
+        baseSize = 4; baseMin = 1; baseMax = 20; blanks = 4;
+    } else if (difficulty === 'Zor') {
+        baseSize = 5; baseMin = 5; baseMax = 25; blanks = 6;
+    }
+
+    for (let i = 0; i < worksheetCount; i++) {
+        const pyramids = Array.from({ length: 2 }).map((_, j) => {
+            const base = Array.from({ length: baseSize }, () => getRandomInt(baseMin, baseMax));
+            const rows: (number | null)[][] = [];
+            rows[baseSize - 1] = [...base];
+            for (let r = baseSize - 2; r >= 0; r--) {
+                rows[r] = Array.from({ length: r + 1 }).map((_, c) => rows[r + 1][c]! + rows[r + 1][c + 1]!);
+            }
+            // Add blanks
+            let placedBlanks = 0;
+            while(placedBlanks < blanks) {
+                const r = getRandomInt(0, baseSize - 1);
+                const c = getRandomInt(0, rows[r].length - 1);
+                if(rows[r][c] !== null) {
+                    rows[r][c] = null;
+                    placedBlanks++;
+                }
+            }
+            return { title: `${j + 1}. Piramit`, rows };
+        });
+        results.push({ title: 'Sayı Piramidi (Toplama)', prompt: 'Bir üstteki sayı, altındaki iki sayının toplamıdır.', pyramids });
     }
     return results;
 };
 
 export const generateOfflineFindDifferentString = async (options: OfflineGeneratorOptions): Promise<FindDifferentStringData[]> => {
-    const { worksheetCount, itemCount } = options;
-    const results: FindDifferentStringData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const rows = Array.from({ length: itemCount }).map(() => ({ items: ['VWN', 'VWN', 'VNW', 'VWN', 'VWN'] }));
-        results.push({ title: 'Farklı Diziyi Bul (Çevrimdışı)', prompt: 'Farklı olanı bul.', rows });
-    }
-    return results;
+    const { itemCount, worksheetCount } = options;
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Farklı Diziyi Bul',
+        prompt: 'Her satırda diğerlerinden farklı olan harf grubunu bulun.',
+        rows: Array.from({ length: itemCount }).map(() => {
+            const base = [0, 0, 0].map(() => turkishAlphabet[getRandomInt(0, 28)].toUpperCase()).join('');
+            const items = Array(5).fill(base);
+            const diffIndex = getRandomInt(0, 4);
+            const chars = base.split('');
+            [chars[0], chars[1]] = [chars[1], chars[0]];
+            items[diffIndex] = chars.join('');
+            return { items: shuffle(items) };
+        })
+    }));
 };
 
-export const generateOfflineNumberPyramid = async (options: OfflineGeneratorOptions): Promise<NumberPyramidData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Sayı Piramidi (Çevrimdışı)',
-        prompt: 'Boşlukları doldur.',
-        pyramids: [{ title: 'Piramit 1', rows: [[8], [null, 2]] }]
+// --- TAMAMEN YENİ EKLENEN TÜM ÜRETİCİLER (EKSİKLER) ---
+
+export const generateOfflineStoryComprehension = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
+    const { worksheetCount, topic } = options;
+    return Array.from({ length: worksheetCount }).map(() => {
+        const stories = [
+            `Küçük bir ${getRandomItems(wordlist['Hayvanlar'], 1)[0]} olan Pamuk, ormanda gezmeyi çok severdi. Bir gün rengarenk bir ${getRandomItems(wordlist['Hayvanlar'], 1)[0]} gördü. Onunla arkadaş olmak istedi.`,
+            `Ali, okuldan sonra parka gitti. Parkta arkadaşı Ayşe ile ${getRandomItems(wordlist['Rastgele'], 1)[0]} oynadı. Çok eğlendiler ve hava kararana kadar parkta kaldılar.`,
+            `Bir zamanlar, ${getRandomItems(wordlist['Meyveler'], 1)[0]} ağaçlarıyla dolu bir bahçe varmış. Bu bahçenin sahibi, her gün ağaçlarını sular ve onlara sevgiyle bakarmış.`
+        ];
+        const story = getRandomItems(stories, 1)[0];
+        const wordsInStory = Array.from(new Set(story.replace(/[.,]/g, '').toLowerCase().split(' ').filter(w => w.length > 3)));
+        const answer = getRandomItems(wordsInStory, 1)[0] || 'kelime';
+        const distractors = getRandomItems((wordlist[topic] || wordlist.Rastgele).filter(w => w !== answer), 2);
+        const a_options = shuffle([answer, ...distractors]);
+        return {
+            title: 'Hikaye Anlama (Hızlı Mod)', story,
+            questions: [{ question: `Metinde hangi kelime geçmektedir?`, options: a_options, answerIndex: a_options.indexOf(answer) }]
+        };
     });
 };
 
-export const generateOfflineTargetNumber = async (options: OfflineGeneratorOptions): Promise<TargetNumberData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Hedef Sayı (Çevrimdışı)',
-        prompt: 'Hedefe ulaş.',
-        puzzles: [{ target: 24, givenNumbers: [1, 2, 3, 4] }]
+export const generateOfflineLetterGridTest = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
+    const { gridSize, worksheetCount, targetLetters = 'a,b,d,g' } = options;
+    const targets = targetLetters.split(',').map(l => l.trim());
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Harf Izgara Testi (Hızlı Mod)',
+        grid: Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => Math.random() < 0.2 ? getRandomItems(targets, 1)[0] : turkishAlphabet[getRandomInt(0, 28)])),
+        targetLetters: targets
+    }));
+};
+
+export const generateOfflineWordMemory = async (options: OfflineGeneratorOptions): Promise<WordMemoryData[]> => {
+    const { topic, worksheetCount } = options;
+    const availableWords = wordlist[topic] || wordlist.Rastgele;
+    return Array.from({ length: worksheetCount }).map(() => {
+        const wordsToMemorize = getRandomItems(availableWords, 8);
+        const testWords = shuffle([...wordsToMemorize, ...getRandomItems(availableWords.filter(w => !wordsToMemorize.includes(w)), 8)]);
+        return { title: "Kelime Hafıza", memorizeTitle: "Ezberle", testTitle: "İşaretle", wordsToMemorize, testWords };
+    });
+};
+
+export const generateOfflineStoryCreationPrompt = async (options: OfflineGeneratorOptions): Promise<StoryCreationPromptData[]> => {
+    const { topic, worksheetCount } = options;
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: "Hikaye Oluşturma", prompt: "Bu kelimelerle bir hikaye yazın.", keywords: getRandomItems(wordlist[topic] || wordlist.Rastgele, 5)
+    }));
+};
+
+export const generateOfflineShapeMatching = async (options: OfflineGeneratorOptions): Promise<ShapeMatchingData[]> => {
+    const { itemCount, worksheetCount } = options;
+    return Array.from({ length: worksheetCount }).map(() => {
+        const leftColumn = Array.from({ length: itemCount }, (_, id) => ({ id: id + 1, shapes: getRandomItems(SHAPE_TYPES, 3) }));
+        const rightColumn = shuffle(leftColumn).map((item, id) => ({ ...item, id: String.fromCharCode(65 + id) }));
+        return { title: 'Şekil Eşleştirme', leftColumn, rightColumn };
+    });
+};
+
+export const generateOfflineVisualMemory = async (options: OfflineGeneratorOptions): Promise<VisualMemoryData[]> => {
+    const { worksheetCount } = options;
+    return Array.from({ length: worksheetCount }).map(() => {
+        const itemsToMemorize = getRandomItems(EMOJIS, 8);
+        const testItems = shuffle([...itemsToMemorize, ...getRandomItems(EMOJIS.filter(e => !itemsToMemorize.includes(e)), 8)]);
+        return { title: 'Görsel Hafıza', memorizeTitle: 'Ezberle', testTitle: 'İşaretle', itemsToMemorize, testItems };
+    });
+};
+
+export const generateOfflineStoryAnalysis = async (options: OfflineGeneratorOptions): Promise<StoryAnalysisData[]> => {
+    const { worksheetCount } = options;
+     const stories = [
+        "Küçük ve sevimli kedi, büyük bir köpekle arkadaş oldu. Onlar her gün mutlu bir şekilde oynadılar. Kötü havalarda bile neşeleri eksilmedi.",
+        "Yaşlı adam, yavaş adımlarla yürüyordu. Genç bir çocuk hızlıca yanından geçti. Adam çocuğa gülümseyerek, 'Hayat bir maraton, acele etme.' dedi."
+    ];
+    return Array.from({ length: worksheetCount }).map(() => {
+        const story = getRandomItems(stories, 1)[0];
+        const targetWord = story.includes('mutlu') ? 'mutlu' : 'hızlı';
+        const question = `'${targetWord}' kelimesinin zıt anlamlısı metinde geçiyor mu? Nedir?`;
+        return { title: 'Hikaye Analizi (Hızlı Mod)', story, questions: [{ question, context: targetWord }] };
     });
 };
 
 export const generateOfflineCoordinateCipher = async (options: OfflineGeneratorOptions): Promise<CoordinateCipherData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Koordinat Şifre (Çevrimdışı)',
-        grid: [['a', 'b'], ['c', 'd']],
-        wordsToFind: ['ab'],
-        cipherCoordinates: ['A1', 'B2']
+    const { topic, worksheetCount } = options;
+    const availableWords = wordlist[topic] || wordlist.Rastgele;
+    return Array.from({ length: worksheetCount }).map(() => {
+        const grid = Array.from({ length: 6 }, () => Array.from({ length: 6 }, () => turkishAlphabet[getRandomInt(0, 28)]));
+        const cipherWord = getRandomItems(availableWords.filter(w => w.length === 4), 1)[0] || "BEYİN";
+        const cipherCoordinates = Array.from({ length: 4 }).map((_, k) => {
+            const [r, c] = [getRandomInt(0, 5), getRandomInt(0, 5)];
+            grid[r][c] = cipherWord[k];
+            return `${String.fromCharCode(65 + r)}${c + 1}`;
+        });
+        return { title: 'Koordinat Şifresi', grid, wordsToFind: getRandomItems(availableWords, 3), cipherCoordinates };
     });
 };
 
 export const generateOfflineTargetSearch = async (options: OfflineGeneratorOptions): Promise<TargetSearchData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Hedef Arama (Çevrimdışı)',
-        grid: [['Z', '7'], ['Z', 'Z']],
-        target: options.targetChar || '7',
-        distractor: options.distractorChar || 'Z'
-    });
+    const { gridSize, worksheetCount, targetChar = '7', distractorChar = 'Z' } = options;
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Hedef Arama',
+        grid: Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => Math.random() < 0.15 ? targetChar : distractorChar)),
+        target: targetChar, distractor: distractorChar
+    }));
 };
 
 export const generateOfflineShapeNumberPattern = async (options: OfflineGeneratorOptions): Promise<ShapeNumberPatternData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Şekilli Sayı Örüntüsü (Çevrimdışı)',
-        patterns: [{ shapes: [{ type: 'triangle', numbers: ['1', '2', '3', '?'] }] }]
+    return Array.from({ length: options.worksheetCount }).map(() => {
+        const num1 = getRandomInt(1, 10);
+        const num2 = getRandomInt(1, 10);
+        const result = num1 + num2;
+        return {
+            title: 'Şekilli Sayı Örüntüsü (Hızlı Mod)',
+            patterns: [{
+                shapes: [
+                    { type: 'triangle', numbers: [num1, num2, result] },
+                    { type: 'triangle', numbers: [num1 + 2, num2 + 1, '?'] },
+                ]
+            }]
+        };
     });
 };
 
 export const generateOfflineGridDrawing = async (options: OfflineGeneratorOptions): Promise<GridDrawingData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Ayna Çizimi (Çevrimdışı)',
-        gridDim: 10,
-        drawings: [{ lines: [[[0, 0], [5, 5]]] }]
-    });
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Ayna Çizimi', gridDim: 10,
+        drawings: [{ lines: [[[1, 1], [1, 5]], [[1, 5], [5, 5]], [[5, 5], [1, 1]]] }]
+    }));
 };
 
 export const generateOfflineColorWheelMemory = async (options: OfflineGeneratorOptions): Promise<ColorWheelMemoryData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Renk Çemberi (Çevrimdışı)',
-        memorizeTitle: 'Ezberle',
-        testTitle: 'Test',
-        items: [{ name: "Elma 🍎", color: "#FF0000" }, { name: "Araba 🚗", color: "#0000FF" }]
-    });
+    const items = shuffle(EMOJIS).slice(0, 8).map((name, i) => ({ name, color: COLORS[i % COLORS.length].css }));
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Renk Çemberi', memorizeTitle: 'Ezberle', testTitle: 'Yerleştir', items
+    }));
 };
 
 export const generateOfflineImageComprehension = async (options: OfflineGeneratorOptions): Promise<ImageComprehensionData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Resim Anlama (Çevrimdışı)',
-        memorizeTitle: 'İncele',
-        testTitle: 'Cevapla',
-        sceneDescription: 'Parkta oynayan çocuklar.',
-        questions: ['Kaç çocuk var?']
-    });
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Resim Anlama (Metin)', sceneDescription: 'Parkta oynayan üç çocuk var. Biri salıncakta, biri kaydırakta. Hava güneşli.',
+        memorizeTitle: 'Sahneyi Oku', testTitle: 'Soruları Cevapla', questions: ['Parkta kaç çocuk var?', 'Hava nasıl?']
+    }));
 };
 
 export const generateOfflineCharacterMemory = async (options: OfflineGeneratorOptions): Promise<CharacterMemoryData[]> => {
-    const char = { description: 'Kırmızı şapkalı çocuk' };
-    return Array(options.worksheetCount).fill({
-        title: 'Karakter Hafıza (Çevrimdışı)',
-        memorizeTitle: 'Ezberle',
-        testTitle: 'Test',
-        charactersToMemorize: [char],
-        testCharacters: [char, { description: 'Mavi pantolonlu kız' }]
-    });
+    const chars = [{ description: "Kırmızı şapkalı kız" }, { description: "Mavi gözlü çocuk" }, { description: "Yeşil tişörtlü adam" }, { description: "Sarı elbiseli kadın" }];
+    const memChars = getRandomItems(chars, 2);
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Karakter Hafıza', memorizeTitle: 'Ezberle', testTitle: 'İşaretle',
+        charactersToMemorize: memChars,
+        testCharacters: shuffle(chars)
+    }));
 };
 
 export const generateOfflineStorySequencing = async (options: OfflineGeneratorOptions): Promise<StorySequencingData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Hikaye Sıralama (Çevrimdışı)',
-        prompt: 'Olayları sırala.',
-        panels: [{ id: 'A', description: 'Çocuk uyandı.' }, { id: 'B', description: 'Çocuk kahvaltı yaptı.' }]
-    });
+    const panels = [{ id: 'A', description: 'Tohum ekildi.' }, { id: 'B', description: 'Tohum sulandı.' }, { id: 'C', description: 'Çiçek büyüdü.' }, { id: 'D', description: 'Çiçek açtı.' }];
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Hikaye Sıralama', prompt: 'Olayları doğru sıraya koyun.', panels: shuffle(panels)
+    }));
 };
 
 export const generateOfflineChaoticNumberSearch = async (options: OfflineGeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Sayı Avı (Çevrimdışı)',
-        prompt: '1\'den 10\'a kadar bul.',
-        numbers: [{ value: 1, x: 10, y: 10, size: 2, rotation: 0, color: 'red' }],
-        range: { start: 1, end: 10 }
-    });
+    const numbers = Array.from({ length: 100 }).map(() => ({
+        value: getRandomInt(1, 100), x: getRandomInt(5, 95), y: getRandomInt(5, 95),
+        size: Math.random() * 1.5 + 0.8, rotation: getRandomInt(-45, 45), color: `hsl(${getRandomInt(0, 360)}, 70%, 50%)`
+    }));
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Sayıları Bulma', prompt: '1\'den 50\'ye kadar olan sayıları bulun.', numbers, range: { start: 1, end: 50 }
+    }));
 };
 
 export const generateOfflineBlockPainting = async (options: OfflineGeneratorOptions): Promise<BlockPaintingData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Blok Boyama (Çevrimdışı)',
-        prompt: 'Boyama yap.',
-        grid: { rows: 10, cols: 10 },
-        shapes: [{ color: 'blue', pattern: [[1, 1], [1, 1]] }]
-    });
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Blok Boyama', prompt: 'Blokları kullanarak deseni boyayın.', grid: { rows: 10, cols: 10 },
+        shapes: [{ color: 'blue', pattern: [[1, 1], [1, 1]] }, { color: 'red', pattern: [[1, 0], [1, 1], [0, 1]] }, { color: 'green', pattern: [[1, 1, 1, 1]] }]
+    }));
 };
 
 export const generateOfflineVisualOddOneOut = async (options: OfflineGeneratorOptions): Promise<VisualOddOneOutData[]> => {
-    const item = { segments: [true, true, true, true, true, true, true, false, false] };
-    return Array(options.worksheetCount).fill({
-        title: 'Görsel Farklı Olanı Bul (Çevrimdışı)',
-        prompt: 'Farklı olanı bul.',
-        rows: [{ items: [item, item, { ...item, segments: [...item.segments.slice(1), false] }] }]
-    });
+    const createItem = (on: number[]) => Array.from({ length: 9 }).map((_, i) => on.includes(i));
+    // 8, 3, G (uydurma)
+    const eight = createItem([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    const three = createItem([0, 1, 2, 4, 5, 6, 7, 8]);
+    const g_like = createItem([0, 1, 2, 3, 5, 6, 7, 8]);
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Farklı Şekli Bul', prompt: 'Her satırda diğerlerinden farklı olanı bulun.',
+        rows: [
+            { items: [{ segments: eight }, { segments: eight }, { segments: three }, { segments: eight }] },
+            { items: [{ segments: g_like }, { segments: three }, { segments: three }, { segments: three }] },
+        ]
+    }));
 };
 
 export const generateOfflineShapeCounting = async (options: OfflineGeneratorOptions): Promise<ShapeCountingData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Şekil Sayma (Çevrimdışı)',
-        prompt: 'Üçgenleri say.',
-        figures: [{ svgPaths: [{ d: 'M0 0 L50 50 L0 50 Z', fill: 'lightblue' }] }]
-    });
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Kaç Üçgen Var?', prompt: 'Şekildeki toplam üçgen sayısını bulun.',
+        figures: [{ svgPaths: [{ d: "M50 10 L90 90 H10 Z", fill: "lightblue" }, { d: "M10 90 L50 10 L50 90 Z", fill: "lightgreen" }] }]
+    }));
 };
 
 export const generateOfflineSymmetryDrawing = async (options: OfflineGeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Simetri Çizimi (Çevrimdışı)',
-        prompt: 'Simetriğini çiz.',
-        gridDim: 8,
-        dots: [{ x: 1, y: 1 }],
-        axis: 'vertical'
-    });
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Simetri Çizimi', prompt: 'Şeklin simetriğini çizin.', gridDim: 8,
+        dots: [{ x: 1, y: 1 }, { x: 1, y: 3 }, { x: 3, y: 3 }], axis: 'vertical'
+    }));
 };
 
 export const generateOfflineBurdonTest = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
-    return generateOfflineLetterGridTest({...options, targetLetters: 'a,b,d,g'});
-};
-
-export const generateOfflineDotPainting = async (options: OfflineGeneratorOptions): Promise<DotPaintingData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Nokta Boyama (Çevrimdışı)',
-        prompt1: 'Boyama yap.',
-        prompt2: 'Gizli resmi bul.',
-        svgViewBox: '0 0 100 100',
-        gridPaths: ['M0 10 L100 10'],
-        dots: [{ cx: 50, cy: 50, color: 'red' }]
-    });
-};
-
-export const generateOfflineAbcConnect = async (options: OfflineGeneratorOptions): Promise<AbcConnectData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'ABC Bağlama (Çevrimdışı)',
-        prompt: 'Harfleri birleştir.',
-        puzzles: [{ id: 1, gridDim: 6, points: [{ letter: 'A', x: 0, y: 0 }, { letter: 'A', x: 5, y: 5 }] }]
-    });
-};
-
-export const generateOfflinePasswordFinder = async (options: OfflineGeneratorOptions): Promise<PasswordFinderData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Şifre Bul (Çevrimdışı)',
-        prompt: 'Özel isimleri bul.',
-        words: [{ word: 'ankara', passwordLetter: 'A', isProperNoun: true }],
-        passwordLength: 1
-    });
+    const { gridSize = 20, worksheetCount } = options;
+    const targets = ['a', 'b', 'd', 'g'];
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Burdon Dikkat Testi (Hızlı Mod)',
+        grid: Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => Math.random() < 0.25 ? getRandomItems(targets, 1)[0] : getRandomItems(turkishAlphabet.split('').filter(l => !targets.includes(l)), 1)[0])),
+        targetLetters: targets
+    }));
 };
 
 export const generateOfflineSyllableCompletion = async (options: OfflineGeneratorOptions): Promise<SyllableCompletionData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Heceleri Tamamla (Çevrimdışı)',
-        prompt: 'Kelimeleri oluştur.',
-        theme: 'Okul',
-        wordParts: [{ first: 'Ka', second: 'lem' }],
-        syllables: ['le'],
-        storyPrompt: 'Hikaye yaz.'
+    const { topic, worksheetCount } = options;
+    const availableWords = (wordlist[topic] || wordlist.Rastgele).filter(w => w.length > 4);
+    return Array.from({ length: worksheetCount }).map(() => {
+        const words = getRandomItems(availableWords, 5);
+        const syllables: string[] = [];
+        const wordParts = words.map(word => {
+            const splitIndex = Math.floor(word.length / 2);
+            const syllable = word.substring(splitIndex, splitIndex + 2);
+            syllables.push(syllable);
+            return {
+                first: word.substring(0, splitIndex),
+                second: word.substring(splitIndex + 2)
+            };
+        });
+
+        return {
+            title: 'Heceleri Tamamla (Hızlı Mod)',
+            prompt: 'Eksik heceleri bularak kelimeleri tamamlayın.',
+            theme: topic,
+            wordParts,
+            syllables: shuffle(syllables),
+            storyPrompt: 'Tamamladığınız kelimelerle bir hikaye yazın.'
+        };
     });
 };
 
-export const generateOfflineSynonymWordSearch = async (options: OfflineGeneratorOptions): Promise<SynonymWordSearchData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Eş Anlamlı Avı (Çevrimdışı)',
-        prompt: 'Eş anlamlıları bul.',
-        wordsToMatch: [{ word: 'hızlı', synonym: 'süratli' }],
-        grid: [['s', 'ü'], ['r', 'a']]
-    });
+export const generateOfflineDotPainting = async (options: OfflineGeneratorOptions): Promise<DotPaintingData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Nokta Boyama', prompt1: 'Aynı renkli noktaları birleştirin.', prompt2: '', svgViewBox: "0 0 100 100", gridPaths: [],
+        dots: [{ cx: 20, cy: 20, color: 'red' }, { cx: 80, cy: 80, color: 'red' }, { cx: 20, cy: 80, color: 'blue' }, { cx: 80, cy: 20, color: 'blue' }]
+    }));
 };
 
-export const generateOfflineWordConnect = async (options: OfflineGeneratorOptions): Promise<WordConnectData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Kelime Bağlama (Çevrimdışı)',
-        prompt: 'İlişkili kelimeleri bağla.',
-        gridDim: 10,
-        points: [{ word: 'doktor', pairId: 1, x: 1, y: 1 }, { word: 'hastane', pairId: 1, x: 8, y: 8 }]
-    });
+export const generateOfflineAbcConnect = async (options: OfflineGeneratorOptions): Promise<AbcConnectData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'ABC Bağlama', prompt: 'Aynı harfleri birleştirin.',
+        puzzles: [{ id: 1, gridDim: 6, points: [{ letter: 'A', x: 0, y: 0 }, { letter: 'A', x: 5, y: 5 }, { letter: 'B', x: 0, y: 5 }, { letter: 'B', x: 5, y: 0 }] }]
+    }));
+};
+
+export const generateOfflineHomonymSentenceWriting = async (options: OfflineGeneratorOptions): Promise<HomonymSentenceData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Eş Sesli Cümleler', prompt: 'Kelimelerin farklı anlamlarıyla cümleler kurun.',
+        items: [{ word: 'yüz' }, { word: 'dal' }, { word: 'çay' }, { word: 'ben' }]
+    }));
+};
+
+export const generateOfflineProverbSayingSort = async (options: OfflineGeneratorOptions): Promise<ProverbSayingSortData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Atasözü mü Özdeyiş mi?', prompt: 'Cümleleri doğru kategoriye ayırın.',
+        items: shuffle([
+            ...getRandomItems(proverbs, 4).map(p => ({ text: p, type: 'atasözü' as const })),
+            { text: "Hayatta en hakiki mürşit ilimdir.", type: 'özdeyiş' as const },
+            { text: "Yurtta sulh, cihanda sulh.", type: 'özdeyiş' as const },
+        ])
+    }));
+};
+
+export const generateOfflineHomonymImageMatch = async (options: OfflineGeneratorOptions): Promise<HomonymImageMatchData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Eş Sesli Eşleştirme', prompt: 'Aynı kelimenin farklı anlamlarını eşleştirin.',
+        leftImages: [{ id: 1, word: 'yüz (surat)' }, { id: 2, word: 'çay (içecek)' }],
+        rightImages: [{ id: 1, word: 'yüz (sayı)' }, { id: 2, word: 'çay (akarsu)' }],
+        wordScramble: { letters: ['y', 'ü', 'z'], word: 'yüz' }
+    }));
+};
+
+export const generateOfflineAntonymFlowerPuzzle = async (options: OfflineGeneratorOptions): Promise<AntonymFlowerPuzzleData[]> => {
+    const pairs = getRandomItems(Object.entries(antonymMap), 4);
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Zıt Anlamlı Çiçekler', prompt: 'Ortadaki kelimenin zıt anlamlısını bulun.',
+        puzzles: pairs.map(([word, antonym]) => ({
+            centerWord: word,
+            antonym,
+            petalLetters: shuffle((antonym + 'xyz').split('')).slice(0, 6)
+        })),
+        passwordLength: 4
+    }));
+};
+
+export const generateOfflineProverbWordChain = async (options: OfflineGeneratorOptions): Promise<ProverbWordChainData[]> => {
+    const proverb = getRandomItems(proverbs, 1)[0];
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Atasözü Zinciri', prompt: 'Kelimeleri birleştirerek atasözünü oluşturun.',
+        wordCloud: shuffle(proverb.replace(/[.,]/g, '').split(' ')).map(word => ({ word, color: `hsl(${getRandomInt(0, 360)}, 70%, 50%)` })),
+        solutions: [proverb]
+    }));
+};
+
+export const generateOfflineSynonymAntonymGrid = async (options: OfflineGeneratorOptions): Promise<SynonymAntonymGridData[]> => {
+    const { worksheetCount } = options;
+    const antonymKeys = getRandomItems(Object.keys(antonymMap), 3);
+    const synonymKeys = getRandomItems(Object.keys(synonymMap), 3);
+    const words = [...antonymKeys, ...synonymKeys];
+    const grid = Array(10).fill(null).map(() => Array(10).fill('')); // Placeholder
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: "Eş/Zıt Anlamlı Tablosu",
+        prompt: "Kelimelerin eş ve zıt anlamlılarını bulup bulmacaya yerleştirin.",
+        antonyms: antonymKeys.map(w => ({ word: w })),
+        synonyms: synonymKeys.map(w => ({ word: w })),
+        grid
+    }));
+};
+
+export const generateOfflinePunctuationColoring = async (options: OfflineGeneratorOptions): Promise<PunctuationColoringData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Noktalama Boyama",
+        prompt: "Cümle sonlarına uygun noktalama işaretini koyup resmi boyayın.",
+        sentences: [
+            { text: "Eyvah, anahtarımı unuttum", color: "#FF6347", correctMark: "!" },
+            { text: "Pazardan elma, armut ve muz aldım", color: "#4682B4", correctMark: "." },
+            { text: "Bugün okulda ne yaptın", color: "#32CD32", correctMark: "?" }
+        ]
+    }));
+};
+
+export const generateOfflinePunctuationMaze = async (options: OfflineGeneratorOptions): Promise<PunctuationMazeData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Noktalama Labirenti",
+        prompt: "Virgül'ün doğru kullanıldığı kuralları takip ederek çıkışı bulun.",
+        punctuationMark: ",",
+        rules: [
+            { id: 1, text: "Sıralı cümleleri ayırır.", isCorrect: true },
+            { id: 2, text: "Cümle sonuna konur.", isCorrect: false },
+            { id: 3, text: "Hitap kelimelerinden sonra kullanılır.", isCorrect: true },
+            { id: 4, text: "Soru bildiren cümlelerde kullanılır.", isCorrect: false }
+        ]
+    }));
+};
+
+export const generateOfflineAntonymResfebe = async (options: OfflineGeneratorOptions): Promise<AntonymResfebeData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Zıt Anlamlı Resfebe",
+        prompt: "Resfebeyi çözüp kelimeyi bulun, sonra zıt anlamlısını yazın.",
+        puzzles: [{
+            word: "gece", antonym: "gündüz", clues: [{ type: 'text', value: 'G' }, { type: 'image', value: 'Ece' }]
+        }],
+        antonymsPrompt: "Bulduğunuz kelimelerin zıt anlamlılarını yazın."
+    }));
+};
+
+export const generateOfflineThematicWordSearchColor = generateOfflineWordSearch; // Reuse
+
+export const generateOfflineThematicOddOneOut = async (options: OfflineGeneratorOptions): Promise<ThematicOddOneOutData[]> => {
+    const { topic, itemCount, worksheetCount } = options;
+    const categories = Object.keys(wordlist).filter(k => k !== topic && k !== 'Rastgele');
+
+    const results: ThematicOddOneOutData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const rows = Array.from({ length: itemCount }).map(() => {
+            const mainWords = getRandomItems(wordlist[topic] || wordlist.Rastgele, 3);
+            const outlierCat = getRandomItems(categories, 1)[0];
+            const oddWord = getRandomItems(wordlist[outlierCat], 1)[0];
+            return { words: shuffle([...mainWords, oddWord]), oddWord };
+        });
+        results.push({
+            title: 'Tematik Farklı Olanı Bul',
+            prompt: `Her satırda '${topic}' temasına uymayan kelimeyi bulun.`,
+            theme: topic,
+            rows,
+            sentencePrompt: 'Farklı kelimelerle bir cümle yazın.'
+        });
+    }
+    return results;
+};
+export const generateOfflineThematicOddOneOutSentence = generateOfflineThematicOddOneOut; // Reuse
+
+export const generateOfflineProverbSentenceFinder = generateOfflineProverbWordChain; // Reuse
+
+export const generateOfflineColumnOddOneOutSentence = async (options: OfflineGeneratorOptions): Promise<ColumnOddOneOutSentenceData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Sütunda Farklı Olan",
+        prompt: "Her sütunda farklı olan kelimeyi bulup cümle kurun.",
+        columns: [
+            { words: ["elma", "armut", "kiraz", "masa"], oddWord: "masa" },
+            { words: ["kedi", "köpek", "aslan", "kalem"], oddWord: "kalem" },
+             { words: ["doktor", "pilot", "ev", "aşçı"], oddWord: "ev" },
+             { words: ["kitap", "defter", "güneş", "kalem"], oddWord: "güneş" },
+        ],
+        sentencePrompt: "Farklı kelimelerle anlamlı bir cümle yazın."
+    }));
+};
+
+export const generateOfflineSynonymAntonymColoring = async (options: OfflineGeneratorOptions): Promise<SynonymAntonymColoringData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Eş/Zıt Anlamlı Boyama",
+        prompt: "Kelimeleri anahtara göre doğru renklere boyayın.",
+        colorKey: [
+            { text: "'İyi' kelimesinin zıt anlamlısı", color: "#FF6347" },
+            { text: "'Hızlı' kelimesinin eş anlamlısı", color: "#4682B4" },
+            { text: "'Güzel' kelimesinin zıt anlamlısı", color: "#32CD32" },
+        ],
+        wordsOnImage: [
+            { word: "Kötü", x: 25, y: 50 },
+            { word: "Süratli", x: 75, y: 50 },
+            { word: "Çirkin", x: 50, y: 80 },
+        ]
+    }));
+};
+
+export const generateOfflinePunctuationPhoneNumber = async (options: OfflineGeneratorOptions): Promise<PunctuationPhoneNumberData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Noktalama Telefonu", prompt: "İpuçlarını çözerek telefon numarasını bulun.", instruction: "Her ipucu bir rakama karşılık gelir.",
+        clues: [
+            { id: 1, text: "Bir cümlenin sonuna konan noktanın köşe sayısı." },
+            { id: 2, text: "Bir sorunun sonuna konan işaretin altındaki nokta sayısı." },
+            { id: 3, text: "Ünlem işaretindeki çizgi sayısı." },
+        ],
+        solution: [{ punctuationMark: ".", number: 0 }, { punctuationMark: "?", number: 1 }, { punctuationMark: "!", number: 1 }]
+    }));
 };
 
 export const generateOfflineSpiralPuzzle = async (options: OfflineGeneratorOptions): Promise<SpiralPuzzleData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Sarmal Bulmaca (Çevrimdışı)',
-        prompt: 'Kelimeleri yerleştir.',
-        clues: ['Bir meyve'],
-        grid: [['e', 'l'], ['m', 'a']],
-        wordStarts: [{ id: 1, row: 0, col: 0 }]
+    // This is complex. We will use a static pre-defined puzzle.
+    const staticGrid = [
+        ['a', 'r', 'a', 'b', 'a'],
+        ['u', 'n', 'a', 'c', 'l'],
+        ['k', 'a', 'l', 'e', 'm'],
+        ['u', 't', 'a', 'p', 'i'],
+        ['ş', 'a', 'k', 'i', 't'],
+    ];
+    const staticClues = ["Taşıt", "Yazı aracı", "Okul eşyası", "Kuş", "Okul"];
+    const staticStarts = [{id:1, row:0, col:0}, {id:2, row:2, col:1}, {id:3, row:4, col:4}, {id:4, row:4, col:0}, {id:5, row:1, col:1}];
+
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Sarmal Bulmaca (Hızlı Mod)', prompt: 'Kelimeleri sarmala yerleştirin.', 
+        clues: staticClues,
+        grid: staticGrid, 
+        wordStarts: staticStarts
+    }));
+};
+export const generateOfflinePunctuationSpiralPuzzle = generateOfflineSpiralPuzzle; // Reuse
+
+export const generateOfflineJumbledWordStory = async (options: OfflineGeneratorOptions): Promise<JumbledWordStoryData[]> => {
+    const { topic, worksheetCount } = options;
+    const availableWords = wordlist[topic] || wordlist.Rastgele;
+    return Array.from({ length: worksheetCount }).map(() => {
+        const puzzles = getRandomItems(availableWords, 5).map(word => ({
+            jumbled: shuffle(word.split('')),
+            word: word
+        }));
+        return {
+            title: 'Karışık Kelime Hikayesi',
+            prompt: 'Kelimeleri çözüp hikaye yazın.',
+            theme: topic,
+            puzzles,
+            storyPrompt: 'Çözdüğünüz kelimeleri kullanarak bir hikaye yazın.'
+        };
+    });
+};
+
+export const generateOfflineThematicJumbledWordStory = generateOfflineJumbledWordStory; // Reuse
+
+export const generateOfflineSynonymMatchingPattern = async (options: OfflineGeneratorOptions): Promise<SynonymMatchingPatternData[]> => {
+    const { topic, worksheetCount } = options;
+    const availableSynonyms = Object.keys(synonymMap);
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: "Eş Anlamlı Eşleştirme Deseni",
+        prompt: "Eş anlamlı kelimeleri eşleştirin.",
+        theme: topic,
+        pairs: getRandomItems(availableSynonyms, 5).map(word => ({ word, synonym: synonymMap[word] }))
+    }));
+};
+
+export const generateOfflineFutoshiki = async (options: OfflineGeneratorOptions): Promise<FutoshikiData[]> => {
+    const staticPuzzle = {
+        size: 4,
+        numbers: [ [null, null, null, 1], [null, null, null, null], [null, 2, null, null], [null, null, 4, null] ],
+        constraints: [ { row1: 0, col1: 1, row2: 0, col2: 2, symbol: '<' as const }, { row1: 2, col1: 0, row2: 2, col2: 1, symbol: '>' as const } ]
+    };
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: 'Futoshiki', prompt: 'Sayıları kurallara göre yerleştirin.', puzzles: [staticPuzzle]
+    }));
+};
+
+export const generateOfflineDivisionPyramid = async (options: OfflineGeneratorOptions): Promise<DivisionPyramidData[]> => {
+    const { worksheetCount, difficulty } = options;
+    
+    let topMin = 20, topMax = 50, rows = 3;
+    if (difficulty === 'Orta') {
+        topMin = 50; topMax = 150; rows = 4;
+    } else if (difficulty === 'Zor') {
+        topMin = 100; topMax = 300; rows = 4;
+    }
+
+    return Array.from({ length: worksheetCount }).map(() => {
+        const buildPyramid = () => {
+            while(true) {
+                try {
+                    const pyramid: number[][] = Array.from({length: rows}, () => []);
+                    let top = getRandomInt(topMin, topMax);
+                    while (top % 2 !== 0 && top > topMin) top--; // Prefer even top numbers
+                    pyramid[0] = [top];
+
+                    for (let r = 0; r < rows - 1; r++) {
+                        pyramid[r+1] = Array(r+2);
+                        for (let c = 0; c < pyramid[r].length; c++) {
+                            const num = pyramid[r][c];
+                            const divisors = [];
+                            for (let k = 2; k < num / 2; k++) {
+                                if (num % k === 0) divisors.push(k);
+                            }
+                            if (divisors.length === 0) throw new Error("No divisors");
+                            
+                            const div = getRandomItems(divisors, 1)[0];
+                            pyramid[r+1][c] = div;
+                            pyramid[r+1][c+1] = num / div;
+                        }
+                    }
+                    return pyramid;
+                } catch(e) {
+                    // try again
+                }
+            }
+        };
+
+        const pyramidData = buildPyramid();
+        const pyramidWithBlanks: (number | null)[][] = pyramidData.map(r => [...r]);
+        pyramidWithBlanks[0][0] = null; // Blank top
+        pyramidWithBlanks[1][getRandomInt(0,1)] = null; // Blank second row
+
+        return {
+            title: 'Bölme Piramidi',
+            prompt: 'Üstteki sayı, altındaki iki sayının çarpımıdır.',
+            pyramids: [{ rows: pyramidWithBlanks }]
+        }
+    });
+};
+
+export const generateOfflineMultiplicationPyramid = async (options: OfflineGeneratorOptions): Promise<MultiplicationPyramidData[]> => {
+    const { worksheetCount, difficulty } = options;
+
+    let baseSize = 3, baseMin = 1, baseMax = 5;
+    if (difficulty === 'Orta') {
+        baseSize = 4; baseMin = 1; baseMax = 6;
+    } else if (difficulty === 'Zor') {
+        baseSize = 4; baseMin = 2; baseMax = 7;
+    }
+
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Çarpma Piramidi',
+        prompt: 'Üstteki sayı, altındaki iki sayının çarpımıdır.',
+        pyramids: Array.from({length: 2}).map(() => {
+            const base = Array.from({ length: baseSize }, () => getRandomInt(baseMin, baseMax));
+            const rows: (number | null)[][] = [];
+            rows[baseSize - 1] = [...base];
+             for (let r = baseSize - 2; r >= 0; r--) {
+                rows[r] = Array.from({ length: r + 1 }).map((_, c) => rows[r + 1][c]! * rows[r + 1][c + 1]!);
+            }
+            rows[0][0] = null; // Always hide the top
+            rows[baseSize-1][getRandomInt(0, baseSize-1)] = null; // Hide one from base
+            return { rows };
+        })
+    }));
+};
+
+export const generateOfflineMultiplicationWheel = async (options: OfflineGeneratorOptions): Promise<MultiplicationWheelData[]> => {
+     return Array.from({ length: options.worksheetCount }).map(() => {
+        const innerResult = getRandomInt(2, 10);
+        return {
+            title: "Çarpım Çarkı (Hızlı Mod)",
+            prompt: `Ortadaki sayıyı dışarıdaki sayılarla çarpıp boşlukları doldurun veya dışarıdaki sayıyı bulmak için bölme yapın.`,
+            puzzles: [
+                { 
+                    outerNumbers: shuffle([1, 2, 3, 4, 5, 6, 7, 8]).map(n => Math.random() > 0.5 ? n : null), 
+                    innerResult 
+                },
+                { 
+                    outerNumbers: shuffle([2, 4, 6, 8, 10, 12, 14, 16]).map(n => Math.random() > 0.6 ? n : null), 
+                    innerResult: innerResult + 1
+                }
+            ]
+        };
+    });
+};
+
+export const generateOfflineShapeSudoku = async (options: OfflineGeneratorOptions): Promise<ShapeSudokuData[]> => {
+    const shapesToUse: {shape: ShapeType; label: string}[] = [ {shape: 'star', label: 'Yıldız'}, {shape: 'circle', label: 'Daire'}, {shape: 'square', label: 'Kare'}, {shape: 'triangle', label: 'Üçgen'} ];
+    const staticGrid = [ [ 'star' as ShapeType, null, 'square' as ShapeType, null ], [ null, 'triangle' as ShapeType, null, null ], [ null, null, 'star' as ShapeType, null ], [ null, 'circle' as ShapeType, null, 'triangle' as ShapeType ] ];
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Şekilli Sudoku", prompt: "Şekilleri Sudoku kurallarına göre yerleştirin.",
+        puzzles: [{ grid: staticGrid, shapesToUse }]
+    }));
+};
+
+export const generateOfflineMissingParts = async (options: OfflineGeneratorOptions): Promise<MissingPartsData[]> => {
+    const words = [ { w: "bilgisayar", p: ["bilgi", "sayar"] }, { w: "kitaplık", p: ["kitap", "lık"] }, { w: "gözlük", p: ["göz", "lük"] }, { w: "kalemlik", p: ["kalem", "lik"] }, { w: "gecekondu", p: ["gece", "kondu"] } ];
+    const selected = getRandomItems(words, 4);
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Eksik Parçalar", prompt: "Kelime parçalarını birleştirin.",
+        leftParts: shuffle(selected.map((item, i) => ({ id: i + 1, text: item.p[0] }))),
+        rightParts: shuffle(selected.map((item, i) => ({ id: i + 1, text: item.p[1] }))),
+        givenParts: [{word: "gözlük", parts: ["göz", "lük"]}]
+    }));
+};
+
+export const generateOfflineWordConnect = async (options: OfflineGeneratorOptions): Promise<WordConnectData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Kelime Bağlama", prompt: "İlişkili kelimeleri birleştirin.", gridDim: 10,
+        points: [
+            { word: "doktor", pairId: 1, x: 1, y: 1 }, { word: "stetoskop", pairId: 1, x: 8, y: 8 },
+            { word: "öğretmen", pairId: 2, x: 1, y: 8 }, { word: "tahta", pairId: 2, x: 8, y: 1 },
+            { word: "aşçı", pairId: 3, x: 4, y: 1 }, { word: "kepçe", pairId: 3, x: 4, y: 8 }
+        ]
+    }));
+};
+
+export const generateOfflineSynonymWordSearch = async (options: OfflineGeneratorOptions): Promise<SynonymWordSearchData[]> => {
+    const { gridSize, worksheetCount } = options;
+    const availableSynonyms = Object.keys(synonymMap);
+    
+    return Array.from({ length: worksheetCount }).map(() => {
+        const wordsToMatch = getRandomItems(availableSynonyms, 5).map(word => ({ word, synonym: synonymMap[word] }));
+        const wordsToPlace = wordsToMatch.map(p => p.synonym);
+
+        const grid: string[][] = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
+        wordsToPlace.forEach(word => {
+             if (word.length > gridSize) return;
+             let placed = false;
+             while (!placed) {
+                 const row = getRandomInt(0, gridSize - 1);
+                 const col = getRandomInt(0, gridSize - word.length);
+                 if (Array.from({ length: word.length }).every((_, k) => grid[row][col + k] === '')) {
+                     for (let k = 0; k < word.length; k++) grid[row][col + k] = word[k];
+                     placed = true;
+                 }
+             }
+        });
+        for (let r = 0; r < gridSize; r++) for (let c = 0; c < gridSize; c++) if (grid[r][c] === '') grid[r][c] = turkishAlphabet[getRandomInt(0, 28)];
+
+        return {
+            title: "Eş Anlamlı Kelime Avı",
+            prompt: "Verilen kelimelerin eş anlamlılarını bulup bulmacada işaretleyin.",
+            wordsToMatch,
+            grid
+        }
     });
 };
 
 export const generateOfflineCrossword = async (options: OfflineGeneratorOptions): Promise<CrosswordData[]> => {
-    return Array(options.worksheetCount).fill({
-        title: 'Çapraz Bulmaca (Çevrimdışı)',
-        prompt: 'Bulmacayı çöz.',
-        grid: [['k', null], ['e', 'di']],
-        clues: [{ id: 1, direction: 'down', text: 'Miyav der.', start: { row: 0, col: 0 }, word: 'kedi' }],
-        passwordCells: [{ row: 0, col: 0 }],
-        passwordLength: 1
-    });
+    const staticData = {
+        title: "Çapraz Bulmaca (Hızlı Mod)", prompt: "İpuçlarıyla bulmacayı çözün.", passwordLength: 4,
+        grid: [ 
+            [null, "A", "T", null, null], 
+            ["K", "A", "L", "E", "M"], 
+            [null, "S", "A", null, null], 
+            [null, "I", null, null, null],
+            [null, null, null, null, null]
+         ],
+        clues: [
+            { id: 1, direction: 'down' as const, text: "Binek hayvanı", start: { row: 0, col: 1 }, word: "ATASI" },
+            { id: 2, direction: 'across' as const, text: "Yazı aracı", start: { row: 1, col: 0 }, word: "KALEM" },
+        ],
+        passwordCells: [{ row: 1, col: 1 }, { row: 2, col: 1 }, { row: 2, col: 2 }, { row: 3, col: 1 }]
+    };
+    return Array.from({ length: options.worksheetCount }).map(() => staticData);
 };
 
-export const generateOfflineJumbledWordStory = async (options: OfflineGeneratorOptions): Promise<JumbledWordStoryData[]> => {
-    return Array(options.worksheetCount).fill
+export const generateOfflineWordGridPuzzle = async (options: OfflineGeneratorOptions): Promise<WordGridPuzzleData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Kelime Ağı", prompt: "Kelimeleri tabloya yerleştirin.", theme: "Genel",
+        wordList: ["elma", "armut", "masa", "kasa"], grid: Array(8).fill(null).map(() => Array(8).fill('')),
+        unusedWordPrompt: "Kullanılmayan kelimeyi yazın."
+    }));
+};
+
+export const generateOfflineSynonymSearchAndStory = async (options: OfflineGeneratorOptions): Promise<SynonymSearchAndStoryData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Eş Anlamlı Bul ve Yaz", prompt: "Eş anlamlıları bulmacada bulup kelimelerle hikaye yazın.",
+        wordTable: [{word: "hızlı", synonym: "süratli"}],
+        grid: [['s', 'ü', 'r'], ['a', 't', 'l'], ['i', 'x', 'y']],
+        storyPrompt: "'hızlı' kelimesini kullanarak bir hikaye yaz."
+    }));
+};
+
+export const generateOfflinePasswordFinder = async (options: OfflineGeneratorOptions): Promise<PasswordFinderData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Şifre Bulucu", prompt: "Özel isimleri bulup şifreyi çöz.",
+        words: [
+            { word: "ankara", isProperNoun: true, passwordLetter: 'A' },
+            { word: "kedi", isProperNoun: false, passwordLetter: '' },
+            { word: "ali", isProperNoun: true, passwordLetter: 'A' },
+             { word: "istanbul", isProperNoun: true, passwordLetter: 'İ' },
+            { word: "masa", isProperNoun: false, passwordLetter: '' },
+        ],
+        passwordLength: 3
+    }));
+};
+
+export const generateOfflineNumberCapsule = async (o: OfflineGeneratorOptions): Promise<NumberCapsuleData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Sayı Kapsülü", prompt: "Sayıları kapsüllere yerleştirin.", puzzles: [{ title: 'Bulmaca 1', numbersToUse: '1-7', grid: [[null, null],[null, null]], capsules: [{ cells: [{row: 0, col: 0},{row: 0, col: 1}], sum: 5}] }] }));
+export const generateOfflineOddEvenSudoku = async (o: OfflineGeneratorOptions): Promise<OddEvenSudokuData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Tek-Çift Sudoku", prompt: "Kurallara göre doldurun.", puzzles: [{ title: 'Bulmaca 1', numbersToUse: '1-6', grid: [[1, null, null, null, 2, null],[null, null, null, 3, null, null],[null, 4, null, null, null, null],[null, null, null, null, 5, null],[null, null, 6, null, null, null],[null, 1, null, null, null, 4]], constrainedCells: [{row: 0, col: 1}, {row: 2, col: 2}] }] }));
+export const generateOfflineRomanNumeralConnect = async (o: OfflineGeneratorOptions): Promise<RomanNumeralConnectData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Romen Rakamı Bağlama", prompt: "Aynı rakamları birleştirin.", puzzles: [{ title: "Bulmaca 1", gridDim: 6, points: [{label: 'I', x: 0, y: 0}, {label: 'I', x: 5, y: 5}, {label: 'V', x: 1, y: 4}, {label: 'V', x: 4, y: 1}] }] }));
+export const generateOfflineRomanNumeralStarHunt = async (o: OfflineGeneratorOptions): Promise<RomanNumeralStarHuntData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Yıldız Avı", prompt: "Yıldızları bulun.", grid: [['I', null, 'II'], [null, null, null], ['III', null, null]], starCount: 6 }));
+export const generateOfflineRoundingConnect = async (o: OfflineGeneratorOptions): Promise<RoundingConnectData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Yuvarlama Bağlama", prompt: "Sayıları en yakın onluğa yuvarlayıp eşleştirin.", example: "Örnek: 48 ve 52, 50'ye yuvarlanır.", numbers: [{value: 48, group: 1, x: 10, y: 10}, {value: 52, group: 1, x: 90, y: 90}, {value: 21, group: 2, x: 10, y: 90}, {value: 19, group: 2, x: 90, y: 10}] }));
+export const generateOfflineRomanNumeralMultiplication = async (o: OfflineGeneratorOptions): Promise<RomanNumeralMultiplicationData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Romen Rakamı Çarpma", prompt: "Kareyi doldurun.", puzzles: [{ row1: 'II', row2: 'III', col1: 'IV', col2: 'V', results: { r1c1: null, r1c2: 'X', r2c1: 'XII', r2c2: null} }] }));
+export const generateOfflineArithmeticConnect = async (o: OfflineGeneratorOptions): Promise<ArithmeticConnectData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Aritmetik Bağlama", prompt: "Sonuçları aynı olan işlemleri eşleştirin.", example: "2+2 ve 8÷2 aynı sonucu verir.", expressions: [{text: '2+2', value: 4, group: 1, x: 10, y: 10}, {text: '8÷2', value: 4, group: 1, x: 90, y: 90}, {text: '10-3', value: 7, group: 2, x: 10, y: 90}, {text: '1+6', value: 7, group: 2, x: 90, y: 10}] }));
+export const generateOfflineRomanArabicMatchConnect = async (o: OfflineGeneratorOptions): Promise<RomanArabicMatchConnectData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Romen-Arap Eşleştirme", prompt: "Eşleri birleştirin.", gridDim: 10, points: [{label: 'V', pairId: 1, x: 1, y: 1}, {label: '5', pairId: 1, x: 8, y: 8}, {label: 'IX', pairId: 2, x: 1, y: 8}, {label: '9', pairId: 2, x: 8, y: 1}] }));
+export const generateOfflineSudoku6x6Shaded = async (o: OfflineGeneratorOptions): Promise<Sudoku6x6ShadedData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Gölgeli Sudoku", prompt: "Sudokuyu çözün. Gölgeli alanlara çift sayı gelmelidir.", puzzles: [{grid: [[1, null, null, null, 2, null],[null, null, null, 3, null, null],[null, 4, null, null, null, null],[null, null, null, null, 5, null],[null, null, 6, null, null, null],[null, 1, null, null, null, 4]], shadedCells: [{row: 0, col: 1}, {row: 2, col: 2}]}] }));
+export const generateOfflineKendoku = async (options: OfflineGeneratorOptions): Promise<KendokuData[]> => {
+    const staticPuzzle: KendokuData['puzzles'][0] = {
+        size: 4, grid: Array(4).fill(null).map(() => Array(4).fill(null)),
+        cages: [
+            { cells: [{ row: 0, col: 0 }, { row: 1, col: 0 }], operation: '−', target: 3 },
+            { cells: [{ row: 0, col: 1 }, { row: 0, col: 2 }], operation: '×', target: 12 },
+            { cells: [{ row: 0, col: 3 }], operation: '+', target: 2 },
+            { cells: [{ row: 1, col: 1 }, { row: 2, col: 1 }], operation: '÷', target: 2 },
+            { cells: [{ row: 1, col: 2 }, { row: 1, col: 3 }], operation: '+', target: 4 },
+            { cells: [{ row: 2, col: 0 }, { row: 3, col: 0 }], operation: '+', target: 4 },
+            { cells: [{ row: 2, col: 2 }, { row: 3, col: 2 }, { row: 3, col: 1 }], operation: '×', target: 6 },
+            { cells: [{ row: 2, col: 3 }, { row: 3, col: 3 }], operation: '−', target: 1 },
+        ]
+    };
+    return Array.from({ length: options.worksheetCount }).map(() => ({ title: "Kendoku (Hızlı Mod)", prompt: "Kurallara göre tabloyu doldurun.", puzzles: [staticPuzzle] }));
+};
+export const generateOfflineOperationSquareSubtraction = async (o: OfflineGeneratorOptions): Promise<OperationSquareSubtractionData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Çıkarma Karesi", prompt: "Kareyi doldurun.", puzzles: [{ grid: [['9', '-', '4', '=', '5'], ['-', null, '-', null, '-'], ['3', '-', '1', '=', '2'], ['=', null, '=', null, '='], ['6', '-', '3', '=', '3']] }] }));
+export const generateOfflineOperationSquareFillIn = async (o: OfflineGeneratorOptions): Promise<OperationSquareFillInData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "İşlem Karesi Doldurma", prompt: "Sayıları yerleştirin.", puzzles: [{grid: [[null, '+', null, '=', '5'], ['+', null, '+', null, '+'], [null, '+', null, '=', '7'], ['=', null, '=', null, '=']], numbersToUse: [1, 2, 3, 4], results: [5, 7, 4, 8]}] }));
+export const generateOfflineOperationSquareMultDiv = async (o: OfflineGeneratorOptions): Promise<OperationSquareMultDivData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Çarpma/Bölme Karesi", prompt: "Kareyi doldurun.", puzzles: [{ grid: [['6', '÷', '2', '=', '3']] }] }));
+export const generateOfflineWeightConnect = async (o: OfflineGeneratorOptions): Promise<WeightConnectData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Ağırlık Bağlama", prompt: "Eşit ağırlıkları birleştirin.", gridDim: 10, points: [{label: '1kg', pairId: 1, x: 1, y: 1}, {label: '1000g', pairId: 1, x: 8, y: 8}] }));
+export const generateOfflineResfebe = async (o: OfflineGeneratorOptions): Promise<ResfebeData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Resfebe", prompt: "Resfebeyi çözün.", puzzles: [{ clues: [{type: 'text', value: 'C'}, {type: 'image', value: 'Bin'}], answer: 'cebin'}] }));
+export const generateOfflineFutoshikiLength = async (o: OfflineGeneratorOptions): Promise<FutoshikiLengthData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Uzunluk Futoşiki", prompt: "Uzunlukları sıralayın.", puzzles: [{ size: 4, units: [[null, '100cm', null, null]], constraints: [{row1: 0, col1: 0, row2: 0, col2: 1, symbol: '<'}] }] }));
+export const generateOfflineMatchstickSymmetry = async (o: OfflineGeneratorOptions): Promise<MatchstickSymmetryData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Kibrit Simetrisi", prompt: "Simetriği çizin.", puzzles: [{ number: 3, lines: [{x1: 10, y1: 10, x2: 90, y2: 10}] }] }));
+export const generateOfflineWordWeb = async (o: OfflineGeneratorOptions): Promise<WordWebData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Kelime Ağı", prompt: "Kelimeleri yerleştirin.", wordsToFind: ["elma", "armut"], grid: [["e", "l", "m", "a"], [null, null, null, "r"], [null, null, null, "m"], [null, null, null, "u"], [null, null, null, "t"]], keyWordPrompt: "" }));
+export const generateOfflineStarHunt = async (o: OfflineGeneratorOptions): Promise<StarHuntData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Yıldız Avı", prompt: "Yıldızları bulun.", grid: [[null, 'star', 'question'], ['circle', null, null]] }));
+export const generateOfflineLengthConnect = async (o: OfflineGeneratorOptions): Promise<LengthConnectData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Uzunluk Bağlama", prompt: "Eşit uzunlukları birleştirin.", gridDim: 10, points: [{label: '1m', pairId: 1, x: 1, y: 1}, {label: '100cm', pairId: 1, x: 8, y: 8}] }));
+export const generateOfflineVisualNumberPattern = async (o: OfflineGeneratorOptions): Promise<VisualNumberPatternData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Görsel Sayı Örüntüsü", prompt: "Sıradaki sayıyı bulun.", puzzles: [{ items: [{number: 1, color: 'red', size: 1}, {number: 2, color: 'blue', size: 1.2}], rule: 'Sayılar bir artıyor.', answer: 3}] }));
+export const generateOfflineProfessionConnect = async (o: OfflineGeneratorOptions): Promise<ProfessionConnectData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Meslek Bağlama", prompt: "Meslekleri ve araçları eşleştirin.", gridDim: 10, points: [{label: 'Doktor', imageDescription: 'Stetoskop', x:1, y:1}, {label: 'Öğretmen', imageDescription: 'Kitap', x:8, y:8}] }));
+export const generateOfflineVisualOddOneOutThemed = async (o: OfflineGeneratorOptions): Promise<VisualOddOneOutThemedData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Tematik Görsel Farklı Olan", prompt: "Temaya uymayanı bulun.", rows: [{theme: 'Meyveler', items: [{description: 'Elma'}, {description: 'Armut'}, {description: 'Araba'}], oddOneOutIndex: 2}] }));
+export const generateOfflineLogicGridPuzzle = async (o: OfflineGeneratorOptions): Promise<LogicGridPuzzleData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Mantık Tablosu", prompt: "İpuçlarını kullanarak tabloyu doldurun.", clues: ["Ali kırmızı rengi sever."], people: ["Ali", "Veli"], categories: [{title: 'Renk', items: [{name: 'Kırmızı', imageDescription: 'Kırmızı renk'}, {name: 'Mavi', imageDescription: 'Mavi renk'}]}] }));
+export const generateOfflineImageAnagramSort = async (o: OfflineGeneratorOptions): Promise<ImageAnagramSortData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Resimli Anagram Sıralama", prompt: "Kartları sıralayın.", cards: [{imageDescription: 'Elma', scrambledWord: 'mela', correctWord: 'elma'}, {imageDescription: 'Armut', scrambledWord: 'murt', correctWord: 'armut'}] }));
+export const generateOfflineAnagramImageMatch = async (o: OfflineGeneratorOptions): Promise<AnagramImageMatchData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Anagram Resim Eşleştirme", prompt: "Anagramları resimlerle eşleştirin.", wordBank: ['mela', 'murt'], puzzles: [{imageDescription: 'Elma', partialAnswer: 'e__a', correctWord: 'elma'}] }));
+export const generateOfflineSyllableWordSearch = async (o: OfflineGeneratorOptions): Promise<SyllableWordSearchData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Hece Kelime Avı", prompt: "Hecelerden kelime oluşturup bulun.", syllablesToCombine: ['bil', 'gi', 'sa', 'yar'], wordsToCreate: [{syllable1: 'bilgi', syllable2: 'sayar', answer: 'bilgisayar'}], wordsToFindInSearch: ['bilgisayar'], grid: [[]], passwordPrompt: "" }));
+export const generateOfflineWordSearchWithPassword = async (options: OfflineGeneratorOptions): Promise<WordSearchWithPasswordData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Şifreli Kelime Avı (Hızlı Mod)",
+        prompt: "Kelimeleri bulup şifreyi çözün.",
+        grid: Array(10).fill(null).map(() => Array(10).fill('a')),
+        words: ["şifre", "kelime"],
+        passwordCells: [{ row: 0, col: 0 }, { row: 1, col: 1 }, { row: 2, col: 2 }, { row: 3, col: 3 }]
+    }));
+};
+export const generateOfflineWordWebWithPassword = async (o: OfflineGeneratorOptions): Promise<WordWebWithPasswordData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Şifreli Kelime Ağı", prompt: "Kelimeleri yerleştirip şifreyi bulun.", words: ['elma', 'armut'], grid: [['e', 'l', 'm', 'a'], [null,null,null,null]], passwordColumnIndex: 0 }));
+export const generateOfflineLetterGridWordFind = async (options: OfflineGeneratorOptions): Promise<LetterGridWordFindData[]> => {
+    return Array.from({ length: options.worksheetCount }).map(() => ({
+        title: "Harf Tablosunda Kelime Bulma (Hızlı Mod)",
+        prompt: "Tablodaki kelimeleri bulun.",
+        words: ["kelime", "bulmaca"],
+        grid: Array(10).fill(null).map(() => Array(10).fill('a')),
+        writingPrompt: "Bulduğun kelimelerle bir cümle yaz."
+    }));
+};
+export const generateOfflineWordPlacementPuzzle = async (o: OfflineGeneratorOptions): Promise<WordPlacementPuzzleData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Kelime Yerleştirme", prompt: "Kelimeleri yerleştirin.", grid: [['a',null], [null, 'b']], wordGroups: [{length: 1, words: ['a', 'b']}], unusedWordPrompt: "Kullanılmayan kelimeyi yazın." }));
+export const generateOfflinePositionalAnagram = async (o: OfflineGeneratorOptions): Promise<PositionalAnagramData[]> => Array.from({ length: o.worksheetCount }).map(() => ({ title: "Konumsal Anagram", prompt: "Harflerin yerini değiştirip kelime bulun.", puzzles: [{id: 1, scrambled: 'k1e2di', answer: 'ek'}] }));

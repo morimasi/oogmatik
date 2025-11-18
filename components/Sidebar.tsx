@@ -11,6 +11,8 @@ interface SidebarProps {
   setIsLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   isLoading: boolean;
+  savedWorksheets: SavedWorksheet[];
+  onShowSavedList: () => void;
   isSidebarOpen: boolean;
   closeSidebar: () => void;
 }
@@ -130,7 +132,7 @@ const offlineGeneratorMap: { [key in ActivityType]?: (options: offlineGenerators
     [ActivityType.WORD_WEB_WITH_PASSWORD]: offlineGenerators.generateOfflineWordWebWithPassword,
     [ActivityType.LETTER_GRID_WORD_FIND]: offlineGenerators.generateOfflineLetterGridWordFind,
     [ActivityType.WORD_PLACEMENT_PUZZLE]: offlineGenerators.generateOfflineWordPlacementPuzzle,
-    [ActivityType.POSITIONAL_ANAGRAM]: offlineGenerators.generateOfflinePositionalAnagram
+    [ActivityType.POSITIONAL_ANAGRAM]: offlineGenerators.generateOfflinePositionalAnagram,
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -140,6 +142,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     setIsLoading, 
     setError, 
     isLoading, 
+    savedWorksheets, 
+    onShowSavedList,
     isSidebarOpen,
     closeSidebar
 }) => {
@@ -474,128 +478,132 @@ const Sidebar: React.FC<SidebarProps> = ({
                         <input type="text" id="targetPair" value={targetPair} maxLength={2} onChange={(e) => setTargetPair(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="tr" />
                     </div>
                 )}
-
-                 {showDifficulty && (
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Zorluk</label>
-                        <div className="grid grid-cols-3 gap-2 mt-1">
-                            {(['Kolay', 'Orta', 'Zor'] as const).map(d => (
-                                <button key={d} onClick={() => setDifficulty(d)} className={`px-3 py-2 text-xs font-semibold rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800 ${difficulty === d ? 'bg-indigo-600 text-white shadow' : 'bg-zinc-200 dark:bg-zinc-600 hover:bg-zinc-300 dark:hover:bg-zinc-500'}`}>
-                                    {d}
-                                </button>
-                            ))}
+                
+                {showTargetChars && (
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label htmlFor="targetChar" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Hedef Karakter</label>
+                            <input type="text" id="targetChar" value={targetChar} maxLength={1} onChange={(e) => setTargetChar(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 sm:text-sm" />
                         </div>
-                    </div>
-                 )}
-
-                 {showTargetChars && (
-                    <div className="flex gap-4">
-                        <div className="mb-4 flex-1">
-                            <label htmlFor="targetChar" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Hedef</label>
-                            <input type="text" id="targetChar" value={targetChar} maxLength={1} onChange={(e) => setTargetChar(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-                        </div>
-                         <div className="mb-4 flex-1">
+                        <div>
                             <label htmlFor="distractorChar" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Çeldirici</label>
-                            <input type="text" id="distractorChar" value={distractorChar} maxLength={1} onChange={(e) => setDistractorChar(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+                            <input type="text" id="distractorChar" value={distractorChar} maxLength={1} onChange={(e) => setDistractorChar(e.target.value)} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 sm:text-sm" />
                         </div>
                     </div>
-                 )}
+                )}
+
+                {showDifficulty && (
+                    <div className="mb-4">
+                        <label htmlFor="difficulty" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Zorluk</label>
+                        <select id="difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value as 'Kolay'|'Orta'|'Zor')} className="mt-1 block w-full bg-zinc-50 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
+                            <option>Kolay</option>
+                            <option>Orta</option>
+                            <option>Zor</option>
+                        </select>
+                    </div>
+                )}
             </div>
-        ) : null}
+        ) : (
+            <div className="p-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                Bu etkinlik için konu, boyut gibi özel ayarlar bulunmamaktadır.
+            </div>
+        )}
       </div>
     );
   };
-  
-  const sidebarContent = (
-     <>
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
-             <button
-              onClick={() => handleSelectActivity(null)}
-              className="w-full text-left p-3 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-bold shadow-lg hover:shadow-xl transition-shadow flex items-center justify-between"
-            >
-              <span>Yeni Etkinlik Oluştur</span>
-              <i className="fa-solid fa-plus"></i>
-            </button>
-        </div>
-        
-        {!selectedActivity ? (
-            <div className="flex-1 overflow-y-auto">
-                <div className="p-4 text-sm text-zinc-600 dark:text-zinc-400">
-                    Lütfen bir kategori seçip etkinlik oluşturmaya başlayın.
-                </div>
-                {ACTIVITY_CATEGORIES.map(category => (
-                    <div key={category.id} className="border-b border-zinc-200 dark:border-zinc-700">
-                        <button
-                            onClick={() => handleToggleCategory(category.id)}
-                            className="w-full flex items-center justify-between text-left p-4 hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                            aria-expanded={openCategory === category.id}
-                        >
-                            <span className="font-semibold">{category.title}</span>
-                            <i className={`fa-solid fa-chevron-down text-xs transition-transform ${openCategory === category.id ? 'rotate-180' : ''}`}></i>
-                        </button>
-                        {openCategory === category.id && (
-                            <div className="bg-zinc-50 dark:bg-zinc-800/50 p-2">
-                                {ACTIVITIES.filter(act => category.activities.includes(act.id)).map(activity => (
-                                    <button
-                                        key={activity.id + activity.title}
-                                        onClick={() => handleSelectActivity(activity.id)}
-                                        className={`w-full text-left p-3 rounded-md text-sm flex items-center gap-3 transition-colors ${selectedActivity === activity.id ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-200 font-semibold' : 'hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}
-                                    >
-                                        <i className={`${activity.icon} fa-fw w-5 text-center`}></i>
-                                        <span>{activity.title}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+
+  const ActivityButton: React.FC<{ activity: Activity }> = ({ activity }) => (
+    <button
+        onClick={() => handleSelectActivity(activity.id)}
+        className="w-full text-left p-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-zinc-700/80 transition-colors flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+    >
+        <i className={`${activity.icon} w-6 text-center text-indigo-500 dark:text-indigo-400 mr-3`}></i>
+        <span className="flex-1 text-sm">{activity.title}</span>
+    </button>
+  );
+
+  return (
+    <aside className={`w-80 sm:w-96 bg-white dark:bg-zinc-800 shadow-lg flex-col print:hidden overflow-y-auto border-r border-zinc-200 dark:border-zinc-700/50 transition-transform duration-300 ease-in-out md:static md:translate-x-0 fixed inset-y-0 left-0 z-30 flex ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {currentActivity ? (
+        // Settings View
+        <div className="flex flex-col h-full">
+            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
+                <button onClick={() => handleSelectActivity(null)} className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm mb-4 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+                    <i className="fa-solid fa-arrow-left mr-2"></i>Tüm Etkinlikler
+                </button>
+                <div className="flex items-center">
+                    <div className="w-12 h-12 bg-indigo-500 dark:bg-indigo-600 text-white rounded-lg flex items-center justify-center mr-4 shrink-0">
+                        <i className={`${currentActivity.icon} fa-lg`}></i>
                     </div>
-                ))}
-            </div>
-        ) : (
-          <>
-            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex items-start gap-3">
-                 <i className={`${currentActivity?.icon} fa-fw fa-lg mt-1 text-indigo-500`}></i>
-                 <div>
-                    <h3 className="font-bold text-lg">{currentActivity?.title}</h3>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{currentActivity?.description}</p>
+                    <div>
+                        <h2 className="text-lg font-bold">{currentActivity.title}</h2>
+                        <p className="text-zinc-500 dark:text-zinc-400 text-xs">{currentActivity.description}</p>
+                    </div>
                 </div>
             </div>
+
             {renderSettings()}
-          </>
-        )}
-        
-        <div className="p-4 mt-auto border-t border-zinc-200 dark:border-zinc-700">
-            {selectedActivity && (
-                 <button 
-                    onClick={handleGenerate} 
+
+            <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 mt-auto">
+                 <button
+                    onClick={handleGenerate}
                     disabled={isLoading}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-indigo-400 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800"
-                >
-                {isLoading ? (
-                    <>
+                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:bg-zinc-400 dark:disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800"
+                    >
+                    {isLoading ? (
+                        <>
                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                         Oluşturuluyor...
-                    </>
-                ) : (
-                    <>
-                        <i className="fa-solid fa-wand-magic-sparkles"></i>
-                        Etkinlik Oluştur
-                    </>
-                )}
+                        </>
+                    ) : (
+                        <><i className="fa-solid fa-play mr-2"></i>Etkinlik Oluştur</>
+                    )}
                 </button>
-            )}
+            </div>
         </div>
-     </>
-  );
-
-  return (
-    <>
-        <aside className={`absolute md:relative z-30 w-80 h-full bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 flex flex-col transition-transform transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 print:hidden`}>
-            {sidebarContent}
-        </aside>
-    </>
+      ) : (
+        // Category List View
+        <div className="p-4">
+             <div className="mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-700">
+                 <button 
+                    onClick={() => { onShowSavedList(); closeSidebar(); }}
+                    className="w-full flex items-center justify-center p-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-lg shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800"
+                >
+                    <i className="fa-solid fa-folder-open mr-3"></i>
+                    <span>Tüm Kayıtları Görüntüle ({savedWorksheets.length})</span>
+                </button>
+            </div>
+             <h2 className="text-xl font-bold mb-4 px-2">Etkinlik Kategorileri</h2>
+             <div className="space-y-2">
+                {ACTIVITY_CATEGORIES.map(category => (
+                    <div key={category.id}>
+                        <button 
+                            onClick={() => handleToggleCategory(category.id)}
+                            className="w-full flex justify-between items-center p-3 bg-zinc-100 dark:bg-zinc-700/50 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800"
+                        >
+                            <div className="flex items-center">
+                                <i className={`${category.icon} mr-3 text-lg`}></i>
+                                <span className="font-semibold">{category.title}</span>
+                            </div>
+                            <i className={`fa-solid fa-chevron-down transition-transform ${openCategory === category.id ? 'rotate-180' : ''}`}></i>
+                        </button>
+                        {openCategory === category.id && (
+                            <div className="py-2 pl-4">
+                                {category.activities.map(activityId => {
+                                    const activity = ACTIVITIES.find(a => a.id === activityId);
+                                    return activity ? <ActivityButton key={activity.id + activity.title} activity={activity} /> : null;
+                                })}
+                            </div>
+                        )}
+                    </div>
+                ))}
+             </div>
+        </div>
+      )}
+    </aside>
   );
 };
 
