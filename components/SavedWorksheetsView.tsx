@@ -84,3 +84,50 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
                              <div className="overflow-x-auto">
                                 <table className="min-w-full">
                                     <thead className="sr-only md:not-sr-only">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Etkinlik</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Oluşturulma Tarihi</th>
+                                            <th className="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Eylemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white dark:bg-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-700">
+                                        {group.worksheets.map(ws => (
+                                            <tr key={ws.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors">
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center mr-4 shrink-0">
+                                                            <i className={`${ws.icon} fa-lg`}></i>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{ws.name}</div>
+                                                            <div className="text-xs text-zinc-500 dark:text-zinc-400">{getActivityTitle(ws.activityType)}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
+                                                    {new Date(ws.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button onClick={() => onLoad(ws)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" title="Yükle">
+                                                            <i className="fa-solid fa-upload"></i>
+                                                        </button>
+                                                        <button onClick={() => { if(confirm(`'${ws.name}' etkinliğini silmek istediğinizden emin misiniz?`)) onDelete(ws.id) }} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Sil">
+                                                            <i className="fa-solid fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                             </div>
+                         </div>
+                    )}
+                </div>
+            ))}
+        </div>
+      )}
+    </div>
+  );
+};

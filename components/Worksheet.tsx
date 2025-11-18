@@ -2262,7 +2262,7 @@ const WordWebSheet: React.FC<{data: WordWebData | WordWebWithPasswordData}> = ({
     </div>
 );
 
-// FIX: Replaced GridComponent with a custom table to correctly render shapes and emojis, resolving a ReactNode type error.
+{/* FIX: Replaced GridComponent with a custom table to correctly render shapes and emojis, resolving a ReactNode type error. */}
 const StarHuntSheet: React.FC<{data: StarHuntData}> = ({data}) => (
      <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
@@ -2806,7 +2806,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
   
   const { fontSize, borderColor, borderWidth, dyslexiaFriendlyFont, layout, margin, pageView } = settings;
 
-  // FIX: Cast style object to React.CSSProperties to allow for CSS custom properties.
+  {/* FIX: Cast style object to React.CSSProperties to allow for CSS custom properties. */}
   const worksheetStyles: CSSProperties = {
     fontSize: `${fontSize}px`,
     '--worksheet-border-color': borderColor,
