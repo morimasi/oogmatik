@@ -101,32 +101,21 @@ const App: React.FC = () => {
             >
               <i className="fa-solid fa-bars fa-lg"></i>
             </button>
-            <svg
-              className="animated-logo w-12 h-12 text-indigo-500 mr-3 hidden sm:block"
+             <svg
+              className="w-12 h-12 text-indigo-500 mr-3 hidden sm:block"
+              viewBox="0 0 50 50"
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
+              strokeWidth="2.5"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 7v0A2.5 2.5 0 0 1 7 4.5v0A2.5 2.5 0 0 1 9.5 2m0 0V1" />
-              <path d="M9.5 7v3.5" />
-              <path d="M14.5 2A2.5 2.5 0 0 1 17 4.5v0A2.5 2.5 0 0 1 14.5 7v0A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 14.5 2m0 0V1" />
-              <path d="M14.5 7v3.5" />
-              <path d="M12 14a2.5 2.5 0 0 0 2.5 2.5v0a2.5 2.5 0 0 0 2.5 2.5" />
-              <path d="M12 19.5a2.5 2.5 0 0 1-2.5-2.5v0a2.5 2.5 0 0 1-2.5-2.5" />
-              <path d="M12 14v-1.5" />
-              <path d="M12 19.5V22" />
-              <path d="M17 19.5a2.5 2.5 0 0 0 2.5-2.5v0a2.5 2.5 0 0 0-2.5-2.5" />
-              <path d="M7 19.5a2.5 2.5 0 0 1-2.5-2.5v0A2.5 2.5 0 0 1 7 14.5" />
-              <path d="M14.5 10.5h-5" />
-              <path d="M17 14.5h3.5" />
-              <path d="M3.5 14.5H7" />
-              <path d="M17.5 10.5c.38 0 .75.02 1.12.05" />
-              <path d="M5.38 10.55A12.3 12.3 0 0 0 3.5 10.5" />
-              <path d="M12 1A11 11 0 1 0 12 23 11 11 0 1 0 12 1" />
+              <g className="animated-logo">
+                <path d="M 35,25 a 10,10 0 1,1 -20,0 a 10,10 0 1,1 20,0" />
+                <path id="stem-b" d="M 15 5 L 15 45" />
+                <path id="stem-d" d="M 35 5 L 35 45" />
+              </g>
             </svg>
             <div>
                  <h1 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
