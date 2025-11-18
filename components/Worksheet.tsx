@@ -37,7 +37,7 @@ const ImageDisplay: React.FC<{ base64?: string; description?: string; className?
     );
 };
 
-const GridComponent: React.FC<{ grid: (string | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string, passwordColumnIndex?: number, showLetters?: boolean }> = ({ grid, passwordCells, cellClassName = 'w-10 h-10', passwordColumnIndex, showLetters = true }) => (
+const GridComponent: React.FC<{ grid: (string | number | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string, passwordColumnIndex?: number, showLetters?: boolean }> = ({ grid, passwordCells, cellClassName = 'w-10 h-10', passwordColumnIndex, showLetters = true }) => (
     <table className="table-fixed w-full border-collapse">
         <tbody>
             {(grid || []).map((row, rowIndex) => (
@@ -47,7 +47,7 @@ const GridComponent: React.FC<{ grid: (string | null)[][]; passwordCells?: {row:
                     const isBlackCell = cell === null;
                     return (
                         <td key={cellIndex} className={`border text-center font-mono text-lg ${cellClassName} ${isPasswordCell ? 'bg-amber-200 dark:bg-amber-800' : ''} ${isBlackCell ? 'bg-zinc-800 dark:bg-zinc-900' : 'bg-white dark:bg-zinc-700/50'}`} style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                            {showLetters ? cell?.toUpperCase() : ''}
+                            {showLetters ? (typeof cell === 'string' ? cell.toUpperCase() : cell) : ''}
                         </td>
                     )
                 })}
@@ -1384,7 +1384,7 @@ const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data })
     );
 };
 
-const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData }> = ({ data }) => (
+const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData | ThematicJumbledWordStoryData }> = ({ data }) => (
     <div>
         <h3 className="text-xl font-bold mb-2 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
@@ -1406,8 +1406,6 @@ const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData }> = ({ data 
         </div>
     </div>
 );
-
-// --- NEWLY IMPLEMENTED COMPONENTS ---
 
 const FindDifferentStringSheet: React.FC<{ data: FindDifferentStringData }> = ({ data }) => (
     <div>
@@ -1445,16 +1443,16 @@ const DotPaintingSheet: React.FC<{ data: DotPaintingData }> = ({ data }) => (
     </div>
 );
 
-const AbcConnectSheet: React.FC<{ data: AbcConnectData }> = ({ data }) => (
+const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConnectData | RomanArabicMatchConnectData | WeightConnectData | LengthConnectData }> = ({ data }) => (
     <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
-        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{'prompt' in data ? data.prompt : ''}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
-            {(data.puzzles || []).map(puzzle => {
+            {('puzzles' in data && data.puzzles ? data.puzzles : [{...data, id:1}]).map(puzzle => {
                 const cellSize = 40;
                 const totalSize = puzzle.gridDim * cellSize;
                 return (
-                    <svg key={puzzle.id} width={totalSize} height={totalSize} className="bg-white dark:bg-zinc-700/50 border border-zinc-300 dark:border-zinc-600">
+                    <svg key={'id' in puzzle ? puzzle.id : 1} width={totalSize} height={totalSize} className="bg-white dark:bg-zinc-700/50 border border-zinc-300 dark:border-zinc-600">
                         {Array.from({ length: puzzle.gridDim + 1 }).map((_, i) => (
                             <g key={i}>
                                 <line x1={i * cellSize} y1="0" x2={i * cellSize} y2={totalSize} className="stroke-zinc-200 dark:stroke-zinc-500" strokeWidth="0.5" />
@@ -1462,7 +1460,7 @@ const AbcConnectSheet: React.FC<{ data: AbcConnectData }> = ({ data }) => (
                             </g>
                         ))}
                         {(puzzle.points || []).map((p, i) => (
-                             <text key={i} x={p.x * cellSize + cellSize / 2} y={p.y * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="font-bold text-lg fill-current">{p.letter}</text>
+                             <text key={i} x={p.x * cellSize + cellSize / 2} y={p.y * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="font-bold text-sm fill-current">{'letter' in p ? p.letter : p.label}</text>
                         ))}
                     </svg>
                 )
@@ -1540,7 +1538,7 @@ const WordConnectSheet: React.FC<{ data: WordConnectData }> = ({ data }) => {
     )
 };
 
-const SpiralPuzzleSheet: React.FC<{ data: SpiralPuzzleData }> = ({ data }) => (
+const SpiralPuzzleSheet: React.FC<{ data: SpiralPuzzleData | PunctuationSpiralPuzzleData }> = ({ data }) => (
     <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
@@ -1666,7 +1664,7 @@ const AntonymFlowerPuzzleSheet: React.FC<{ data: AntonymFlowerPuzzleData }> = ({
     </div>
 );
 
-const ProverbWordChainSheet: React.FC<{ data: ProverbWordChainData }> = ({ data }) => (
+const ProverbWordChainSheet: React.FC<{ data: ProverbWordChainData | ProverbSentenceFinderData }> = ({ data }) => (
     <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
@@ -1814,25 +1812,97 @@ const ThematicOddOneOutSentenceSheet: React.FC<{ data: ThematicOddOneOutSentence
     </div>
 );
 
-const ProverbSentenceFinderSheet: React.FC<{ data: ProverbSentenceFinderData }> = ({ data }) => (
-     <div>
+const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSentenceData }> = ({ data }) => (
+    <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        <div className="flex justify-center flex-wrap gap-4 p-4 mb-8 border-2 border-dashed rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
-            {(data.wordCloud || []).map((item, index) => (
-                <span key={index} className="px-3 py-1.5 rounded-md text-lg" style={{backgroundColor: item.color, color: '#fff'}}>{item.word}</span>
+        <div className="grid grid-cols-4 gap-4 mb-6">
+            {(data.columns || []).map((col, i) => (
+                <div key={i} className="p-2 border rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                    {(col.words || []).map((word, j) => <p key={j} className="text-center p-1">{word}</p>)}
+                </div>
             ))}
         </div>
+        <p className="text-center italic mt-6">{data.sentencePrompt}</p>
+        <div className="h-20 mt-2 border-2 border-dashed rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}></div>
+    </div>
+);
+
+const TargetNumberSheet: React.FC<{ data: TargetNumberData }> = ({ data }) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <div className="space-y-4">
-             {(data.solutions || []).map((_, index) => (
-                <div key={index} className="w-full h-10 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg border-b-2 border-zinc-400"></div>
+            {(data.puzzles || []).map((p, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 border rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                    <div className="text-center">
+                        <p className="font-bold text-lg">Hedef</p>
+                        <div className="w-16 h-16 flex items-center justify-center bg-red-500 text-white font-bold text-2xl rounded-full">{p.target}</div>
+                    </div>
+                    <div className="flex-1 flex gap-2 justify-center">
+                        {(p.givenNumbers || []).map((n, j) => <div key={j} className="w-12 h-12 flex items-center justify-center bg-zinc-200 dark:bg-zinc-600 font-bold text-xl rounded-md">{n}</div>)}
+                    </div>
+                </div>
             ))}
         </div>
     </div>
 );
 
-// ... (and so on for all other missing components)
-// Due to length limitations, I'll add a few more and then the rest will be conceptually similar.
+const SynonymAntonymColoringSheet: React.FC<{data: SynonymAntonymColoringData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="flex justify-center mb-8">
+            <div className="relative w-80 h-80 border-2 rounded-lg flex items-center justify-center bg-zinc-50 dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                <i className="fa-solid fa-tree fa-6x text-zinc-300 dark:text-zinc-600"></i>
+                {(data.wordsOnImage || []).map(item => (
+                    <span key={item.word} className="absolute p-2 bg-white/50 dark:bg-zinc-800/50 rounded" style={{left: `${item.x}%`, top: `${item.y}%`}}>{item.word}</span>
+                ))}
+            </div>
+        </div>
+         <div className="grid grid-cols-2 gap-4">
+            {(data.colorKey || []).map((key, index) => (
+                <div key={index} className="flex items-center gap-3 p-2 bg-white dark:bg-zinc-700/50 rounded-lg">
+                    <div className="w-8 h-8 rounded-full" style={{backgroundColor: key.color}}></div>
+                    <p>{key.text}</p>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+const PunctuationPhoneNumberSheet: React.FC<{data: PunctuationPhoneNumberData}> = ({data}) => (
+     <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-700 rounded-lg mb-8">
+            <p className="font-semibold text-center">{data.instruction}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                {(data.clues || []).map(clue => <p key={clue.id}><strong>{clue.id}.</strong> {clue.text}</p>)}
+            </div>
+        </div>
+        <div className="flex justify-center items-center gap-2">
+            <p className="font-bold text-lg">05</p>
+            {Array.from({length: 9}).map((_, i) => <div key={i} className="w-10 h-12 border-b-2 border-zinc-500"></div>)}
+        </div>
+     </div>
+);
+
+const SynonymMatchingPatternSheet: React.FC<{data: SynonymMatchingPatternData}> = ({data}) => (
+    <div>
+        <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
+        <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <p className="text-center font-semibold text-indigo-600 dark:text-indigo-400 mb-6">Tema: {data.theme}</p>
+        <div className="grid grid-cols-2 gap-8">
+            <ul className="space-y-2">
+                {(data.pairs || []).map((p, i) => <li key={i} className="p-3 bg-white dark:bg-zinc-700/50 rounded-lg text-center">{p.word}</li>)}
+            </ul>
+             <ul className="space-y-2">
+                {(data.pairs || []).map((p, i) => <li key={i} className="p-3 bg-white dark:bg-zinc-700/50 rounded-lg text-center">{p.synonym}</li>)}
+            </ul>
+        </div>
+    </div>
+);
 
 const NotImplementedSheet: React.FC<{ type: ActivityType | null }> = ({ type }) => (
     <div className="text-center p-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
@@ -1912,10 +1982,52 @@ const componentMap: { [key in ActivityType]?: React.FC<any> } = {
     [ActivityType.PUNCTUATION_MAZE]: PunctuationMazeSheet,
     [ActivityType.ANTONYM_RESFEBE]: AntonymResfebeSheet,
     [ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE]: ThematicOddOneOutSentenceSheet,
-    [ActivityType.PROVERB_SENTENCE_FINDER]: ProverbSentenceFinderSheet,
-    [ActivityType.PUNCTUATION_SPIRAL_PUZZLE]: SpiralPuzzleSheet, // Reusing spiral puzzle component
-    // Continue adding all other mappings...
-    // This is a representative sample. All missing components are implemented.
+    [ActivityType.PROVERB_SENTENCE_FINDER]: ProverbWordChainSheet, // Reuse
+    [ActivityType.PUNCTUATION_SPIRAL_PUZZLE]: SpiralPuzzleSheet, // Reuse
+    [ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE]: ColumnOddOneOutSentenceSheet,
+    [ActivityType.TARGET_NUMBER]: TargetNumberSheet,
+    [ActivityType.SYNONYM_ANTONYM_COLORING]: SynonymAntonymColoringSheet,
+    [ActivityType.PUNCTUATION_PHONE_NUMBER]: PunctuationPhoneNumberSheet,
+    [ActivityType.THEMATIC_JUMBLED_WORD_STORY]: JumbledWordStorySheet, // Reuse
+    [ActivityType.SYNONYM_MATCHING_PATTERN]: SynonymMatchingPatternSheet,
+    // Add all new component mappings here
+    [ActivityType.FUTOSHIKI]: NotImplementedSheet,
+    [ActivityType.NUMBER_PYRAMID]: NotImplementedSheet,
+    [ActivityType.NUMBER_CAPSULE]: NotImplementedSheet,
+    [ActivityType.ODD_EVEN_SUDOKU]: NotImplementedSheet,
+    [ActivityType.ROMAN_NUMERAL_CONNECT]: AbcConnectSheet, // Reuse
+    [ActivityType.ROMAN_NUMERAL_STAR_HUNT]: NotImplementedSheet,
+    [ActivityType.ROUNDING_CONNECT]: NotImplementedSheet,
+    [ActivityType.ROMAN_NUMERAL_MULTIPLICATION]: NotImplementedSheet,
+    [ActivityType.ARITHMETIC_CONNECT]: AbcConnectSheet, // Reuse
+    [ActivityType.ROMAN_ARABIC_MATCH_CONNECT]: AbcConnectSheet, // Reuse
+    [ActivityType.SUDOKU_6X6_SHADED]: NotImplementedSheet,
+    [ActivityType.KENDOKU]: NotImplementedSheet,
+    [ActivityType.DIVISION_PYRAMID]: NotImplementedSheet,
+    [ActivityType.MULTIPLICATION_PYRAMID]: NotImplementedSheet,
+    [ActivityType.OPERATION_SQUARE_SUBTRACTION]: NotImplementedSheet,
+    [ActivityType.OPERATION_SQUARE_FILL_IN]: NotImplementedSheet,
+    [ActivityType.MULTIPLICATION_WHEEL]: NotImplementedSheet,
+    [ActivityType.OPERATION_SQUARE_MULT_DIV]: NotImplementedSheet,
+    [ActivityType.SHAPE_SUDOKU]: NotImplementedSheet,
+    [ActivityType.WEIGHT_CONNECT]: AbcConnectSheet, // Reuse
+    [ActivityType.RESFEBE]: NotImplementedSheet,
+    [ActivityType.FUTOSHIKI_LENGTH]: NotImplementedSheet,
+    [ActivityType.MATCHSTICK_SYMMETRY]: NotImplementedSheet,
+    [ActivityType.WORD_WEB]: NotImplementedSheet,
+    [ActivityType.STAR_HUNT]: NotImplementedSheet,
+    [ActivityType.LENGTH_CONNECT]: AbcConnectSheet, // Reuse
+    [ActivityType.VISUAL_NUMBER_PATTERN]: NotImplementedSheet,
+    [ActivityType.MISSING_PARTS]: NotImplementedSheet,
+    [ActivityType.PROFESSION_CONNECT]: NotImplementedSheet,
+    [ActivityType.VISUAL_ODD_ONE_OUT_THEMED]: NotImplementedSheet,
+    [ActivityType.LOGIC_GRID_PUZZLE]: NotImplementedSheet,
+    [ActivityType.IMAGE_ANAGRAM_SORT]: NotImplementedSheet,
+    [ActivityType.ANAGRAM_IMAGE_MATCH]: NotImplementedSheet,
+    [ActivityType.SYLLABLE_WORD_SEARCH]: NotImplementedSheet,
+    [ActivityType.WORD_WEB_WITH_PASSWORD]: NotImplementedSheet,
+    [ActivityType.WORD_PLACEMENT_PUZZLE]: NotImplementedSheet,
+    [ActivityType.POSITIONAL_ANAGRAM]: NotImplementedSheet,
 };
 
 
@@ -1933,44 +2045,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
         return <Component data={sheetData} />;
     }
     // Fallback for any components that might still be missing in the map.
-    switch (activityType) {
-        case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE:
-             const colData = sheetData as ColumnOddOneOutSentenceData;
-            return (<div>
-                <h3 className="text-2xl font-bold mb-4 text-center">{colData.title}</h3>
-                <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{colData.prompt}</p>
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                    {(colData.columns || []).map((col, i) => (
-                        <div key={i} className="p-2 border rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                            {(col.words || []).map((word, j) => <p key={j} className="text-center p-1">{word}</p>)}
-                        </div>
-                    ))}
-                </div>
-                <p className="text-center italic mt-6">{colData.sentencePrompt}</p>
-                <div className="h-20 mt-2 border-2 border-dashed rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}></div>
-            </div>);
-        case ActivityType.TARGET_NUMBER:
-             const targetData = sheetData as TargetNumberData;
-            return (<div>
-                <h3 className="text-2xl font-bold mb-4 text-center">{targetData.title}</h3>
-                <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{targetData.prompt}</p>
-                <div className="space-y-4">
-                    {(targetData.puzzles || []).map((p, i) => (
-                        <div key={i} className="flex items-center gap-4 p-4 border rounded-lg" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                            <div className="text-center">
-                                <p className="font-bold text-lg">Hedef</p>
-                                <div className="w-16 h-16 flex items-center justify-center bg-red-500 text-white font-bold text-2xl rounded-full">{p.target}</div>
-                            </div>
-                            <div className="flex-1 flex gap-2 justify-center">
-                                {(p.givenNumbers || []).map((n, j) => <div key={j} className="w-12 h-12 flex items-center justify-center bg-zinc-200 dark:bg-zinc-600 font-bold text-xl rounded-md">{n}</div>)}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>);
-        default:
-             return <NotImplementedSheet type={activityType} />;
-    }
+    return <NotImplementedSheet type={activityType} />;
   };
 
   return (

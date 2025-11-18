@@ -18,7 +18,7 @@ const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedWorkshee
   };
 
   const groupedWorksheets = useMemo(() => {
-    const grouped = savedWorksheets.reduce((acc, ws) => {
+    const grouped = savedWorksheets.reduce((acc: Record<string, { title: string; worksheets: SavedWorksheet[] }>, ws) => {
       const categoryId = ws.category?.id || 'uncategorized';
       const categoryTitle = ws.category?.title || 'Kategorisiz';
       
@@ -30,6 +30,7 @@ const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedWorkshee
     }, {} as Record<string, { title: string; worksheets: SavedWorksheet[] }>);
 
     // Sort worksheets within each group by date (newest first)
+    // FIX: Added explicit type to 'acc' in reduce to solve type inference issue.
     Object.values(grouped).forEach(group => {
       group.worksheets.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     });
