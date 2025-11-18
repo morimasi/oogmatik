@@ -130,7 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     <i className={`fa-solid fa-chevron-down text-sm text-zinc-400 transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (
-                                    <ul className="pl-4 mt-1 space-y-1">
+                                    <ul className="mt-1 space-y-1 bg-white dark:bg-zinc-800 rounded-lg p-2 mx-2 shadow-sm border border-zinc-200/50 dark:border-zinc-700/50">
                                         {ACTIVITIES.filter(act => category.activities.includes(act.id)).map(activity => (
                                             <li key={`${activity.id}-${activity.title}`}>
                                                 <button
