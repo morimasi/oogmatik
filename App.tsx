@@ -183,11 +183,7 @@ const App: React.FC = () => {
               <i className="fa-solid fa-bars fa-lg"></i>
             </button>
              <button onClick={handleResetApp} className="flex-shrink-0 flex items-center" aria-label="Uygulamayı sıfırla">
-                <img 
-                  src="/a.jpg" 
-                  alt="Bursa Disleksi Merkezi Logo" 
-                  className="h-12 w-auto mr-3 hidden sm:block object-contain"
-                />
+                <img src="https://ai.studio/Capture.svg" alt="Bursa Disleksi Ai Logo" className="h-12 w-auto mr-3 filter dark:invert" />
             </button>
             <div>
                  <h1 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">

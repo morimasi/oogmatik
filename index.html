@@ -42,38 +42,6 @@
     font-family: 'OpenDyslexic', sans-serif !important;
   }
 
-  @keyframes logo-glow {
-    0%, 100% {
-      filter: drop-shadow(0 0 2px rgba(99, 102, 241, 0.4)); /* Faint indigo glow */
-    }
-    50% {
-      filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6)); /* Stronger violet glow */
-    }
-  }
-
-  @keyframes crossfade-b {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  @keyframes crossfade-d {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
-  }
-
-  .animated-logo {
-    animation: logo-glow 5s ease-in-out infinite;
-  }
-  
-  #stem-b {
-    animation: crossfade-b 5s infinite ease-in-out;
-  }
-  
-  #stem-d {
-    animation: crossfade-d 5s infinite ease-in-out;
-  }
-
-
   @media print {
     @page {
       size: A4;
