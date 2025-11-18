@@ -1,4 +1,6 @@
 
+
+
 import React, { CSSProperties } from 'react';
 import { 
     ActivityType, SingleWorksheetData, WordSearchData, AnagramData, MathPuzzleData, StoryData, 
@@ -1463,11 +1465,10 @@ const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConnectData
                             </g>
                         ))}
                         {(puzzle.points || []).map((p, i) => {
-                            // FIX: Cast `p` to a wider type to help TypeScript resolve the union of point types
-                            // which could otherwise be inferred as `never` or `unknown`.
+                            // FIX: Refactored the map function to use a block body and cast the iterated item 'p' to a wider type.
+                            // This helps TypeScript resolve the complex union of point types which was being inferred as 'never', causing an error on property access.
                             const point = p as { x: number; y: number; letter?: string; label?: string };
-                            {/* FIX: Error on line 2127: Type 'unknown' is not assignable to type 'ReactNode'. Fixed by ensuring the expression resolves to a string. */}
-                            const label = ('letter' in point ? point.letter : point.label) || '';
+                            const label = point.letter || point.label;
                             return (
                                 <text key={i} x={point.x * cellSize + cellSize / 2} y={point.y * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="font-bold text-sm fill-current">{label}</text>
                             )
@@ -2124,12 +2125,15 @@ const RoundingConnectSheet: React.FC<{data: RoundingConnectData | ArithmeticConn
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
         <p className="text-center font-semibold text-indigo-500 mb-6">{data.example}</p>
         <div className="relative w-full h-[400px] border-2 border-dashed rounded-lg p-4" style={{borderColor: 'var(--worksheet-border-color)'}}>
-            {('numbers' in data ? data.numbers : data.expressions).map((item, index) => (
-                <div key={index} className="absolute p-2 bg-amber-100 dark:bg-amber-800/50 rounded-lg" style={{left: `${item.x}%`, top: `${item.y}%`}}>
-                    {/* FIX: Corrected the type guard. 'value' is in both types, causing the else branch to be `never`. Checking for the unique 'text' property resolves this. */}
-                    {'text' in item ? item.text : item.value}
-                </div>
-            ))}
+            {('numbers' in data ? data.numbers : data.expressions).map((item, index) => {
+                // FIX: Cast `item` to a wider type to help TypeScript correctly infer properties from the union type.
+                const typedItem = item as { text?: string; value: number; x: number; y: number };
+                return (
+                    <div key={index} className="absolute p-2 bg-amber-100 dark:bg-amber-800/50 rounded-lg" style={{left: `${typedItem.x}%`, top: `${typedItem.y}%`}}>
+                        {typedItem.text ?? typedItem.value}
+                    </div>
+                );
+            })}
         </div>
     </div>
 );
@@ -2175,10 +2179,9 @@ const KendokuSheet: React.FC<{ data: KendokuData }> = ({ data }) => (
 )
 
 const OperationSquareSheet: React.FC<{data: OperationSquareSubtractionData | OperationSquareFillInData | OperationSquareMultDivData}> = ({data}) => {
-    // FIX: Error on line 1980: Type 'unknown' is not assignable to type 'ReactNode'. A type guard is used to help TypeScript infer the correct data type and prevent the 'unknown' type error.
-    const fillInPuzzle = 'puzzles' in data && data.puzzles?.[0] && 'numbersToUse' in data.puzzles[0] 
-        ? data as OperationSquareFillInData 
-        : null;
+    // FIX: Refactored the component to use a type-guarded variable to resolve a complex TypeScript inference issue where 'numbersToUse' was being treated as 'unknown'.
+    const isFillInPuzzle = 'puzzles' in data && !!data.puzzles?.[0] && 'numbersToUse' in (data as any).puzzles[0];
+    const fillInPuzzleData = isFillInPuzzle ? (data as OperationSquareFillInData) : null;
 
     return (
         <div>
@@ -2187,14 +2190,15 @@ const OperationSquareSheet: React.FC<{data: OperationSquareSubtractionData | Ope
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 justify-items-center">
                 {(data.puzzles || []).map((puzzle, index) => (
                     <div key={index} className="p-2 bg-white dark:bg-zinc-700/50 rounded-lg shadow-inner">
-                        <GridComponent grid={puzzle.grid} cellClassName="w-12 h-12" />
+                        {/* FIX: Cast `puzzle` to a type with a grid property to avoid type errors on union types. */}
+                        <GridComponent grid={(puzzle as {grid: (string | null)[][]}).grid} cellClassName="w-12 h-12" />
                     </div>
                 ))}
             </div>
-            {fillInPuzzle && fillInPuzzle.puzzles[0].numbersToUse && (
+            {fillInPuzzleData && fillInPuzzleData.puzzles[0].numbersToUse && (
                 <div className="mt-4 text-center">
                     <h4 className="font-semibold">Kullanılacak Sayılar:</h4>
-                    <p>{fillInPuzzle.puzzles[0].numbersToUse.join(', ')}</p>
+                    <p>{fillInPuzzleData.puzzles[0].numbersToUse.join(', ')}</p>
                 </div>
             )}
         </div>
