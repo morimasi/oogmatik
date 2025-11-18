@@ -15,12 +15,13 @@ import {
     TargetNumberData, OperationSquareMultDivData, FutoshikiData, ShapeSudokuData, WeightConnectData, PunctuationMazeData, AntonymResfebeData, ThematicWordSearchColorData, ThematicOddOneOutSentenceData, ProverbSentenceFinderData, SynonymSearchAndStoryData, ColumnOddOneOutSentenceData, SynonymAntonymColoringData, PunctuationPhoneNumberData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData, RomanNumeralMultiplicationData, ArithmeticConnectData, RomanArabicMatchConnectData, Sudoku6x6ShadedData, KendokuData, DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData, OperationSquareFillInData, MultiplicationWheelData, ResfebeData, FutoshikiLengthData, MatchstickSymmetryData, WordWebData, StarHuntData, LengthConnectData, VisualNumberPatternData, MissingPartsData, ProfessionConnectData,
     VisualOddOneOutThemedData, LogicGridPuzzleData, ImageAnagramSortData, AnagramImageMatchData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, CrosswordClue
 } from '../types';
+import { StyleSettings } from '../App';
 import Shape from './Shape';
 
 interface WorksheetProps {
   activityType: ActivityType | null;
   data: SingleWorksheetData[] | null;
-  styles: CSSProperties;
+  settings: StyleSettings;
 }
 
 // Helper Components
@@ -2444,7 +2445,6 @@ const componentMap: { [key in ActivityType]?: React.FC<any> } = {
     [ActivityType.MULTIPLICATION_PYRAMID]: NumberPyramidSheet,
     [ActivityType.OPERATION_SQUARE_SUBTRACTION]: OperationSquareSheet,
     [ActivityType.OPERATION_SQUARE_FILL_IN]: OperationSquareSheet,
-// FIX: Changed type references to component references for MultiplicationWheel and ShapeSudoku.
     [ActivityType.MULTIPLICATION_WHEEL]: MultiplicationWheelSheet,
     [ActivityType.OPERATION_SQUARE_MULT_DIV]: OperationSquareSheet,
     [ActivityType.SHAPE_SUDOKU]: ShapeSudokuSheet,
@@ -2469,11 +2469,34 @@ const componentMap: { [key in ActivityType]?: React.FC<any> } = {
 };
 
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => {
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
   if (!data || data.length === 0) {
-    return <div style={styles}></div>;
+    return <div></div>;
   }
   
+  const { fontSize, borderColor, borderWidth, dyslexiaFriendlyFont, layout, margin, pageView } = settings;
+
+  const worksheetStyles: CSSProperties = {
+    fontSize: `${fontSize}px`,
+    '--worksheet-border-color': borderColor,
+    '--worksheet-border-width': `${borderWidth}px`,
+    fontFamily: dyslexiaFriendlyFont ? "'Lexend', sans-serif" : "'Nunito Sans', sans-serif",
+  };
+
+  const getLayoutConfig = (l: typeof layout) => {
+    switch (l) {
+        case '1x2': return { chunkSize: 2, gridClasses: 'grid-cols-1 grid-rows-2' };
+        case '2x2': return { chunkSize: 4, gridClasses: 'grid-cols-2 grid-rows-2' };
+        default: return { chunkSize: 1, gridClasses: 'grid-cols-1 grid-rows-1' };
+    }
+  };
+
+  const { chunkSize, gridClasses } = getLayoutConfig(layout);
+  const chunkedData = [];
+  for (let i = 0; i < data.length; i += chunkSize) {
+      chunkedData.push(data.slice(i, i + chunkSize));
+  }
+
   const renderSingleSheet = (sheetData: SingleWorksheetData, activityType: ActivityType | null) => {
     if (!activityType) {
         return <div className="text-center p-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg">Etkinlik türü seçilmedi.</div>;
@@ -2485,11 +2508,23 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, styles }) => 
     return <div className="text-center p-8 bg-red-100 dark:bg-red-900/50 rounded-lg">Etkinlik için bileşen bulunamadı: {activityType}</div>;
   };
 
+  const pageViewClasses = pageView === 'double' ? 'md:grid-cols-2' : 'grid-cols-1';
+
   return (
-    <div className="worksheet-container" style={styles}>
-      {(data || []).map((sheetData, index) => (
-        <div key={index} className="worksheet-page p-8 bg-white dark:bg-zinc-800 rounded-xl shadow-lg mb-8 last:mb-0">
-          {renderSingleSheet(sheetData, activityType)}
+    <div className={`worksheet-container grid ${pageViewClasses} gap-8`} style={worksheetStyles}>
+      {chunkedData.map((chunk, index) => (
+        <div 
+          key={index} 
+          className="worksheet-page bg-white dark:bg-zinc-800 rounded-xl shadow-lg flex flex-col aspect-[1/1.414]"
+          style={{ padding: `${margin}px` }}
+        >
+          <div className={`grid h-full w-full gap-4 ${gridClasses}`}>
+            {chunk.map((sheetData, itemIndex) => (
+              <div key={itemIndex} className="overflow-hidden p-2 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg flex flex-col">
+                {renderSingleSheet(sheetData, activityType)}
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>

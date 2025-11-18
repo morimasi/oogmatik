@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import React from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
@@ -14,7 +14,6 @@ interface ContentAreaProps {
   error: string | null;
   styleSettings: StyleSettings;
   onStyleChange: (settings: StyleSettings) => void;
-  worksheetStyles: CSSProperties;
   onSave: (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => void;
   savedWorksheets: SavedWorksheet[];
   onLoadSaved: (worksheet: SavedWorksheet) => void;
@@ -40,7 +39,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   error,
   styleSettings,
   onStyleChange,
-  worksheetStyles,
   onSave,
   savedWorksheets,
   onLoadSaved,
@@ -75,7 +73,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </div>
           ) : worksheetData ? (
               <div className="printable-area">
-                <Worksheet activityType={activityType} data={worksheetData} styles={worksheetStyles} />
+                <Worksheet activityType={activityType} data={worksheetData} settings={styleSettings} />
               </div>
           ) : (
               <WelcomePlaceholder />
@@ -86,7 +84,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
   return (
     <main className="flex-1 bg-zinc-50 dark:bg-zinc-900 p-2 sm:p-6 overflow-y-auto">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {currentView === 'savedList' ? (
           <SavedWorksheetsView 
             savedWorksheets={savedWorksheets}

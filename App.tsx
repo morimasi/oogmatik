@@ -9,6 +9,9 @@ export interface StyleSettings {
   borderColor: string;
   borderWidth: number;
   dyslexiaFriendlyFont: boolean;
+  layout: '1x1' | '1x2' | '2x2';
+  margin: number;
+  pageView: 'single' | 'double';
 }
 
 export type View = 'generator' | 'savedList';
@@ -25,6 +28,9 @@ const App: React.FC = () => {
     borderColor: '#d4d4d8', // zinc-300
     borderWidth: 1,
     dyslexiaFriendlyFont: false,
+    layout: '1x1',
+    margin: 32, // p-8 tailwind değeri
+    pageView: 'single',
   });
   const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
 
@@ -82,20 +88,6 @@ const App: React.FC = () => {
     setWorksheetData(worksheet.worksheetData);
     setCurrentView('generator');
   };
-
-  const handleWorksheetStyle = (): CSSProperties => {
-    const styles: CSSProperties = {
-      fontSize: `${styleSettings.fontSize}px`,
-      '--worksheet-border-color': styleSettings.borderColor,
-      '--worksheet-border-width': `${styleSettings.borderWidth}px`,
-    };
-     if (styleSettings.dyslexiaFriendlyFont) {
-      styles.fontFamily = "'Lexend', sans-serif";
-    } else {
-      styles.fontFamily = "'Nunito Sans', sans-serif";
-    }
-    return styles;
-  }
 
   return (
     <div className="flex flex-col h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-sans">
@@ -162,7 +154,6 @@ const App: React.FC = () => {
           error={error}
           styleSettings={styleSettings}
           onStyleChange={setStyleSettings}
-          worksheetStyles={handleWorksheetStyle()}
           onSave={addSavedWorksheet}
           savedWorksheets={savedWorksheets}
           onLoadSaved={loadSavedWorksheet}
