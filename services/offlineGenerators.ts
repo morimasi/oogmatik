@@ -1,4 +1,4 @@
-// FIX: Removed static JSON imports to switch to a dynamic fetch-based approach.
+// FIX: Removed static JSON imports and embedded data directly to prevent file loading issues.
 import { 
     WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData, WorksheetData,
     SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, FindLetterPairData, MiniWordGridData,
@@ -8,38 +8,38 @@ import {
     SpiralPuzzleData
 } from '../types';
 
-// FIX: Switched to a fetch-based approach to avoid module resolution issues in different environments.
-// A simple cache to avoid re-fetching data.
-let cachedData: { wordlist: Record<string, string[]>, proverbs: string[] } | null = null;
+// Data is embedded to avoid file loading issues.
+const wordlist: Record<string, string[]> = {
+  "Hayvanlar": [
+    "kedi", "köpek", "aslan", "kaplan", "fil", "zürafa", "ayı", "kurt", "tilki", "tavşan", 
+    "maymun", "yılan", "balık", "kuş", "ördek", "at", "eşek", "deve", "fare", "sincap"
+  ],
+  "Meyveler": [
+    "elma", "armut", "kiraz", "çilek", "muz", "portakal", "kavun", "karpuz", "üzüm", "erik",
+    "şeftali", "kayısı", "incir", "nar", "mandalina", "limon", "ananas", "mango", "kivi", "dut"
+  ],
+  "Meslekler": [
+    "doktor", "öğretmen", "polis", "avukat", "mühendis", "hemşire", "itfaiyeci", "aşçı", "pilot", "asker",
+    "terzi", "berber", "şoför", "çiftçi", "marangoz", "ressam", "mimar", "hakim", "savcı", "eczacı"
+  ],
+  "Rastgele": [
+    "kitap", "kalem", "masa", "ev", "araba", "güneş", "ay", "yıldız", "su", "hava", "toprak", "ateş",
+    "okul", "sınıf", "tahta", "silgi", "defter", "çanta", "oyun", "park"
+  ]
+};
 
-async function loadData(): Promise<{ wordlist: Record<string, string[]>, proverbs: string[] }> {
-    if (cachedData) {
-        return cachedData;
-    }
-
-    try {
-        const [wordlistResponse, proverbsResponse] = await Promise.all([
-            fetch('/data/tr_wordlist.json'),
-            fetch('/data/proverbs.json')
-        ]);
-
-        if (!wordlistResponse.ok) {
-            throw new Error(`Failed to fetch tr_wordlist.json: ${wordlistResponse.status} ${wordlistResponse.statusText}`);
-        }
-        if (!proverbsResponse.ok) {
-            throw new Error(`Failed to fetch proverbs.json: ${proverbsResponse.status} ${proverbsResponse.statusText}`);
-        }
-
-        const wordlist = await wordlistResponse.json();
-        const proverbs = await proverbsResponse.json();
-
-        cachedData = { wordlist, proverbs };
-        return cachedData;
-    } catch (error) {
-        console.error("Çevrimdışı veri yüklenirken hata oluştu:", error);
-        throw new Error('Çevrimdışı mod için gerekli veri dosyaları yüklenemedi. Dosya yollarını kontrol edin.');
-    }
-}
+const proverbs: string[] = [
+  "Damlaya damlaya göl olur.",
+  "Sakla samanı, gelir zamanı.",
+  "Ayağını yorganına göre uzat.",
+  "Bugünün işini yarına bırakma.",
+  "Ağaç yaş iken eğilir.",
+  "Üzüm üzüme baka baka kararır.",
+  "Tatlı dil yılanı deliğinden çıkarır.",
+  "Bir elin nesi var, iki elin sesi var.",
+  "Ak akçe kara gün içindir.",
+  "Güneş balçıkla sıvanmaz."
+];
 
 
 // --- Yardımcı Fonksiyonlar ---
@@ -89,7 +89,6 @@ export interface OfflineGeneratorOptions {
 
 export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions): Promise<WordSearchData[]> => {
     const { topic, itemCount, gridSize, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const results: WordSearchData[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
 
@@ -142,7 +141,6 @@ export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions
 
 export const generateOfflineAnagrams = async (options: OfflineGeneratorOptions): Promise<(AnagramData[])[]> => {
     const { topic, itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const results: (AnagramData[])[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
 
@@ -156,17 +154,34 @@ export const generateOfflineAnagrams = async (options: OfflineGeneratorOptions):
 
 
 export const generateOfflineMathPuzzles = async (options: OfflineGeneratorOptions): Promise<MathPuzzleData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount, difficulty } = options;
     const objects = ['🍎', '🍌', '🍓', '🍇'];
+    
+    let valueMin = 1, valueMax = 5, ops = ['+'];
+    if (difficulty === 'Orta') {
+        valueMin = 1; valueMax = 10; ops = ['+', '-'];
+    } else if (difficulty === 'Zor') {
+        valueMin = 5; valueMax = 20; ops = ['+', '-'];
+    }
+
     const results: MathPuzzleData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const values = objects.map(() => getRandomInt(1, 10));
+        const values = objects.map(() => getRandomInt(valueMin, valueMax));
         const puzzles = Array.from({ length: itemCount }).map(() => {
-            const op = Math.random() > 0.5 ? '+' : '-';
+            const op = getRandomItems(ops, 1)[0];
             const [idx1, idx2] = [getRandomInt(0, 3), getRandomInt(0, 3)];
-            const answer = (op === '+' || values[idx1] >= values[idx2]) ? (op === '+' ? values[idx1] + values[idx2] : values[idx1] - values[idx2]) : values[idx2] - values[idx1];
-            const problem = (op === '+' || values[idx1] >= values[idx2]) ? `${objects[idx1]} ${op} ${objects[idx2]} = ?` : `${objects[idx2]} ${op} ${objects[idx1]} = ?`;
-            return { problem, question: `(İpucu: ${objects[idx1]}=${values[idx1]}, ${objects[idx2]}=${values[idx2]})`, answer: answer.toString() };
+            
+            let val1 = values[idx1];
+            let val2 = values[idx2];
+            let problemStr = `${objects[idx1]} ${op} ${objects[idx2]} = ?`;
+
+            if (op === '-' && val1 < val2) {
+                [val1, val2] = [val2, val1]; // Swap to avoid negative results
+                problemStr = `${objects[idx2]} ${op} ${objects[idx1]} = ?`;
+            }
+
+            const answer = op === '+' ? val1 + val2 : val1 - val2;
+            return { problem: problemStr, question: `(İpucu: ${objects[0]}=${values[0]}, ${objects[1]}=${values[1]}, ... )`, answer: answer.toString() };
         });
         results.push({ title: 'Meyveli Matematik', puzzles });
     }
@@ -174,19 +189,32 @@ export const generateOfflineMathPuzzles = async (options: OfflineGeneratorOption
 };
 
 export const generateOfflineFindTheDifference = async (options: OfflineGeneratorOptions): Promise<FindTheDifferenceData[]> => {
-    const { topic, itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
+    const { topic, itemCount, worksheetCount, difficulty } = options;
     const results: FindTheDifferenceData[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
     for (let i = 0; i < worksheetCount; i++) {
-        const words = getRandomItems(availableWords.filter(w => w.length > 3), itemCount);
+        const words = getRandomItems(availableWords.filter(w => w.length > 4), itemCount);
         const rows = words.map(word => {
             const correctIndex = getRandomInt(0, 3);
             const items = Array.from({ length: 4 }).map((_, k) => {
                 if (k === correctIndex) {
                     const chars = word.split('');
-                    const pos = getRandomInt(0, chars.length - 2);
-                    [chars[pos], chars[pos + 1]] = [chars[pos + 1], chars[pos]];
+                    if (difficulty === 'Kolay') {
+                        // Swap first and last letters - more obvious
+                        [chars[0], chars[chars.length - 1]] = [chars[chars.length - 1], chars[0]];
+                    } else if (difficulty === 'Orta') {
+                        // Swap two random, non-adjacent letters
+                        let pos1 = getRandomInt(0, chars.length - 1);
+                        let pos2 = getRandomInt(0, chars.length - 1);
+                        while (Math.abs(pos1 - pos2) <= 1) {
+                            pos2 = getRandomInt(0, chars.length - 1);
+                        }
+                        [chars[pos1], chars[pos2]] = [chars[pos2], chars[pos1]];
+                    } else { // Zor
+                        // Swap two adjacent letters - more subtle
+                        const pos = getRandomInt(0, chars.length - 2);
+                        [chars[pos], chars[pos + 1]] = [chars[pos + 1], chars[pos]];
+                    }
                     return chars.join('');
                 }
                 return word;
@@ -200,7 +228,6 @@ export const generateOfflineFindTheDifference = async (options: OfflineGenerator
 
 export const generateOfflineProverbFill = async (options: OfflineGeneratorOptions): Promise<ProverbFillData[]> => {
     const { itemCount, worksheetCount } = options;
-    const { proverbs } = await loadData();
     const results: ProverbFillData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const selectedProverbs = getRandomItems(proverbs, itemCount);
@@ -217,7 +244,6 @@ export const generateOfflineProverbFill = async (options: OfflineGeneratorOption
 
 export const generateOfflineSpellingCheck = async (options: OfflineGeneratorOptions): Promise<SpellingCheckData[]> => {
     const { topic, itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const results: SpellingCheckData[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
     for (let i = 0; i < worksheetCount; i++) {
@@ -237,7 +263,6 @@ export const generateOfflineSpellingCheck = async (options: OfflineGeneratorOpti
 
 export const generateOfflineOddOneOut = async (options: OfflineGeneratorOptions): Promise<OddOneOutData[]> => {
     const { itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const results: OddOneOutData[] = [];
     const categories = Object.keys(wordlist);
     for (let i = 0; i < worksheetCount; i++) {
@@ -254,7 +279,6 @@ export const generateOfflineOddOneOut = async (options: OfflineGeneratorOptions)
 
 export const generateOfflineWordComparison = async (options: OfflineGeneratorOptions): Promise<WordComparisonData[]> => {
     const { topic, itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const results: WordComparisonData[] = [];
     const availableWords = wordlist[topic] || wordlist.Rastgele;
     for (let i = 0; i < worksheetCount; i++) {
@@ -273,7 +297,6 @@ export const generateOfflineWordComparison = async (options: OfflineGeneratorOpt
 
 export const generateOfflineWordsInStory = async (options: OfflineGeneratorOptions): Promise<WordsInStoryData[]> => {
     const { itemCount, worksheetCount } = options;
-    const { wordlist, proverbs } = await loadData();
     const results: WordsInStoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const story = getRandomItems(proverbs, 3).join(' ');
@@ -289,7 +312,6 @@ export const generateOfflineWordsInStory = async (options: OfflineGeneratorOptio
 
 export const generateOfflineProverbSearch = async (options: OfflineGeneratorOptions): Promise<ProverbSearchData[]> => {
     const { gridSize, worksheetCount } = options;
-    const { proverbs } = await loadData();
     const results: ProverbSearchData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const proverb = getRandomItems(proverbs, 1)[0];
@@ -308,7 +330,6 @@ export const generateOfflineProverbSearch = async (options: OfflineGeneratorOpti
 
 export const generateOfflineReverseWord = async (options: OfflineGeneratorOptions): Promise<ReverseWordData[]> => {
     const { topic, itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const availableWords = wordlist[topic] || wordlist.Rastgele;
     return Array.from({ length: worksheetCount }).map(() => ({
         title: 'Kelimeleri Ters Çevir',
@@ -334,7 +355,6 @@ export const generateOfflineFindDuplicateInRow = async (options: OfflineGenerato
 
 export const generateOfflineWordGrouping = async (options: OfflineGeneratorOptions): Promise<WordGroupingData[]> => {
     const { worksheetCount } = options;
-    const { wordlist } = await loadData();
     const results: WordGroupingData[] = [];
     const allCategories = Object.keys(wordlist).filter(k => k !== 'Rastgele');
     for (let i = 0; i < worksheetCount; i++) {
@@ -347,7 +367,6 @@ export const generateOfflineWordGrouping = async (options: OfflineGeneratorOptio
 
 export const generateOfflineWordLadder = async (options: OfflineGeneratorOptions): Promise<WordLadderData[]> => {
     const { itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const fourLetterWords = Object.values(wordlist).flat().filter(w => w.length === 4);
     const results: WordLadderData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -362,7 +381,6 @@ export const generateOfflineWordLadder = async (options: OfflineGeneratorOptions
 
 export const generateOfflineWordFormation = async (options: OfflineGeneratorOptions): Promise<WordFormationData[]> => {
     const { itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const longWords = Object.values(wordlist).flat().filter(w => w.length >= 7 && w.length <= 9);
     const results: WordFormationData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -377,7 +395,6 @@ export const generateOfflineWordFormation = async (options: OfflineGeneratorOpti
 
 export const generateOfflineFindIdenticalWord = async (options: OfflineGeneratorOptions): Promise<FindIdenticalWordData[]> => {
     const { itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const availableWords = Object.values(wordlist).flat().filter(w => w.length > 4);
     const results: FindIdenticalWordData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -393,7 +410,6 @@ export const generateOfflineFindIdenticalWord = async (options: OfflineGenerator
 
 export const generateOfflineLetterBridge = async (options: OfflineGeneratorOptions): Promise<LetterBridgeData[]> => {
     const { itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const availableWords = Object.values(wordlist).flat();
     return Array.from({ length: worksheetCount }).map(() => ({
         title: 'Harf Köprüsü',
@@ -422,7 +438,6 @@ export const generateOfflineFindLetterPair = async (options: OfflineGeneratorOpt
 
 export const generateOfflineMiniWordGrid = async (options: OfflineGeneratorOptions): Promise<MiniWordGridData[]> => {
     const { worksheetCount } = options;
-    const { wordlist } = await loadData();
     const fourLetterWords = Object.values(wordlist).flat().filter(w => w.length === 4);
     const results: MiniWordGridData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -459,7 +474,7 @@ export const generateOfflineNumberPattern = async (options: OfflineGeneratorOpti
         title: 'Sayı Örüntüsü',
         patterns: Array.from({ length: itemCount }).map(() => {
             let start = getRandomInt(1, 10);
-            const step = difficulty === 'Kolay' ? getRandomInt(1, 5) : getRandomInt(2, 10);
+            const step = difficulty === 'Kolay' ? getRandomInt(1, 5) : (difficulty === 'Orta' ? getRandomInt(2, 10) : getRandomInt(5, 15));
             const sequence = [start];
             for (let k = 0; k < 4; k++) sequence.push(sequence[k] + step);
             const answer = sequence.pop()!.toString();
@@ -480,7 +495,6 @@ export const generateOfflineNumberSearch = async (options: OfflineGeneratorOptio
 
 export const generateOfflineSymbolCipher = async (options: OfflineGeneratorOptions): Promise<SymbolCipherData[]> => {
     const { itemCount, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const availableWords = Object.values(wordlist).flat().filter(w => w.length >= 4 && w.length <= 6);
     const results: SymbolCipherData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -496,28 +510,57 @@ export const generateOfflineSymbolCipher = async (options: OfflineGeneratorOptio
 };
 
 export const generateOfflineTargetNumber = async (options: OfflineGeneratorOptions): Promise<TargetNumberData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }).map(() => ({
         title: 'Hedef Sayı',
         prompt: 'Verilen sayıları ve dört işlemi (+, -, ×, ÷) kullanarak hedef sayıya ulaşın.',
         puzzles: Array.from({ length: 3 }).map(() => {
-            const nums = [getRandomInt(1, 10), getRandomInt(1, 10), getRandomInt(10, 25), getRandomInt(1, 25)];
-            const target = nums[0] + nums[2];
-            return { target, givenNumbers: shuffle(nums) };
+             if (difficulty === 'Kolay') {
+                const nums = [getRandomInt(1, 10), getRandomInt(1, 10), getRandomInt(1, 10), getRandomInt(1, 10)];
+                const target = nums[0] + nums[1];
+                return { target, givenNumbers: shuffle(nums) };
+            } else if (difficulty === 'Orta') {
+                const nums = [getRandomInt(1, 20), getRandomInt(1, 20), getRandomInt(1, 25), getRandomInt(1, 25)];
+                const target = nums[0] + nums[2];
+                return { target, givenNumbers: shuffle(nums) };
+            } else { // Zor
+                const nums = [getRandomInt(2, 10), getRandomInt(2, 10), getRandomInt(1, 25), getRandomInt(25, 100)];
+                const target = (nums[0] * nums[1]) + nums[2];
+                return { target, givenNumbers: shuffle(nums) };
+            }
         })
     }));
 };
 
 export const generateOfflineNumberPyramid = async (options: OfflineGeneratorOptions): Promise<NumberPyramidData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, difficulty } = options;
     const results: NumberPyramidData[] = [];
+
+    let baseSize = 4, baseMin = 1, baseMax = 10, blanks = 3;
+    if (difficulty === 'Orta') {
+        baseSize = 4; baseMin = 1; baseMax = 20; blanks = 4;
+    } else if (difficulty === 'Zor') {
+        baseSize = 5; baseMin = 5; baseMax = 25; blanks = 6;
+    }
+
     for (let i = 0; i < worksheetCount; i++) {
         const pyramids = Array.from({ length: 2 }).map((_, j) => {
-            const base = Array.from({ length: 4 }, () => getRandomInt(1, 15));
+            const base = Array.from({ length: baseSize }, () => getRandomInt(baseMin, baseMax));
             const rows: (number | null)[][] = [];
-            rows[3] = [...base];
-            for (let r = 2; r >= 0; r--) rows[r] = Array.from({ length: r + 1 }).map((_, c) => rows[r + 1][c]! + rows[r + 1][c + 1]!);
-            for (let k = 0; k < 4; k++) rows[getRandomInt(0, 3)][getRandomInt(0, rows[k % 4].length - 1)] = null;
+            rows[baseSize - 1] = [...base];
+            for (let r = baseSize - 2; r >= 0; r--) {
+                rows[r] = Array.from({ length: r + 1 }).map((_, c) => rows[r + 1][c]! + rows[r + 1][c + 1]!);
+            }
+            // Add blanks
+            let placedBlanks = 0;
+            while(placedBlanks < blanks) {
+                const r = getRandomInt(0, baseSize - 1);
+                const c = getRandomInt(0, rows[r].length - 1);
+                if(rows[r][c] !== null) {
+                    rows[r][c] = null;
+                    placedBlanks++;
+                }
+            }
             return { title: `${j + 1}. Piramit`, rows };
         });
         results.push({ title: 'Sayı Piramidi (Toplama)', prompt: 'Bir üstteki sayı, altındaki iki sayının toplamıdır.', pyramids });
@@ -546,7 +589,6 @@ export const generateOfflineFindDifferentString = async (options: OfflineGenerat
 
 export const generateOfflineStoryComprehension = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
     const { worksheetCount, topic } = options;
-    const { proverbs, wordlist } = await loadData();
     return Array.from({ length: worksheetCount }).map(() => {
         const story = getRandomItems(proverbs, 2).join(' ');
         const wordsInStory = Array.from(new Set(story.replace(/[.,]/g, '').toLowerCase().split(' ').filter(w => w.length > 3)));
@@ -572,7 +614,6 @@ export const generateOfflineLetterGridTest = async (options: OfflineGeneratorOpt
 
 export const generateOfflineWordMemory = async (options: OfflineGeneratorOptions): Promise<WordMemoryData[]> => {
     const { topic, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const availableWords = wordlist[topic] || wordlist.Rastgele;
     return Array.from({ length: worksheetCount }).map(() => {
         const wordsToMemorize = getRandomItems(availableWords, 8);
@@ -583,7 +624,6 @@ export const generateOfflineWordMemory = async (options: OfflineGeneratorOptions
 
 export const generateOfflineStoryCreationPrompt = async (options: OfflineGeneratorOptions): Promise<StoryCreationPromptData[]> => {
     const { topic, worksheetCount } = options;
-    const { wordlist } = await loadData();
     return Array.from({ length: worksheetCount }).map(() => ({
         title: "Hikaye Oluşturma", prompt: "Bu kelimelerle bir hikaye yazın.", keywords: getRandomItems(wordlist[topic] || wordlist.Rastgele, 5)
     }));
@@ -609,7 +649,6 @@ export const generateOfflineVisualMemory = async (options: OfflineGeneratorOptio
 
 export const generateOfflineStoryAnalysis = async (options: OfflineGeneratorOptions): Promise<StoryAnalysisData[]> => {
     const { worksheetCount } = options;
-    const { proverbs } = await loadData();
     return Array.from({ length: worksheetCount }).map(() => {
         const story = getRandomItems(proverbs, 2).join(' ');
         const targetWord = getRandomItems(story.replace(/[.,]/g, '').split(' '), 1)[0] || 'kelime';
@@ -619,7 +658,6 @@ export const generateOfflineStoryAnalysis = async (options: OfflineGeneratorOpti
 
 export const generateOfflineCoordinateCipher = async (options: OfflineGeneratorOptions): Promise<CoordinateCipherData[]> => {
     const { topic, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const availableWords = wordlist[topic] || wordlist.Rastgele;
     return Array.from({ length: worksheetCount }).map(() => {
         const grid = Array.from({ length: 6 }, () => Array.from({ length: 6 }, () => turkishAlphabet[getRandomInt(0, 28)]));
@@ -744,7 +782,6 @@ export const generateOfflineBurdonTest = async (options: OfflineGeneratorOptions
 // FIX: Implement missing offline generator for Syllable Completion to resolve error in Sidebar.tsx.
 export const generateOfflineSyllableCompletion = async (options: OfflineGeneratorOptions): Promise<SyllableCompletionData[]> => {
     const { topic, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const availableWords = (wordlist[topic] || wordlist.Rastgele).filter(w => w.length > 4);
     return Array.from({ length: worksheetCount }).map(() => {
         const words = getRandomItems(availableWords, 5);
@@ -793,7 +830,6 @@ export const generateOfflineHomonymSentenceWriting = async (options: OfflineGene
 
 // FIX: Correct the type of 'items' by adding 'as const' to string literals to satisfy the strict union type. Also, shuffle the items for a better user experience.
 export const generateOfflineProverbSayingSort = async (options: OfflineGeneratorOptions): Promise<ProverbSayingSortData[]> => {
-    const { proverbs } = await loadData();
     return Array.from({ length: options.worksheetCount }).map(() => ({
         title: 'Atasözü mü Özdeyiş mi?', prompt: 'Cümleleri doğru kategoriye ayırın.',
         items: shuffle([
@@ -821,7 +857,6 @@ export const generateOfflineAntonymFlowerPuzzle = async (options: OfflineGenerat
 };
 
 export const generateOfflineProverbWordChain = async (options: OfflineGeneratorOptions): Promise<ProverbWordChainData[]> => {
-    const { proverbs } = await loadData();
     const proverb = getRandomItems(proverbs, 1)[0];
     return Array.from({ length: options.worksheetCount }).map(() => ({
         title: 'Atasözü Zinciri', prompt: 'Kelimeleri birleştirerek atasözünü oluşturun.',
@@ -850,10 +885,9 @@ export const generateOfflineThematicWordSearchColor = generateOfflineWordSearch;
 export const generateOfflineThematicOddOneOut = async (options: OfflineGeneratorOptions): Promise<ThematicOddOneOutData[]> => {
     const { topic, itemCount, worksheetCount } = options;
     // FIX: Explicitly type `wordlist` to satisfy TypeScript's strict type checking.
-    const { wordlist }: { wordlist: Record<string, string[]> } = await loadData();
-    const results: ThematicOddOneOutData[] = [];
     const categories = Object.keys(wordlist).filter(k => k !== topic && k !== 'Rastgele');
 
+    const results: ThematicOddOneOutData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const rows = Array.from({ length: itemCount }).map(() => {
             const mainWords = getRandomItems(wordlist[topic] || wordlist.Rastgele, 3);
@@ -887,7 +921,6 @@ export const generateOfflinePunctuationSpiralPuzzle = generateOfflineSpiralPuzzl
 // FIX: Implemented the missing `generateOfflineJumbledWordStory` function.
 export const generateOfflineJumbledWordStory = async (options: OfflineGeneratorOptions): Promise<JumbledWordStoryData[]> => {
     const { topic, worksheetCount } = options;
-    const { wordlist } = await loadData();
     const availableWords = wordlist[topic] || wordlist.Rastgele;
     return Array.from({ length: worksheetCount }).map(() => {
         const puzzles = getRandomItems(availableWords, 5).map(word => ({
@@ -930,9 +963,87 @@ export const generateOfflineSudoku6x6Shaded = createSimpleGenerator('Gölgeli Su
 
 export const generateOfflineKendoku = createSimpleGenerator('Kendoku');
 
-export const generateOfflineDivisionPyramid = createSimpleGenerator('Bölme Piramidi');
+export const generateOfflineDivisionPyramid = async (options: OfflineGeneratorOptions): Promise<DivisionPyramidData[]> => {
+    const { worksheetCount, difficulty } = options;
+    
+    let topMin = 20, topMax = 50, rows = 3;
+    if (difficulty === 'Orta') {
+        topMin = 50; topMax = 150; rows = 4;
+    } else if (difficulty === 'Zor') {
+        topMin = 100; topMax = 300; rows = 4;
+    }
 
-export const generateOfflineMultiplicationPyramid = createSimpleGenerator('Çarpma Piramidi');
+    return Array.from({ length: worksheetCount }).map(() => {
+        // Build from top down to ensure divisibility
+        const buildPyramid = () => {
+            while(true) {
+                try {
+                    const pyramid: number[][] = Array.from({length: rows}, () => []);
+                    let top = getRandomInt(topMin, topMax);
+                    while (top % 2 !== 0 && top > topMin) top--; // Prefer even top numbers
+                    pyramid[0] = [top];
+
+                    for (let r = 0; r < rows - 1; r++) {
+                        pyramid[r+1] = Array(r+2);
+                        for (let c = 0; c < pyramid[r].length; c++) {
+                            const num = pyramid[r][c];
+                            const divisors = [];
+                            for (let k = 2; k < num / 2; k++) {
+                                if (num % k === 0) divisors.push(k);
+                            }
+                            if (divisors.length === 0) throw new Error("No divisors");
+                            
+                            const div = getRandomItems(divisors, 1)[0];
+                            pyramid[r+1][c] = div;
+                            pyramid[r+1][c+1] = num / div;
+                        }
+                    }
+                    return pyramid;
+                } catch(e) {
+                    // try again
+                }
+            }
+        };
+
+        const pyramidData = buildPyramid();
+        const pyramidWithBlanks: (number | null)[][] = pyramidData.map(r => [...r]);
+        pyramidWithBlanks[0][0] = null; // Blank top
+        pyramidWithBlanks[1][getRandomInt(0,1)] = null; // Blank second row
+
+        return {
+            title: 'Bölme Piramidi',
+            prompt: 'Üstteki sayı, altındaki iki sayının çarpımıdır.',
+            pyramids: [{ rows: pyramidWithBlanks }]
+        }
+    });
+};
+
+export const generateOfflineMultiplicationPyramid = async (options: OfflineGeneratorOptions): Promise<MultiplicationPyramidData[]> => {
+    const { worksheetCount, difficulty } = options;
+
+    let baseSize = 3, baseMin = 1, baseMax = 5;
+    if (difficulty === 'Orta') {
+        baseSize = 4; baseMin = 1; baseMax = 6;
+    } else if (difficulty === 'Zor') {
+        baseSize = 4; baseMin = 2; baseMax = 7;
+    }
+
+    return Array.from({ length: worksheetCount }).map(() => ({
+        title: 'Çarpma Piramidi',
+        prompt: 'Üstteki sayı, altındaki iki sayının çarpımıdır.',
+        pyramids: Array.from({length: 2}).map(() => {
+            const base = Array.from({ length: baseSize }, () => getRandomInt(baseMin, baseMax));
+            const rows: (number | null)[][] = [];
+            rows[baseSize - 1] = [...base];
+             for (let r = baseSize - 2; r >= 0; r--) {
+                rows[r] = Array.from({ length: r + 1 }).map((_, c) => rows[r + 1][c]! * rows[r + 1][c + 1]!);
+            }
+            rows[0][0] = null; // Always hide the top
+            rows[baseSize-1][getRandomInt(0, baseSize-1)] = null; // Hide one from base
+            return { rows };
+        })
+    }));
+};
 
 export const generateOfflineOperationSquareSubtraction = createSimpleGenerator('Çıkarma İşlem Karesi');
 
