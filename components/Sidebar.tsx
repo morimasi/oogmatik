@@ -23,6 +23,11 @@ const getActivityById = (id: ActivityType | null): Activity | undefined => {
     return ACTIVITIES.find(a => a.id === id);
 }
 
+// Helper to convert CONSTANT_CASE to PascalCase (e.g. WORD_SEARCH -> WordSearch)
+const toPascalCase = (str: string): string => {
+    return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+};
+
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
   closeSidebar,
@@ -44,9 +49,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
     try {
         let result: WorksheetData;
-        const generatorFunctionName = `generate${selectedActivity.charAt(0).toUpperCase() + selectedActivity.slice(1).replace(/_\w/g, (m) => m[1].toUpperCase())}FromAI`;
-        const offlineGeneratorFunctionName = `generateOffline${selectedActivity.charAt(0).toUpperCase() + selectedActivity.slice(1).replace(/_\w/g, (m) => m[1].toUpperCase())}`;
         
+        // Correctly format the function names based on the ActivityType enum
+        const pascalCaseName = toPascalCase(selectedActivity);
+        const generatorFunctionName = `generate${pascalCaseName}FromAI`;
+        const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
+        
+        console.log(`Generating ${selectedActivity} using mode: ${options.mode}`);
+        console.log(`Function names: AI=${generatorFunctionName}, Offline=${offlineGeneratorFunctionName}`);
+
         if (options.mode === 'ai') {
             const onlineGenerator = (generators as any)[generatorFunctionName];
             if (onlineGenerator) {
@@ -59,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             if (offlineGenerator) {
                 result = await offlineGenerator(options);
             } else {
-                 throw new Error(`Hızlı mod için "${getActivityById(selectedActivity)?.title}" etkinliği henüz desteklenmiyor.`);
+                 throw new Error(`Hızlı mod için "${getActivityById(selectedActivity)?.title}" (${offlineGeneratorFunctionName}) etkinliği henüz desteklenmiyor.`);
             }
         }
         

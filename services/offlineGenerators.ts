@@ -1,5 +1,4 @@
 
-// FIX: Removed static JSON imports and embedded data directly to prevent file loading issues.
 import { 
     WorksheetData, WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData,
     SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, FindLetterPairData, MiniWordGridData,
@@ -7,12 +6,12 @@ import {
     ShapeNumberPatternData,
     SynonymWordSearchData,
     SpiralPuzzleData,
-// FIX: Imported missing types to resolve compilation errors.
     OperationSquareMultDivData,
     WeightConnectData
 } from '../types';
 
-// Data is embedded to avoid file loading issues.
+// --- Embedded Data Sources ---
+
 const wordlist: Record<string, string[]> = {
   "Hayvanlar": [
     "kedi", "köpek", "aslan", "kaplan", "fil", "zürafa", "ayı", "kurt", "tilki", "tavşan", 
@@ -45,12 +44,15 @@ const proverbs: string[] = [
   "Güneş balçıkla sıvanmaz."
 ];
 
-// --- Helper Data ---
-const synonymMap: Record<string, string> = { "hızlı": "süratli", "yavaş": "ağır", "güzel": "hoş", "cevap": "yanıt", "soru": "sual", "öğrenci": "talebe", "doktor": "hekim", "ev": "konut", "kırmızı": "al", "siyah": "kara" };
-const antonymMap: Record<string, string> = { "iyi": "kötü", "uzun": "kısa", "sıcak": "soğuk", "dolu": "boş", "açık": "kapalı", "temiz": "kirli", "zengin": "fakir", "kolay": "zor", "güzel": "çirkin", "gel": "git" };
+const turkishAlphabet = 'abcçdefgğhıijklmnoöprsştuüvyz';
+const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
+const EMOJIS = ["🍎 Elma", "🚗 Araba", "🏠 Ev", "⭐ Yıldız", "🎈 Balon", "📚 Kitap", "⚽ Top", "☀️ Güneş", "🌙 Ay", "🌲 Ağaç", "🌺 Çiçek", "🎁 Hediye", "⏰ Saat", "🔑 Anahtar", "🚲 Bisiklet", "🎸 Gitar"];
+const COLORS = [
+    { name: 'KIRMIZI', css: 'red' }, { name: 'MAVİ', css: 'blue' }, { name: 'YEŞİL', css: 'green' }, { name: 'SARI', css: 'yellow' },
+    { name: 'TURUNCU', css: 'orange' }, { name: 'MOR', css: 'purple' }, { name: 'PEMBE', css: 'pink' }, { name: 'SİYAH', css: 'black' },
+];
 
-
-// --- Yardımcı Fonksiyonlar ---
+// --- Helper Functions ---
 
 const shuffle = <T>(array: T[]): T[] => {
     const newArray = [...array];
@@ -71,15 +73,7 @@ const getRandomItems = <T>(arr: T[], count: number): T[] => {
     return shuffle(arr).slice(0, count);
 };
 
-const turkishAlphabet = 'abcçdefgğhıijklmnoöprsştuüvyz';
-const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
-const EMOJIS = ["🍎 Elma", "🚗 Araba", "🏠 Ev", "⭐ Yıldız", "🎈 Balon", "📚 Kitap", "⚽ Top", "☀️ Güneş", "🌙 Ay", "🌲 Ağaç", "🌺 Çiçek", "🎁 Hediye", "⏰ Saat", "🔑 Anahtar", "🚲 Bisiklet", "🎸 Gitar"];
-const COLORS = [
-    { name: 'KIRMIZI', css: 'red' }, { name: 'MAVİ', css: 'blue' }, { name: 'YEŞİL', css: 'green' }, { name: 'SARI', css: 'yellow' },
-    { name: 'TURUNCU', css: 'orange' }, { name: 'MOR', css: 'purple' }, { name: 'PEMBE', css: 'pink' }, { name: 'SİYAH', css: 'black' },
-];
-
-// --- Üretici Seçenekleri Arayüzü ---
+// --- Generator Options Interface ---
 
 export interface OfflineGeneratorOptions {
     topic: string;
@@ -93,7 +87,7 @@ export interface OfflineGeneratorOptions {
     distractorChar?: string;
 }
 
-// --- Üretici Fonksiyonları (Mevcut ve Güncellenmiş) ---
+// --- Generator Functions ---
 
 export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions): Promise<WordSearchData[]> => {
     const { topic, itemCount, gridSize, worksheetCount } = options;
@@ -108,22 +102,22 @@ export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions
             let placed = false;
             let attempts = 0;
             while (!placed && attempts < 50) {
-                const direction = Math.floor(Math.random() * 3); // 0: yatay, 1: dikey, 2: çapraz
-                if (direction === 0) { // Yatay
+                const direction = Math.floor(Math.random() * 3); // 0: horizontal, 1: vertical, 2: diagonal
+                if (direction === 0) { 
                     const row = getRandomInt(0, gridSize - 1);
                     const col = getRandomInt(0, gridSize - word.length);
                     if (Array.from({ length: word.length }).every((_, k) => grid[row][col + k] === '' || grid[row][col + k] === word[k])) {
                         for (let k = 0; k < word.length; k++) grid[row][col + k] = word[k];
                         placed = true;
                     }
-                } else if (direction === 1) { // Dikey
+                } else if (direction === 1) { 
                     const row = getRandomInt(0, gridSize - word.length);
                     const col = getRandomInt(0, gridSize - 1);
                     if (Array.from({ length: word.length }).every((_, k) => grid[row + k][col] === '' || grid[row + k][col] === word[k])) {
                         for (let k = 0; k < word.length; k++) grid[row + k][col] = word[k];
                         placed = true;
                     }
-                } else { // Çapraz
+                } else { 
                      const row = getRandomInt(0, gridSize - word.length);
                      const col = getRandomInt(0, gridSize - word.length);
                      if (Array.from({ length: word.length }).every((_, k) => grid[row + k][col + k] === '' || grid[row + k][col + k] === word[k])) {
@@ -146,7 +140,6 @@ export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions
     return results;
 };
 
-
 export const generateOfflineAnagrams = async (options: OfflineGeneratorOptions): Promise<(AnagramData[])[]> => {
     const { topic, itemCount, worksheetCount } = options;
     const results: (AnagramData[])[] = [];
@@ -159,7 +152,6 @@ export const generateOfflineAnagrams = async (options: OfflineGeneratorOptions):
     }
     return results;
 };
-
 
 export const generateOfflineMathPuzzles = async (options: OfflineGeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
@@ -208,18 +200,15 @@ export const generateOfflineFindTheDifference = async (options: OfflineGenerator
                 if (k === correctIndex) {
                     const chars = word.split('');
                     if (difficulty === 'Kolay') {
-                        // Swap first and last letters - more obvious
                         [chars[0], chars[chars.length - 1]] = [chars[chars.length - 1], chars[0]];
                     } else if (difficulty === 'Orta') {
-                        // Swap two random, non-adjacent letters
                         let pos1 = getRandomInt(0, chars.length - 1);
                         let pos2 = getRandomInt(0, chars.length - 1);
                         while (Math.abs(pos1 - pos2) <= 1) {
                             pos2 = getRandomInt(0, chars.length - 1);
                         }
                         [chars[pos1], chars[pos2]] = [chars[pos2], chars[pos1]];
-                    } else { // Zor
-                        // Swap two adjacent letters - more subtle
+                    } else { 
                         const pos = getRandomInt(0, chars.length - 2);
                         [chars[pos], chars[pos + 1]] = [chars[pos + 1], chars[pos]];
                     }
@@ -234,7 +223,7 @@ export const generateOfflineFindTheDifference = async (options: OfflineGenerator
     return results;
 };
 
-export const generateOfflineProverbFill = async (options: OfflineGeneratorOptions): Promise<ProverbFillData[]> => {
+export const generateOfflineProverbFillInTheBlank = async (options: OfflineGeneratorOptions): Promise<ProverbFillData[]> => {
     const { itemCount, worksheetCount } = options;
     const results: ProverbFillData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -249,6 +238,8 @@ export const generateOfflineProverbFill = async (options: OfflineGeneratorOption
     }
     return results;
 };
+// Alias for compatibility
+export const generateOfflineProverbFill = generateOfflineProverbFillInTheBlank;
 
 export const generateOfflineSpellingCheck = async (options: OfflineGeneratorOptions): Promise<SpellingCheckData[]> => {
     const { topic, itemCount, worksheetCount } = options;
@@ -305,8 +296,6 @@ export const generateOfflineWordComparison = async (options: OfflineGeneratorOpt
     }
     return results;
 };
-
-// FIX: Added all missing offline generator function stubs to resolve export errors.
 
 export const generateOfflineStoryComprehension = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
     const { worksheetCount } = options;
@@ -488,7 +477,7 @@ export const generateOfflineFindIdenticalWord = async (options: OfflineGenerator
     for (let i = 0; i < worksheetCount; i++) {
         results.push({
             title: 'Aynısını Bul (Çevrimdışı)',
-            groups: Array.from({ length: itemCount }).map(() => ({ words: ['benzer', 'benzeş'] })),
+            groups: Array.from({ length: itemCount }).map(() => ({ words: ['benzer', 'benzeş'] as [string, string] })),
         });
     }
     return results;
@@ -548,9 +537,6 @@ export const generateOfflineStoryAnalysis = async (options: OfflineGeneratorOpti
     }
     return results;
 };
-
-// --- START OF MISSING FUNCTION STUBS ---
-// The following functions are placeholders to resolve missing export errors.
 
 export const generateOfflineFindDuplicateInRow = async (options: OfflineGeneratorOptions): Promise<FindDuplicateData[]> => {
     const { itemCount, worksheetCount } = options;
