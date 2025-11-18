@@ -1,6 +1,7 @@
 
 
 
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -119,6 +120,8 @@ export enum ActivityType {
   WORD_PLACEMENT_PUZZLE = 'WORD_PLACEMENT_PUZZLE',
   POSITIONAL_ANAGRAM = 'POSITIONAL_ANAGRAM',
 }
+
+export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel';
 
 export interface Activity {
   id: ActivityType;

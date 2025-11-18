@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
@@ -10,7 +11,7 @@ import {
 
 const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
 
-export const generateNumberPatternsFromAI = async (options: OfflineGeneratorOptions): Promise<NumberPatternData[]> => {
+export const generateNumberPatternFromAI = async (options: OfflineGeneratorOptions): Promise<NumberPatternData[]> => {
     const { itemCount: count, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, ${count} tane sayı örüntüsü bulmacası oluştur.

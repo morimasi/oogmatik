@@ -1,9 +1,10 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
 import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbSayingSortData, ProverbWordChainData } from '../../types';
 
-export const generateStoryFromAI = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
+export const generateStoryComprehensionFromAI = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
     const { topic, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda 100-150 kelimelik kısa ve basit bir Türkçe hikaye yaz. 

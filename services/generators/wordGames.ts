@@ -1,15 +1,16 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
 import {
-    WordSearchData, AnagramData, SpellingCheckData, WordComparisonData, ProverbFillData, LetterBridgeData, WordLadderData,
+    WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData,
+    SynonymWordSearchData, SynonymSearchAndStoryData, AnagramData, SpellingCheckData, LetterBridgeData, WordLadderData,
     WordFormationData, ReverseWordData, WordGroupingData, MiniWordGridData, PasswordFinderData, SyllableCompletionData,
-    SynonymWordSearchData, SpiralPuzzleData, CrosswordData, JumbledWordStoryData, HomonymSentenceData, WordGridPuzzleData,
-    HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, PunctuationColoringData, AntonymResfebeData,
-    ThematicWordSearchColorData, ProverbSentenceFinderData, PunctuationSpiralPuzzleData, SynonymAntonymColoringData,
-    ThematicJumbledWordStoryData, SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData,
-    WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData,
-    PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ProverbSearchData
+    SpiralPuzzleData, PunctuationSpiralPuzzleData, CrosswordData, CrosswordClue, JumbledWordStoryData, ThematicJumbledWordStoryData, HomonymSentenceData,
+    WordGridPuzzleData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, PunctuationColoringData, AntonymResfebeData,
+    ProverbSentenceFinderData, SynonymAntonymColoringData,
+    SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordWebWithPasswordData,
+    WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ProverbFillData, WordComparisonData
 } from '../../types';
 
 
@@ -66,7 +67,7 @@ export const generateProverbSearchFromAI = async (options: OfflineGeneratorOptio
   return generateWithSchema(prompt, schema) as Promise<ProverbSearchData[]>;
 };
 
-export const generateAnagramsFromAI = async (options: OfflineGeneratorOptions): Promise<(AnagramData[])[]> => {
+export const generateAnagramFromAI = async (options: OfflineGeneratorOptions): Promise<(AnagramData[])[]> => {
   const { topic, itemCount: wordCount, difficulty, worksheetCount } = options;
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun, ${topic} konusuyla ilgili, her biri ${wordCount} tane Türkçe kelime ve bu kelimelerin karıştırılmış (anagram) hallerini içeren ${worksheetCount} tane çalışma sayfası oluştur.
@@ -95,7 +96,7 @@ export const generateAnagramsFromAI = async (options: OfflineGeneratorOptions): 
    return generateWithSchema(prompt, schema) as Promise<(AnagramData[])[]>;
 };
 
-export const generateSpellingChecksFromAI = async (options: OfflineGeneratorOptions): Promise<SpellingCheckData[]> => {
+export const generateSpellingCheckFromAI = async (options: OfflineGeneratorOptions): Promise<SpellingCheckData[]> => {
     const { topic, itemCount: count, difficulty, worksheetCount } = options;
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun, Türkçede sıkça yanlış yazılan ${count} kelime bul.
@@ -148,7 +149,7 @@ export const generateWordComparisonFromAI = async (options: OfflineGeneratorOpti
   return generateWithSchema(prompt, schema) as Promise<WordComparisonData[]>;
 };
 
-export const generateProverbFillFromAI = async (options: OfflineGeneratorOptions): Promise<ProverbFillData[]> => {
+export const generateProverbFillInTheBlankFromAI = async (options: OfflineGeneratorOptions): Promise<ProverbFillData[]> => {
   const { itemCount: count, difficulty, worksheetCount } = options;
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun ${count} tane Türkçe atasözü seç. Her atasözünde bir kelimeyi eksik bırak.
@@ -529,7 +530,7 @@ export const generateJumbledWordStoryFromAI = async (options: OfflineGeneratorOp
     return generateWithSchema(prompt, schema) as Promise<JumbledWordStoryData[]>;
 };
 
-export const generateHomonymSentenceFromAI = async (options: OfflineGeneratorOptions): Promise<HomonymSentenceData[]> => {
+export const generateHomonymSentenceWritingFromAI = async (options: OfflineGeneratorOptions): Promise<HomonymSentenceData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a homonym (eş sesli) sentence writing activity, appropriate for difficulty level "${difficulty}". Provide 4 Turkish homonym words. For each word, provide a detailed English image generation prompt to visually represent one of its meanings. The user's task is to write two different sentences for each word. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.

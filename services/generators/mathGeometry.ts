@@ -1,9 +1,10 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
 import { MathPuzzleData, ShapeCountingData, MatchstickSymmetryData } from '../../types';
 
-export const generateMathPuzzlesFromAI = async (options: OfflineGeneratorOptions): Promise<MathPuzzleData[]> => {
+export const generateMathPuzzleFromAI = async (options: OfflineGeneratorOptions): Promise<MathPuzzleData[]> => {
   const { topic, itemCount: count, difficulty, worksheetCount } = options;
   const prompt = `
     "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, '${topic}' konusuyla ilgili ${count} tane basit matematik bulmacası içeren bir çalışma sayfası oluştur.

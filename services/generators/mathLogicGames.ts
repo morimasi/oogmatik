@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
@@ -426,7 +427,7 @@ export const generateOperationSquareSubtractionFromAI = async(options: OfflineGe
     return generateWithSchema(prompt, schema) as Promise<OperationSquareSubtractionData[]>;
 }
 
-export const generateOperationSquareFillInDataFromAI = async(options: OfflineGeneratorOptions): Promise<OperationSquareFillInData[]> => {
+export const generateOperationSquareFillInFromAI = async(options: OfflineGeneratorOptions): Promise<OperationSquareFillInData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a 3x3 operation square fill-in puzzle appropriate for difficulty level "${difficulty}". Provide an empty grid with operations, a list of numbers to use, and the results for rows/columns. The user must place the numbers correctly. Generate a worksheet with 2 puzzles. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.

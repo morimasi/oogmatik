@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { OfflineGeneratorOptions } from '../offlineGenerators';
@@ -89,7 +90,7 @@ export const generateNumberSearchFromAI = async (options: OfflineGeneratorOption
     return generateWithSchema(prompt, schema) as Promise<NumberSearchData[]>;
 };
 
-export const generateFindDuplicateFromAI = async (options: OfflineGeneratorOptions): Promise<FindDuplicateData[]> => {
+export const generateFindTheDuplicateInRowFromAI = async (options: OfflineGeneratorOptions): Promise<FindDuplicateData[]> => {
   const { itemCount: rows, difficulty, worksheetCount } = options;
   const cols = 15;
   const prompt = `
@@ -111,7 +112,7 @@ export const generateFindDuplicateFromAI = async (options: OfflineGeneratorOptio
   return generateWithSchema(prompt, schema) as Promise<FindDuplicateData[]>;
 };
 
-export const generateLetterGridFromAI = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
+export const generateLetterGridTestFromAI = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
     const { gridSize, difficulty, worksheetCount, targetLetters } = options;
     const letters = targetLetters || 'b,d,p,q';
     const targetLettersArray = letters.split(',').map(l => l.trim().toLowerCase());
@@ -296,10 +297,10 @@ export const generateCharacterMemoryFromAI = async (options: OfflineGeneratorOpt
 };
 
 export const generateBurdonTestFromAI = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
-    return generateLetterGridFromAI({ ...options, gridSize: 20, targetLetters: 'a,b,d,g' });
+    return generateLetterGridTestFromAI({ ...options, gridSize: 20, targetLetters: 'a,b,d,g' });
 };
 
-export const generateSynonymSearchAndStoryFromAI = async(options: OfflineGeneratorOptions): Promise<SynonymSearchAndStoryData[]> => {
+export const generateSynonymSearchStoryFromAI = async(options: OfflineGeneratorOptions): Promise<SynonymSearchAndStoryData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a "Synonym Search and Story" activity appropriate for difficulty level "${difficulty}". Provide a table of 6 Turkish words and their synonyms. Create a 12x12 grid and hide the synonyms. Finally, provide a prompt for the user to write a story using the original words. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
