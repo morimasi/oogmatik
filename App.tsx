@@ -9,7 +9,6 @@ export interface StyleSettings {
   fontSize: number;
   borderColor: string;
   borderWidth: number;
-  layout: '1x1' | '1x2' | '2x2';
   margin: number;
   pageView: 'single' | 'double';
 }
@@ -18,7 +17,6 @@ const initialStyleSettings: StyleSettings = {
     fontSize: 16,
     borderColor: '#d4d4d8', // zinc-300
     borderWidth: 1,
-    layout: '1x1',
     margin: 32, // p-8 tailwind değeri
     pageView: 'single',
 };

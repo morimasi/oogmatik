@@ -1,10 +1,12 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
+import { OfflineGeneratorOptions } from '../offlineGenerators';
 import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbSayingSortData, ProverbWordChainData } from '../../types';
 
-export const generateStoryFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<StoryData[]> => {
+export const generateStoryFromAI = async (options: OfflineGeneratorOptions): Promise<StoryData[]> => {
+    const { topic, difficulty, worksheetCount } = options;
     const prompt = `
-    "${difficultyLevel}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda 100-150 kelimelik kısa ve basit bir Türkçe hikaye yaz. 
+    "${difficulty}" zorluk seviyesindeki bir çocuk için '${topic}' konusunda 100-150 kelimelik kısa ve basit bir Türkçe hikaye yaz. 
     Hikayenin bir başlığı olsun.
     Hikayeden sonra, hikayeyle ilgili 3 tane çoktan seçmeli anlama sorusu oluştur. 
     Her soru için 3 seçenek sun ve doğru seçeneğin indeksini (0, 1 veya 2) belirt.
@@ -35,9 +37,10 @@ export const generateStoryFromAI = async (topic: string, difficultyLevel: string
   return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
 };
 
-export const generateStoryAnalysisFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<StoryAnalysisData[]> => {
+export const generateStoryAnalysisFromAI = async (options: OfflineGeneratorOptions): Promise<StoryAnalysisData[]> => {
+  const { topic, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda ve "${difficultyLevel}" zorluk seviyesine uygun, içinde eş ve zıt anlamlı kelimeler barındıran 150-200 kelimelik bir hikaye yaz.
+    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun, içinde eş ve zıt anlamlı kelimeler barındıran 150-200 kelimelik bir hikaye yaz.
     Hikaye sonrası için 3 tane analiz sorusu oluştur. Sorular "Hikayedeki 'mutlu' kelimesinin zıt anlamlısı nedir?" gibi olmalı.
     Her soru için, cevabın bulunabileceği ipucu (context) metnini de belirt.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -66,9 +69,10 @@ export const generateStoryAnalysisFromAI = async (topic: string, difficultyLevel
   return generateWithSchema(prompt, schema) as Promise<StoryAnalysisData[]>;
 };
 
-export const generateStoryCreationPromptFromAI = async (topic: string, keywordCount: number, difficultyLevel: string, worksheetCount: number): Promise<StoryCreationPromptData[]> => {
+export const generateStoryCreationPromptFromAI = async (options: OfflineGeneratorOptions): Promise<StoryCreationPromptData[]> => {
+  const { topic, itemCount: keywordCount, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusuyla ilgili ve "${difficultyLevel}" zorluk seviyesine uygun bir hikaye oluşturma etkinliği hazırla.
+    '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir hikaye oluşturma etkinliği hazırla.
     Hikayede kullanılması gereken ${keywordCount} tane anahtar kelime belirle.
     Çocuğun bu kelimeleri kullanarak hikaye yazması için bir yönlendirme (prompt) metni oluştur.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -87,9 +91,10 @@ export const generateStoryCreationPromptFromAI = async (topic: string, keywordCo
   return generateWithSchema(prompt, schema) as Promise<StoryCreationPromptData[]>;
 };
 
-export const generateWordsInStoryFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<WordsInStoryData[]> => {
+export const generateWordsInStoryFromAI = async (options: OfflineGeneratorOptions): Promise<WordsInStoryData[]> => {
+  const { topic, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda ve "${difficultyLevel}" zorluk seviyesine uygun 100-120 kelimelik kısa bir hikaye yaz.
+    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun 100-120 kelimelik kısa bir hikaye yaz.
     Ardından, 12 kelimelik bir liste oluştur. Bu listenin yarısı hikayede geçen kelimelerden, diğer yarısı ise geçmeyen kelimelerden oluşsun.
     Her kelimenin hikayede olup olmadığını (isInStory) boolean olarak belirt.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -118,9 +123,10 @@ export const generateWordsInStoryFromAI = async (topic: string, difficultyLevel:
   return generateWithSchema(prompt, schema) as Promise<WordsInStoryData[]>;
 };
 
-export const generateStorySequencingFromAI = async (topic: string, difficultyLevel: string, worksheetCount: number): Promise<StorySequencingData[]> => {
+export const generateStorySequencingFromAI = async (options: OfflineGeneratorOptions): Promise<StorySequencingData[]> => {
+    const { topic, difficulty, worksheetCount } = options;
     const prompt = `
-    Create a story sequencing activity about '${topic}', appropriate for difficulty level "${difficultyLevel}".
+    Create a story sequencing activity about '${topic}', appropriate for difficulty level "${difficulty}".
     Generate a simple 4-panel story. For each panel, provide a short description of the scene.
     The panels should be given in a jumbled order. Each panel needs a letter ID (A, B, C, D).
     The user's goal is to put the panels in the correct chronological order to tell the story.
@@ -150,8 +156,9 @@ export const generateStorySequencingFromAI = async (topic: string, difficultyLev
     return generateWithSchema(prompt, schema) as Promise<StorySequencingData[]>;
 };
 
-export const generateProverbSayingSortFromAI = async(difficultyLevel: string, worksheetCount: number): Promise<ProverbSayingSortData[]> => {
-    const prompt = `Create a "Proverb or Saying" sorting activity, appropriate for difficulty level "${difficultyLevel}". Provide a list of 10 Turkish items. Each item is either a proverb ('atasözü') or a saying ('özdeyiş'). The user must classify each one. 
+export const generateProverbSayingSortFromAI = async(options: OfflineGeneratorOptions): Promise<ProverbSayingSortData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `Create a "Proverb or Saying" sorting activity, appropriate for difficulty level "${difficulty}". Provide a list of 10 Turkish items. Each item is either a proverb ('atasözü') or a saying ('özdeyiş'). The user must classify each one. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -177,8 +184,9 @@ export const generateProverbSayingSortFromAI = async(difficultyLevel: string, wo
     return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData[]>;
 }
 
-export const generateProverbWordChainFromAI = async(difficultyLevel: string, worksheetCount: number): Promise<ProverbWordChainData[]> => {
-    const prompt = `Create a proverb word chain activity, appropriate for difficulty level "${difficultyLevel}". Provide a word cloud of about 20 Turkish words that can form 3-4 proverbs or sayings. Also provide the full solutions. Assign a random hex color to each word. 
+export const generateProverbWordChainFromAI = async(options: OfflineGeneratorOptions): Promise<ProverbWordChainData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `Create a proverb word chain activity, appropriate for difficulty level "${difficulty}". Provide a word cloud of about 20 Turkish words that can form 3-4 proverbs or sayings. Also provide the full solutions. Assign a random hex color to each word. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {

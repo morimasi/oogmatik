@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { SavedWorksheet } from '../types';
 import { ACTIVITIES } from '../constants';
 
@@ -38,14 +38,18 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
     return Object.entries(grouped);
   }, [savedWorksheets]);
 
+  useEffect(() => {
+    // FIX: Moved state update into a useEffect hook to prevent "Cannot update a component while rendering" error.
+    // This will open the first category by default when the component mounts or when worksheets change.
+    if (groupedWorksheets.length > 0 && openCategory === null) {
+      setOpenCategory(groupedWorksheets[0][0]);
+    }
+  }, [groupedWorksheets, openCategory]);
+
+
   const toggleCategory = (categoryId: string) => {
     setOpenCategory(prev => (prev === categoryId ? null : categoryId));
   };
-  
-  if(groupedWorksheets.length > 0 && openCategory === null) {
-      setOpenCategory(groupedWorksheets[0][0]);
-  }
-
 
   return (
     <div className="bg-white dark:bg-zinc-800/50 rounded-xl shadow-sm p-4 sm:p-6 md:p-8">

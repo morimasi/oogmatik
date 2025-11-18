@@ -1,10 +1,12 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
+import { OfflineGeneratorOptions } from '../offlineGenerators';
 import { MathPuzzleData, ShapeCountingData, MatchstickSymmetryData } from '../../types';
 
-export const generateMathPuzzlesFromAI = async (topic: string, count: number, difficultyLevel: string, worksheetCount: number): Promise<MathPuzzleData[]> => {
+export const generateMathPuzzlesFromAI = async (options: OfflineGeneratorOptions): Promise<MathPuzzleData[]> => {
+  const { topic, itemCount: count, difficulty, worksheetCount } = options;
   const prompt = `
-    "${difficultyLevel}" zorluk seviyesindeki bir öğrenciye uygun, '${topic}' konusuyla ilgili ${count} tane basit matematik bulmacası içeren bir çalışma sayfası oluştur.
+    "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, '${topic}' konusuyla ilgili ${count} tane basit matematik bulmacası içeren bir çalışma sayfası oluştur.
     Bulmacalar nesneler veya meyveler kullanarak toplama, çıkarma gibi basit denklemler içermelidir.
     Her bulmaca için bir problem metni (örn: '2 elma + 3 muz = ?'), bir soru (örn: 'Sonuç kaçtır?') ve bir cevap ver.
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -33,8 +35,9 @@ export const generateMathPuzzlesFromAI = async (topic: string, count: number, di
   return generateWithSchema(prompt, schema) as Promise<MathPuzzleData[]>;
 };
 
-export const generateShapeCountingFromAI = async (difficultyLevel: string, worksheetCount: number): Promise<ShapeCountingData[]> => {
-    const prompt = `Create a 'count the triangles' puzzle appropriate for difficulty level "${difficultyLevel}". Generate 1 complex figure composed of overlapping triangles and other shapes. The figure should be represented as a list of SVG paths, each with a 'd' attribute and a fill color. The user's goal is to count all the triangles in the figure. 
+export const generateShapeCountingFromAI = async (options: OfflineGeneratorOptions): Promise<ShapeCountingData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `Create a 'count the triangles' puzzle appropriate for difficulty level "${difficulty}". Generate 1 complex figure composed of overlapping triangles and other shapes. The figure should be represented as a list of SVG paths, each with a 'd' attribute and a fill color. The user's goal is to count all the triangles in the figure. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -69,8 +72,9 @@ export const generateShapeCountingFromAI = async (difficultyLevel: string, works
     return generateWithSchema(prompt, schema) as Promise<ShapeCountingData[]>;
 };
 
-export const generateMatchstickSymmetryFromAI = async(difficultyLevel: string, worksheetCount: number): Promise<MatchstickSymmetryData[]> => {
-    const prompt = `Create a matchstick symmetry puzzle appropriate for difficulty level "${difficultyLevel}". Generate 3 puzzles. Each puzzle is a number (e.g., 3) made of matchsticks (represented by lines with x1,y1,x2,y2 coordinates). The user must draw the symmetrical reflection. 
+export const generateMatchstickSymmetryFromAI = async(options: OfflineGeneratorOptions): Promise<MatchstickSymmetryData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `Create a matchstick symmetry puzzle appropriate for difficulty level "${difficulty}". Generate 3 puzzles. Each puzzle is a number (e.g., 3) made of matchsticks (represented by lines with x1,y1,x2,y2 coordinates). The user must draw the symmetrical reflection. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {

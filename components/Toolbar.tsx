@@ -19,48 +19,42 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
     }
   };
   
-  const layoutOptions: StyleSettings['layout'][] = ['1x1', '1x2', '2x2'];
   const pageViewOptions: StyleSettings['pageView'][] = ['single', 'double'];
 
   return (
     <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border border-zinc-200 dark:border-zinc-700/50 p-2 rounded-lg shadow-md flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 print:hidden">
         {/* Ayarlar */}
         <div className="flex-1 flex flex-col md:flex-row gap-2 flex-wrap items-center">
-             {/* Font Ayarları */}
+             {/* Yakınlaştırma Ayarları */}
             <div className="flex items-center gap-4 p-2 rounded-md bg-zinc-100 dark:bg-zinc-800/50 w-full md:w-auto">
                 <div className="flex items-center gap-2">
-                    <label htmlFor="fontSize" className="text-sm font-medium hidden sm:inline">Yazı Boyutu:</label>
+                    <label htmlFor="zoom" className="text-sm font-medium hidden sm:inline">Yakınlaştırma:</label>
                     <input 
-                        type="number" 
-                        id="fontSize"
+                        type="range" 
+                        id="zoom"
+                        min="8"
+                        max="32"
+                        step="1"
                         value={settings.fontSize}
                         onChange={(e) => onSettingsChange({...settings, fontSize: Number(e.target.value)})}
-                        className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-20 p-1.5 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
+                        className="w-24 h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer"
+                        aria-label="Yakınlaştırma"
                     />
+                    <span className="text-sm w-12 text-center" aria-live="polite">{Math.round(settings.fontSize / 16 * 100)}%</span>
                 </div>
             </div>
 
             {/* Yazdırma Ayarları */}
              <div className="flex items-center gap-4 p-2 rounded-md bg-zinc-100 dark:bg-zinc-800/50 flex-1 flex-wrap">
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Düzen:</span>
-                    <div className="flex rounded-md shadow-sm">
-                        {layoutOptions.map(layout => (
-                             <button key={layout} onClick={() => onSettingsChange({...settings, layout})} className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800 ${settings.layout === layout ? 'bg-indigo-600 text-white shadow' : 'bg-zinc-200 dark:bg-zinc-600 hover:bg-zinc-300 dark:hover:bg-zinc-500'}`}>
-                                {layout}
-                            </button>
-                        ))}
-                    </div>
-                </div>
                 <div className="flex-1 flex items-center gap-2 min-w-[150px]">
                     <label htmlFor="margin" className="text-sm font-medium">Kenar Boşluğu:</label>
-                    <input type="range" id="margin" min="0" max="80" value={settings.margin} onChange={(e) => onSettingsChange({...settings, margin: Number(e.target.value)})} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" />
+                    <input type="range" id="margin" min="0" max="80" value={settings.margin} onChange={(e) => onSettingsChange({...settings, margin: Number(e.target.value)})} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" aria-label="Kenar Boşluğu"/>
                 </div>
                  <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Sayfa Görünümü:</span>
                     <div className="flex rounded-md shadow-sm">
                         {pageViewOptions.map(view => (
-                             <button key={view} onClick={() => onSettingsChange({...settings, pageView: view})} className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800 ${settings.pageView === view ? 'bg-indigo-600 text-white shadow' : 'bg-zinc-200 dark:bg-zinc-600 hover:bg-zinc-300 dark:hover:bg-zinc-500'}`}>
+                             <button key={view} onClick={() => onSettingsChange({...settings, pageView: view})} className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800 ${settings.pageView === view ? 'bg-indigo-600 text-white shadow' : 'bg-zinc-200 dark:bg-zinc-600 hover:bg-zinc-300 dark:hover:bg-zinc-500'}`} aria-pressed={settings.pageView === view}>
                                 {view === 'single' ? 'Tek Sayfa' : 'Çift Sayfa'}
                             </button>
                         ))}
