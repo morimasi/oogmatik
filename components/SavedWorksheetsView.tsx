@@ -9,7 +9,7 @@ interface SavedWorksheetsViewProps {
   onBack: () => void;
 }
 
-const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedWorksheets, onLoad, onDelete, onBack }) => {
+export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedWorksheets, onLoad, onDelete, onBack }) => {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
 
   const getActivityTitle = (type: SavedWorksheet['activityType']) => {

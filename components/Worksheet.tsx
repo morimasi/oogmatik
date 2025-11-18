@@ -1633,26 +1633,34 @@ const AntonymFlowerPuzzleSheet: React.FC<{ data: AntonymFlowerPuzzleData }> = ({
     <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="flex flex-col items-center">
-                    <div className="relative w-32 h-32 mb-2">
-                        {/* Petals */}
-                        {(puzzle.petalLetters || []).map((letter, i) => {
-                            const angle = (i / (puzzle.petalLetters || []).length) * 360;
-                            return (
-                                <div key={i} className="absolute w-10 h-10 bg-yellow-200 dark:bg-yellow-800 border border-yellow-400 rounded-full flex items-center justify-center font-bold"
-                                     style={{ top: '50%', left: '50%', transform: `translate(-50%, -50%) rotate(${angle}deg) translate(40px) rotate(-${angle}deg)`}}>
-                                    {letter}
-                                </div>
-                            );
-                        })}
-                        {/* Center */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-orange-400 rounded-full flex items-center justify-center text-center font-semibold text-white p-1 text-sm">{puzzle.centerWord}</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 justify-items-center">
+            {(data.puzzles || []).map((puzzle, index) => {
+                const numPetals = puzzle.petalLetters?.length || 6;
+                const angleStep = 360 / numPetals;
+
+                return (
+                    <div key={index} className="flex flex-col items-center">
+                        <svg viewBox="0 0 100 100" className="w-32 h-32 mb-2">
+                            {/* Petals */}
+                            {(puzzle.petalLetters || []).map((letter, i) => {
+                                const angle = i * angleStep;
+                                // SVG path for a petal shape
+                                const petalPath = "M 0 -25 C 15 -25 15 -5 0 -5 C -15 -5 -15 -25 0 -25 Z";
+                                return (
+                                    <g key={i} transform={`rotate(${angle} 50 50) translate(0 15)`}>
+                                        <path transform="translate(50 50)" d={petalPath} className="fill-yellow-300 dark:fill-yellow-700 stroke-yellow-500" strokeWidth="0.5" />
+                                        <text x="50" y="32" textAnchor="middle" className="font-bold fill-current">{letter}</text>
+                                    </g>
+                                );
+                            })}
+                            {/* Center */}
+                            <circle cx="50" cy="50" r="18" className="fill-orange-400 stroke-orange-600" strokeWidth="1" />
+                            <text x="50" y="50" textAnchor="middle" dominantBaseline="central" className="text-[7px] font-semibold fill-white text-center">{puzzle.centerWord}</text>
+                        </svg>
+                        <div className="w-32 h-8 border-b-2 border-dotted border-zinc-500"></div>
                     </div>
-                    <div className="w-32 h-8 border-b-2 border-dotted border-zinc-500"></div>
-                </div>
-            ))}
+                );
+            })}
         </div>
         <div className="mt-8">
             <h4 className="font-semibold text-center mb-2">Şifre:</h4>
@@ -1664,6 +1672,7 @@ const AntonymFlowerPuzzleSheet: React.FC<{ data: AntonymFlowerPuzzleData }> = ({
         </div>
     </div>
 );
+
 
 const ProverbWordChainSheet: React.FC<{ data: ProverbWordChainData | ProverbSentenceFinderData }> = ({ data }) => (
     <div>
@@ -2166,7 +2175,8 @@ const OperationSquareSheet: React.FC<{data: OperationSquareSubtractionData | Ope
         {data.puzzles && data.puzzles.length > 0 && 'numbersToUse' in data.puzzles[0] && (
             <div className="mt-6 text-center">
                 <h4 className="font-bold">Kullanılacak Sayılar</h4>
-                <p className="font-mono text-lg">{data.puzzles[0].numbersToUse.join(', ')}</p>
+                {/* FIX: Cast puzzle object to resolve type inference issue with 'unknown' type. */}
+                <p className="font-mono text-lg">{(data.puzzles[0] as { numbersToUse: number[] }).numbersToUse.join(', ')}</p>
             </div>
         )}
     </div>
@@ -2357,57 +2367,81 @@ const VisualOddOneOutThemedSheet: React.FC<{data: VisualOddOneOutThemedData}> = 
 );
 
 const LogicGridPuzzleSheet: React.FC<{data: LogicGridPuzzleData}> = ({data}) => {
-    const { people, categories } = data;
-    
+    const { clues, people, categories } = data;
+    const peopleCount = people?.length || 0;
+    const allItems = categories?.flatMap(cat => cat.items) || [];
+    const totalItems = allItems.length;
+    const categoryChunks = categories?.map(cat => cat.items?.length || 0) || [];
+    const categoryStarts = categoryChunks.reduce((acc, len) => [...acc, acc[acc.length - 1] + len], [0]);
+
     return (
         <div className="flex flex-col h-full">
             <h3 className="text-xl font-bold mb-2 text-center">{data.title}</h3>
             <p className="text-center text-sm text-zinc-600 dark:text-zinc-400 mb-4">{data.prompt}</p>
-            <div className="flex flex-col md:flex-row gap-4 flex-1">
-                <div className="w-full md:w-1/3">
+            <div className="flex flex-col lg:flex-row gap-4 flex-1">
+                <div className="w-full lg:w-1/3">
                     <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">İpuçları</h4>
-                    <ul className="list-disc list-inside space-y-1 text-sm bg-zinc-50 dark:bg-zinc-700/50 p-3 rounded-lg">
-                        {(data.clues || []).map((clue, i) => <li key={i}>{clue}</li>)}
+                    <ul className="list-disc list-inside space-y-1 text-sm bg-zinc-50 dark:bg-zinc-700/50 p-3 rounded-lg h-full">
+                        {(clues || []).map((clue, i) => <li key={i}>{clue}</li>)}
                     </ul>
                 </div>
                 <div className="flex-1 overflow-x-auto">
-                    <table className="border-collapse w-full text-xs">
-                        <thead>
-                            <tr>
-                                <th className="border p-1" style={{borderColor: 'var(--worksheet-border-color)'}}></th>
-                                {(categories || []).map(cat => (
-                                    <th key={cat.title} colSpan={cat.items.length} className="border p-1 text-center" style={{borderColor: 'var(--worksheet-border-color)'}}>{cat.title}</th>
-                                ))}
-                            </tr>
-                            <tr>
-                                <th className="border p-1" style={{borderColor: 'var(--worksheet-border-color)'}}></th>
-                                {(categories || []).flatMap(cat => cat.items).map((item, i) => (
-                                    <th key={i} className="border p-1" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                                        <div className="flex justify-center items-center h-full -rotate-45 whitespace-nowrap">
-                                            <span>{item.name}</span>
-                                        </div>
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {people.map((person) => (
-                                <tr key={person}>
-                                    <th className="border p-1 text-left" style={{borderColor: 'var(--worksheet-border-color)'}}>{person}</th>
-                                    {(categories || []).flatMap(cat => cat.items).map((item, i) => (
-                                        <td key={i} className="border text-center" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                                            <div className="w-6 h-6 mx-auto"></div>
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <div style={{ display: 'grid', gridTemplateColumns: `auto repeat(${totalItems}, minmax(40px, 1fr))`, gridTemplateRows: `auto auto auto repeat(${peopleCount}, minmax(40px, 1fr))` }} className="text-xs">
+                        {/* Corner empty cells */}
+                        <div style={{ gridColumn: 1, gridRow: '1 / 4' }} className="border-r-2 border-b-2 border-zinc-900 dark:border-zinc-500"></div>
+
+                        {/* Category Titles */}
+                        {categories?.map((cat, catIndex) => {
+                            const startCol = categoryStarts[catIndex] + 2;
+                            return (
+                                <div key={cat.title} style={{ gridColumn: `${startCol} / span ${cat.items.length}` }} className="font-bold text-center p-1 border-b-2 border-t-2 border-zinc-900 dark:border-zinc-500 border-r-2">
+                                    {cat.title}
+                                </div>
+                            )
+                        })}
+                        
+                        {/* Category Item Images */}
+                        {allItems.map((item, itemIndex) => (
+                            <div key={`img-${itemIndex}`} style={{ gridColumn: itemIndex + 2 }} className="border-b border-zinc-300 dark:border-zinc-600 flex items-center justify-center p-1 min-h-[40px]">
+                                <ImageDisplay base64={item.imageBase64} description={item.imageDescription} className="w-8 h-8"/>
+                            </div>
+                        ))}
+
+                        {/* Category Item Names (rotated) */}
+                        {allItems.map((item, itemIndex) => (
+                            <div key={`name-${itemIndex}`} style={{ gridColumn: itemIndex + 2 }} className="border-b-2 border-zinc-900 dark:border-zinc-500 h-24 relative">
+                                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 origin-bottom-left -rotate-45 whitespace-nowrap font-semibold">
+                                    {item.name}
+                                </span>
+                            </div>
+                        ))}
+                        
+                        {/* People Names */}
+                        {people?.map((person, personIndex) => (
+                            <div key={person} style={{ gridRow: personIndex + 4 }} className="font-bold p-2 border-r-2 border-zinc-900 dark:border-zinc-500 flex items-center">
+                                {person}
+                            </div>
+                        ))}
+                        
+                        {/* Grid Cells */}
+                        {people?.map((_, personIndex) => (
+                            allItems.map((_, itemIndex) => {
+                                const isThickBorder = categoryStarts.includes(itemIndex + 1) && (itemIndex + 1) < totalItems;
+                                return (
+                                    <div key={`${personIndex}-${itemIndex}`} style={{ gridColumn: itemIndex + 2, gridRow: personIndex + 4 }} 
+                                         className={`border-b border-l ${isThickBorder ? 'border-r-2 border-zinc-900 dark:border-zinc-500' : 'border-r'} border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer`}>
+                                    </div>
+                                )
+                            })
+                        ))}
+
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
+
 
 const ImageAnagramSortSheet: React.FC<{data: ImageAnagramSortData}> = ({data}) => (
     <div>
@@ -2532,35 +2566,57 @@ const MultiplicationWheelSheet: React.FC<{ data: MultiplicationWheelData }> = ({
                     const numSectors = puzzle.outerNumbers.length;
                     const angleStep = 360 / numSectors;
 
+                    const getCoords = (angle: number, radius: number) => [
+                        50 + radius * Math.cos(angle * Math.PI / 180),
+                        50 + radius * Math.sin(angle * Math.PI / 180)
+                    ];
+
                     return (
                         <div key={index} className="w-full max-w-xs aspect-square">
                             <svg viewBox="0 0 100 100" className="w-full h-full">
-                                {/* Center Circle */}
-                                <circle cx="50" cy="50" r="15" className="fill-amber-300 dark:fill-amber-700 stroke-amber-500" strokeWidth="1" />
-                                <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" className="text-xl font-bold fill-current">
-                                    {puzzle.innerResult}
-                                </text>
-
-                                {/* Sectors */}
-                                {puzzle.outerNumbers.map((num, i) => {
-                                    const angle = i * angleStep - 90;
-                                    const midAngle = angle + angleStep / 2;
+                                {/* Sectors and lines */}
+                                {puzzle.outerNumbers.map((_, i) => {
+                                    const startAngle = i * angleStep - 90 - (angleStep / 2);
+                                    const endAngle = startAngle + angleStep;
                                     
-                                    const [outerX, outerY] = [50 + 28 * Math.cos(midAngle * Math.PI / 180), 50 + 28 * Math.sin(midAngle * Math.PI / 180)];
-                                    const [resultX, resultY] = [50 + 42 * Math.cos(midAngle * Math.PI / 180), 50 + 42 * Math.sin(midAngle * Math.PI / 180)];
+                                    const [startX, startY] = getCoords(startAngle, 50);
+                                    const [endX, endY] = getCoords(endAngle, 50);
+                                    const largeArcFlag = angleStep > 180 ? 1 : 0;
+                                    
+                                    const pathData = `M 50,50 L ${startX},${startY} A 50,50 0 ${largeArcFlag},1 ${endX},${endY} Z`;
 
                                     return (
-                                        <g key={i}>
-                                            {/* Lines */}
-                                            <line x1="50" y1="50" x2={50 + 50 * Math.cos(angle * Math.PI / 180)} y2={50 + 50 * Math.sin(angle * Math.PI / 180)} className="stroke-zinc-300 dark:stroke-zinc-600" strokeWidth="0.5" />
-                                            <circle cx={outerX} cy={outerY} r="8" className="fill-white dark:fill-zinc-700 stroke-zinc-400" strokeWidth="0.5"/>
-                                             <text x={outerX} y={outerY} textAnchor="middle" dominantBaseline="middle" className="text-sm font-bold fill-current">
+                                        <path key={`sector-${i}`} d={pathData} className={i % 2 === 0 ? "fill-zinc-100 dark:fill-zinc-700/50" : "fill-white dark:fill-zinc-800/50"} stroke="var(--worksheet-border-color)" strokeWidth="0.2" />
+                                    );
+                                })}
+
+                                {/* Center Circle */}
+                                <circle cx="50" cy="50" r="15" className="fill-amber-400 dark:fill-amber-600 stroke-amber-600 dark:stroke-amber-400" strokeWidth="0.5" />
+                                <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" className="text-lg font-bold fill-zinc-900 dark:fill-zinc-100">
+                                    × {puzzle.innerResult}
+                                </text>
+                                
+                                {/* Numbers */}
+                                {puzzle.outerNumbers.map((num, i) => {
+                                    const midAngle = i * angleStep - 90;
+                                    const [outerX, outerY] = getCoords(midAngle, 25);
+                                    const [resultX, resultY] = getCoords(midAngle, 42);
+
+                                    return (
+                                        <g key={`num-${i}`}>
+                                            <circle cx={outerX} cy={outerY} r="8" className="fill-white dark:fill-zinc-700 stroke-zinc-400 dark:stroke-zinc-500" strokeWidth="0.5"/>
+                                            <text x={outerX} y={outerY} textAnchor="middle" dominantBaseline="middle" className="text-sm font-bold fill-current">
                                                 {num}
                                             </text>
+                                            
                                             <circle cx={resultX} cy={resultY} r="8" className="fill-sky-100 dark:fill-sky-900/50 stroke-sky-400" strokeWidth="0.5"/>
                                             <text x={resultX} y={resultY} textAnchor="middle" dominantBaseline="middle" className="text-sm font-bold fill-current">
-                                                {num !== null ? num * puzzle.innerResult : ''}
+                                                {num !== null && puzzle.innerResult !== null ? num * puzzle.innerResult : ''}
                                             </text>
+                                            
+                                            <line x1={getCoords(midAngle, 15)[0]} y1={getCoords(midAngle, 15)[1]} x2={getCoords(midAngle, 17)[0]} y2={getCoords(midAngle, 17)[1]} stroke="var(--worksheet-border-color)" strokeWidth="0.5"/>
+                                            <line x1={getCoords(midAngle, 33)[0]} y1={getCoords(midAngle, 33)[1]} x2={getCoords(midAngle, 34)[0]} y2={getCoords(midAngle, 34)[1]} stroke="var(--worksheet-border-color)" strokeWidth="0.5"/>
+
                                         </g>
                                     );
                                 })}
@@ -2572,6 +2628,7 @@ const MultiplicationWheelSheet: React.FC<{ data: MultiplicationWheelData }> = ({
         </div>
     );
 };
+
 
 const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) => (
     <div>
