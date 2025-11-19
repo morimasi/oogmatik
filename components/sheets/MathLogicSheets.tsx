@@ -112,11 +112,36 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData | FutoshikiLengthDat
 };
 
 export const NumberPyramidSheet: React.FC<{ data: NumberPyramidData | DivisionPyramidData | MultiplicationPyramidData }> = ({ data }) => {
+    const pyramids = data.pyramids || [];
+
     return (
         <div>
             <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
             <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-            {/* Implementation for Number Pyramid display */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {pyramids.map((pyramid, index) => {
+                    // Güvenlik kontrolü: pyramid veya pyramid.rows tanımsız ise bu piramidi atla.
+                    // Bu, "Cannot read properties of undefined (reading 'rows')" hatasını önler.
+                    if (!pyramid || !pyramid.rows) return null;
+
+                    return (
+                        <div key={index} className="flex flex-col items-center">
+                            {'title' in pyramid && <h4 className="font-semibold mb-2">{pyramid.title}</h4>}
+                            <div className="flex flex-col-reverse items-center gap-1">
+                                {pyramid.rows.map((row, rIndex) => (
+                                    <div key={rIndex} className="flex gap-1">
+                                        {(row || []).map((cell, cIndex) => (
+                                            <div key={cIndex} className="w-12 h-12 flex items-center justify-center border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-700/50">
+                                                {cell === null ? '' : cell}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 };
