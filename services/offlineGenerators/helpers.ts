@@ -11,6 +11,31 @@ export const EMOJIS = TR_VOCAB.emojis;
 export const COLORS = TR_VOCAB.colors_detailed;
 export const HOMONYMS = TR_VOCAB.homonyms;
 
+// Visual Similarity Map for attention tasks
+export const VISUALLY_SIMILAR_CHARS: Record<string, string[]> = {
+    'b': ['d', 'p', 'q', 'h'],
+    'd': ['b', 'p', 'q', 'a'],
+    'p': ['b', 'd', 'q', 'g'],
+    'q': ['p', 'b', 'd', 'g'],
+    'm': ['n', 'u', 'w'],
+    'n': ['m', 'u', 'h'],
+    'u': ['n', 'ü', 'v'],
+    'ü': ['u', 'ö'],
+    'o': ['ö', 'c', '0'],
+    'ö': ['o', 'ü'],
+    'ı': ['i', 'l', '1'],
+    'i': ['ı', 'j', '!'],
+    's': ['ş', '8', '5'],
+    'ş': ['s', '$'],
+    'z': ['2', '7'],
+    'e': ['c', 'o'],
+    'a': ['o', 'e', 'd'],
+    'f': ['t'],
+    't': ['f', 'l'],
+    'k': ['h'],
+    'h': ['k', 'n', 'b']
+};
+
 
 // --- Helper Functions ---
 

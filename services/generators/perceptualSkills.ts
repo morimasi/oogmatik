@@ -4,7 +4,7 @@ import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
 import {
     FindTheDifferenceData, StroopTestData, OddOneOutData, FindIdenticalWordData, GridDrawingData, ChaoticNumberSearchData,
-    BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, ShapeMatchingData, SymbolCipherData, CoordinateCipherData, AbcConnectData, WordConnectData, ProfessionConnectData, VisualOddOneOutThemedData, MatchstickSymmetryData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData
+    BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, ShapeMatchingData, SymbolCipherData, CoordinateCipherData, AbcConnectData, WordConnectData, ProfessionConnectData, VisualOddOneOutThemedData, MatchstickSymmetryData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType
 } from '../../types';
 
 const SHAPE_TYPES = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon', 'cube', 'sphere', 'pyramid', 'cone', 'heart', 'cloud', 'moon'];
@@ -686,7 +686,3 @@ export const generateStarHuntFromAI = async (options: GeneratorOptions): Promise
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<StarHuntData[]>;
 };
-
-// --- Diğerleri (Stroop, Chaotic Number vb. mevcut yapı korunarak return) ---
-export const generateStroopTestFromAI = async (options: any) => [] as any; // Assuming handled elsewhere or simple implementation
-export const generateChaoticNumberSearchFromAI = async (options: any) => [] as any;
