@@ -1,14 +1,60 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType } from '../../types';
 
 export const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string }> = ({ title, instruction, note }) => (
     <div className="mb-6 text-center print:mb-4">
-        <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100">{title}</h3>
+        <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100 font-dyslexic">{title}</h3>
         <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
-        {note && <p className="text-xs text-zinc-500 dark:text-zinc-400 italic border-t border-zinc-200 dark:border-zinc-700 pt-2 mt-2 inline-block px-4">Eğitmen Notu: {note}</p>}
+        {note && <div className="inline-block px-4 py-1 mt-2 border-t border-zinc-200 dark:border-zinc-700">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-graduation-cap mr-1"></i>Eğitmen Notu: {note}</p>
+        </div>}
     </div>
 );
+
+export const ReadingRuler: React.FC = () => {
+    const [position, setPosition] = useState(0);
+    const [isActive, setIsActive] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isActive || !containerRef.current) return;
+            const rect = containerRef.current.getBoundingClientRect();
+            // Relative position within the container
+            const relativeY = e.clientY - rect.top;
+            setPosition(relativeY);
+        };
+
+        if (isActive) {
+            window.addEventListener('mousemove', handleMouseMove);
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, [isActive]);
+
+    return (
+        <div className="relative w-full print:hidden group" ref={containerRef}>
+            <div className="absolute top-2 right-2 z-20">
+                <button 
+                    onClick={() => setIsActive(!isActive)}
+                    className={`text-xs px-3 py-1 rounded-full shadow-sm transition-colors ${isActive ? 'bg-indigo-600 text-white' : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300'}`}
+                    title="Okuma Cetveli"
+                >
+                    <i className="fa-solid fa-ruler-horizontal mr-1"></i> Cetvel {isActive ? 'Açık' : 'Kapalı'}
+                </button>
+            </div>
+            {isActive && (
+                <div 
+                    className="absolute left-0 right-0 h-12 bg-yellow-200/30 border-y-2 border-indigo-400/50 pointer-events-none z-10 mix-blend-multiply dark:mix-blend-screen dark:bg-yellow-900/30"
+                    style={{ top: position - 24 }} // Center the ruler on cursor
+                ></div>
+            )}
+        </div>
+    );
+};
 
 export const Shape: React.FC<{ name: ShapeType; className?: string }> = ({ name, className = "w-10 h-10" }) => {
     switch (name) {

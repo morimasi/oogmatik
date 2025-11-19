@@ -1,100 +1,116 @@
-import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData, StoryQuestion, MultipleChoiceStoryQuestion, ProverbSearchData } from '../../types';
+
+import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData, StoryQuestion, ProverbSearchData } from '../../types';
 import { shuffle, getRandomItems, getWordsForDifficulty, getRandomInt } from './helpers';
 import { PROVERBS, STORY_TEMPLATES, SAYINGS } from '../../data/sentences';
 import { generateOfflineWordSearch } from './wordGames';
+
+// --- Helper: Generate Logic-Based Story ---
+const generateLogicBasedStory = (topic?: string, characterName?: string) => {
+    // 1. Select a structural template
+    const template = getRandomItems(STORY_TEMPLATES, 1)[0];
+    
+    // 2. Fill variables with consistency check (if needed)
+    // For now, simple random replacement from template pools
+    let story = template.template;
+    const placeholders = [...story.matchAll(/{(\w+)}/g)];
+    const uniqueKeys = [...new Set(placeholders.map(p => p[1]))];
+    
+    const usedValues: { [key: string]: string } = {};
+
+    uniqueKeys.forEach(key => {
+        const pluralKey = `${key}s`;
+        const dataArray = (template as any)[pluralKey] || (template as any)[key];
+
+        if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
+            let value = '';
+            if (key === 'character' && characterName) {
+                value = characterName;
+            } else {
+                value = getRandomItems(dataArray, 1)[0];
+            }
+            
+            if (value) {
+                usedValues[key] = value;
+                story = story.replace(new RegExp(`{${key}}`, 'g'), value);
+            }
+        }
+    });
+    
+    // Clean up any remaining brackets
+    story = story.replace(/{.*?}/g, '...');
+
+    return { story, usedValues, template };
+};
 
 export const generateOfflineStoryComprehension = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { worksheetCount, topic, difficulty, characterName } = options;
     const results: StoryData[] = [];
 
     for (let i = 0; i < worksheetCount; i++) {
-        const template = getRandomItems(STORY_TEMPLATES, 1)[0];
+        const { story, usedValues, template } = generateLogicBasedStory(topic, characterName);
         
-        let story = template.template;
-        const placeholders = [...story.matchAll(/{(\w+)}/g)];
-        const uniqueKeys = [...new Set(placeholders.map(p => p[1]))];
-        
-        const usedValues: { [key: string]: string } = {};
-
-        uniqueKeys.forEach(key => {
-            const pluralKey = `${key}s`;
-            const dataArray = (template as any)[pluralKey] || (template as any)[key];
-
-            if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
-                let value = '';
-                if (key === 'character' && characterName) {
-                    value = characterName;
-                } else {
-                    value = getRandomItems(dataArray, 1)[0];
-                }
-                
-                if (value) {
-                    usedValues[key] = value;
-                    story = story.replace(new RegExp(`{${key}}`, 'g'), value);
-                }
-            }
-        });
-
-        const remainingPlaceholders = story.match(/{(\w+)}/g);
-        if (remainingPlaceholders) {
-            console.warn(`Story template has unfilled placeholders: ${remainingPlaceholders.join(', ')}. Filling with '[?]'.`);
-            remainingPlaceholders.forEach(p => {
-                story = story.replace(p, '[?]');
-            });
-        }
-
+        // 3. Generate Pedagogical Questions
+        const questions: StoryQuestion[] = [];
         const questionCandidates = Object.keys(usedValues).filter(k => k !== 'greeting');
 
-        const questions: StoryQuestion[] = shuffle(questionCandidates).slice(0, 3).map(questionKey => {
-            const answer = usedValues[questionKey];
-            const pluralKey = `${questionKey}s`;
-            const dataArray = (template as any)[pluralKey] || (template as any)[questionKey] || [];
+        // A. Literal Question (Hatırlama)
+        if (questionCandidates.length > 0) {
+            const qKey = questionCandidates[0];
+            const answer = usedValues[qKey];
+            // Distractors: other items from the same category in the template
+            const pool = ((template as any)[qKey + 's'] || []) as string[];
+            const distractors = getRandomItems(pool.filter(i => i !== answer), 2);
             
-            let questionText = `Hikayede geçen ${questionKey} neydi?`;
-            const questionTextMap: { [key: string]: string } = {
-                place: "Olaylar nerede geçiyordu?",
-                activity: `${usedValues['character'] || 'Karakter'} ne yapmayı severdi?`,
-                object: "Hikayede bulunan nesne neydi?",
-                goal: `${usedValues['character'] || 'Karakter'}'in amacı neydi?`,
-                animal: "Hikayedeki hayvan neydi?",
-                food: "Karakterin en sevdiği yiyecek neydi?"
-            };
-            if (questionTextMap[questionKey]) {
-                questionText = questionTextMap[questionKey];
-            }
-            
-            // FIX: Cast `dataArray` to string[] to resolve type error where 'options' was inferred as 'unknown[]' instead of 'string[]'.
-            const distractors = getRandomItems((dataArray as string[]).filter((item: string) => item !== answer), 2);
-            
-            while (distractors.length < 2) {
-                const fallbackWord = getRandomItems(getWordsForDifficulty('Orta', topic), 1)[0];
-                if (fallbackWord && fallbackWord !== answer && !distractors.includes(fallbackWord)) {
-                    distractors.push(fallbackWord);
-                }
-            }
-
-            const options = shuffle([answer, ...distractors]);
-            const answerIndex = options.indexOf(answer);
-
-            // FIX: Add missing 'type' property to satisfy the MultipleChoiceStoryQuestion interface.
-            return { type: 'multiple-choice', question: questionText, options, answerIndex };
-        });
-
-        while (questions.length < 3) {
-            const wordPool = story.split(' ').filter(w => w.length > 3 && !Object.values(usedValues).includes(w) && w.replace(/[.,]/g, '').length > 2);
-            const answer = getRandomItems(wordPool, 1)[0]?.replace(/[.,]/g, '') || "cevap";
-            const distractors = getRandomItems(getWordsForDifficulty(difficulty, topic).filter(w => !wordPool.includes(w) && w !== answer), 2);
-            const options = shuffle([answer, ...distractors]);
             questions.push({
-                // FIX: Add missing 'type' property to satisfy the MultipleChoiceStoryQuestion interface.
                 type: 'multiple-choice',
-                question: `Hikayede geçen kelime hangisidir?`,
-                options,
-                answerIndex: options.indexOf(answer)
+                question: `Hikayede geçen ${qKey === 'place' ? 'mekan neresidir?' : qKey === 'character' ? 'karakter kimdir?' : qKey === 'object' ? 'nesne nedir?' : `${qKey} nedir?`}`,
+                options: shuffle([answer, ...distractors]),
+                answerIndex: 0 // Shuffle will change this, fix below
             });
         }
 
-        results.push({ title: `Hikaye Anlama (${topic || 'Rastgele'})`, story, questions, characters: [usedValues['character'] || 'Bilinmiyor'], mainIdea: 'Bir macera yaşandı.', setting: usedValues['place'] || 'Bilinmiyor' });
+        // B. Inferential Question (Çıkarım)
+        // Based on adjectives or emotions if present, otherwise fallback
+        const emotion = usedValues['adjective'] || usedValues['weather'];
+        if (emotion) {
+            questions.push({
+                type: 'multiple-choice',
+                question: `Bu hikayenin atmosferi veya karakterin durumu nasıldı?`,
+                options: shuffle([emotion, 'tam tersi', 'alakasız']), // Simplified logic
+                answerIndex: 0
+            });
+        } else {
+             questions.push({
+                type: 'open-ended',
+                question: `Sence karakter bundan sonra ne yapmıştır?`
+            });
+        }
+
+        // C. Critical Question (Değerlendirme)
+        questions.push({
+            type: 'open-ended',
+            question: `Sen olsaydın ${usedValues['object'] || 'bu durumda'} ne yapardın?`
+        });
+
+        // Fix indices for MC
+        questions.forEach(q => {
+            if (q.type === 'multiple-choice') {
+                const correct = q.options[0]; // Before shuffle it was first
+                // Re-shuffle options here properly
+                q.options = shuffle(q.options);
+                q.answerIndex = q.options.indexOf(correct);
+            }
+        });
+
+        results.push({ 
+            title: `Hikaye Anlama`, 
+            story, 
+            questions, 
+            characters: [usedValues['character'] || 'Bilinmiyor'], 
+            mainIdea: 'Olayların akışını ve detayları anlama.', 
+            setting: usedValues['place'] || 'Bilinmiyor',
+            pedagogicalNote: "Bloom taksonomisine göre (Hatırlama, Çıkarım, Değerlendirme) sorular içerir."
+        });
     }
     return results;
 };
@@ -103,10 +119,12 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
     const { topic, itemCount, difficulty, worksheetCount } = options;
     const results: StoryCreationPromptData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
+        const keywords = getRandomItems(getWordsForDifficulty(difficulty, topic), itemCount);
         results.push({
-            title: `Hikaye Oluşturma (${topic || 'Rastgele'})`,
-            prompt: `Aşağıdaki kelimeleri kullanarak ${topic || 'serbest'} konulu bir hikaye yaz.`,
-            keywords: getRandomItems(getWordsForDifficulty(difficulty, topic), itemCount)
+            title: `Hikaye Oluşturma`,
+            prompt: `Aşağıdaki kelimeleri kullanarak, giriş, gelişme ve sonuç bölümleri olan bir hikaye yaz.`,
+            keywords: keywords,
+            pedagogicalNote: "Yaratıcı yazma, kelime kullanımı ve hikaye kurgulama becerisi."
         });
     }
     return results;
@@ -116,80 +134,85 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
     const { topic, difficulty, worksheetCount } = options;
     const results: WordsInStoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const template = getRandomItems(STORY_TEMPLATES, 1)[0];
-        const story = template.template.replace('{place}', getRandomItems(template.places, 1)[0]).replace(/{character}/g, getRandomItems(template.characters, 1)[0]).replace('{activity}', getRandomItems(template.activities, 1)[0]).replace('{object}', getRandomItems(template.objects, 1)[0]);
-        const wordsInStory = [...new Set(story.replace(/[.,]/g, '').split(' ').filter(w => w.length > 3))];
-        const selectedWords = getRandomItems(wordsInStory, 4);
+        const { story } = generateLogicBasedStory(topic);
+        // Pick words that are suitable for the level
+        const words = story.split(' ').map(w => w.replace(/[.,!?]/g, ''));
+        const candidates = words.filter(w => w.length > 4); // Filter simple words
+        const selectedWords = getRandomItems([...new Set(candidates)], 4);
 
         const questions = selectedWords.map(word => ({
             word,
-            question: `'${word}' kelimesini kullanarak bir cümle yaz.`
+            question: `Bu kelimenin anlamını tahmin et ve bir cümlede kullan.`
         }));
 
-        results.push({ title: 'Metindeki Kelimeler', story, questions });
+        results.push({ 
+            title: 'Metindeki Kelimeler', 
+            story, 
+            questions,
+            pedagogicalNote: "Bağlamdan kelime anlamı çıkarma ve kelime dağarcığı geliştirme."
+        });
     }
     return results;
 };
 
 export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): Promise<StoryAnalysisData[]> => {
-    const { worksheetCount } = options;
-    const staticStories = [
-        {
-            story: "Küçük ve sevimli kedi, sıcak bir günde soğuk bir süt içti. Mutlu bir şekilde mırıldandı.",
-            questions: [
-                { type: 'tema' as const, question: "Bu hikayenin ana duygusu nedir?"},
-                { type: 'sebep-sonuç' as const, question: "Kedi neden mırıldandı?"},
-                { type: 'çıkarım' as const, question: "Hikayedeki 'sıcak' kelimesinin zıt anlamlısı nedir?"}
-            ]
-        },
-        {
-            story: "Cesur bir fare, büyük bir peynir parçası buldu. Zayıf arkadaşıyla bu peyniri paylaştı.",
-            questions: [
-                { type: 'karakter' as const, question: "Farenin en belirgin özelliği nedir?"},
-                { type: 'sebep-sonuç' as const, question: "Farenin arkadaşıyla peyniri paylaşması neyi gösterir?"},
-                { type: 'çıkarım' as const, question: "Hikayedeki 'büyük' kelimesinin zıt anlamlısı nedir?"}
-            ]
-        }
-    ];
-    return Array.from({length: worksheetCount}, () => {
-        const chosenStory = getRandomItems(staticStories, 1)[0];
-        return {
-            title: 'Hikaye Analizi (Hızlı Mod)',
-            story: chosenStory.story,
-            analysisQuestions: chosenStory.questions,
-        }
-    });
+    const { worksheetCount, topic } = options;
+    const results: StoryAnalysisData[] = [];
+    
+    for (let i = 0; i < worksheetCount; i++) {
+         const { story, usedValues } = generateLogicBasedStory(topic);
+         
+         results.push({
+             title: 'Hikaye Analizi',
+             story,
+             analysisQuestions: [
+                 { type: 'tema', question: 'Bu hikayeye en uygun başlık ne olurdu?' },
+                 { type: 'karakter', question: `${usedValues['character'] || 'Ana karakter'} sence nasıl biri?` },
+                 { type: 'sebep-sonuç', question: `Olaylar neden ${usedValues['place'] || 'burada'} geçti?` },
+                 { type: 'çıkarım', question: 'Hikayenin sonunu değiştirmek istesen nasıl bitirirdin?' }
+             ],
+             pedagogicalNote: "Metnin derin yapısını (tema, karakter, kurgu) analiz etme."
+         });
+    }
+    return results;
 };
 
 export const generateOfflineStorySequencing = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
     const { worksheetCount } = options;
-    const stories = [
+    // Logic: Cause -> Effect chains.
+    const logicalStories = [
         [
-            { id: 'A', description: 'Küçük tırtıl bir yaprakta uyandı.' },
-            { id: 'B', description: 'Tırtıl çok acıkmıştı ve yaprağı yemeye başladı.' },
-            { id: 'C', description: 'Karnı doyan tırtıl kendine bir koza ördü.' },
-            { id: 'D', description: 'Kozadan rengarenk bir kelebek çıktı.' }
+            { id: 'A', description: 'Ayşe toprağı kazdı ve tohumu ekti.' },
+            { id: 'B', description: 'Her gün tohumu suladı ve güneş almasını sağladı.' },
+            { id: 'C', description: 'Topraktan küçük yeşil bir filiz çıktı.' },
+            { id: 'D', description: 'Filiz büyüdü ve kocaman bir çiçek açtı.' }
         ],
         [
-            { id: 'A', description: 'Çocuk bir tohum ekti.' },
-            { id: 'B', description: 'Tohumu her gün suladı.' },
-            { id: 'C', description: 'Tohum filizlendi ve büyüdü.' },
-            { id: 'D', description: 'Büyük bir çiçek açtı.' }
+            { id: 'A', description: 'Kedi mırnav acıkmıştı, mutfağa gitti.' },
+            { id: 'B', description: 'Tezgahın üzerinde bir süt şişesi gördü.' },
+            { id: 'C', description: 'Zıplayıp şişeyi devirdi, süt döküldü.' },
+            { id: 'D', description: 'Sahibi gelince masanın altına saklandı.' }
         ]
     ];
+
     return Array.from({length: worksheetCount}, () => ({
-            title: 'Hikaye Sıralama (Hızlı Mod)',
-            prompt: 'Olayları doğru sıraya koymak için resimleri numaralandır.',
-            panels: shuffle(getRandomItems(stories, 1)[0])
+            title: 'Hikaye Sıralama',
+            prompt: 'Olayların oluş sırasına göre resimleri (veya cümleleri) numaralandır.',
+            panels: shuffle(getRandomItems(logicalStories, 1)[0]),
+            pedagogicalNote: "Olay örgüsü kurma, neden-sonuç ilişkisi ve zaman algısı."
         }));
 };
 
 export const generateOfflineProverbFillInTheBlank = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {
     const { itemCount, worksheetCount } = options;
+    // Categorized proverbs could be implemented here for better context
     return Array.from({length: worksheetCount}, () => {
         const proverbs = getRandomItems(PROVERBS, itemCount).map(p => {
             const words = p.split(' ');
-            const blankIndex = getRandomInt(1, words.length - 2);
+            // Intelligent blanking: try to avoid blanking stop words (ve, ile, bir)
+            const candidateIndices = words.map((w, i) => ({w, i})).filter(x => x.w.length > 3).map(x => x.i);
+            const blankIndex = candidateIndices.length > 0 ? getRandomItems(candidateIndices, 1)[0] : getRandomInt(0, words.length-1);
+            
             return {
                 start: words.slice(0, blankIndex).join(' '),
                 end: words.slice(blankIndex + 1).join(' '),
@@ -197,10 +220,11 @@ export const generateOfflineProverbFillInTheBlank = async (options: GeneratorOpt
             };
         });
         return { 
-            title: 'Atasözü Doldurma (Hızlı Mod)',
+            title: 'Atasözü Tamamlama',
             proverbs,
-            meaning: 'Atasözleri, geçmişten gelen deneyimleri ve öğütleri kısa ve öz bir şekilde anlatır.',
-            usagePrompt: 'Yukarıdaki atasözlerinden birini seç ve uygun bir durumda kullanıldığı kısa bir olay yaz.'
+            meaning: 'Atasözleri tecrübe aktarır. Eksik parçayı bağlamdan çıkarmaya çalış.',
+            usagePrompt: 'Seçtiğin bir atasözünü gerçek bir olayla ilişkilendirerek yaz.',
+            pedagogicalNote: "Kültürel miras aktarımı ve semantik tamamlama (Cloze Test) becerisi."
         };
     });
 }
@@ -211,9 +235,10 @@ export const generateOfflineProverbSayingSort = async (options: GeneratorOptions
         const proverbs = getRandomItems(PROVERBS, Math.ceil(itemCount/2)).map(p => ({ text: p, type: 'atasözü' as const }));
         const sayings = getRandomItems(SAYINGS, Math.floor(itemCount/2)).map(s => ({ text: s, type: 'özdeyiş' as const }));
         return {
-            title: 'Atasözü / Özdeyiş (Hızlı Mod)',
-            prompt: 'Aşağıdaki cümleleri "Atasözü" ve "Özdeyiş" olarak doğru kutulara yerleştirin.',
-            items: shuffle([...proverbs, ...sayings])
+            title: 'Atasözü / Özdeyiş',
+            prompt: 'Anonim olanları "Atasözü", söyleyeni belli olanları "Özdeyiş" kutusuna ayır.',
+            items: shuffle([...proverbs, ...sayings]),
+            pedagogicalNote: "Bilgi kaynağını ayırt etme ve kategorizasyon."
         };
     });
 }
@@ -221,8 +246,18 @@ export const generateOfflineProverbWordChain = async (options: GeneratorOptions)
     const {itemCount, worksheetCount} = options;
     return Array.from({length: worksheetCount}, () => {
         const solutions = getRandomItems(PROVERBS, itemCount);
-        const wordCloud = solutions.flatMap(s => s.replace(/[.,]/g, '').split(' ')).map(word => ({word, color: 'blue'}));
-        return {title: 'Atasözü/Özdeyiş Bulma', prompt: 'Karışık kelimelerden atasözleri ve özdeyişler oluşturun.', wordCloud: shuffle(wordCloud), solutions};
+        // Word cloud generation
+        const wordCloud = solutions.flatMap(s => s.replace(/[.,]/g, '').split(' ')).map(word => ({
+            word, 
+            color: getRandomItems(['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'], 1)[0]
+        }));
+        return {
+            title: 'Atasözü Zinciri', 
+            prompt: 'Dağınık kelimeleri birleştirerek anlamlı atasözleri oluştur.', 
+            wordCloud: shuffle(wordCloud), 
+            solutions,
+            pedagogicalNote: "Sözdizimi (sentaks) kuralları ve cümle oluşturma becerisi."
+        };
     });
 }
 
@@ -236,21 +271,15 @@ export const generateOfflineProverbSearch = async (options: GeneratorOptions): P
     const results: ProverbSearchData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const proverb = getRandomItems(PROVERBS, 1)[0];
-        const searchResult = await generateOfflineWordSearch({ ...options, words: proverb.replace(/ /g, '').split(''), itemCount: 1, worksheetCount: 1, gridSize });
+        // Use word search generator logic but for a sentence
+        const searchResult = await generateOfflineWordSearch({ ...options, words: proverb.replace(/[.,]/g, '').split(' '), itemCount: 1, worksheetCount: 1, gridSize });
         results.push({
-            title: 'Atasözü Avı (Hızlı Mod)',
+            title: 'Atasözü Avı',
             grid: searchResult[0].grid,
             proverb: proverb,
-            meaning: 'Bu atasözü, küçük birikimlerin zamanla büyüyebileceğini anlatır.' // Generic meaning
+            meaning: 'Atasözünün içerdiği kelimeleri bulmacada bul.',
+            pedagogicalNote: "Görsel tarama ve parça-bütün ilişkisi."
         });
     }
     return results;
 };
-
-// FIX: Removed mock generator functions that are implemented in other files to resolve export ambiguity.
-// These are hybrid activities that are better suited for wordGames.ts
-/*
-export const generateOfflineJumbledWordStory = async (options: GeneratorOptions): Promise<any[]> => [];
-export const generateOfflineThematicJumbledWordStory = async (options: GeneratorOptions): Promise<any[]> => [];
-export const generateOfflineSynonymSearchStory = async (options: GeneratorOptions): Promise<any[]> => [];
-*/
