@@ -59,11 +59,13 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
     const { itemCount, difficulty, worksheetCount } = options;
     const results: FindDuplicateData[] = [];
     const charPool = (difficulty === 'Zor' || difficulty === 'Uzman') ? ['b', 'd', 'p', 'q', 'm', 'n'] : turkishAlphabet.split('');
+    const cols = options.cols || (difficulty === 'Başlangıç' ? 10 : difficulty === 'Orta' ? 15 : 20);
+
     for (let i = 0; i < worksheetCount; i++) {
         const rows = Array.from({ length: itemCount }, () => {
-            const rowChars = getRandomItems(charPool, 15);
+            const rowChars = getRandomItems(charPool, cols - 1);
             const duplicateChar = getRandomItems(rowChars, 1)[0];
-            const insertPos = getRandomInt(0, 14);
+            const insertPos = getRandomInt(0, cols - 2);
             rowChars.splice(insertPos, 0, duplicateChar);
             return shuffle(rowChars);
         });
@@ -179,8 +181,8 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     for(let i=0; i<worksheetCount; i++){
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
         const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => ({
-// FIX: Added fallback to empty string to prevent 'undefined' in template literal, resolving the 'unknown' type error.
-            description: `${getRandomItems(TR_VOCAB.adjectives, 1)[0] || ''} ${getRandomItems(TR_VOCAB.animals, 1)[0] || ''} ${emoji}`
+// FIX: Explicitly cast results to string to resolve 'unknown' type from complex type inference on TR_VOCAB.
+            description: `${(getRandomItems(TR_VOCAB.adjectives, 1)[0] as string) || ''} ${(getRandomItems(TR_VOCAB.animals, 1)[0] as string) || ''} ${emoji}`
         }));
         results.push({
             title: 'Karakter Hafıza (Hızlı Mod)',

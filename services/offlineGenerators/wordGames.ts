@@ -8,6 +8,11 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
     const results: WordSearchData[] = [];
     let size = options.gridSize || (difficulty === 'Orta' ? 12 : (difficulty === 'Zor' ? 14 : 10));
 
+    // Difficulty scaling for directions
+    let maxDir = 1; // 0: H, 1: V
+    if (difficulty === 'Orta') maxDir = 3; // Add diagonals
+    if (difficulty === 'Zor' || difficulty === 'Uzman') maxDir = 7; // Add reverse directions
+
     for (let i = 0; i < worksheetCount; i++) {
         const availableWords = getWordsForDifficulty(difficulty, topic);
         const sheetWords = words 
@@ -21,30 +26,44 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
             let placed = false;
             let attempts = 0;
             while (!placed && attempts < 50) {
-                const dir = getRandomInt(0, 3); // 0: H, 1: V, 2: D_down, 3: D_up
+                const dir = getRandomInt(0, maxDir);
                 let r = 0, c = 0;
-                if(dir === 0) { r = getRandomInt(0, size-1); c = getRandomInt(0, size - word.length); }
-                else if (dir === 1) { r = getRandomInt(0, size-word.length); c = getRandomInt(0, size-1); }
-                else if (dir === 2) { r = getRandomInt(0, size-word.length); c = getRandomInt(0, size - word.length); }
-                else { r = getRandomInt(word.length-1, size-1); c = getRandomInt(0, size - word.length); }
+                
+                // Set boundaries based on direction
+                if(dir === 0) { /* H */ r = getRandomInt(0, size-1); c = getRandomInt(0, size - word.length); }
+                else if (dir === 1) { /* V */ r = getRandomInt(0, size-word.length); c = getRandomInt(0, size-1); }
+                else if (dir === 2) { /* D_down_right */ r = getRandomInt(0, size-word.length); c = getRandomInt(0, size - word.length); }
+                else if (dir === 3) { /* D_up_right */ r = getRandomInt(word.length-1, size-1); c = getRandomInt(0, size - word.length); }
+                else if (dir === 4) { /* H_rev */ r = getRandomInt(0, size-1); c = getRandomInt(word.length-1, size - 1); }
+                else if (dir === 5) { /* V_rev */ r = getRandomInt(word.length-1, size-1); c = getRandomInt(0, size-1); }
+                else if (dir === 6) { /* D_down_left */ r = getRandomInt(0, size-word.length); c = getRandomInt(word.length-1, size-1); }
+                else { /* D_up_left */ r = getRandomInt(word.length-1, size-1); c = getRandomInt(word.length-1, size-1); }
                 
                 let fits = true;
                 for(let k=0; k<word.length; k++) {
                     let nr=r, nc=c;
-                    if (dir === 0) nc += k;
-                    else if (dir === 1) nr += k;
-                    else if (dir === 2) { nr += k; nc += k; }
-                    else { nr -= k; nc += k; }
+                    if (dir === 0) nc += k; // H
+                    else if (dir === 1) nr += k; // V
+                    else if (dir === 2) { nr += k; nc += k; } // D_down_right
+                    else if (dir === 3) { nr -= k; nc += k; } // D_up_right
+                    else if (dir === 4) nc -= k; // H_rev
+                    else if (dir === 5) nr -= k; // V_rev
+                    else if (dir === 6) { nr += k; nc -= k; } // D_down_left
+                    else { nr -= k; nc -= k; } // D_up_left (dir 7)
                     if(grid[nr][nc] !== '' && grid[nr][nc] !== word[k]) fits = false;
                 }
                 
                 if(fits) {
                     for(let k=0; k<word.length; k++) {
                         let nr=r, nc=c;
-                        if (dir === 0) nc += k;
-                        else if (dir === 1) nr += k;
-                        else if (dir === 2) { nr += k; nc += k; }
-                        else { nr -= k; nc += k; }
+                        if (dir === 0) nc += k; // H
+                        else if (dir === 1) nr += k; // V
+                        else if (dir === 2) { nr += k; nc += k; } // D_down_right
+                        else if (dir === 3) { nr -= k; nc += k; } // D_up_right
+                        else if (dir === 4) nc -= k; // H_rev
+                        else if (dir === 5) nr -= k; // V_rev
+                        else if (dir === 6) { nr += k; nc -= k; } // D_down_left
+                        else { nr -= k; nc -= k; } // D_up_left (dir 7)
                         grid[nr][nc] = word[k];
                     }
                     placedWords.push(word);

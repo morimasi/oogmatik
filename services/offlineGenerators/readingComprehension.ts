@@ -9,12 +9,51 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
     const results: StoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const template = getRandomItems(STORY_TEMPLATES, 1)[0];
-        let story = template.template.replace('{place}', getRandomItems(template.places, 1)[0]).replace(/{character}/g, characterName || getRandomItems(template.characters, 1)[0]).replace('{activity}', getRandomItems(template.activities, 1)[0]).replace('{object}', getRandomItems(template.objects, 1)[0]);
-        const questions = Array.from({ length: 3 }).map(() => {
-            const wordPool = story.split(' ').filter(w => w.length > 3);
-            const answer = getRandomItems(wordPool, 1)[0] || "cevap";
-            const options = shuffle([answer, getRandomItems(getWordsForDifficulty(difficulty, topic), 1)[0] || "yanlış1", getRandomItems(getWordsForDifficulty(difficulty, topic), 1)[0] || "yanlış2"]);
-            return { question: `Hikayede geçen kelimelerden hangisi aşağıdadır?`, options, answerIndex: options.indexOf(answer) };
+        
+        const usedValues = {
+            place: getRandomItems(template.places, 1)[0],
+            character: characterName || getRandomItems(template.characters, 1)[0],
+            activity: getRandomItems(template.activities, 1)[0],
+            object: getRandomItems(template.objects, 1)[0],
+        };
+        
+        let story = template.template
+            .replace('{place}', usedValues.place)
+            .replace(/{character}/g, usedValues.character)
+            .replace('{activity}', usedValues.activity)
+            .replace('{object}', usedValues.object);
+
+        const questions = Array.from({ length: 3 }).map((_, qIndex) => {
+            if (difficulty === 'Başlangıç' || qIndex === 0) {
+                const wordPool = story.split(' ').filter(w => w.length > 3);
+                const answer = getRandomItems(wordPool, 1)[0] || "cevap";
+                const distractors = getRandomItems(getWordsForDifficulty(difficulty, topic).filter(w => !wordPool.includes(w)), 2);
+                const options = shuffle([answer, ...distractors]);
+                return { question: `Hikayede geçen kelimelerden hangisi aşağıdadır?`, options, answerIndex: options.indexOf(answer) };
+            } else { // Orta, Zor, Uzman - anlama dayalı sorular
+                const qType = getRandomInt(0, 2);
+                let question = "", answer = "", distractors: string[] = [];
+                switch(qType) {
+                    case 0:
+                        question = `${usedValues.character} nerede yaşıyordu?`;
+                        answer = usedValues.place;
+                        distractors = getRandomItems(template.places.filter(p => p !== answer), 2);
+                        break;
+                    case 1:
+                        question = `${usedValues.character} en çok ne yapmayı severmiş?`;
+                        answer = usedValues.activity;
+                        distractors = getRandomItems(template.activities.filter(a => a !== answer), 2);
+                        break;
+                    case 2:
+                    default:
+                        question = `Bir gün ${usedValues.character} ne bulmuş?`;
+                        answer = usedValues.object;
+                        distractors = getRandomItems(template.objects.filter(o => o !== answer), 2);
+                        break;
+                }
+                const options = shuffle([answer, ...distractors]);
+                return { question, options, answerIndex: options.indexOf(answer) };
+            }
         });
         results.push({ title: `Hikaye Anlama (${topic || 'Rastgele'})`, story, questions });
     }

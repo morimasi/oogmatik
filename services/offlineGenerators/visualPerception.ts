@@ -144,11 +144,12 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
 }
 
 export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    const {itemCount, worksheetCount, gridSize} = options;
+    const {itemCount, worksheetCount, gridSize, difficulty} = options;
     const results: SymmetryDrawingData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const dim = gridSize || 8;
-        const dots = Array.from({length: 5}).map(() => ({x: getRandomInt(0, dim/2 - 1), y: getRandomInt(0, dim-1)}));
+        const dotCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : difficulty === 'Zor' ? 7 : 9;
+        const dots = Array.from({length: dotCount}).map(() => ({x: getRandomInt(0, dim/2 - 1), y: getRandomInt(0, dim-1)}));
         results.push({
             title: 'Noktalarla Dans (Simetri)',
             prompt: 'Verilen desenin simetri eksenine göre yansımasını çizin.',
