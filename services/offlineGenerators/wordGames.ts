@@ -251,10 +251,9 @@ export const generateOfflinePunctuationSpiralPuzzle = async (options: GeneratorO
     return data.map(d => ({...d, title: 'Noktalama Sarmal Bulmaca', theme: 'Noktalama'}));
 }
 
-// FIX: Replaced placeholder with a minimal valid implementation to satisfy type checking.
 export const generateOfflineCrossword = async (options: GeneratorOptions): Promise<CrosswordData[]> => {
     const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }).fill({
+    return Array(worksheetCount).fill(null).map(() => ({
         title: 'Çapraz Bulmaca (Hızlı Mod)',
         prompt: 'İpuçlarını takip ederek bulmacayı çözün.',
         theme: 'Genel Kültür',
@@ -268,7 +267,7 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
         passwordCells: [{row: 1, col: 3}],
         passwordLength: 1,
         passwordPrompt: 'Şifre kelimesi ne anlama geliyor?'
-    });
+    }));
 };
 
 export const generateOfflineJumbledWordStory = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
@@ -435,9 +434,14 @@ export const generateOfflineMissingParts = async (options: GeneratorOptions): Pr
     return results;
 }
 
-// FIX: Replaced placeholder with a minimal valid implementation to satisfy type checking.
 export const generateOfflineWordWeb = async (options: GeneratorOptions): Promise<WordWebData[]> => {
-    return Array.from({length: options.worksheetCount}).fill({ title: 'Kelime Ağı', prompt: 'Verilen kelimeleri bulmaca ızgarasına yerleştirin.', wordsToFind: ['kedi', 'köpek'], grid: [[null, 'k', null], ['e', 'd', 'i'], [null, 'p', null]], keyWordPrompt: 'Anahtar kelime nedir?' });
+    return Array(options.worksheetCount).fill(null).map(() => ({ 
+        title: 'Kelime Ağı', 
+        prompt: 'Verilen kelimeleri bulmaca ızgarasına yerleştirin.', 
+        wordsToFind: ['kedi', 'köpek'], 
+        grid: [[null, 'k', null], ['e', 'd', 'i'], [null, 'p', null]], 
+        keyWordPrompt: 'Anahtar kelime nedir?' 
+    }));
 }
 
 export const generateOfflineImageAnagramSort = async (options: GeneratorOptions): Promise<ImageAnagramSortData[]> => {
@@ -454,14 +458,25 @@ export const generateOfflineImageAnagramSort = async (options: GeneratorOptions)
     return results;
 }
 
-// FIX: Replaced placeholder with a minimal valid implementation to satisfy type checking.
 export const generateOfflineAnagramImageMatch = async (options: GeneratorOptions): Promise<AnagramImageMatchData[]> => {
-    return Array.from({length: options.worksheetCount}).fill({ title: 'Resim - Kelime Eşleme (Anagram)', prompt: 'Karışık kelimeleri çözüp ilgili görsellerle eşleştirin.', wordBank: ['elma', 'armut'], puzzles: [{imageDescription: 'elma', partialAnswer: 'e__a', correctWord: 'elma'}] });
+    return Array(options.worksheetCount).fill(null).map(() => ({ 
+        title: 'Resim - Kelime Eşleme (Anagram)', 
+        prompt: 'Karışık kelimeleri çözüp ilgili görsellerle eşleştirin.', 
+        wordBank: ['elma', 'armut'], 
+        puzzles: [{imageDescription: 'elma', partialAnswer: 'e__a', correctWord: 'elma'}] 
+    }));
 }
 
-// FIX: Replaced placeholder with a minimal valid implementation to satisfy type checking.
 export const generateOfflineSyllableWordSearch = async (options: GeneratorOptions): Promise<SyllableWordSearchData[]> => {
-    return Array.from({length: options.worksheetCount}).fill({ title: 'Eksik Kelimeler ve Bulmaca', prompt: 'Hecelerle kelimeler oluşturun ve kelime avında bulun.', syllablesToCombine: ['ka', 'lem'], wordsToCreate: [{syllable1: 'ka', syllable2: 'lem', answer: 'kalem'}], wordsToFindInSearch: ['kalem'], grid: [['k','a'],['l','em']], passwordPrompt: 'Şifre nedir?' });
+    return Array(options.worksheetCount).fill(null).map(() => ({ 
+        title: 'Eksik Kelimeler ve Bulmaca', 
+        prompt: 'Hecelerle kelimeler oluşturun ve kelime avında bulun.', 
+        syllablesToCombine: ['ka', 'lem'], 
+        wordsToCreate: [{syllable1: 'ka', syllable2: 'lem', answer: 'kalem'}], 
+        wordsToFindInSearch: ['kalem'], 
+        grid: [['k','a'],['l','em']], 
+        passwordPrompt: 'Şifre nedir?' 
+    }));
 }
 
 export const generateOfflineWordSearchWithPassword = async (options: GeneratorOptions): Promise<WordSearchWithPasswordData[]> => {
@@ -469,9 +484,14 @@ export const generateOfflineWordSearchWithPassword = async (options: GeneratorOp
     return res.map(r => ({...r, title: 'Şifreli Kelime Avı', prompt: 'Şifreyi bul.', passwordCells: [{row:1, col:1}]}));
 }
 
-// FIX: Replaced placeholder with a minimal valid implementation to satisfy type checking.
 export const generateOfflineWordWebWithPassword = async (options: GeneratorOptions): Promise<WordWebWithPasswordData[]> => {
-    return Array.from({length: options.worksheetCount}).fill({ title: 'Kelime Ağı (Şifreli)', prompt: 'Kelimeleri yerleştirin ve renkli sütundan şifreyi bulun.', words: ['kalem'], grid: [['k','a'],['l','em']], passwordColumnIndex: 0 });
+    return Array(options.worksheetCount).fill(null).map(() => ({ 
+        title: 'Kelime Ağı (Şifreli)', 
+        prompt: 'Kelimeleri yerleştirin ve renkli sütundan şifreyi bulun.', 
+        words: ['kalem'], 
+        grid: [['k','a'],['l','em']], 
+        passwordColumnIndex: 0 
+    }));
 }
 
 export const generateOfflineLetterGridWordFind = async (options: GeneratorOptions): Promise<LetterGridWordFindData[]> => {
@@ -479,14 +499,22 @@ export const generateOfflineLetterGridWordFind = async (options: GeneratorOption
     return res.map(r => ({ ...r, title: 'Kelime Bulma (Tablo)', prompt: 'Kelimeleri bul.', writingPrompt: 'Bu kelimelerle metin yaz.' }));
 }
 
-// FIX: Replaced placeholder with a minimal valid implementation to satisfy type checking.
 export const generateOfflineWordPlacementPuzzle = async (options: GeneratorOptions): Promise<WordPlacementPuzzleData[]> => {
-    return Array.from({length: options.worksheetCount}).fill({ title: 'Kelime Yerleştirme', prompt: 'Verilen kelimeleri harf sayısına göre bulmaca diyagramına yerleştirin.', grid: [[]], wordGroups: [], unusedWordPrompt: '' });
+    return Array(options.worksheetCount).fill(null).map(() => ({ 
+        title: 'Kelime Yerleştirme', 
+        prompt: 'Verilen kelimeleri harf sayısına göre bulmaca diyagramına yerleştirin.', 
+        grid: [[]], 
+        wordGroups: [], 
+        unusedWordPrompt: '' 
+    }));
 }
 
-// FIX: Replaced placeholder with a minimal valid implementation to satisfy type checking.
 export const generateOfflinePositionalAnagram = async (options: GeneratorOptions): Promise<PositionalAnagramData[]> => {
-    return Array.from({length: options.worksheetCount}).fill({ title: 'Yer Değiştirmeli Anagram', prompt: 'Numaralı kutucuklardaki harflerin yerlerini değiştirerek kelimeler bulun.', puzzles: [{id: 1, scrambled: 'kleam', answer: 'kalem'}] });
+    return Array(options.worksheetCount).fill(null).map(() => ({ 
+        title: 'Yer Değiştirmeli Anagram', 
+        prompt: 'Numaralı kutucuklardaki harflerin yerlerini değiştirerek kelimeler bulun.', 
+        puzzles: [{id: 1, scrambled: 'kleam', answer: 'kalem'}] 
+    }));
 }
 
 export const generateOfflineResfebe = async (options: GeneratorOptions): Promise<ResfebeData[]> => {
