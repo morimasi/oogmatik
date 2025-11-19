@@ -1,0 +1,44 @@
+
+import React from 'react';
+
+const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => (
+  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <defs>
+      <linearGradient id="grad1" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#A78BFA"/>
+        <stop offset="1" stopColor="#4F46E5"/>
+      </linearGradient>
+      <linearGradient id="grad2" x1="22" y1="10" x2="44" y2="48" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#C4B5FD"/>
+        <stop offset="1" stopColor="#7C3AED"/>
+      </linearGradient>
+      <style>
+        {`
+        @keyframes fadeB {
+          0%, 15% { opacity: 1; }
+          35%, 100% { opacity: 0; }
+        }
+        @keyframes fadeD {
+          0%, 35% { opacity: 0; }
+          50%, 85% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        .letter-b { animation: fadeB 4s infinite ease-in-out; }
+        .letter-d { animation: fadeD 4s infinite ease-in-out; }
+        `}
+      </style>
+    </defs>
+    <rect width="64" height="64" rx="12" fill="#18181b"/>
+    <rect x="1" y="1" width="62" height="62" rx="11" stroke="url(#grad1)" strokeWidth="2"/>
+    
+    <g className="letter-b">
+       <path d="M22 6V48H35C42 48 48 42 48 35.5V35C48 28 43 22 36 22H22V6Z" fill="url(#grad2)" />
+    </g>
+
+    <g className="letter-d">
+       <path d="M42 6V48H29C22 48 16 42 16 35.5V35C16 28 21 22 28 22H42V6Z" fill="url(#grad2)" />
+    </g>
+  </svg>
+);
+
+export default DyslexiaLogo;

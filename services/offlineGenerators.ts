@@ -1,5 +1,6 @@
 
 
+
 import { 
     WorksheetData, WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData,
     SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, FindLetterPairData, MiniWordGridData,
@@ -183,7 +184,7 @@ export const generateOfflineAnagram = async (options: OfflineGeneratorOptions): 
 
 export const generateOfflineMathPuzzle = async (options: OfflineGeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
-    const objects = ['🍎', '🍌', '🍓', '🍇', '🍒', '🍍', '🥑', '🥕', '🌽', '🥦'];
+    const objects = ['🍎', '🍌', '🍓', '🍇', '🍒', '🍍', '🥑', '🥕', '🌽', '🥦', '🎁', '🎈', '⚽', '☀️'];
     
     let valueMin = 1, valueMax = 10, ops = ['+'];
     if (difficulty === 'Orta') { valueMin = 1; valueMax = 50; ops = ['+', '-']; } 
@@ -206,7 +207,7 @@ export const generateOfflineMathPuzzle = async (options: OfflineGeneratorOptions
             if (op === '-' && val1 < val2) { [val1, val2] = [val2, val1]; problemStr = `${currentObjects[idx2]} ${op} ${currentObjects[idx1]} = ?`; }
             if (op === '/' && val1 % val2 !== 0) {
                 val1 = val1 - (val1 % val2); if(val1 === 0) val1 = val2; if(val2 === 0) val2 = 1;
-                problemStr = `(${val1} değeri) ${op} ${currentObjects[idx2]} = ?`;
+                problemStr = `(${val1}) ${op} ${currentObjects[idx2]} = ?`;
             }
 
             let answer = 0;
@@ -257,8 +258,24 @@ export const generateOfflineNumberPattern = async (options: OfflineGeneratorOpti
             const step = getRandomInt(2, 9);
             let sequence = "";
             let answer = "";
-            if (difficulty === 'Başlangıç') { sequence = `${start}, ${start+step}, ${start+2*step}, ${start+3*step}, ?`; answer = (start+4*step).toString(); }
-            else { sequence = `${start}, ${start*2}, ${start*3}, ${start*4}, ?`; answer = (start*5).toString(); }
+            const type = getRandomInt(1, 3); // 1: Arithmetic, 2: Geometric, 3: Alternating
+            
+            if (difficulty === 'Başlangıç' || type === 1) { 
+                 sequence = `${start}, ${start+step}, ${start+2*step}, ${start+3*step}, ?`; 
+                 answer = (start+4*step).toString(); 
+            }
+            else if (difficulty === 'Orta' && type === 2) {
+                 // Small multipliers for geometric
+                 const mult = getRandomInt(2, 3);
+                 const s = getRandomInt(1, 5);
+                 sequence = `${s}, ${s*mult}, ${s*mult*mult}, ${s*mult*mult*mult}, ?`; 
+                 answer = (s*Math.pow(mult, 4)).toString();
+            }
+            else { 
+                 // Alternating (+step, -1)
+                 sequence = `${start}, ${start+step}, ${start+step-1}, ${start+2*step-1}, ?`; 
+                 answer = (start+2*step-2).toString(); 
+            }
             return { sequence, answer };
         });
         results.push({ title: `Sayı Örüntüsü (${difficulty})`, patterns });
@@ -401,7 +418,7 @@ export const generateOfflineVisualMemory = async (options: OfflineGeneratorOptio
             title: 'Görsel Hafıza',
             memorizeTitle: 'Ezberle', testTitle: 'Bul',
             itemsToMemorize: items.slice(0, 6),
-            testItems: items
+            testItems: shuffle(items)
         });
     }
     return results;
@@ -474,7 +491,7 @@ export const generateOfflineSynonymAntonymGrid = async (options: OfflineGenerato
             prompt: 'Kelimeleri bul.',
             synonyms: [{ word: syn.word }],
             antonyms: [{ word: ant.word }],
-            grid: [[syn.synonym[0], ant.antonym[0]]] // Simplified
+            grid: [[syn.synonym[0].toUpperCase(), ant.antonym[0].toUpperCase()]] 
         });
     }
     return results;
@@ -485,12 +502,20 @@ export const generateOfflineThematicWordSearchColor = async (options: OfflineGen
     const results: ThematicWordSearchColorData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const words = getRandomItems(getWordsForDifficulty(difficulty, topic), 5);
+        const size = 10;
+        const grid = Array.from({ length: size }, () => Array(size).fill(''));
+        // Simple fill
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
+                grid[r][c] = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+            }
+        }
         results.push({
             title: 'Tematik Kelime Avı',
             prompt: 'Kelimeleri bul ve boya.',
             theme: topic || 'Genel',
             words,
-            grid: Array(10).fill(Array(10).fill('A')) // Simplified grid
+            grid
         });
     }
     return results;
@@ -527,14 +552,17 @@ export const generateOfflineSynonymMatchingPattern = async (options: OfflineGene
     return results;
 };
 
-// Implement remaining simple generators to ensure full coverage
 export const generateOfflineStroopTest = async (options: OfflineGeneratorOptions): Promise<StroopTestData[]> => {
     const { itemCount, worksheetCount } = options;
     const results: StroopTestData[] = [];
     for(let i=0; i<worksheetCount; i++) {
         const items = Array.from({length: itemCount}).map(() => {
+            // Ensure different color vs text
             const c1 = getRandomItems(COLORS, 1)[0];
-            const c2 = getRandomItems(COLORS.filter(c => c.css !== c1.css), 1)[0];
+            let c2 = getRandomItems(COLORS, 1)[0];
+            while (c2.name === c1.name) {
+                c2 = getRandomItems(COLORS, 1)[0];
+            }
             return { text: c1.name, color: c2.css };
         });
         results.push({ title: 'Stroop Testi', items });
@@ -545,11 +573,17 @@ export const generateOfflineStroopTest = async (options: OfflineGeneratorOptions
 export const generateOfflineLetterGridTest = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
     const { gridSize, worksheetCount, targetLetters } = options;
     const results: LetterGridTestData[] = [];
-    const targets = targetLetters ? targetLetters.split(',') : ['a', 'b'];
+    const targets = targetLetters ? targetLetters.split(',') : ['b', 'd'];
     for(let i=0; i<worksheetCount; i++) {
         const grid = Array.from({length: gridSize || 10}, () => 
             Array.from({length: gridSize || 10}, () => turkishAlphabet[getRandomInt(0, 28)])
         );
+        // Inject targets randomly
+        for (let t = 0; t < 5; t++) {
+             const r = getRandomInt(0, (gridSize||10)-1);
+             const c = getRandomInt(0, (gridSize||10)-1);
+             grid[r][c] = getRandomItems(targets, 1)[0];
+        }
         results.push({ title: 'Harf Izgarası', grid, targetLetters: targets });
     }
     return results;
@@ -585,11 +619,18 @@ export const generateOfflineWordFormation = async (options: OfflineGeneratorOpti
 export const generateOfflineFindLetterPair = async (options: OfflineGeneratorOptions): Promise<FindLetterPairData[]> => {
     const { gridSize, worksheetCount, targetPair } = options;
     const results: FindLetterPairData[] = [];
-    const pair = targetPair || 'ab';
+    const pair = targetPair || 'bd';
     for(let i=0; i<worksheetCount; i++) {
          const grid = Array.from({length: gridSize || 10}, () => 
             Array.from({length: gridSize || 10}, () => turkishAlphabet[getRandomInt(0, 28)])
         );
+        // Inject pairs
+        for (let k=0; k<4; k++) {
+            const r = getRandomInt(0, 9);
+            const c = getRandomInt(0, 8);
+            grid[r][c] = pair[0];
+            grid[r][c+1] = pair[1];
+        }
         results.push({ title: 'Harf İkilisi', grid, targetPair: pair });
     }
     return results;
@@ -599,7 +640,7 @@ export const generateOfflineWordGrouping = async (options: OfflineGeneratorOptio
     const { worksheetCount } = options;
     const results: WordGroupingData[] = [];
     for(let i=0; i<worksheetCount; i++) {
-        const words = [...getRandomItems(TR_VOCAB.animals, 3), ...getRandomItems(TR_VOCAB.fruits_veggies, 3)];
+        const words = [...getRandomItems(TR_VOCAB.animals, 4), ...getRandomItems(TR_VOCAB.fruits_veggies, 4)];
         results.push({ title: 'Gruplama', words: shuffle(words), categoryNames: ['Hayvanlar', 'Meyveler'] });
     }
     return results;
@@ -644,7 +685,7 @@ export const generateOfflineMiniWordGrid = async (options: OfflineGeneratorOptio
      const { worksheetCount } = options;
      const results: MiniWordGridData[] = [];
      for(let i=0; i<worksheetCount; i++) {
-         results.push({ title: 'Mini Bulmaca', prompt: 'Bul', puzzles: [{ grid: [['a','b'],['c','d']], start: {row:0, col:0} }] });
+         results.push({ title: 'Mini Bulmaca', prompt: 'Bul', puzzles: [{ grid: [['k','a'],['l','e']], start: {row:0, col:0} }] });
      }
      return results;
 };
@@ -653,7 +694,11 @@ export const generateOfflineFindDifferentString = async (options: OfflineGenerat
     const { itemCount, worksheetCount } = options;
     const results: FindDifferentStringData[] = [];
     for(let i=0; i<worksheetCount; i++) {
-        const rows = Array.from({length: itemCount}).map(() => ({ items: ['ABC', 'ABC', 'ACB', 'ABC'] }));
+        const rows = Array.from({length: itemCount}).map(() => {
+            const base = Array.from({length:3}, () => turkishAlphabet[getRandomInt(0, 28)].toUpperCase()).join('');
+            const diff = base.split('').reverse().join('');
+            return { items: shuffle([base, base, base, diff]) };
+        });
         results.push({ title: 'Farklı Diziyi Bul', prompt: 'Bul', rows });
     }
     return results;
@@ -661,43 +706,64 @@ export const generateOfflineFindDifferentString = async (options: OfflineGenerat
 
 export const generateOfflineNumberPyramid = async (options: OfflineGeneratorOptions): Promise<NumberPyramidData[]> => {
      const { worksheetCount } = options;
-     return Array(worksheetCount).fill({ title: 'Piramit', prompt: 'Topla', pyramids: [{ rows: [[1], [null, 2]] }] });
+     const results: NumberPyramidData[] = [];
+     for(let i=0; i<worksheetCount; i++) {
+         const base = [getRandomInt(1,9), getRandomInt(1,9), getRandomInt(1,9)];
+         const mid = [base[0]+base[1], base[1]+base[2]];
+         const top = [mid[0]+mid[1]];
+         // Nullify randomly
+         const rows = [top, mid, base].map(r => r.map(n => Math.random() > 0.5 ? n : null));
+         results.push({ title: 'Piramit', prompt: 'Topla', pyramids: [{ title: 'Sihirli Piramit', rows }] });
+     }
+     return results;
 };
 
 export const generateOfflineTargetNumber = async (options: OfflineGeneratorOptions): Promise<TargetNumberData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Hedef Sayı', prompt: 'Hesapla', puzzles: [{ target: 10, givenNumbers: [2, 5] }] });
+    const results: TargetNumberData[] = [];
+    for(let i=0; i<worksheetCount; i++) {
+        const target = getRandomInt(10, 50);
+        const n1 = getRandomInt(1, 9);
+        const n2 = getRandomInt(1, 9);
+        const n3 = getRandomInt(1, 9);
+        results.push({ title: 'Hedef Sayı', prompt: 'Hesapla', puzzles: [{ target, givenNumbers: [n1, n2, n3, target - (n1+n2)] }] });
+    }
+    return results;
 };
 
 export const generateOfflineCoordinateCipher = async (options: OfflineGeneratorOptions): Promise<CoordinateCipherData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Koordinat', grid: [['A']], wordsToFind: ['A'], cipherCoordinates: ['A1'] });
+    return Array(worksheetCount).fill({ title: 'Koordinat', grid: [['A','B'],['C','D']], wordsToFind: ['AB'], cipherCoordinates: ['A1'] });
 };
 
 export const generateOfflineTargetSearch = async (options: OfflineGeneratorOptions): Promise<TargetSearchData[]> => {
      const { worksheetCount } = options;
-     return Array(worksheetCount).fill({ title: 'Hedef Ara', grid: [['A']], target: 'A', distractor: 'B' });
+     const grid = Array.from({length: 10}, () => Array.from({length: 10}, () => Math.random() > 0.2 ? 'B' : 'D'));
+     return Array(worksheetCount).fill({ title: 'Hedef Ara', grid, target: 'D', distractor: 'B' });
 };
 
 export const generateOfflineShapeNumberPattern = async (options: OfflineGeneratorOptions): Promise<ShapeNumberPatternData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Şekil Örüntüsü', patterns: [{ shapes: [{ type: 'triangle', numbers: ['1', '2', '3'] }] }] });
+    return Array(worksheetCount).fill({ title: 'Şekil Örüntüsü', patterns: [{ shapes: [{ type: 'triangle', numbers: ['2', '4', '6'] }] }] });
 };
 
 export const generateOfflineGridDrawing = async (options: OfflineGeneratorOptions): Promise<GridDrawingData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Izgara Çizimi', gridDim: 5, drawings: [{ lines: [[[0,0], [1,1]]] }] });
+    // Generate random lines
+    const lines = Array.from({length: 3}).map(() => [[getRandomInt(0,4), getRandomInt(0,4)], [getRandomInt(0,4), getRandomInt(0,4)]] as [number, number][]);
+    return Array(worksheetCount).fill({ title: 'Izgara Çizimi', gridDim: 5, drawings: [{ lines }] });
 };
 
 export const generateOfflineColorWheelMemory = async (options: OfflineGeneratorOptions): Promise<ColorWheelMemoryData[]> => {
      const { worksheetCount } = options;
-     const items = getRandomItems(TR_VOCAB.fruits_veggies, 4).map(w => ({ name: w, color: 'red' }));
+     const items = getRandomItems(TR_VOCAB.fruits_veggies, 4).map(w => ({ name: w, color: getRandomItems(COLORS, 1)[0].css }));
      return Array(worksheetCount).fill({ title: 'Renk Çemberi', memorizeTitle: 'Ezberle', testTitle: 'Test', items });
 };
 
 export const generateOfflineImageComprehension = async (options: OfflineGeneratorOptions): Promise<ImageComprehensionData[]> => {
      const { worksheetCount } = options;
-     return Array(worksheetCount).fill({ title: 'Resim Anlama', memorizeTitle: 'Bak', testTitle: 'Cevapla', sceneDescription: 'Park', questions: ['Kim var?'] });
+     // Simple placeholder as image generation isn't truly offline capable without assets
+     return Array(worksheetCount).fill({ title: 'Resim Anlama', memorizeTitle: 'Bak', testTitle: 'Cevapla', sceneDescription: 'Parkta oynayan çocuklar var. Bir kedi ağaca tırmanıyor.', questions: ['Kim oynuyor?', 'Kedi nerede?'] });
 };
 
 export const generateOfflineCharacterMemory = async (options: OfflineGeneratorOptions): Promise<CharacterMemoryData[]> => {
@@ -707,12 +773,20 @@ export const generateOfflineCharacterMemory = async (options: OfflineGeneratorOp
 
 export const generateOfflineStorySequencing = async (options: OfflineGeneratorOptions): Promise<StorySequencingData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Sıralama', prompt: 'Sırala', panels: [] });
+    return Array(worksheetCount).fill({ title: 'Sıralama', prompt: 'Sırala', panels: [{id:'A', description:'Sabah kalktı'}, {id:'B', description:'Yüzünü yıkadı'}] });
 };
 
 export const generateOfflineChaoticNumberSearch = async (options: OfflineGeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Kaotik Sayı', prompt: 'Bul', numbers: [], range: { start: 1, end: 10 } });
+    const numbers = Array.from({length: 20}).map((_, i) => ({
+        value: i+1,
+        x: getRandomInt(5, 90),
+        y: getRandomInt(5, 90),
+        size: getRandomInt(1, 3),
+        rotation: getRandomInt(0, 360),
+        color: getRandomItems(COLORS, 1)[0].css
+    }));
+    return Array(worksheetCount).fill({ title: 'Kaotik Sayı', prompt: 'Bul', numbers, range: { start: 1, end: 20 } });
 };
 
 export const generateOfflineBlockPainting = async (options: OfflineGeneratorOptions): Promise<BlockPaintingData[]> => {
@@ -722,7 +796,11 @@ export const generateOfflineBlockPainting = async (options: OfflineGeneratorOpti
 
 export const generateOfflineVisualOddOneOut = async (options: OfflineGeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Görsel Fark', prompt: 'Bul', rows: [] });
+    const rows = Array.from({length: 4}).map(() => {
+        const segs = Array(9).fill(false).map(() => Math.random() > 0.5);
+        return { items: [{segments: segs}, {segments: segs}, {segments: segs}, {segments: segs.map(b => !b)}] };
+    });
+    return Array(worksheetCount).fill({ title: 'Görsel Fark', prompt: 'Bul', rows });
 };
 
 export const generateOfflineShapeCounting = async (options: OfflineGeneratorOptions): Promise<ShapeCountingData[]> => {
@@ -732,7 +810,8 @@ export const generateOfflineShapeCounting = async (options: OfflineGeneratorOpti
 
 export const generateOfflineSymmetryDrawing = async (options: OfflineGeneratorOptions): Promise<SymmetryDrawingData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Simetri', prompt: 'Çiz', gridDim: 5, dots: [], axis: 'vertical' });
+    const dots = Array.from({length: 5}).map(() => ({x: getRandomInt(0,4), y: getRandomInt(0,9)}));
+    return Array(worksheetCount).fill({ title: 'Simetri', prompt: 'Çiz', gridDim: 10, dots, axis: 'vertical' });
 };
 
 export const generateOfflineBurdonTest = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
@@ -746,7 +825,11 @@ export const generateOfflineDotPainting = async (options: OfflineGeneratorOption
 
 export const generateOfflineAbcConnect = async (options: OfflineGeneratorOptions): Promise<AbcConnectData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'ABC Bağlama', prompt: 'Bağla', puzzles: [] });
+    const points = [
+        {letter: 'A', x: 1, y: 1}, {letter: 'A', x: 4, y: 4},
+        {letter: 'B', x: 1, y: 4}, {letter: 'B', x: 4, y: 1}
+    ];
+    return Array(worksheetCount).fill({ title: 'ABC Bağlama', prompt: 'Bağla', puzzles: [{id:1, gridDim: 6, points}] });
 };
 
 export const generateOfflinePasswordFinder = async (options: OfflineGeneratorOptions): Promise<PasswordFinderData[]> => {
@@ -856,7 +939,15 @@ export const generateOfflineThematicJumbledWordStory = async (options: OfflineGe
 
 export const generateOfflineFutoshiki = async (options: OfflineGeneratorOptions): Promise<FutoshikiData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Futoşiki', prompt: 'Çöz', puzzles: [] });
+    const results: FutoshikiData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const size = 4;
+        const numbers = Array.from({length: size}, () => Array(size).fill(null));
+        numbers[0][0] = getRandomInt(1, size);
+        const constraints = [{row1: 0, col1: 0, row2: 0, col2: 1, symbol: '<' as const}];
+        results.push({ title: 'Futoşiki', prompt: 'Çöz', puzzles: [{size, numbers, constraints}] });
+    }
+    return results;
 };
 
 export const generateOfflineNumberCapsule = async (options: OfflineGeneratorOptions): Promise<NumberCapsuleData[]> => {
@@ -866,7 +957,14 @@ export const generateOfflineNumberCapsule = async (options: OfflineGeneratorOpti
 
 export const generateOfflineOddEvenSudoku = async (options: OfflineGeneratorOptions): Promise<OddEvenSudokuData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Sudoku', prompt: 'Çöz', puzzles: [] });
+    const results: OddEvenSudokuData[] = [];
+    for(let i=0; i<worksheetCount; i++) {
+        const grid = Array.from({length: 6}, () => Array(6).fill(null));
+        // Random prefill
+        for(let k=0; k<10; k++) grid[getRandomInt(0,5)][getRandomInt(0,5)] = getRandomInt(1,6);
+        results.push({ title: 'Sudoku', prompt: 'Çöz', puzzles: [{title: 'Tek-Çift', numbersToUse:'1-6', grid, constrainedCells: []}] });
+    }
+    return results;
 };
 
 export const generateOfflineRomanNumeralConnect = async (options: OfflineGeneratorOptions): Promise<RomanNumeralConnectData[]> => {
@@ -901,7 +999,13 @@ export const generateOfflineRomanArabicMatchConnect = async (options: OfflineGen
 
 export const generateOfflineSudoku6x6Shaded = async (options: OfflineGeneratorOptions): Promise<Sudoku6x6ShadedData[]> => {
     const { worksheetCount } = options;
-    return Array(worksheetCount).fill({ title: 'Sudoku', prompt: 'Çöz', puzzles: [] });
+     const results: Sudoku6x6ShadedData[] = [];
+    for(let i=0; i<worksheetCount; i++) {
+        const grid = Array.from({length: 6}, () => Array(6).fill(null));
+        for(let k=0; k<10; k++) grid[getRandomInt(0,5)][getRandomInt(0,5)] = getRandomInt(1,6);
+        results.push({ title: 'Sudoku', prompt: 'Çöz', puzzles: [{grid, shadedCells: []}] });
+    }
+    return results;
 };
 
 export const generateOfflineKendoku = async (options: OfflineGeneratorOptions): Promise<KendokuData[]> => {
@@ -1043,4 +1147,3 @@ export const generateOfflinePositionalAnagram = async (options: OfflineGenerator
     const { worksheetCount } = options;
     return Array(worksheetCount).fill({ title: 'Konum Anagram', prompt: 'Çöz', puzzles: [] });
 };
-

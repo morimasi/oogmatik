@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect, CSSProperties, ReactNode } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme } from './types';
-// FIX: Error on line 3: Module '"file:///components/Sidebar"' has no default export. Fixed by adding a default export to Sidebar.tsx
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
+import DyslexiaLogo from './components/DyslexiaLogo';
 
 export interface StyleSettings {
   fontSize: number;
@@ -63,34 +64,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     </div>
   );
 };
-
-const DyslexiaLogo = () => (
-    <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="dyslexia-logo">
-        <defs>
-            <linearGradient id="paint0_linear_svg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#A78BFA"/>
-                <stop offset="1" stopColor="#4F46E5"/>
-            </linearGradient>
-            <linearGradient id="paint1_linear_svg" x1="22.4" y1="16" x2="43.3" y2="33.4" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#A78BFA"/>
-                <stop offset="1" stopColor="#7C3AED"/>
-            </linearGradient>
-            <linearGradient id="paint2_linear_svg" x1="22.4" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#C4B5FD"/>
-                <stop offset="1" stopColor="#8B5CF6"/>
-            </linearGradient>
-        </defs>
-        <rect width="64" height="64" rx="12" fill="#18181b"/>
-        <rect x="1" y="1" width="62" height="62" rx="11" stroke="url(#paint0_linear_svg)" strokeWidth="2"/>
-        <g className="letter-b">
-            <path d="M22.3999 16V48H35.4999C42.4035 48 47.9999 42.4036 47.9999 35.5V24.7C47.9999 19.8985 44.1014 16 39.2999 16H22.3999Z" fill="url(#paint2_linear_svg)"/>
-        </g>
-        <g className="letter-d">
-            <path d="M41.6001 16V48H28.5001C21.5965 48 16.0001 42.4036 16.0001 35.5V24.7C16.0001 19.8985 19.8986 16 24.7001 16H41.6001Z" fill="url(#paint2_linear_svg)"/>
-        </g>
-    </svg>
-);
-
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('generator');
@@ -210,7 +183,7 @@ const App: React.FC = () => {
               <i className="fa-solid fa-bars fa-lg"></i>
             </button>
              <button onClick={handleResetApp} className="flex-shrink-0 flex items-center gap-3" aria-label="Uygulamayı sıfırla">
-                <DyslexiaLogo />
+                <DyslexiaLogo className="w-12 h-12 rounded-xl" />
             </button>
             <div>
                  <h1 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
