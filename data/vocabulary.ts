@@ -17,7 +17,9 @@ export const TR_VOCAB = {
     "geyik", "karaca", "vaşak", "çakal", "sırtlan", "zebra", "goril", "şempanze", "orangutan", "lemur",
     "rakun", "kokarca", "armadillo", "karıncayiyen", "tapir", "okapi", "bizon", "yaban domuzu", "martı", "albatros",
     "papağan", "kanarya", "muhabbet kuşu", "bülbül", "saka", "iskete", "turna", "balıkçıl", "karabatak", "denizatı",
-    "vatoz", "kalamar", "mürekkepbalığı", "denizyıldızı", "sivrisinek", "yusufçuk", "peygamberdevesi", "kene", "pire", "tahtakurusu"
+    "vatoz", "kalamar", "mürekkepbalığı", "denizyıldızı", "sivrisinek", "yusufçuk", "peygamberdevesi", "kene", "pire", "tahtakurusu",
+    "bukalemun", "semender", "kurbağa", "kaplumbağa", "tarantula", "çita", "puma", "jaguar", "panter", "vaşak",
+    "kunduz", "su samuru", "mirket", "firavun faresi", "çöl faresi", "hamster", "gine domuzu", "saka kuşu", "ebabil", "arı kuşu"
   ],
   
   fruits_veggies: [
@@ -29,7 +31,9 @@ export const TR_VOCAB = {
     "soğan", "sarımsak", "patates", "havuç", "turp", "pancar", "şalgam", "kereviz", "enginar", "yerelması",
     "semizotu", "madımak", "ısırgan", "ebegümeci", "kuşkonmaz", "mantar", "mısır", "balkabağı", "avokado", "hindistancevizi",
     "kestane", "fındık", "fıstık", "ceviz", "badem", "leblebi", "çekirdek", "kabak çekirdeği", "kaju", "yerfıstığı",
-    "kuru üzüm", "kuru kayısı", "kuru incir", "dut kurusu", "iğde", "alıç", "kuşburnu", "keçiboynuzu", "börülce", "bakla"
+    "kuru üzüm", "kuru kayısı", "kuru incir", "dut kurusu", "iğde", "alıç", "kuşburnu", "keçiboynuzu", "börülce", "bakla",
+    "barbunya", "mercimek", "nohut", "pirinç", "bulgur", "yulaf", "çavdar", "arpa", "buğday", "irmik",
+    "kekik", "kimyon", "karabiber", "pul biber", "nane", "sumak", "tarçın", "zencefil", "zerdeçal", "karanfil"
   ],
   
   jobs: [
@@ -41,7 +45,8 @@ export const TR_VOCAB = {
     "bahçıvan", "kapıcı", "güvenlik", "temizlikçi", "dadı", "bakıcı", "psikolog", "sosyolog", "arkeolog", "tarihçi",
     "kurye", "postacı", "bankacı", "muhasebeci", "sekreter", "resepsiyonist", "rehber", "çevirmen", "editör", "eleştirmen",
     "kuaför", "makyöz", "stilist", "model", "manken", "sporcu", "antrenör", "hakem", "teknik direktör", "menajer",
-    "emlakçı", "sigortacı", "reklamcı", "pazarlamacı", "satış danışmanı", "insan kaynakları", "lojistik", "gümrükçü", "madenci", "balıkçı"
+    "emlakçı", "sigortacı", "reklamcı", "pazarlamacı", "satış danışmanı", "insan kaynakları", "lojistik", "gümrükçü", "madenci", "balıkçı",
+    "kuyumcu", "saatçi", "ayakkabıcı", "mobilyacı", "fırıncı", "pastacı", "kasap", "manav", "bakkal", "marketçi"
   ],
   
   school: [
@@ -52,7 +57,20 @@ export const TR_VOCAB = {
     "kırtasiye", "çanta", "suluk", "beslenme", "servis", "kolej", "üniversite", "fakülte", "kampüs", "diploma",
     "proje", "sunum", "karne", "not", "sözlü", "yazılı", "etkinlik", "kulüp", "gezi", "mezuniyet",
     "cetvel", "pergel", "gönye", "açıölçer", "hesap makinesi", "bilgisayar", "tablet", "projeksiyon", "harita", "küre",
-    "pano", "dolap", "askı", "çöp kutusu", "tebeşir", "kalemtıraş", "uçlu kalem", "tükenmez kalem", "boya kalemi", "pastel boya"
+    "pano", "dolap", "askı", "çöp kutusu", "tebeşir", "kalemtıraş", "uçlu kalem", "tükenmez kalem", "boya kalemi", "pastel boya",
+    "sulu boya", "fırça", "palet", "tuval", "not defteri", "ajanda", "takvim", "saat", "pano", "harita",
+    "deney", "mikroskop", "teleskop", "beher", "tüp", "element", "formül", "problem", "çözüm", "cevap"
+  ],
+
+  items_household: [
+    "masa", "sandalye", "koltuk", "kanepe", "yatak", "dolap", "halı", "perde", "ayna", "lamba",
+    "televizyon", "bilgisayar", "telefon", "tablet", "radyo", "saat", "vazo", "tablo", "çerçeve", "kitaplık",
+    "battaniye", "yastık", "yorgan", "çarşaf", "havlu", "bornoz", "sabun", "şampuan", "diş fırçası", "macun",
+    "tarak", "fırça", "toka", "ayakkabı", "terlik", "şemsiye", "çanta", "cüzdan", "anahtar", "gözlük",
+    "ütü", "süpürge", "kova", "paspas", "bez", "deterjan", "sünger", "mandal", "ip", "iğne",
+    "iplik", "makas", "düğme", "fermuar", "mezura", "cetvel", "kalem", "kağıt", "zarf", "bant",
+    "yapıştırıcı", "zımba", "ataş", "dosya", "klasör", "hesap makinesi", "pil", "fener", "mum", "kibrit",
+    "çakmak", "küllük", "kumanda", "priz", "fiş", "kablo", "adaptör", "şarj", "kulaklık", "hoparlör"
   ],
 
   kitchen_food: [
@@ -62,15 +80,19 @@ export const TR_VOCAB = {
     "ekmek", "peynir", "zeytin", "yumurta", "bal", "reçel", "tereyağı", "kaymak", "süt", "yoğurt",
     "çorba", "pilav", "makarna", "börek", "dolma", "sarma", "köfte", "kebap", "döner", "lahmacun",
     "pide", "pizza", "hamburger", "sandviç", "tost", "salata", "cacık", "turşu", "helva", "baklava",
-    "sütlaç", "kazandibi", "künefe", "kek", "pasta", "kurabiye", "poğaça", "simit", "açma", "çörek"
+    "sütlaç", "kazandibi", "künefe", "kek", "pasta", "kurabiye", "poğaça", "simit", "açma", "çörek",
+    "mantı", "güllaç", "aşure", "muhallebi", "puding", "dondurma", "çikolata", "şeker", "sakız", "lokum",
+    "kahve", "çay", "ayran", "meyve suyu", "limonata", "şerbet", "boza", "sahlep", "su", "soda"
   ],
 
   sports: [
-    "futbol", "basketbol", "voleybol", "tenis", "yüzme", "koşu", "güreş", "boks", "halter", "judu",
+    "futbol", "basketbol", "voleybol", "tenis", "yüzme", "koşu", "güreş", "boks", "halter", "judo",
     "karate", "tekvando", "jimnastik", "atletizm", "okçuluk", "eskrim", "binicilik", "kürek", "yelken", "sörf",
     "kayak", "buz pateni", "hokey", "golf", "bilardo", "bowling", "dart", "masa tenisi", "badminton", "hentbol",
     "top", "kale", "pota", "file", "raket", "krampon", "forma", "şort", "eşofman", "madalya",
-    "kupa", "stadyum", "salon", "havuz", "pist", "saha", "hakem", "antrenör", "taraftar", "skor"
+    "kupa", "stadyum", "salon", "havuz", "pist", "saha", "hakem", "antrenör", "taraftar", "skor",
+    "maç", "devre", "set", "sayı", "gol", "faul", "penaltı", "korner", "ofsayt", "taç",
+    "kupa", "lig", "şampiyon", "turnuva", "olimpiyat", "rekor", "derece", "final", "yarı final", "çeyrek final"
   ],
 
   clothing: [
@@ -78,7 +100,8 @@ export const TR_VOCAB = {
     "yelek", "tişört", "şort", "eşofman", "pijama", "iç çamaşırı", "çorap", "ayakkabı", "bot", "çizme",
     "sandalet", "terlik", "şapka", "bere", "atkı", "eldiven", "kemer", "kravat", "papyon", "fular",
     "şal", "mendil", "gözlük", "saat", "kolye", "küpe", "bilezik", "yüzük", "toka", "çanta",
-    "cüzdan", "bavul", "şemsiye", "düğme", "fermuar", "yaka", "cep", "kol", "paça", "astar"
+    "cüzdan", "bavul", "şemsiye", "düğme", "fermuar", "yaka", "cep", "kol", "paça", "astar",
+    "kadife", "ipek", "pamuk", "yün", "keten", "saten", "kot", "deri", "kürk", "naylon"
   ],
 
   body_health: [
@@ -87,7 +110,8 @@ export const TR_VOCAB = {
     "bel", "karın", "göbek", "kalça", "bacak", "diz", "ayak", "topuk", "deri", "saç",
     "beyin", "kalp", "akciğer", "mide", "bağırsak", "karaciğer", "böbrek", "damar", "kan", "kemik",
     "kas", "eklem", "hastalık", "sağlık", "ilaç", "hap", "şurup", "iğne", "aşı", "doktor",
-    "hemşire", "hastane", "ambulans", "yara", "bandaj", "sargı", "ateş", "öksürük", "nezle", "grip"
+    "hemşire", "hastane", "ambulans", "yara", "bandaj", "sargı", "ateş", "öksürük", "nezle", "grip",
+    "baş ağrısı", "karın ağrısı", "diş ağrısı", "vitamin", "mineral", "protein", "kalori", "diyet", "spor", "egzersiz"
   ],
 
   nature_space: [
@@ -98,7 +122,8 @@ export const TR_VOCAB = {
     "gökkuşağı", "bulut", "sis", "dolu", "kırağı", "çiy", "toprak", "kum", "kaya", "taş",
     "gezegen", "yıldız", "güneş", "ay", "dünya", "mars", "venüs", "jüpiter", "satürn", "uranüs",
     "neptün", "plüton", "galaksi", "evren", "uzay", "boşluk", "karanlık", "ışık", "hız", "yıl",
-    "uydu", "roket", "mekik", "astronot", "teleskop", "krater", "meteor", "kuyrukluyıldız", "yörünge", "atmosfer"
+    "uydu", "roket", "mekik", "astronot", "teleskop", "krater", "meteor", "kuyrukluyıldız", "yörünge", "atmosfer",
+    "kuzey", "güney", "doğu", "batı", "pusula", "harita", "atlas", "küre", "enlem", "boylam"
   ],
 
   verbs: [
@@ -108,7 +133,12 @@ export const TR_VOCAB = {
     "düşünmek", "anlamak", "bilmek", "öğrenmek", "öğretmek", "sormak", "cevaplamak", "söylemek", "konuşmak", "anlatmak",
     "bağırmak", "fısıldamak", "susmak", "durmak", "gitmek", "gelmek", "girmek", "çıkmak", "inmek", "binmek",
     "açmak", "kapatmak", "almak", "vermek", "tutmak", "atmak", "yakalamak", "bırakmak", "taşımak", "götürmek",
-    "getirmek", "başlamak", "bitirmek", "kazanmak", "kaybetmek", "oynamak", "çalışmak", "dinlenmek", "gezmek", "eğlenmek"
+    "getirmek", "başlamak", "bitirmek", "kazanmak", "kaybetmek", "oynamak", "çalışmak", "dinlenmek", "gezmek", "eğlenmek",
+    "aramak", "bulmak", "saklamak", "gizlemek", "göstermek", "izlemek", "seyretmek", "beklemek", "özlemek", "hatırlamak",
+    "unutmak", "inanmak", "güvenmek", "yardım etmek", "paylaşmak", "kutlamak", "dans etmek", "şarkı söylemek", "resim yapmak", "spor yapmak",
+    "yüzmek", "uçmak", "tırmanmak", "atlamak", "zıplamak", "sürünmek", "yuvarlanmak", "dönmek", "sallanmak", "titremek",
+    "pişirmek", "temizlemek", "yıkamak", "ütülemek", "süpürmek", "silkelemek", "kırmak", "dökmek", "saçmak", "toplamak",
+    "saymak", "ölçmek", "tartmak", "hesaplamak", "çözmek", "kurmak", "bozmak", "tamir etmek", "yapmak", "etmek"
   ],
 
   adjectives: [
@@ -118,7 +148,33 @@ export const TR_VOCAB = {
     "parlak", "mat", "canlı", "solgun", "güzel", "çirkin", "iyi", "kötü", "temiz", "kirli",
     "düzenli", "dağınık", "hızlı", "yavaş", "güçlü", "zayıf", "cesur", "korkak", "mutlu", "üzgün",
     "kızgın", "sakin", "dolu", "boş", "pahalı", "ucuz", "zengin", "fakir", "kolay", "zor",
-    "akıllı", "aptal", "çalışkan", "tembel", "dürüst", "yalancı", "cömert", "cimri", "kibar", "kaba"
+    "akıllı", "aptal", "çalışkan", "tembel", "dürüst", "yalancı", "cömert", "cimri", "kibar", "kaba",
+    "sessiz", "gürültülü", "kalabalık", "tenha", "derin", "sığ", "yüksek", "alçak", "uzak", "yakın",
+    "önemli", "önemsiz", "gerekli", "gereksiz", "faydalı", "zararlı", "sağlıklı", "hasta", "yorgun", "dinç",
+    "aç", "tok", "susuz", "uykulu", "şaşkın", "meraklı", "endişeli", "heyecanlı", "sabırlı", "aceleci"
+  ],
+
+  technology: [
+    "bilgisayar", "tablet", "telefon", "internet", "uygulama", "oyun", "kod", "yazılım", "donanım", "ekran",
+    "klavye", "fare", "yazıcı", "tarayıcı", "hoparlör", "kulaklık", "kamera", "mikrofon", "pil", "şarj",
+    "kablo", "wifi", "bluetooth", "robot", "yapay zeka", "veri", "dosya", "klasör", "sifre", "hesap",
+    "mesaj", "arama", "video", "fotoğraf", "paylaşım", "beğeni", "yorum", "takip", "bildirim", "güncelleme",
+    "uydu", "roket", "uzay", "teknoloji", "bilim", "icat", "keşif", "deney", "laboratuvar", "mühendis"
+  ],
+
+  emotions: [
+    "mutlu", "üzgün", "kızgın", "korkmuş", "şaşkın", "heyecanlı", "endişeli", "sakin", "yorgun", "enerjik",
+    "gururlu", "utangaç", "kıskanç", "sevgi", "nefret", "özlem", "pişmanlık", "umut", "hayal kırıklığı", "merak",
+    "cesaret", "korku", "sevinç", "keder", "öfke", "huzur", "stres", "panik", "rahatlama", "memnuniyet",
+    "yalnızlık", "dostluk", "güven", "şüphe", "hayranlık", "tiksinti", "acıma", "şefkat", "merhamet", "minnet"
+  ],
+  
+  vehicles: [
+      "araba", "otobüs", "kamyon", "tır", "motosiklet", "bisiklet", "traktör", "itfaiye", "ambulans", "polis arabası",
+      "taksi", "dolmuş", "minibüs", "servis", "karavan", "jip", "limuzin", "spor araba", "yarış arabası", "klasik araba",
+      "tren", "tramvay", "metro", "hızlı tren", "lokomotif", "vagon", "teleferik", "füniküler", "monoray",
+      "uçak", "helikopter", "jet", "planör", "balon", "zeplin", "drone", "roket", "uzay mekiği", "paraşüt",
+      "gemi", "vapur", "yat", "yelkenli", "tekne", "sandal", "kano", "kayık", "bot", "denizaltı", "feribot", "şilep", "tanker"
   ],
 
   // --- ÖZEL PEDAGOJİK LİSTELER ---
@@ -180,7 +236,9 @@ export const TR_VOCAB = {
     ["masa", "yasa"], ["kel", "kelli"], ["fil", "fili"], ["on", "ön"], ["us", "üs"],
     ["aç", "üç"], ["el", "al"], ["il", "al"], ["et", "at"], ["ot", "at"],
     ["cam", "çam"], ["dağ", "bağ"], ["var", "dar"], ["nar", "zar"], ["far", "gar"],
-    ["sarı", "darı"], ["yarı", "karı"], ["arı", "ayı"], ["sal", "şal"], ["kaş", "taş"]
+    ["sarı", "darı"], ["yarı", "karı"], ["arı", "ayı"], ["sal", "şal"], ["kaş", "taş"],
+    ["manda", "manav"], ["biber", "berber"], ["kalem", "kelam"], ["resim", "cisim"], ["şaka", "kasa"],
+    ["çakı", "açkı"], ["elek", "lek"], ["kek", "ek"], ["kil", "il"], ["mil", "il"]
   ],
 
   // Eş Anlamlılar (Genişletilmiş)
@@ -207,7 +265,13 @@ export const TR_VOCAB = {
     { word: "lider", synonym: "önder" }, { word: "savaş", synonym: "harp" }, { word: "barış", synonym: "sulh" },
     { word: "hayat", synonym: "yaşam" }, { word: "tabiat", synonym: "doğa" }, { word: "nefes", synonym: "soluk" },
     { word: "kafa", synonym: "baş" }, { word: "kalp", synonym: "yürek" }, { word: "elbise", synonym: "giysi" },
-    { word: "ayakkabı", synonym: "pabuç" }, { word: "yemek", synonym: "aş" }, { word: "isim", synonym: "ad" }
+    { word: "ayakkabı", synonym: "pabuç" }, { word: "yemek", synonym: "aş" }, { word: "isim", synonym: "ad" },
+    { word: "uyarı", synonym: "ikaz" }, { word: "çağrı", synonym: "davet" }, { word: "sınav", synonym: "imtihan" },
+    { word: "harf", synonym: "ses" }, { word: "hece", synonym: "seslem" }, { word: "tane", synonym: "adet" },
+    { word: "fark", synonym: "ayrım" }, { word: "biçim", synonym: "şekil" }, { word: "örnek", synonym: "misal" },
+    { word: "ilgi", synonym: "alaka" }, { word: "ilişki", synonym: "münasebet" }, { word: "fikir", synonym: "düşünce" },
+    { word: "görüş", synonym: "kanaat" }, { word: "duygu", synonym: "his" }, { word: "akıl", synonym: "us" },
+    { word: "zekâ", synonym: "anlak" }, { word: "bellek", synonym: "hafıza" }, { word: "anı", synonym: "hatıra" }
   ],
 
   // Zıt Anlamlılar (Genişletilmiş)
@@ -233,6 +297,25 @@ export const TR_VOCAB = {
     { word: "cimri", antonym: "cömert" }, { word: "uysal", antonym: "hırçın" }, { word: "üretim", antonym: "tüketim" },
     { word: "yerli", antonym: "yabancı" }, { word: "öz", antonym: "üvey" }, { word: "katı", antonym: "sıvı" },
     { word: "ince", antonym: "kalın" }, { word: "yüksek", antonym: "alçak" }, { word: "derin", antonym: "sığ" },
-    { word: "geniş", antonym: "dar" }, { word: "bol", antonym: "dar" }, { word: "ucuz", antonym: "pahalı" }
+    { word: "geniş", antonym: "dar" }, { word: "bol", antonym: "dar" }, { word: "ucuz", antonym: "pahalı" },
+    { word: "ödül", antonym: "ceza" }, { word: "kar", antonym: "zarar" }, { word: "galip", antonym: "mağlup" },
+    { word: "giriş", antonym: "çıkış" }, { word: "başlangıç", antonym: "bitiş" }, { word: "aktif", antonym: "pasif" },
+    { word: "pozitif", antonym: "negatif" }, { word: "soyut", antonym: "somut" }, { word: "genel", antonym: "özel" },
+    { word: "teorik", antonym: "pratik" }, { word: "nesnel", antonym: "öznel" }, { word: "gerçek", antonym: "hayal" }
+  ],
+
+  emojis: ["🍎", "🚗", "🏠", "⭐", "🎈", "📚", "⚽", "☀️", "🌙", "🌲", "🌺", "🎁", "⏰", "🔑", "🚲", "🎸", "👓", "☂️", "🍦", "🍕", "🍔", "🍟", "🐱", "🐶", "🦁", "🐯", "🚀", "🚁", "🚢", "🚌", "🚑", "🚒", "🚓", "🚕", "👑", "💎", "💍", "🎓", "🧢", "👟", "🦋", "🐞", "🐝", "🐌", "🐢", "🦕", "🦖", "🐙", "🐠", "🐬"],
+
+  colors_detailed: [
+      { name: 'KIRMIZI', css: 'red' }, { name: 'MAVİ', css: 'blue' }, { name: 'YEŞİL', css: 'green' }, { name: 'SARI', css: 'yellow' },
+      { name: 'TURUNCU', css: 'orange' }, { name: 'MOR', css: 'purple' }, { name: 'PEMBE', css: 'pink' }, { name: 'SİYAH', css: 'black' },
+      { name: 'TURKUAZ', css: 'turquoise' }, { name: 'GRİ', css: 'gray' }, { name: 'KAHVERENGİ', css: 'brown' }, { name: 'LACİVERT', css: 'navy' },
+      { name: 'BEYAZ', css: '#f0f0f0' }, { name: 'ALTIN', css: 'gold' }, { name: 'GÜMÜŞ', css: 'silver' }, { name: 'BEJ', css: 'beige' },
+      { name: 'LİLA', css: 'lavender' }, { name: 'BORDO', css: 'maroon' }, { name: 'ZEYTİN', css: 'olive' }, { name: 'MERCAN', css: 'coral' }
+  ],
+
+  homonyms: [
+      "yüz", "çay", "düş", "at", "ben", "bin", "dil", "diz", "ekmek", "el", "in", "iç", "kara", "kır", "kız", "ocak", "oy", "pazar", "saç", "satır", "soluk", "sürü", "yaş", "yaz", "yol",
+      "bağ", "bel", "boğaz", "dal", "dolu", "hayır", "kaz", "koca", "kurşun", "kuşak", "pay", "saz", "ton", "var", "yat", "gül", "an", "arı", "as"
   ]
 };

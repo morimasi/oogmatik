@@ -1,4 +1,5 @@
 
+
 import { 
     WorksheetData, WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData,
     SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, FindLetterPairData, MiniWordGridData,
@@ -16,16 +17,9 @@ import { PROVERBS, STORY_TEMPLATES } from '../data/sentences';
 
 const turkishAlphabet = 'abcçdefgğhıijklmnoöprsştuüvyz';
 const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
-const EMOJIS = ["🍎 Elma", "🚗 Araba", "🏠 Ev", "⭐ Yıldız", "🎈 Balon", "📚 Kitap", "⚽ Top", "☀️ Güneş", "🌙 Ay", "🌲 Ağaç", "🌺 Çiçek", "🎁 Hediye", "⏰ Saat", "🔑 Anahtar", "🚲 Bisiklet", "🎸 Gitar", "👓 Gözlük", "☂️ Şemsiye", "🍦 Dondurma", "🍕 Pizza", "🍔 Hamburger", "🍟 Patates", "🐱 Kedi", "🐶 Köpek", "🦁 Aslan", "🐯 Kaplan", "🚀 Roket", "🚁 Helikopter"];
-const COLORS = [
-    { name: 'KIRMIZI', css: 'red' }, { name: 'MAVİ', css: 'blue' }, { name: 'YEŞİL', css: 'green' }, { name: 'SARI', css: 'yellow' },
-    { name: 'TURUNCU', css: 'orange' }, { name: 'MOR', css: 'purple' }, { name: 'PEMBE', css: 'pink' }, { name: 'SİYAH', css: 'black' },
-    { name: 'TURKUAZ', css: 'turquoise' }, { name: 'GRİ', css: 'gray' }, { name: 'KAHVERENGİ', css: 'brown' }, { name: 'LACİVERT', css: 'navy' }
-];
-
-const HOMONYMS = [
-    "yüz", "çay", "düş", "at", "ben", "bin", "dil", "diz", "ekmek", "el", "in", "iç", "kara", "kır", "kız", "ocak", "oy", "pazar", "saç", "satır", "soluk", "sürü", "yaş", "yaz", "yol"
-];
+const EMOJIS = TR_VOCAB.emojis;
+const COLORS = TR_VOCAB.colors_detailed;
+const HOMONYMS = TR_VOCAB.homonyms;
 
 // --- Helper Functions ---
 
@@ -57,7 +51,7 @@ const getWordsForDifficulty = (difficulty: string, topic?: string): string[] => 
     // Topic selection
     if (topic && topic !== 'Rastgele' && topic in TR_VOCAB) {
         const vocabList = (TR_VOCAB as any)[topic];
-        // Ensure we only pick string arrays (exclude synonyms/antonyms/confusing_words)
+        // Ensure we only pick string arrays (exclude synonyms/antonyms/confusing_words/detailed_colors)
         if (Array.isArray(vocabList) && vocabList.length > 0 && typeof vocabList[0] === 'string') {
             pool = vocabList as string[];
         }
@@ -67,9 +61,12 @@ const getWordsForDifficulty = (difficulty: string, topic?: string): string[] => 
     if (pool.length === 0) {
          const allKeys = Object.keys(TR_VOCAB).filter(k => 
             !k.endsWith('_words') && 
+            !k.endsWith('_detailed') &&
             k !== 'synonyms' && 
             k !== 'antonyms' && 
-            k !== 'confusing_words'
+            k !== 'confusing_words' &&
+            k !== 'emojis' &&
+            k !== 'homonyms'
          );
          allKeys.forEach(key => {
              const list = (TR_VOCAB as any)[key];
@@ -205,7 +202,7 @@ export const generateOfflineAnagram = async (options: OfflineGeneratorOptions): 
 
 export const generateOfflineMathPuzzle = async (options: OfflineGeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
-    const objects = ['🍎', '🍌', '🍓', '🍇', '🍒', '🍍', '🥑', '🥕', '🌽', '🥦', '🎁', '🎈', '⚽', '☀️'];
+    const objects = EMOJIS.slice(0, 15); // Use imported Emojis
     
     let valueMin = 1, valueMax = 10, ops = ['+'];
     if (difficulty === 'Orta') { valueMin = 1; valueMax = 50; ops = ['+', '-']; } 
@@ -345,7 +342,7 @@ export const generateOfflineOddOneOut = async (options: OfflineGeneratorOptions)
     const { itemCount, worksheetCount } = options;
     const results: OddOneOutData[] = [];
     // Exclude special lists
-    const categories = Object.keys(TR_VOCAB).filter(k => !k.endsWith('_words') && k !== 'synonyms' && k !== 'antonyms' && k !== 'confusing_words');
+    const categories = Object.keys(TR_VOCAB).filter(k => !k.endsWith('_words') && !k.endsWith('_detailed') && k !== 'synonyms' && k !== 'antonyms' && k !== 'confusing_words' && k !== 'homonyms' && k !== 'emojis');
     
     for (let i = 0; i < worksheetCount; i++) {
         const groups = Array.from({ length: itemCount }).map(() => {
