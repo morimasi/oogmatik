@@ -285,50 +285,50 @@ export const STORY_TEMPLATES = [
     characters: ["Ali", "Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Mert", "Selin", "Burak", "Ceren", "Deniz", "Umut", "Cemre", "Arda", "İpek", "Kerem", "Aslı"],
     weather: ["karlı", "yağmurlu", "güneşli", "rüzgarlı", "sisli", "bulutlu", "fırtınalı", "gökkuşaklı", "dolulu", "soğuk", "sıcak", "rengarenk"],
     clothing: ["montunu", "botlarını", "şapkasını", "eldivenlerini", "atkısını", "yağmurluğunu", "gözlüğünü", "mayosunu", "terliklerini", "kazığını", "kabanını", "şortunu", "hırkasını"],
-    goal: ["arkadaşlarıyla buluşmak", "markete gitmek", "okula gitmek", "parkta oynamak", "dedesini ziyaret etmek", "köpeğini gezdirmek", "bisiklet sürmek", "top oynamak", "balık tutmak", "piknik yapmak", "kartopu oynamak", "çiçek toplamak"]
+    goals: ["arkadaşlarıyla buluşmak", "markete gitmek", "okula gitmek", "parkta oynamak", "dedesini ziyaret etmek", "köpeğini gezdirmek", "bisiklet sürmek", "top oynamak", "balık tutmak", "piknik yapmak", "kartopu oynamak", "çiçek toplamak"]
   },
   {
     template: "Büyük bir {place} içinde, sevimli bir {animal} yaşarmış. Bu {animal} çok {adjective} biriymiş. En sevdiği yiyecek {food} imiş. Bir gün ormanda {verb} yaparken yeni bir arkadaş edinmiş.",
     places: ["mağara", "ağaç kavuğu", "kale", "kulübe", "saray", "çadır", "gökdelen", "çiftlik", "ada", "vadi", "yanardağ", "şelale", "bataklık"],
-    animal: ["ayı", "tilki", "kurt", "aslan", "kaplan", "fil", "maymun", "panda", "koala", "kanguru", "zebra", "su aygırı", "gergedan"],
-    adjective: ["cesur", "korkak", "mutlu", "üzgün", "hızlı", "yavaş", "akıllı", "komik", "uykucu", "obur", "sinirli", "utangaç", "meraklı"],
-    food: ["bal", "muz", "et", "ot", "havuç", "balık", "fındık", "elma", "dondurma", "pasta", "pizza", "börek", "simit"],
-    verb: ["yürüyüş", "koşu", "avlanma", "saklambaç", "piknik", "uyku", "şarkı söyleme", "dans", "tırmanma", "yüzme", "uçma"]
+    animals: ["ayı", "tilki", "kurt", "aslan", "kaplan", "fil", "maymun", "panda", "koala", "kanguru", "zebra", "su aygırı", "gergedan"],
+    adjectives: ["cesur", "korkak", "mutlu", "üzgün", "hızlı", "yavaş", "akıllı", "komik", "uykucu", "obur", "sinirli", "utangaç", "meraklı"],
+    foods: ["bal", "muz", "et", "ot", "havuç", "balık", "fındık", "elma", "dondurma", "pasta", "pizza", "börek", "simit"],
+    verbs: ["yürüyüş", "koşu", "avlanma", "saklambaç", "piknik", "uyku", "şarkı söyleme", "dans", "tırmanma", "yüzme", "uçma"]
   },
   {
     template: "Günün birinde, gökyüzünden bir {object} düştü. Bunu gören {job}, hemen yanına koştu. {object} çok {adjective} görünüyordu. İçinden bir {character} çıktı ve '{greeting}' dedi.",
-    object: ["ufo", "meteor", "paket", "balon", "paraşüt", "tohum", "mektup", "sandık", "yumurta", "robot parçası"],
-    job: ["polis", "doktor", "çiftçi", "öğretmen", "itfaiyeci", "postacı", "bilim insanı", "pilot", "gazeteci", "bekçi"],
-    adjective: ["parlak", "tuhaf", "sıcak", "soğuk", "renkli", "korkunç", "güzel", "büyük", "küçük", "gizemli", "ıslak"],
-    character: ["uzaylı", "robot", "cüce", "dev", "periler", "konuşan kedi", "zaman yolcusu", "süper kahraman", "minik bir bebek"],
-    greeting: ["Merhaba!", "Beni liderinize götürün.", "Karnım aç.", "Yolumu kaybettim.", "Barış için geldim.", "Burası neresi?", "Yardım et!", "Oyun oynayalım mı?"]
+    objects: ["ufo", "meteor", "paket", "balon", "paraşüt", "tohum", "mektup", "sandık", "yumurta", "robot parçası"],
+    jobs: ["polis", "doktor", "çiftçi", "öğretmen", "itfaiyeci", "postacı", "bilim insanı", "pilot", "gazeteci", "bekçi"],
+    adjectives: ["parlak", "tuhaf", "sıcak", "soğuk", "renkli", "korkunç", "güzel", "büyük", "küçük", "gizemli", "ıslak"],
+    characters: ["uzaylı", "robot", "cüce", "dev", "periler", "konuşan kedi", "zaman yolcusu", "süper kahraman", "minik bir bebek"],
+    greetings: ["Merhaba!", "Beni liderinize götürün.", "Karnım aç.", "Yolumu kaybettim.", "Barış için geldim.", "Burası neresi?", "Yardım et!", "Oyun oynayalım mı?"]
   },
   {
     template: "Yemek yarışmasında {character} çok heyecanlıydı. Jüriye sunmak için {food} yapacaktı. Ancak malzemelerden {ingredient} eksikti. Hemen {place} gidip almaya karar verdi.",
-    character: ["Ahmet Usta", "Şef Elif", "Aşçı Fare", "Küçük Prens", "Kırmızı Başlıklı Kız", "Nasreddin Hoca", "Keloğlan"],
-    food: ["makarna", "pizza", "çorba", "pasta", "börek", "salata", "tost", "kebap", "pilav", "menemen"],
-    ingredient: ["tuz", "un", "şeker", "domates", "peynir", "yumurta", "süt", "yağ", "baharat", "maya"],
-    place: ["bakkala", "markete", "pazara", "komşuya", "orman", "şehre", "köye", "tarlaya", "değirmene"]
+    characters: ["Ahmet Usta", "Şef Elif", "Aşçı Fare", "Küçük Prens", "Kırmızı Başlıklı Kız", "Nasreddin Hoca", "Keloğlan"],
+    foods: ["makarna", "pizza", "çorba", "pasta", "börek", "salata", "tost", "kebap", "pilav", "menemen"],
+    ingredients: ["tuz", "un", "şeker", "domates", "peynir", "yumurta", "süt", "yağ", "baharat", "maya"],
+    places: ["bakkala", "markete", "pazara", "komşuya", "orman", "şehre", "köye", "tarlaya", "değirmene"]
   },
   {
     template: "Dedektif {character}, kayıp {object}'ı arıyordu. En son {place}'de görüldüğü söylenmişti. Oraya vardığında yerde bir {clue} buldu. Bu {clue}, onu suçluya götürecekti.",
-    character: ["Sherlock", "Poyraz", "Zeynep", "Boncuk", "Karabaş", "Bay Baykuş"],
-    object: ["elması", "kediyi", "tabloyu", "anahtarı", "mektubu", "yüzüğü", "saati", "haritayı"],
-    place: ["müze", "banka", "park", "kütüphane", "tren istasyonu", "liman", "otel", "okul"],
-    clue: ["ayak izi", "tüy", "düğme", "not kağıdı", "eldiven", "gözlük", "şapka", "bilet"]
+    characters: ["Sherlock", "Poyraz", "Zeynep", "Boncuk", "Karabaş", "Bay Baykuş"],
+    objects: ["elması", "kediyi", "tabloyu", "anahtarı", "mektubu", "yüzüğü", "saati", "haritayı"],
+    places: ["müze", "banka", "park", "kütüphane", "tren istasyonu", "liman", "otel", "okul"],
+    clues: ["ayak izi", "tüy", "düğme", "not kağıdı", "eldiven", "gözlük", "şapka", "bilet"]
   },
   {
     template: "{character} bir gün {vehicle} ile seyahate çıktı. Yolculuk sırasında {event} oldu. Neyse ki yanında {tool} vardı. Hemen {tool} kullanarak sorunu çözdü ve yoluna devam etti.",
-    character: ["Gezgin Efe", "Kaptan Memo", "Pilot Aslı", "Şoför Rıza", "Maceracı Nil"],
-    vehicle: ["bisiklet", "araba", "tekne", "balon", "motosiklet", "karavan", "uçak"],
-    event: ["tekerlek patladı", "yakıt bitti", "yol kapandı", "fırtına çıktı", "motor bozuldu", "harita kayboldu"],
-    tool: ["tamir seti", "yedek lastik", "pusula", "fener", "çekiç", "telsiz", "dürbün", "halat"]
+    characters: ["Gezgin Efe", "Kaptan Memo", "Pilot Aslı", "Şoför Rıza", "Maceracı Nil"],
+    vehicles: ["bisiklet", "araba", "tekne", "balon", "motosiklet", "karavan", "uçak"],
+    events: ["tekerlek patladı", "yakıt bitti", "yol kapandı", "fırtına çıktı", "motor bozuldu", "harita kayboldu"],
+    tools: ["tamir seti", "yedek lastik", "pusula", "fener", "çekiç", "telsiz", "dürbün", "halat"]
   },
   {
     template: "Okulun ilk günü {character} çok heyecanlıydı. Çantasında yeni {item} vardı. Sınıfa girdiğinde {friend} ile tanıştı. Birlikte {activity} yaptılar ve çok eğlendiler.",
-    character: ["Can", "Ece", "Ali", "Sude", "Mert", "Duru"],
-    item: ["defteri", "kalemliği", "silgisi", "suluku", "boya seti", "kitabı"],
-    friend: ["Ahmet", "Ayşe", "Mehmet", "Fatma", "Ozan", "Selin"],
-    activity: ["resim", "müzik", "spor", "okuma", "oyun", "sohbet"]
+    characters: ["Can", "Ece", "Ali", "Sude", "Mert", "Duru"],
+    items: ["defteri", "kalemliği", "silgisi", "suluku", "boya seti", "kitabı"],
+    friends: ["Ahmet", "Ayşe", "Mehmet", "Fatma", "Ozan", "Selin"],
+    activities: ["resim", "müzik", "spor", "okuma", "oyun", "sohbet"]
   }
 ];

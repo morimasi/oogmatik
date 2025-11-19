@@ -1,5 +1,4 @@
 import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData } from '../../types';
-// FIX: Imported getRandomInt to make it available in the module.
 import { shuffle, getRandomItems, getWordsForDifficulty, getRandomInt } from './helpers';
 import { PROVERBS, STORY_TEMPLATES } from '../../data/sentences';
 
@@ -7,54 +6,82 @@ import { PROVERBS, STORY_TEMPLATES } from '../../data/sentences';
 export const generateOfflineStoryComprehension = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { worksheetCount, topic, difficulty, characterName } = options;
     const results: StoryData[] = [];
+
     for (let i = 0; i < worksheetCount; i++) {
         const template = getRandomItems(STORY_TEMPLATES, 1)[0];
         
-        const usedValues = {
-            place: getRandomItems(template.places, 1)[0],
-            character: characterName || getRandomItems(template.characters, 1)[0],
-            activity: getRandomItems(template.activities, 1)[0],
-            object: getRandomItems(template.objects, 1)[0],
-        };
+        let story = template.template;
+        const placeholders = [...story.matchAll(/{(\w+)}/g)];
+        const uniqueKeys = [...new Set(placeholders.map(p => p[1]))]; // e.g., ['place', 'character', 'activity']
         
-        let story = template.template
-            .replace('{place}', usedValues.place)
-            .replace(/{character}/g, usedValues.character)
-            .replace('{activity}', usedValues.activity)
-            .replace('{object}', usedValues.object);
+        const usedValues: { [key: string]: string } = {};
 
-        const questions = Array.from({ length: 3 }).map((_, qIndex) => {
-            if (difficulty === 'Başlangıç' || qIndex === 0) {
-                const wordPool = story.split(' ').filter(w => w.length > 3);
-                const answer = getRandomItems(wordPool, 1)[0] || "cevap";
-                const distractors = getRandomItems(getWordsForDifficulty(difficulty, topic).filter(w => !wordPool.includes(w)), 2);
-                const options = shuffle([answer, ...distractors]);
-                return { question: `Hikayede geçen kelimelerden hangisi aşağıdadır?`, options, answerIndex: options.indexOf(answer) };
-            } else { // Orta, Zor, Uzman - anlama dayalı sorular
-                const qType = getRandomInt(0, 2);
-                let question = "", answer = "", distractors: string[] = [];
-                switch(qType) {
-                    case 0:
-                        question = `${usedValues.character} nerede yaşıyordu?`;
-                        answer = usedValues.place;
-                        distractors = getRandomItems(template.places.filter(p => p !== answer), 2);
-                        break;
-                    case 1:
-                        question = `${usedValues.character} en çok ne yapmayı severmiş?`;
-                        answer = usedValues.activity;
-                        distractors = getRandomItems(template.activities.filter(a => a !== answer), 2);
-                        break;
-                    case 2:
-                    default:
-                        question = `Bir gün ${usedValues.character} ne bulmuş?`;
-                        answer = usedValues.object;
-                        distractors = getRandomItems(template.objects.filter(o => o !== answer), 2);
-                        break;
+        uniqueKeys.forEach(key => {
+            const pluralKey = `${key}s`;
+            // Check for plural first (characters), then singular (character)
+            const dataArray = (template as any)[pluralKey] || (template as any)[key];
+
+            if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
+                let value = '';
+                if (key === 'character' && characterName) {
+                    value = characterName;
+                } else {
+                    value = getRandomItems(dataArray, 1)[0];
                 }
-                const options = shuffle([answer, ...distractors]);
-                return { question, options, answerIndex: options.indexOf(answer) };
+                
+                if (value) {
+                    usedValues[key] = value;
+                    story = story.replace(new RegExp(`{${key}}`, 'g'), value);
+                }
             }
         });
+
+        const remainingPlaceholders = story.match(/{(\w+)}/g);
+        if (remainingPlaceholders) {
+            console.warn(`Story template has unfilled placeholders: ${remainingPlaceholders.join(', ')}. Filling with '[?]'.`);
+            remainingPlaceholders.forEach(p => {
+                story = story.replace(p, '[?]');
+            });
+        }
+
+        const availableQuestionKeys = Object.keys(usedValues).filter(k => k !== 'character' && k !== 'greeting');
+        
+        const questions = Array.from({ length: 3 }).map((_, qIndex) => {
+            if (difficulty === 'Başlangıç' || qIndex === 0) {
+                const wordPool = story.split(' ').filter(w => w.length > 3 && !Object.values(usedValues).includes(w));
+                const answer = getRandomItems(wordPool, 1)[0] || "cevap";
+                const distractors = getRandomItems(getWordsForDifficulty(difficulty, topic).filter(w => !wordPool.includes(w) && w !== answer), 2);
+                const options = shuffle([answer, ...distractors]);
+                return { question: `Hikayede geçen kelimelerden hangisi aşağıdadır?`, options, answerIndex: options.indexOf(answer) };
+            } 
+            
+            if (availableQuestionKeys.length > 0) {
+                const questionKey = getRandomItems(availableQuestionKeys, 1)[0];
+                availableQuestionKeys.splice(availableQuestionKeys.indexOf(questionKey), 1);
+
+                const answer = usedValues[questionKey];
+                const pluralKey = `${questionKey}s`;
+                const dataArray = (template as any)[pluralKey] || (template as any)[questionKey];
+
+                let questionText = `Hikayede bahsedilen ${questionKey} neydi?`;
+                if (questionKey === 'place') questionText = `Olaylar nerede geçiyordu?`;
+                if (questionKey === 'activity') questionText = `${usedValues['character'] || 'Karakter'} ne yapmayı seviyordu?`;
+                if (questionKey === 'object') questionText = `Hikayede bulunan nesne neydi?`;
+                if (questionKey === 'goal') questionText = `${usedValues['character'] || 'Karakter'}'in amacı neydi?`;
+
+                const distractors = (dataArray && Array.isArray(dataArray)) 
+                    ? getRandomItems(dataArray.filter((item: string) => item !== answer), 2)
+                    : [];
+
+                const options = shuffle([answer, ...distractors]);
+                
+                return { question: questionText, options, answerIndex: options.indexOf(answer) };
+
+            } else {
+                return { question: `Hikaye ne hakkındaydı?`, options: [topic || 'Macera', 'Okul', 'Aile'], answerIndex: 0 };
+            }
+        });
+
         results.push({ title: `Hikaye Anlama (${topic || 'Rastgele'})`, story, questions });
     }
     return results;
