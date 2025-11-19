@@ -1,6 +1,6 @@
 import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData } from '../../types';
 import { shuffle, getRandomItems, getWordsForDifficulty, getRandomInt } from './helpers';
-import { PROVERBS, STORY_TEMPLATES } from '../../data/sentences';
+import { PROVERBS, STORY_TEMPLATES, SAYINGS } from '../../data/sentences';
 
 
 export const generateOfflineStoryComprehension = async (options: GeneratorOptions): Promise<StoryData[]> => {
@@ -12,13 +12,12 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
         
         let story = template.template;
         const placeholders = [...story.matchAll(/{(\w+)}/g)];
-        const uniqueKeys = [...new Set(placeholders.map(p => p[1]))]; // e.g., ['place', 'character', 'activity']
+        const uniqueKeys = [...new Set(placeholders.map(p => p[1]))];
         
         const usedValues: { [key: string]: string } = {};
 
         uniqueKeys.forEach(key => {
             const pluralKey = `${key}s`;
-            // Check for plural first (characters), then singular (character)
             const dataArray = (template as any)[pluralKey] || (template as any)[key];
 
             if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
@@ -44,43 +43,53 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             });
         }
 
-        const availableQuestionKeys = Object.keys(usedValues).filter(k => k !== 'character' && k !== 'greeting');
-        
-        const questions = Array.from({ length: 3 }).map((_, qIndex) => {
-            if (difficulty === 'Başlangıç' || qIndex === 0) {
-                const wordPool = story.split(' ').filter(w => w.length > 3 && !Object.values(usedValues).includes(w));
-                const answer = getRandomItems(wordPool, 1)[0] || "cevap";
-                const distractors = getRandomItems(getWordsForDifficulty(difficulty, topic).filter(w => !wordPool.includes(w) && w !== answer), 2);
-                const options = shuffle([answer, ...distractors]);
-                return { question: `Hikayede geçen kelimelerden hangisi aşağıdadır?`, options, answerIndex: options.indexOf(answer) };
-            } 
+        const questionCandidates = Object.keys(usedValues).filter(k => k !== 'greeting');
+
+        const questions = shuffle(questionCandidates).slice(0, 3).map(questionKey => {
+            const answer = usedValues[questionKey];
+            const pluralKey = `${questionKey}s`;
+            const dataArray = (template as any)[pluralKey] || (template as any)[questionKey] || [];
             
-            if (availableQuestionKeys.length > 0) {
-                const questionKey = getRandomItems(availableQuestionKeys, 1)[0];
-                availableQuestionKeys.splice(availableQuestionKeys.indexOf(questionKey), 1);
-
-                const answer = usedValues[questionKey];
-                const pluralKey = `${questionKey}s`;
-                const dataArray = (template as any)[pluralKey] || (template as any)[questionKey];
-
-                let questionText = `Hikayede bahsedilen ${questionKey} neydi?`;
-                if (questionKey === 'place') questionText = `Olaylar nerede geçiyordu?`;
-                if (questionKey === 'activity') questionText = `${usedValues['character'] || 'Karakter'} ne yapmayı seviyordu?`;
-                if (questionKey === 'object') questionText = `Hikayede bulunan nesne neydi?`;
-                if (questionKey === 'goal') questionText = `${usedValues['character'] || 'Karakter'}'in amacı neydi?`;
-
-                const distractors = (dataArray && Array.isArray(dataArray)) 
-                    ? getRandomItems(dataArray.filter((item: string) => item !== answer), 2)
-                    : [];
-
-                const options = shuffle([answer, ...distractors]);
-                
-                return { question: questionText, options, answerIndex: options.indexOf(answer) };
-
-            } else {
-                return { question: `Hikaye ne hakkındaydı?`, options: [topic || 'Macera', 'Okul', 'Aile'], answerIndex: 0 };
+            let questionText = `Hikayede geçen ${questionKey} neydi?`;
+            const questionTextMap: { [key: string]: string } = {
+                place: "Olaylar nerede geçiyordu?",
+                activity: `${usedValues['character'] || 'Karakter'} ne yapmayı severdi?`,
+                object: "Hikayede bulunan nesne neydi?",
+                goal: `${usedValues['character'] || 'Karakter'}'in amacı neydi?`,
+                animal: "Hikayedeki hayvan neydi?",
+                food: "Karakterin en sevdiği yiyecek neydi?"
+            };
+            if (questionTextMap[questionKey]) {
+                questionText = questionTextMap[questionKey];
             }
+            
+            // FIX: Cast `dataArray` to string[] to resolve type error where 'options' was inferred as 'unknown[]' instead of 'string[]'.
+            const distractors = getRandomItems((dataArray as string[]).filter((item: string) => item !== answer), 2);
+            
+            while (distractors.length < 2) {
+                const fallbackWord = getRandomItems(getWordsForDifficulty('Orta', topic), 1)[0];
+                if (fallbackWord && fallbackWord !== answer && !distractors.includes(fallbackWord)) {
+                    distractors.push(fallbackWord);
+                }
+            }
+
+            const options = shuffle([answer, ...distractors]);
+            const answerIndex = options.indexOf(answer);
+
+            return { question: questionText, options, answerIndex };
         });
+
+        while (questions.length < 3) {
+            const wordPool = story.split(' ').filter(w => w.length > 3 && !Object.values(usedValues).includes(w) && w.replace(/[.,]/g, '').length > 2);
+            const answer = getRandomItems(wordPool, 1)[0]?.replace(/[.,]/g, '') || "cevap";
+            const distractors = getRandomItems(getWordsForDifficulty(difficulty, topic).filter(w => !wordPool.includes(w) && w !== answer), 2);
+            const options = shuffle([answer, ...distractors]);
+            questions.push({
+                question: `Hikayede geçen kelime hangisidir?`,
+                options,
+                answerIndex: options.indexOf(answer)
+            });
+        }
 
         results.push({ title: `Hikaye Anlama (${topic || 'Rastgele'})`, story, questions });
     }
@@ -121,8 +130,29 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
 };
 
 export const generateOfflineStorySequencing = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
-    const panels = [{id: 'A', description: 'Çocuk uyandı.'}, {id: 'B', description: 'Okula gitti.'}, {id: 'C', description: 'Kahvaltı yaptı.'}, {id: 'D', description: 'Oyun oynadı.'}];
-    return [{ title: 'Hikaye Oluşturma', prompt: 'Resimleri sırala.', panels: shuffle(panels) }];
+    const { worksheetCount } = options;
+    const results: StorySequencingData[] = [];
+    const story1 = [
+        { id: 'A', description: 'Küçük tırtıl bir yaprakta uyandı.' },
+        { id: 'B', description: 'Tırtıl çok acıkmıştı ve yaprağı yemeye başladı.' },
+        { id: 'C', description: 'Karnı doyan tırtıl kendine bir koza ördü.' },
+        { id: 'D', description: 'Kozadan rengarenk bir kelebek çıktı.' }
+    ];
+    const story2 = [
+        { id: 'A', description: 'Çocuk bir tohum ekti.' },
+        { id: 'B', description: 'Tohumu her gün suladı.' },
+        { id: 'C', description: 'Tohum filizlendi ve büyüdü.' },
+        { id: 'D', description: 'Büyük bir çiçek açtı.' }
+    ];
+    const stories = [story1, story2];
+    for(let i=0; i < worksheetCount; i++){
+        results.push({
+            title: 'Hikaye Sıralama (Hızlı Mod)',
+            prompt: 'Olayları doğru sıraya koymak için resimleri numaralandır.',
+            panels: shuffle(getRandomItems(stories, 1)[0])
+        });
+    }
+    return results;
 };
 
 export const generateOfflineProverbFillInTheBlank = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {
@@ -142,7 +172,18 @@ export const generateOfflineProverbFillInTheBlank = async (options: GeneratorOpt
 }
 
 export const generateOfflineProverbSayingSort = async (options: GeneratorOptions): Promise<ProverbSayingSortData[]> => {
-    return Array(options.worksheetCount).fill({ title: 'Şifre Bul (Atasözü/Özdeyiş)', prompt: 'Cümlelerin atasözü mü yoksa özdeyiş mi olduğunu belirleyin.', items: [{text: 'Damlaya damlaya göl olur.', type: 'atasözü'}]});
+    const { itemCount, worksheetCount } = options;
+    const results: ProverbSayingSortData[] = [];
+    for(let i=0; i < worksheetCount; i++){
+        const proverbs = getRandomItems(PROVERBS, Math.ceil(itemCount/2)).map(p => ({ text: p, type: 'atasözü' as const }));
+        const sayings = getRandomItems(SAYINGS, Math.floor(itemCount/2)).map(s => ({ text: s, type: 'özdeyiş' as const }));
+        results.push({
+            title: 'Atasözü / Özdeyiş (Hızlı Mod)',
+            prompt: 'Aşağıdaki cümleleri "Atasözü" ve "Özdeyiş" olarak doğru kutulara yerleştirin.',
+            items: shuffle([...proverbs, ...sayings])
+        });
+    }
+    return results;
 }
 export const generateOfflineProverbWordChain = async (options: GeneratorOptions): Promise<ProverbWordChainData[]> => {
     const {itemCount, worksheetCount} = options;

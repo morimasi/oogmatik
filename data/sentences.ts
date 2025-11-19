@@ -247,10 +247,10 @@ export const PROVERBS = [
   "Taş yerinde ağırdır.",
   "Tatlı dil yılanı deliğinden çıkarır.",
   "Tavşan dağa küsmüş, dağın haberi olmamış.",
+  "Tekerlek kırıldıktan sonra yol gösteren çok olur.",
   "Terzi kendi söküğünü dikemez.",
   "Tilkinin dönüp dolaşacağı yer kürkçü dükkanıdır.",
   "Tok, açın halinden anlamaz.",
-  "Ucuz etin yahnisi yavan olur.",
   "Ummadığın taş baş yarar.",
   "Üzüm üzüme baka baka kararır.",
   "Vakit nakittir.",
@@ -270,6 +270,16 @@ export const PROVERBS = [
   "Zararın neresinden dönülse kardır.",
   "Zenginin malı züğürdün çenesini yorar.",
   "Zorla güzellik olmaz."
+];
+
+export const SAYINGS = [
+  "Hayatta en hakiki mürşit ilimdir, fendir. - M. Kemal Atatürk",
+  "Ne olursan ol, yine gel. - Mevlana",
+  "Ya olduğun gibi görün, ya göründüğün gibi ol. - Mevlana",
+  "Adalet mülkün temelidir. - Hz. Ömer",
+  "Bilgi güçtür. - Francis Bacon",
+  "Düşünüyorum, öyleyse varım. - Descartes",
+  "Küçük şeylere gereğinden çok önem verenler, elinden büyük iş gelmeyenlerdir. - Eflatun"
 ];
 
 export const STORY_TEMPLATES = [

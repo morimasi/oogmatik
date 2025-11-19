@@ -202,7 +202,6 @@ export const generateOfflinePasswordFinder = async (options: GeneratorOptions): 
         let password = '';
         for(let j=0; j<itemCount; j++){
             const isProper = Math.random() > 0.5;
-// FIX: Added a fallback to an empty string to ensure 'word' is a string and prevent type errors on 'charAt' and 'slice'.
             const word: string = (isProper ? getRandomItems(TR_VOCAB.jobs, 1)[0] : getRandomItems(TR_VOCAB.easy_words, 1)[0]) || '';
             const passwordLetter = isProper ? word.charAt(0) : '';
             if(isProper) password += passwordLetter;
@@ -234,7 +233,6 @@ export const generateOfflineSynonymWordSearch = async (options: GeneratorOptions
             worksheetCount:1, 
             topic: 'Rastgele', 
             gridSize,
-// FIX: Added explicit type annotation for 'p' to resolve type inference issue.
             words: wordsToMatch.map((p: { synonym: string }) => p.synonym)
         });
         results.push({
@@ -253,7 +251,36 @@ export const generateOfflinePunctuationSpiralPuzzle = async (options: GeneratorO
     return data.map(d => ({...d, title: 'Noktalama Sarmal Bulmaca'}));
 }
 export const generateOfflineCrossword = async (options: GeneratorOptions): Promise<CrosswordData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Çapraz Bulmaca', prompt: 'Verilen ipuçlarıyla bulmacayı çözün ve şifreyi bulun.', grid: [[null, 'E', null], ['E', 'L', 'M'], [null, 'A', null]], clues:[], passwordCells:[], passwordLength: 0 });
+    const { worksheetCount } = options;
+    const results: CrosswordData[] = [];
+    const sampleCrosswords = [
+        {
+            grid: [
+                [null, 'E', 'L', 'M', 'A'],
+                ['K', 'İ', 'T', 'A', 'P'],
+                [null, 'L', 'O', 'P', null],
+                [null, 'E', null, null, null],
+                [null, 'M', null, null, null]
+            ],
+            clues: [
+                { id: 1, direction: 'across' as const, text: 'Kırmızı bir meyve', start: { row: 0, col: 1 }, word: 'ELMA' },
+                { id: 2, direction: 'across' as const, text: 'Okunan nesne', start: { row: 1, col: 0 }, word: 'KİTAP' },
+                { id: 1, direction: 'down' as const, text: 'Okulda kullanılan bir araç', start: { row: 0, col: 1 }, word: 'KALEM' },
+                { id: 3, direction: 'down' as const, text: 'Yuvarlak, seken oyuncak', start: { row: 1, col: 2 }, word: 'TOP' }
+            ],
+            passwordCells: [{row: 1, col: 3}],
+            passwordLength: 1
+        }
+    ];
+
+    for(let i=0; i<worksheetCount; i++){
+        results.push({
+            title: 'Çapraz Bulmaca (Hızlı Mod)',
+            prompt: 'İpuçlarını takip ederek bulmacayı çözün.',
+            ...getRandomItems(sampleCrosswords, 1)[0]
+        });
+    }
+    return results;
 }
 export const generateOfflineJumbledWordStory = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
     const {itemCount, worksheetCount, difficulty, theme} = options;
@@ -267,17 +294,29 @@ export const generateOfflineJumbledWordStory = async (options: GeneratorOptions)
 }
 export const generateOfflineHomonymSentenceWriting = async (options: GeneratorOptions): Promise<HomonymSentenceData[]> => {
     const {itemCount, worksheetCount} = options;
-    return Array(worksheetCount).fill({
-        title: 'Kelime Ağı (Eş Sesli)', prompt: 'Eş sesli kelimeler için iki farklı anlama gelen cümleler yazın.',
-        items: getRandomItems(HOMONYMS, itemCount).map(word => ({word}))
-    });
+    const results: HomonymSentenceData[] = [];
+    for(let i=0; i<worksheetCount; i++){
+        results.push({
+            title: 'Kelime Ağı (Eş Sesli)',
+            prompt: 'Eş sesli kelimeler için iki farklı anlama gelen cümleler yazın.',
+            items: getRandomItems(HOMONYMS, itemCount).map(word => ({word}))
+        });
+    }
+    return results;
 }
 export const generateOfflineWordGridPuzzle = async (options: GeneratorOptions): Promise<WordGridPuzzleData[]> => {
-    const {itemCount, worksheetCount, difficulty, theme} = options;
+    const { itemCount, worksheetCount, difficulty, theme } = options;
     const results: WordGridPuzzleData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const wordList = getRandomItems(getWordsForDifficulty(difficulty, theme), itemCount);
-        results.push({title: 'Kelime Ağı (Yerleştirme)', prompt: 'Verilen kelimeleri bulmaca tablosuna doğru şekilde yerleştirin.', theme: theme || 'Rastgele', wordList, grid:[[null]], unusedWordPrompt: 'Kullanılmayan kelime hangisidir?'});
+        results.push({
+            title: 'Kelime Ağı (Yerleştirme)', 
+            prompt: 'Verilen kelimeleri bulmaca tablosuna doğru şekilde yerleştirin.', 
+            theme: theme || 'Rastgele', 
+            wordList, 
+            grid:[[null, null, null], [null, null, null], [null, null, null]], 
+            unusedWordPrompt: 'Kullanılmayan kelime hangisidir?'
+        });
     }
     return results;
 }
@@ -300,7 +339,6 @@ export const generateOfflineAntonymFlowerPuzzle = async (options: GeneratorOptio
     const {itemCount, worksheetCount} = options;
     const results: AntonymFlowerPuzzleData[] = [];
     for(let i=0; i<worksheetCount; i++){
-// FIX: Added explicit type annotation for 'p' to resolve type inference errors.
         const puzzles = getRandomItems(TR_VOCAB.antonyms, itemCount).map((p: { word: string, antonym: string }) => ({
             centerWord: p.word,
             antonym: p.antonym,
@@ -315,11 +353,27 @@ export const generateOfflineSynonymAntonymGrid = async (options: GeneratorOption
     const {itemCount, worksheetCount, gridSize} = options;
     const results: SynonymAntonymGridData[] = [];
     for(let i=0; i<worksheetCount; i++){
-// FIX: Added explicit type annotations for 's' and 'a' to resolve type inference errors.
-        const synonyms = getRandomItems(TR_VOCAB.synonyms, itemCount/2).map((s: { word: string }) => ({word: s.word}));
-        const antonyms = getRandomItems(TR_VOCAB.antonyms, itemCount/2).map((a: { word: string }) => ({word: a.word}));
-        const grid = Array(gridSize || 12).fill(0).map(() => Array(gridSize || 12).fill(null));
-        results.push({title: 'Kelime Bulma (Eş/Zıt Anlamlı)', prompt: 'Kelimelerin eş ve zıt anlamlılarını bulup bulmacaya yerleştirin.', antonyms, synonyms, grid});
+        const syns = getRandomItems(TR_VOCAB.synonyms, Math.ceil(itemCount/2));
+        const ants = getRandomItems(TR_VOCAB.antonyms, Math.floor(itemCount/2));
+        
+        const synonyms = syns.map((s: { word: string }) => ({word: s.word}));
+        const antonyms = ants.map((a: { word: string }) => ({word: a.word}));
+        
+        const wordsToPlace = [...syns.map((s: { synonym: string }) => s.synonym), ...ants.map((a: { antonym: string }) => a.antonym)];
+        const wordSearchResult = await generateOfflineWordSearch({
+            ...options,
+            worksheetCount: 1,
+            itemCount: wordsToPlace.length,
+            words: wordsToPlace
+        });
+
+        results.push({
+            title: 'Kelime Bulma (Eş/Zıt Anlamlı)',
+            prompt: 'Kelimelerin eş ve zıt anlamlılarını bulup bulmacaya yerleştirin.',
+            antonyms, 
+            synonyms,
+            grid: wordSearchResult[0].grid
+        });
     }
     return results;
 }
@@ -331,7 +385,6 @@ export const generateOfflineAntonymResfebe = async (options: GeneratorOptions): 
          const puzzles = getRandomItems(TR_VOCAB.antonyms, itemCount).map(p => ({
              word: p.word,
              antonym: p.antonym,
-             // FIX: Added 'as const' to the type property to satisfy the 'text' | 'image' union type.
              clues: [{type: 'text' as const, value: p.word.substring(0,2).toUpperCase()}, {type: 'text' as const, value: '...'}]
          }));
          results.push({ title: 'Resfebe (Zıt Anlamlı)', prompt: 'Resfebe ile kelimeyi bulun, sonra zıt anlamlısını yazın.', puzzles, antonymsPrompt: 'Şimdi bulduğun kelimelerin zıt anlamlılarını yaz.' });
@@ -429,7 +482,6 @@ export const generateOfflineResfebe = async (options: GeneratorOptions): Promise
         const puzzles = Array.from({length: itemCount}).map(() => {
             const word = getRandomItems(getWordsForDifficulty('Orta'), 1)[0] || 'cebir';
             return {
-                // FIX: Added 'as const' to the type property to satisfy the 'text' | 'image' union type.
                 clues: [{type: 'text' as const, value: word.substring(0,1).toUpperCase()}, {type: 'text' as const, value: '1'}],
                 answer: word
             };
