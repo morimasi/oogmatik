@@ -3,46 +3,42 @@ import React, { CSSProperties } from 'react';
 
 const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
   const text = "Bursa Disleksi";
-  const animationDuration = "1.5s"; // Süre biraz uzatıldı, akıcılık için
-  const delayIncrement = 0.05; // Harfler arası gecikme
 
   return (
-    <svg viewBox="0 0 360 50" xmlns="http://www.w3.org/2000/svg" className={`${className} group cursor-default`}>
+    <svg 
+      viewBox="0 0 360 50" 
+      xmlns="http://www.w3.org/2000/svg" 
+      className={`${className} group cursor-default`}
+      style={{ perspective: '800px' }} // 3D derinlik etkisi için
+    >
       <style>
         {`
-          @keyframes fluidReveal {
+          @keyframes mixedFlip {
             0% {
-              opacity: 0;
-              transform: translate3d(var(--randX), var(--randY), 0) rotate(var(--randRot)) scale(1.5);
-              filter: blur(8px);
+              transform: rotateY(0deg);
             }
-            40% {
-              opacity: 0.6;
-              filter: blur(2px);
+            15% {
+              transform: rotateY(180deg); /* Ters dön */
+            }
+            45% {
+              transform: rotateY(180deg); /* Ters bekle */
+            }
+            60% {
+              transform: rotateY(360deg); /* Düz dön */
             }
             100% {
-              opacity: 1;
-              transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
-              filter: blur(0px);
+              transform: rotateY(360deg); /* Düz bekle */
             }
           }
 
-          @keyframes gentleFloat {
-            0%, 100% {
-              transform: translateY(0);
-            }
-            50% {
-              transform: translateY(-3px);
-            }
-          }
-
-          /* Hover durumunda harflerin hafifçe oynaması için */
           .logo-letter {
-            transition: fill 0.3s ease;
-          }
-          .group:hover .logo-letter {
-             animation: gentleFloat 2s ease-in-out infinite;
-             animation-delay: var(--delay); 
+            transform-box: fill-box; /* Harfin kendi merkezinde dönmesi için kritik */
+            transform-origin: center;
+            display: inline-block; /* Transformların çalışması için */
+            
+            animation-name: mixedFlip;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
           }
         `}
       </style>
@@ -58,33 +54,19 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
       >
         {text.split('').map((char, index) => {
           if (char === ' ') {
-            return <tspan key={index}>{char}</tspan>;
+            return <tspan key={index} dx="10"> </tspan>;
           }
 
-          // Daha kontrollü rastgelelik
-          const randX = Math.random() * 60 - 30; // -30px ile 30px arası
-          const randY = Math.random() * 40 - 20; // -20px ile 20px arası
-          const randRot = Math.random() * 60 - 30; // -30deg ile 30deg arası
+          // Her harf için rastgele süre ve gecikme oluşturuyoruz
+          // Süre: 5s ile 10s arasında (yavaş ve sakin döngü, disleksi dostu)
+          const duration = 5 + Math.random() * 5; 
+          // Gecikme: -5s ile 0s arasında (animasyonun ortasından başlamış gibi görünmesi için negatif delay)
+          // Bu sayede sayfa açıldığında hepsi aynı anda başlamaz, karışık görünür.
+          const delay = -(Math.random() * 5);
 
-          const style: CSSProperties & {
-            '--randX': string;
-            '--randY': string;
-            '--randRot': string;
-            '--delay': string;
-          } = {
-            display: 'inline-block',
-            transformOrigin: 'center', // Dönüş merkezi harfin ortası
-            '--randX': `${randX}px`,
-            '--randY': `${randY}px`,
-            '--randRot': `${randRot}deg`,
-            '--delay': `${index * 0.1}s`, // Hover animasyonu için gecikme
-            
-            animationName: 'fluidReveal',
-            animationDuration: animationDuration,
-            animationFillMode: 'both',
-            // "Spring" etkisi veren özel bezier eğrisi (hafifçe hedefini geçip geri gelir)
-            animationTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)', 
-            animationDelay: `${index * delayIncrement}s`,
+          const style: CSSProperties = {
+            animationDuration: `${duration}s`,
+            animationDelay: `${delay}s`,
           };
 
           return (
