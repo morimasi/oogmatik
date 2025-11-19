@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ActivityType, WorksheetData, Activity } from '../types';
+import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(ACTIVITY_CATEGORIES[0]?.id || null);
 
-  const handleGenerate = async (options: any) => {
+  const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
     
     setIsLoading(true);

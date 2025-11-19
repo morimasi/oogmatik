@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
-import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
-import * as generators from '../services/generators';
-import * as offlineGenerators from '../services/offlineGenerators';
-import { GeneratorView } from './GeneratorView';
+import { ActivityType, WorksheetData, Activity, GeneratorOptions } from './types';
+import { ACTIVITY_CATEGORIES, ACTIVITIES } from './constants';
+import * as generators from './services/generators';
+import * as offlineGenerators from './services/offlineGenerators';
+import { GeneratorView } from './components/GeneratorView';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
