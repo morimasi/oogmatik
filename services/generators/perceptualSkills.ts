@@ -1,16 +1,16 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { OfflineGeneratorOptions } from '../offlineGenerators';
+import { GeneratorOptions } from '../../types';
 import {
     FindTheDifferenceData, StroopTestData, OddOneOutData, FindIdenticalWordData, GridDrawingData, ChaoticNumberSearchData,
     BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData
 } from '../../types';
 
-export const generateFindTheDifferenceFromAI = async (options: OfflineGeneratorOptions): Promise<FindTheDifferenceData[]> => {
-    const { topic, itemCount: rowCount, difficulty, worksheetCount } = options;
+export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
+    const { topic, itemCount: rowCount, difficulty, worksheetCount, similarity: similarityLevel } = options;
     
     let similarity = "Fark çok belirgin olsun (örn: 3 elma, 1 armut).";
-    if (difficulty === 'Zor' || difficulty === 'Uzman') similarity = "Fark çok küçük olsun (örn: kelimede 1 harf değişik, görselde küçük bir detay farklı).";
+    if (similarityLevel === 'high' || difficulty === 'Zor' || difficulty === 'Uzman') similarity = "Fark çok küçük olsun (örn: kelimede 1 harf değişik, 'b' yerine 'd' kullan, görselde küçük bir detay farklı).";
 
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun 'Farklı Olanı Bul' etkinliği için ${rowCount} satır oluştur.
@@ -41,10 +41,10 @@ export const generateFindTheDifferenceFromAI = async (options: OfflineGeneratorO
     return generateWithSchema(prompt, schema) as Promise<FindTheDifferenceData[]>;
 };
 
-export const generateStroopTestFromAI = async (options: OfflineGeneratorOptions): Promise<StroopTestData[]> => {
-    const { itemCount: count, difficulty, worksheetCount } = options;
+export const generateStroopTestFromAI = async (options: GeneratorOptions): Promise<StroopTestData[]> => {
+    const { itemCount, difficulty, worksheetCount } = options;
     const prompt = `
-    "${difficulty}" zorluk seviyesine uygun bir Stroop testi için ${count} tane öğe oluştur. Her öğe bir renk adı (text) ve bir CSS renk adı (color) içermelidir. 
+    "${difficulty}" zorluk seviyesine uygun bir Stroop testi için ${itemCount} tane öğe oluştur. Her öğe bir renk adı (text) ve bir CSS renk adı (color) içermelidir. 
     Metin ve renk genellikle birbiriyle eşleşmemelidir. Örneğin, metin "MAVİ" olabilirken renk "red" olabilir.
     Kullanılacak renkler: red, blue, green, yellow, orange, purple, pink, black.
     Kullanılacak metinler: KIRMIZI, MAVİ, YEŞİL, SARI, TURUNCU, MOR, PEMBE, SİYAH.
@@ -72,11 +72,11 @@ export const generateStroopTestFromAI = async (options: OfflineGeneratorOptions)
     return generateWithSchema(prompt, schema) as Promise<StroopTestData[]>;
 };
 
-export const generateOddOneOutFromAI = async (options: OfflineGeneratorOptions): Promise<OddOneOutData[]> => {
-  const { topic, itemCount: groupCount, difficulty, worksheetCount } = options;
+export const generateOddOneOutFromAI = async (options: GeneratorOptions): Promise<OddOneOutData[]> => {
+  const { topic, itemCount: groupCount, difficulty, worksheetCount, similarity } = options;
   
   let relation = "Alakasız kelime çok bariz olsun (kedi, köpek, kuş, masa).";
-  if (difficulty === 'Zor' || difficulty === 'Uzman') relation = "Alakasız kelime, diğerleriyle ilişkili gibi görünsün ama ince bir fark olsun (elma, armut, muz, domates - hepsi meyve gibi ama domates sebze sayılır).";
+  if (similarity === 'high' || difficulty === 'Zor' || difficulty === 'Uzman') relation = "Alakasız kelime, diğerleriyle ilişkili gibi görünsün ama ince bir fark olsun (elma, armut, muz, domates - hepsi meyve gibi ama domates sebze sayılır).";
 
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun 'Farklı Olanı Bul' etkinliği için ${groupCount} grup oluştur.
@@ -105,7 +105,7 @@ export const generateOddOneOutFromAI = async (options: OfflineGeneratorOptions):
   return generateWithSchema(prompt, schema) as Promise<OddOneOutData[]>;
 };
 
-export const generateFindIdenticalWordFromAI = async (options: OfflineGeneratorOptions): Promise<FindIdenticalWordData[]> => {
+export const generateFindIdenticalWordFromAI = async (options: GeneratorOptions): Promise<FindIdenticalWordData[]> => {
     const { itemCount: count, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'Aynısını Bul' etkinliği için ${count} tane grup oluştur.
@@ -138,9 +138,9 @@ export const generateFindIdenticalWordFromAI = async (options: OfflineGeneratorO
     return generateWithSchema(prompt, schema) as Promise<FindIdenticalWordData[]>;
 };
 
-export const generateGridDrawingFromAI = async (options: OfflineGeneratorOptions): Promise<GridDrawingData[]> => {
-    const { gridSize: gridDim, itemCount: count, difficulty, worksheetCount } = options;
-    const prompt = `Create a mirror drawing activity appropriate for difficulty level "${difficulty}". Generate a worksheet with ${count} simple line patterns on a ${gridDim}x${gridDim} grid. Provide the line coordinates for each pattern as an array of lines, where each line is an array of two points [start, end], and each point is an array of two numbers [x, y]. The user will copy the drawing to an empty grid. 
+export const generateGridDrawingFromAI = async (options: GeneratorOptions): Promise<GridDrawingData[]> => {
+    const { gridSize: gridDim, itemCount, difficulty, worksheetCount } = options;
+    const prompt = `Create a mirror drawing activity appropriate for difficulty level "${difficulty}". Generate a worksheet with ${itemCount} simple line patterns on a ${gridDim}x${gridDim} grid. Provide the line coordinates for each pattern as an array of lines, where each line is an array of two points [start, end], and each point is an array of two numbers [x, y]. The user will copy the drawing to an empty grid. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -174,9 +174,9 @@ export const generateGridDrawingFromAI = async (options: OfflineGeneratorOptions
     return generateWithSchema(prompt, schema) as Promise<GridDrawingData[]>;
 };
 
-export const generateChaoticNumberSearchFromAI = async (options: OfflineGeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const [start, end] = [1, 50];
+export const generateChaoticNumberSearchFromAI = async (options: GeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
+    const { difficulty, worksheetCount, itemCount } = options;
+    const [start, end] = [1, itemCount || 50];
     const prompt = `Create a chaotic number search puzzle appropriate for difficulty level "${difficulty}". The user needs to find numbers from ${start} to ${end}. Generate about 100 numbers in total, including the target range and distractors. For each number, provide its value, position (x, y as percentages), size (in rem), rotation (in degrees), and a random hex color. Make the layout chaotic. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
@@ -213,7 +213,7 @@ export const generateChaoticNumberSearchFromAI = async (options: OfflineGenerato
     return generateWithSchema(prompt, schema) as Promise<ChaoticNumberSearchData[]>;
 };
 
-export const generateBlockPaintingFromAI = async (options: OfflineGeneratorOptions): Promise<BlockPaintingData[]> => {
+export const generateBlockPaintingFromAI = async (options: GeneratorOptions): Promise<BlockPaintingData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a block painting activity appropriate for difficulty level "${difficulty}". Define a 10x10 grid. Create 3-4 colored shapes (like Tetris blocks). For each shape, provide a color and a 2D array representing its pattern. The user's goal is to color the grid according to the given shapes. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -242,9 +242,9 @@ export const generateBlockPaintingFromAI = async (options: OfflineGeneratorOptio
     return generateWithSchema(prompt, schema) as Promise<BlockPaintingData[]>;
 };
 
-export const generateVisualOddOneOutFromAI = async (options: OfflineGeneratorOptions): Promise<VisualOddOneOutData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `Create a visual odd one out puzzle appropriate for difficulty level "${difficulty}". Generate a worksheet with 4 rows. Each row has 4 items. Each item is a simple shape made of 9 segments (like a digital clock digit). In each row, one item's segment pattern is slightly different. Describe each item by a boolean array of its 9 segments. 
+export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
+    const { difficulty, worksheetCount, itemCount } = options;
+    const prompt = `Create a visual odd one out puzzle appropriate for difficulty level "${difficulty}". Generate a worksheet with ${itemCount} rows. Each row has 4 items. Each item is a simple shape made of 9 segments (like a digital clock digit). In each row, one item's segment pattern is slightly different. Describe each item by a boolean array of its 9 segments. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -278,9 +278,9 @@ export const generateVisualOddOneOutFromAI = async (options: OfflineGeneratorOpt
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
 
-export const generateSymmetryDrawingFromAI = async (options: OfflineGeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `Create a symmetry drawing activity appropriate for difficulty level "${difficulty}". Define an 8x8 grid. Provide a set of dots (x, y coordinates) on one half of the grid (e.g., left half for a vertical axis). The user's goal is to draw the symmetrical reflection. Specify the axis of symmetry ('vertical' or 'horizontal'). 
+export const generateSymmetryDrawingFromAI = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
+    const { difficulty, worksheetCount, gridSize } = options;
+    const prompt = `Create a symmetry drawing activity appropriate for difficulty level "${difficulty}". Define a ${gridSize}x${gridSize} grid. Provide a set of dots (x, y coordinates) on one half of the grid (e.g., left half for a vertical axis). The user's goal is to draw the symmetrical reflection. Specify the axis of symmetry ('vertical' or 'horizontal'). 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -311,9 +311,9 @@ export const generateSymmetryDrawingFromAI = async (options: OfflineGeneratorOpt
     return generateWithSchema(prompt, schema) as Promise<SymmetryDrawingData[]>;
 };
 
-export const generateFindDifferentStringFromAI = async (options: OfflineGeneratorOptions): Promise<FindDifferentStringData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Find the Different String" activity appropriate for difficulty level "${difficulty}". Generate a worksheet with 10 rows. Each row contains 5 strings. Four of the strings are identical (e.g., "VWN"), and one is slightly different (e.g., "VNW"). The position of the different string should be random in each row. 
+export const generateFindDifferentStringFromAI = async (options: GeneratorOptions): Promise<FindDifferentStringData[]> => {
+    const { difficulty, worksheetCount, itemCount } = options;
+    const prompt = `Create a "Find the Different String" activity appropriate for difficulty level "${difficulty}". Generate a worksheet with ${itemCount} rows. Each row contains 5 strings. Four of the strings are identical (e.g., "VWN"), and one is slightly different (e.g., "VNW"). The position of the different string should be random in each row. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -338,7 +338,7 @@ export const generateFindDifferentStringFromAI = async (options: OfflineGenerato
     return generateWithSchema(prompt, schema) as Promise<FindDifferentStringData[]>;
 };
 
-export const generateDotPaintingFromAI = async (options: OfflineGeneratorOptions): Promise<DotPaintingData[]> => {
+export const generateDotPaintingFromAI = async (options: GeneratorOptions): Promise<DotPaintingData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a dot painting activity appropriate for difficulty level "${difficulty}". Design a simple hidden picture (e.g., a house) on a 15x15 grid. Provide the SVG path data for the grid lines and the viewBox. Provide a list of dots to be colored, with their cx, cy coordinates and a specific color. The user's goal is to color the dots to reveal the picture. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.

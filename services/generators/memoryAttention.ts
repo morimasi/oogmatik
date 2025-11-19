@@ -1,14 +1,14 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { OfflineGeneratorOptions } from '../offlineGenerators';
+import { GeneratorOptions } from '../../types';
 import {
     WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, SynonymSearchAndStoryData, StarHuntData, ShapeType
 } from '../../types';
 
-export const generateWordMemoryFromAI = async (options: OfflineGeneratorOptions): Promise<WordMemoryData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount } = options;
-    const memorizeCount = Math.floor(itemCount * 0.7);
+export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
+    const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
+    const memorizeCount = Math.floor(itemCount * (memorizeRatio / 100));
     const testCount = itemCount;
 
     const prompt = `
@@ -34,15 +34,15 @@ export const generateWordMemoryFromAI = async (options: OfflineGeneratorOptions)
     return generateWithSchema(prompt, schema) as Promise<WordMemoryData[]>;
 };
 
-export const generateVisualMemoryFromAI = async (options: OfflineGeneratorOptions): Promise<VisualMemoryData[]> => {
-  const { topic, itemCount, difficulty, worksheetCount } = options;
-  const memorizeCount = Math.floor(itemCount * 0.7);
+export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
+  const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
+  const memorizeCount = Math.floor(itemCount * (memorizeRatio / 100));
   const testCount = itemCount;
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir görsel hafıza testi oluştur.
     Ezberlenecek ${memorizeCount} tane nesne belirle (örn: "Kırmızı Araba 🚗"). İsmini ve emojisini ver.
     Test için ${testCount} tane nesneden oluşan bir liste oluştur. Bu listenin içinde ezberlenecek nesneler de bulunsun.
-    ${difficulty === 'Zor' ? 'Nesneler birbirine çok benzesin (örn: Kırmızı Elma, Yeşil Elma).' : 'Nesneler birbirinden tamamen farklı olsun.'}
+    ${difficulty === 'Zor' || difficulty === 'Uzman' ? 'Nesneler birbirine çok benzesin (örn: Kırmızı Elma, Yeşil Elma).' : 'Nesneler birbirinden tamamen farklı olsun.'}
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -60,7 +60,7 @@ export const generateVisualMemoryFromAI = async (options: OfflineGeneratorOption
   return generateWithSchema(prompt, schema) as Promise<VisualMemoryData[]>;
 };
 
-export const generateNumberSearchFromAI = async (options: OfflineGeneratorOptions): Promise<NumberSearchData[]> => {
+export const generateNumberSearchFromAI = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
     const { difficulty, worksheetCount } = options;
     let range = { start: 1, end: 20 };
     if (difficulty === 'Orta') range = { start: 1, end: 50 };
@@ -93,13 +93,12 @@ export const generateNumberSearchFromAI = async (options: OfflineGeneratorOption
     return generateWithSchema(prompt, schema) as Promise<NumberSearchData[]>;
 };
 
-export const generateFindTheDuplicateInRowFromAI = async (options: OfflineGeneratorOptions): Promise<FindDuplicateData[]> => {
-  const { itemCount: rows, difficulty, worksheetCount } = options;
-  const cols = 15;
+export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOptions): Promise<FindDuplicateData[]> => {
+  const { itemCount: rows, difficulty, worksheetCount, cols } = options;
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'İkiliyi Bul' etkinliği için ${rows} satır ve ${cols} sütundan oluşan bir tablo oluştur.
     Her satıra rastgele harfler ve rakamlar yerleştir.
-    ${difficulty === 'Zor' ? 'Karakterler birbirine çok benzer olsun (b, d, p, q gibi).' : 'Karakterler birbirinden farklı olsun.'}
+    ${difficulty === 'Zor' || difficulty === 'Uzman' ? 'Karakterler birbirine çok benzer olsun (b, d, p, q gibi).' : 'Karakterler birbirinden farklı olsun.'}
     Her satırda, karakterlerden sadece bir tanesi iki defa tekrar etsin.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -115,14 +114,14 @@ export const generateFindTheDuplicateInRowFromAI = async (options: OfflineGenera
   return generateWithSchema(prompt, schema) as Promise<FindDuplicateData[]>;
 };
 
-export const generateLetterGridTestFromAI = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
+export const generateLetterGridTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
     const { gridSize, difficulty, worksheetCount, targetLetters } = options;
     const letters = targetLetters || 'b,d,p,q';
     const targetLettersArray = letters.split(',').map(l => l.trim().toLowerCase());
     const prompt = `
     ${gridSize}x${gridSize} boyutunda ve "${difficulty}" zorluk seviyesine uygun bir harf ızgarası oluştur.
     Izgarayı rastgele Türkçe küçük harflerle doldur.
-    Aranacak hedef harfler şunlar: ${targetLettersArray.join(', ')}. Bu harfleri ızgaraya serpiştir.
+    Aranacak hedef harfler şunlar: ${targetLettersArray.join(', ')}. Bu harfleri ızgaraya serpiştir. "${difficulty}" seviyesine göre çeldirici harflerin (b,d,p,q,m,n gibi) yoğunluğunu ayarla.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
@@ -146,7 +145,7 @@ export const generateLetterGridTestFromAI = async (options: OfflineGeneratorOpti
     return generateWithSchema(prompt, schema) as Promise<LetterGridTestData[]>;
 };
 
-export const generateFindLetterPairFromAI = async (options: OfflineGeneratorOptions): Promise<FindLetterPairData[]> => {
+export const generateFindLetterPairFromAI = async (options: GeneratorOptions): Promise<FindLetterPairData[]> => {
     const { gridSize, difficulty, worksheetCount, targetPair } = options;
     const pair = targetPair || 'bd';
     const prompt = `
@@ -171,14 +170,14 @@ export const generateFindLetterPairFromAI = async (options: OfflineGeneratorOpti
     return generateWithSchema(prompt, schema) as Promise<FindLetterPairData[]>;
 };
 
-export const generateTargetSearchFromAI = async (options: OfflineGeneratorOptions): Promise<TargetSearchData[]> => {
+export const generateTargetSearchFromAI = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
   const { gridSize, difficulty, worksheetCount, targetChar, distractorChar } = options;
   const target = targetChar || 'd';
   const distractor = distractorChar || 'b';
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'Dikkatli Göz' etkinliği oluştur.
     ${gridSize}x${gridSize} boyutunda bir tabloyu '${distractor}' karakteriyle doldur.
-    İçine rastgele yerlere 15-20 tane '${target}' karakteri serpiştir.
+    İçine rastgele yerlere 15-20 tane '${target}' karakteri serpiştir. "${difficulty}" seviyesi arttıkça, çeldirici karakterlerin arasına 'p', 'q' gibi benzer karakterler de ekle.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
   const singleSchema = {
@@ -195,7 +194,7 @@ export const generateTargetSearchFromAI = async (options: OfflineGeneratorOption
   return generateWithSchema(prompt, schema) as Promise<TargetSearchData[]>;
 };
 
-export const generateColorWheelMemoryFromAI = async (options: OfflineGeneratorOptions): Promise<ColorWheelMemoryData[]> => {
+export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
     const prompt = `Create a color wheel memory game with ${itemCount} items, appropriate for difficulty level "${difficulty}". Each item must have a name (e.g., "Kitap 📕") and a unique hex color code. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -224,7 +223,7 @@ export const generateColorWheelMemoryFromAI = async (options: OfflineGeneratorOp
     return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData[]>;
 };
 
-export const generateImageComprehensionFromAI = async (options: OfflineGeneratorOptions): Promise<ImageComprehensionData[]> => {
+export const generateImageComprehensionFromAI = async (options: GeneratorOptions): Promise<ImageComprehensionData[]> => {
     const { topic, itemCount: questionCount, difficulty, worksheetCount } = options;
     const prompt = `
     Generate a simple, detailed scene description about '${topic}' for an image comprehension test, appropriate for difficulty level "${difficulty}". The description should be around 50-70 words.
@@ -250,9 +249,9 @@ export const generateImageComprehensionFromAI = async (options: OfflineGenerator
     return generateWithSchema(prompt, schema) as Promise<ImageComprehensionData[]>;
 };
 
-export const generateCharacterMemoryFromAI = async (options: OfflineGeneratorOptions): Promise<CharacterMemoryData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount } = options;
-    const memorizeCount = Math.floor(itemCount * 0.7);
+export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
+    const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
+    const memorizeCount = Math.floor(itemCount * (memorizeRatio/100));
     const testCount = itemCount;
     const prompt = `
     Generate a character memory test about '${topic}', appropriate for difficulty level "${difficulty}".
@@ -296,11 +295,11 @@ export const generateCharacterMemoryFromAI = async (options: OfflineGeneratorOpt
     return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData[]>;
 };
 
-export const generateBurdonTestFromAI = async (options: OfflineGeneratorOptions): Promise<LetterGridTestData[]> => {
-    return generateLetterGridTestFromAI({ ...options, gridSize: 20, targetLetters: 'a,b,d,g' });
+export const generateBurdonTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
+    return generateLetterGridTestFromAI({ ...options, gridSize: options.gridSize || 20, targetLetters: options.targetLetters || 'a,b,d,g' });
 };
 
-export const generateSynonymSearchStoryFromAI = async(options: OfflineGeneratorOptions): Promise<SynonymSearchAndStoryData[]> => {
+export const generateSynonymSearchStoryFromAI = async(options: GeneratorOptions): Promise<SynonymSearchAndStoryData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a "Synonym Search and Story" activity appropriate for difficulty level "${difficulty}". Provide a table of 6 Turkish words and their synonyms. Create a 12x12 grid and hide the synonyms. Finally, provide a prompt for the user to write a story using the original words. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
@@ -330,7 +329,7 @@ export const generateSynonymSearchStoryFromAI = async(options: OfflineGeneratorO
     return generateWithSchema(prompt, schema) as Promise<SynonymSearchAndStoryData[]>;
 }
 
-export const generateStarHuntFromAI = async(options: OfflineGeneratorOptions): Promise<StarHuntData[]> => {
+export const generateStarHuntFromAI = async(options: GeneratorOptions): Promise<StarHuntData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `Create a Star Hunt puzzle with geometric shapes, appropriate for difficulty level "${difficulty}". Generate a 6x6 grid. Each cell can contain a shape, a star, a question mark, or be empty (null). The numbers next to rows/columns indicate how many stars are in that row/column. 
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.

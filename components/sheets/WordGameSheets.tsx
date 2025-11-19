@@ -6,7 +6,7 @@ import {
     SpiralPuzzleData, PunctuationSpiralPuzzleData, CrosswordData, CrosswordClue, JumbledWordStoryData, ThematicJumbledWordStoryData, HomonymSentenceData,
     WordGridPuzzleData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, AntonymResfebeData,
     SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordWebWithPasswordData,
-    WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData
+    WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData, ResfebeClue
 } from '../../types';
 import { GridComponent, ImageDisplay } from './common';
 
@@ -611,7 +611,7 @@ export const AntonymResfebeSheet: React.FC<{ data: AntonymResfebeData }> = ({ da
                         {(puzzle.clues || []).map((clue, i) => (
                             clue.type === 'text' ? 
                             <span key={i} className="text-3xl font-bold">{clue.value}</span> :
-                            <ImageDisplay key={i} base64={puzzle.imageBase64} description="resfebe ipucu" className="w-20 h-20" />
+                            <ImageDisplay key={i} base64={clue.imageBase64} description="resfebe ipucu" className="w-20 h-20" />
                         ))}
                     </div>
                     <div className="flex items-center gap-2">
@@ -629,7 +629,23 @@ export const ResfebeSheet: React.FC<{ data: ResfebeData }> = ({ data }) => (
     <div>
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
-        {/* Placeholder implementation */}
+         <div className="space-y-6">
+            {(data.puzzles || []).map((puzzle, index) => (
+                <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                    <div className="flex justify-center items-center gap-2">
+                        {(puzzle.clues || []).map((clue: ResfebeClue, i: number) => (
+                            clue.type === 'text' ? 
+                            <span key={i} className="text-3xl font-bold">{clue.value}</span> :
+                            <ImageDisplay key={i} base64={clue.imageBase64} description="resfebe ipucu" className="w-20 h-20" />
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span>&rarr;</span>
+                        <div className="flex-1 h-10 border-b-2 border-zinc-400"></div>
+                    </div>
+                </div>
+            ))}
+        </div>
     </div>
 );
 
@@ -651,7 +667,6 @@ export const SynonymMatchingPatternSheet: React.FC<{data: SynonymMatchingPattern
 
 export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
     </div>
@@ -659,7 +674,6 @@ export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }
 
 export const WordWebSheet: React.FC<{ data: WordWebData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
     </div>
@@ -667,7 +681,6 @@ export const WordWebSheet: React.FC<{ data: WordWebData }> = ({ data }) => (
 
 export const SyllableWordSearchSheet: React.FC<{ data: SyllableWordSearchData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
     </div>
@@ -675,7 +688,6 @@ export const SyllableWordSearchSheet: React.FC<{ data: SyllableWordSearchData }>
 
 export const WordWebWithPasswordSheet: React.FC<{ data: WordWebWithPasswordData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
     </div>
@@ -683,7 +695,6 @@ export const WordWebWithPasswordSheet: React.FC<{ data: WordWebWithPasswordData 
 
 export const LetterGridWordFindSheet: React.FC<{ data: LetterGridWordFindData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
     </div>
@@ -691,7 +702,6 @@ export const LetterGridWordFindSheet: React.FC<{ data: LetterGridWordFindData }>
 
 export const WordPlacementPuzzleSheet: React.FC<{ data: WordPlacementPuzzleData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
     </div>
@@ -699,7 +709,6 @@ export const WordPlacementPuzzleSheet: React.FC<{ data: WordPlacementPuzzleData 
 
 export const PositionalAnagramSheet: React.FC<{ data: PositionalAnagramData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
     </div>
@@ -707,16 +716,39 @@ export const PositionalAnagramSheet: React.FC<{ data: PositionalAnagramData }> =
 
 export const ImageAnagramSortSheet: React.FC<{ data: ImageAnagramSortData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {(data.cards || []).map((card, index) => (
+                <div key={index} className="p-2 border rounded-lg flex flex-col items-center text-center bg-white dark:bg-zinc-700/50" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                    <ImageDisplay base64={card.imageBase64} description={card.imageDescription} className="w-24 h-24 mb-2"/>
+                    <p className="font-mono tracking-widest text-lg">{card.scrambledWord}</p>
+                    <div className="w-full h-8 mt-1 border-b-2 border-dotted border-zinc-400"></div>
+                </div>
+            ))}
+        </div>
     </div>
 );
 
 export const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> = ({ data }) => (
     <div>
-        {/* Placeholder implementation */}
         <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
         <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
+        <div className="mb-8 p-4 bg-amber-100 dark:bg-amber-900/50 border-2 border-dashed border-amber-400 rounded-lg">
+            <h4 className="font-bold text-center mb-3 text-amber-800 dark:text-amber-200">Kelime Bankası</h4>
+            <div className="flex justify-center flex-wrap gap-x-4 gap-y-2">
+                {(data.wordBank || []).map((word, index) => (
+                    <span key={index} className="text-lg">{word}</span>
+                ))}
+            </div>
+        </div>
+         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {(data.puzzles || []).map((puzzle, index) => (
+                <div key={index} className="flex flex-col items-center p-3 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                     <ImageDisplay base64={puzzle.imageBase64} description={puzzle.imageDescription} className="w-24 h-24 mb-2"/>
+                     <p className="font-mono text-lg tracking-[0.2em]">{puzzle.partialAnswer}</p>
+                </div>
+            ))}
+        </div>
     </div>
 );

@@ -1,28 +1,30 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { OfflineGeneratorOptions } from '../offlineGenerators';
-import { MathPuzzleData, ShapeCountingData, MatchstickSymmetryData, GeneratorOptions } from '../../types';
+import { GeneratorOptions } from '../../types';
+import { MathPuzzleData, ShapeCountingData, MatchstickSymmetryData } from '../../types';
 
 export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
-  const { topic, itemCount: count, difficulty, worksheetCount, operations, numberRange } = options;
+  const { topic, itemCount, difficulty, worksheetCount, operations, numberRange } = options;
   
-  let rangeDesc = "1-10";
-  if (numberRange) rangeDesc = numberRange;
-  else if (difficulty === 'Orta') rangeDesc = "1-50";
-  else if (difficulty === 'Zor') rangeDesc = "1-100";
-  else if (difficulty === 'Uzman') rangeDesc = "1-1000";
+  let rangeDesc = numberRange || "1-10";
+  if (!numberRange) {
+      if (difficulty === 'Orta') rangeDesc = "1-50";
+      else if (difficulty === 'Zor') rangeDesc = "1-100";
+      else if (difficulty === 'Uzman') rangeDesc = "1-1000";
+  }
 
-  let opsDesc = "sadece toplama (+)";
-  if (operations === 'addsub') opsDesc = "toplama ve çıkarma";
+  let opsDesc = "toplama ve çıkarma (+, -)";
+  if (operations === 'add') opsDesc = "sadece toplama (+)";
   else if (operations === 'mult') opsDesc = "toplama, çıkarma ve çarpma";
   else if (operations === 'all') opsDesc = "dört işlem (+, -, *, /)";
-  else if (difficulty === 'Orta') opsDesc = "toplama (+) ve çıkarma (-)";
+  else if(difficulty === 'Başlangıç') opsDesc = "sadece toplama (+)";
   
-  let complexity = "basit";
-  if (difficulty === 'Uzman') complexity = "karmaşık denklemler";
+  let complexity = "basit denklemler (A + B = C).";
+  if (difficulty === 'Zor') complexity = "iki aşamalı denklemler (A + B = C, C - A = B).";
+  if (difficulty === 'Uzman') complexity = "karmaşık ve çoklu bilinmeyenli denklemler (A+A=B, B+C=10 gibi).";
 
   const prompt = `
-    "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, '${topic}' konusuyla ilgili ${count} tane matematik bulmacası oluştur.
+    "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, '${topic || 'Rastgele'}' konusuyla ilgili ${itemCount} tane matematik bulmacası oluştur.
     SAYI ARALIĞI: ${rangeDesc}
     İŞLEMLER: ${opsDesc}
     KARMAŞIKLIK: ${complexity}

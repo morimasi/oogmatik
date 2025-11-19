@@ -1,4 +1,5 @@
 
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -125,7 +126,11 @@ export interface GeneratorOptions {
     mode: 'ai' | 'fast';
     difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
     worksheetCount: number;
-    // Dynamic fields
+    timestamp?: number;
+    
+    // Dynamic fields - keeping this flexible for now
+    // as strictly typing it would require a massive union type
+    // and complex type guards in the generator view.
     [key: string]: any;
 }
 
