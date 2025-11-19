@@ -181,9 +181,9 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     for(let i=0; i<worksheetCount; i++){
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
         const allItems = getRandomItems(EMOJIS, itemCount).map((emoji: string) => {
-            // FIX: Resolved 'Type 'unknown' is not assignable to type 'string'' error by casting the source array to string[], which helps TypeScript's inference.
+            // FIX: Cast TR_VOCAB properties to string[] to resolve 'unknown' type error.
             const adjective: string = getRandomItems(TR_VOCAB.adjectives as string[], 1)[0] || '';
-            // FIX: Corrected type inference issue by casting the source array to string[].
+            // FIX: Cast TR_VOCAB properties to string[] to resolve 'unknown' type error.
             const animal: string = getRandomItems(TR_VOCAB.animals as string[], 1)[0] || '';
             return {
                 description: `${adjective} ${animal} ${emoji}`.trim()

@@ -1,5 +1,7 @@
 
 
+
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -171,15 +173,32 @@ export interface MathPuzzleData {
   }[];
 }
 
-export interface StoryData {
-  title: string;
-  story: string;
-  questions: {
+// --- STORY COMPREHENSION: Professional Level Types ---
+export interface MultipleChoiceStoryQuestion {
+    type: 'multiple-choice';
     question: string;
     options: string[];
     answerIndex: number;
-  }[];
 }
+
+export interface OpenEndedStoryQuestion {
+    type: 'open-ended';
+    question: string;
+}
+
+export type StoryQuestion = MultipleChoiceStoryQuestion | OpenEndedStoryQuestion;
+
+export interface StoryData {
+  title: string;
+  story: string;
+  imageBase64?: string; // Optional field for the generated image
+  mainIdea: string; // The main idea of the story
+  characters: string[]; // List of characters
+  setting: string; // Description of the setting
+  questions: StoryQuestion[];
+}
+// --- END STORY COMPREHENSION ---
+
 
 export interface StroopTestData {
   title: string;
@@ -232,6 +251,7 @@ export interface StoryCreationPromptData {
     title: string;
     prompt: string;
     keywords: string[];
+    imageBase64?: string;
 }
 
 export interface FindTheDifferenceData {
@@ -253,9 +273,9 @@ export interface WordComparisonData {
 export interface WordsInStoryData {
     title: string;
     story: string;
-    wordList: {
+    questions: {
         word: string;
-        isInStory: boolean;
+        question: string; // "Anlamı nedir?" or "Cümle içinde kullan."
     }[];
 }
 
@@ -285,7 +305,10 @@ export interface ProverbFillData {
     proverbs: {
         start: string;
         end: string;
+        full: string;
     }[];
+    meaning: string;
+    usagePrompt: string;
 }
 
 export interface LetterBridgeData {
@@ -330,6 +353,7 @@ export interface ReverseWordData {
     words: string[];
 }
 
+// FIX: Added missing interface definition for FindLetterPairData to resolve compilation errors.
 export interface FindLetterPairData {
     title: string;
     grid: string[][];
@@ -353,9 +377,10 @@ export interface VisualMemoryData {
 export interface StoryAnalysisData {
     title: string;
     story: string;
-    questions: {
+    imageBase64?: string;
+    analysisQuestions: {
+        type: 'tema' | 'karakter' | 'sebep-sonuç' | 'çıkarım';
         question: string;
-        context: string;
     }[];
 }
 
@@ -370,6 +395,7 @@ export interface ProverbSearchData {
     title: string;
     grid: string[][];
     proverb: string;
+    meaning: string;
 }
 
 export interface TargetSearchData {
@@ -436,6 +462,7 @@ export interface StorySequencingData {
     panels: {
         id: string; // A, B, C...
         description: string;
+        imageBase64?: string;
     }[];
 }
 

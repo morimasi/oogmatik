@@ -215,7 +215,7 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
     const results: WordConnectData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const pairs = getRandomItems(TR_VOCAB.synonyms, itemCount/2);
-// FIX: Added explicit type for 'p' to resolve type inference issue.
+        // FIX: Added explicit type for 'p' to resolve type inference issue.
         const points = pairs.flatMap((p: { word: string; synonym: string; }, idx) => ([
             {word: p.word, pairId: idx, x: getRandomInt(1,4), y: getRandomInt(1,9)},
             {word: p.synonym, pairId: idx, x: getRandomInt(6,9), y: getRandomInt(1,9)},

@@ -53,6 +53,8 @@ export const generateWordSearchFromAI = async (options: GeneratorOptions): Promi
   return generateWithSchema(prompt, schema) as Promise<WordSearchData[]>;
 };
 
+// FIX: Removed duplicated function to resolve export ambiguity. The authoritative version exists in readingComprehension.ts.
+/*
 export const generateProverbSearchFromAI = async (options: GeneratorOptions): Promise<ProverbSearchData[]> => {
   const { difficulty, worksheetCount, gridSize } = options;
   
@@ -78,6 +80,7 @@ export const generateProverbSearchFromAI = async (options: GeneratorOptions): Pr
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<ProverbSearchData[]>;
 };
+*/
 
 export const generateAnagramFromAI = async (options: GeneratorOptions): Promise<(AnagramData[])[]> => {
   const { topic, itemCount, difficulty, worksheetCount, showImages } = options;
@@ -237,6 +240,8 @@ export const generateWordLadderFromAI = async (options: GeneratorOptions): Promi
     return generateWithSchema(prompt, {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {title: {type: Type.STRING}, ladders: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {startWord: {type: Type.STRING}, endWord: {type: Type.STRING}, steps: {type: Type.INTEGER}}, required: ['startWord', 'endWord', 'steps']}}}, required: ['title', 'ladders']}}) as Promise<WordLadderData[]>;
 };
 
+// FIX: Removed duplicated function to resolve export ambiguity. The authoritative version exists in readingComprehension.ts.
+/*
 export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {
   const { itemCount, difficulty, worksheetCount } = options;
   const prompt = `
@@ -270,6 +275,7 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<ProverbFillData[]>;
 };
+*/
 
 export const generateWordFormationFromAI = async (options: any) => [] as any; 
 export const generateReverseWordFromAI = async (options: any) => [] as any;

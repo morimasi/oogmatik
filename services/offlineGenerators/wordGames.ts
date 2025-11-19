@@ -490,8 +490,11 @@ export const generateOfflineResfebe = async (options: GeneratorOptions): Promise
     }
     return results;
 }
+// FIX: Removed duplicated function to resolve export ambiguity. The authoritative version exists in readingComprehension.ts.
+/*
 export const generateOfflineProverbSearch = async (options: GeneratorOptions): Promise<ProverbSearchData[]> => {
     const { worksheetCount } = options;
     const res = await generateOfflineWordSearch({ ...options, itemCount: 1, topic: 'atasözü' }); // Reuse logic
     return res.map(r => ({ title: 'Atasözü Avı', grid: r.grid, proverb: getRandomItems(PROVERBS, 1)[0] }));
 };
+*/
