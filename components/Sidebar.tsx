@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
@@ -89,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-zinc-100 shadow-lg transition-transform duration-300 ease-in-out dark:bg-zinc-900 md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
+      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm shadow-lg transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
       aria-label="Etkinlik Menüsü"
@@ -137,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                         onSelectActivity(activity.id);
                                                         closeSidebar();
                                                     }}
-                                                    className="w-full text-left px-3 py-2 text-sm rounded-md text-zinc-600 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md text-zinc-600 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${selectedActivity === activity.id ? 'sidebar-activity-item-active' : ''}`}
                                                 >
                                                     <i className={`${activity.icon} fa-fw mr-2 text-zinc-400 dark:text-zinc-500`}></i>
                                                     {activity.title}

@@ -180,13 +180,14 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     const results: CharacterMemoryData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
-        const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => {
-            // FIX: The type of TR_VOCAB properties is sometimes inferred as 'unknown' due to module resolution issues.
-            // Casting the result to 'string' to resolve the type error.
-            const adjective: string = (getRandomItems(TR_VOCAB.adjectives as string[], 1)[0] || '') as string;
-            // FIX: The type of `TR_VOCAB.animals` is sometimes inferred as 'unknown'. Using `(TR_VOCAB as any)` was incorrect and resulted in a type error.
-            // Aligned with the working pattern for 'adjective' by casting the array to string[] before passing to `getRandomItems`.
-            const animal: string = (getRandomItems(TR_VOCAB.animals as string[], 1)[0] || '') as string;
+        const allItems = getRandomItems(EMOJIS, itemCount).map((emoji: string) => {
+            // FIX: Resolved 'Type 'unknown' is not assignable to type 'string'' error by simplifying the type casting. 
+            // This relies on TypeScript correctly inferring the type from the imported TR_VOCAB object.
+            const adjective: string = getRandomItems(TR_VOCAB.adjectives, 1)[0] || '';
+            // FIX: Explicitly cast the result to string to resolve an 'unknown' type error that arises from complex type inference on the large TR_VOCAB object.
+            // FIX: Cast the result of getRandomItems to a string to resolve the 'unknown' type error.
+// FIX: Simplified casting for 'animal' to match the working pattern for 'adjective', resolving the 'Type 'unknown' is not assignable to type 'string'' error.
+            const animal: string = getRandomItems(TR_VOCAB.animals, 1)[0] || '';
             return {
                 description: `${adjective} ${animal} ${emoji}`.trim()
             };

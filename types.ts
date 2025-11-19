@@ -119,7 +119,7 @@ export enum ActivityType {
   POSITIONAL_ANAGRAM = 'POSITIONAL_ANAGRAM',
 }
 
-export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel';
+export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia';
 
 // NEW: Interface for dynamic generation options
 export interface GeneratorOptions {

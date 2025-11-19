@@ -34,18 +34,33 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
+  const [isRendered, setIsRendered] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsRendered(true);
+    }
+  }, [isOpen]);
+
+  const handleTransitionEnd = () => {
+    if (!isOpen) {
+      setIsRendered(false);
+    }
+  };
+
+  if (!isRendered) return null;
 
   return (
     <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" 
+      className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-out ${isOpen ? 'opacity-100' : 'opacity-0'}`} 
       onClick={onClose}
+      onTransitionEnd={handleTransitionEnd}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
       <div 
-        className="bg-white dark:bg-zinc-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+        className={`bg-white dark:bg-zinc-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transition-all duration-300 ease-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         onClick={e => e.stopPropagation()} // Prevent closing when clicking inside
       >
         <header className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
@@ -79,7 +94,7 @@ const App: React.FC = () => {
   const [theme, setTheme] = useState<AppTheme>(() => {
       // Initialize theme from local storage or system preference
       const storedTheme = localStorage.getItem('app-theme');
-      if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'contrast' || storedTheme === 'pastel') {
+      if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'contrast' || storedTheme === 'pastel' || storedTheme === 'sepia') {
           return storedTheme as AppTheme;
       }
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -92,7 +107,7 @@ const App: React.FC = () => {
   useEffect(() => {
       const root = document.documentElement;
       // Remove all potential theme classes
-      root.classList.remove('dark', 'theme-pastel', 'theme-contrast');
+      root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia');
 
       // Apply current theme class
       if (theme === 'dark') {
@@ -101,6 +116,8 @@ const App: React.FC = () => {
           root.classList.add('theme-contrast');
       } else if (theme === 'pastel') {
           root.classList.add('theme-pastel');
+      } else if (theme === 'sepia') {
+          root.classList.add('theme-sepia');
       }
       // 'light' is the default, so no class needed.
 
@@ -183,7 +200,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
-      <header className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
+      <header className="relative bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button
@@ -194,7 +211,7 @@ const App: React.FC = () => {
               <i className="fa-solid fa-bars fa-lg"></i>
             </button>
              <button onClick={handleResetApp} className="flex-shrink-0 flex items-center gap-3" aria-label="Uygulamayı sıfırla">
-                <DyslexiaLogo className="h-12 w-auto" />
+                <DyslexiaLogo className="h-10 w-auto" />
             </button>
           </div>
 
@@ -291,7 +308,7 @@ const App: React.FC = () => {
           <div className="space-y-6">
               <div>
                   <h3 className="font-bold text-lg mb-3 text-zinc-800 dark:text-zinc-200">Tema Seçimi</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       <button 
                         onClick={() => setTheme('light')}
                         className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${theme === 'light' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
@@ -303,17 +320,27 @@ const App: React.FC = () => {
                         onClick={() => setTheme('dark')}
                         className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${theme === 'dark' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
                       >
-                          <div className="w-12 h-8 bg-zinc-800 border border-zinc-600 rounded shadow-sm"></div>
-                          <span className="font-medium">Koyu Mod</span>
+                          <div className="w-12 h-8 bg-[#3d2c1d] border border-[#5d4037] rounded shadow-sm"></div>
+                          <span className="font-medium">Koyu Mod (Kahve)</span>
                       </button>
                       <button 
                         onClick={() => setTheme('pastel')}
                         className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${theme === 'pastel' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
                       >
-                          <div className="w-12 h-8 bg-[#fffdf5] border border-[#d3cbb8] rounded shadow-sm"></div>
+                          <div className="w-12 h-8 bg-[#fdf6e3] border border-[#d3cbb8] rounded shadow-sm"></div>
                           <div className="text-center">
                             <span className="font-medium block">Pastel</span>
-                            <span className="text-xs text-zinc-500">Göz Dostu / Disleksi</span>
+                            <span className="text-xs text-zinc-500">Göz Dostu</span>
+                          </div>
+                      </button>
+                      <button 
+                        onClick={() => setTheme('sepia')}
+                        className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${theme === 'sepia' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
+                      >
+                          <div className="w-12 h-8 bg-[#f4ecd8] border border-[#dcd0b8] rounded shadow-sm"></div>
+                          <div className="text-center">
+                            <span className="font-medium block">Sepya</span>
+                            <span className="text-xs text-zinc-500">Kitap Sayfası</span>
                           </div>
                       </button>
                       <button 
@@ -330,7 +357,7 @@ const App: React.FC = () => {
               </div>
               
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md text-sm text-blue-800 dark:text-blue-200">
-                  <p><i className="fa-solid fa-info-circle mr-2"></i><strong>İpucu:</strong> Pastel tema, krem rengi arka planı ve yumuşak metin renkleriyle uzun süreli okumalarda göz yorgunluğunu azaltmaya yardımcı olabilir.</p>
+                  <p><i className="fa-solid fa-info-circle mr-2"></i><strong>İpucu:</strong> Pastel ve Sepya temaları, krem rengi arka planları ve yumuşak metin renkleriyle uzun süreli okumalarda göz yorgunluğunu azaltmaya yardımcı olabilir.</p>
               </div>
           </div>
       </Modal>
