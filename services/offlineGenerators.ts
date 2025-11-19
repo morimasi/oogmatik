@@ -1,6 +1,4 @@
 
-
-
 import { 
     WorksheetData, WordSearchData, AnagramData, MathPuzzleData, FindTheDifferenceData, ProverbFillData,
     SpellingCheckData, OddOneOutData, WordComparisonData, WordsInStoryData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, FindLetterPairData, MiniWordGridData,
@@ -47,6 +45,7 @@ const getRandomInt = (min: number, max: number): number => {
 };
 
 const getRandomItems = <T>(arr: T[], count: number): T[] => {
+    if (!arr || arr.length === 0) return [];
     if (count >= arr.length) return shuffle(arr);
     return shuffle(arr).slice(0, count);
 };
@@ -55,33 +54,49 @@ const getRandomItems = <T>(arr: T[], count: number): T[] => {
 const getWordsForDifficulty = (difficulty: string, topic?: string): string[] => {
     let pool: string[] = [];
     
-    // Topic selection (if random or not found, use mix)
-    if (topic && topic in TR_VOCAB) {
+    // Topic selection
+    if (topic && topic !== 'Rastgele' && topic in TR_VOCAB) {
         const vocabList = (TR_VOCAB as any)[topic];
-        // Ensure we only pick string arrays (exclude synonyms/antonyms)
+        // Ensure we only pick string arrays (exclude synonyms/antonyms/confusing_words)
         if (Array.isArray(vocabList) && vocabList.length > 0 && typeof vocabList[0] === 'string') {
             pool = vocabList as string[];
-        } else {
-             // Fallback if topic is invalid for this context
-             pool = [...TR_VOCAB.animals, ...TR_VOCAB.fruits_veggies, ...TR_VOCAB.jobs, ...TR_VOCAB.school];
         }
-    } else {
-        // Mix categories for random
-        pool = [...TR_VOCAB.animals, ...TR_VOCAB.fruits_veggies, ...TR_VOCAB.jobs, ...TR_VOCAB.school];
+    } 
+    
+    // If pool is empty (topic not found or 'Rastgele'), aggregation from all compatible categories
+    if (pool.length === 0) {
+         const allKeys = Object.keys(TR_VOCAB).filter(k => 
+            !k.endsWith('_words') && 
+            k !== 'synonyms' && 
+            k !== 'antonyms' && 
+            k !== 'confusing_words'
+         );
+         allKeys.forEach(key => {
+             const list = (TR_VOCAB as any)[key];
+             if (Array.isArray(list) && typeof list[0] === 'string') {
+                 pool = [...pool, ...list];
+             }
+         });
     }
 
     // Difficulty Filtering
+    let filteredPool: string[] = [];
     if (difficulty === 'Başlangıç') {
-        pool = [...pool.filter(w => w.length <= 4), ...TR_VOCAB.easy_words];
+        filteredPool = [...pool.filter(w => w.length <= 4), ...TR_VOCAB.easy_words];
     } else if (difficulty === 'Orta') {
-        pool = [...pool.filter(w => w.length >= 4 && w.length <= 6), ...TR_VOCAB.medium_words];
+        filteredPool = [...pool.filter(w => w.length >= 4 && w.length <= 6), ...TR_VOCAB.medium_words];
     } else if (difficulty === 'Zor') {
-        pool = [...pool.filter(w => w.length >= 7), ...TR_VOCAB.hard_words];
+        filteredPool = [...pool.filter(w => w.length >= 7), ...TR_VOCAB.hard_words];
     } else if (difficulty === 'Uzman') {
-        pool = [...TR_VOCAB.expert_words, ...TR_VOCAB.hard_words.filter(w => w.length > 8)];
+        filteredPool = [...TR_VOCAB.expert_words, ...TR_VOCAB.hard_words.filter(w => w.length > 8)];
+    }
+    
+    // If filtering was too aggressive and left us with few words, fall back to the main pool
+    if (filteredPool.length < 10) {
+        filteredPool = pool;
     }
 
-    return shuffle(pool); // Always return shuffled for uniqueness
+    return shuffle(filteredPool); // Always return shuffled for uniqueness
 };
 
 // --- Generator Options Interface ---
@@ -123,11 +138,16 @@ export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions
 
     for (let i = 0; i < worksheetCount; i++) {
         const availableWords = getWordsForDifficulty(difficulty, topic === 'Rastgele' ? undefined : topic);
-        const words = getRandomItems(availableWords, itemCount);
+        // Ensure unique words per sheet if possible
+        const sheetWords = getRandomItems(availableWords, itemCount);
         
         const grid: string[][] = Array.from({ length: size }, () => Array(size).fill(''));
+        const placedWords: string[] = [];
         
-        words.forEach(word => {
+        sheetWords.forEach(word => {
+            // Skip if word is longer than grid
+            if (word.length > size) return;
+
             let placed = false;
             let attempts = 0;
             while (!placed && attempts < 100) {
@@ -152,6 +172,7 @@ export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions
                     for (let k = 0; k < word.length; k++) {
                         grid[row + k * dRow][col + k * dCol] = word[k];
                     }
+                    placedWords.push(word);
                     placed = true;
                 }
                 attempts++;
@@ -164,7 +185,7 @@ export const generateOfflineWordSearch = async (options: OfflineGeneratorOptions
             }
         }
         
-        results.push({ title: `Kelime Bulmaca (${difficulty})`, words, grid });
+        results.push({ title: `Kelime Bulmaca (${difficulty})`, words: placedWords, grid });
     }
     return results;
 };
@@ -292,8 +313,11 @@ export const generateOfflineProverbFill = async (options: OfflineGeneratorOption
         const selectedProverbs = getRandomItems(filteredProverbs.length > 0 ? filteredProverbs : PROVERBS, itemCount);
         const proverbs = selectedProverbs.map(p => {
             const parts = p.split(' ');
-            const idx = getRandomInt(1, parts.length-2);
-            return { start: parts.slice(0, idx).join(' '), end: parts.slice(idx+1).join(' ') };
+            if (parts.length > 2) {
+                const idx = getRandomInt(1, parts.length-2);
+                return { start: parts.slice(0, idx).join(' '), end: parts.slice(idx+1).join(' ') };
+            }
+             return { start: parts[0], end: "" };
         });
         results.push({ title: 'Atasözü Tamamla', proverbs });
     }
@@ -320,7 +344,9 @@ export const generateOfflineSpellingCheck = async (options: OfflineGeneratorOpti
 export const generateOfflineOddOneOut = async (options: OfflineGeneratorOptions): Promise<OddOneOutData[]> => {
     const { itemCount, worksheetCount } = options;
     const results: OddOneOutData[] = [];
-    const categories = Object.keys(TR_VOCAB).filter(k => !k.endsWith('_words') && k !== 'synonyms' && k !== 'antonyms');
+    // Exclude special lists
+    const categories = Object.keys(TR_VOCAB).filter(k => !k.endsWith('_words') && k !== 'synonyms' && k !== 'antonyms' && k !== 'confusing_words');
+    
     for (let i = 0; i < worksheetCount; i++) {
         const groups = Array.from({ length: itemCount }).map(() => {
             const [cat1, cat2] = getRandomItems(categories, 2);
@@ -357,14 +383,18 @@ export const generateOfflineStoryComprehension = async (options: OfflineGenerato
     for (let i = 0; i < worksheetCount; i++) {
         const tmpl = getRandomItems(STORY_TEMPLATES, 1)[0];
         let story = tmpl.template;
-        const char = getRandomItems(tmpl.characters, 1)[0];
+        let char = "";
+        // Safely replace placeholders
+        if (tmpl.characters) char = getRandomItems(tmpl.characters, 1)[0];
         story = story.replace(/{character}/g, char);
+        
         Object.keys(tmpl).forEach(k => {
             if(Array.isArray((tmpl as any)[k]) && k !== 'template' && k !== 'characters') {
                 const replacement = getRandomItems((tmpl as any)[k] as string[], 1)[0];
                 story = story.replace(new RegExp(`{${k}}`, 'g'), replacement);
             }
         });
+
         results.push({
             title: `Hikaye (${difficulty})`,
             story,
@@ -384,11 +414,19 @@ export const generateOfflineLetterBridge = async (options: OfflineGeneratorOptio
     const results: LetterBridgeData[] = [];
     const words = getWordsForDifficulty(difficulty);
     for (let i = 0; i < worksheetCount; i++) {
-        const pairs = Array.from({ length: itemCount }).map(() => {
+        const pairs: { word1: string; word2: string; }[] = [];
+        // Try to find bridging words
+        let attempts = 0;
+        while (pairs.length < itemCount && attempts < 1000) {
+            attempts++;
             const w1 = getRandomItems(words, 1)[0];
-            const w2 = getRandomItems(words.filter(w => w !== w1), 1)[0];
-            return { word1: w1, word2: w2 };
-        });
+            if (w1.length < 2) continue;
+            const lastChar = w1.slice(-1);
+            const w2 = words.find(w => w.startsWith(lastChar) && w !== w1);
+            if (w2) {
+                pairs.push({ word1: w1, word2: w2 });
+            }
+        }
         results.push({ title: 'Harf Köprüsü', pairs });
     }
     return results;
@@ -400,8 +438,8 @@ export const generateOfflineWordLadder = async (options: OfflineGeneratorOptions
     const words = getWordsForDifficulty(difficulty);
     for (let i = 0; i < worksheetCount; i++) {
         const ladders = Array.from({ length: itemCount }).map(() => ({
-            startWord: getRandomItems(words, 1)[0],
-            endWord: getRandomItems(words, 1)[0],
+            startWord: getRandomItems(words, 1)[0] || "elma",
+            endWord: getRandomItems(words, 1)[0] || "armut",
             steps: 3
         }));
         results.push({ title: 'Kelime Merdiveni', ladders });
@@ -491,7 +529,7 @@ export const generateOfflineSynonymAntonymGrid = async (options: OfflineGenerato
             prompt: 'Kelimeleri bul.',
             synonyms: [{ word: syn.word }],
             antonyms: [{ word: ant.word }],
-            grid: [[syn.synonym[0].toUpperCase(), ant.antonym[0].toUpperCase()]] 
+            grid: [[syn.synonym.charAt(0).toUpperCase(), ant.antonym.charAt(0).toUpperCase()]] 
         });
     }
     return results;
