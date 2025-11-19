@@ -79,10 +79,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             {!isLoading && !error && !worksheetData && (
                 <div className="flex justify-center items-center h-full">
                      <div className="text-center text-zinc-500 dark:text-zinc-400">
-                        <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mb-4 mx-auto">
-                            <i className="fa-solid fa-wand-magic-sparkles fa-3x text-zinc-400 dark:text-zinc-500"></i>
-                        </div>
-                        <h2 className="text-2xl font-bold mb-2">Başlamaya Hazır Mısınız?</h2>
+                        <img src="/a.jpg" alt="Bursa Disleksi Ai Başlangıç Ekranı" className="w-48 h-48 object-cover mb-6 mx-auto rounded-full shadow-lg border-4 border-white dark:border-zinc-700" />
+                        <h2 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-200">Başlamaya Hazır Mısınız?</h2>
                         <p>Sol menüden bir etkinlik seçin ve ayarlarınızı yaparak <br /> "Etkinlik Oluştur" butonuna tıklayın.</p>
                     </div>
                 </div>

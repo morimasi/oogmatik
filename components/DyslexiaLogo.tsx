@@ -8,35 +8,47 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => (
         <stop stopColor="#A78BFA"/>
         <stop offset="1" stopColor="#4F46E5"/>
       </linearGradient>
-      <linearGradient id="grad2" x1="22" y1="10" x2="44" y2="48" gradientUnits="userSpaceOnUse">
+      <linearGradient id="grad2" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
         <stop stopColor="#C4B5FD"/>
         <stop offset="1" stopColor="#7C3AED"/>
       </linearGradient>
       <style>
         {`
         @keyframes fadeB {
-          0%, 15% { opacity: 1; }
-          35%, 100% { opacity: 0; }
-        }
-        @keyframes fadeD {
-          0%, 35% { opacity: 0; }
-          50%, 85% { opacity: 1; }
+          0%, 20% { opacity: 1; transform: scale(1); }
+          25% { opacity: 0; transform: scale(0.95); }
           100% { opacity: 0; }
         }
-        .letter-b { animation: fadeB 4s infinite ease-in-out; }
-        .letter-d { animation: fadeD 4s infinite ease-in-out; }
+        @keyframes fadeD {
+          0%, 25% { opacity: 0; }
+          30%, 50% { opacity: 1; transform: scale(1); }
+          55% { opacity: 0; transform: scale(0.95); }
+          100% { opacity: 0; }
+        }
+        @keyframes fadeText {
+          0%, 55% { opacity: 0; transform: scale(0.95); }
+          60%, 95% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(0.95); }
+        }
+        .anim-b { animation: fadeB 6s infinite ease-in-out; }
+        .anim-d { animation: fadeD 6s infinite ease-in-out; }
+        .anim-text { animation: fadeText 6s infinite ease-in-out; }
         `}
       </style>
     </defs>
-    <rect width="64" height="64" rx="12" fill="#18181b"/>
-    <rect x="1" y="1" width="62" height="62" rx="11" stroke="url(#grad1)" strokeWidth="2"/>
     
-    <g className="letter-b">
-       <path d="M22 6V48H35C42 48 48 42 48 35.5V35C48 28 43 22 36 22H22V6Z" fill="url(#grad2)" />
+    <g className="anim-b" style={{ transformOrigin: 'center center' }}>
+       <path d="M16 8V56H32C42.4772 56 51 47.4772 51 37C51 26.5228 42.4772 18 32 18H16V8Z" fill="url(#grad2)" />
     </g>
 
-    <g className="letter-d">
-       <path d="M42 6V48H29C22 48 16 42 16 35.5V35C16 28 21 22 28 22H42V6Z" fill="url(#grad2)" />
+    <g className="anim-d" style={{ transformOrigin: 'center center' }}>
+       <path d="M48 8V56H32C21.5228 56 13 47.4772 13 37C13 26.5228 21.5228 18 32 18H48V8Z" fill="url(#grad2)" />
+    </g>
+
+    <g className="anim-text" style={{ transformOrigin: 'center center' }}>
+      <text x="32" y="34" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="bold" fill="url(#grad1)">
+        Bursa Disleksi
+      </text>
     </g>
   </svg>
 );

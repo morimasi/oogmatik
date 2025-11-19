@@ -183,7 +183,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
-      <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
+      <header className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button
@@ -194,15 +194,14 @@ const App: React.FC = () => {
               <i className="fa-solid fa-bars fa-lg"></i>
             </button>
              <button onClick={handleResetApp} className="flex-shrink-0 flex items-center gap-3" aria-label="Uygulamayı sıfırla">
-                <DyslexiaLogo className="w-12 h-12 rounded-xl" />
+                <DyslexiaLogo className="w-24 h-24" />
             </button>
-            <div>
-                 <h1 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
-                    Bursa Disleksi Ai
-                </h1>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">Disleksi Dostu Yapay Zeka Destekli Etkinlikler</p>
-            </div>
           </div>
+
+          <div className="absolute inset-x-0 text-center pointer-events-none hidden sm:block">
+             <p className="text-xs text-zinc-500 dark:text-zinc-400">Disleksi Dostu Yapay Zeka Destekli Etkinlikler</p>
+          </div>
+
           <div className="flex items-center gap-1 sm:gap-2">
              <button 
               onClick={() => setOpenModal('settings')}
@@ -363,11 +362,11 @@ const App: React.FC = () => {
           <div className="space-y-3 mt-4">
               <div className="flex items-center gap-4">
                   <i className="fa-solid fa-envelope fa-fw text-zinc-500"></i>
-                  <a href="mailto:info@bursadisleksi.ai" className="text-indigo-500 hover:underline">info@bursadisleksi.ai</a>
+                  <a href="mailto:info@bursadisleksi.com" className="text-indigo-500 hover:underline">info@bursadisleksi.com</a>
               </div>
               <div className="flex items-center gap-4">
                   <i className="fa-solid fa-phone fa-fw text-zinc-500"></i>
-                  <span>+90 (555) 123 45 67 (Örnek)</span>
+                  <span>+90 ....</span>
               </div>
                <div className="flex items-start gap-4">
                   <i className="fa-solid fa-map-marker-alt fa-fw text-zinc-500 mt-1"></i>
