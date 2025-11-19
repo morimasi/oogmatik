@@ -2,6 +2,7 @@
 
 
 
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -153,15 +154,24 @@ export interface ActivityCategory {
 
 // Data structures for generated worksheets
 export interface WordSearchData {
-  // FIX: Added 'title' to ensure all worksheet data types have a title property.
   title: string;
   grid: string[][];
   words: string[];
+  hiddenMessage?: string;
+  followUpQuestion?: string;
 }
 
-export interface AnagramData {
+export interface AnagramItem {
   word: string;
   scrambled: string;
+  imageBase64?: string;
+}
+
+export interface AnagramsData {
+  title: string;
+  prompt: string;
+  anagrams: AnagramItem[];
+  sentencePrompt: string;
 }
 
 export interface MathPuzzleData {
@@ -317,6 +327,7 @@ export interface LetterBridgeData {
         word1: string;
         word2: string;
     }[];
+    followUpPrompt?: string;
 }
 
 export interface FindDuplicateData {
@@ -326,6 +337,7 @@ export interface FindDuplicateData {
 
 export interface WordLadderData {
     title: string;
+    theme?: string;
     ladders: {
         startWord: string;
         endWord: string;
@@ -346,14 +358,18 @@ export interface WordFormationData {
         letters: string[];
         jokerCount: number;
     }[];
+    mysteryWordChallenge?: {
+        prompt: string;
+        solution: string;
+    };
 }
 
 export interface ReverseWordData {
     title: string;
     words: string[];
+    funFact?: string;
 }
 
-// FIX: Added missing interface definition for FindLetterPairData to resolve compilation errors.
 export interface FindLetterPairData {
     title: string;
     grid: string[][];
@@ -583,6 +599,7 @@ export interface SyllableCompletionData {
         second: string;
     }[];
     syllables: string[];
+    storyTemplate?: string;
     storyPrompt: string;
 }
 
@@ -611,6 +628,7 @@ export interface WordConnectData {
 export interface SpiralPuzzleData {
     title: string;
     prompt: string;
+    theme: string;
     clues: string[];
     grid: string[][];
     wordStarts: {
@@ -618,6 +636,7 @@ export interface SpiralPuzzleData {
         row: number;
         col: number;
     }[];
+    passwordPrompt: string;
 }
 
 export interface CrosswordClue {
@@ -626,11 +645,13 @@ export interface CrosswordClue {
     text: string;
     start: { row: number; col: number };
     word: string;
+    imageBase64?: string;
 }
 
 export interface CrosswordData {
     title: string;
     prompt: string;
+    theme: string;
     grid: (string | null)[][];
     clues: CrosswordClue[];
     passwordCells: {
@@ -638,6 +659,7 @@ export interface CrosswordData {
         col: number;
     }[];
     passwordLength: number;
+    passwordPrompt: string;
 }
 
 export interface JumbledWordStoryData {
@@ -651,14 +673,20 @@ export interface JumbledWordStoryData {
     storyPrompt: string;
 }
 
+export interface HomonymSentenceItem {
+    word: string;
+    meaning1: string;
+    imageBase64_1?: string;
+    meaning2: string;
+    imageBase64_2?: string;
+}
+
 export interface HomonymSentenceData {
     title: string;
     prompt: string;
-    items: {
-        word: string;
-        imageBase64?: string;
-    }[];
+    items: HomonymSentenceItem[];
 }
+
 
 export interface WordGridPuzzleData {
     title: string;
@@ -727,6 +755,11 @@ export interface SynonymAntonymGridData {
     antonyms: { word: string }[];
     synonyms: { word: string }[];
     grid: string[][];
+    nuanceQuestion?: {
+        sentence: string;
+        word: string;
+        options: string[];
+    };
 }
 
 export interface PunctuationColoringData {
@@ -842,10 +875,10 @@ export interface PunctuationPhoneNumberData {
     }[];
 }
 
-// FIX: Added missing interface definition for PunctuationSpiralPuzzleData.
 export interface PunctuationSpiralPuzzleData {
     title: string;
     prompt: string;
+    theme: string;
     clues: string[];
     grid: string[][];
     wordStarts: {
@@ -853,6 +886,7 @@ export interface PunctuationSpiralPuzzleData {
         row: number;
         col: number;
     }[];
+    passwordPrompt: string;
 }
 
 export interface ThematicJumbledWordStoryData {
@@ -1318,7 +1352,7 @@ export interface PositionalAnagramData {
 
 export type SingleWorksheetData = 
   | WordSearchData 
-  | AnagramData[] 
+  | AnagramsData
   | MathPuzzleData 
   | StoryData 
   | StroopTestData

@@ -1,3 +1,4 @@
+
 import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, StarHuntData } from '../../types';
 // FIX: Import TR_VOCAB from helpers to ensure consistent module resolution and correct type inference.
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB } from './helpers';

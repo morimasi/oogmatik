@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -308,4 +309,3 @@ export const generateProverbSearchFromAI = async (options: GeneratorOptions): Pr
 
 // FIX: Removed mock functions that are implemented in other files to prevent export ambiguity.
 // These functions are thematically better suited for wordGames.ts and memoryAttention.ts.
-export const generateProverbSentenceFinderFromAI = async (options: any) => [] as any;

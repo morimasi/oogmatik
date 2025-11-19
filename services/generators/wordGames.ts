@@ -1,14 +1,15 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
 import {
     WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData,
-    SynonymWordSearchData, SynonymSearchAndStoryData, AnagramData, SpellingCheckData, LetterBridgeData, WordLadderData,
+    SynonymWordSearchData, SynonymSearchAndStoryData, AnagramsData, SpellingCheckData, LetterBridgeData, WordLadderData,
     WordFormationData, ReverseWordData, WordGroupingData, MiniWordGridData, PasswordFinderData, SyllableCompletionData,
-    SpiralPuzzleData, PunctuationSpiralPuzzleData, CrosswordData, CrosswordClue, JumbledWordStoryData, ThematicJumbledWordStoryData, HomonymSentenceData,
+    SpiralPuzzleData, PunctuationSpiralPuzzleData, CrosswordData, JumbledWordStoryData, ThematicJumbledWordStoryData, HomonymSentenceData,
     WordGridPuzzleData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, AntonymResfebeData,
     SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordWebWithPasswordData,
-    WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ProverbFillData, WordComparisonData,
+    WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, WordComparisonData,
     ResfebeData
 } from '../../types';
 
@@ -28,8 +29,9 @@ export const generateWordSearchFromAI = async (options: GeneratorOptions): Promi
     Bu kelimeleri ${finalGridSize}x${finalGridSize} boyutunda bir harf bulmacasına yerleştir. 
     YERLEŞTİRME KURALLARI: ${rules}
     ${caseInstruction}
-    Boş kalan yerleri rastgele Türkçe harflerle doldur.
+    Boş kalan yerleri rastgele Türkçe harflerle doldur. Ancak bu rastgele harflerin arasına, yukarıdan aşağıya okunduğunda konuyla ilgili kısa bir GİZLİ MESAJ veya bilmece yerleştir.
     Bulmaca için '${topic}' konusuyla ilgili yaratıcı bir başlık (title) oluştur.
+    Etkinlik sonunda çözümü pekiştirmek için konuyla ilgili bir ek soru (followUpQuestion) oluştur.
     
     ÖNEMLİ: Her çalıştırmada tamamen FARKLI kelimeler kullan.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
@@ -37,87 +39,66 @@ export const generateWordSearchFromAI = async (options: GeneratorOptions): Promi
   const singleSchema = {
     type: Type.OBJECT,
     properties: {
-      title: { type: Type.STRING, description: 'Title for the word search puzzle.' },
+      title: { type: Type.STRING },
       grid: {
-        type: Type.ARRAY, description: 'The word search grid.',
-        items: { type: Type.ARRAY, items: { type: Type.STRING }, },
+        type: Type.ARRAY,
+        items: { type: Type.ARRAY, items: { type: Type.STRING } },
       },
       words: {
-        type: Type.ARRAY, description: 'List of words hidden in the grid.',
+        type: Type.ARRAY,
         items: { type: Type.STRING },
       },
+      hiddenMessage: { type: Type.STRING },
+      followUpQuestion: { type: Type.STRING },
     },
-    required: ['title', 'grid', 'words']
+    required: ['title', 'grid', 'words', 'hiddenMessage', 'followUpQuestion']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<WordSearchData[]>;
 };
 
-// FIX: Removed duplicated function to resolve export ambiguity. The authoritative version exists in readingComprehension.ts.
-/*
-export const generateProverbSearchFromAI = async (options: GeneratorOptions): Promise<ProverbSearchData[]> => {
-  const { difficulty, worksheetCount, gridSize } = options;
+export const generateAnagramFromAI = async (options: GeneratorOptions): Promise<AnagramsData[]> => {
+  const { topic, itemCount, difficulty, worksheetCount } = options;
   
-  const finalGridSize = gridSize || 12;
+  let wordLengthInstruction = "Kelimeler 3-4 harfli ve somut, görselleştirilebilir nesneler olsun.";
+  if (difficulty === 'Orta') wordLengthInstruction = "Kelimeler 5-6 harfli ve somut olsun.";
+  if (difficulty === 'Zor') wordLengthInstruction = "Kelimeler 7-9 harfli, bazıları soyut olabilir.";
+  if (difficulty === 'Uzman') wordLengthInstruction = "Kelimeler 10+ harfli, soyut veya bileşik kelimeler olmalı.";
 
   const prompt = `
-    "${difficulty}" zorluk seviyesine uygun bir 'Atasözü Avı' etkinliği oluştur.
-    ${finalGridSize}x${finalGridSize} boyutunda bir harf tablosu oluştur.
-    İçine ${difficulty === 'Başlangıç' ? 'çok kısa ve popüler' : difficulty === 'Uzman' ? 'çok uzun, nadir ve derin anlamlı' : 'orta uzunlukta'} bir Türkçe atasözü gizle.
-    ${difficulty === 'Başlangıç' ? 'Harfler sadece soldan sağa olsun.' : 'Harfler yılan gibi kıvrılarak veya çapraz devam edebilir.'}
-    Her seferinde tamamen benzersiz bir atasözü seç.
+    "${difficulty}" zorluk seviyesine uygun, '${topic}' konusuyla ilgili ${itemCount} tane Türkçe kelime seç.
+    KELİME TÜRÜ: ${wordLengthInstruction}
+    Her kelimenin harflerini karıştırarak anagramını oluştur.
+    Her kelime için, kelimenin ne olduğunu ima eden, çocuklara uygun, basit, renkli bir görsel oluşturmak için detaylı bir **İngilizce** 'imagePrompt' üret.
+    Tüm anagramlar çözüldükten sonra, çocukların bu kelimelerden en az üçünü kullanarak yaratıcı bir cümle yazmaları için bir yönlendirme metni ('sentencePrompt') oluştur.
+    ÖNEMLİ: Her seferinde farklı kelimeler seç.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-      proverb: { type: Type.STRING }
-    },
-    required: ['title', 'grid', 'proverb']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<ProverbSearchData[]>;
-};
-*/
-
-export const generateAnagramFromAI = async (options: GeneratorOptions): Promise<(AnagramData[])[]> => {
-  const { topic, itemCount, difficulty, worksheetCount, showImages } = options;
-  
-  let wordLengthInstruction = "Kelimeler 3-4 harfli ve basit olmalı (örn: top, kuş).";
-  if (difficulty === 'Orta') wordLengthInstruction = "Kelimeler 5-6 harfli olmalı (örn: kalem, masa).";
-  if (difficulty === 'Zor') wordLengthInstruction = "Kelimeler 7-9 harfli olmalı (örn: telefon, bilgisayar).";
-  if (difficulty === 'Uzman') wordLengthInstruction = "Kelimeler 10+ harfli, soyut veya bileşik kelimeler olmalı (örn: çekoslovakya, bağımsızlık). Çok zorlayıcı olmalı.";
-
-  const prompt = `
-    "${difficulty}" zorluk seviyesine uygun, ${topic} konusuyla ilgili, her biri ${itemCount} tane Türkçe kelime seç.
-    KELİME UZUNLUĞU VE TÜRÜ: ${wordLengthInstruction}
-    Bu kelimelerin harflerini karıştırarak anagramlarını oluştur.
-    ${showImages ? 'Eğer mümkünse bu kelimeler görselleştirilebilir somut nesneler olsun.' : ''}
-    ÖNEMLİ: Her seferinde daha önce kullanmadığın farklı kelimeler seçmeye çalış.
-    Sonucu, her biri bir çalışma sayfasını temsil eden anagram nesneleri dizilerinden oluşan bir JSON dizisi olarak döndür.
-  `;
-  const anagramSchema = {
-      type: Type.OBJECT,
-      properties: {
-        word: { type: Type.STRING, description: 'The original word.', },
-        scrambled: { type: Type.STRING, description: 'The scrambled (anagram) version of the word.', },
-      },
-      required: ['word', 'scrambled']
-  };
-
-  const worksheetSchema = {
-      type: Type.ARRAY,
-      items: anagramSchema
-  }
-
   const schema = {
     type: Type.ARRAY,
-    items: worksheetSchema
+    items: {
+      type: Type.OBJECT,
+      properties: {
+        title: { type: Type.STRING },
+        prompt: { type: Type.STRING },
+        anagrams: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              word: { type: Type.STRING },
+              scrambled: { type: Type.STRING },
+              imagePrompt: { type: Type.STRING },
+            },
+            required: ['word', 'scrambled', 'imagePrompt']
+          }
+        },
+        sentencePrompt: { type: Type.STRING },
+      },
+      required: ['title', 'prompt', 'anagrams', 'sentencePrompt']
+    }
   };
-
-   return generateWithSchema(prompt, schema) as Promise<(AnagramData[])[]>;
+   return generateWithSchema(prompt, schema) as Promise<AnagramsData[]>;
 };
 
 export const generateSpellingCheckFromAI = async (options: GeneratorOptions): Promise<SpellingCheckData[]> => {
@@ -187,19 +168,13 @@ export const generateWordComparisonFromAI = async (options: GeneratorOptions): P
   return generateWithSchema(prompt, schema) as Promise<WordComparisonData[]>;
 };
 
-
 export const generateLetterBridgeFromAI = async (options: GeneratorOptions): Promise<LetterBridgeData[]> => {
   const { itemCount, difficulty, worksheetCount } = options;
   
-  let difficultyInstruction = "Kelimeler 3-4 harfli olsun. Ortak harf ünsüz olsun.";
-  if (difficulty === 'Orta') difficultyInstruction = "Kelimeler 5 harfli olsun.";
-  if (difficulty === 'Zor') difficultyInstruction = "Kelimeler 6-7 harfli olsun. Ortak harf nadir kullanılan bir harf olabilir.";
-  if (difficulty === 'Uzman') difficultyInstruction = "Kelimeler 8+ harfli ve soyut kavramlar olsun. Bulması zor olsun.";
-
   const prompt = `
     "${difficulty}" zorluk seviyesine uygun 'Harf Köprüsü' etkinliği için ${itemCount} tane kelime çifti oluştur.
-    Kelimeler öyle seçilmeli ki, birinci kelimenin son harfi ile ikinci kelimenin ilk harfi aynı olsun.
-    ZORLUK KRİTERİ: ${difficultyInstruction}
+    Kelimeler öyle seçilmeli ki, birinci kelimenin sonuna ve ikinci kelimenin başına aynı harf eklendiğinde iki yeni anlamlı kelime oluşsun (örn: BA_A -> BALA, T_A -> TARA).
+    Etkinlik sonunda, oluşturulan yeni kelimelerden ikisini kullanarak bir cümle kurma görevi (followUpPrompt) ekle.
     Her seferinde tamamen yeni kelimeler kullan.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -217,84 +192,219 @@ export const generateLetterBridgeFromAI = async (options: GeneratorOptions): Pro
           },
           required: ['word1', 'word2']
         }
-      }
+      },
+      followUpPrompt: { type: Type.STRING }
     },
-    required: ['title', 'pairs']
+    required: ['title', 'pairs', 'followUpPrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<LetterBridgeData[]>;
 };
 
-
 export const generateWordLadderFromAI = async (options: GeneratorOptions): Promise<WordLadderData[]> => {
-    const { difficulty, worksheetCount, steps, itemCount } = options;
+    const { difficulty, worksheetCount, steps, itemCount, topic } = options;
     const stepCount = steps || 3;
     
     const prompt = `
-    Create a Word Ladder puzzle for difficulty level "${difficulty}". 
-    Generate ${worksheetCount} worksheets. Each worksheet should have ${itemCount} puzzles. Each puzzle should have a start word and an end word of the same length.
-    The transformation should take ideally ${stepCount} steps.
-    Ensure the words are valid Turkish words.
-    Return as a JSON array.
-    `;
-    return generateWithSchema(prompt, {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {title: {type: Type.STRING}, ladders: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {startWord: {type: Type.STRING}, endWord: {type: Type.STRING}, steps: {type: Type.INTEGER}}, required: ['startWord', 'endWord', 'steps']}}}, required: ['title', 'ladders']}}) as Promise<WordLadderData[]>;
-};
-
-// FIX: Removed duplicated function to resolve export ambiguity. The authoritative version exists in readingComprehension.ts.
-/*
-export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {
-  const { itemCount, difficulty, worksheetCount } = options;
-  const prompt = `
-    "${difficulty}" zorluk seviyesine uygun ${itemCount} tane Türkçe atasözü seç. 
-    ${difficulty === 'Başlangıç' ? 'Herkesin bildiği en basit atasözleri.' : 
-      difficulty === 'Orta' ? 'Yaygın kullanılan atasözleri.' : 
-      difficulty === 'Zor' ? 'Az bilinen, mecazi anlamı kuvvetli atasözleri.' : 
-      'Çok nadir duyulan, edebi veya eski Türkçe kökenli zorlayıcı atasözleri.'}
-    Her atasözünde bir kelimeyi eksik bırak.
-    ÖNEMLİ: Her üretimde farklı atasözleri kullanmaya çalış.
+    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun bir Kelime Merdiveni bulmacası oluştur.
+    ${itemCount} tane bulmaca hazırla. Her bulmaca için, aynı harf sayısına sahip, tematik olarak ilişkili bir başlangıç ve bitiş kelimesi bul (örn: KIŞ -> YAZ).
+    Dönüşüm ideal olarak ${stepCount} adımda gerçekleşmelidir. Kelimelerin geçerli Türkçe kelimeler olduğundan emin ol.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-  `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      proverbs: {
+    `;
+    const schema = {
         type: Type.ARRAY,
         items: {
-          type: Type.OBJECT,
-          properties: {
-            start: { type: Type.STRING },
-            end: { type: Type.STRING }
-          },
-          required: ['start', 'end']
+            type: Type.OBJECT,
+            properties: {
+                title: {type: Type.STRING},
+                theme: {type: Type.STRING},
+                ladders: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            startWord: {type: Type.STRING},
+                            endWord: {type: Type.STRING},
+                            steps: {type: Type.INTEGER}
+                        },
+                        required: ['startWord', 'endWord', 'steps']
+                    }
+                }
+            },
+            required: ['title', 'theme', 'ladders']
         }
-      }
-    },
-    required: ['title', 'proverbs']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<ProverbFillData[]>;
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordLadderData[]>;
 };
-*/
 
-export const generateWordFormationFromAI = async (options: any) => [] as any; 
-export const generateReverseWordFromAI = async (options: any) => [] as any;
+export const generateWordFormationFromAI = async (options: GeneratorOptions): Promise<WordFormationData[]> => {
+    const {itemCount, difficulty, worksheetCount} = options;
+    const prompt = `
+    "${difficulty}" seviyesine uygun 'Harflerden Kelime Türetme' etkinliği oluştur. ${itemCount} set hazırla.
+    Her set için, ${difficulty === 'Başlangıç' ? 5 : difficulty === 'Orta' ? 7 : 9} harfli bir ana kelime seç ve harflerini karıştır.
+    Joker hakkı sayısını belirle.
+    Son olarak, türetilen kelimelerden bulunması gereken bir 'gizli kelime' ve bu kelimeyi bulmak için bir ipucu ('mysteryWordChallenge') oluştur.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT, properties: {
+                title: { type: Type.STRING },
+                sets: {
+                    type: Type.ARRAY, items: {
+                        type: Type.OBJECT, properties: {
+                            letters: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            jokerCount: { type: Type.INTEGER }
+                        }, required: ['letters', 'jokerCount']
+                    }
+                },
+                mysteryWordChallenge: {
+                    type: Type.OBJECT, properties: {
+                        prompt: { type: Type.STRING },
+                        solution: { type: Type.STRING }
+                    }, required: ['prompt', 'solution']
+                }
+            }, required: ['title', 'sets', 'mysteryWordChallenge']
+        }
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordFormationData[]>;
+};
+
+export const generateReverseWordFromAI = async (options: GeneratorOptions): Promise<ReverseWordData[]> => {
+    const {itemCount, difficulty, worksheetCount} = options;
+    const prompt = `
+    "${difficulty}" seviyesine uygun 'Ters Oku' etkinliği oluştur. ${itemCount} tane kelime seç.
+    Etkinliğin sonuna, palindromlar veya kelimeleri tersten okuma ile ilgili eğlenceli bir bilgi ('funFact') ekle.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const schema = {
+        type: Type.ARRAY, items: {
+            type: Type.OBJECT, properties: {
+                title: { type: Type.STRING },
+                words: { type: Type.ARRAY, items: { type: Type.STRING } },
+                funFact: { type: Type.STRING }
+            }, required: ['title', 'words', 'funFact']
+        }
+    };
+    return generateWithSchema(prompt, schema) as Promise<ReverseWordData[]>;
+};
+
 export const generateWordGroupingFromAI = async (options: any) => [] as any;
 export const generateMiniWordGridFromAI = async (options: any) => [] as any;
 export const generatePasswordFinderFromAI = async (options: any) => [] as any;
-export const generateSyllableCompletionFromAI = async (options: any) => [] as any;
+
+export const generateSyllableCompletionFromAI = async (options: GeneratorOptions): Promise<SyllableCompletionData[]> => {
+    const {itemCount, difficulty, worksheetCount, theme} = options;
+    const prompt = `
+    '${theme}' temalı ve "${difficulty}" seviyesine uygun 'Hece Tamamlama' etkinliği oluştur.
+    ${itemCount} tane kelimeyi hecelerine ayır (ilk hece ve geri kalanı).
+    Bu kelimelerin sığacağı, içinde boşluklar bulunan kısa ve anlamlı bir hikaye şablonu ('storyTemplate') oluştur. Boşlukları __WORD__ şeklinde belirt.
+    Ayrıca hecelerin ikinci kısımlarını karışık olarak liste halinde ver.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const schema = {
+        type: Type.ARRAY, items: {
+            type: Type.OBJECT, properties: {
+                title: { type: Type.STRING }, prompt: { type: Type.STRING }, theme: { type: Type.STRING },
+                wordParts: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { first: { type: Type.STRING }, second: { type: Type.STRING } }, required: ['first', 'second'] } },
+                syllables: { type: Type.ARRAY, items: { type: Type.STRING } },
+                storyTemplate: { type: Type.STRING },
+                storyPrompt: { type: Type.STRING, description: "Alternative prompt if template is not used." }
+            }, required: ['title', 'prompt', 'theme', 'wordParts', 'syllables', 'storyTemplate']
+        }
+    };
+    return generateWithSchema(prompt, schema) as Promise<SyllableCompletionData[]>;
+};
+
 export const generateSynonymWordSearchFromAI = async (options: any) => [] as any;
-export const generateSpiralPuzzleFromAI = async (options: any) => [] as any;
-export const generateCrosswordFromAI = async (options: any) => [] as any;
+
+export const generateSpiralPuzzleFromAI = async (options: GeneratorOptions): Promise<SpiralPuzzleData[]> => {
+    const {itemCount, difficulty, worksheetCount, topic, gridSize} = options;
+    const prompt = `
+    '${topic}' temalı, "${difficulty}" seviyesine uygun ${gridSize}x${gridSize} boyutunda bir 'Sarmal Bulmaca' oluştur.
+    ${itemCount} tane kelime ve bu kelimeler için ipuçları hazırla. Kelimeleri sarmal şekilde ızgaraya yerleştir.
+    Bulmacanın sonunda, konuyla ilgili bir şifre veya ek bir soru ('passwordPrompt') olsun.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const schema = {
+        type: Type.ARRAY, items: {
+            type: Type.OBJECT, properties: {
+                title: { type: Type.STRING }, prompt: { type: Type.STRING }, theme: { type: Type.STRING },
+                clues: { type: Type.ARRAY, items: { type: Type.STRING } },
+                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                wordStarts: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ['id', 'row', 'col'] } },
+                passwordPrompt: { type: Type.STRING }
+            }, required: ['title', 'prompt', 'theme', 'clues', 'grid', 'wordStarts', 'passwordPrompt']
+        }
+    };
+    return generateWithSchema(prompt, schema) as Promise<SpiralPuzzleData[]>;
+};
+
+export const generateCrosswordFromAI = async (options: GeneratorOptions): Promise<CrosswordData[]> => {
+    const {itemCount, difficulty, worksheetCount, topic, gridSize, passwordLength, clueType} = options;
+    const prompt = `
+    '${topic}' temalı, "${difficulty}" seviyesine uygun ${gridSize}x${gridSize} boyutunda bir 'Çapraz Bulmaca' oluştur.
+    ${itemCount} tane kelime seç. Bu kelimeler için '${clueType}' türünde ipuçları hazırla. Bazı ipuçları için metin yerine görsel oluşturmak üzere **İngilizce** 'imagePrompt' kullan.
+    ${passwordLength} harfli bir şifre kelimesi belirle ve bu şifreyi oluşturan harflerin hücrelerini işaretle.
+    Bulmaca çözüldükten sonra şifrenin anlamı veya temayla ilişkisi hakkında bir soru ('passwordPrompt') sor.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const schema = {
+        type: Type.ARRAY, items: {
+            type: Type.OBJECT, properties: {
+                title: { type: Type.STRING }, prompt: { type: Type.STRING }, theme: { type: Type.STRING },
+                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                clues: {
+                    type: Type.ARRAY, items: {
+                        type: Type.OBJECT, properties: {
+                            id: { type: Type.INTEGER }, direction: { type: Type.STRING, enum: ['across', 'down'] }, text: { type: Type.STRING },
+                            start: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ['row', 'col'] },
+                            word: { type: Type.STRING }, imagePrompt: { type: Type.STRING }
+                        }, required: ['id', 'direction', 'text', 'start', 'word']
+                    }
+                },
+                passwordCells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ['row', 'col'] } },
+                passwordLength: { type: Type.INTEGER },
+                passwordPrompt: { type: Type.STRING }
+            }, required: ['title', 'prompt', 'theme', 'grid', 'clues', 'passwordCells', 'passwordLength', 'passwordPrompt']
+        }
+    };
+    return generateWithSchema(prompt, schema) as Promise<CrosswordData[]>;
+};
+
 export const generateJumbledWordStoryFromAI = async (options: any) => [] as any;
 export const generateWordGridPuzzleFromAI = async (options: any) => [] as any;
 export const generateAntonymFlowerPuzzleFromAI = async (options: any) => [] as any;
-export const generateSynonymAntonymGridFromAI = async (options: any) => [] as any;
+
+export const generateSynonymAntonymGridFromAI = async (options: GeneratorOptions): Promise<SynonymAntonymGridData[]> => {
+    const {itemCount, difficulty, worksheetCount, gridSize} = options;
+    const prompt = `
+    "${difficulty}" seviyesine uygun bir 'Eş ve Zıt Anlamlı Kelime Izgarası' oluştur.
+    ${Math.ceil(itemCount/2)} tane kelime ve eş anlamlısını, ${Math.floor(itemCount/2)} tane kelime ve zıt anlamlısını bul.
+    Bu eş/zıt anlamlı kelimeleri ${gridSize}x${gridSize} boyutunda bir kelime avı bulmacasına gizle.
+    Son olarak, bir kelime ve onun eş anlamlısı arasındaki ince anlam farkını sorgulayan bir 'nuanceQuestion' oluştur.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const schema = {
+        type: Type.ARRAY, items: {
+            type: Type.OBJECT, properties: {
+                title: { type: Type.STRING }, prompt: { type: Type.STRING },
+                antonyms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING } }, required: ['word'] } },
+                synonyms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING } }, required: ['word'] } },
+                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                nuanceQuestion: { type: Type.OBJECT, properties: { sentence: { type: Type.STRING }, word: { type: Type.STRING }, options: { type: Type.ARRAY, items: { type: Type.STRING } } }, required: ['sentence', 'word', 'options'] }
+            }, required: ['title', 'prompt', 'antonyms', 'synonyms', 'grid', 'nuanceQuestion']
+        }
+    };
+    return generateWithSchema(prompt, schema) as Promise<SynonymAntonymGridData[]>;
+};
+
 export const generatePunctuationColoringFromAI = async (options: any) => [] as any;
 
 export const generateAntonymResfebeFromAI = async (options: GeneratorOptions): Promise<AntonymResfebeData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create an antonym resfebe puzzle for difficulty level "${difficulty}". Generate ${itemCount} puzzles. For each puzzle, generate a Turkish word. Then, create visual/textual clues (resfebe) to represent that word. For image clues, provide a clear, simple English image generation prompt in the 'imagePrompt' field. Then provide the antonym of the word. Create ${worksheetCount} unique worksheets.`;
+    const prompt = `Create an antonym resfebe puzzle for difficulty level "${difficulty}". Generate ${itemCount} puzzles. For each puzzle, generate a Turkish word. Then, create creative visual/textual clues (resfebe) to represent that word. For image clues, provide a clear, simple English image generation prompt. Then provide the antonym of the word. Create ${worksheetCount} unique worksheets.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -332,7 +442,7 @@ export const generateAntonymResfebeFromAI = async (options: GeneratorOptions): P
 };
 
 export const generateThematicWordSearchColorFromAI = async (options: any) => [] as any;
-export const generateProverbSentenceFinderFromAI = async (options: any) => [] as any;
+// FIX: Removed ambiguous export to resolve conflict with readingComprehension.ts
 export const generateSynonymAntonymColoringFromAI = async (options: any) => [] as any;
 export const generatePunctuationSpiralPuzzleFromAI = async (options: any) => [] as any;
 export const generateThematicJumbledWordStoryFromAI = async (options: any) => [] as any;
@@ -342,27 +452,31 @@ export const generateWordWebFromAI = async (options: any) => [] as any;
 
 export const generateHomonymSentenceWritingFromAI = async (options: GeneratorOptions): Promise<HomonymSentenceData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create a homonym sentence writing activity for difficulty "${difficulty}". Select ${itemCount} common Turkish homonyms (eş sesli kelimeler). For each homonym, provide a simple, clear English image generation prompt that represents ONE of its meanings. The user will write two different sentences for both meanings. Create ${worksheetCount} unique worksheets.`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            items: {
-                type: Type.ARRAY,
+    const prompt = `
+    "${difficulty}" seviyesine uygun bir 'Eş Sesli Kelime Cümle Yazma' etkinliği oluştur.
+    ${itemCount} tane yaygın Türkçe eş sesli kelime seç.
+    Her kelime için:
+    1. İki farklı anlamını ('meaning1', 'meaning2') kısaca açıkla.
+    2. Her bir anlam için, o anlamı temsil eden basit, net ve çocuklara uygun bir görsel oluşturmak için detaylı bir **İngilizce** 'imagePrompt_1' ve 'imagePrompt_2' üret.
+    Kullanıcının her anlam için ayrı bir cümle yazması gerekecek.
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const schema = {
+        type: Type.ARRAY, items: {
+            type: Type.OBJECT, properties: {
+                title: { type: Type.STRING }, prompt: { type: Type.STRING },
                 items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        word: { type: Type.STRING },
-                        imagePrompt: { type: Type.STRING, description: "English prompt for image generation for one meaning of the homonym." }
-                    },
-                    required: ["word", "imagePrompt"]
+                    type: Type.ARRAY, items: {
+                        type: Type.OBJECT, properties: {
+                            word: { type: Type.STRING },
+                            meaning1: { type: Type.STRING }, imagePrompt_1: { type: Type.STRING },
+                            meaning2: { type: Type.STRING }, imagePrompt_2: { type: Type.STRING }
+                        }, required: ["word", "meaning1", "imagePrompt_1", "meaning2", "imagePrompt_2"]
+                    }
                 }
-            }
-        },
-        required: ["title", "prompt", "items"]
+            }, required: ["title", "prompt", "items"]
+        }
     };
-    const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<HomonymSentenceData[]>;
 };
 
@@ -463,3 +577,4 @@ export const generateWordWebWithPasswordFromAI = async (options: any) => [] as a
 export const generateLetterGridWordFindFromAI = async (options: any) => [] as any;
 export const generateWordPlacementPuzzleFromAI = async (options: any) => [] as any;
 export const generatePositionalAnagramFromAI = async (options: any) => [] as any;
+// FIX: Removed ambiguous export to resolve conflict with logicProblems.ts
