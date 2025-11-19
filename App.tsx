@@ -194,7 +194,7 @@ const App: React.FC = () => {
               <i className="fa-solid fa-bars fa-lg"></i>
             </button>
              <button onClick={handleResetApp} className="flex-shrink-0 flex items-center gap-3" aria-label="Uygulamayı sıfırla">
-                <DyslexiaLogo className="w-24 h-24" />
+                <DyslexiaLogo className="h-12 w-auto" />
             </button>
           </div>
 

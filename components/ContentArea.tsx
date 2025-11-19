@@ -78,10 +78,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
             {!isLoading && !error && !worksheetData && (
                 <div className="flex justify-center items-center h-full">
-                     <div className="text-center text-zinc-500 dark:text-zinc-400">
-                        <img src="/a.jpg" alt="Bursa Disleksi Ai Başlangıç Ekranı" className="w-48 h-48 object-cover mb-6 mx-auto rounded-full shadow-lg border-4 border-white dark:border-zinc-700" />
-                        <h2 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-200">Başlamaya Hazır Mısınız?</h2>
-                        <p>Sol menüden bir etkinlik seçin ve ayarlarınızı yaparak <br /> "Etkinlik Oluştur" butonuna tıklayın.</p>
+                     <div className="text-center p-8">
+                        <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-indigo-100/50 dark:ring-indigo-900/20">
+                            <i className="fa-solid fa-wand-magic-sparkles text-5xl text-indigo-500 dark:text-indigo-400"></i>
+                        </div>
+                        <h2 className="text-3xl font-bold mb-2 text-zinc-800 dark:text-zinc-200">Kişiselleştirilmiş Etkinlikler</h2>
+                        <p className="text-lg text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
+                            Öğrenmeyi eğlenceli hale getirin. Sol menüden bir etkinlik seçerek başlayın ve yapay zekanın sihrini keşfedin.
+                        </p>
                     </div>
                 </div>
             )}

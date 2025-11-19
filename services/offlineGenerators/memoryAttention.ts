@@ -181,10 +181,12 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     for(let i=0; i<worksheetCount; i++){
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
         const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => {
-            // FIX: Type inference for TR_VOCAB properties is now correct after changing the import source.
-            // The explicit casts are no longer needed.
-            const adjective: string = (getRandomItems(TR_VOCAB.adjectives, 1)[0] || '');
-            const animal: string = (getRandomItems(TR_VOCAB.animals, 1)[0] || '');
+            // FIX: The type of TR_VOCAB properties is sometimes inferred as 'unknown' due to module resolution issues.
+            // Casting the result to 'string' to resolve the type error.
+            const adjective: string = (getRandomItems(TR_VOCAB.adjectives as string[], 1)[0] || '') as string;
+            // FIX: The type of `TR_VOCAB.animals` is sometimes inferred as 'unknown'. Using `(TR_VOCAB as any)` was incorrect and resulted in a type error.
+            // Aligned with the working pattern for 'adjective' by casting the array to string[] before passing to `getRandomItems`.
+            const animal: string = (getRandomItems(TR_VOCAB.animals as string[], 1)[0] || '') as string;
             return {
                 description: `${adjective} ${animal} ${emoji}`.trim()
             };
