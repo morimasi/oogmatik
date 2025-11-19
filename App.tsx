@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect, CSSProperties, ReactNode } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
 import DyslexiaLogo from './components/DyslexiaLogo';
+import GlobalSearch from './components/GlobalSearch';
 
 export interface StyleSettings {
   fontSize: number;
@@ -170,6 +171,16 @@ const App: React.FC = () => {
     setCurrentView('generator');
   };
 
+  const handleSelectActivity = (activityType: ActivityType | null) => {
+    setSelectedActivity(activityType);
+    setWorksheetData(null); // Clear previous worksheet
+    setError(null);
+    setCurrentView('generator'); // Ensure we are on the generator view
+    if (isSidebarOpen) {
+        setIsSidebarOpen(false); // Close sidebar on mobile after selection
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
       <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
@@ -233,6 +244,7 @@ const App: React.FC = () => {
             >
               <i className="fa-solid fa-circle-info fa-lg"></i>
             </button>
+            <GlobalSearch onSelectActivity={handleSelectActivity} />
           </div>
         </div>
       </header>
@@ -249,7 +261,7 @@ const App: React.FC = () => {
           isSidebarOpen={isSidebarOpen}
           closeSidebar={() => setIsSidebarOpen(false)}
           selectedActivity={selectedActivity}
-          onSelectActivity={setSelectedActivity}
+          onSelectActivity={handleSelectActivity}
           setWorksheetData={setWorksheetData}
           setIsLoading={setIsLoading}
           setError={setError}
