@@ -184,10 +184,8 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
             // FIX: Resolved 'Type 'unknown' is not assignable to type 'string'' error by simplifying the type casting. 
             // This relies on TypeScript correctly inferring the type from the imported TR_VOCAB object.
             const adjective: string = getRandomItems(TR_VOCAB.adjectives, 1)[0] || '';
-            // FIX: Explicitly cast the result to string to resolve an 'unknown' type error that arises from complex type inference on the large TR_VOCAB object.
-            // FIX: Cast the result of getRandomItems to a string to resolve the 'unknown' type error.
-// FIX: Simplified casting for 'animal' to match the working pattern for 'adjective', resolving the 'Type 'unknown' is not assignable to type 'string'' error.
-            const animal: string = getRandomItems(TR_VOCAB.animals, 1)[0] || '';
+            // FIX: Explicitly cast the result to string to resolve the 'unknown' type issue caused by complex type inference on the large TR_VOCAB object.
+            const animal: string = (getRandomItems(TR_VOCAB.animals, 1)[0] as string) || '';
             return {
                 description: `${adjective} ${animal} ${emoji}`.trim()
             };

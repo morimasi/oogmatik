@@ -32,6 +32,7 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
         fontSize="32"
         fontWeight="bold"
         className="fill-zinc-900 dark:fill-zinc-100"
+        fontFamily="OpenDyslexic, sans-serif"
       >
         {text.split('').map((char, index) => {
           if (char === ' ') {
