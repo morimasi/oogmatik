@@ -180,10 +180,14 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     const results: CharacterMemoryData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
-        const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => ({
-// FIX: Explicitly cast results to string to resolve 'unknown' type from complex type inference on TR_VOCAB.
-            description: `${(getRandomItems(TR_VOCAB.adjectives, 1)[0] as string) || ''} ${(getRandomItems(TR_VOCAB.animals, 1)[0] as string) || ''} ${emoji}`
-        }));
+        const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => {
+            // FIX: Explicitly cast results to string to resolve 'unknown' type from complex type inference on TR_VOCAB.
+            const adjective = String(getRandomItems(TR_VOCAB.adjectives, 1)[0] || '');
+            const animal = String(getRandomItems(TR_VOCAB.animals, 1)[0] || '');
+            return {
+                description: `${adjective} ${animal} ${emoji}`.trim()
+            };
+        });
         results.push({
             title: 'Karakter Hafıza (Hızlı Mod)',
             memorizeTitle: 'Karakterleri Ezberle',

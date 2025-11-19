@@ -246,14 +246,14 @@ export const generateOfflineSynonymWordSearch = async (options: GeneratorOptions
 }
 
 export const generateOfflineSpiralPuzzle = async (options: GeneratorOptions): Promise<SpiralPuzzleData[]> => {
-    return Array(options.worksheetCount).fill({ title: 'Sarmal Bulmaca', prompt: 'İpuçlarından kelimeleri bulup sarmal bulmacaya yerleştirin.', clues:['Sıcak zıttı'], grid: [['s','o','ğ'],['k','u',' ']], wordStarts: [{id:1, row:0, col:0}] });
+     return Array(options.worksheetCount).fill({ title: 'Sarmal Bulmaca', prompt: 'İpuçlarından kelimeleri bulup sarmal bulmacaya yerleştirin.', clues:['Sıcak zıttı'], grid: [['s','o','ğ'],['k','u',' ']], wordStarts: [{id:1, row:0, col:0}] });
 }
 export const generateOfflinePunctuationSpiralPuzzle = async (options: GeneratorOptions): Promise<PunctuationSpiralPuzzleData[]> => {
     const data = await generateOfflineSpiralPuzzle(options);
     return data.map(d => ({...d, title: 'Noktalama Sarmal Bulmaca'}));
 }
 export const generateOfflineCrossword = async (options: GeneratorOptions): Promise<CrosswordData[]> => {
-    return Array(options.worksheetCount).fill({ title: 'Çapraz Bulmaca', prompt: 'Verilen ipuçlarıyla bulmacayı çözün ve şifreyi bulun.', grid: [[null, 'E', null], ['E', 'L', 'M'], [null, 'A', null]], clues:[], passwordCells:[], passwordLength: 0 });
+     return Array(options.worksheetCount).fill({ title: 'Çapraz Bulmaca', prompt: 'Verilen ipuçlarıyla bulmacayı çözün ve şifreyi bulun.', grid: [[null, 'E', null], ['E', 'L', 'M'], [null, 'A', null]], clues:[], passwordCells:[], passwordLength: 0 });
 }
 export const generateOfflineJumbledWordStory = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
     const {itemCount, worksheetCount, difficulty, theme} = options;
@@ -283,7 +283,18 @@ export const generateOfflineWordGridPuzzle = async (options: GeneratorOptions): 
 }
 
 export const generateOfflineHomonymImageMatch = async (options: GeneratorOptions): Promise<HomonymImageMatchData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Resim Eşleştirme (Eş Sesli)', prompt: 'Eş sesli kelimelere ait görselleri eşleştirin.', leftImages: [], rightImages: [], wordScramble: {letters: ['y','ü','z'], word:'yüz'} });
+    const {worksheetCount} = options;
+    const results: HomonymImageMatchData[] = [];
+    for(let i=0; i < worksheetCount; i++){
+        const word = getRandomItems(HOMONYMS, 1)[0] || 'yüz';
+        results.push({
+            title: 'Resim Eşleştirme (Eş Sesli)', prompt: 'Eş sesli kelimelere ait görselleri eşleştirin ve kelimeyi bulun.',
+            leftImages: [{id: 1, word: 'Sayı', imageBase64: ''}],
+            rightImages: [{id: 1, word: 'Surat', imageBase64: ''}],
+            wordScramble: {letters: shuffle(word.split('')), word}
+        });
+    }
+    return results;
 }
 export const generateOfflineAntonymFlowerPuzzle = async (options: GeneratorOptions): Promise<AntonymFlowerPuzzleData[]> => {
     const {itemCount, worksheetCount} = options;
@@ -314,7 +325,18 @@ export const generateOfflineSynonymAntonymGrid = async (options: GeneratorOption
 }
 
 export const generateOfflineAntonymResfebe = async (options: GeneratorOptions): Promise<AntonymResfebeData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Resfebe (Zıt Anlamlı)', prompt: 'Resfebe ile kelimeyi bulun, sonra zıt anlamlısını yazın.', puzzles: [], antonymsPrompt: 'Zıt anlamlılarını yaz.' });
+     const {itemCount, worksheetCount} = options;
+     const results: AntonymResfebeData[] = [];
+     for(let i=0; i < worksheetCount; i++){
+         const puzzles = getRandomItems(TR_VOCAB.antonyms, itemCount).map(p => ({
+             word: p.word,
+             antonym: p.antonym,
+             // FIX: Added 'as const' to the type property to satisfy the 'text' | 'image' union type.
+             clues: [{type: 'text' as const, value: p.word.substring(0,2).toUpperCase()}, {type: 'text' as const, value: '...'}]
+         }));
+         results.push({ title: 'Resfebe (Zıt Anlamlı)', prompt: 'Resfebe ile kelimeyi bulun, sonra zıt anlamlısını yazın.', puzzles, antonymsPrompt: 'Şimdi bulduğun kelimelerin zıt anlamlılarını yaz.' });
+     }
+     return results;
 }
 export const generateOfflineThematicWordSearchColor = async (options: GeneratorOptions): Promise<ThematicWordSearchColorData[]> => {
     const res = await generateOfflineWordSearch(options);
@@ -346,14 +368,37 @@ export const generateOfflineSynonymMatchingPattern = async (options: GeneratorOp
     return Array(worksheetCount).fill({title: 'Desen Bulmaca (Eş Anlamlı)', prompt: 'Tematik kelimelerin eş anlamlılarını bularak eşleştirin.', theme: theme || 'Rastgele', pairs: getRandomItems(TR_VOCAB.synonyms, itemCount) as { word: string; synonym: string; }[]});
 }
 export const generateOfflineMissingParts = async (options: GeneratorOptions): Promise<MissingPartsData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Eksik Kelimeler (Eşleştirme)', prompt: 'Kelime parçalarını doğru şekilde birleştirin.', leftParts: [], rightParts: [], givenParts: [] });
+    const {itemCount, worksheetCount, difficulty} = options;
+    const results: MissingPartsData[] = [];
+    for(let i=0; i < worksheetCount; i++){
+        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount);
+        const leftParts = words.map((w, idx) => ({id: idx, text: w.substring(0, Math.floor(w.length/2))}));
+        const rightParts = words.map((w, idx) => ({id: idx, text: w.substring(Math.floor(w.length/2))}));
+        results.push({
+            title: 'Eksik Kelimeler (Eşleştirme)', prompt: 'Kelime parçalarını doğru şekilde birleştirin.', 
+            leftParts: shuffle(leftParts),
+            rightParts: shuffle(rightParts),
+            givenParts: []
+        });
+    }
+    return results;
 }
 export const generateOfflineWordWeb = async (options: GeneratorOptions): Promise<WordWebData[]> => {
      return Array(options.worksheetCount).fill({ title: 'Kelime Ağı', prompt: 'Verilen kelimeleri bulmaca ızgarasına yerleştirin.', wordsToFind: [], grid: [[]], keyWordPrompt: '' });
 }
 
 export const generateOfflineImageAnagramSort = async (options: GeneratorOptions): Promise<ImageAnagramSortData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Kart Sıralama (Anagram)', prompt: 'Görsellerle eşleşen karışık kelimeleri çözüp sıralayın.', cards: [] });
+    const {itemCount, worksheetCount, difficulty, topic} = options;
+    const results: ImageAnagramSortData[] = [];
+    for(let i=0; i<worksheetCount; i++){
+        const cards = getRandomItems(getWordsForDifficulty(difficulty, topic), itemCount).map(word => ({
+            imageDescription: word,
+            scrambledWord: shuffle(word.split('')).join(''),
+            correctWord: word
+        }));
+        results.push({ title: 'Kart Sıralama (Anagram)', prompt: 'Görsellerle eşleşen karışık kelimeleri çözüp sıralayın.', cards});
+    }
+    return results;
 }
 export const generateOfflineAnagramImageMatch = async (options: GeneratorOptions): Promise<AnagramImageMatchData[]> => {
      return Array(options.worksheetCount).fill({ title: 'Resim - Kelime Eşleme (Anagram)', prompt: 'Karışık kelimeleri çözüp ilgili görsellerle eşleştirin.', wordBank: [], puzzles: [] });
@@ -378,7 +423,20 @@ export const generateOfflinePositionalAnagram = async (options: GeneratorOptions
      return Array(options.worksheetCount).fill({ title: 'Yer Değiştirmeli Anagram', prompt: 'Numaralı kutucuklardaki harflerin yerlerini değiştirerek kelimeler bulun.', puzzles: [] });
 }
 export const generateOfflineResfebe = async (options: GeneratorOptions): Promise<ResfebeData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Resfebe', prompt: 'Resim ve harflerle kelime türetme oyunu.', puzzles: [{clues: [{type: 'text', value: 'C'}], answer: 'ce'}] });
+    const {itemCount, worksheetCount} = options;
+    const results: ResfebeData[] = [];
+    for(let i=0; i < worksheetCount; i++){
+        const puzzles = Array.from({length: itemCount}).map(() => {
+            const word = getRandomItems(getWordsForDifficulty('Orta'), 1)[0] || 'cebir';
+            return {
+                // FIX: Added 'as const' to the type property to satisfy the 'text' | 'image' union type.
+                clues: [{type: 'text' as const, value: word.substring(0,1).toUpperCase()}, {type: 'text' as const, value: '1'}],
+                answer: word
+            };
+        });
+        results.push({ title: 'Resfebe', prompt: 'Resim ve harflerle kelime türetme oyunu.', puzzles});
+    }
+    return results;
 }
 export const generateOfflineProverbSearch = async (options: GeneratorOptions): Promise<ProverbSearchData[]> => {
     const { worksheetCount } = options;

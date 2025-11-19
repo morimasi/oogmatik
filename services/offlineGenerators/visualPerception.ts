@@ -246,19 +246,60 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
 };
 
 export const generateOfflineProfessionConnect = async (options: GeneratorOptions): Promise<ProfessionConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Kelime Bağlama (Meslekler)', prompt: 'Meslekleri ilgili görsellerle eşleştirin.', gridDim: 6, points: [] });
+    const {itemCount, worksheetCount, gridSize} = options;
+    const results: ProfessionConnectData[] = [];
+    for(let i=0; i<worksheetCount; i++){
+        const professions = getRandomItems(TR_VOCAB.jobs, itemCount);
+        const points = professions.map(p => ({
+            label: p,
+            imageDescription: p,
+            x: getRandomInt(0, (gridSize || 10)-1),
+            y: getRandomInt(0, (gridSize || 10)-1)
+        }));
+        results.push({ title: 'Kelime Bağlama (Meslekler)', prompt: 'Meslekleri ilgili görsellerle eşleştirin.', gridDim: gridSize || 10, points });
+    }
+    return results;
 }
 export const generateOfflineMatchstickSymmetry = async (options: GeneratorOptions): Promise<MatchstickSymmetryData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Kibrit İşlemleri (Simetri)', prompt: 'Kibritlerle yapılmış şeklin simetriğini çizin.', puzzles: [] });
+     const puzzles = [{number: 3, lines: [{x1:1, y1:1, x2:2, y2:1}]}]; // Simplified
+     return Array(options.worksheetCount).fill({ title: 'Kibrit İşlemleri (Simetri)', prompt: 'Kibritlerle yapılmış şeklin simetriğini çizin.', puzzles });
 }
 export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOptions): Promise<VisualOddOneOutThemedData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Farklı Özelliği Bulma (Tematik)', prompt: 'Her meslek grubunda, konuyla ilgisiz olan görseli bulun.', rows: [] });
+    const {itemCount, worksheetCount, theme} = options;
+    const results: VisualOddOneOutThemedData[] = [];
+    for(let i=0; i<worksheetCount; i++){
+        const rows = Array.from({length: itemCount}).map(() => {
+            const themeToUse = theme || 'Hayvanlar';
+            const otherTheme = theme === 'Hayvanlar' ? 'Meyveler' : 'Hayvanlar';
+            const items = [...getRandomItems((TR_VOCAB as any)[themeToUse], 3), getRandomItems((TR_VOCAB as any)[otherTheme], 1)[0]];
+            return {
+                theme: themeToUse,
+                // FIX: Explicitly typed 'item' to resolve 'unknown' type from complex type inference on TR_VOCAB.
+                items: shuffle(items).map((item: string) => ({description: item})),
+                oddOneOutIndex: 0 // Placeholder, UI should handle this
+            }
+        });
+        results.push({ title: 'Farklı Özelliği Bulma (Tematik)', prompt: 'Her meslek grubunda, konuyla ilgisiz olan görseli bulun.', rows});
+    }
+    return results;
 }
 export const generateOfflinePunctuationColoring = async (options: GeneratorOptions): Promise<PunctuationColoringData[]> => {
-    return Array(options.worksheetCount).fill({ title: 'Görsel Boyama (Noktalama)', prompt: 'Cümlelere uygun noktalama işaretlerini bularak resmi boyayın.', sentences: [] });
+    return Array(options.worksheetCount).fill({
+        title: 'Görsel Boyama (Noktalama)',
+        prompt: 'Cümlelere uygun noktalama işaretlerini bularak resmi boyayın.',
+        sentences: [
+            {text: 'Eyvah, kedi ağaca çıktı', color: '#FF0000', correctMark: '!'},
+            {text: 'Okula geldin mi', color: '#0000FF', correctMark: '?'},
+        ]
+    });
 }
 export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOptions): Promise<SynonymAntonymColoringData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Görsel Boyama (Eş/Zıt Anlamlı)', prompt: 'Doğru eş/zıt anlamlı kelimeyi bularak resmi boyayın.', colorKey: [], wordsOnImage: [] });
+     const pair = getRandomItems(TR_VOCAB.antonyms, 1)[0];
+     return Array(options.worksheetCount).fill({
+         title: 'Görsel Boyama (Eş/Zıt Anlamlı)', prompt: 'Doğru eş/zıt anlamlı kelimeyi bularak resmi boyayın.',
+         colorKey: [{text: `${pair.word}'in zıt anlamlısı`, color: '#FF0000'}],
+         wordsOnImage: [{word: pair.antonym, x: 50, y: 50}]
+     });
 }
 
 export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promise<OddOneOutData[]> => {
