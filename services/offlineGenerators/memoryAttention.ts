@@ -1,6 +1,6 @@
 import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, StarHuntData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS } from './helpers';
-import { TR_VOCAB } from '../../data/vocabulary';
+// FIX: Import TR_VOCAB from helpers to ensure consistent module resolution and correct type inference.
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB } from './helpers';
 
 
 export const generateOfflineWordMemory = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
@@ -181,9 +181,10 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     for(let i=0; i<worksheetCount; i++){
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
         const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => {
-            // FIX: Explicitly cast TR_VOCAB properties to resolve type inference issues where they were inferred as 'unknown'.
-            const adjective: string = (getRandomItems(TR_VOCAB.adjectives as string[], 1)[0] || '');
-            const animal: string = (getRandomItems(TR_VOCAB.animals as string[], 1)[0] || '');
+            // FIX: Type inference for TR_VOCAB properties is now correct after changing the import source.
+            // The explicit casts are no longer needed.
+            const adjective: string = (getRandomItems(TR_VOCAB.adjectives, 1)[0] || '');
+            const animal: string = (getRandomItems(TR_VOCAB.animals, 1)[0] || '');
             return {
                 description: `${adjective} ${animal} ${emoji}`.trim()
             };
