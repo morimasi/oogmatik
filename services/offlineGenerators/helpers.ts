@@ -1,3 +1,4 @@
+
 import { ShapeType } from '../../types';
 import { TR_VOCAB } from '../../data/vocabulary';
 
@@ -34,10 +35,45 @@ export const getRandomItems = <T>(arr: T[], count: number): T[] => {
     return shuffle(arr).slice(0, count);
 };
 
+// Latin Square Generator (Backtracking)
+export const generateLatinSquare = (size: number): number[][] => {
+    const grid = Array.from({ length: size }, () => Array(size).fill(0));
+    
+    const isValid = (r: number, c: number, num: number) => {
+        for(let k=0; k<size; k++) if(grid[r][k] === num || grid[k][c] === num) return false;
+        return true;
+    }
+
+    const solve = (idx: number): boolean => {
+        if (idx === size * size) return true;
+        const r = Math.floor(idx / size);
+        const c = idx % size;
+        
+        // Optimization: Pre-check if cell is filled (not needed here as we start with 0s, but good practice)
+        if (grid[r][c] !== 0) return solve(idx + 1);
+
+        const nums = shuffle(Array.from({length: size}, (_, i) => i + 1));
+        for(const num of nums) {
+            if (isValid(r, c, num)) {
+                grid[r][c] = num;
+                if (solve(idx + 1)) return true;
+                grid[r][c] = 0;
+            }
+        }
+        return false;
+    }
+    solve(0);
+    return grid;
+}
+
 // Sudoku Generator Helper
 export const generateSudokuGrid = (size: number = 6, difficulty: string): (number | null)[][] => {
+    // Only supports 6x6 (2x3 blocks) or 9x9 (3x3) for standard logic. 
+    // For arbitrary size latin square, use generateLatinSquare.
+    // Here we use a standard backtracking for 6x6 with block constraints.
     const grid: (number | null)[][] = Array.from({ length: size }, () => Array(size).fill(null));
-    const boxSize = Math.sqrt(size);
+    const boxHeight = size === 6 ? 2 : 3;
+    const boxWidth = 3;
 
     function isValid(num: number, row: number, col: number) {
         // Check row and column
@@ -47,10 +83,10 @@ export const generateSudokuGrid = (size: number = 6, difficulty: string): (numbe
             }
         }
         // Check box
-        const startRow = row - (row % boxSize);
-        const startCol = col - (col % boxSize);
-        for (let r = 0; r < boxSize; r++) {
-            for (let c = 0; c < boxSize; c++) {
+        const startRow = row - (row % boxHeight);
+        const startCol = col - (col % boxWidth);
+        for (let r = 0; r < boxHeight; r++) {
+            for (let c = 0; c < boxWidth; c++) {
                 if (grid[r + startRow][c + startCol] === num) {
                     return false;
                 }

@@ -1,5 +1,14 @@
+
 import React from 'react';
 import { ShapeType } from '../../types';
+
+export const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string }> = ({ title, instruction, note }) => (
+    <div className="mb-6 text-center print:mb-4">
+        <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100">{title}</h3>
+        <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
+        {note && <p className="text-xs text-zinc-500 dark:text-zinc-400 italic border-t border-zinc-200 dark:border-zinc-700 pt-2 mt-2 inline-block px-4">Eğitmen Notu: {note}</p>}
+    </div>
+);
 
 export const Shape: React.FC<{ name: ShapeType; className?: string }> = ({ name, className = "w-10 h-10" }) => {
     switch (name) {
@@ -120,9 +129,13 @@ export const CagedGridSvg: React.FC<{
                             {isEdge(r, c, 'bottom') && <line x1={c * cellSize} y1={(r + 1) * cellSize} x2={(c + 1) * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
                             {isEdge(r, c, 'left') && <line x1={c * cellSize} y1={r * cellSize} x2={c * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
                             {isEdge(r, c, 'right') && <line x1={(c + 1) * cellSize} y1={r * cellSize} x2={(c + 1) * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
-                            <text x={c * cellSize + cellSize / 2} y={r * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-current">
-                                {gridData?.[r]?.[c]}
-                            </text>
+                            {/* Only show numbers if not null in gridData (solution or pre-filled) */}
+                            {gridData?.[r]?.[c] !== null && (
+                                <text x={c * cellSize + cellSize / 2} y={r * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-zinc-400 opacity-30">
+                                    {/* Hidden logic for generated answers, or visible if prefilled. For now hiding unless intended for easy mode */}
+                                    {/* {gridData?.[r]?.[c]} */} 
+                                </text>
+                            )}
                         </g>
                     );
                 })}
@@ -131,7 +144,7 @@ export const CagedGridSvg: React.FC<{
                 {(cages || []).map((cage, i) => {
                     const firstCell = cage.cells.reduce((prev, curr) => (curr.row < prev.row || (curr.row === prev.row && curr.col < prev.col)) ? curr : prev);
                     return (
-                        <text key={i} x={firstCell.col * cellSize + 5} y={firstCell.row * cellSize + 15} className="text-sm font-bold fill-current">
+                        <text key={i} x={firstCell.col * cellSize + 5} y={firstCell.row * cellSize + 15} className="text-xs font-bold fill-zinc-800 dark:fill-zinc-200">
                             {cage.target}{cage.operation}
                         </text>
                     );
