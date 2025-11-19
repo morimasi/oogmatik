@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, StarHuntData } from '../../types';
+import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData } from '../../types';
 // FIX: Import TR_VOCAB from helpers to ensure consistent module resolution and correct type inference.
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB } from './helpers';
 
@@ -78,8 +78,8 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
 
 export const generateOfflineLetterGridTest = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
     const { gridSize, difficulty, worksheetCount, targetLetters } = options;
-    const letters = targetLetters || 'b,d,p,q';
-    const targetLettersArray = letters.split(',').map(l => l.trim().toLowerCase());
+    const letters = (targetLetters as string) || 'b,d,p,q';
+    const targetLettersArray = letters.split(',').map((l: string) => l.trim().toLowerCase());
     const results: LetterGridTestData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 15;
@@ -113,7 +113,7 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 15;
         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
-        const pair = targetPair || ((difficulty === 'Zor' || difficulty === 'Uzman') ? 'bd' : 'ak');
+        const pair = (targetPair as string) || ((difficulty === 'Zor' || difficulty === 'Uzman') ? 'bd' : 'ak');
         for (let k = 0; k < 5; k++) {
             const r = getRandomInt(0, size - 1);
             const c = getRandomInt(0, size - 2);
@@ -241,8 +241,4 @@ export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptio
         })
     }
     return results;
-}
-
-export const generateOfflineStarHunt = async (options: GeneratorOptions): Promise<StarHuntData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Yıldız Avı (Geometrik Cisimler)', prompt: 'Yıldız sayısına göre doğru geometrik cismi bulun.', grid: [[]] });
 }

@@ -1,7 +1,8 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
-import { MathPuzzleData, ShapeCountingData, MatchstickSymmetryData } from '../../types';
+import { MathPuzzleData, ShapeCountingData } from '../../types';
 
 export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
   const { topic, itemCount, difficulty, worksheetCount, operations, numberRange } = options;
@@ -97,41 +98,3 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ShapeCountingData[]>;
 };
-
-export const generateMatchstickSymmetryFromAI = async(options: GeneratorOptions): Promise<MatchstickSymmetryData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `Create a matchstick symmetry puzzle appropriate for difficulty level "${difficulty}". Generate 3 puzzles. Each puzzle is a number (e.g., 3) made of matchsticks (represented by lines with x1,y1,x2,y2 coordinates). The user must draw the symmetrical reflection. 
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            puzzles: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        number: { type: Type.INTEGER },
-                        lines: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    x1: { type: Type.NUMBER }, y1: { type: Type.NUMBER },
-                                    x2: { type: Type.NUMBER }, y2: { type: Type.NUMBER }
-                                },
-                                required: ["x1", "y1", "x2", "y2"]
-                            }
-                        }
-                    },
-                    required: ["number", "lines"]
-                }
-            }
-        },
-        required: ["title", "prompt", "puzzles"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<MatchstickSymmetryData[]>;
-}

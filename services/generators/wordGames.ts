@@ -400,8 +400,6 @@ export const generateSynonymAntonymGridFromAI = async (options: GeneratorOptions
     return generateWithSchema(prompt, schema) as Promise<SynonymAntonymGridData[]>;
 };
 
-export const generatePunctuationColoringFromAI = async (options: any) => [] as any;
-
 export const generateAntonymResfebeFromAI = async (options: GeneratorOptions): Promise<AntonymResfebeData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
     const prompt = `Create an antonym resfebe puzzle for difficulty level "${difficulty}". Generate ${itemCount} puzzles. For each puzzle, generate a Turkish word. Then, create creative visual/textual clues (resfebe) to represent that word. For image clues, provide a clear, simple English image generation prompt. Then provide the antonym of the word. Create ${worksheetCount} unique worksheets.`;
@@ -442,8 +440,6 @@ export const generateAntonymResfebeFromAI = async (options: GeneratorOptions): P
 };
 
 export const generateThematicWordSearchColorFromAI = async (options: any) => [] as any;
-// FIX: Removed ambiguous export to resolve conflict with readingComprehension.ts
-export const generateSynonymAntonymColoringFromAI = async (options: any) => [] as any;
 export const generatePunctuationSpiralPuzzleFromAI = async (options: any) => [] as any;
 export const generateThematicJumbledWordStoryFromAI = async (options: any) => [] as any;
 export const generateSynonymMatchingPatternFromAI = async (options: any) => [] as any;
@@ -577,4 +573,3 @@ export const generateWordWebWithPasswordFromAI = async (options: any) => [] as a
 export const generateLetterGridWordFindFromAI = async (options: any) => [] as any;
 export const generateWordPlacementPuzzleFromAI = async (options: any) => [] as any;
 export const generatePositionalAnagramFromAI = async (options: any) => [] as any;
-// FIX: Removed ambiguous export to resolve conflict with logicProblems.ts

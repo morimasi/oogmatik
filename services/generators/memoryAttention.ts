@@ -1,9 +1,10 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
 import {
     WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
-    ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, SynonymSearchAndStoryData, StarHuntData, ShapeType
+    ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, SynonymSearchAndStoryData, ShapeType
 } from '../../types';
 
 export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
@@ -327,22 +328,4 @@ export const generateSynonymSearchStoryFromAI = async(options: GeneratorOptions)
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<SynonymSearchAndStoryData[]>;
-}
-
-export const generateStarHuntFromAI = async(options: GeneratorOptions): Promise<StarHuntData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `Create a Star Hunt puzzle with geometric shapes, appropriate for difficulty level "${difficulty}". Generate a 6x6 grid. Each cell can contain a shape, a star, a question mark, or be empty (null). The numbers next to rows/columns indicate how many stars are in that row/column. 
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
-        },
-        required: ["title", "prompt", "grid"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<StarHuntData[]>;
 }

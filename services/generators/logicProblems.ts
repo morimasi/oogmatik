@@ -1,11 +1,12 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
 import {
-    NumberPatternData, ShapeMatchingData, ShapeType, SymbolCipherData, CoordinateCipherData, ShapeNumberPatternData, AbcConnectData, WordConnectData,
+    NumberPatternData, ShapeNumberPatternData,
     ThematicOddOneOutData, PunctuationMazeData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationPhoneNumberData,
     ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, ResfebeData, LengthConnectData, VisualNumberPatternData,
-    ProfessionConnectData, VisualOddOneOutThemedData, LogicGridPuzzleData,
+    LogicGridPuzzleData, ShapeType,
 } from '../../types';
 
 const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
@@ -48,117 +49,6 @@ export const generateNumberPatternFromAI = async (options: GeneratorOptions): Pr
     return generateWithSchema(prompt, schema) as Promise<NumberPatternData[]>;
 };
 
-export const generateShapeMatchingFromAI = async (options: GeneratorOptions): Promise<ShapeMatchingData[]> => {
-  const { itemCount: rowCount, difficulty, worksheetCount } = options;
-  const shapeCount = difficulty === 'Başlangıç' ? 2 : (difficulty === 'Orta' ? 3 : 4);
-  const prompt = `
-    "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun bir şekil eşleştirme etkinliği oluştur.
-    Solda ve sağda ${rowCount} tane satır olsun. Her satırda ${shapeCount} tane şekil olsun.
-    Soldaki satırların birebir aynısı sağda da olsun ama sıraları karışık olsun.
-    Şekiller: ${SHAPE_TYPES.join(', ')}.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-  `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      leftColumn: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            id: { type: Type.INTEGER },
-            shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } }
-          },
-          required: ['id', 'shapes']
-        }
-      },
-      rightColumn: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            id: { type: Type.STRING },
-            shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } }
-          },
-          required: ['id', 'shapes']
-        }
-      }
-    },
-    required: ['title', 'leftColumn', 'rightColumn']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<ShapeMatchingData[]>;
-};
-
-export const generateSymbolCipherFromAI = async (options: GeneratorOptions): Promise<SymbolCipherData[]> => {
-  const { itemCount: wordCount, difficulty, worksheetCount } = options;
-  const prompt = `
-    "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun bir şifre çözme etkinliği oluştur.
-    8 tane şekil-harf çiftinden oluşan bir şifre anahtarı oluştur. Şekiller: ${SHAPE_TYPES.join(', ')}.
-    Bu anahtarı kullanarak ${wordCount} tane şifreli kelime oluştur. 
-    ${difficulty === 'Başlangıç' ? 'Kelimeler 3-4 harfli ve basit olsun.' : difficulty === 'Orta' ? 'Kelimeler 5-6 harfli olsun' : 'Kelimeler 7+ harfli ve daha az yaygın kelimelerden oluşsun.'}
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-  `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      cipherKey: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            shape: { type: Type.STRING, enum: SHAPE_TYPES },
-            letter: { type: Type.STRING }
-          },
-          required: ['shape', 'letter']
-        }
-      },
-      wordsToSolve: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } },
-            wordLength: { type: Type.INTEGER }
-          },
-          required: ['shapeSequence', 'wordLength']
-        }
-      }
-    },
-    required: ['title', 'cipherKey', 'wordsToSolve']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<SymbolCipherData[]>;
-};
-
-export const generateCoordinateCipherFromAI = async (options: GeneratorOptions): Promise<CoordinateCipherData[]> => {
-  const { topic, gridSize, itemCount: wordCount, difficulty, worksheetCount } = options;
-  const prompt = `
-    '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun bir koordinat şifreleme bulmacası oluştur.
-    ${gridSize}x${gridSize} boyutunda bir harf tablosu oluştur.
-    Tabloda gizli ${wordCount} tane kelime olsun.
-    Bu kelimeler bulunduktan sonra, koordinatları (örn: "A5", "C2") verilecek olan harfleri birleştirerek çözülecek 5-6 harfli bir şifre kelimesi oluştur.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-  `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-      wordsToFind: { type: Type.ARRAY, items: { type: Type.STRING } },
-      cipherCoordinates: { type: Type.ARRAY, items: { type: Type.STRING } }
-    },
-    required: ['title', 'grid', 'wordsToFind', 'cipherCoordinates']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<CoordinateCipherData[]>;
-};
-
 export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions): Promise<ShapeNumberPatternData[]> => {
     const { itemCount: count, difficulty, worksheetCount } = options;
     const prompt = `Generate ${worksheetCount} unique worksheets for a shape-based number pattern puzzle for kids, appropriate for difficulty level "${difficulty}". Each worksheet should contain ${count} puzzles. Each puzzle should consist of a few shapes (only triangles for now) containing numbers. There must be a logical rule connecting the numbers in each shape. One number should be a question mark.
@@ -194,75 +84,6 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ShapeNumberPatternData[]>;
-};
-
-export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
-    const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create an "ABC Connect" puzzle, appropriate for difficulty level "${difficulty}". Generate a worksheet containing 2 puzzles on a ${gridSize}x${gridSize} grid. For each puzzle, provide a list of points. Each point has a letter (e.g., 'A', 'B') and x, y coordinates. There should be two points for each letter. The user connects the matching letters. 
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            puzzles: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        id: { type: Type.INTEGER },
-                        gridDim: { type: Type.INTEGER },
-                        points: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    letter: { type: Type.STRING },
-                                    x: { type: Type.NUMBER },
-                                    y: { type: Type.NUMBER }
-                                },
-                                required: ["letter", "x", "y"]
-                            }
-                        }
-                    },
-                    required: ["id", "gridDim", "points"]
-                }
-            }
-        },
-        required: ["title", "prompt", "puzzles"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<AbcConnectData[]>;
-};
-
-export const generateWordConnectFromAI = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
-    const { difficulty, worksheetCount, gridSize, itemCount } = options;
-    const prompt = `Create a "Word Connect" puzzle, appropriate for difficulty level "${difficulty}". Generate a worksheet with a ${gridSize}x${gridSize} grid. Provide a list of ${itemCount} points with semantically related words. Each point has a word, a pairId, and x, y coordinates. The user connects the words with the same pairId. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            gridDim: { type: Type.INTEGER },
-            points: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        word: { type: Type.STRING },
-                        pairId: { type: Type.INTEGER },
-                        x: { type: Type.NUMBER },
-                        y: { type: Type.NUMBER }
-                    },
-                    required: ["word", "pairId", "x", "y"]
-                }
-            }
-        },
-        required: ["title", "prompt", "gridDim", "points"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<WordConnectData[]>;
 };
 
 export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions): Promise<ThematicOddOneOutData[]> => {
@@ -603,73 +424,6 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<VisualNumberPatternData[]>;
-};
-
-export const generateProfessionConnectFromAI = async (options: GeneratorOptions): Promise<ProfessionConnectData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Profession Connect" puzzle for difficulty level "${difficulty}". Provide points on a 10x10 grid. Each point has a profession label, an image description, an image prompt, and coordinates. The user connects related items. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            gridDim: { type: Type.INTEGER },
-            points: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        label: { type: Type.STRING },
-                        imageDescription: { type: Type.STRING },
-                        imagePrompt: { type: Type.STRING },
-                        x: { type: Type.NUMBER },
-                        y: { type: Type.NUMBER }
-                    },
-                    required: ["label", "imageDescription", "imagePrompt", "x", "y"]
-                }
-            }
-        },
-        required: ["title", "prompt", "gridDim", "points"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<ProfessionConnectData[]>;
-};
-
-export const generateVisualOddOneOutThemedFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutThemedData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
-    const prompt = `Create a "Themed Visual Odd One Out" puzzle with theme '${topic}' for difficulty level "${difficulty}". Generate 3 rows, each with its own theme. Each row has 4 items (with descriptions and image prompts), where one doesn't fit the theme. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            rows: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        theme: { type: Type.STRING },
-                        items: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    description: { type: Type.STRING },
-                                    imagePrompt: { type: Type.STRING }
-                                },
-                                required: ["description", "imagePrompt"]
-                            }
-                        },
-                        oddOneOutIndex: { type: Type.INTEGER }
-                    },
-                    required: ["theme", "items", "oddOneOutIndex"]
-                }
-            }
-        },
-        required: ["title", "prompt", "rows"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutThemedData[]>;
 };
 
 export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): Promise<LogicGridPuzzleData[]> => {
