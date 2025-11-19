@@ -633,10 +633,11 @@ export const ResfebeSheet: React.FC<{ data: ResfebeData }> = ({ data }) => (
             {(data.puzzles || []).map((puzzle, index) => (
                 <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)'}}>
                     <div className="flex justify-center items-center gap-2">
+                        {/* FIX: Explicitly cast `clue` to ResfebeClue to help TypeScript inference. */}
                         {(puzzle.clues || []).map((clue: ResfebeClue, i: number) => (
                             clue.type === 'text' ? 
                             <span key={i} className="text-3xl font-bold">{clue.value}</span> :
-                            <ImageDisplay key={i} base64={clue.imageBase64} description="resfebe ipucu" className="w-20 h-20" />
+                            <ImageDisplay key={i} base64={(clue as ResfebeClue).imageBase64} description="resfebe ipucu" className="w-20 h-20" />
                         ))}
                     </div>
                     <div className="flex items-center gap-2">

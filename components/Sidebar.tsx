@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';

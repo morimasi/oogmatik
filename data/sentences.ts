@@ -1,5 +1,3 @@
-
-
 export const PROVERBS = [
   "Damlaya damlaya göl olur.",
   "Sakla samanı, gelir zamanı.",

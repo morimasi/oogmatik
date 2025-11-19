@@ -119,7 +119,8 @@ export const NumberPyramidSheet: React.FC<{ data: NumberPyramidData | DivisionPy
             <h3 className="text-2xl font-bold mb-4 text-center">{data.title}</h3>
             <p className="text-center text-zinc-600 dark:text-zinc-400 mb-6">{data.prompt}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {pyramids.map((pyramid, index) => {
+                {/* FIX: Explicitly typed 'pyramid' to resolve type inference issue. */}
+                {pyramids.map((pyramid: { title?: string; rows: (number | null)[][] }, index) => {
                     // Güvenlik kontrolü: pyramid veya pyramid.rows tanımsız ise bu piramidi atla.
                     // Bu, "Cannot read properties of undefined (reading 'rows')" hatasını önler.
                     if (!pyramid || !pyramid.rows) return null;

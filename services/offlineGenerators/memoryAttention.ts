@@ -182,8 +182,8 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
         const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => {
             // FIX: Explicitly cast results to string to resolve 'unknown' type from complex type inference on TR_VOCAB.
-            const adjective = String(getRandomItems(TR_VOCAB.adjectives, 1)[0] || '');
-            const animal = String(getRandomItems(TR_VOCAB.animals, 1)[0] || '');
+            const adjective: string = getRandomItems(TR_VOCAB.adjectives, 1)[0] || '';
+            const animal: string = getRandomItems(TR_VOCAB.animals, 1)[0] || '';
             return {
                 description: `${adjective} ${animal} ${emoji}`.trim()
             };

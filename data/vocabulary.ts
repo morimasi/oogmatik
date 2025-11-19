@@ -1,4 +1,3 @@
-
 // Genişletilmiş Dev Kelime Havuzu
 // Disleksi dostu kategoriler ve zorluk seviyeleri
 
