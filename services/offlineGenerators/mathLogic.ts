@@ -1,6 +1,6 @@
-import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB } from './helpers';
-import { PROVERBS } from '../../data/sentences';
+
+import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData } from '../../types';
+import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES } from './helpers';
 
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
@@ -29,7 +29,7 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
             if (op === '+') { answer = val1 + val2; } 
             else if (op === '-') { if (val1 < val2) { [val1, val2] = [val2, val1]; problemStr = `${currentObjects[idx2]} ${op} ${currentObjects[idx1]} = ?`; } answer = val1 - val2; } 
             else if (op === '*') { answer = val1 * val2; } 
-            else if (op === '/') { if (val2 === 0) val2 = 1; const product = val1 * val2; problemStr = `❓ ${op} ${currentObjects[idx2]} = ${currentObjects[idx1]}`; question = `Eğer ${currentObjects[idx2]}=${val2} ve ${currentObjects[idx1]}=${val1} ise ❓ kaçtır?`; answer = product; }
+            else if (op === '/') { if (val2 === 0) val2 = 1; const product = val1 * val2; problemStr = `${product} ${op} ${currentObjects[idx2]} = ?`; question = `İpucu: ${currentObjects[idx2]}=${val2}`; answer = val1; }
             return { problem: problemStr, question, answer: answer.toString() };
         });
         results.push({ 
@@ -73,7 +73,6 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
     return results;
 };
 
-
 export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promise<FutoshikiData[]> => {
     const { difficulty, worksheetCount } = options;
     const size = difficulty === 'Başlangıç' ? 4 : (difficulty === 'Orta' ? 5 : 6);
@@ -83,12 +82,10 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
         const latinSquare = generateLatinSquare(size);
         const constraints: { row1: number; col1: number; row2: number; col2: number; symbol: '>' | '<' }[] = [];
         
-        // Generate random constraints
-        const constraintCount = Math.floor(size * size * 0.4); // ~40% of edges have constraints
+        const constraintCount = Math.floor(size * size * 0.4);
         for (let k = 0; k < constraintCount; k++) {
             const r = getRandomInt(0, size - 1);
             const c = getRandomInt(0, size - 1);
-            // Randomly choose neighbor (right or down)
             const dir = Math.random() > 0.5 ? 'right' : 'down';
             
             if (dir === 'right' && c < size - 1) {
@@ -98,11 +95,10 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
             } else if (dir === 'down' && r < size - 1) {
                 const val1 = latinSquare[r][c];
                 const val2 = latinSquare[r+1][c];
-                constraints.push({ row1: r, col1: c, row2: r+1, col2: c, symbol: val1 > val2 ? '>' : '<' }); // For vertical, we treat top > bottom as standard reading
+                constraints.push({ row1: r, col1: c, row2: r+1, col2: c, symbol: val1 > val2 ? '>' : '<' });
             }
         }
 
-        // Mask numbers
         const maskedGrid: (number | null)[][] = latinSquare.map(row => row.map(n => Math.random() > 0.6 ? n : null));
 
         results.push({ 
@@ -125,38 +121,32 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
             if (difficulty === 'Başlangıç') rowsCount = 3;
             if (difficulty === 'Zor' || difficulty === 'Uzman') rowsCount = 5;
 
-            // Bottom-up generation
             const fullPyramid: number[][] = [];
             const baseRow = Array.from({ length: rowsCount }, () => getRandomInt(1, 10));
             fullPyramid.push(baseRow);
             
             for (let r = 1; r < rowsCount; r++) {
                 const prevRow = fullPyramid[r - 1];
-                const newRow = [];
+                const newRow: number[] = [];
                 for (let c = 0; c < prevRow.length - 1; c++) {
                     newRow.push(prevRow[c] + prevRow[c + 1]);
                 }
                 fullPyramid.push(newRow);
             }
 
-            // Reverse to have top at index 0 for rendering if component expects it, 
-            // BUT check component logic: usually pyramid[0] is top. 
-            // My generation puts base at 0. Let's reverse it.
             const visualPyramid = fullPyramid.reverse();
-
             const puzzlePyramid: (number | null)[][] = visualPyramid.map(row => [...row]);
             
-            // Masking: keep roughly 40% of numbers
-            const totalCells = (rowsCount * (rowsCount + 1)) / 2;
-            const cellsToKeep = Math.ceil(totalCells * 0.4);
-            const flatIndices = shuffle(Array.from({length: totalCells}, (_, k) => k));
-            
-            let visible = 0;
             for(let r=0; r<rowsCount; r++) {
                 for(let c=0; c<puzzlePyramid[r].length; c++) {
                     if (Math.random() > 0.4) puzzlePyramid[r][c] = null;
                 }
             }
+             // Ensure at least one value is visible at the bottom to start
+            if (puzzlePyramid[rowsCount - 1].every(v => v === null)) {
+                puzzlePyramid[rowsCount - 1][0] = visualPyramid[rowsCount - 1][0];
+            }
+
 
             return { title: `Piramit ${index + 1}`, rows: puzzlePyramid };
         });
@@ -166,7 +156,23 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
 }
 
 export const generateOfflineNumberCapsule = async (options: GeneratorOptions): Promise<NumberCapsuleData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Kapsül Oyunu', prompt: 'Tek ve çift sayılarla toplama yaparak kapsülleri doldurun.', puzzles: [] });
+     const {worksheetCount} = options;
+     return Array(worksheetCount).fill({ 
+         title: 'Kapsül Oyunu', 
+         prompt: 'Kapsülleri doldurun.',
+         instruction: "Her kapsülün (bağlı kutuların) içindeki sayıların toplamı, o kapsülün hedef sayısına eşit olmalıdır.",
+         pedagogicalNote: "Toplama ve mantıksal eleme becerisi.",
+         puzzles: [{
+             title: 'Bulmaca 1',
+             numbersToUse: '1-9 arası',
+             grid: [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]],
+             capsules: [
+                 { cells: [{row:0, col:0}, {row:0,col:1}], sum: 10},
+                 { cells: [{row:1, col:0}, {row:2,col:0}], sum: 8},
+                 { cells: [{row:0, col:2}, {row:1,col:2}, {row:1,col:1}], sum: 15}
+             ]
+         }] 
+    });
 }
 
 export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
@@ -201,7 +207,7 @@ export const generateOfflineSudoku6x6Shaded = async (options: GeneratorOptions):
 }
 
 export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptions): Promise<RomanNumeralConnectData[]> => {
-    return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Romen Rakamlı)', prompt: 'Aynı Romen rakamlarını yolları kesişmeyecek şekilde birleştirin.', puzzles: [] });
+     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Romen Rakamlı)', prompt: 'Aynı Romen rakamlarını yolları kesişmeyecek şekilde birleştirin.', puzzles: [] });
 }
 export const generateOfflineRomanNumeralStarHunt = async (options: GeneratorOptions): Promise<RomanNumeralStarHuntData[]> => {
      return Array(options.worksheetCount).fill({ title: 'Yıldız Avı (Romen Rakamlı)', prompt: 'Romen rakamlarını ipucu olarak kullanarak yıldızları bulun.', grid: [[]], starCount: 0 });
@@ -233,17 +239,12 @@ export const generateOfflineKendoku = async (options: GeneratorOptions): Promise
             for(let c=0; c<size; c++) {
                 if(visited[r][c]) continue;
 
-                // Grow cage
                 const cageCells = [{row: r, col: c}];
                 visited[r][c] = true;
-                const cageSizeTarget = getRandomInt(1, 3); // small cages for simplicity in fast mode
+                const cageSizeTarget = getRandomInt(1, 3);
                 
-                // Simple expansion
                 if(cageSizeTarget > 1) {
-                    const neighbors = [
-                        {row: r+1, col: c}, {row: r, col: c+1}
-                    ].filter(n => n.row < size && n.col < size && !visited[n.row][n.col]);
-                    
+                    const neighbors = [{row: r+1, col: c}, {row: r, col: c+1}].filter(n => n.row < size && n.col < size && !visited[n.row][n.col]);
                     if(neighbors.length > 0) {
                         const next = getRandomItems(neighbors, 1)[0];
                         visited[next.row][next.col] = true;
@@ -251,38 +252,35 @@ export const generateOfflineKendoku = async (options: GeneratorOptions): Promise
                     }
                 }
 
-                // Calculate target
                 const values = cageCells.map(cell => latinSquare[cell.row][cell.col]);
                 const op = getRandomItems(['+', '×', '-', '÷'], 1)[0];
                 let target = 0;
-                let finalOp = op;
+                let finalOp: any = op;
 
                 if (cageCells.length === 1) {
                     target = values[0];
-                    finalOp = ''; // No op for single cell
+                    finalOp = '';
                 } else {
                     if (op === '+') target = values.reduce((a,b) => a+b, 0);
                     else if (op === '×') target = values.reduce((a,b) => a*b, 1);
                     else if (op === '-') {
-                        // Only for 2 cells usually, take abs diff
                         if(values.length === 2) target = Math.abs(values[0] - values[1]);
-                        else { target = values.reduce((a,b) => a+b, 0); finalOp = '+'; } // Fallback
+                        else { target = values.reduce((a,b) => a+b, 0); finalOp = '+'; }
                     }
                     else if (op === '÷') {
                         if(values.length === 2) {
                              const max = Math.max(...values);
                              const min = Math.min(...values);
                              if(max % min === 0) target = max / min;
-                             else { target = values.reduce((a,b) => a+b, 0); finalOp = '+'; } // Fallback
+                             else { target = values.reduce((a,b) => a+b, 0); finalOp = '+'; }
                         } else { target = values.reduce((a,b) => a+b, 0); finalOp = '+'; }
                     }
                 }
                 
-                cages.push({ cells: cageCells, operation: finalOp as any, target });
+                cages.push({ cells: cageCells, operation: finalOp, target });
             }
         }
         
-        // Create empty grid for display
         const displayGrid = Array.from({length: size}, () => Array(size).fill(null));
 
         results.push({
@@ -297,29 +295,23 @@ export const generateOfflineKendoku = async (options: GeneratorOptions): Promise
 }
 
 export const generateOfflineDivisionPyramid = async (options: GeneratorOptions): Promise<DivisionPyramidData[]> => {
-    // Logic same as NumberPyramid but reverse math
     const { itemCount, worksheetCount } = options;
     const results: DivisionPyramidData[] = [];
     for(let i=0; i<worksheetCount; i++) {
          const pyramids = Array.from({length: itemCount}).map(() => {
-             // 3 rows. Base has 3 cells? No, top has 1.
-             // Top: A. Row 2: B, C where B = A*k, C = A*m ... hard to generate purely random divisibility.
-             // Easier: Top-down multiplication.
-             const rows: number[][] = [[getRandomInt(1, 10)]]; // Top
-             // Level 2: Top * factor1, Top * factor2? No, standard is Cell = CellBelowL / CellBelowR or similar.
-             // Standard Division Pyramid: Cell Above = Cell Below Left * Cell Below Right? No that's multiplication.
-             // Usually: Cell Below = Cell Above / Other Cell Below.
-             // Let's assume Multiplication Pyramid logic where Top = BottomL * BottomR
+             const top = getRandomInt(2,5) * getRandomInt(2,5) * getRandomInt(2,5) * 10;
+             const mid_L = top / getRandomInt(2,5);
+             const mid_R = top / mid_L;
+             const bot_L = mid_L / getRandomInt(2,3);
+             const bot_M = mid_L / bot_L;
+             const bot_R = mid_R / bot_M;
              
-             const pRows: (number | null)[][] = [
-                 [120],
-                 [12, 10],
-                 [3, 4, 2.5] // This gets messy with integers.
-             ];
-             // Fallback to a simple static set for fast mode or skip complex generation
-             return { rows: [[12], [null, 2], [null, 2, 1]] };
+             if (Number.isInteger(bot_L) && Number.isInteger(bot_M) && Number.isInteger(bot_R)) {
+                 return { rows: [[top], [mid_L, null], [bot_L, null, bot_R]] };
+             }
+             return { rows: [[120], [null, 10], [3, 4, null]] }; // Fallback
          });
-         results.push({title: 'Sihirli Piramit (Bölme)', prompt: 'Bölme işlemleri', pyramids});
+         results.push({title: 'Sihirli Piramit (Bölme)', prompt: 'Her sayı, altındaki iki sayının bölümüdür.', pyramids});
     }
     return results;
 }
@@ -333,7 +325,6 @@ export const generateOfflineMultiplicationPyramid = async (options: GeneratorOpt
             const mid = [base[0]*base[1], base[1]*base[2]];
             const top = [mid[0]*mid[1]];
             const rows: (number|null)[][] = [top, mid, base];
-            // Mask
             rows[1][0] = null;
             rows[2][1] = null;
             return { rows };
@@ -348,32 +339,24 @@ export const generateOfflineOperationSquareSubtraction = async (options: Generat
 }
 
 export const generateOfflineOperationSquareFillIn = async (options: GeneratorOptions): Promise<OperationSquareFillInData[]> => {
-     // Generate a valid 3x3 addition grid
      const { worksheetCount } = options;
      const results: OperationSquareFillInData[] = [];
      for(let i=0; i<worksheetCount; i++) {
          const nums = shuffle([1,2,3,4,5,6,7,8,9]);
-         const grid = [
-             [nums[0].toString(), '+', nums[1].toString(), '=', (nums[0]+nums[1]).toString()],
-             ['+', null, '+', null, null],
-             [nums[3].toString(), '+', nums[4].toString(), '=', (nums[3]+nums[4]).toString()],
-             ['=', null, '=', null, null],
-             [(nums[0]+nums[3]).toString(), null, (nums[1]+nums[4]).toString(), null, null]
-         ];
-         // Mask internal numbers
+         const n1=nums[0], n2=nums[1], n3=nums[2], n4=nums[3];
          const cleanGrid: (string|null)[][] = [
-             [null, '+', null, '=', (nums[0]+nums[1]).toString()],
+             [null, '+', null, '=', (n1+n2).toString()],
              ['+', null, '+', null, null],
-             [null, '+', null, '=', (nums[3]+nums[4]).toString()],
+             [null, '+', null, '=', (n3+n4).toString()],
              ['=', null, '=', null, null],
-             [(nums[0]+nums[3]).toString(), null, (nums[1]+nums[4]).toString(), null, null]
+             [(n1+n3).toString(), null, (n2+n4).toString(), null, null]
          ];
          results.push({
              title: 'İşlem Karesi (Yerleştirme)',
              prompt: 'Verilen sayıları yerleştir.',
              instruction: "Sonuçları tutturmak için kutulara uygun sayıları yaz.",
              pedagogicalNote: "Denklem çözme ve aritmetik akıl yürütme.",
-             puzzles: [{grid: cleanGrid, numbersToUse: [nums[0], nums[1], nums[3], nums[4]], results: []}]
+             puzzles: [{grid: cleanGrid, numbersToUse: [n1, n2, n3, n4], results: []}]
          });
      }
      return results;
@@ -387,32 +370,46 @@ export const generateOfflineMultiplicationWheel = async (options: GeneratorOptio
              const center = getRandomInt(2, 9);
              const outer = Array.from({length: 8}, () => getRandomInt(1, 10));
              const outerMasked: (number|null)[] = outer.map(n => Math.random() > 0.4 ? n : null);
-             // Note: Component logic might need adjustment to handle 'innerResult' which implies a single result, 
-             // but wheels usually have results on the rim. Assuming component handles standard wheel logic.
              return { outerNumbers: outerMasked, innerResult: center };
          });
-         results.push({title: 'Çarpım Çarkı', prompt: 'Çarkı tamamla.', puzzles});
+         results.push({title: 'Çarpım Çarkı', prompt: 'Merkezdeki sayıyla çarpıp dışarı yazın.', puzzles});
      }
      return results;
 }
 
 export const generateOfflineTargetNumber = async (options: GeneratorOptions): Promise<TargetNumberData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Hedef Sayı', prompt: 'Verilen sayılarla dört işlem yaparak hedef sayıya ulaşın.', puzzles: [] });
+     const {itemCount, worksheetCount} = options;
+     return Array.from({length: worksheetCount}, () => ({ 
+         title: 'Hedef Sayı', 
+         prompt: 'Verilen sayılarla dört işlem yaparak hedef sayıya ulaşın.',
+         puzzles: Array.from({length: itemCount}, () => ({target: 24, givenNumbers: [1,2,3,4]})) 
+    }));
 }
 export const generateOfflineOperationSquareMultDiv = async (options: GeneratorOptions): Promise<OperationSquareMultDivData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'İşlem Karesi (Çarpma/Bölme)', prompt: 'Çarpma ve bölme işlemleri yaparak işlem karesini tamamlayın.', puzzles: [] });
+    const res = await generateOfflineOperationSquareSubtraction(options);
+    return res.map(r => ({...r, title: 'İşlem Karesi (Çarpma/Bölme)'})) as any;
 }
+
 export const generateOfflineShapeSudoku = async (options: GeneratorOptions): Promise<ShapeSudokuData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Şekilli Sudoku', prompt: 'Her satır, sütun ve bölgede şekilleri tekrar etmeden yerleştirin.', puzzles: [] });
+    const {itemCount, worksheetCount, difficulty} = options;
+    return Array.from({length: worksheetCount}, () => {
+        const grid = generateSudokuGrid(4, difficulty);
+        const shapes = getRandomItems(SHAPE_TYPES, 4);
+        const shapeGrid = grid.map(row => row.map(cell => cell === null ? null : shapes[cell-1]));
+        return {
+            title: 'Şekilli Sudoku',
+            prompt: 'Şekilleri tekrar etmeyecek şekilde yerleştirin.',
+            puzzles: [{grid: shapeGrid, shapesToUse: shapes.map(s => ({shape: s, label: s}))}]
+        }
+    });
 }
 export const generateOfflineWeightConnect = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
      return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Ağırlık)', prompt: 'Birbirine eşit olan ağırlıkları çizgilerle birleştirin.', gridDim: 6, points: [] });
 }
-
 export const generateOfflineFutoshikiLength = async (options: GeneratorOptions): Promise<FutoshikiLengthData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Futoşiki (Uzunluk)', prompt: 'Uzunluk ölçü birimlerini büyüktür/küçüktür işaretlerine göre yerleştirin.', puzzles: [] });
+     const res = await generateOfflineFutoshiki(options);
+     return res.map(r => ({...r, title: 'Futoşiki (Uzunluk)'})) as any;
 }
-
 export const generateOfflineLengthConnect = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
      return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Uzunluk)', prompt: 'Birbirine eşit olan uzunluk ölçülerini birleştirin.', gridDim: 6, points: [] });
 }
@@ -420,20 +417,27 @@ export const generateOfflineVisualNumberPattern = async (options: GeneratorOptio
      return Array(options.worksheetCount).fill({ title: 'Görsel Sayı Örüntüsü', prompt: 'Görsel dizideki kuralı bulup eksik sayıyı tamamlayın.', puzzles: [] });
 }
 export const generateOfflineLogicGridPuzzle = async (options: GeneratorOptions): Promise<LogicGridPuzzleData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'Zekâ Sorusu (Mantık Tablosu)', prompt: 'Verilen ipuçlarını kullanarak mantık tablosunu doldurun.', clues: [], people: [], categories: [] });
+     return Array(options.worksheetCount).fill({ 
+         title: 'Zekâ Sorusu (Mantık Tablosu)', 
+         prompt: 'Verilen ipuçlarını kullanarak mantık tablosunu doldurun.', 
+         clues: ['Ali, kırmızı rengi sever.', 'Ayşe, kedisiyle oynar.'], 
+         people: ['Ali', 'Ayşe'], 
+         categories: [{title: 'Renk', items: [{name: 'Kırmızı'}, {name: 'Mavi'}]}, {title: 'Hayvan', items: [{name: 'Kedi'}, {name: 'Köpek'}]}] 
+    });
 }
 
 export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promise<OddOneOutData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount, topic } = options;
     const results: OddOneOutData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const groups = Array.from({ length: itemCount }).map(() => {
-            const mainCat = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'], 1)[0];
-            const oddCat = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'].filter(c => c !== mainCat), 1)[0];
+            const mainCatKey = topic && topic !== 'Rastgele' ? topic.toLowerCase() : getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'], 1)[0];
+            const oddCatKey = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'].filter(c => c !== mainCatKey), 1)[0];
             
-            // FIX: The original cast to Record<string, string[]> was too strong for the TR_VOCAB object, which has multiple property types. Casting to 'unknown' first bypasses the compiler check, allowing the subsequent assertion to Record<string, string[]> which is safe in this context because the keys being used are known to correspond to string arrays.
-            const mainWords = getRandomItems((TR_VOCAB as unknown as Record<string, string[]>)[mainCat], 3);
-            const oddWord = getRandomItems((TR_VOCAB as unknown as Record<string, string[]>)[oddCat], 1)[0];
+            // FIX: Changed type assertion from Record<string, string[]> to any to handle TR_VOCAB's diverse property types.
+            const vocab = TR_VOCAB as any;
+            const mainWords = getRandomItems(vocab[mainCatKey] || [], 3);
+            const oddWord = getRandomItems(vocab[oddCatKey] || [], 1)[0];
             
             return { words: shuffle([...mainWords, oddWord]) };
         });
@@ -445,4 +449,109 @@ export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promi
         });
     }
     return results;
+};
+
+// FIX: Replaced incorrect type casting with a proper offline implementation for ThematicOddOneOut.
+export const generateOfflineThematicOddOneOut = async (options: GeneratorOptions): Promise<ThematicOddOneOutData[]> => {
+    const { itemCount, worksheetCount, topic } = options;
+    const results: ThematicOddOneOutData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const rows: { words: string[]; oddWord: string; }[] = [];
+        for (let j = 0; j < (itemCount || 5); j++) {
+            const mainCatKey = topic && topic !== 'Rastgele' ? topic.toLowerCase() : getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'], 1)[0];
+            const oddCatKey = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'].filter(c => c !== mainCatKey), 1)[0];
+            
+            const vocab = TR_VOCAB as any;
+            const mainWords = getRandomItems(vocab[mainCatKey] || [], 3);
+            const oddWord = getRandomItems(vocab[oddCatKey] || [], 1)[0];
+            
+            rows.push({ words: shuffle([...mainWords, oddWord]), oddWord });
+        }
+        
+        results.push({ 
+            title: `Tematik Farkı Bul (${topic || 'Rastgele'})`,
+            prompt: "Her satırda temaya uymayan kelimeyi bul.",
+            theme: topic || 'Genel',
+            rows,
+            sentencePrompt: 'Farklı kelimelerle birer cümle kur.'
+        });
+    }
+    return results;
+};
+
+// FIX: Replaced incorrect type casting with a proper offline implementation for ThematicOddOneOutSentence.
+export const generateOfflineThematicOddOneOutSentence = async (options: GeneratorOptions): Promise<ThematicOddOneOutSentenceData[]> => {
+    const { itemCount, worksheetCount, topic } = options;
+    const results: ThematicOddOneOutSentenceData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const rows: { words: string[]; oddWord: string; }[] = [];
+        for (let j = 0; j < (itemCount || 5); j++) {
+            const mainCatKey = topic && topic !== 'Rastgele' ? topic.toLowerCase() : getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'], 1)[0];
+            const oddCatKey = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'].filter(c => c !== mainCatKey), 1)[0];
+            
+            const vocab = TR_VOCAB as any;
+            const mainWords = getRandomItems(vocab[mainCatKey] || [], 3);
+            const oddWord = getRandomItems(vocab[oddCatKey] || [], 1)[0];
+            
+            rows.push({ words: shuffle([...mainWords, oddWord]), oddWord });
+        }
+        
+        results.push({ 
+            title: `Tematik Farklı Kelimeyle Cümle Kurma`,
+            prompt: "Her satırda temaya uymayan kelimeyi bul ve o kelimeyle bir cümle kur.",
+            rows,
+            sentencePrompt: 'Farklı kelimelerle kurduğun cümleleri aşağıya yaz.'
+        });
+    }
+    return results;
+};
+
+export const generateOfflineColumnOddOneOutSentence = async (options: GeneratorOptions): Promise<ColumnOddOneOutSentenceData[]> => {
+    const {itemCount, worksheetCount} = options;
+    // FIX: Passed the full options object to `generateOfflineOddOneOut` to satisfy the GeneratorOptions type.
+    const res = await generateOfflineOddOneOut({ ...options, itemCount: (itemCount || 4) * worksheetCount, worksheetCount: 1});
+    return [{
+        title: 'Sütunlarda Farklı Olan',
+        prompt: 'Her sütunda farklı olanı bul.',
+        columns: res[0].groups.map(g => ({words: g.words, oddWord: ''})),
+        sentencePrompt: 'Farklı kelimelerle cümle kur.'
+    }];
+};
+export const generateOfflinePunctuationMaze = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
+    return Array.from({length: options.worksheetCount}, () => ({
+        title: 'Noktalama Labirenti',
+        prompt: 'Doğru kuralları takip ederek çıkışa ulaş.',
+        punctuationMark: '.',
+        rules: shuffle([
+            {id: 1, text: 'Cümlenin sonuna konur.', isCorrect: true},
+            {id: 2, text: 'Soru cümlelerinde kullanılır.', isCorrect: false},
+            {id: 3, text: 'Sıra sayılarından sonra konur.', isCorrect: true},
+            {id: 4, text: 'Seslenme bildiren kelimeden sonra kullanılır.', isCorrect: false},
+            {id: 5, text: 'Tarihlerin yazılışında gün, ay ve yılı ayırır.', isCorrect: true},
+            {id: 6, text: 'Sevinç, şaşkınlık gibi duyguları anlatır.', isCorrect: false}
+        ])
+    }));
+};
+export const generateOfflinePunctuationPhoneNumber = async (options: GeneratorOptions): Promise<PunctuationPhoneNumberData[]> => {
+     return Array(options.worksheetCount).fill({
+        title: 'Gizli Telefon Numarası',
+        prompt: 'İpuçlarını çöz ve numarayı bul.',
+        instruction: 'Her ipucu bir rakama karşılık geliyor.',
+        clues: [
+            {id: 1, text: 'Bir cümlede kaç tane nokta olur?'},
+            {id: 2, text: 'Bir soruda kaç tane soru işareti olur?'}
+        ],
+        solution: [{punctuationMark: '.', number: 1}, {punctuationMark: '?', number: 1}]
+    });
+};
+export const generateOfflineShapeNumberPattern = async (options: GeneratorOptions): Promise<ShapeNumberPatternData[]> => {
+    const {itemCount, worksheetCount} = options;
+    return Array.from({length: worksheetCount}, () => ({
+        title: 'Şekilli Sayı Örüntüsü',
+        patterns: Array.from({length: itemCount}, () => {
+            const n1 = getRandomInt(1,10);
+            const n2 = getRandomInt(1,10);
+            return { shapes: [{ type: 'triangle', numbers: [n1, n2, '?']}, {type: 'triangle', numbers: [n1+1, n2+1, (n1+1)+(n2+1)]}]}
+        })
+    }))
 };

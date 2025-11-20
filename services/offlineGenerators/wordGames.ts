@@ -1,4 +1,3 @@
-
 import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, JumbledWordStoryData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout } from './helpers';
 import { PROVERBS } from '../../data/sentences';
@@ -9,14 +8,14 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
     let size = options.gridSize || (difficulty === 'Orta' ? 12 : (difficulty === 'Zor' ? 14 : 10));
 
     let maxDir = 1; // 0: H, 1: V
-    if (difficulty === 'Orta') maxDir = 3; 
-    if (difficulty === 'Zor' || difficulty === 'Uzman') maxDir = 7; 
+    if (options.directions === 'diagonal' || difficulty === 'Orta') maxDir = 3; 
+    if (options.directions === 'all' || difficulty === 'Zor' || difficulty === 'Uzman') maxDir = 7; 
 
     for (let i = 0; i < worksheetCount; i++) {
         const availableWords = getWordsForDifficulty(difficulty, topic);
         const sheetWords = words 
-            ? words.map(w => w.toLocaleLowerCase('tr'))
-            : getRandomItems(availableWords, itemCount).map(w => w.toLocaleLowerCase('tr'));
+            ? words.map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''))
+            : getRandomItems(availableWords, itemCount).map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''));
         const grid: string[][] = Array.from({ length: size }, () => Array(size).fill(''));
         const placedWords: string[] = [];
         
@@ -25,31 +24,36 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
             let placed = false;
             let attempts = 0;
             while (!placed && attempts < 50) {
-                const dir = getRandomInt(0, maxDir);
-                let r = 0, c = 0;
-                
-                // Direction logic simplified for brevity
-                if(dir === 0) { r = getRandomInt(0, size-1); c = getRandomInt(0, size - word.length); }
-                else if (dir === 1) { r = getRandomInt(0, size-word.length); c = getRandomInt(0, size-1); }
-                else { r = getRandomInt(0, size-word.length); c = getRandomInt(0, size - word.length); }
-                
-                let fits = true;
-                // Check fit ... (using same logic as previous, ensuring valid placement)
-                // For offline speed, simple H/V check
-                for(let k=0; k<word.length; k++) {
-                    const nr = dir === 1 ? r + k : r;
-                    const nc = dir === 0 ? c + k : c;
-                    if (grid[nr][nc] !== '' && grid[nr][nc] !== word[k]) fits = false;
-                }
-                
-                if(fits) {
-                    for(let k=0; k<word.length; k++) {
-                        const nr = dir === 1 ? r + k : r;
-                        const nc = dir === 0 ? c + k : c;
-                        grid[nr][nc] = word[k];
+                const dir = getRandomInt(0, maxDir); // 0: E, 1: S, 2: SE, 3: N, 4: W, 5: SW, 6: NW, 7: NE
+                const dr = [0, 1, 1, -1, 0, 1, -1, -1];
+                const dc = [1, 0, 1, 0, -1, -1, -1, 1];
+
+                const r = getRandomInt(0, size - 1);
+                const c = getRandomInt(0, size - 1);
+
+                const endR = r + (word.length - 1) * dr[dir];
+                const endC = c + (word.length - 1) * dc[dir];
+
+                if (endR >= 0 && endR < size && endC >= 0 && endC < size) {
+                    let fits = true;
+                    for (let k = 0; k < word.length; k++) {
+                        const nr = r + k * dr[dir];
+                        const nc = c + k * dc[dir];
+                        if (grid[nr][nc] !== '' && grid[nr][nc] !== word[k]) {
+                            fits = false;
+                            break;
+                        }
                     }
-                    placedWords.push(word);
-                    placed = true;
+
+                    if (fits) {
+                        for (let k = 0; k < word.length; k++) {
+                            const nr = r + k * dr[dir];
+                            const nc = c + k * dc[dir];
+                            grid[nr][nc] = word[k];
+                        }
+                        placedWords.push(word);
+                        placed = true;
+                    }
                 }
                 attempts++;
             }
@@ -119,10 +123,10 @@ export const generateOfflineLetterBridge = async (options: GeneratorOptions): Pr
     for (let i = 0; i < worksheetCount; i++) {
         const pairs = [];
         let attempts = 0;
-        while(pairs.length < itemCount && attempts < 100) {
+        while(pairs.length < itemCount && attempts < 200) {
             const bridgeLetter = getRandomItems(turkishAlphabet.split(''), 1)[0];
-            const word1 = wordPool.find(w => w.endsWith(bridgeLetter));
-            const word2 = wordPool.find(w => w.startsWith(bridgeLetter) && w !== word1);
+            const word1 = wordPool.find(w => w.endsWith(bridgeLetter) && w.length > 2);
+            const word2 = wordPool.find(w => w.startsWith(bridgeLetter) && w.length > 2 && w !== word1);
             
             if (word1 && word2) {
                 pairs.push({ word1: word1.slice(0, -1), word2: word2.slice(1) });
@@ -141,14 +145,14 @@ export const generateOfflineLetterBridge = async (options: GeneratorOptions): Pr
 };
 
 export const generateOfflineWordLadder = async (options: GeneratorOptions): Promise<WordLadderData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount, steps } = options;
     const results: WordLadderData[] = [];
     // Pre-defined logic chains for offline usage
     const ladders = [
-        { startWord: 'baş', endWord: 'taş', steps: 1 }, 
-        { startWord: 'koy', endWord: 'toy', steps: 1 }, 
+        { startWord: 'bal', endWord: 'sel', steps: 2 }, 
+        { startWord: 'kış', endWord: 'yaz', steps: 3 }, 
         { startWord: 'ekim', endWord: 'ekip', steps: 1},
-        { startWord: 'bal', endWord: 'bel', steps: 1}
+        { startWord: 'koyu', endWord: 'kuyu', steps: 1}
     ];
     for (let i = 0; i < worksheetCount; i++) {
         results.push({ 
@@ -156,7 +160,7 @@ export const generateOfflineWordLadder = async (options: GeneratorOptions): Prom
             instruction: "Her basamakta sadece bir harf değiştirerek yeni kelimeye ulaş.",
             pedagogicalNote: "Harf manipülasyonu ve kelime analizi.",
             theme: 'Harf Değişimi', 
-            ladders: getRandomItems(ladders, itemCount) 
+            ladders: getRandomItems(ladders, itemCount).map(l => ({...l, steps: steps || l.steps})) 
         });
     }
     return results;
@@ -172,7 +176,7 @@ export const generateOfflineWordFormation = async (options: GeneratorOptions): P
         });
         results.push({ 
             title: 'Kelime Türetmece', 
-            instruction: "Verilen harfleri kullanarak anlamlı kelimeler oluştur.",
+            instruction: "Verilen harfleri kullanarak anlamlı kelimeler türet.",
             pedagogicalNote: "Anagram çözme ve kelime dağarcığı aktivasyonu.",
             sets, 
             mysteryWordChallenge: { prompt: 'Tüm harfleri kullanırsan hangi kelime çıkar?', solution: 'Gizli Kelime'} 
@@ -228,7 +232,6 @@ export const generateOfflineMiniWordGrid = async (options: GeneratorOptions): Pr
             const size = Math.max(3, Math.ceil(Math.sqrt(word.length)));
             const grid = Array.from({length: size}, () => Array(size).fill(''));
             
-            // Simple placement: fill row by row
             let idx = 0;
             for(let r=0; r<size; r++) {
                 for(let c=0; c<size; c++) {
@@ -257,7 +260,6 @@ export const generateOfflinePasswordFinder = async (options: GeneratorOptions): 
         
         for(let j=0; j<secretWord.length; j++){
             const char = secretWord[j];
-            // Find a word starting with this char
             const hintWord = getWordsForDifficulty('Orta').find(w => w.startsWith(char)) || char + "...";
             words.push({word: hintWord, passwordLetter: char, isProperNoun: j===0}); // Just marking first as logic example
         }
@@ -302,19 +304,19 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
     const { worksheetCount, difficulty, itemCount } = options;
     const results: CrosswordData[] = [];
     for(let i=0; i<worksheetCount; i++) {
-        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 6);
+        const words = getRandomItems(getWordsForDifficulty(difficulty, 'medium').filter(w => w.length > 2 && w.length < 8), itemCount || 6);
         const layout = generateCrosswordLayout(words);
         
-        const gridRows = 10;
-        const gridCols = 10;
+        const gridRows = 12;
+        const gridCols = 12;
         const grid = Array.from({length: gridRows}, () => Array(gridCols).fill(null));
         
         layout.placements.forEach(p => {
             for(let k=0; k<p.word.length; k++) {
                 if (p.dir === 'across') {
-                    if(p.col+k < gridCols) grid[p.row][p.col+k] = p.word[k].toUpperCase();
+                    if(p.col+k < gridCols) grid[p.row][p.col+k] = ''; // Empty cell for user
                 } else {
-                    if(p.row+k < gridRows) grid[p.row+k][p.col] = p.word[k].toUpperCase();
+                    if(p.row+k < gridRows) grid[p.row+k][p.col] = ''; // Empty cell for user
                 }
             }
         });
@@ -322,7 +324,7 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
         const clues = layout.placements.map((p, idx) => ({
             id: idx + 1,
             direction: p.dir,
-            text: `${p.word} kelimesinin eş anlamlısı nedir? (Örnek ipucu)`,
+            text: `(İpucu: ${p.word})`, // Simple clue for offline
             start: { row: p.row, col: p.col },
             word: p.word.toUpperCase()
         }));
@@ -344,27 +346,47 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
 };
 
 export const generateOfflineSynonymWordSearch = async (options: GeneratorOptions): Promise<SynonymWordSearchData[]> => {
-    const data = await generateOfflineWordSearch(options);
-    return data.map(d => ({...d, title: 'Eş Anlamlı Kelime Avı', wordsToMatch: d.words?.map(w => ({word: w, synonym: w})) || []})) as any;
+    const {itemCount, worksheetCount} = options;
+    const results: SynonymWordSearchData[] = [];
+    for(let i=0; i<worksheetCount; i++) {
+        const wordsToMatch = getRandomItems(TR_VOCAB.synonyms, itemCount || 8);
+        const wordsToFind = wordsToMatch.map(p => p.synonym);
+        const searchData = await generateOfflineWordSearch({...options, worksheetCount: 1, words: wordsToFind});
+        
+        results.push({
+            title: 'Eş Anlamlı Kelime Avı',
+            prompt: 'Kelimelerin eş anlamlılarını bulup bulmacada ara.',
+            instruction: "Listelenen kelimelerin eş anlamlılarını bulup bulmacada işaretleyin.",
+            pedagogicalNote: "Kelime dağarcığını ve anlamsal ilişkileri güçlendirir.",
+            wordsToMatch,
+            grid: searchData[0].grid
+        });
+    }
+    return results;
 }
 
 export const generateOfflineSpiralPuzzle = async (options: GeneratorOptions): Promise<SpiralPuzzleData[]> => {
-     return Array(options.worksheetCount).fill({
-         title: 'Sarmal Bulmaca', 
-         instruction: "Merkezden dışarıya (veya dışarıdan içeriye) doğru kelimeleri yaz.",
-         pedagogicalNote: "Görsel takip ve sarmal okuma becerisi.",
-         theme: 'Rastgele', 
-         prompt: 'İpuçlarını takip et.', 
-         clues:['Başlangıç'], 
-         grid: [['A','B'],['C','D']], 
-         wordStarts: [], 
-         passwordPrompt: '' 
+     const {itemCount, worksheetCount, gridSize} = options;
+     return Array.from({length: worksheetCount}, () => {
+         const size = gridSize || 10;
+         const grid = Array.from({length: size}, () => Array(size).fill(''));
+         return {
+             title: 'Sarmal Bulmaca', 
+             instruction: "Merkezden dışarıya (veya dışarıdan içeriye) doğru kelimeleri yaz.",
+             pedagogicalNote: "Görsel takip ve sarmal okuma becerisi.",
+             theme: 'Rastgele', 
+             prompt: 'İpuçlarını takip et.', 
+             clues: Array.from({length: itemCount}, (_, i) => `${i+1}. ipucu`), 
+             grid, 
+             wordStarts: [{id: 1, row: Math.floor(size/2), col: Math.floor(size/2)}], 
+             passwordPrompt: 'Şifre nedir?' 
+        };
     });
 }
-export const generateOfflinePunctuationSpiralPuzzle = async (options: GeneratorOptions) => generateOfflineSpiralPuzzle(options) as any;
+export const generateOfflinePunctuationSpiralPuzzle = async (options: GeneratorOptions) => generateOfflineSpiralPuzzle(options) as Promise<PunctuationSpiralPuzzleData[]>;
 export const generateOfflineJumbledWordStory = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
      const {itemCount, worksheetCount, difficulty} = options;
-     return Array(worksheetCount).fill(0).map(() => {
+     return Array.from({length: worksheetCount}, () => {
         const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 4);
         const puzzles = words.map(w => ({jumbled: shuffle(w.split('')), word: w}));
         return {
@@ -378,6 +400,7 @@ export const generateOfflineJumbledWordStory = async (options: GeneratorOptions)
         }
      });
 }
+export const generateOfflineThematicJumbledWordStory = async (options: GeneratorOptions) => generateOfflineJumbledWordStory(options) as Promise<ThematicJumbledWordStoryData[]>;
 
 export const generateOfflineHomonymSentenceWriting = async (options: GeneratorOptions): Promise<HomonymSentenceData[]> => {
     const { itemCount, worksheetCount } = options;
@@ -453,18 +476,21 @@ export const generateOfflineAntonymFlowerPuzzle = async (options: GeneratorOptio
 };
 
 export const generateOfflineSynonymAntonymGrid = async (options: GeneratorOptions): Promise<SynonymAntonymGridData[]> => {
-    const {itemCount, worksheetCount, difficulty} = options;
-     const words = getRandomItems(TR_VOCAB.synonyms, itemCount).map(p => p.synonym);
-     const searchResult = await generateOfflineWordSearch({ ...options, words: words, itemCount: words.length, worksheetCount });
+    const {itemCount, worksheetCount} = options;
+     const wordsToFind = [
+         ...getRandomItems(TR_VOCAB.synonyms, Math.ceil((itemCount || 10)/2)).map(p => p.synonym),
+         ...getRandomItems(TR_VOCAB.antonyms, Math.floor((itemCount || 10)/2)).map(p => p.antonym)
+     ];
+     const searchResult = await generateOfflineWordSearch({ ...options, words: wordsToFind, itemCount: wordsToFind.length, worksheetCount });
      return searchResult.map(res => ({
          title: 'Eş/Zıt Anlam Tablosu',
          prompt: 'Kelimelerin eş ve zıt anlamlılarını bulup bulmacaya yerleştirin.',
          instruction: 'Listelenen kelimelerin eş veya zıt anlamlılarını bulmacada bul.',
          pedagogicalNote: 'Kelime anlam ilişkileri ve kelime hazinesi.',
-         antonyms: getRandomItems(TR_VOCAB.antonyms, 3).map(p => ({word: p.word})),
-         synonyms: getRandomItems(TR_VOCAB.synonyms, 3).map(p => ({word: p.word})),
+         antonyms: getRandomItems(TR_VOCAB.antonyms, 4).map(p => ({word: p.word})),
+         synonyms: getRandomItems(TR_VOCAB.synonyms, 4).map(p => ({word: p.word})),
          grid: res.grid,
-     }))
+     }));
 };
 
 export const generateOfflineAntonymResfebe = async (options: GeneratorOptions): Promise<AntonymResfebeData[]> => {
@@ -473,7 +499,6 @@ export const generateOfflineAntonymResfebe = async (options: GeneratorOptions): 
         const puzzles = getRandomItems(TR_VOCAB.antonyms, itemCount).map(pair => ({
             word: pair.word,
             antonym: pair.antonym,
-            // FIX: Explicitly cast 'text' to the literal type 'text' to match the AntonymResfebeData interface.
             clues: pair.word.split('').map(char => ({ type: 'text' as 'text', value: char }))
         }));
         return {
@@ -505,9 +530,8 @@ export const generateOfflineResfebe = async (options: GeneratorOptions): Promise
 };
 
 
-export const generateOfflineThematicWordSearchColor = async (options: GeneratorOptions) => generateOfflineWordSearch(options) as any;
+export const generateOfflineThematicWordSearchColor = async (options: GeneratorOptions) => generateOfflineWordSearch(options) as Promise<ThematicWordSearchColorData[]>;
 export const generateOfflineSynonymSearchAndStory = async (options: GeneratorOptions) => generateOfflineSynonymWordSearch(options) as any;
-export const generateOfflineThematicJumbledWordStory = async (options: GeneratorOptions) => generateOfflineJumbledWordStory(options) as any;
 
 export const generateOfflineSynonymMatchingPattern = async (options: GeneratorOptions): Promise<SynonymMatchingPatternData[]> => {
     const { itemCount, worksheetCount, theme } = options;
@@ -566,8 +590,8 @@ export const generateOfflineSyllableWordSearch = async (options: GeneratorOption
         prompt: 'Heceleri birleştir, kelimeleri bulmacada ara.',
         instruction: 'Önce heceleri birleştirip kelimeleri oluştur, sonra bu kelimeleri bulmacada bul.',
         pedagogicalNote: 'Hece birleştirme ve görsel tarama becerilerini entegre eder.',
-        syllablesToCombine: ['ke', 'lem'],
-        wordsToCreate: [{ syllable1: 'ke', syllable2: 'lem', answer: 'kelem' }],
+        syllablesToCombine: ['ke', 'lem', 'tap', 'ki'],
+        wordsToCreate: [{ syllable1: 'ke', syllable2: 'lem', answer: 'kalem' }, {syllable1: 'ki', syllable2: 'tap', answer: 'kitap'}],
         wordsToFindInSearch: data.words || [],
         grid: data.grid,
         passwordPrompt: "Şifreyi çöz."
@@ -583,7 +607,7 @@ export const generateOfflineWordSearchWithPassword = async (options: GeneratorOp
         pedagogicalNote: 'Dikkat ve sıralı işlem becerisi.',
         grid: data.grid,
         words: data.words || [],
-        passwordCells: [{ row: 0, col: 0 }, { row: 1, col: 1 }]
+        passwordCells: [{ row: 0, col: 0 }, { row: 1, col: 1 }, {row: 2, col: 2}]
     }));
 };
 

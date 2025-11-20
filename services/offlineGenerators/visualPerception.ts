@@ -1,22 +1,18 @@
-
-import { GeneratorOptions, FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType } from '../../types';
+import { GeneratorOptions, FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS } from './helpers';
 
-// --- Helper for Grid Pattern Generation ---
 const generateRandomPattern = (dim: number, density: number): number[][][] => {
     const lines: number[][][] = [];
     for (let i = 0; i < dim * density; i++) {
         const x1 = getRandomInt(0, dim);
         const y1 = getRandomInt(0, dim);
-        // Try to make a connected line or close proximity
-        const direction = getRandomInt(0, 3); // 0: right, 1: down, 2: diag-down, 3: diag-up
+        const direction = getRandomInt(0, 3);
         let x2 = x1, y2 = y1;
         if (direction === 0 && x1 < dim) x2++;
         else if (direction === 1 && y1 < dim) y2++;
         else if (direction === 2 && x1 < dim && y1 < dim) { x2++; y2++; }
         else if (direction === 3 && x1 < dim && y1 > 0) { x2++; y2--; }
         
-        // Avoid dots (zero length lines)
         if (x1 !== x2 || y1 !== y2) {
              lines.push([[x1, y1], [x2, y2]]);
         }
@@ -36,18 +32,14 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
             let differentWord = '';
             const chars = baseWord.split('');
 
-            // Algorithm to create subtle differences
             if (difficulty === 'Başlangıç' && chars.length > 1) { 
-                // Swap first/last
                 [chars[0], chars[chars.length - 1]] = [chars[chars.length - 1], chars[0]]; 
                 differentWord = chars.join(''); 
             } else if (difficulty === 'Orta' && chars.length > 2) { 
-                // Change middle char
                 const pos = getRandomInt(1, chars.length - 2); 
                 chars[pos] = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)]; 
                 differentWord = chars.join(''); 
             } else { 
-                // Visual similarity swaps
                 if (baseWord.includes('b')) differentWord = baseWord.replace('b', 'd');
                 else if (baseWord.includes('d')) differentWord = baseWord.replace('d', 'b');
                 else if (baseWord.includes('p')) differentWord = baseWord.replace('p', 'q');
@@ -115,7 +107,6 @@ export const generateOfflineShapeMatching = async (options: GeneratorOptions): P
             shapes: getRandomItems(SHAPE_TYPES, shapeCount),
             color: getRandomItems(COLORS, 1)[0].css
         }));
-        // Deep copy for right column to avoid reference issues if we modify
         const rightColumn = shuffle(leftColumn.map((item, index) => ({ 
             id: String.fromCharCode(65 + index), 
             shapes: item.shapes,
@@ -180,28 +171,21 @@ export const generateOfflineSymbolCipher = async (options: GeneratorOptions): Pr
     const { itemCount, difficulty, worksheetCount } = options;
     const results: SymbolCipherData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        // Create a unique key for this worksheet
         const cipherKey = getRandomItems(SHAPE_TYPES, 10).map((shape, index) => ({ 
             shape, 
-            letter: turkishAlphabet[index], // a, b, c, ...
+            letter: turkishAlphabet[index],
             color: '#000'
         }));
         
-        // Generate words using only the letters available in our key
         const availableLetters = cipherKey.map(k => k.letter);
         const simpleWords = ['baba', 'baca', 'aba', 'caba', 'ede', 'fece'].filter(w => w.split('').every(l => availableLetters.includes(l)));
         
-        // If no meaningful words fit the limited key, use random combinations
         const wordsToUse = simpleWords.length >= itemCount ? getRandomItems(simpleWords, itemCount) : Array.from({length: itemCount}, () => 
             Array.from({length: 4}, () => getRandomItems(availableLetters, 1)[0]).join('')
         );
 
         const wordsToSolve = wordsToUse.map(word => {
-            const shapeSequence: any[] = [];
-            for (const letter of word) {
-                const keyItem = cipherKey.find(item => item.letter === letter);
-                if (keyItem) shapeSequence.push(keyItem.shape);
-            }
+            const shapeSequence = word.split('').map(letter => cipherKey.find(item => item.letter === letter)!.shape);
             return { shapeSequence, wordLength: word.length, answer: word };
         });
 
@@ -220,12 +204,10 @@ export const generateOfflineBlockPainting = async (options: GeneratorOptions): P
     const { worksheetCount } = options;
     const results: BlockPaintingData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        // Generate a symmetric pattern (invader style)
         const pattern: number[][] = [];
         for(let r=0; r<8; r++) {
             const row: number[] = [];
             for(let c=0; c<4; c++) row.push(Math.random() > 0.5 ? 1 : 0);
-            // Mirror the row
             pattern.push([...row, ...row.slice().reverse()]);
         }
 
@@ -236,7 +218,7 @@ export const generateOfflineBlockPainting = async (options: GeneratorOptions): P
             grid: {rows: 8, cols: 8},
             targetPattern: pattern,
             shapes: [
-                { id: 1, color: '#3B82F6', pattern: [[1]], count: pattern.flat().filter(x => x===1).length }, // Simple 1x1 blocks for simplicity in fast mode
+                { id: 1, color: '#3B82F6', pattern: [[1]], count: pattern.flat().filter(x => x===1).length },
             ]
         });
     }
@@ -249,19 +231,14 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
     for(let i=0; i<worksheetCount; i++) {
         const rows = Array.from({length: itemCount}).map(() => {
             const correctIndex = getRandomInt(0, 3);
-            // Logic: 3 items are closed shapes (square), 1 is open (U-shape) logic is simulated by segments
-            const standard = [true, true, true, true, true, true, true]; // "8" shape
-            const odd = [true, true, false, true, true, true, true]; // "0" shape (middle segment off)
+            const standard = [true, true, true, true, true, true, true];
+            const odd = [true, true, false, true, true, true, true];
             
             const items = Array(4).fill(null).map((_, idx) => ({
                 segments: idx === correctIndex ? odd : standard
             }));
             
-            return { 
-                items, 
-                correctIndex, 
-                reason: "Diğerlerinin ortasında çizgi varken bunda yok." 
-            };
+            return { items, correctIndex, reason: "Diğerlerinin ortasında çizgi varken bunda yok." };
         });
 
         results.push({
@@ -279,7 +256,7 @@ export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions):
     const results: SymmetryDrawingData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const dim = gridSize || 10;
-        const dotCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : difficulty === 'Zor' ? 7 : 9;
+        const dotCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : 7;
         const dots = Array.from({length: dotCount}).map(() => ({x: getRandomInt(0, (dim/2) - 1), y: getRandomInt(0, dim-1), color: '#000'}));
         results.push({
             title: 'Simetri Tamamlama',
@@ -325,7 +302,7 @@ export const generateOfflineDotPainting = async (options: GeneratorOptions): Pro
             prompt1: 'Koordinatları takip et.',
             prompt2: 'Gizli Şekil: Kare',
             svgViewBox: '0 0 100 100',
-            gridPaths: [], // Simplified for fast mode
+            gridPaths: [],
             dots: [{cx: 30, cy: 30, color: 'red'}, {cx: 70, cy: 30, color: 'red'}, {cx: 70, cy: 70, color: 'red'}, {cx: 30, cy: 70, color: 'red'}],
             hiddenImageName: 'Kare'
         });
@@ -338,11 +315,10 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
     const results: AbcConnectData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const dim = gridSize || 5;
-        const letters = ['A','B','C','D'];
-        // Simple generation: placing pairs randomly (no guarantee of non-overlapping path solution in fast mode without complex algo)
+        const letters = ['A','B','C','D','E','F'].slice(0, Math.floor(itemCount / 2));
         const points = letters.flatMap(l => ([
-            {label: l, x: getRandomInt(0, dim-1), y: getRandomInt(0, dim-1), color: '#000'},
-            {label: l, x: getRandomInt(0, dim-1), y: getRandomInt(0, dim-1), color: '#000'}
+            {label: l, x: getRandomInt(0, dim-1), y: getRandomInt(0, dim-1), color: '#ddd'},
+            {label: l, x: getRandomInt(0, dim-1), y: getRandomInt(0, dim-1), color: '#ddd'}
         ]));
         results.push({
             title: 'ABC Bağlama',
@@ -355,7 +331,7 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
 }
 
 export const generateOfflineCoordinateCipher = async (options: GeneratorOptions): Promise<CoordinateCipherData[]> => {
-    const { gridSize, itemCount, worksheetCount } = options;
+    const { gridSize, worksheetCount } = options;
     const results: CoordinateCipherData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 6;
@@ -364,10 +340,10 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
         const cipherCoordinates: string[] = [];
         
         for(let k=0; k<message.length; k++) {
-            const r = k; // Diagonal placement for simplicity
+            const r = k;
             const c = k;
             if(r < size && c < size) {
-                grid[r][c] = message[k];
+                grid[r][c] = message[k].toUpperCase();
                 cipherCoordinates.push(`${String.fromCharCode(65 + r)}${c+1}`);
             }
         }
@@ -386,13 +362,13 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
 };
 
 export const generateOfflineProfessionConnect = async (options: GeneratorOptions): Promise<ProfessionConnectData[]> => {
-    const {itemCount, worksheetCount, gridSize} = options;
+    const {itemCount, worksheetCount} = options;
     const results: ProfessionConnectData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const professions = getRandomItems(TR_VOCAB.jobs, itemCount);
         const points = professions.flatMap((p, idx) => ([
-            { label: p, imageDescription: 'Meslek Sahibi', imagePrompt: '', x: 0, y: idx * 2, pairId: idx },
-            { label: '', imageDescription: `${p} Aracı`, imagePrompt: '', x: 5, y: idx * 2, pairId: idx }
+            { label: p, imageDescription: 'Meslek Sahibi', x: 0, y: idx * 2, pairId: idx },
+            { label: '', imageDescription: `${p} Aracı`, x: 5, y: idx * 2, pairId: idx }
         ]));
         results.push({ 
             title: 'Meslek Eşleştirme', 
@@ -431,10 +407,10 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
             return {
                 theme: theme || 'Karışık',
                 items: [
-                    {description: 'Kedi', imagePrompt: '', isOdd: false},
-                    {description: 'Köpek', imagePrompt: '', isOdd: false},
-                    {description: 'Araba', imagePrompt: '', isOdd: true}, // Odd one
-                    {description: 'Kuş', imagePrompt: '', isOdd: false}
+                    {description: 'Kedi', isOdd: false},
+                    {description: 'Köpek', isOdd: false},
+                    {description: 'Araba', isOdd: true},
+                    {description: 'Kuş', isOdd: false}
                 ]
             }
         });
@@ -449,51 +425,74 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
 }
 
 export const generateOfflinePunctuationColoring = async (options: GeneratorOptions): Promise<PunctuationColoringData[]> => {
-    return Array(options.worksheetCount).fill({
+    return Array.from({length: options.worksheetCount}, () => ({
         title: 'Noktalama Boyama',
         instruction: "Cümlenin sonuna gelecek işarete göre kutuyu boya.",
         pedagogicalNote: "Dilbilgisi kurallarını görselleştirme.",
-        sentences: [
-            {text: 'Eve geldim', color: '#FF0000', correctMark: '.'},
-            {text: 'Nasıl oldun', color: '#0000FF', correctMark: '?'},
-        ]
-    });
+        sentences: shuffle([
+            {text: 'Eve geldim', color: 'red', correctMark: '.'},
+            {text: 'Nasılsın', color: 'blue', correctMark: '?'},
+            {text: 'Yaşasın', color: 'green', correctMark: '!'},
+            {text: 'Pazardan elma, armut, muz aldım', color: 'orange', correctMark: '.'},
+        ])
+    }));
 }
 
 export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOptions): Promise<SynonymAntonymColoringData[]> => {
-     return Array(options.worksheetCount).fill({
+     const {worksheetCount} = options;
+     return Array(worksheetCount).fill({
          title: 'Eş/Zıt Anlamlı Boyama',
          instruction: "Kelimelerin ilişkisine göre (eş/zıt) boyama yap.",
          pedagogicalNote: "Kelime anlamı ilişkilerini pekiştirme.",
-         colorKey: [{text: `Siyah - Kara (Eş)`, color: '#000000'}],
-         wordsOnImage: [{word: 'Siyah', x: 50, y: 50}]
+         colorKey: [
+             {text: `Siyah kelimesinin zıt anlamlısı`, color: 'blue'},
+             {text: `Okul kelimesinin eş anlamlısı`, color: 'red'},
+         ],
+         wordsOnImage: [{word: 'beyaz', x: 50, y: 30}, {word: 'mektep', x:50, y:70}]
      });
 }
 
 export const generateOfflineStarHunt = async (options: GeneratorOptions): Promise<StarHuntData[]> => {
-     return Array(options.worksheetCount).fill({ 
+     return Array.from({length: options.worksheetCount}, () => ({ 
          title: 'Yıldız Avı', 
-         instruction: "Her satır ve sütunda 1 yıldız olacak şekilde yerleştir.",
+         instruction: "Her satır, sütun ve bölgede 1 yıldız olacak şekilde yerleştir.",
          pedagogicalNote: "Mantıksal çıkarım ve kısıtlama yönetimi.",
-         grid: [[null, null], [null, null]], 
-         targetCount: 2 
-     });
+         grid: Array.from({length: 4}, () => Array(4).fill(null)), 
+         targetCount: 1 
+     }));
 }
 
 export const generateOfflineWordConnect = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
     const { worksheetCount, difficulty, itemCount } = options;
     return Array.from({length: worksheetCount}, () => {
-        const pairs = getRandomItems(TR_VOCAB.synonyms, Math.floor(itemCount/2));
+        const pairs = getRandomItems(TR_VOCAB.synonyms, Math.floor((itemCount || 8)/2));
+        const gridDim = 10;
         const points = pairs.flatMap((p, i) => ([
-            {word: p.word, pairId: i, x: 0, y: i*2, color: COLORS[i % COLORS.length].css},
-            {word: p.synonym, pairId: i, x: 5, y: i*2, color: COLORS[i % COLORS.length].css}
+            {word: p.word, pairId: i, x: getRandomInt(0,3), y: getRandomInt(0, gridDim-1), color: COLORS[i % COLORS.length].css},
+            {word: p.synonym, pairId: i, x: getRandomInt(gridDim-4, gridDim-1), y: getRandomInt(0, gridDim-1), color: COLORS[i % COLORS.length].css}
         ]));
         return {
             title: 'Kelime Bağlama',
             instruction: 'Anlamca ilişkili kelimeleri eşleştir.',
             pedagogicalNote: 'Semantik ilişkilendirme ve kelime dağarcığı.',
-            gridDim: 6,
-            points: shuffle(points).map((p, i) => ({...p, y: i})) // re-distribute y to avoid overlap
+            gridDim: gridDim,
+            points: shuffle(points)
         }
     })
+};
+
+export const generateOfflineShapeCounting = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
+    return Array.from({length: options.worksheetCount}, () => ({
+        title: 'Üçgen Sayma',
+        instruction: "Şeklin içinde kaç tane üçgen olduğunu sayın.",
+        pedagogicalNote: "Görsel ayrıştırma ve parça-bütün ilişkisi.",
+        figures: [{
+            svgPaths: [ // A simple star shape which contains multiple triangles
+                { d: "M 50 5 L 61 40 L 98 40 L 68 62 L 79 96 L 50 75 L 21 96 L 32 62 L 2 40 L 39 40 Z", fill: 'lightblue' },
+                { d: "M 50 5 L 68 62 L 32 62 Z", fill: 'rgba(0,0,0,0.1)'} // Example inner triangle
+            ],
+            targetShape: 'triangle',
+            correctCount: 10 // A standard 5-point star has 10 triangles
+        }]
+    }));
 };
