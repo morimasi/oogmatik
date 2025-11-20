@@ -4,7 +4,9 @@ export const generateWithSchema = async (prompt: string, schema: any) => {
     try {
         // Yapay zekanın her seferinde farklı çıktı üretmesini sağlamak için benzersiz bir bağlam ekliyoruz.
         const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: Lütfen önceki çıktıları tekrar etme. Yaratıcı ol ve her seferinde tamamen benzersiz, çeşitlendirilmiş bir içerik üret. Random Seed: ${uniqueSeed}]`;
+        
+        // Enhanced system instruction to ensure variety and visual consistency
+        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Yaratıcı ol ve her seferinde tamamen benzersiz, çeşitlendirilmiş bir içerik üret. Random Seed: ${uniqueSeed}.\n2. GÖRSEL TUTARLILIĞI: Ürettiğin tüm 'imagePrompt' alanları, ilgili nesne, kelime veya sahne açıklamasıyla (text/description) BİREBİR uyumlu olmalıdır. Asla metinle çelişen bir görsel istemi oluşturma.\n3. GÖRSEL KALİTESİ: Tüm 'imagePrompt'lar 'photorealistic, 8k resolution, cinematic lighting, highly detailed, realistic texture' özelliklerini içermelidir. Basit çizim veya vektör stili kullanma.]`;
 
         const response = await fetch('/api/generate', {
             method: 'POST',

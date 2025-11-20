@@ -1,3 +1,4 @@
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from "@google/genai";
 
@@ -135,6 +136,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     for (let attempt = 0; attempt < maxRetries; attempt++) {
                         try {
                             // MODEL GÜNCELLEMESİ: Yüksek kaliteli resim modeli (Imagen 4)
+                            // Sadece statik resimler (video yok)
                             const imageResponse = await ai.models.generateImages({
                                 model: 'imagen-4.0-generate-001',
                                 prompt: imagePrompt,
