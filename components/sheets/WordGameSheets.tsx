@@ -11,6 +11,8 @@ import {
 } from '../../types';
 import { GridComponent, ImageDisplay, PedagogicalHeader } from './common';
 
+// ... (WordSearchSheet, SynonymSearchAndStorySheet, SynonymWordSearchSheet, AnagramSheet, SpellingCheckSheet, LetterBridgeSheet, WordLadderSheet, WordFormationSheet, ReverseWordSheet, WordGroupingSheet, MiniWordGridSheet, PasswordFinderSheet, SyllableCompletionSheet, SpiralPuzzleSheet, CrosswordSheet are unchanged, assume they are present here) ...
+
 export const WordSearchSheet: React.FC<{ data: WordSearchData | WordSearchWithPasswordData | ProverbSearchData | LetterGridWordFindData | ThematicWordSearchColorData }> = ({ data }) => {
     const isWithPassword = 'passwordCells' in data && !!data.passwordCells;
     const gridData = (data as any).grid as string[][];
@@ -122,7 +124,6 @@ export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
                         ))}
                     </div>
                     <div className="w-full h-10 bg-zinc-50 dark:bg-zinc-800 rounded-md border-b-2 border-zinc-300 dark:border-zinc-600 flex items-end px-2 pb-1">
-                        {/* Dotted line for writing */}
                         <div className="w-full border-b border-dotted border-zinc-400"></div>
                     </div>
                 </div>
@@ -542,7 +543,155 @@ export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => {
     );
 };
 
-// FIX: Add placeholder implementations for all missing Word Game components to resolve import errors.
+export const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData | ThematicJumbledWordStoryData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        
+        {'imagePrompt' in data && (data as any).imageBase64 && (
+            <div className="mb-8 rounded-xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 transform -rotate-1">
+                 <ImageDisplay base64={(data as any).imageBase64} description={data.theme} className="w-full h-48 object-cover" />
+            </div>
+        )}
+
+        <div className="space-y-6 mb-10">
+             {(data.puzzles || []).map((puzzle, index) => (
+                 <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm border border-zinc-200 flex items-center gap-4">
+                     <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center">{index + 1}</span>
+                     <div className="flex-1 flex gap-2 justify-center">
+                         {puzzle.jumbled.map((letter, i) => (
+                             <span key={i} className="px-3 py-1 bg-zinc-100 dark:bg-zinc-600 rounded text-lg font-mono font-bold border-b-2 border-zinc-300">{letter}</span>
+                         ))}
+                     </div>
+                     <div className="w-32 h-10 border-b-2 border-dotted border-zinc-400"></div>
+                 </div>
+             ))}
+        </div>
+        
+        <div className="p-6 bg-orange-50 dark:bg-orange-900/20 rounded-xl border-l-4 border-orange-400">
+            <h4 className="font-bold text-orange-800 dark:text-orange-200 mb-2 flex items-center gap-2"><i className="fa-solid fa-pen-nib"></i> Hikaye Yaz</h4>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">{data.storyPrompt}</p>
+            <div className="space-y-3">
+                {Array.from({length: 4}).map((_, i) => <div key={i} className="border-b border-orange-200 dark:border-orange-800 h-8"></div>)}
+            </div>
+        </div>
+    </div>
+);
+
+export const ResfebeSheet: React.FC<{ data: ResfebeData | AntonymResfebeData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {(data.puzzles || []).map((puzzle, index) => (
+                <div key={index} className="bg-white dark:bg-zinc-700/50 p-6 rounded-2xl shadow-md border-2 border-zinc-100 dark:border-zinc-600 flex flex-col items-center">
+                    <div className="flex flex-wrap items-center justify-center gap-4 mb-6 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl w-full min-h-[120px]">
+                        {puzzle.clues.map((clue, i) => (
+                            <div key={i} className="transform hover:scale-110 transition-transform">
+                                {clue.type === 'image' ? (
+                                    <div className="relative group">
+                                         {/* FIX: Access imageBase64 from the clue object if it exists, otherwise fallback */}
+                                        <ImageDisplay base64={(clue as any).imageBase64} description={clue.value} className="w-20 h-20 object-cover rounded-lg shadow-sm border-2 border-white" />
+                                        <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-black/70 text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap pointer-events-none">{clue.value}</span>
+                                    </div>
+                                ) : (
+                                    <span className="text-4xl font-black text-zinc-800 dark:text-zinc-100 drop-shadow-md">{clue.value}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="w-full flex items-center gap-2">
+                        <span className="text-sm text-zinc-400 font-bold">CEVAP:</span>
+                        <div className="flex-1 h-10 border-b-2 border-dashed border-zinc-400"></div>
+                    </div>
+                    {'antonym' in puzzle && (
+                         <div className="w-full flex items-center gap-2 mt-2">
+                            <span className="text-sm text-rose-400 font-bold">ZITTI:</span>
+                            <div className="flex-1 h-10 border-b-2 border-dashed border-rose-300"></div>
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+export const AntonymFlowerPuzzleSheet: React.FC<{ data: AntonymFlowerPuzzleData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 justify-items-center">
+            {(data.puzzles || []).map((puzzle, index) => (
+                <div key={index} className="relative w-64 h-64 flex items-center justify-center">
+                    {/* Flower Center */}
+                    <div className="absolute z-20 w-24 h-24 bg-yellow-400 rounded-full border-4 border-yellow-500 flex items-center justify-center shadow-lg">
+                        <span className="text-lg font-bold text-amber-900 text-center leading-tight px-2">{puzzle.centerWord}</span>
+                    </div>
+                    
+                    {/* Petals */}
+                    {puzzle.petalLetters.map((letter, i) => {
+                        const angle = (i * 360) / puzzle.petalLetters.length;
+                        return (
+                            <div 
+                                key={i}
+                                className="absolute w-16 h-16 bg-white dark:bg-pink-200 rounded-full border-2 border-pink-300 flex items-center justify-center shadow-md origin-center transform"
+                                style={{
+                                    transform: `rotate(${angle}deg) translate(80px) rotate(-${angle}deg)`
+                                }}
+                            >
+                                <span className="text-2xl font-bold text-pink-600 dark:text-pink-800 transform">{letter}</span>
+                            </div>
+                        )
+                    })}
+                    
+                    {/* Stem */}
+                    <div className="absolute top-1/2 left-1/2 w-2 h-40 bg-green-500 -z-10 transform -translate-x-1/2 translate-y-10 rounded-full"></div>
+                </div>
+            ))}
+        </div>
+        
+        <div className="mt-12 text-center">
+             <div className="inline-block p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border-2 border-dashed border-zinc-300">
+                 <p className="text-sm text-zinc-500 mb-2">Bulduğun kelimeleri buraya yaz:</p>
+                 <div className="flex gap-4">
+                     {data.puzzles.map((_, i) => <div key={i} className="w-32 h-8 border-b-2 border-zinc-400"></div>)}
+                 </div>
+             </div>
+        </div>
+    </div>
+);
+
+export const WordGridPuzzleSheet: React.FC<{ data: WordGridPuzzleData }> = ({ data }) => (
+     <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="flex-1 bg-zinc-800 p-1 rounded-lg shadow-xl">
+                 <GridComponent grid={data.grid} cellClassName="w-10 h-10 bg-white border-zinc-300" showLetters={false} />
+            </div>
+            
+            <div className="w-full md:w-1/3">
+                <div className="bg-indigo-50 dark:bg-indigo-900/30 p-5 rounded-xl border border-indigo-200">
+                    <h4 className="font-bold text-indigo-800 dark:text-indigo-200 mb-3 border-b border-indigo-300 pb-1">Kelime Listesi</h4>
+                    <ul className="space-y-1">
+                        {data.wordList.map((word, i) => (
+                            <li key={i} className="flex justify-between text-sm">
+                                <span>{word}</span>
+                                <span className="text-xs bg-white px-1 rounded text-zinc-400">{word.length}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl border border-emerald-200 text-center">
+                     <p className="text-xs font-bold text-emerald-600 uppercase mb-1">Ekstra Görev</p>
+                     <p className="text-sm">{data.unusedWordPrompt}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+// Stub sheets replaced with SimpleSheet or custom implementations above.
+// Keeping SimpleSheet for any remaining generic fallbacks.
 const SimpleSheet: React.FC<{ data: any, defaultTitle: string }> = ({ data, defaultTitle }) => (
     <div>
         <PedagogicalHeader title={data.title || defaultTitle} instruction={data.instruction || data.prompt || "Etkinliği tamamlayın."} note={data.pedagogicalNote} />
@@ -551,13 +700,10 @@ const SimpleSheet: React.FC<{ data: any, defaultTitle: string }> = ({ data, defa
     </div>
 );
 
-export const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData | ThematicJumbledWordStoryData }> = (props) => <SimpleSheet {...props} defaultTitle="Karışık Kelime Hikayesi" />;
 export const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = (props) => <SimpleSheet {...props} defaultTitle="Eş Sesli Cümle" />;
-export const WordGridPuzzleSheet: React.FC<{ data: WordGridPuzzleData }> = (props) => <SimpleSheet {...props} defaultTitle="Kelime Ağı" />;
 export const HomonymImageMatchSheet: React.FC<{ data: HomonymImageMatchData }> = (props) => <SimpleSheet {...props} defaultTitle="Eş Sesli Resim Eşleştirme" />;
-export const AntonymFlowerPuzzleSheet: React.FC<{ data: AntonymFlowerPuzzleData }> = (props) => <SimpleSheet {...props} defaultTitle="Zıt Anlam Çiçeği" />;
 export const SynonymAntonymGridSheet: React.FC<{ data: SynonymAntonymGridData }> = (props) => <SimpleSheet {...props} defaultTitle="Eş/Zıt Anlam Tablosu" />;
-export const AntonymResfebeSheet: React.FC<{ data: AntonymResfebeData }> = (props) => <SimpleSheet {...props} defaultTitle="Zıt Anlamlı Resfebe" />;
+export const AntonymResfebeSheet: React.FC<{ data: AntonymResfebeData }> = (props) => <ResfebeSheet {...props} />;
 export const SynonymMatchingPatternSheet: React.FC<{ data: SynonymMatchingPatternData }> = (props) => <SimpleSheet {...props} defaultTitle="Eş Anlamlı Desen Bulmaca" />;
 export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = (props) => <SimpleSheet {...props} defaultTitle="Eksik Parçalar" />;
 export const WordWebSheet: React.FC<{ data: WordWebData }> = (props) => <SimpleSheet {...props} defaultTitle="Kelime Ağı" />;
@@ -567,4 +713,3 @@ export const WordPlacementPuzzleSheet: React.FC<{ data: WordPlacementPuzzleData 
 export const PositionalAnagramSheet: React.FC<{ data: PositionalAnagramData }> = (props) => <SimpleSheet {...props} defaultTitle="Yer Değiştirmeli Anagram" />;
 export const ImageAnagramSortSheet: React.FC<{ data: ImageAnagramSortData }> = (props) => <SimpleSheet {...props} defaultTitle="Resimli Anagram Sıralama" />;
 export const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> = (props) => <SimpleSheet {...props} defaultTitle="Anagram Resim Eşleştirme" />;
-export const ResfebeSheet: React.FC<{ data: ResfebeData }> = (props) => <SimpleSheet {...props} defaultTitle="Resfebe" />;

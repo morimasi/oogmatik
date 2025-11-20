@@ -12,8 +12,7 @@ import {
     WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData, ResfebeClue
 } from '../../types';
 
-// Re-export robust implementations from previous steps (WordSearch, Anagram etc.)
-// We will focus on replacing the stubs/weak implementations below.
+const VISUAL_STYLE = "Create a **photorealistic, 8k resolution, cinematic lighting, highly detailed** image prompt in English. It should look like a high-end studio photograph, NOT a cartoon or vector.";
 
 export const generateWordSearchFromAI = async (options: GeneratorOptions): Promise<WordSearchData[]> => {
   const { topic, itemCount, difficulty, worksheetCount, gridSize, directions, case: letterCase } = options;
@@ -48,15 +47,13 @@ export const generateWordSearchFromAI = async (options: GeneratorOptions): Promi
       words: { type: Type.ARRAY, items: { type: Type.STRING } },
       hiddenMessage: { type: Type.STRING },
       followUpQuestion: { type: Type.STRING },
-      writingPrompt: { type: Type.STRING } // Added for compatibility
+      writingPrompt: { type: Type.STRING }
     },
     required: ['title', 'instruction', 'grid', 'words', 'hiddenMessage', 'pedagogicalNote']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<WordSearchData[]>;
 };
-
-// ... (Previous implementations for Anagram, SpellingCheck, LetterBridge, WordLadder, WordFormation, ReverseWord, WordGrouping, MiniWordGrid, PasswordFinder, SyllableCompletion, SynonymWordSearch, SpiralPuzzle, Crossword are assumed to be here. Only implementing the missing/stubbed ones below for brevity) ...
 
 export const generateSpiralPuzzleFromAI = async (options: GeneratorOptions): Promise<SpiralPuzzleData[]> => {
     const { topic, itemCount, difficulty, worksheetCount, gridSize } = options;
@@ -101,14 +98,14 @@ export const generateSpiralPuzzleFromAI = async (options: GeneratorOptions): Pro
     return generateWithSchema(prompt, schema) as Promise<SpiralPuzzleData[]>;
 };
 
-// --- MISSING / STUBBED GENERATORS IMPLEMENTATION ---
-
 export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
     const { itemCount, difficulty, worksheetCount, theme } = options;
     const prompt = `
     '${theme}' temalı, "${difficulty}" zorluk seviyesinde bir "Karışık Kelime Hikayesi" oluştur.
-    ${itemCount} adet kelime seç. Bu kelimelerin harflerini karıştır (jumbled).
-    Ayrıca, bu kelimelerin kullanılabileceği yaratıcı bir hikaye yazma yönergesi (storyPrompt) ver.
+    1. ${itemCount} adet kelime seç. Bu kelimelerin harflerini karıştır (jumbled).
+    2. Ayrıca, bu kelimelerin kullanılabileceği yaratıcı bir hikaye yazma yönergesi (storyPrompt) ver.
+    3. Temayı yansıtan, ${VISUAL_STYLE} bir 'imagePrompt' oluştur. (Örn: 'A messy room with colorful letter blocks scattered on the floor, cinematic lighting').
+    
     PEDAGOGICAL NOTE: "Ortografik farkındalık ve yaratıcı yazma becerisi."
     INSTRUCTION: "Harfleri düzelterek kelimeleri bul, sonra bu kelimeleri kullanarak bir hikaye yaz."
     ${worksheetCount} adet üret.
@@ -118,8 +115,9 @@ export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions):
             type: Type.OBJECT, properties: {
                 title: {type: Type.STRING}, prompt: {type: Type.STRING}, theme: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING},
                 puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {jumbled: {type: Type.ARRAY, items: {type: Type.STRING}}, word: {type: Type.STRING}}, required: ['jumbled', 'word']}},
-                storyPrompt: {type: Type.STRING}
-            }, required: ['title', 'puzzles', 'storyPrompt', 'instruction', 'pedagogicalNote']
+                storyPrompt: {type: Type.STRING},
+                imagePrompt: {type: Type.STRING}
+            }, required: ['title', 'puzzles', 'storyPrompt', 'instruction', 'pedagogicalNote', 'imagePrompt']
         }
     };
     return generateWithSchema(prompt, schema) as Promise<JumbledWordStoryData[]>;
@@ -128,10 +126,11 @@ export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions):
 export const generateWordGridPuzzleFromAI = async (options: GeneratorOptions): Promise<WordGridPuzzleData[]> => {
     const { itemCount, difficulty, worksheetCount, topic } = options;
     const prompt = `
-    '${topic}' konusunda "${difficulty}" seviyesinde bir "Kelime Ağı" (Kriss Kross / Kelime Yerleştirme) bulmacası oluştur.
+    '${topic}' konusunda "${difficulty}" seviyesinde bir "Kelime Ağı" (Kriss Kross) bulmacası oluştur.
     ${itemCount} adet kelime seç. Bu kelimelerin birbirine bağlandığı 10x10 veya 12x12'lik bir ızgara (grid) düzeni oluştur.
     Kelimeleri listele. Gridde boş yerler null, kelime harfleri ise harf olmalı.
-    Kullanılmayan (gridde yer almayan) ekstra bir kelime daha ver ve bununla ilgili bir soru sor (unusedWordPrompt).
+    Kullanılmayan ekstra bir kelime ver ve bununla ilgili soru sor.
+    
     PEDAGOGICAL NOTE: "Uzamsal planlama ve kelime tanıma."
     INSTRUCTION: "Verilen kelimeleri harf sayılarına göre bulmacadaki uygun yerlere yerleştir."
     ${worksheetCount} adet üret.
@@ -141,7 +140,7 @@ export const generateWordGridPuzzleFromAI = async (options: GeneratorOptions): P
             type: Type.OBJECT, properties: {
                 title: {type: Type.STRING}, prompt: {type: Type.STRING}, theme: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING},
                 wordList: {type: Type.ARRAY, items: {type: Type.STRING}},
-                grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, // string or null
+                grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}},
                 unusedWordPrompt: {type: Type.STRING}
             }, required: ['title', 'wordList', 'grid', 'unusedWordPrompt', 'instruction', 'pedagogicalNote']
         }
@@ -176,7 +175,7 @@ export const generateSynonymMatchingPatternFromAI = async (options: GeneratorOpt
     const { itemCount, worksheetCount, theme } = options;
     const prompt = `
     '${theme}' temalı bir "Eş Anlamlı Eşleştirme Deseni" oluştur.
-    ${itemCount} çift eş anlamlı kelime seç (Örn: Al-Kırmızı, Siyah-Kara).
+    ${itemCount} çift eş anlamlı kelime seç (Örn: Al-Kırmızı).
     PEDAGOGICAL NOTE: "Semantik bellek ve kelime eşleştirme."
     INSTRUCTION: "Anlamdaş olan kelimeleri aynı renge boyayarak veya çizgiyle birleştirerek eşle."
     ${worksheetCount} adet üret.
@@ -196,7 +195,7 @@ export const generateMissingPartsFromAI = async (options: GeneratorOptions): Pro
      const {itemCount, worksheetCount, difficulty} = options;
      const prompt = `
      "${difficulty}" seviyesinde "Eksik Parçalar" kelime oyunu.
-     ${itemCount} adet bileşik veya çok heceli kelime seç (örn: Bil-gi-sa-yar, Aslan-ağzı).
+     ${itemCount} adet bileşik veya çok heceli kelime seç.
      Bu kelimeleri iki parçaya böl. Sol sütuna ilk parçaları, sağ sütuna ikinci parçaları (karışık sırada) koy.
      PEDAGOGICAL NOTE: "Görsel tamamlama (closure) ve kelime bütünü algısı."
      INSTRUCTION: "Sol ve sağ sütundaki parçaları birleştirerek anlamlı kelimeler oluştur."
@@ -218,9 +217,9 @@ export const generateMissingPartsFromAI = async (options: GeneratorOptions): Pro
 export const generateWordWebFromAI = async (options: GeneratorOptions): Promise<WordWebData[]> => {
     const { itemCount, worksheetCount, topic } = options;
     const prompt = `
-    '${topic}' konusunda bir "Kelime Ağı" (Word Web) bulmacası oluştur.
-    ${itemCount} adet birbirine bağlı kelime seç. Bu kelimeleri 12x12 ızgarada birbirini kesecek şekilde yerleştir.
-    Anahtar bir kelimeyi (keyword) vurgula.
+    '${topic}' konusunda bir "Kelime Ağı" bulmacası.
+    ${itemCount} kelime seç ve bunları 12x12 ızgarada kesiştir.
+    Anahtar bir kelimeyi vurgula.
     PEDAGOGICAL NOTE: "Uzamsal ilişkiler ve kelime dağarcığı."
     INSTRUCTION: "Kelimeleri ağa yerleştir ve anahtar kelimeyi bul."
     ${worksheetCount} adet üret.
@@ -241,10 +240,9 @@ export const generateWordWebFromAI = async (options: GeneratorOptions): Promise<
 export const generateWordWebWithPasswordFromAI = async (options: GeneratorOptions): Promise<WordWebWithPasswordData[]> => {
     const { itemCount, difficulty, worksheetCount, topic } = options;
     const prompt = `
-    '${topic}' temalı ve "${difficulty}" zorluk seviyesine uygun, şifreli bir 'Kelime Ağı' (Word Web) oluştur.
-    1. ${itemCount} kelime seç.
-    2. Bu kelimeleri bir ızgaraya yerleştir.
-    3. Izgaranın belirli bir sütununda (passwordColumnIndex), kelimelerin kesişiminden veya özel hizalamasından oluşan bir "Şifre" (Password) oluşsun.
+    '${topic}' temalı ve "${difficulty}" zorluk seviyesine uygun, şifreli bir 'Kelime Ağı' oluştur.
+    1. ${itemCount} kelimeyi ızgaraya yerleştir.
+    2. Belirli bir sütunda (passwordColumnIndex) anlamlı bir ŞİFRE kelime oluşsun.
     PEDAGOGICAL NOTE: "Mantıksal yerleştirme, harf takibi ve şifre çözme."
     INSTRUCTION: "Kelimeleri ağa yerleştir ve renkli sütundaki şifreyi bul."
     ${worksheetCount} adet üret.
@@ -271,11 +269,11 @@ export const generateWordWebWithPasswordFromAI = async (options: GeneratorOption
 export const generateHomonymSentenceWritingFromAI = async (options: GeneratorOptions): Promise<HomonymSentenceData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
     const prompt = `
-    "${difficulty}" seviyesine uygun bir 'Eş Sesli Kelime Cümle Yazma' etkinliği oluştur.
-    ${itemCount} tane yaygın Türkçe eş sesli (sesteş) kelime seç (Örn: Yaz, Gül, At).
+    "${difficulty}" seviyesinde 'Eş Sesli Kelime Cümle Yazma' etkinliği.
+    ${itemCount} tane Türkçe eş sesli kelime seç (Örn: Yaz, Gül).
     Her kelime için:
     1. İki farklı anlamını ('meaning1', 'meaning2') kısaca açıkla.
-    2. Her bir anlam için, o anlamı temsil eden, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek kaliteli, sinematik ve gerçekçi bir 'imagePrompt' (imagePrompt_1 ve imagePrompt_2) üret.
+    2. Her bir anlamı için ${VISUAL_STYLE} bir 'imagePrompt' (imagePrompt_1 ve imagePrompt_2) üret.
     PEDAGOGICAL NOTE: "Eş sesli kelimelerin farklı bağlamlarda kullanımını kavrama."
     INSTRUCTION: "Aynı kelimenin iki farklı anlamı için birer cümle yaz."
     ${worksheetCount} adet üret.
@@ -302,7 +300,7 @@ export const generateHomonymSentenceWritingFromAI = async (options: GeneratorOpt
 
 export const generateHomonymImageMatchFromAI = async (options: GeneratorOptions): Promise<HomonymImageMatchData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create a homonym image matching puzzle for difficulty "${difficulty}". For each worksheet, pick a common Turkish homonym. Create two image prompts (in English, **photorealistic, highly detailed, 8k, cinematic lighting**) for its two different meanings. Also create a simple word scramble for the homonym itself.
+    const prompt = `Create a homonym image matching puzzle for difficulty "${difficulty}". Pick a common Turkish homonym. Create two image prompts (in English, **photorealistic, highly detailed, 8k**) for its two different meanings. Also create a simple word scramble for the homonym itself.
     PEDAGOGICAL NOTE: "Görsel ve anlamsal ilişkilendirme."
     INSTRUCTION: "Resimleri incele, ortak olan eş sesli kelimeyi bul."
     ${worksheetCount} worksheets.`;
@@ -310,8 +308,8 @@ export const generateHomonymImageMatchFromAI = async (options: GeneratorOptions)
         type: Type.OBJECT,
         properties: {
             id: { type: Type.INTEGER },
-            word: { type: Type.STRING, description: "Description of the meaning" },
-            imagePrompt: { type: Type.STRING, description: "English prompt for image generation." }
+            word: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }
         },
         required: ["id", "word", "imagePrompt"]
     };
@@ -341,7 +339,7 @@ export const generateHomonymImageMatchFromAI = async (options: GeneratorOptions)
 
 export const generateImageAnagramSortFromAI = async (options: GeneratorOptions): Promise<ImageAnagramSortData[]> => {
     const { itemCount, topic, difficulty, worksheetCount } = options;
-    const prompt = `Create an image anagram sorting activity with theme '${topic}' for difficulty level "${difficulty}". Generate ${itemCount} cards. Each card must have a scrambled word, its correct form, a description, and a **photorealistic, highly detailed** English image generation prompt (cinematic lighting, 8k). 
+    const prompt = `Create an image anagram sorting activity with theme '${topic}' for difficulty level "${difficulty}". Generate ${itemCount} cards. Each card must have a scrambled word, its correct form, a description, and a ${VISUAL_STYLE} 'imagePrompt'. 
     PEDAGOGICAL NOTE: "Kelime sıralama ve görsel destekli kod çözme."
     INSTRUCTION: "Harfleri düzelt, kelimeyi bul ve görselleri isme göre sırala."
     ${worksheetCount} unique worksheets.`;
@@ -374,7 +372,7 @@ export const generateImageAnagramSortFromAI = async (options: GeneratorOptions):
 
 export const generateAnagramImageMatchFromAI = async (options: GeneratorOptions): Promise<AnagramImageMatchData[]> => {
     const { itemCount, topic, difficulty, worksheetCount } = options;
-    const prompt = `Create an anagram-image matching activity with theme '${topic}' for difficulty level "${difficulty}". Generate a word bank of ${itemCount} words. Then, create ${itemCount} puzzles. Each puzzle should have an image (provide **photorealistic, highly detailed** English image prompt, 8k, studio lighting), the correct word, and a version of the answer with some letters filled in as a clue. 
+    const prompt = `Create an anagram-image matching activity with theme '${topic}'. Generate ${itemCount} puzzles. Each puzzle should have an image (provide ${VISUAL_STYLE} 'imagePrompt'), the correct word, and a partial answer clue. 
     PEDAGOGICAL NOTE: "Kelime tanıma ve görsel eşleştirme."
     INSTRUCTION: "Resme bak, eksik harfleri tamamla ve doğru kelimeyi bul."
     ${worksheetCount} unique worksheets.`;
@@ -393,7 +391,7 @@ export const generateAnagramImageMatchFromAI = async (options: GeneratorOptions)
                     properties: {
                         imageDescription: { type: Type.STRING },
                         imagePrompt: { type: Type.STRING },
-                        partialAnswer: { type: Type.STRING, description: "e.g., A _ M _" },
+                        partialAnswer: { type: Type.STRING },
                         correctWord: { type: Type.STRING }
                     },
                     required: ["imageDescription", "imagePrompt", "partialAnswer", "correctWord"]
@@ -430,7 +428,7 @@ export const generateSyllableWordSearchFromAI = async (options: GeneratorOptions
 export const generateWordSearchWithPasswordFromAI = async (options: GeneratorOptions): Promise<WordSearchWithPasswordData[]> => {
     const { topic, itemCount, difficulty, worksheetCount, gridSize } = options;
     const prompt = `
-    '${topic}' konusunda, "${difficulty}" seviyesinde, ŞİFRELİ bir kelime bulmaca (Word Search with Password) oluştur.
+    '${topic}' konusunda, "${difficulty}" seviyesinde, ŞİFRELİ bir kelime bulmaca oluştur.
     1. Kelimeleri ızgaraya yerleştir.
     2. Izgaradaki belirli hücreleri (passwordCells) işaretle. Bu hücrelerdeki harfler birleşince bir ŞİFRE kelimesi oluşsun.
     PEDAGOGICAL NOTE: "Dikkat, görsel tarama ve şifre çözme."
@@ -453,7 +451,7 @@ export const generateWordSearchWithPasswordFromAI = async (options: GeneratorOpt
 export const generateLetterGridWordFindFromAI = async (options: GeneratorOptions): Promise<LetterGridWordFindData[]> => {
     const { topic, itemCount, difficulty, worksheetCount } = options;
     const prompt = `
-    '${topic}' konusunda bir Harf Izgarası Kelime Bulma (Letter Grid Word Find) etkinliği.
+    '${topic}' konusunda bir Harf Izgarası Kelime Bulma etkinliği.
     Tabloda kelimeler gizli. Ayrıca, bulunan kelimelerle ilgili bir yazı yazma promptu ver.
     PEDAGOGICAL NOTE: "Görsel tarama ve yaratıcı yazma."
     INSTRUCTION: "Tabloda gizlenmiş kelimeleri bul ve bu kelimelerle bir hikaye yaz."
@@ -474,7 +472,7 @@ export const generateLetterGridWordFindFromAI = async (options: GeneratorOptions
 
 export const generateWordPlacementPuzzleFromAI = async (options: GeneratorOptions): Promise<WordPlacementPuzzleData[]> => {
      const { itemCount, difficulty, worksheetCount } = options;
-     const prompt = `Create a Word Placement Puzzle (like Kriss Kross / Kelime Yerleştirme) for "${difficulty}". 
+     const prompt = `Create a Word Placement Puzzle (like Kriss Kross) for "${difficulty}". 
      Provide a list of words grouped by length. Provide a grid where they fit.
      PEDAGOGICAL NOTE: "Uzamsal zeka ve kelime uzunluğu farkındalığı."
      INSTRUCTION: "Kelimeleri harf sayısına göre kutulara yerleştir."
@@ -512,11 +510,11 @@ export const generatePositionalAnagramFromAI = async (options: GeneratorOptions)
 export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<ResfebeData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
     const prompt = `
-    "${difficulty}" seviyesinde ${itemCount} adet "Resfebe" bulmacası oluştur.
+    "${difficulty}" seviyesinde ${itemCount} adet "Resfebe" (Rebus) bulmacası oluştur.
     Her bulmaca için:
     1. Bir kelime belirle (answer).
     2. Bu kelimeyi anlatacak yaratıcı ipuçları (clues) tasarla.
-    3. Görsel ipuçları için **İngilizce**, fotoğraf gerçekliğinde (photorealistic), 8k çözünürlükte, sinematik ışıklandırmalı bir 'imagePrompt' oluştur.
+    3. Görsel ipuçları için ${VISUAL_STYLE} 'imagePrompt' oluştur.
     4. Metin ipuçları için harfleri veya ekleri kullan.
     PEDAGOGICAL NOTE: "Yaratıcı düşünme ve sembolik akıl yürütme."
     INSTRUCTION: "Harf ve görsellerden oluşan ipuçlarını birleştirerek kelimeyi bul."
@@ -562,3 +560,6 @@ export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<
 export const generateThematicWordSearchColorFromAI = async (options: GeneratorOptions) => generateWordSearchFromAI(options) as any as Promise<ThematicWordSearchColorData[]>;
 export const generatePunctuationSpiralPuzzleFromAI = async (options: GeneratorOptions) => generateSpiralPuzzleFromAI(options) as any as Promise<PunctuationSpiralPuzzleData[]>;
 export const generateThematicJumbledWordStoryFromAI = async (options: GeneratorOptions) => generateJumbledWordStoryFromAI(options) as any as Promise<ThematicJumbledWordStoryData[]>;
+export const generateAntonymResfebeFromAI = async (options: GeneratorOptions) => generateResfebeFromAI(options) as any as Promise<AntonymResfebeData[]>;
+export const generateSynonymSearchAndStoryFromAI = async (options: GeneratorOptions) => generateWordSearchFromAI(options) as any as Promise<SynonymSearchAndStoryData[]>;
+export const generateSynonymWordSearchFromAI = async (options: GeneratorOptions) => generateWordSearchFromAI(options) as any as Promise<SynonymWordSearchData[]>;
