@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -41,7 +42,7 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     JSON Çıktısı:
     - story: Hikaye metni (satır sonlarına \\n ekleyerek paragrafları ayır).
     - pedagogicalNote: "${PED_NOTE}"
-    - imagePrompt: Create an English image prompt for a high-quality, photorealistic image representing the story. Style: Cinematic lighting, highly detailed, 8k resolution, realistic texture, taken with a high-end camera. Do not use cartoon, vector, or illustration styles.
+    - imagePrompt: Create an English image prompt for a **standard realistic photograph** representing the story. Style: Clear, simple composition, realistic texture, normal lighting. Do not use cartoon, vector, or illustration styles.
     - mainIdea: 1 cümlelik ana fikir.
     - characters: Karakter listesi.
     - setting: Mekan.
@@ -86,7 +87,7 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Pr
     '${topic}' konusunda, "${difficulty}" seviyesinde, '${storyLength}' uzunluğunda bir hikaye yaz.
     Hikaye mantıksal bir akışa (neden-sonuç) sahip olsun.
     
-    Görsel İsteği: Hikayenin ana sahnesini anlatan, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), sinematik ışıklandırmalı ve yüksek detaylı, 8k çözünürlükte bir 'imagePrompt' oluştur. Asla çizim veya vektör stili kullanma.
+    Görsel İsteği: Hikayenin ana sahnesini anlatan, **İngilizce**, **standart gerçekçi fotoğraf** kalitesinde (standard realistic photograph), net ve basit bir 'imagePrompt' oluştur.
     
     Analiz Soruları (4 Adet):
     1. Tema: Hikayenin vermek istediği mesaj.
@@ -128,7 +129,7 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
     '${topic}' konusunda yaratıcı yazma etkinliği.
     ${keywordCount} adet, birbiriyle ilişkili (semantik bağlamı olan) anahtar kelime seç.
     Öğrenciye ilham verecek kısa bir "Hikaye Başlatıcı" (Prompt) yaz.
-    Görsel: Hikayenin geçtiği dünyayı betimleyen, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek çözünürlüklü, sinematik ışıklandırmalı ve detaylı bir 'imagePrompt' (realistic, highly detailed, cinematic 8k).
+    Görsel: Hikayenin geçtiği dünyayı betimleyen, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında bir 'imagePrompt'.
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {
@@ -149,7 +150,7 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
 export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda kısa bir hikaye yaz. Hikayenin temasına uygun, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), sinematik, 8k çözünürlükte ve yüksek kaliteli bir 'imagePrompt' oluştur.
+    '${topic}' konusunda kısa bir hikaye yaz. Hikayenin temasına uygun, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında bir 'imagePrompt' oluştur.
     Hikaye içinde geçen, öğrencinin kelime dağarcığına katabileceği ${difficulty === 'Başlangıç' ? '3' : '5'} kelimeyi seç.
     Bu kelimelerin anlamını pekiştirecek sorular sor (Örn: Cümle içinde kullan, zıt anlamlısını bul).
     ${worksheetCount} adet üret.
@@ -185,8 +186,7 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
     const prompt = `
     '${topic}' konusunda 4 aşamalı mantıksal bir olay örgüsü oluştur (Giriş -> Olay -> Doruk -> Sonuç).
     Panelleri karışık sırada ver.
-    Her panel için sahneyi anlatan, **son derece detaylı, gerçekçi ve sinematik** bir İngilizce 'imagePrompt' oluştur. Resimler fotoğraf kalitesinde (photorealistic), canlı renklere sahip, stüdyo ışığında çekilmiş gibi ve yüksek çözünürlüklü (8k) olmalı. Asla çizgi film veya vektör tarzı isteme.
-    (Örnek Prompt Stili: "A photorealistic image of a cat knocking over a glass of milk in a sunlit kitchen, cinematic lighting, 8k resolution, highly detailed textures, shot on 35mm lens.")
+    Her panel için sahneyi anlatan, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) kalitesinde bir 'imagePrompt' oluştur. Asla çizgi film veya vektör tarzı isteme. Net ve anlaşılır olsun.
     ${worksheetCount} adet üret.
     `;
     const singleSchema = {
@@ -275,7 +275,7 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
     "${difficulty}" seviyesine uygun ${itemCount} atasözü seç.
     Öğrenci için anlaması en kritik olan kelimeyi boşluk bırak ('start' ve 'end' olarak böl).
     Seçilen atasözlerinin genel bir temasını (örn: Tasarruf, Dostluk) 'meaning' alanında açıkla.
-    Ayrıca atasözlerinin genel temasını anlatan, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), detaylı, sinematik ışıklandırmalı, 8k çözünürlükte ve sanatsal bir 'imagePrompt' oluştur.
+    Ayrıca atasözlerinin genel temasını anlatan, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında bir 'imagePrompt' oluştur.
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {

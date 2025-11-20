@@ -5,8 +5,9 @@ export const generateWithSchema = async (prompt: string, schema: any) => {
         // Yapay zekanın her seferinde farklı çıktı üretmesini sağlamak için benzersiz bir bağlam ekliyoruz.
         const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
         
-        // Enhanced system instruction to ensure variety and visual consistency
-        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Yaratıcı ol ve her seferinde tamamen benzersiz, çeşitlendirilmiş bir içerik üret. Random Seed: ${uniqueSeed}.\n2. GÖRSEL TUTARLILIĞI: Ürettiğin tüm 'imagePrompt' alanları, ilgili nesne, kelime veya sahne açıklamasıyla (text/description) BİREBİR uyumlu olmalıdır. Asla metinle çelişen bir görsel istemi oluşturma.\n3. GÖRSEL KALİTESİ: Tüm 'imagePrompt'lar 'photorealistic, 8k resolution, cinematic lighting, highly detailed, realistic texture' özelliklerini içermelidir. Basit çizim veya vektör stili kullanma.]`;
+        // Optimization: Reduced verbosity and complexity of the system instruction for quota friendliness.
+        // Changed visual style instruction to "Standard realistic photo" instead of "8k cinematic".
+        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Benzersiz ol. Random Seed: ${uniqueSeed}.\n2. GÖRSEL TUTARLILIĞI: 'imagePrompt' alanları, metinle BİREBİR uyumlu olmalıdır.\n3. GÖRSEL KALİTESİ: Tüm 'imagePrompt'lar 'standard realistic photograph, clear, simple composition' özelliklerini içermelidir. Basit çizim veya vektör stili kullanma. Aşırı detaylı (8k, sinematik) istemler yazma, sadece net bir fotoğraf iste.]`;
 
         const response = await fetch('/api/generate', {
             method: 'POST',
