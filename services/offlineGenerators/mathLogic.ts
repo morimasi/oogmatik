@@ -206,23 +206,12 @@ export const generateOfflineSudoku6x6Shaded = async (options: GeneratorOptions):
     }));
 }
 
-export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptions): Promise<RomanNumeralConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Romen Rakamlı)', prompt: 'Aynı Romen rakamlarını yolları kesişmeyecek şekilde birleştirin.', puzzles: [] });
-}
 export const generateOfflineRomanNumeralStarHunt = async (options: GeneratorOptions): Promise<RomanNumeralStarHuntData[]> => {
      return Array(options.worksheetCount).fill({ title: 'Yıldız Avı (Romen Rakamlı)', prompt: 'Romen rakamlarını ipucu olarak kullanarak yıldızları bulun.', grid: [[]], starCount: 0 });
 }
-export const generateOfflineRoundingConnect = async (options: GeneratorOptions): Promise<RoundingConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlamaca (Yuvarlama)', prompt: 'Aynı değere yuvarlanan sayıları birbirine bağlayın.', example: '', numbers: [] });
-}
+
 export const generateOfflineRomanNumeralMultiplication = async (options: GeneratorOptions): Promise<RomanNumeralMultiplicationData[]> => {
      return Array(options.worksheetCount).fill({ title: 'İşlem Karesi (Romen Rakamlı)', prompt: 'Çarpma işlemi yaparak işlem karesindeki boşlukları doldurun.', puzzles: [] });
-}
-export const generateOfflineArithmeticConnect = async (options: GeneratorOptions): Promise<ArithmeticConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlamaca (İşlemler)', prompt: 'Aynı sonucu veren işlemleri birbirine bağlayın.', example: '', expressions: [] });
-}
-export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Romen Rakamı)', prompt: 'Romen rakamlarını normal sayılarla eşleştirin.', gridDim: 6, points: [] });
 }
 
 export const generateOfflineKendoku = async (options: GeneratorOptions): Promise<KendokuData[]> => {
@@ -403,16 +392,12 @@ export const generateOfflineShapeSudoku = async (options: GeneratorOptions): Pro
         }
     });
 }
-export const generateOfflineWeightConnect = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Ağırlık)', prompt: 'Birbirine eşit olan ağırlıkları çizgilerle birleştirin.', gridDim: 6, points: [] });
-}
+
 export const generateOfflineFutoshikiLength = async (options: GeneratorOptions): Promise<FutoshikiLengthData[]> => {
      const res = await generateOfflineFutoshiki(options);
      return res.map(r => ({...r, title: 'Futoşiki (Uzunluk)'})) as any;
 }
-export const generateOfflineLengthConnect = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Uzunluk)', prompt: 'Birbirine eşit olan uzunluk ölçülerini birleştirin.', gridDim: 6, points: [] });
-}
+
 export const generateOfflineVisualNumberPattern = async (options: GeneratorOptions): Promise<VisualNumberPatternData[]> => {
      return Array(options.worksheetCount).fill({ title: 'Görsel Sayı Örüntüsü', prompt: 'Görsel dizideki kuralı bulup eksik sayıyı tamamlayın.', puzzles: [] });
 }
@@ -565,3 +550,10 @@ export const generateOfflineShapeNumberPattern = async (options: GeneratorOption
         })
     }))
 };
+
+export const generateOfflineRoundingConnect = async (options: GeneratorOptions): Promise<RoundingConnectData[]> => {
+     return Array(options.worksheetCount).fill({ title: 'ABC Bağlamaca (Yuvarlama)', prompt: 'Aynı değere yuvarlanan sayıları birbirine bağlayın.', example: '', numbers: [] });
+}
+export const generateOfflineArithmeticConnect = async (options: GeneratorOptions): Promise<ArithmeticConnectData[]> => {
+     return Array(options.worksheetCount).fill({ title: 'ABC Bağlamaca (İşlemler)', prompt: 'Aynı sonucu veren işlemleri birbirine bağlayın.', example: '', expressions: [] });
+}

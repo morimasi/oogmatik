@@ -1,5 +1,70 @@
-import { GeneratorOptions, FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData } from '../../types';
+
+import React from 'react';
+import { 
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData
+} from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS } from './helpers';
+
+// --- PRE-DEFINED OFFLINE ASSETS ---
+
+const dotArtShapes: Record<string, { dots: { cx: number; cy: number }[]; name: string; }> = {
+    'heart': {
+        name: 'Kalp',
+        dots: [
+            { cx: 50, cy: 90 }, { cx: 40, cy: 80 }, { cx: 60, cy: 80 }, { cx: 30, cy: 70 }, { cx: 70, cy: 70 },
+            { cx: 20, cy: 60 }, { cx: 80, cy: 60 }, { cx: 20, cy: 50 }, { cx: 80, cy: 50 }, { cx: 30, cy: 40 },
+            { cx: 70, cy: 40 }, { cx: 40, cy: 30 }, { cx: 60, cy: 30 }, { cx: 50, cy: 40 }
+        ]
+    },
+    'house': {
+        name: 'Ev',
+        dots: [
+            { cx: 20, cy: 80 }, { cx: 30, cy: 80 }, { cx: 40, cy: 80 }, { cx: 50, cy: 80 }, { cx: 60, cy: 80 }, { cx: 70, cy: 80 }, { cx: 80, cy: 80 },
+            { cx: 20, cy: 70 }, { cx: 80, cy: 70 }, { cx: 20, cy: 60 }, { cx: 80, cy: 60 }, { cx: 20, cy: 50 }, { cx: 80, cy: 50 },
+            { cx: 50, cy: 20 }, { cx: 40, cy: 30 }, { cx: 60, cy: 30 }, { cx: 30, cy: 40 }, { cx: 70, cy: 40 },
+            { cx: 40, cy: 60 }, { cx: 50, cy: 60 }, { cx: 60, cy: 60 }, // window
+        ]
+    },
+    'star': {
+        name: 'Yıldız',
+        dots: [
+            { cx: 50, cy: 10 }, { cx: 60, cy: 40 }, { cx: 90, cy: 40 }, { cx: 65, cy: 60 },
+            { cx: 75, cy: 90 }, { cx: 50, cy: 70 }, { cx: 25, cy: 90 }, { cx: 35, cy: 60 },
+            { cx: 10, cy: 40 }, { cx: 40, cy: 40 }
+        ]
+    }
+};
+
+const matchstickPatterns = [
+    { name: 'House', lines: [{x1:1, y1:3, x2:3, y2:1}, {x1:3, y1:1, x2:5, y2:3}, {x1:1, y1:3, x2:1, y2:5}, {x1:1,y1:5, x2:5, y2:5}] },
+    { name: 'Boat', lines: [{x1:0, y1:4, x2:6, y2:4}, {x1:1, y1:4, x2:2, y2:3}, {x1:5,y1:4, x2:4, y2:3}, {x1:2,y1:3, x2:4, y2:3}] },
+    { name: 'Fish', lines: [{x1:1, y1:3, x2:3, y2:1}, {x1:1, y1:3, x2:3, y2:5}, {x1:3,y1:1, x2:3,y2:5}] }
+];
+
+const punctuationSentences = [
+    { text: 'Okula gittim', correctMark: '.' }, { text: 'Nereye gidiyorsun', correctMark: '?' },
+    { text: 'Eyvah, geç kaldım', correctMark: '!' }, { text: 'Kedi, köpek ve kuş besliyorum', correctMark: '.' },
+    { text: 'Bugün hava nasıl', correctMark: '?' }, { text: 'Harika bir gün', correctMark: '!' },
+    { text: 'Annem pazardan elma, armut, muz aldı', correctMark: '.'}, { text: 'Bu araba kimin', correctMark: '?'},
+    { text: 'İmdat, yardım edin', correctMark: '!'}
+];
+
+const shapeCountingFigures = {
+    easy: {
+        svgPaths: [ {d: "M 10 90 L 50 10 L 90 90 Z", fill: 'lightblue'}, {d: "M 30 90 L 50 50 L 70 90 Z", fill: 'lightgreen'} ],
+        correctCount: 2
+    },
+    medium: {
+        svgPaths: [ { d: "M 50 10 L 90 80 L 10 80 Z", fill: '#eee' }, { d: "M 50 10 L 70 45 L 30 45 Z", fill: 'gold' }, { d: "M 30 45 L 50 80 L 10 80 Z", fill: 'gold' }, { d: "M 70 45 L 90 80 L 50 80 Z", fill: 'gold' } ],
+        correctCount: 5 // 4 small + 1 big
+    },
+    hard: {
+        svgPaths: [ { d: "M 50 5 L 61 40 L 98 40 L 68 62 L 79 96 L 50 75 L 21 96 L 32 62 L 2 40 L 39 40 Z", fill: 'lightblue' }, { d: "M 50 75 L 32 62 L 68 62 Z", fill: 'rgba(0,0,0,0.1)'}, { d: "M 39 40 L 50 5 L 61 40 Z", fill: 'rgba(0,0,0,0.1)'} ],
+        correctCount: 10 // A standard 5-point star has 10 triangles
+    }
+};
+
+// --- GENERATOR FUNCTIONS ---
 
 const generateRandomPattern = (dim: number, density: number): number[][][] => {
     const lines: number[][][] = [];
@@ -294,17 +359,22 @@ export const generateOfflineFindDifferentString = async (options: GeneratorOptio
 export const generateOfflineDotPainting = async (options: GeneratorOptions): Promise<DotPaintingData[]> => {
     const { worksheetCount } = options;
     const results: DotPaintingData[] = [];
-    for(let i=0; i<worksheetCount; i++) {
+    for (let i = 0; i < worksheetCount; i++) {
+        const shapeKey = getRandomItems(Object.keys(dotArtShapes), 1)[0];
+        const shape = dotArtShapes[shapeKey];
+        const color = getRandomItems(COLORS, 1)[0].css;
+        const shapeDots = shape.dots.map(d => ({ ...d, color }));
+
         results.push({
             title: 'Nokta Boyama',
-            instruction: "Verilen koordinatlardaki noktaları boyayarak gizli resmi ortaya çıkar.",
-            pedagogicalNote: "İnce motor becerileri ve koordinat sistemi mantığını geliştirir.",
-            prompt1: 'Koordinatları takip et.',
-            prompt2: 'Gizli Şekil: Kare',
+            instruction: "Verilen renkteki noktaları boyayarak gizli resmi ortaya çıkar.",
+            pedagogicalNote: "İnce motor becerileri ve görsel bütünleme.",
+            prompt1: 'Sadece renkli noktaları takip et.',
+            prompt2: `Gizli Şekil: ${shape.name}`,
             svgViewBox: '0 0 100 100',
-            gridPaths: [],
-            dots: [{cx: 30, cy: 30, color: 'red'}, {cx: 70, cy: 30, color: 'red'}, {cx: 70, cy: 70, color: 'red'}, {cx: 30, cy: 70, color: 'red'}],
-            hiddenImageName: 'Kare'
+            gridPaths: [], // For offline, we rely on the visual SVG grid in the component
+            dots: shapeDots,
+            hiddenImageName: shape.name
         });
     }
     return results;
@@ -361,6 +431,25 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
     return results;
 };
 
+export const generateOfflineWordConnect = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
+    const { worksheetCount, difficulty, itemCount } = options;
+    return Array.from({length: worksheetCount}, () => {
+        const pairs = getRandomItems(TR_VOCAB.synonyms, Math.floor((itemCount || 8)/2));
+        const gridDim = 10;
+        const points = pairs.flatMap((p, i) => ([
+            {word: p.word, pairId: i, x: getRandomInt(0,3), y: getRandomInt(0, gridDim-1), color: COLORS[i % COLORS.length].css},
+            {word: p.synonym, pairId: i, x: getRandomInt(gridDim-4, gridDim-1), y: getRandomInt(0, gridDim-1), color: COLORS[i % COLORS.length].css}
+        ]));
+        return {
+            title: 'Kelime Bağlama',
+            instruction: 'Anlamca ilişkili kelimeleri eşleştir.',
+            pedagogicalNote: 'Semantik ilişkilendirme ve kelime dağarcığı.',
+            gridDim: gridDim,
+            points: shuffle(points)
+        }
+    })
+};
+
 export const generateOfflineProfessionConnect = async (options: GeneratorOptions): Promise<ProfessionConnectData[]> => {
     const {itemCount, worksheetCount} = options;
     const results: ProfessionConnectData[] = [];
@@ -382,117 +471,163 @@ export const generateOfflineProfessionConnect = async (options: GeneratorOptions
 }
 
 export const generateOfflineMatchstickSymmetry = async (options: GeneratorOptions): Promise<MatchstickSymmetryData[]> => {
-     const { worksheetCount } = options;
-     const results: MatchstickSymmetryData[] = [];
-     for(let i=0; i<worksheetCount; i++) {
-         results.push({
-             title: 'Kibrit Simetrisi',
-             instruction: "Verilen şeklin simetriğini çizin.",
-             pedagogicalNote: "Görsel kopyalama ve simetri.",
-             puzzles: [{
-                 id: 1, 
-                 axis: 'vertical',
-                 lines: [{x1:1, y1:1, x2:2, y2:1, color: 'black'}, {x1:2, y1:1, x2:2, y2:2, color: 'black'}]
-             }]
-         });
-     }
-     return results;
-}
-
-export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOptions): Promise<VisualOddOneOutThemedData[]> => {
-    const {itemCount, worksheetCount, theme} = options;
-    const results: VisualOddOneOutThemedData[] = [];
-    for(let i=0; i<worksheetCount; i++){
-        const rows = Array.from({length: itemCount}).map(() => {
-            return {
-                theme: theme || 'Karışık',
-                items: [
-                    {description: 'Kedi', isOdd: false},
-                    {description: 'Köpek', isOdd: false},
-                    {description: 'Araba', isOdd: true},
-                    {description: 'Kuş', isOdd: false}
-                ]
-            }
-        });
-        results.push({ 
-            title: 'Tematik Farklı Olanı Bul', 
-            instruction: "Gruba uymayan resmi bul.",
-            pedagogicalNote: "Kategorizasyon ve mantıksal çıkarım.",
-            rows
+    const { worksheetCount } = options;
+    const results: MatchstickSymmetryData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const pattern = getRandomItems(matchstickPatterns, 1)[0];
+        results.push({
+            title: 'Kibrit Simetrisi',
+            instruction: "Verilen şeklin simetriğini çizin.",
+            pedagogicalNote: "Görsel kopyalama ve simetri.",
+            puzzles: [{
+                id: 1,
+                axis: 'vertical',
+                lines: pattern.lines.map(l => ({ ...l, color: 'black' }))
+            }]
         });
     }
     return results;
 }
 
+export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOptions): Promise<VisualOddOneOutThemedData[]> => {
+    const { itemCount, worksheetCount, theme } = options;
+    const results: VisualOddOneOutThemedData[] = [];
+    const validCategories = ['animals', 'fruits_veggies', 'jobs', 'vehicles'];
+
+    for (let i = 0; i < worksheetCount; i++) {
+        // FIX: Replaced .map().filter() with a for loop to handle potential nulls and satisfy TypeScript's type checker.
+        const rows: VisualOddOneOutThemedData['rows'] = [];
+        for (let j = 0; j < (itemCount || 5); j++) {
+            const mainCatKey = theme && validCategories.includes(theme.toLowerCase()) ? theme.toLowerCase() : getRandomItems(validCategories, 1)[0];
+            const oddCatKey = getRandomItems(validCategories.filter(c => c !== mainCatKey), 1)[0];
+
+            const vocab = TR_VOCAB as any;
+            const mainItems: string[] = getRandomItems(vocab[mainCatKey] || [], 3);
+            const oddItem: string | undefined = getRandomItems(vocab[oddCatKey] || [], 1)[0];
+
+            if (!oddItem || mainItems.length < 3) {
+                j--; // Retry this iteration if data is insufficient.
+                continue;
+            }
+
+            const items = shuffle([
+                ...mainItems.map(desc => ({ description: desc, isOdd: false })),
+                { description: oddItem, isOdd: true }
+            ]);
+
+            rows.push({ theme: mainCatKey, items });
+        }
+        
+        results.push({
+            title: 'Tematik Farklı Olanı Bul',
+            instruction: "Her grupta, konuyla ilgisiz olanı bulun.",
+            pedagogicalNote: "Kategorizasyon ve mantıksal çıkarım.",
+            rows
+        });
+    }
+    return results;
+};
+
 export const generateOfflinePunctuationColoring = async (options: GeneratorOptions): Promise<PunctuationColoringData[]> => {
-    return Array.from({length: options.worksheetCount}, () => ({
-        title: 'Noktalama Boyama',
-        instruction: "Cümlenin sonuna gelecek işarete göre kutuyu boya.",
-        pedagogicalNote: "Dilbilgisi kurallarını görselleştirme.",
-        sentences: shuffle([
-            {text: 'Eve geldim', color: 'red', correctMark: '.'},
-            {text: 'Nasılsın', color: 'blue', correctMark: '?'},
-            {text: 'Yaşasın', color: 'green', correctMark: '!'},
-            {text: 'Pazardan elma, armut, muz aldım', color: 'orange', correctMark: '.'},
-        ])
-    }));
+    return Array.from({ length: options.worksheetCount }, () => {
+        const sentences = getRandomItems(punctuationSentences, 4).map((s, i) => ({
+            ...s,
+            color: COLORS[i % COLORS.length].css
+        }));
+        return {
+            title: 'Noktalama Boyama',
+            instruction: "Cümlenin sonuna gelecek işarete göre kutuyu boya.",
+            pedagogicalNote: "Dilbilgisi kurallarını görselleştirme.",
+            sentences
+        };
+    });
 }
 
 export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOptions): Promise<SynonymAntonymColoringData[]> => {
-     const {worksheetCount} = options;
-     return Array(worksheetCount).fill({
-         title: 'Eş/Zıt Anlamlı Boyama',
-         instruction: "Kelimelerin ilişkisine göre (eş/zıt) boyama yap.",
-         pedagogicalNote: "Kelime anlamı ilişkilerini pekiştirme.",
-         colorKey: [
-             {text: `Siyah kelimesinin zıt anlamlısı`, color: 'blue'},
-             {text: `Okul kelimesinin eş anlamlısı`, color: 'red'},
-         ],
-         wordsOnImage: [{word: 'beyaz', x: 50, y: 30}, {word: 'mektep', x:50, y:70}]
-     });
+    const { worksheetCount } = options;
+    const results: SynonymAntonymColoringData[] = [];
+    for(let i=0; i < worksheetCount; i++) {
+        const synonymPair = getRandomItems(TR_VOCAB.synonyms, 1)[0];
+        const antonymPair = getRandomItems(TR_VOCAB.antonyms, 1)[0];
+        const color1 = getRandomItems(COLORS, 1)[0].css;
+        const color2 = getRandomItems(COLORS.filter(c => c.css !== color1), 1)[0].css;
+
+        const colorKey = [
+            { text: `"${synonymPair.word}" kelimesinin eş anlamlısı`, color: color1 },
+            { text: `"${antonymPair.word}" kelimesinin zıt anlamlısı`, color: color2 },
+        ];
+
+        const wordsOnImage = shuffle([
+            { word: synonymPair.synonym, x: 20, y: 30 },
+            { word: antonymPair.antonym, x: 70, y: 60 },
+            { word: getRandomItems(getWordsForDifficulty('Başlangıç'), 1)[0], x: 40, y: 80 },
+            { word: getRandomItems(getWordsForDifficulty('Başlangıç'), 1)[0], x: 60, y: 10 }
+        ]);
+
+        results.push({
+            title: 'Eş/Zıt Anlamlı Boyama',
+            instruction: "Kelimelerin ilişkisine göre (eş/zıt) boyama yap.",
+            pedagogicalNote: "Kelime anlamı ilişkilerini pekiştirme.",
+            colorKey,
+            wordsOnImage
+        });
+    }
+    return results;
 }
 
 export const generateOfflineStarHunt = async (options: GeneratorOptions): Promise<StarHuntData[]> => {
-     return Array.from({length: options.worksheetCount}, () => ({ 
-         title: 'Yıldız Avı', 
-         instruction: "Her satır, sütun ve bölgede 1 yıldız olacak şekilde yerleştir.",
-         pedagogicalNote: "Mantıksal çıkarım ve kısıtlama yönetimi.",
-         grid: Array.from({length: 4}, () => Array(4).fill(null)), 
-         targetCount: 1 
-     }));
+    const { worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        // A simple, guaranteed valid but predictable pattern. Then we shuffle rows/cols.
+        const baseGrid: (ShapeType | 'star' | 'question' | null)[][] = [
+            ['star', null, null, null],
+            [null, null, 'star', null],
+            [null, 'star', null, null],
+            [null, null, null, 'star'],
+        ];
+        const finalGrid = shuffle(baseGrid); // Shuffle rows for variety
+
+        return {
+            title: 'Yıldız Avı',
+            instruction: "Her satır ve sütunda 1 yıldız olacak şekilde yerleştirin. Yıldızlar birbirine değmemelidir.",
+            pedagogicalNote: "Mantıksal çıkarım ve kısıtlama yönetimi (Constraint Satisfaction).",
+            grid: finalGrid,
+            targetCount: 1
+        };
+    });
 }
 
-export const generateOfflineWordConnect = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
-    const { worksheetCount, difficulty, itemCount } = options;
-    return Array.from({length: worksheetCount}, () => {
-        const pairs = getRandomItems(TR_VOCAB.synonyms, Math.floor((itemCount || 8)/2));
-        const gridDim = 10;
-        const points = pairs.flatMap((p, i) => ([
-            {word: p.word, pairId: i, x: getRandomInt(0,3), y: getRandomInt(0, gridDim-1), color: COLORS[i % COLORS.length].css},
-            {word: p.synonym, pairId: i, x: getRandomInt(gridDim-4, gridDim-1), y: getRandomInt(0, gridDim-1), color: COLORS[i % COLORS.length].css}
-        ]));
+export const generateOfflineShapeCounting = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
+    const { worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        let figure;
+        if (difficulty === 'Başlangıç') figure = shapeCountingFigures.easy;
+        else if (difficulty === 'Orta') figure = shapeCountingFigures.medium;
+        else figure = shapeCountingFigures.hard;
+
         return {
-            title: 'Kelime Bağlama',
-            instruction: 'Anlamca ilişkili kelimeleri eşleştir.',
-            pedagogicalNote: 'Semantik ilişkilendirme ve kelime dağarcığı.',
-            gridDim: gridDim,
-            points: shuffle(points)
-        }
-    })
+            title: 'Üçgen Sayma',
+            instruction: "Şeklin içinde kaç tane üçgen olduğunu sayın.",
+            pedagogicalNote: "Görsel ayrıştırma, parça-bütün ilişkisi ve sistematik sayma becerisi.",
+            figures: [{
+                svgPaths: figure.svgPaths_triforce || figure.svgPaths,
+                targetShape: 'triangle',
+                correctCount: figure.correctCount_triforce || figure.correctCount
+            }]
+        };
+    });
 };
 
-export const generateOfflineShapeCounting = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
-    return Array.from({length: options.worksheetCount}, () => ({
-        title: 'Üçgen Sayma',
-        instruction: "Şeklin içinde kaç tane üçgen olduğunu sayın.",
-        pedagogicalNote: "Görsel ayrıştırma ve parça-bütün ilişkisi.",
-        figures: [{
-            svgPaths: [ // A simple star shape which contains multiple triangles
-                { d: "M 50 5 L 61 40 L 98 40 L 68 62 L 79 96 L 50 75 L 21 96 L 32 62 L 2 40 L 39 40 Z", fill: 'lightblue' },
-                { d: "M 50 5 L 68 62 L 32 62 Z", fill: 'rgba(0,0,0,0.1)'} // Example inner triangle
-            ],
-            targetShape: 'triangle',
-            correctCount: 10 // A standard 5-point star has 10 triangles
-        }]
-    }));
-};
+// Also export other connect types that use the AbcConnect sheet, but are defined in this category
+export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptions): Promise<RomanNumeralConnectData[]> => {
+     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Romen Rakamlı)', prompt: 'Aynı Romen rakamlarını yolları kesişmeyecek şekilde birleştirin.', puzzles: [] });
+}
+export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
+     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Romen Rakamı)', prompt: 'Romen rakamlarını normal sayılarla eşleştirin.', gridDim: 6, points: [] });
+}
+export const generateOfflineWeightConnect = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
+     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Ağırlık)', prompt: 'Birbirine eşit olan ağırlıkları çizgilerle birleştirin.', gridDim: 6, points: [] });
+}
+export const generateOfflineLengthConnect = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
+     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Uzunluk)', prompt: 'Birbirine eşit olan uzunluk ölçülerini birleştirin.', gridDim: 6, points: [] });
+}
