@@ -1,3 +1,4 @@
+
 import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES } from './helpers';
 
@@ -663,7 +664,8 @@ export const generateOfflineThematicOddOneOut = async (options: GeneratorOptions
         title: `Tematik Farkı Bul (${topic || 'Rastgele'})`,
         prompt: "Her satırda temaya uymayan kelimeyi bul.",
         theme: topic || 'Genel',
-        rows: res[0].groups.map(g => ({words: g.words, oddWord: ''})),
+        // FIX: Map string[] to ThematicOddOneOutWord[]
+        rows: res[0].groups.map(g => ({words: g.words.map(w => ({ text: w })), oddWord: ''})),
         sentencePrompt: 'Farklı kelimelerle birer cümle kur.'
     }];
 };

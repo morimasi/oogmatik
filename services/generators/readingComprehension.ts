@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -148,7 +149,7 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
 export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda kısa bir hikaye yaz.
+    '${topic}' konusunda kısa bir hikaye yaz. Hikayenin temasına uygun bir **İngilizce** 'imagePrompt' oluştur.
     Hikaye içinde geçen, öğrencinin kelime dağarcığına katabileceği ${difficulty === 'Başlangıç' ? '3' : '5'} kelimeyi seç.
     Bu kelimelerin anlamını pekiştirecek sorular sor (Örn: Cümle içinde kullan, zıt anlamlısını bul).
     ${worksheetCount} adet üret.
@@ -159,6 +160,7 @@ export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Pro
       title: { type: Type.STRING },
       story: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
+      imagePrompt: { type: Type.STRING },
       questions: {
         type: Type.ARRAY,
         items: {
@@ -171,7 +173,7 @@ export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Pro
         }
       }
     },
-    required: ['title', 'story', 'questions', 'pedagogicalNote']
+    required: ['title', 'story', 'questions', 'pedagogicalNote', 'imagePrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<WordsInStoryData[]>;
@@ -272,6 +274,7 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
     "${difficulty}" seviyesine uygun ${itemCount} atasözü seç.
     Öğrenci için anlaması en kritik olan kelimeyi boşluk bırak ('start' ve 'end' olarak böl).
     Seçilen atasözlerinin genel bir temasını (örn: Tasarruf, Dostluk) 'meaning' alanında açıkla.
+    Ayrıca atasözlerinin genel temasını anlatan bir **İngilizce** 'imagePrompt' oluştur.
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {
@@ -279,6 +282,7 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
     properties: {
       title: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
+      imagePrompt: { type: Type.STRING },
       proverbs: {
         type: Type.ARRAY,
         items: {
@@ -294,7 +298,7 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
       meaning: { type: Type.STRING },
       usagePrompt: { type: Type.STRING }
     },
-    required: ['title', 'proverbs', 'meaning', 'usagePrompt', 'pedagogicalNote']
+    required: ['title', 'proverbs', 'meaning', 'usagePrompt', 'pedagogicalNote', 'imagePrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<ProverbFillData[]>;

@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -123,7 +124,9 @@ export const generateSpellingCheckFromAI = async (options: GeneratorOptions): Pr
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun, Türkçede sıkça yanlış yazılan ${itemCount} kelime bul.
     ZORLUK KRİTERİ: ${difficultyInstruction}
-    Her kelime için, doğru yazılışını ve 2 tane yaygın yapılan yanlış varyasyonunu içeren 3 seçenekli bir liste oluştur.
+    Her kelime için:
+    1. Doğru yazılışını ve 2 tane yaygın yapılan yanlış varyasyonunu içeren 3 seçenekli bir liste oluştur.
+    2. Doğru kelimeyi görselleştiren, basit ve anlaşılır, "children's book illustration" tarzında bir **İngilizce** 'imagePrompt' oluştur.
     
     PEDAGOGICAL NOTE: "Görsel sözcük belleği (ortografik farkındalık) ve dikkat."
     INSTRUCTION: "Seçeneklerden yazımı doğru olan kelimeyi bul ve işaretle."
@@ -144,8 +147,9 @@ export const generateSpellingCheckFromAI = async (options: GeneratorOptions): Pr
                     properties: {
                         correct: { type: Type.STRING, description: 'The correctly spelled word.' },
                         options: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'Array of 3 options, including the correct one.' },
+                        imagePrompt: { type: Type.STRING, description: 'An English prompt for generating an image for the correct word.' }
                     },
-                    required: ['correct', 'options']
+                    required: ['correct', 'options', 'imagePrompt']
                 },
             },
         },
@@ -337,7 +341,46 @@ export const generateReverseWordFromAI = async (options: GeneratorOptions): Prom
     return generateWithSchema(prompt, schema) as Promise<ReverseWordData[]>;
 };
 
-export const generateWordGroupingFromAI = async (options: any) => [] as any;
+export const generateWordGroupingFromAI = async (options: GeneratorOptions): Promise<WordGroupingData[]> => {
+    const {itemCount, difficulty, worksheetCount, categoryCount, topic} = options;
+    const prompt = `
+    '${topic}' temalı ve "${difficulty}" seviyesinde bir "Kelime Gruplama" etkinliği oluştur.
+    ${categoryCount} tane anlamlı kategori oluştur.
+    Her kategori için ${Math.floor(itemCount / categoryCount)} tane kelime bul.
+    Her kelime için bir 'text' (kelimenin kendisi) ve onu görselleştiren basit, "cute icon style" bir **İngilizce** 'imagePrompt' oluştur.
+    Kullanıcı, resimli kelimeleri doğru kategorilere sürükleyip bırakacak.
+
+    PEDAGOGICAL NOTE: "Semantik kategorizasyon, kavramsal düşünme ve görsel ilişkilendirme."
+    INSTRUCTION: "Her bir kelimeyi/resmi anlamına uygun olan kategori kutusuna yerleştir."
+
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                words: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            text: { type: Type.STRING },
+                            imagePrompt: { type: Type.STRING }
+                        },
+                        required: ['text', 'imagePrompt']
+                    }
+                },
+                categoryNames: { type: Type.ARRAY, items: { type: Type.STRING } }
+            },
+            required: ['title', 'words', 'categoryNames', 'instruction', 'pedagogicalNote']
+        }
+    };
+    return generateWithSchema(prompt, schema) as Promise<WordGroupingData[]>;
+};
 export const generateMiniWordGridFromAI = async (options: any) => [] as any;
 export const generatePasswordFinderFromAI = async (options: any) => [] as any;
 

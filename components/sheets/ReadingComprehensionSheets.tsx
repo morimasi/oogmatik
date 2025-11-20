@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { 
     StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData,
@@ -148,7 +149,13 @@ export const WordsInStorySheet: React.FC<{ data: WordsInStoryData }> = ({ data }
         <ReadingRuler />
         <PedagogicalHeader title={data.title} instruction="Hikayeyi oku ve altı çizili kelimelere dikkat et." note={data.pedagogicalNote} />
         
-        <div className="bg-white dark:bg-zinc-700/30 p-8 rounded-xl shadow-inner border border-zinc-100 dark:border-zinc-700 mb-8">
+        {data.imageBase64 && (
+             <div className="float-right w-1/3 ml-6 mb-4">
+                <ImageDisplay base64={data.imageBase64} description="Hikaye görseli" className="w-full h-auto object-cover rounded-lg shadow-md" />
+            </div>
+        )}
+
+        <div className="bg-white dark:bg-zinc-700/30 p-8 rounded-xl shadow-inner border border-zinc-100 dark:border-zinc-700 mb-8 clear-right">
             <p className="text-lg md:text-xl leading-loose tracking-wide whitespace-pre-line font-medium">
                 {data.story}
             </p>
@@ -215,6 +222,8 @@ export const ProverbFillSheet: React.FC<{ data: ProverbFillData }> = ({ data }) 
     <div>
         <PedagogicalHeader title={data.title} instruction="Atasözlerindeki eksik kelimeleri tamamla." note={data.pedagogicalNote} />
         
+        {data.imageBase64 && <div className="max-w-md mx-auto mb-8"><ImageDisplay base64={data.imageBase64} description={data.meaning} className="w-full h-auto rounded-xl shadow-md"/></div>}
+
         <div className="bg-white dark:bg-zinc-700/30 p-6 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 mb-8 max-w-3xl mx-auto">
             <div className="space-y-6">
                 {(data.proverbs || []).map((proverb, index) => (

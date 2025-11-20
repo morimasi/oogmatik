@@ -1,4 +1,5 @@
-import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData } from '../../types';
+
+import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, WordMemoryItem } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS } from './helpers';
 
 
@@ -32,8 +33,10 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
             pedagogicalNote: "Kısa süreli işitsel-sözel bellek kapasitesini ölçer.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
-            wordsToMemorize: allWords.slice(0, memorizeCount),
-            testWords: shuffle(allWords)
+            // FIX: Convert string[] to WordMemoryItem[]
+            wordsToMemorize: allWords.slice(0, memorizeCount).map(word => ({ text: word })),
+            // FIX: Convert string[] to WordMemoryItem[]
+            testWords: shuffle(allWords).map(word => ({ text: word }))
         });
     }
     return results;
@@ -45,14 +48,19 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
     const results: VisualMemoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
-        const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => `${getRandomItems(getWordsForDifficulty('Başlangıç'), 1)[0]} ${emoji}`);
+        // FIX: Convert string[] to VisualMemoryItem[]
+        const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => ({
+            description: `${getRandomItems(getWordsForDifficulty('Başlangıç'), 1)[0]} ${emoji}`
+        }));
         results.push({
             title: 'Görsel Hafıza (Hızlı Mod)',
             instruction: "Görselleri dikkatlice incele. Sayfayı çevirince sadece gördüklerini bul.",
             pedagogicalNote: "Görsel tanıma belleği ve detaylara dikkat becerisini geliştirir.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
+            // FIX: Type is now correct
             itemsToMemorize: allItems.slice(0, memorizeCount),
+            // FIX: Type is now correct
             testItems: shuffle(allItems)
         });
     }

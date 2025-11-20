@@ -1,3 +1,4 @@
+
 import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, JumbledWordStoryData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout } from './helpers';
 import { PROVERBS } from '../../data/sentences';
@@ -216,7 +217,8 @@ export const generateOfflineWordGrouping = async (options: GeneratorOptions): Pr
             title: 'Kelime Gruplama', 
             instruction: "Kelimeleri anlamlarına göre doğru kutulara yerleştir.",
             pedagogicalNote: "Semantik kategorizasyon ve kavramsal düşünme.",
-            words: shuffle(words), 
+            // FIX: Convert string[] to WordGroupItem[]
+            words: shuffle(words).map(word => ({ text: word })), 
             categoryNames: selectedCats.map(c => c === 'animals' ? 'Hayvanlar' : c === 'jobs' ? 'Meslekler' : c === 'vehicles' ? 'Araçlar' : 'Meyve/Sebze') 
         });
     }

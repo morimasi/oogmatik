@@ -13,7 +13,8 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
                 {(data.wordsToMemorize || []).map((word, index) => (
                     <div key={index} className="p-6 bg-amber-100 dark:bg-amber-800/50 border-2 border-amber-300 rounded-xl text-center shadow-md">
-                        <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{word}</p>
+                        {/* FIX: word is an object, render its 'text' property */}
+                        <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{word.text}</p>
                     </div>
                 ))}
             </div>
@@ -30,7 +31,8 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
                 {(data.testWords || []).map((word, index) => (
                     <div key={index} className="flex items-center bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm">
                         <div className="w-6 h-6 border-2 border-zinc-400 rounded-md mr-3 shrink-0"></div>
-                        <label className="text-lg">{word}</label>
+                        {/* FIX: word is an object, render its 'text' property */}
+                        <label className="text-lg">{word.text}</label>
                     </div>
                 ))}
             </div>
@@ -45,8 +47,10 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-w-xl mx-auto">
                 {(data.itemsToMemorize || []).map((item, index) => (
                     <div key={index} className="p-4 bg-white dark:bg-zinc-800 border-2 border-indigo-200 rounded-xl text-center flex flex-col items-center justify-center aspect-square shadow-md">
-                        <p className="text-5xl mb-2">{item.split(' ').pop()}</p>
-                        <p className="text-xs font-semibold text-zinc-500 uppercase">{item.split(' ').slice(0, -1).join(' ')}</p>
+                        {/* FIX: item is an object, use its 'description' property before splitting */}
+                        <p className="text-5xl mb-2">{item.description.split(' ').pop()}</p>
+                        {/* FIX: item is an object, use its 'description' property before splitting */}
+                        <p className="text-xs font-semibold text-zinc-500 uppercase">{item.description.split(' ').slice(0, -1).join(' ')}</p>
                     </div>
                 ))}
             </div>
@@ -61,8 +65,10 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
                 {(data.testItems || []).map((item, index) => (
                     <div key={index} className="flex flex-col items-center justify-center text-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg border cursor-pointer hover:bg-zinc-50" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                         <div className="w-6 h-6 border-2 border-zinc-400 rounded-full mb-3 shrink-0"></div>
-                        <p className="text-4xl">{item.split(' ').pop()}</p>
-                        <label className="text-xs mt-1 font-medium">{item.split(' ').slice(0, -1).join(' ')}</label>
+                        {/* FIX: item is an object, use its 'description' property before splitting */}
+                        <p className="text-4xl">{item.description.split(' ').pop()}</p>
+                        {/* FIX: item is an object, use its 'description' property before splitting */}
+                        <label className="text-xs mt-1 font-medium">{item.description.split(' ').slice(0, -1).join(' ')}</label>
                     </div>
                 ))}
             </div>

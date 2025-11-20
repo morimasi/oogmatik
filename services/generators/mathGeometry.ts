@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -9,9 +10,9 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
   
   let rangeDesc = numberRange || "1-10";
   if (!numberRange) {
-      if (difficulty === 'Orta') rangeDesc = "1-50";
-      else if (difficulty === 'Zor') rangeDesc = "1-100";
-      else if (difficulty === 'Uzman') rangeDesc = "1-1000";
+      if (difficulty === 'Orta') rangeDesc = "1-20";
+      else if (difficulty === 'Zor') rangeDesc = "1-50";
+      else if (difficulty === 'Uzman') rangeDesc = "1-100";
   }
 
   let opsDesc = "toplama ve çıkarma (+, -)";
@@ -29,7 +30,12 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
     SAYI ARALIĞI: ${rangeDesc}
     İŞLEMLER: ${opsDesc}
     KARMAŞIKLIK: ${complexity}
-    Bulmacalar nesneler veya meyveler kullanarak (örn: '2 elma + 3 muz = ?') hazırlanmalı.
+    
+    Her bulmaca için:
+    1. 2-3 adet nesne tanımla (örn: 'elma', 'muz').
+    2. Her nesne için bir sayısal değer ve onu temsil eden basit, sevimli, "children's book illustration" tarzında bir **İngilizce** 'imagePrompt' üret.
+    3. Bu nesneleri kullanarak metin tabanlı bir problem ('problem') oluştur (örn: 'elma + muz = ?').
+    
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
@@ -42,11 +48,22 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
         items: {
           type: Type.OBJECT,
           properties: {
-            problem: { type: Type.STRING, description: 'The math problem with objects, e.g., "🍎 + 🍌 = 12"' },
-            question: { type: Type.STRING, description: 'The question to be solved, e.g., "What is the value of 🍌?"' },
+            problem: { type: Type.STRING, description: 'The math problem with object names, e.g., "elma + muz = 12"' },
+            question: { type: Type.STRING, description: 'The question to be solved, e.g., "Muzun değeri kaçtır?"' },
             answer: { type: Type.STRING, description: 'The numerical answer.' },
+            objects: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        name: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING }
+                    },
+                    required: ['name', 'imagePrompt']
+                }
+            }
           },
-          required: ['problem', 'question', 'answer']
+          required: ['problem', 'question', 'answer', 'objects']
         },
       },
     },

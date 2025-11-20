@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -88,7 +89,7 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
 
 export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions): Promise<ThematicOddOneOutData[]> => {
     const { topic, difficulty, worksheetCount, itemCount } = options;
-    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficulty}". Generate ${itemCount} rows of words. In each row, one word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficulty}". Generate ${itemCount} rows. In each row, provide 4 words as objects with text and an imagePrompt. One word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -100,7 +101,17 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        words: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        words: { 
+                            type: Type.ARRAY, 
+                            items: { 
+                                type: Type.OBJECT,
+                                properties: {
+                                    text: { type: Type.STRING },
+                                    imagePrompt: { type: Type.STRING }
+                                },
+                                required: ["text", "imagePrompt"]
+                            } 
+                        },
                         oddWord: { type: Type.STRING }
                     },
                     required: ["words", "oddWord"]
@@ -295,7 +306,7 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
 
 export const generateWeightConnectFromAI = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
     const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid with labels like '1kg' and '1000g'. The user connects equivalent weights. Provide pairIds for matching. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1kg', '1000g'), an English imagePrompt for a visual representation (e.g., 'a 1kg bag of flour', 'a 1000g container of sugar'), a pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -310,9 +321,10 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
                         label: { type: Type.STRING },
                         pairId: { type: Type.INTEGER },
                         x: { type: Type.NUMBER },
-                        y: { type: Type.NUMBER }
+                        y: { type: Type.NUMBER },
+                        imagePrompt: { type: Type.STRING }
                     },
-                    required: ["label", "pairId", "x", "y"]
+                    required: ["label", "pairId", "x", "y", "imagePrompt"]
                 }
             }
         },
@@ -361,7 +373,7 @@ export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<
 
 export const generateLengthConnectFromAI = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
     const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid with labels like '1m' and '100cm'. The user connects equivalent lengths. Provide pairIds for matching. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1m', '100cm'), an English imagePrompt for a visual representation (e.g., 'a 1 meter tall door', 'a 100cm ruler'), a pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -376,9 +388,10 @@ export const generateLengthConnectFromAI = async (options: GeneratorOptions): Pr
                         label: { type: Type.STRING },
                         pairId: { type: Type.INTEGER },
                         x: { type: Type.NUMBER },
-                        y: { type: Type.NUMBER }
+                        y: { type: Type.NUMBER },
+                        imagePrompt: { type: Type.STRING }
                     },
-                    required: ["label", "pairId", "x", "y"]
+                    required: ["label", "pairId", "x", "y", "imagePrompt"]
                 }
             }
         },

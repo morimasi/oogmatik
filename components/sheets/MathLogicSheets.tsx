@@ -14,10 +14,20 @@ export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) =>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                    <p className="font-semibold text-lg text-center mb-3">{puzzle.problem}</p>
+                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border flex flex-col" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
+                    {(puzzle.objects && puzzle.objects.length > 0) && (
+                        <div className="flex justify-center gap-4 mb-4 border-b pb-2">
+                            {(puzzle.objects || []).map(obj => (
+                                <div key={obj.name} className="flex flex-col items-center text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                                    <ImageDisplay base64={obj.imageBase64} description={obj.name} className="w-12 h-12" />
+                                    <span>{obj.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <p className="font-semibold text-2xl text-center mb-3 flex-grow">{puzzle.problem}</p>
                     <p className="text-sm text-center text-zinc-500 dark:text-zinc-400 mb-4">{puzzle.question}</p>
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center mt-auto">
                         <span className="font-bold text-lg">Cevap:</span>
                         <div className="w-24 h-10 ml-2 border-b-2 border-dotted border-zinc-500"></div>
                     </div>
@@ -223,7 +233,27 @@ export const OddOneOutSheet: React.FC<{ data: OddOneOutData }> = ({ data }) => (
 );
 export const ShapeNumberPatternSheet = createSimpleMathSheet('Şekilli Sayı Örüntüsü');
 export const ShapeCountingSheet = createSimpleMathSheet('Şekil Sayma');
-export const ThematicOddOneOutSheet = createSimpleMathSheet('Tematik Farkı Bul');
+export const ThematicOddOneOutSheet: React.FC<{ data: ThematicOddOneOutData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
+        <div className="space-y-6">
+            {data.rows.map((row, i) => (
+                <div key={i} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200">
+                    {/* FIX: row does not have theme property, use data.theme */}
+                    <h4 className="text-sm font-bold text-indigo-500 mb-3 text-center uppercase tracking-wider">{data.theme}</h4>
+                    <div className="grid grid-cols-4 gap-4">
+                        {row.words.map((word, j) => (
+                            <div key={j} className="flex flex-col items-center gap-2 p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer">
+                                <ImageDisplay base64={word.imageBase64} description={word.text} className="w-24 h-24" />
+                                <span className="font-semibold">{word.text}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
 export const ThematicOddOneOutSentenceSheet = createSimpleMathSheet('Tematik Cümle');
 export const ColumnOddOneOutSentenceSheet = createSimpleMathSheet('Sütun Farkı Cümle');
 export const PunctuationMazeSheet = createSimpleMathSheet('Noktalama Labirenti');

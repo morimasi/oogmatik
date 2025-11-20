@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -22,16 +23,24 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
 
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir kelime hafıza testi oluştur.
-    Ezberlenecek ${memorizeCount} kelime seç.
+    Ezberlenecek ${memorizeCount} kelime seç. Her kelime için bir de basit, sevimli, "children's book illustration" tarzında **İngilizce** 'imagePrompt' üret.
     ${difficulty === 'Başlangıç' ? 'Kelimeler kısa (3-4 harf) ve somut olsun.' : difficulty === 'Uzman' ? 'Kelimeler aynı kategoriden ve birbirine yakın olsun (örn: Pırasa, Ispanak, Pazı) - bu ayırt etmeyi zorlaştırır.' : 'Kelimeler orta zorlukta olsun.'}
-    Test için ${testCount} kelimelik bir liste oluştur. Bu listenin içinde ezberlenecek kelimeler de bulunsun.
+    Test için ${testCount} kelimelik bir liste oluştur. Bu listenin içinde ezberlenecek kelimeler de bulunsun. Test listesi için de 'imagePrompt' üret.
     
-    INSTRUCTION: "İlk sayfadaki kelimeleri dikkatlice oku ve ezberle. Sayfayı çevir ve aklında kalanları işaretle."
-    PEDAGOGICAL NOTE: ${NOTES.memory}
+    INSTRUCTION: "İlk sayfadaki kelimeleri ve resimleri dikkatlice incele ve ezberle. Sayfayı çevir ve aklında kalanları işaretle."
+    PEDAGOGICAL NOTE: ${NOTES.memory} + " Görsel ve sözel bellek entegrasyonu."
     
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
+    const itemSchema = {
+        type: Type.OBJECT,
+        properties: {
+            text: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }
+        },
+        required: ['text', 'imagePrompt']
+    };
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -40,8 +49,8 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
             pedagogicalNote: { type: Type.STRING },
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
-            wordsToMemorize: { type: Type.ARRAY, items: { type: Type.STRING } },
-            testWords: { type: Type.ARRAY, items: { type: Type.STRING } }
+            wordsToMemorize: { type: Type.ARRAY, items: itemSchema },
+            testWords: { type: Type.ARRAY, items: itemSchema }
         },
         required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords']
     };
@@ -55,8 +64,8 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
   const testCount = itemCount;
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir görsel hafıza testi oluştur.
-    Ezberlenecek ${memorizeCount} tane nesne belirle (örn: "Kırmızı Araba 🚗"). İsmini ve emojisini ver.
-    Test için ${testCount} tane nesneden oluşan bir liste oluştur. Bu listenin içinde ezberlenecek nesneler de bulunsun.
+    Ezberlenecek ${memorizeCount} tane nesne belirle. Her nesne için bir 'description' (Türkçe açıklama) ve bir "children's book illustration" tarzında **İngilizce** 'imagePrompt' üret.
+    Test için ${testCount} tane nesneden oluşan bir liste oluştur (hem 'description' hem 'imagePrompt' içermeli). Bu listenin içinde ezberlenecek nesneler de bulunsun.
     ${difficulty === 'Zor' || difficulty === 'Uzman' ? 'Nesneler birbirine çok benzesin (örn: Kırmızı Elma, Yeşil Elma, Yarım Elma).' : 'Nesneler birbirinden tamamen farklı olsun.'}
     
     INSTRUCTION: "Görsellere dikkatlice bak. Arka sayfada sadece gördüklerini bul."
@@ -64,6 +73,14 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
 
     Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
   `;
+  const itemSchema = {
+      type: Type.OBJECT,
+      properties: {
+          description: { type: Type.STRING },
+          imagePrompt: { type: Type.STRING }
+      },
+      required: ['description', 'imagePrompt']
+  };
   const singleSchema = {
     type: Type.OBJECT,
     properties: {
@@ -72,8 +89,8 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
       pedagogicalNote: { type: Type.STRING },
       memorizeTitle: { type: Type.STRING },
       testTitle: { type: Type.STRING },
-      itemsToMemorize: { type: Type.ARRAY, items: { type: Type.STRING } },
-      testItems: { type: Type.ARRAY, items: { type: Type.STRING } }
+      itemsToMemorize: { type: Type.ARRAY, items: itemSchema },
+      testItems: { type: Type.ARRAY, items: itemSchema }
     },
     required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems']
   };
@@ -245,9 +262,9 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
 
 export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create a color wheel memory game with ${itemCount} items, appropriate for difficulty level "${difficulty}". Each item must have a name (e.g., "Kitap 📕") and a unique hex color code. 
-    INSTRUCTION: "Renk çarkındaki nesnelerin yerlerini ezberle."
-    PEDAGOGICAL NOTE: "Görsel-mekansal hafıza."
+    const prompt = `Create a color wheel memory game with ${itemCount} items, appropriate for difficulty level "${difficulty}". Each item must have a name (e.g., "Kitap"), a unique hex color code, and a simple, cute English imagePrompt for the item. 
+    INSTRUCTION: "Renk çarkındaki nesnelerin yerlerini, renklerini ve resimlerini ezberle."
+    PEDAGOGICAL NOTE: "Görsel-mekansal hafıza ve nesne-renk ilişkilendirme."
     
     Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
     const singleSchema = {
@@ -264,9 +281,10 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
                     type: Type.OBJECT,
                     properties: {
                         name: { type: Type.STRING },
-                        color: { type: Type.STRING }
+                        color: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING }
                     },
-                    required: ["name", "color"]
+                    required: ["name", "color", "imagePrompt"]
                 }
             }
         },
