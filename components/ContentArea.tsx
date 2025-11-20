@@ -49,7 +49,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {currentView === 'generator' ? (
         <>
             {activityType && worksheetData && (
-                <div className="mb-6 fade-in">
+                <div className="mb-6 fade-in print:hidden">
                     <Toolbar settings={styleSettings} onSettingsChange={onStyleChange} onSave={handleSave} />
                 </div>
             )}
