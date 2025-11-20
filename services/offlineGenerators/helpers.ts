@@ -43,7 +43,9 @@ export const SYLLABLE_EMOJIS: Record<string, string> = {
     'DİŞ': '🦷', 'GÖZ': '👁️', 'KOL': '💪', 'MUZ': '🍌', 'NAR': '🍅', 'ZİL': '🔔', 'TOP': '⚽',
     'ÇAY': '🍵', 'EK': '🌱', 'BAŞ': '🤯', 'KUŞ': '🐦', 'YOL': '🛣️', 'DAĞ': '🏔️', 'KEL': '👨‍🦲',
     'SAÇ': '💇', 'HAP': '💊', 'PİL': '🔋', 'BOT': '👢', 'CEP': '👖', 'ÇAM': '🌲', 'CAN': '👻',
-    'FİL': '🐘', 'KOÇ': '🐏', 'KAZ': '🦢', 'KURT': '🐺', 'AR': '🐝', 'SAL': '🛶', 'ŞAL': '🧣'
+    'FİL': '🐘', 'KOÇ': '🐏', 'KAZ': '🦢', 'KURT': '🐺', 'AR': '🐝', 'SAL': '🛶', 'ŞAL': '🧣',
+    'DAL': '🌿', 'KAS': '💪', 'YAY': '🏹', 'KÜP': '🧊', 'NAL': '🧲', 'MAÇ': '🏟️', 'SAZ': '🌾',
+    'YEM': '🌽', 'SÜT': '🥛', 'TUZ': '🧂', 'YAĞ': '🧈', 'KAN': '🩸', 'TER': '💧', 'KİL': '🧱'
 };
 
 
@@ -299,11 +301,19 @@ export const generateCrosswordLayout = (words: string[]) => {
 
 // --- Syllabification Helper ---
 export const simpleSyllabify = (word: string): string[] => {
+    // Basic Turkish syllabification attempt (heuristic)
+    if (word.length <= 2) return [word];
+    
     const vowels = 'aeıioöuü';
     const syllables: string[] = [];
     let current = '';
     
-    // Simple Hyphenation workaround
+    // Heuristic: Split after vowels if not followed by 2 consonants
+    // This is very basic. For offline reliability, we can use a simpler chunking.
+    // Or just 3-char chunks max.
+    
+    // Better approach for offline Resfebe: Try to match known keys in SYLLABLE_EMOJIS
+    
     return word.length > 4 ? [word.substring(0, 2), word.substring(2)] : [word];
 };
 
@@ -321,7 +331,7 @@ export const wordToRebus = (word: string): { type: 'text' | 'image'; value: stri
         
         for (const key of keys) {
             if (remaining.startsWith(key)) {
-                parts.push({ type: 'image', value: `${SYLLABLE_EMOJIS[key]} (${key})` }); // Showing hint text for offline mode
+                parts.push({ type: 'image', value: `${SYLLABLE_EMOJIS[key]} (${key})` }); // Showing hint text for offline mode simplicity
                 remaining = remaining.slice(key.length);
                 matched = true;
                 break;
@@ -329,6 +339,7 @@ export const wordToRebus = (word: string): { type: 'text' | 'image'; value: stri
         }
         
         if (!matched) {
+            // If no match, just take the first letter as text
             parts.push({ type: 'text', value: remaining[0] });
             remaining = remaining.slice(1);
         }
