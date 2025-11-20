@@ -68,8 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         } else { // Fast mode
             const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
             if (offlineGenerator) {
-                // Pass the full options object to the offline generator
-                result = await offlineGenerator(options as any);
+                result = await offlineGenerator(options);
             } else {
                  throw new Error(`Hızlı mod için "${getActivityById(selectedActivity)?.title}" (${offlineGeneratorFunctionName}) etkinliği henüz desteklenmiyor.`);
             }
@@ -90,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-zinc-100 shadow-lg transition-transform duration-300 ease-in-out dark:bg-zinc-900 md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
+      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm shadow-lg transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
       aria-label="Etkinlik Menüsü"
@@ -130,14 +129,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     <i className={`fa-solid fa-chevron-down text-sm text-zinc-400 transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (
-                                    <ul className="mt-1 space-y-1 bg-white dark:bg-zinc-800 rounded-lg p-2 mx-2 shadow-sm border border-zinc-200/50 dark:border-zinc-700/50">
+                                    <ul className="mt-1 space-y-1 dark:bg-zinc-800 rounded-lg p-2 mx-2 shadow-sm border border-zinc-200/50 dark:border-zinc-700/50">
                                         {ACTIVITIES.filter(act => category.activities.includes(act.id)).map(activity => (
                                             <li key={`${activity.id}-${activity.title}`}>
                                                 <button
                                                     onClick={() => {
                                                         onSelectActivity(activity.id);
+                                                        closeSidebar();
                                                     }}
-                                                    className="w-full text-left px-3 py-2 text-sm rounded-md text-zinc-600 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md text-zinc-600 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${selectedActivity === activity.id ? 'sidebar-activity-item-active' : ''}`}
                                                 >
                                                     <i className={`${activity.icon} fa-fw mr-2 text-zinc-400 dark:text-zinc-500`}></i>
                                                     {activity.title}

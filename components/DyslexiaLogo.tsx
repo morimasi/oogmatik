@@ -1,15 +1,36 @@
-
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useRef, useState, useEffect } from 'react';
 
 const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
   const text = "Bursa Disleksi";
+  const textRef = useRef<SVGTextElement>(null);
+  const [letterData, setLetterData] = useState<{ char: string; x: number; y: number }[]>([]);
+
+  // Effect to measure character positions on mount
+  useEffect(() => {
+    // Check if the ref is ready and we haven't already calculated positions
+    if (textRef.current && letterData.length === 0) {
+      const positions = [];
+      const textEl = textRef.current;
+
+      for (let i = 0; i < text.length; i++) {
+        const startPos = textEl.getStartPositionOfChar(i);
+        const endPos = textEl.getEndPositionOfChar(i);
+        positions.push({
+          char: text[i],
+          x: (startPos.x + endPos.x) / 2, // Calculate the horizontal center of the character
+          y: startPos.y, // Y position is consistent across the line
+        });
+      }
+      setLetterData(positions);
+    }
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   return (
     <svg 
       viewBox="0 0 360 50" 
       xmlns="http://www.w3.org/2000/svg" 
       className={`${className} group cursor-default`}
-      style={{ perspective: '800px' }} // 3D derinlik etkisi için
+      style={{ perspective: '800px' }}
     >
       <style>
         {`
@@ -32,50 +53,63 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
           }
 
           .logo-letter {
-            transform-box: fill-box; /* Harfin kendi merkezinde dönmesi için kritik */
-            transform-origin: center;
-            display: inline-block; /* Transformların çalışması için */
-            
             animation-name: mixedFlip;
             animation-iteration-count: infinite;
             animation-timing-function: ease-in-out;
+            /* For <text> elements with text-anchor="middle", the transform origin
+               is implicitly the element's x,y coordinate, which we've set to the center. */
           }
         `}
       </style>
+      
+      {/* 1. Hidden text for measurement. It's rendered once, measured, then we render the real letters. */}
       <text
+        ref={textRef}
         x="50%"
         y="50%"
         dominantBaseline="middle"
         textAnchor="middle"
         fontSize="32"
         fontWeight="bold"
-        className="fill-zinc-800 dark:fill-zinc-100"
         fontFamily="OpenDyslexic, sans-serif"
+        visibility="hidden"
+        aria-hidden="true"
       >
-        {text.split('').map((char, index) => {
+        {text}
+      </text>
+
+      {/* 2. Visible, individually animated letters. Wrapped in a <g> to fade in after measurement. */}
+      <g style={{ opacity: letterData.length > 0 ? 1 : 0, transition: 'opacity 0.3s' }}>
+        {letterData.map(({ char, x, y }, index) => {
           if (char === ' ') {
-            return <tspan key={index} dx="10"> </tspan>;
+            return null; // Skip rendering spaces
           }
+          
+          const isVowel = 'aeıioöuü'.includes(char.toLowerCase());
 
-          // Her harf için rastgele süre ve gecikme oluşturuyoruz
-          // Süre: 5s ile 10s arasında (yavaş ve sakin döngü, disleksi dostu)
-          const duration = 5 + Math.random() * 5; 
-          // Gecikme: -5s ile 0s arasında (animasyonun ortasından başlamış gibi görünmesi için negatif delay)
-          // Bu sayede sayfa açıldığında hepsi aynı anda başlamaz, karışık görünür.
-          const delay = -(Math.random() * 5);
-
-          const style: CSSProperties = {
-            animationDuration: `${duration}s`,
-            animationDelay: `${delay}s`,
-          };
+          const style: CSSProperties = isVowel ? {
+            animationDuration: `${6 + Math.random() * 6}s`,
+            animationDelay: `-${Math.random() * 5}s`,
+          } : {};
 
           return (
-            <tspan key={index} style={style} className="logo-letter">
+            <text
+              key={index}
+              x={x}
+              y={y}
+              dominantBaseline="middle"
+              textAnchor="middle" // Anchor the text at its calculated center (x)
+              fontSize="32"
+              fontWeight="bold"
+              className={`fill-zinc-800 dark:fill-zinc-100 ${isVowel ? 'logo-letter' : ''}`}
+              fontFamily="OpenDyslexic, sans-serif"
+              style={style}
+            >
               {char}
-            </tspan>
+            </text>
           );
         })}
-      </text>
+      </g>
     </svg>
   );
 };
