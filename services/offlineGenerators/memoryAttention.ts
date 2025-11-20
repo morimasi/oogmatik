@@ -1,7 +1,16 @@
-
 import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, WordMemoryItem } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
+const offlineCharacters = [
+    { description: "Mutlu Palyaço 🤡" },
+    { description: "Cesur Astronot 🧑‍🚀" },
+    { description: "Kızgın Korsan 🏴‍☠️" },
+    { description: "Akıllı Bilim İnsanı 🧑‍🔬" },
+    { description: "Güçlü İnşaat İşçisi 👷" },
+    { description: "Şarkıcı Popstar 🎤" },
+    { description: "Yorgun Zombi 🧟" },
+    { description: "Gizemli Ninja 🥷" }
+];
 
 export const generateOfflineWordMemory = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
     const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
@@ -48,19 +57,18 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
     const results: VisualMemoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
-        // FIX: Convert string[] to VisualMemoryItem[]
-        const allItems = getRandomItems(EMOJIS, itemCount).map(emoji => ({
-            description: `${getRandomItems(getWordsForDifficulty('Başlangıç'), 1)[0]} ${emoji}`
+        const allEmojis = getRandomItems(Object.keys(EMOJI_MAP), itemCount);
+        const allItems = allEmojis.map(emoji => ({
+            description: `${EMOJI_MAP[emoji]} ${emoji}`
         }));
+        
         results.push({
             title: 'Görsel Hafıza (Hızlı Mod)',
             instruction: "Görselleri dikkatlice incele. Sayfayı çevirince sadece gördüklerini bul.",
             pedagogicalNote: "Görsel tanıma belleği ve detaylara dikkat becerisini geliştirir.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
-            // FIX: Type is now correct
             itemsToMemorize: allItems.slice(0, memorizeCount),
-            // FIX: Type is now correct
             testItems: shuffle(allItems)
         });
     }
@@ -267,8 +275,9 @@ export const generateOfflineColorWheelMemory = async (options: GeneratorOptions)
     const {itemCount, worksheetCount} = options;
     const results: ColorWheelMemoryData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const items = getRandomItems(EMOJIS, itemCount).map((emoji, index) => ({
-            name: `${getRandomItems(getWordsForDifficulty('Başlangıç'), 1)[0]} ${emoji}`,
+        const emojis = getRandomItems(Object.keys(EMOJI_MAP), itemCount);
+        const items = emojis.map((emoji, index) => ({
+            name: EMOJI_MAP[emoji],
             color: COLORS[index % COLORS.length].css
         }));
         results.push({
@@ -323,17 +332,11 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     const results: CharacterMemoryData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
-        const allItems = getRandomItems(EMOJIS, itemCount).map((emoji: string) => {
-            const vocab = TR_VOCAB as any;
-            const adjectives = (vocab.adjectives || []) as string[];
-            const jobs = (vocab.jobs || []) as string[];
-            const adjective: string = getRandomItems(adjectives, 1)[0] || '';
-            const job: string = getRandomItems(jobs, 1)[0] || '';
-            return { description: `${adjective} ${job} ${emoji}`.trim() };
-        });
+        const allItems = getRandomItems(offlineCharacters, itemCount);
+        
         results.push({
             title: 'Karakter Hafıza (Hızlı Mod)',
-            instruction: "Karakterlerin özelliklerini (sıfatlarını) ezberle.",
+            instruction: "Karakterleri ve özelliklerini ezberle.",
             pedagogicalNote: "Sıfat-isim tamlamalarıyla ilişkilendirilmiş hafıza çalışması.",
             memorizeTitle: 'Karakterleri Ezberle',
             testTitle: 'Doğru Karakterleri İşaretle',

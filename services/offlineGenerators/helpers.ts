@@ -1,13 +1,12 @@
-
 import { ShapeType } from '../../types';
-import { TR_VOCAB } from '../../data/vocabulary';
+import { TR_VOCAB, EMOJI_MAP } from '../../data/vocabulary';
 
 // FIX: Export TR_VOCAB so other modules can import it from this file.
-export { TR_VOCAB };
+export { TR_VOCAB, EMOJI_MAP };
 
 export const turkishAlphabet = 'abcçdefgğhıijklmnoöprsştuüvyz';
 export const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
-export const EMOJIS = TR_VOCAB.emojis;
+export const EMOJIS = Object.keys(EMOJI_MAP);
 export const COLORS = TR_VOCAB.colors_detailed;
 export const HOMONYMS = TR_VOCAB.homonyms;
 
@@ -179,7 +178,6 @@ export const getWordsForDifficulty = (difficulty: string, topic?: string): strin
             k !== 'synonyms' && 
             k !== 'antonyms' && 
             k !== 'confusing_words' &&
-            k !== 'emojis' &&
             k !== 'homonyms'
          );
          allKeys.forEach(key => {

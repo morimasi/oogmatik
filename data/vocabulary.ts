@@ -1,6 +1,16 @@
 // Genişletilmiş Dev Kelime Havuzu
 // Disleksi dostu kategoriler ve zorluk seviyeleri
 
+export const EMOJI_MAP: Record<string, string> = {
+    "🍎": "Elma", "🚗": "Araba", "🏠": "Ev", "⭐": "Yıldız", "🎈": "Balon", "📚": "Kitap", "⚽": "Top", "☀️": "Güneş",
+    "🌙": "Ay", "🌲": "Ağaç", "🌺": "Çiçek", "🎁": "Hediye", "⏰": "Saat", "🔑": "Anahtar", "🚲": "Bisiklet", "🎸": "Gitar",
+    "👓": "Gözlük", "☂️": "Şemsiye", "🍦": "Dondurma", "🍕": "Pizza", "🍔": "Hamburger", "🍟": "Patates", "🐱": "Kedi",
+    "🐶": "Köpek", "🦁": "Aslan", "🐯": "Kaplan", "🚀": "Roket", "🚁": "Helikopter", "🚢": "Gemi", "🚌": "Otobüs",
+    "🚑": "Ambulans", "🚒": "İtfaiye", "🚓": "Polis", "🚕": "Taksi", "👑": "Taç", "💎": "Elmas", "💍": "Yüzük",
+    "🎓": "Kep", "🧢": "Şapka", "👟": "Ayakkabı", "🦋": "Kelebek", "🐞": "Uğur Böceği", "🐝": "Arı", "🐌": "Salyangoz",
+    "🐢": "Kaplumbağa", "🦕": "Dinozor", "🦖": "T-Rex", "🐙": "Ahtapot", "🐠": "Balık", "🐬": "Yunus"
+};
+
 export const TR_VOCAB = {
   // --- TEMEL KATEGORİLER ---
   animals: [
@@ -302,8 +312,6 @@ export const TR_VOCAB = {
     { word: "pozitif", antonym: "negatif" }, { word: "soyut", antonym: "somut" }, { word: "genel", antonym: "özel" },
     { word: "teorik", antonym: "pratik" }, { word: "nesnel", antonym: "öznel" }, { word: "gerçek", antonym: "hayal" }
   ],
-
-  emojis: ["🍎", "🚗", "🏠", "⭐", "🎈", "📚", "⚽", "☀️", "🌙", "🌲", "🌺", "🎁", "⏰", "🔑", "🚲", "🎸", "👓", "☂️", "🍦", "🍕", "🍔", "🍟", "🐱", "🐶", "🦁", "🐯", "🚀", "🚁", "🚢", "🚌", "🚑", "🚒", "🚓", "🚕", "👑", "💎", "💍", "🎓", "🧢", "👟", "🦋", "🐞", "🐝", "🐌", "🐢", "🦕", "🦖", "🐙", "🐠", "🐬"],
 
   colors_detailed: [
       { name: 'KIRMIZI', css: 'red' }, { name: 'MAVİ', css: 'blue' }, { name: 'YEŞİL', css: 'green' }, { name: 'SARI', css: 'yellow' },
