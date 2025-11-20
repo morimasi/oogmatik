@@ -94,26 +94,37 @@
       margin: 0;
       padding: 0;
     }
+    
     .worksheet-page {
       page-break-after: always;
       page-break-inside: avoid;
       break-inside: avoid;
+      overflow: visible !important;
+      box-shadow: none !important;
+      border: none !important;
+      padding: 0 !important;
     }
     .worksheet-page:last-child {
       page-break-after: auto;
     }
 
+    .zoom-wrapper {
+      transform: none !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+
     /* Watermark */
-    .page::before {
+    .printable-area::after {
       content: 'Bursa Disleksi';
-      position: absolute;
+      position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(-45deg);
       font-size: 100px;
       font-weight: bold;
       color: rgba(0, 0, 0, 0.08);
-      z-index: 0;
+      z-index: -1;
       pointer-events: none;
     }
   }

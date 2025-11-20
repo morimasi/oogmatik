@@ -192,7 +192,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             <div className="page-grid" style={gridStyles}>
             {data.map((singleData, index) => (
                 <div key={index} className={pageClasses} style={{padding: `var(--worksheet-margin)`, overflow: 'hidden'}}>
-                     <div style={{
+                     <div className="zoom-wrapper" style={{
                         transform: `scale(${scale})`,
                         transformOrigin: 'top left',
                         width: `${100 * inverseScale}%`,
