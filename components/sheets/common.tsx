@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType } from '../../types';
+import { EMOJI_MAP } from '../../data/vocabulary';
 
 export const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string }> = ({ title, instruction, note }) => (
     <div className="mb-6 text-center print:mb-4">
@@ -93,14 +94,33 @@ export const ImageDisplay: React.FC<{ base64?: string; description?: string; cla
         return <img src={`data:image/png;base64,${base64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-zinc-100 dark:bg-zinc-700 shadow-sm`} />;
     }
     
+    // Smart Fallback with Emojis
+    let emojiIcon = null;
+    if (description) {
+        const lowerDesc = description.toLowerCase();
+        // Find an emoji key whose mapping value is inside the description
+        // EMOJI_MAP format: { "🍎": "Elma", ... }
+        const foundKey = Object.keys(EMOJI_MAP).find(key => lowerDesc.includes(EMOJI_MAP[key].toLowerCase()));
+        if (foundKey) {
+            emojiIcon = foundKey;
+        }
+    }
+
     // Fallback UI for missing images (Quota limits or Offline mode)
     return (
         <div className={`bg-zinc-50 dark:bg-zinc-800/50 rounded-md border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center text-center p-3 ${className}`}>
-            <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mb-2 text-zinc-400">
-                <i className="fa-solid fa-image"></i>
-            </div>
+            {emojiIcon ? (
+                <div className="text-6xl mb-2 filter drop-shadow-md transform hover:scale-110 transition-transform cursor-default" role="img" aria-label={description}>
+                    {emojiIcon}
+                </div>
+            ) : (
+                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mb-2 text-indigo-400 dark:text-indigo-300">
+                    <i className="fa-solid fa-image fa-lg"></i>
+                </div>
+            )}
+            
             {description ? (
-                <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 px-2 line-clamp-3">{description}</p>
+                <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 px-2 line-clamp-2">{description}</p>
             ) : (
                 <p className="text-xs text-zinc-400 italic">Görsel Mevcut Değil</p>
             )}

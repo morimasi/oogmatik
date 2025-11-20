@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -77,6 +78,8 @@
       border: none !important;
       padding: 0 !important;
       margin-bottom: 20mm;
+      background-color: white !important;
+      color: black !important;
     }
 
     .zoom-wrapper {
@@ -100,49 +103,108 @@
     }
   }
 
-  /* --- DARK THEME (Coffee) --- */
+  /* --- DARK THEME (Sweet Night / Tatlı Gece) --- */
+  /* Ana Arka Plan: Derin Mor/Lacivert */
   html.dark body {
-    background-color: #3d2c1d; /* Koyu Kahve */
-    color: #d7ccc8; /* Açık Bej/Krem (Metin) */
+    background-color: #13111C; 
+    color: #E2E8F0; /* Yumuşak Beyaz */
   }
+
+  /* Kartlar ve Paneller */
   html.dark .bg-white,
   html.dark .bg-zinc-50,
-  html.dark .page {
-    background-color: #f5efe6; /* Açık Kahve/Krem (Çalışma Sayfası) */
-    color: #4e342e; /* Koyu Kahve (Metin) */
+  html.dark .bg-zinc-100 {
+    background-color: #1F1D2B; /* Kart Arka Planı */
+    color: #E2E8F0;
+    border-color: #2D2B3B !important;
   }
+  
+  html.dark .bg-zinc-50 {
+     background-color: #252234 !important;
+  }
+
+  /* Çalışma Sayfası (Göz yormaması için çok açık lila/pembe zemin, koyu mor yazı) */
+  html.dark .page {
+    background-color: #FDF4FF; /* Çok açık pembe/beyaz */
+    color: #4A044E; /* Koyu mürdüm */
+  }
+  html.dark .page .bg-white {
+      background-color: #FFFFFF !important; /* Kağıt üzerindeki beyaz alanlar beyaz kalsın */
+      color: #000000;
+      border-color: #e5e7eb !important;
+  }
+  html.dark .page .text-zinc-800 {
+      color: #1f2937 !important;
+  }
+  html.dark .page .text-zinc-500 {
+      color: #6b7280 !important;
+  }
+
+  /* Kenar Çubuğu ve Header */
   html.dark aside,
   html.dark header,
-  html.dark .bg-zinc-100,
   html.dark .bg-zinc-800\/50 {
-    background-color: #5d4037; /* Orta Kahve */
-    color: #d7ccc8;
+    background-color: #171520;
+    color: #CBD5E1;
+    border-color: #2D2B3B !important;
   }
+  
   html.dark .bg-white\/80 {
-     background-color: rgba(93, 64, 55, 0.8) !important;
+     background-color: rgba(31, 29, 43, 0.95) !important;
+     border-color: #2D2B3B !important;
   }
+
+  /* Kenarlıklar */
   html.dark .border,
   html.dark .border-zinc-200,
   html.dark .border-zinc-700,
   html.dark .border-zinc-800 {
-    border-color: #4e342e !important;
+    border-color: #2D2B3B !important;
   }
-  html.dark .text-zinc-500, html.dark .text-zinc-400 { color: #bcaaa4 !important; }
-  html.dark .text-zinc-900, html.dark .text-zinc-800, html.dark .text-zinc-700 { color: #f5efe6 !important; }
-  html.dark .fill-zinc-900 { fill: #f5efe6; }
+
+  /* Input ve Select Alanları */
+  html.dark input, 
+  html.dark select, 
+  html.dark textarea {
+    background-color: #252333 !important;
+    border-color: #3E3B50 !important;
+    color: #F3E8FF !important;
+  }
+
+  /* Metin Renkleri - Genel Arayüz */
+  html.dark .text-zinc-900, html.dark .text-zinc-800, html.dark .text-zinc-700 { color: #E2E8F0 !important; }
+  html.dark .text-zinc-600, html.dark .text-zinc-500, html.dark .text-zinc-400 { color: #94A3B8 !important; }
+  html.dark .fill-zinc-900 { fill: #E2E8F0; }
   
-  /* Dark Theme Accents (Warm Orange/Amber) */
+  /* --- TATLI VURGULAR (Pembe/Lila/Mor) --- */
+  
+  /* Indigo -> Pembe/Gül Dönüşümü */
+  html.dark .text-indigo-600, html.dark .text-indigo-500, html.dark .text-indigo-400 { color: #F472B6 !important; } /* Soft Pink */
+  html.dark .hover\:text-indigo-500:hover { color: #FBCFE8 !important; }
+  
+  /* Buttons */
+  html.dark .bg-indigo-600 { background-color: #DB2777 !important; border-color: #BE185D !important; color: white !important; } /* Dark Pink Button */
+  html.dark .bg-indigo-600:hover { background-color: #BE185D !important; }
+  
+  html.dark .bg-indigo-50 { background-color: rgba(219, 39, 119, 0.1) !important; border-color: rgba(219, 39, 119, 0.2) !important; }
+  html.dark .focus-visible\:ring-indigo-500:focus-visible { --tw-ring-color: #F472B6 !important; }
+
+  /* Emerald -> Nane Yeşili (Soft Mint) */
+  html.dark .text-emerald-600, html.dark .text-emerald-500 { color: #6EE7B7 !important; }
+  html.dark .bg-emerald-500 { background-color: #10B981 !important; }
+  
+  /* Amber -> Soft Şeftali/Turuncu */
+  html.dark .text-amber-800, html.dark .text-amber-700 { color: #FDBA74 !important; }
+  html.dark .bg-amber-100, html.dark .bg-amber-50 { background-color: rgba(251, 146, 60, 0.1) !important; border-color: rgba(251, 146, 60, 0.2) !important; }
+
+  /* Aktif Menü Öğesi */
   html.dark .sidebar-activity-item-active {
-    background-color: rgba(255, 167, 38, 0.15) !important;
-    color: #ffca28 !important;
+    background-color: rgba(244, 114, 182, 0.15) !important; /* Pembe transparan */
+    color: #F472B6 !important; /* Pembe yazı */
   }
   html.dark .sidebar-activity-item-active::before {
-    background-color: #ffa726 !important;
+    background-color: #F472B6 !important;
   }
-  html.dark .text-indigo-600, html.dark .text-indigo-400 { color: #ffb74d !important; }
-  html.dark .hover\:text-indigo-500:hover { color: #ffca28 !important; }
-  html.dark .focus-visible\:ring-indigo-500:focus-visible { --tw-ring-color: #ffa726 !important; }
-
 
   /* --- PASTEL THEME (Dyslexia Friendly) --- */
   html.theme-pastel body {

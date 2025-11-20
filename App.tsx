@@ -331,8 +331,13 @@ const App: React.FC = () => {
                         onClick={() => setTheme('dark')}
                         className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${theme === 'dark' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
                       >
-                          <div className="w-12 h-8 bg-[#3d2c1d] border border-[#5d4037] rounded shadow-sm"></div>
-                          <span className="font-medium">Koyu Mod (Kahve)</span>
+                          <div className="w-12 h-8 bg-[#13111C] border border-[#2D2B3B] rounded shadow-sm flex items-center justify-center">
+                             <div className="w-2 h-2 rounded-full bg-[#F472B6]"></div>
+                          </div>
+                          <div className="text-center">
+                              <span className="font-medium block">Koyu Mod</span>
+                              <span className="text-xs text-zinc-500">Tatlı Gece</span>
+                          </div>
                       </button>
                       <button 
                         onClick={() => setTheme('pastel')}
