@@ -2,6 +2,8 @@ import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData,
 import { shuffle, getRandomItems, getWordsForDifficulty, getRandomInt } from './helpers';
 import { PROVERBS, STORY_TEMPLATES, SAYINGS } from '../../data/sentences';
 import { generateOfflineWordSearch } from './wordGames';
+import { generateWithSchema } from '../../services/geminiClient';
+import { Type } from "@google/genai";
 
 // --- OFFLINE DATA POOLS ---
 
@@ -123,7 +125,7 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
         const questions: StoryQuestion[] = [];
 
         // 1. Literal Question (Hatırlama)
-        const literalKey = getRandomItems(Object.keys(usedValues).filter(k => !['adjective', 'weather'].includes(k)), 1)[0];
+        const literalKey = getRandomItems(Object.keys(usedValues).filter(k => !['adjective', 'weather'].includes(k)), 1)[0] as string;
         if (literalKey && usedValues[literalKey]) {
             const answer = usedValues[literalKey];
             const pool = ((template as any)[`${literalKey}s`] || []) as string[];
@@ -219,16 +221,45 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
 };
 
 export const generateOfflineStorySequencing = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => {
-        const story = getRandomItems(logicalStories, 1)[0];
-        return {
-            title: `Hikaye Sıralama: ${story.theme}`,
-            prompt: 'Olayların oluş sırasına göre cümleleri numaralandırarak anlamlı bir hikaye oluştur.',
-            panels: shuffle(story.panels),
-            pedagogicalNote: "Olay örgüsü kurma, neden-sonuç ilişkisi ve zaman algısını geliştirir."
-        };
-    });
+    const { topic, difficulty, worksheetCount } = options;
+    
+    const prompt = `
+    "${difficulty}" zorluk seviyesine uygun, "${topic || 'rastgele'}" konulu, 4 panelli bir "Hikaye Sıralama" etkinliği oluştur.
+    ETKİNLİK AMACI: Çocuğun olayları mantıksal bir sıraya koyma becerisini geliştirmek.
+    
+    İÇERİK KURALLARI:
+    1.  Birbirini takip eden, net bir başlangıcı, gelişmesi ve sonu olan 4 aşamalı bir hikaye oluştur. Hikaye çocuklar için anlaşılır ve ilgi çekici olsun.
+    2.  Her panel (aşama) için:
+        -   'id': 'A', 'B', 'C', 'D' harflerinden birini ata.
+        -   'description': Olayın o anki aşamasını anlatan kısa ve net bir Türkçe metin yaz.
+        -   'imagePrompt': Bu açıklamayı görselleştiren, **İngilizce**, detaylı ve "children's book illustration, simple, colorful, cute, flat vector style" tarzında bir resim oluşturma istemi (prompt) oluştur.
+    3.  JSON çıktısı vermeden önce, oluşturduğun 4 paneli MUTLAKA karıştır (shuffle). Böylece öğrencinin doğru sırayı bulması gerekir.
+    
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    `;
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            prompt: { type: Type.STRING, description: "Instruction for the user, e.g., 'Order the panels to create a meaningful story.'" },
+            pedagogicalNote: { type: Type.STRING },
+            panels: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.STRING },
+                        description: { type: Type.STRING, description: "Description of the panel in Turkish." },
+                        imagePrompt: { type: Type.STRING, description: "Detailed English prompt for image generation." }
+                    },
+                    required: ["id", "description", "imagePrompt"]
+                }
+            }
+        },
+        required: ["title", "prompt", "panels", "pedagogicalNote"]
+    };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<StorySequencingData[]>;
 };
 
 export const generateOfflineProverbFillInTheBlank = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {

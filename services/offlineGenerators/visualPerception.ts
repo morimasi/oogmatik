@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
@@ -93,7 +94,7 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
     const pool = [...TR_VOCAB.confusing_words.flat(), ...getWordsForDifficulty(difficulty, topic)];
     
     for (let i = 0; i < worksheetCount; i++) {
-        const rows = Array.from({ length: itemCount }).map(() => {
+        const rows = Array.from({ length: itemCount }, () => {
             const baseWord = getRandomItems(pool, 1)[0];
             const correctIndex = getRandomInt(0, 3);
             let differentWord = '';
@@ -443,8 +444,9 @@ export const generateOfflineProfessionConnect = async (options: GeneratorOptions
     const {itemCount, worksheetCount} = options;
     const results: ProfessionConnectData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const professions = getRandomItems(TR_VOCAB.jobs, itemCount);
-        const points = professions.flatMap((p, idx) => ([
+        // FIX: Explicitly type `professions` to `string[]` to ensure correct type inference for `p` in `flatMap`.
+        const professions: string[] = getRandomItems(TR_VOCAB.jobs, itemCount || 5);
+        const points = professions.flatMap((p: string, idx) => ([
             { label: p, imageDescription: 'Meslek Sahibi', x: 0, y: idx * 2, pairId: idx },
             { label: '', imageDescription: `${p} Aracı`, x: 5, y: idx * 2, pairId: idx }
         ]));
@@ -542,8 +544,9 @@ export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOp
     const { worksheetCount } = options;
     const results: SynonymAntonymColoringData[] = [];
     for(let i=0; i < worksheetCount; i++) {
-        const synonymPair = getRandomItems(TR_VOCAB.synonyms, 1)[0];
-        const antonymPair = getRandomItems(TR_VOCAB.antonyms, 1)[0];
+        // FIX: Add explicit types to `synonymPair` and `antonymPair` to avoid 'property does not exist' errors.
+        const synonymPair: { word: string; synonym: string } = getRandomItems(TR_VOCAB.synonyms, 1)[0];
+        const antonymPair: { word: string; antonym: string } = getRandomItems(TR_VOCAB.antonyms, 1)[0];
         const color1 = getRandomItems(COLORS, 1)[0].css;
         const color2 = getRandomItems(COLORS.filter(c => c.css !== color1), 1)[0].css;
 
@@ -568,7 +571,7 @@ export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOp
         });
     }
     return results;
-}
+};
 
 export const generateOfflineStarHunt = async (options: GeneratorOptions): Promise<StarHuntData[]> => {
     const { worksheetCount } = options;
@@ -612,17 +615,3 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
         };
     });
 };
-
-// Also export other connect types that use the AbcConnect sheet, but are defined in this category
-export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptions): Promise<RomanNumeralConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Romen Rakamlı)', prompt: 'Aynı Romen rakamlarını yolları kesişmeyecek şekilde birleştirin.', puzzles: [] });
-}
-export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Romen Rakamı)', prompt: 'Romen rakamlarını normal sayılarla eşleştirin.', gridDim: 6, points: [] });
-}
-export const generateOfflineWeightConnect = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Ağırlık)', prompt: 'Birbirine eşit olan ağırlıkları çizgilerle birleştirin.', gridDim: 6, points: [] });
-}
-export const generateOfflineLengthConnect = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
-     return Array(options.worksheetCount).fill({ title: 'ABC Bağlama (Uzunluk)', prompt: 'Birbirine eşit olan uzunluk ölçülerini birleştirin.', gridDim: 6, points: [] });
-}

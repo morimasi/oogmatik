@@ -784,7 +784,75 @@ export const generateOfflineArithmeticConnect = async (options: GeneratorOptions
     }
     return results;
 };
-```
-</content>
-  </change>
-</changes>
+
+export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
+    const {itemCount, worksheetCount, gridSize} = options;
+    return Array.from({length: worksheetCount}, () => {
+        const pairs = Array.from({length: itemCount / 2}, (_, i) => i+1);
+        const points = pairs.flatMap(p => ([
+            {label: p.toString(), pairId: p, x: 0, y: 0},
+            {label: toRoman(p), pairId: p, x:0, y:0}
+        ]));
+        shuffle(points).forEach((p, i) => {
+            p.x = (i % 2) * (gridSize-1);
+            p.y = Math.floor(i / 2) * 2;
+        });
+        return {
+            title: 'Romen - Arap Rakamı Eşleştirme',
+            prompt: 'Eşdeğer rakamları birleştir.',
+            gridDim: gridSize || 6,
+            points
+        }
+    });
+}
+export const generateOfflineWeightConnect = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
+    const {itemCount, worksheetCount, gridSize} = options;
+    return Array.from({length: worksheetCount}, () => {
+        const pairs = [
+            {l1: '1 kg', l2: '1000 g'},
+            {l1: '2000 g', l2: '2 kg'},
+            {l1: 'yarım kg', l2: '500 g'},
+            {l1: '1 ton', l2: '1000 kg'}
+        ];
+        const points = pairs.flatMap((p, i) => ([
+            {label: p.l1, pairId: i, x:0, y:0},
+            {label: p.l2, pairId: i, x:0, y:0}
+        ]));
+        shuffle(points).forEach((p, i) => {
+            p.x = (i % 2) * (gridSize-1);
+            p.y = i * 2;
+        });
+        return {
+            title: 'Ağırlık Eşleştirme',
+            prompt: 'Eşit ağırlıkları birleştir.',
+            gridDim: gridSize || 10,
+            points
+        }
+    });
+}
+
+export const generateOfflineLengthConnect = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
+    const {itemCount, worksheetCount, gridSize} = options;
+     return Array.from({length: worksheetCount}, () => {
+        const pairs = [
+            {l1: '1 m', l2: '100 cm'},
+            {l1: '200 cm', l2: '2 m'},
+            {l1: 'yarım m', l2: '50 cm'},
+            {l1: '1 km', l2: '1000 m'}
+        ];
+        const points = pairs.flatMap((p, i) => ([
+            {label: p.l1, pairId: i, x:0, y:0},
+            {label: p.l2, pairId: i, x:0, y:0}
+        ]));
+        shuffle(points).forEach((p, i) => {
+            p.x = (i % 2) * (gridSize-1);
+            p.y = i * 2;
+        });
+        return {
+            title: 'Uzunluk Eşleştirme',
+            prompt: 'Eşit uzunlukları birleştir.',
+            gridDim: gridSize || 10,
+            points
+        }
+    });
+}
