@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
@@ -491,7 +490,9 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
         for (let j = 0; j < (itemCount || 5); j++) {
             // FIX: Cast topic to string to fix type error and handle 'Rastgele' case.
             const topicStr = topic as string;
-            const mainCatKey = topicStr && topicStr !== 'Rastgele' && validCategories.includes(topicStr.toLowerCase()) ? topicStr.toLowerCase() : getRandomItems(validCategories, 1)[0];
+            // FIX: Cast result from getRandomItems and provide a fallback to ensure mainCatKey is a string, resolving an 'unknown' type error.
+            const randomMainCat = getRandomItems(validCategories, 1)[0] as string | undefined;
+            const mainCatKey = (topicStr && topicStr !== 'Rastgele' && validCategories.includes(topicStr.toLowerCase())) ? topicStr.toLowerCase() : randomMainCat || 'animals';
             const oddCatKey = getRandomItems(validCategories.filter(c => c !== mainCatKey), 1)[0];
 
             const vocab = TR_VOCAB as any;
