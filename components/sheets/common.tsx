@@ -90,13 +90,20 @@ export const Shape: React.FC<{ name: ShapeType; className?: string }> = ({ name,
 
 export const ImageDisplay: React.FC<{ base64?: string; description?: string; className?: string }> = ({ base64, description, className = "w-full h-32" }) => {
     if (base64) {
-        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-zinc-100 dark:bg-zinc-700`} />;
+        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-zinc-100 dark:bg-zinc-700 shadow-sm`} />;
     }
+    
+    // Fallback UI for missing images (Quota limits or Offline mode)
     return (
-        <div className={`bg-zinc-100 dark:bg-zinc-700 rounded-md flex flex-col items-center justify-center text-center p-2 ${className}`}>
-            <i className="fa-solid fa-image text-3xl text-zinc-400 dark:text-zinc-500"></i>
-            {description && <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">{description}</p>}
-            {!description && <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Resim Alanı</p>}
+        <div className={`bg-zinc-50 dark:bg-zinc-800/50 rounded-md border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center text-center p-3 ${className}`}>
+            <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mb-2 text-zinc-400">
+                <i className="fa-solid fa-image"></i>
+            </div>
+            {description ? (
+                <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 px-2 line-clamp-3">{description}</p>
+            ) : (
+                <p className="text-xs text-zinc-400 italic">Görsel Mevcut Değil</p>
+            )}
         </div>
     );
 };
@@ -178,7 +185,6 @@ export const CagedGridSvg: React.FC<{
                             {/* Only show numbers if not null in gridData (solution or pre-filled) */}
                             {gridData?.[r]?.[c] !== null && (
                                 <text x={c * cellSize + cellSize / 2} y={r * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-zinc-400 opacity-30">
-                                    {/* Hidden logic for generated answers, or visible if prefilled. For now hiding unless intended for easy mode */}
                                     {/* {gridData?.[r]?.[c]} */} 
                                 </text>
                             )}

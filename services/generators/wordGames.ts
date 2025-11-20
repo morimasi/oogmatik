@@ -12,7 +12,8 @@ import {
     WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData, ResfebeClue
 } from '../../types';
 
-const VISUAL_STYLE = "Create a **photorealistic, 8k resolution, cinematic lighting, highly detailed** image prompt in English. It should look like a high-end studio photograph, NOT a cartoon or vector.";
+// OPTIMIZED PROMPT: Forces photorealism and high detail, discouraging simple/cartoon styles.
+const VISUAL_STYLE = "Create a **photorealistic, 8k resolution, cinematic lighting, highly detailed, studio photography style** image prompt in English. Do NOT use terms like 'drawing', 'cartoon', 'illustration', 'vector', 'sketch'. The image should look like a real high-end photo.";
 
 export const generateWordSearchFromAI = async (options: GeneratorOptions): Promise<WordSearchData[]> => {
   const { topic, itemCount, difficulty, worksheetCount, gridSize, directions, case: letterCase } = options;
@@ -104,7 +105,7 @@ export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions):
     '${theme}' temalı, "${difficulty}" zorluk seviyesinde bir "Karışık Kelime Hikayesi" oluştur.
     1. ${itemCount} adet kelime seç. Bu kelimelerin harflerini karıştır (jumbled).
     2. Ayrıca, bu kelimelerin kullanılabileceği yaratıcı bir hikaye yazma yönergesi (storyPrompt) ver.
-    3. Temayı yansıtan, ${VISUAL_STYLE} bir 'imagePrompt' oluştur. (Örn: 'A messy room with colorful letter blocks scattered on the floor, cinematic lighting').
+    3. Temayı yansıtan, ${VISUAL_STYLE} bir 'imagePrompt' oluştur. (Örn: 'A messy room with colorful letter blocks scattered on the floor, cinematic lighting, photorealistic').
     
     PEDAGOGICAL NOTE: "Ortografik farkındalık ve yaratıcı yazma becerisi."
     INSTRUCTION: "Harfleri düzelterek kelimeleri bul, sonra bu kelimeleri kullanarak bir hikaye yaz."
@@ -300,7 +301,7 @@ export const generateHomonymSentenceWritingFromAI = async (options: GeneratorOpt
 
 export const generateHomonymImageMatchFromAI = async (options: GeneratorOptions): Promise<HomonymImageMatchData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create a homonym image matching puzzle for difficulty "${difficulty}". Pick a common Turkish homonym. Create two image prompts (in English, **photorealistic, highly detailed, 8k**) for its two different meanings. Also create a simple word scramble for the homonym itself.
+    const prompt = `Create a homonym image matching puzzle for difficulty "${difficulty}". Pick a common Turkish homonym. Create two image prompts (in English, using ${VISUAL_STYLE}) for its two different meanings. Also create a simple word scramble for the homonym itself.
     PEDAGOGICAL NOTE: "Görsel ve anlamsal ilişkilendirme."
     INSTRUCTION: "Resimleri incele, ortak olan eş sesli kelimeyi bul."
     ${worksheetCount} worksheets.`;

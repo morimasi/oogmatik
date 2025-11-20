@@ -8,8 +8,6 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // Gemini API hatasından yeniden deneme gecikmesini çıkarmak için yardımcı fonksiyon
 const getRetryDelay = (error: any): number | null => {
     try {
-        // SDK'dan gelen hata mesajı genellikle JSON yanıtını içerir.
-        // Hata mesajından JSON dizesini ayıklamaya çalışıyoruz.
         const errorJsonString = error.message.substring(error.message.indexOf('{'));
         const errorDetails = JSON.parse(errorJsonString);
         
@@ -18,11 +16,10 @@ const getRetryDelay = (error: any): number | null => {
         );
 
         if (retryInfo && retryInfo.retryDelay) {
-            // Örn: "2.697700806s" veya "2s"
             const delayString = retryInfo.retryDelay;
             const seconds = parseFloat(delayString);
             if (!isNaN(seconds)) {
-                return seconds * 1000; // Milisaniyeye çevir
+                return seconds * 1000;
             }
         }
     } catch (e) {
@@ -31,15 +28,12 @@ const getRetryDelay = (error: any): number | null => {
     return null;
 };
 
-// Bu bir Vercel sunucusuz işlevidir.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Tüm yanıtlar için CORS başlıklarını ayarla, hatalar dahil
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
-        // CORS için ön kontrol isteklerini işle
         return res.status(200).end();
     }
     
@@ -62,13 +56,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const ai = new GoogleGenAI({ apiKey });
-        const maxRetries = 4;
+        const maxRetries = 3; // Retries reduced slightly to prevent long hangs
         
-        // Adım 1: Ana JSON yapısını resim istemleriyle birlikte oluştur (yeniden deneme mantığıyla)
+        // Adım 1: Metin Üretimi
         let data;
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
-                // MODEL GÜNCELLEMESİ: Daha gelişmiş metin modeli (Gemini 3 Pro Preview)
                 const textResponse = await ai.models.generateContent({
                     model: "gemini-3-pro-preview", 
                     contents: prompt,
@@ -80,48 +73,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 });
 
                 const jsonText = textResponse.text;
-                if (!jsonText) {
-                     throw new Error("Yapay zekadan boş bir metin yanıtı alındı.");
-                }
+                if (!jsonText) throw new Error("Yapay zekadan boş bir metin yanıtı alındı.");
                 
                 const cleanedJsonText = jsonText.replace(/^```json\s*|```\s*$/g, '').trim();
                 data = JSON.parse(cleanedJsonText);
-                break; // Başarılı, döngüden çık
+                break;
             } catch (error: any) {
                 const isRetryable = error.status === 503 || error.status === 429;
                 if (isRetryable && attempt < maxRetries - 1) {
                     let delay = getRetryDelay(error);
-                    if (delay === null) {
-                        // API'den gecikme bilgisi alınamazsa üstel geri çekilmeye geri dön
-                        delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-                    }
-                    console.warn(`Metin oluşturma denemesi ${attempt + 1}, ${error.status} hatasıyla başarısız oldu. Yaklaşık ${Math.round(delay / 1000)}s içinde yeniden denenecek...`);
+                    if (delay === null) delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                    console.warn(`Metin oluşturma denemesi ${attempt + 1} başarısız: ${error.status}. Bekleniyor: ${Math.round(delay)}ms`);
                     await sleep(delay);
                 } else {
-                    throw error; // Yeniden denemez veya denemeler bittiyse hatayı tekrar fırlat
+                    throw error;
                 }
             }
         }
 
-        if (!data) {
-             return res.status(500).json({ error: "Yapay zeka birden çok denemeye rağmen yanıt vermedi." });
-        }
+        if (!data) return res.status(500).json({ error: "Yapay zeka yanıt vermedi." });
 
-        // Adım 2: 'imagePrompt' alanlarını özyinelemeli olarak bul ve eşzamanlılık kontrolü ile resimleri oluştur
+        // Adım 2: Görsel Üretimi (Imagen 4.0)
         const imagePromptsToProcess: { obj: any, imagePrompt: string }[] = [];
         const findImagePrompts = (obj: any) => {
             if (!obj || typeof obj !== 'object') return;
-
             if (Array.isArray(obj)) {
                 obj.forEach(findImagePrompts);
                 return;
             }
-
             Object.keys(obj).forEach(key => {
                 if (key === 'imagePrompt' && typeof obj[key] === 'string' && obj[key].length > 0) {
                     imagePromptsToProcess.push({ obj: obj, imagePrompt: obj[key] });
                 } else {
-                    findImagePrompts(obj[key]); // Diğer özelliklere özyinelemeli olarak devam et
+                    findImagePrompts(obj[key]);
                 }
             });
         };
@@ -129,14 +113,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         findImagePrompts(data);
         
         if (imagePromptsToProcess.length > 0) {
-            const CONCURRENCY_LIMIT = 3; // Imagen modeli için eşzamanlılık limiti
+            // Imagen için eşzamanlılık limiti. Kotayı korumak için düşük tutuyoruz.
+            const CONCURRENCY_LIMIT = 2; 
+            
             for (let i = 0; i < imagePromptsToProcess.length; i += CONCURRENCY_LIMIT) {
                 const chunk = imagePromptsToProcess.slice(i, i + CONCURRENCY_LIMIT);
+                
+                // Chunk içindeki her bir görsel isteği için Promise oluşturuyoruz
                 const promises = chunk.map(async ({ obj, imagePrompt }) => {
+                    // Her görsel için kendi retry döngüsü
                     for (let attempt = 0; attempt < maxRetries; attempt++) {
                         try {
-                            // MODEL GÜNCELLEMESİ: Yüksek kaliteli resim modeli (Imagen 4)
-                            // Sadece statik resimler (video yok)
+                            // OPTIMIZATION: Görsel kalitesi için Imagen 4.0
                             const imageResponse = await ai.models.generateImages({
                                 model: 'imagen-4.0-generate-001',
                                 prompt: imagePrompt,
@@ -152,73 +140,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             if (base64Data) {
                                 obj['imageBase64'] = base64Data;
                             } else {
-                                obj['imageBase64'] = ''; // Resim döndürülmezse boş dize ata
-                                console.warn(`"${imagePrompt}" istemi için resim verisi bulunamadı.`);
+                                obj['imageBase64'] = '';
                             }
-                            delete obj['imagePrompt']; // Sonuç ne olursa olsun istem alanını temizle
-                            return; // Bu resim için başarılı, iç döngüden çık
+                            // Başarılı olsa da olmasa da, işlendiği için prompt'u siliyoruz.
+                            delete obj['imagePrompt'];
+                            return; // Başarılı, döngüden çık
+
                         } catch (imgError: any) {
                              const isRetryable = imgError.status === 503 || imgError.status === 429;
                              if (isRetryable && attempt < maxRetries - 1) {
                                 let delay = getRetryDelay(imgError);
-                                if (delay === null) {
-                                    delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-                                }
-                                console.warn(`Resim oluşturma denemesi ${attempt + 1} "${imagePrompt}" için başarısız oldu. Yaklaşık ${Math.round(delay / 1000)}s içinde yeniden denenecek...`);
+                                if (delay === null) delay = Math.pow(2, attempt) * 2000 + Math.random() * 1000; // Görsel için daha uzun bekleme
+                                console.warn(`Görsel denemesi ${attempt + 1} başarısız (${imgError.status}). Bekleniyor: ${Math.round(delay)}ms`);
                                 await sleep(delay);
                             } else {
-                                console.error(`"${imagePrompt}" istemi için resim oluşturma başarısız oldu:`, imgError);
-                                obj['imageBase64'] = ''; // Son hatada istemci çökmesini önlemek için boş ata
+                                // CRITICAL FIX: Eğer tüm denemeler başarısız olursa (örn: Kota bitti),
+                                // HATAYI FIRLATMA. Bunun yerine görseli boş bırak ve devam et.
+                                // Böylece kullanıcı metin içeriğini en azından görebilir.
+                                console.error(`Görsel oluşturulamadı (İstem: ${imagePrompt.substring(0, 30)}...):`, imgError.message);
+                                obj['imageBase64'] = ''; // Boş görsel
                                 delete obj['imagePrompt'];
-                                return; // Bu resimden vazgeç
+                                return; // Hata ile döngüden çık (Graceful degradation)
                             }
                         }
                     }
                 });
+                
+                // Chunk'ın bitmesini bekle
                 await Promise.all(promises);
             }
         }
         
-        // Adım 3: Gömülü resim verileriyle son JSON'u döndür
         return res.status(200).json(data);
 
     } catch (error: unknown) {
-        // Sunucuda tam hatayı Vercel günlüklerinde hata ayıklama için kaydet
-        console.error("Sunucusuz fonksiyonda kritik hata:", error);
+        console.error("API Handler Error:", error);
         
-        let clientErrorMessage = "Yapay zeka ile içerik oluşturulurken sunucu tarafında bir hata oluştu.";
         let statusCode = 500;
-        let errorDetails = 'Bilinmeyen hata.';
+        let errorMessage = "Sunucu hatası.";
 
         if (error instanceof Error && 'status' in error) {
-            const apiError = error as { status?: number; message: string };
-            errorDetails = apiError.message;
-            if (apiError.status === 429) {
-                clientErrorMessage = 'API kullanım kotası aşıldı. Bu, ücretsiz katmanda sıkça olabilir. Lütfen bir dakika bekleyip tekrar deneyin.';
-                statusCode = 429;
-            } else if (apiError.status === 503) {
-                clientErrorMessage = 'Model şu anda aşırı yüklü. Lütfen daha sonra tekrar deneyin.';
-                statusCode = 503;
-            } else if (apiError.message.includes('API key not valid')) {
-                clientErrorMessage = 'Sunucuda yapılandırılan API anahtarı geçersiz. Lütfen Vercel proje ayarlarınızı kontrol edin.';
-                statusCode = 401;
-            } else if (apiError.message.includes('permission denied') || apiError.message.includes('billing')) {
-                 clientErrorMessage = 'API anahtarının bu modeli kullanma izni yok veya projeniz için faturalandırma etkin değil.';
-                 statusCode = 403;
-            } else if (apiError.message.includes('timed out')) {
-                clientErrorMessage = 'Yapay zeka sunucusundan yanıt alınamadı, zaman aşımına uğradı.';
-                statusCode = 504;
-            } else if (apiError.message.includes('400 BAD REQUEST')) {
-                clientErrorMessage = 'Yapay zekaya geçersiz bir istek gönderildi. Lütfen girdilerinizi kontrol edin.';
-                statusCode = 400;
+            const apiError = error as { status: number; message: string };
+            statusCode = apiError.status || 500;
+            errorMessage = apiError.message;
+            
+            if (statusCode === 429) {
+                errorMessage = "API kotası aşıldı (429). Lütfen 'Hızlı Mod'u deneyin.";
             }
         }
         
-        const errorResponse: { error: string, details?: string } = { error: clientErrorMessage };
-        if (process.env.NODE_ENV !== 'production') {
-            errorResponse.details = errorDetails;
-        }
-
-        return res.status(statusCode).json(errorResponse);
+        return res.status(statusCode).json({ error: errorMessage });
     }
 }
