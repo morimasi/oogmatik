@@ -1,9 +1,13 @@
 
+
+
 import React from 'react';
 import { 
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
+    GeneratorOptions
 } from '../../types';
 import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay } from './common';
+import { CONNECT_COLORS } from '../../services/offlineGenerators/helpers';
 
 // Helper for pedagogical note display
 const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string }> = ({ title, instruction, note }) => (
@@ -216,7 +220,6 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
     )
 };
 
-// ... (Keep existing simple implementations for others but apply the PedagogicalHeader pattern)
 export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
@@ -318,31 +321,75 @@ export const DotPaintingSheet: React.FC<{ data: DotPaintingData }> = ({ data }) 
     </div>
 );
 
-export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConnectData | RomanArabicMatchConnectData | WeightConnectData | LengthConnectData }> = ({ data }) => (
+export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConnectData | RomanArabicMatchConnectData | WeightConnectData | LengthConnectData }> = ({ data }) => {
+    // Only process the first puzzle for display in single sheet mode, or map all. Usually just 1.
+    const puzzles = 'puzzles' in data ? data.puzzles : (data as any).numbers ? [{gridDim: 10, points: (data as any).numbers}] : (data as any).expressions ? [{gridDim: 10, points: (data as any).expressions}] : [{ id: 1, gridDim: (data as any).gridDim || 6, points: (data as any).points || [] }];
+    
+    return (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        {('puzzles' in data ? data.puzzles : [{...data, id: 1, puzzles: []}]).map((puzzle: any, i: number) => (
-             <div key={i} className="flex justify-center mb-8">
-                <svg width={puzzle.gridDim * 50} height={puzzle.gridDim * 50} className="border-2 border-zinc-800 bg-white">
-                    {/* Grid */}
-                    {Array.from({length: puzzle.gridDim + 1}).map((_, j) => (
-                        <React.Fragment key={j}>
-                            <line x1={j*50} y1="0" x2={j*50} y2={puzzle.gridDim*50} stroke="#eee" />
-                            <line x1="0" y1={j*50} x2={puzzle.gridDim*50} y2={j*50} stroke="#eee" />
-                        </React.Fragment>
-                    ))}
-                    {/* Points */}
-                    {puzzle.points.map((p: any, k: number) => (
-                        <g key={k}>
-                            <circle cx={p.x * 50 + 25} cy={p.y * 50 + 25} r="20" fill={p.color || '#ddd'} />
-                            <text x={p.x * 50 + 25} y={p.y * 50 + 25} textAnchor="middle" dominantBaseline="middle" fontWeight="bold">{p.label || p.letter}</text>
-                        </g>
-                    ))}
-                </svg>
+        <PedagogicalHeader title={data.title} instruction={data.instruction || "Çiftleri birleştirin."} note={data.pedagogicalNote} />
+        {puzzles.map((puzzle: any, i: number) => (
+             <div key={i} className="flex flex-col items-center mb-8">
+                {/* Professional Grid Visual */}
+                <div className="relative bg-white border-2 border-zinc-800 dark:border-zinc-500 shadow-lg rounded-lg overflow-hidden" 
+                     style={{ width: '100%', maxWidth: '600px', aspectRatio: '1/1' }}>
+                     
+                    <svg viewBox={`0 0 ${puzzle.gridDim * 50} ${puzzle.gridDim * 50}`} className="w-full h-full">
+                         {/* Grid Lines */}
+                         <defs>
+                             <pattern id={`grid-${i}`} width="50" height="50" patternUnits="userSpaceOnUse">
+                                 <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(0,0,0,0.1)" strokeWidth="1"/>
+                             </pattern>
+                         </defs>
+                         <rect width="100%" height="100%" fill={`url(#grid-${i})`} />
+                         
+                         {/* Points */}
+                         {puzzle.points.map((p: any, k: number) => {
+                             // Dynamic Color Assignment if not present
+                             const color = p.color || (p.group !== undefined ? CONNECT_COLORS[p.group % CONNECT_COLORS.length] : CONNECT_COLORS[p.pairId % CONNECT_COLORS.length]) || '#3B82F6';
+                             const isImage = p.imagePrompt && p.imagePrompt.length > 0;
+                             
+                             return (
+                                <g key={k} transform={`translate(${p.x * 50 + 25}, ${p.y * 50 + 25})`}>
+                                    {/* Outer Glow/Border */}
+                                    <circle r="22" fill={color} opacity="0.2" />
+                                    <circle r="18" fill="white" stroke={color} strokeWidth="2.5" />
+                                    
+                                    {/* Content */}
+                                    {isImage ? (
+                                        // Centered Text/Emoji for Image Prompts (Offline Mode mostly uses emoji text)
+                                        <text 
+                                            y="2" 
+                                            textAnchor="middle" 
+                                            dominantBaseline="middle" 
+                                            fontSize="18"
+                                            fill="#333"
+                                        >
+                                            {p.imagePrompt} 
+                                        </text>
+                                    ) : (
+                                        <text 
+                                            y="1" 
+                                            textAnchor="middle" 
+                                            dominantBaseline="middle" 
+                                            fontSize={String(p.label || p.text || p.value).length > 2 ? "10" : "16"} 
+                                            fontWeight="bold" 
+                                            fill="#333"
+                                            fontFamily="monospace"
+                                        >
+                                            {p.label || p.text || p.value}
+                                        </text>
+                                    )}
+                                </g>
+                             );
+                         })}
+                    </svg>
+                </div>
              </div>
         ))}
     </div>
-);
+    );
+};
 
 // Fallbacks for others to ensure no broken imports, enhanced with header
 const createSimpleSheet = (compName: string) => ({ data }: { data: any }) => (
@@ -458,4 +505,3 @@ export const StarHuntSheet: React.FC<{ data: StarHuntData }> = ({ data }) => (
         <p className="text-center mt-4">Toplam Yıldız Hedefi: {data.targetCount}</p>
     </div>
 );
-

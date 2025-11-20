@@ -1,8 +1,9 @@
 
 
 
+
 import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, ResfebeClue, JumbledWordStoryData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout, wordToRebus } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout, wordToRebus, ITEM_CATEGORIES, CATEGORY_NAMES } from './helpers';
 import { PROVERBS } from '../../data/sentences';
 
 export const generateOfflineWordSearch = async (options: GeneratorOptions & { words?: string[] }): Promise<WordSearchData[]> => {
@@ -242,8 +243,8 @@ export const generateOfflineWordGrouping = async (options: GeneratorOptions): Pr
     const { worksheetCount, categoryCount } = options;
     const results: WordGroupingData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const validCategories = ['animals', 'fruits_veggies', 'jobs', 'vehicles']; // Defined in TR_VOCAB
-        const selectedCats = getRandomItems(validCategories, categoryCount || 3);
+        // Use all available categories
+        const selectedCats = getRandomItems(ITEM_CATEGORIES, categoryCount || 3);
         const words: string[] = [];
         selectedCats.forEach(cat => {
             const catWords = (TR_VOCAB as any)[cat] as string[] || [];
@@ -256,7 +257,7 @@ export const generateOfflineWordGrouping = async (options: GeneratorOptions): Pr
             pedagogicalNote: "Semantik kategorizasyon ve kavramsal düşünme.",
             // FIX: Convert string[] to WordGroupItem[]
             words: shuffle(words).map(word => ({ text: word })), 
-            categoryNames: selectedCats.map(c => c === 'animals' ? 'Hayvanlar' : c === 'jobs' ? 'Meslekler' : c === 'vehicles' ? 'Araçlar' : 'Meyve/Sebze') 
+            categoryNames: selectedCats.map(c => CATEGORY_NAMES[c] || c) 
         });
     }
     return results;

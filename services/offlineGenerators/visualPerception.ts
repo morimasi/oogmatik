@@ -1,11 +1,13 @@
 
+
+
 import React from 'react';
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
     GeneratorOptions
 } from '../../types';
 import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay } from './common';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateLatinSquare } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateLatinSquare, ITEM_CATEGORIES, generateSmartConnectGrid, CONNECT_COLORS } from './helpers';
 
 // --- PRE-DEFINED OFFLINE ASSETS ---
 
@@ -290,7 +292,7 @@ export const generateOfflineBlockPainting = async (options: GeneratorOptions): P
         });
     }
     return results;
-}
+};
 
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
@@ -426,16 +428,23 @@ export const generateOfflineDotPainting = async (options: GeneratorOptions): Pro
 export const generateOfflineAbcConnect = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
     const {itemCount, worksheetCount, gridSize} = options;
     const results: AbcConnectData[] = [];
+    const dim = gridSize || 6;
+    const count = Math.floor((itemCount || 6) / 2);
+
     for(let i=0; i<worksheetCount; i++){
-        const dim = gridSize || 5;
-        const letters = ['A','B','C','D','E','F'].slice(0, Math.floor((itemCount || 6) / 2));
-        const points = letters.flatMap(l => ([
-            {label: l, x: getRandomInt(0, dim-1), y: getRandomInt(0, dim-1), color: '#ddd'},
-            {label: l, x: getRandomInt(0, dim-1), y: getRandomInt(0, dim-1), color: '#ddd'}
-        ]));
+        const letters = ['A','B','C','D','E','F','G','H','J'].slice(0, count);
+        const placements = generateSmartConnectGrid(dim, count);
+        
+        const points = placements.map(p => ({
+            label: letters[p.pairIndex],
+            x: p.x,
+            y: p.y,
+            color: CONNECT_COLORS[p.pairIndex % CONNECT_COLORS.length]
+        }));
+
         results.push({
-            title: 'ABC Bağlama',
-            instruction: "Aynı harfleri birbirine bağlayın. Çizgiler birbirini kesmemelidir.",
+            title: 'ABC Bağlama (Profesyonel)',
+            instruction: "Aynı harfleri, çizgiler birbirini kesmeyecek şekilde birleştirin. Tüm kareler dolmalıdır.",
             pedagogicalNote: "Planlama ve uzamsal akıl yürütme.",
             puzzles: [{id: 1, gridDim: dim, points}]
         });
@@ -526,7 +535,7 @@ export const generateOfflineProfessionConnect = async (options: GeneratorOptions
     for(let i=0; i<worksheetCount; i++){
         const professions: string[] = getRandomItems(TR_VOCAB.jobs, itemCount || 5);
         const points = professions.flatMap((p: string, idx) => ([
-            { label: p, imageDescription: 'Meslek Sahibi', imagePrompt: '', x: 0, y: idx * 2, pairId: idx },
+            { label: p, imageDescription: p, imagePrompt: '', x: 0, y: idx * 2, pairId: idx },
             { label: '', imageDescription: `${p} Aracı`, imagePrompt: '', x: 5, y: idx * 2, pairId: idx }
         ]));
         results.push({ 
@@ -562,15 +571,14 @@ export const generateOfflineMatchstickSymmetry = async (options: GeneratorOption
 export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOptions): Promise<VisualOddOneOutThemedData[]> => {
     const { itemCount, worksheetCount, topic } = options;
     const results: VisualOddOneOutThemedData[] = [];
-    const validCategories = ['animals', 'fruits_veggies', 'jobs', 'vehicles'];
 
     for (let i = 0; i < worksheetCount; i++) {
         const rows: VisualOddOneOutThemedData['rows'] = [];
         for (let j = 0; j < (itemCount || 5); j++) {
             const topicStr = topic as string;
-            const randomMainCat = getRandomItems(validCategories, 1)[0] as string | undefined;
-            const mainCatKey = (topicStr && topicStr !== 'Rastgele' && validCategories.includes(topicStr.toLowerCase())) ? topicStr.toLowerCase() : randomMainCat || 'animals';
-            const oddCatKey = getRandomItems(validCategories.filter(c => c !== mainCatKey), 1)[0];
+            const randomMainCat = getRandomItems(ITEM_CATEGORIES, 1)[0] as string | undefined;
+            const mainCatKey = (topicStr && topicStr !== 'Rastgele' && ITEM_CATEGORIES.includes(topicStr.toLowerCase())) ? topicStr.toLowerCase() : randomMainCat || 'animals';
+            const oddCatKey = getRandomItems(ITEM_CATEGORIES.filter(c => c !== mainCatKey), 1)[0];
 
             const vocab = TR_VOCAB as any;
             const mainItems: string[] = getRandomItems((vocab[mainCatKey] || []) as string[], 3);

@@ -1,8 +1,12 @@
 
 
 
+
+
+
+
 import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES, ITEM_CATEGORIES, generateSmartConnectGrid, CONNECT_COLORS } from './helpers';
 
 // --- ROMAN NUMERAL HELPERS ---
 const toRoman = (num: number): string => {
@@ -690,8 +694,9 @@ export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promi
     const results: OddOneOutData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const groups = Array.from({ length: itemCount || 5 }).map(() => {
-            const mainCatKey = topic && topic !== 'Rastgele' ? topic.toLowerCase() : getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'], 1)[0];
-            const oddCatKey = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'].filter(c => c !== mainCatKey), 1)[0];
+             // Using extended ITEM_CATEGORIES for more variety
+            const mainCatKey = topic && topic !== 'Rastgele' && ITEM_CATEGORIES.includes(topic.toLowerCase()) ? topic.toLowerCase() : getRandomItems(ITEM_CATEGORIES, 1)[0];
+            const oddCatKey = getRandomItems(ITEM_CATEGORIES.filter(c => c !== mainCatKey), 1)[0];
             
             const vocab = TR_VOCAB as any;
             const mainWords = getRandomItems(vocab[mainCatKey] || [], 3);
@@ -813,21 +818,27 @@ export const generateOfflineShapeNumberPattern = async (options: GeneratorOption
 };
 
 export const generateOfflineRoundingConnect = async (options: GeneratorOptions): Promise<RoundingConnectData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount, gridSize } = options;
     const results: RoundingConnectData[] = [];
+    const dim = gridSize || 6;
+    const pairCount = Math.floor((itemCount || 6) / 2);
+    
     for (let i = 0; i < worksheetCount; i++) {
+        const placements = generateSmartConnectGrid(dim, pairCount);
         const numbers: RoundingConnectData['numbers'] = [];
-        const groups: number[] = [];
-        for (let j = 0; j < (itemCount || 12) / 2; j++) {
-            const base = getRandomInt(1, 9) * 10;
-            groups.push(base);
-            numbers.push({ value: base + getRandomInt(1, 4), group: j, x: 0, y: 0 });
-            numbers.push({ value: base, group: j, x: 0, y: 0 });
+
+        for (let j = 0; j < pairCount; j++) {
+            const base = getRandomInt(1, 9) * 10; // Target 10, 20...
+            // Start Point (Number to round): e.g. 23
+            const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
+            const valToRound = base + getRandomInt(1, 4); 
+            numbers.push({ value: valToRound, group: j, x: p1.x, y: p1.y });
+            
+            // End Point (Rounded Target): e.g. 20
+            const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
+            numbers.push({ value: base, group: j, x: p2.x, y: p2.y });
         }
-        shuffle(numbers).forEach((n, idx) => {
-            n.x = (idx % 2 === 0) ? getRandomInt(10, 30) : getRandomInt(70, 90);
-            n.y = getRandomInt(10, 90);
-        });
+        
         results.push({
             title: 'Sayı Yuvarlama Bağlamaca (Hızlı Mod)',
             prompt: 'Sayıları en yakın onluğa yuvarlayarak eşleştirin.',
@@ -840,27 +851,39 @@ export const generateOfflineRoundingConnect = async (options: GeneratorOptions):
     return results;
 };
 export const generateOfflineArithmeticConnect = async (options: GeneratorOptions): Promise<ArithmeticConnectData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount, gridSize } = options;
     const results: ArithmeticConnectData[] = [];
+    const dim = gridSize || 6;
+    const pairCount = Math.floor((itemCount || 6) / 2);
+
     for (let i = 0; i < worksheetCount; i++) {
+        const placements = generateSmartConnectGrid(dim, pairCount);
         const expressions: ArithmeticConnectData['expressions'] = [];
-        for (let j = 0; j < (itemCount || 12) / 2; j++) {
-            const n1 = getRandomInt(5, 15);
-            const n2 = getRandomInt(1, n1-1);
-            const result = n1 + n2;
-            expressions.push({ text: `${n1} + ${n2}`, value: result, group: j, x: 0, y: 0 });
-            expressions.push({ text: `${result+5} - 5`, value: result, group: j, x: 0, y: 0 });
+        
+        for (let j = 0; j < pairCount; j++) {
+             const target = getRandomInt(5, 15);
+             
+             // Start: Addition
+             const n1 = getRandomInt(1, target-1);
+             const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
+             expressions.push({ text: `${n1} + ${target-n1}`, value: target, group: j, x: p1.x, y: p1.y });
+             
+             // End: Subtraction or simple number (for variety)
+             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
+             if (Math.random() > 0.5) {
+                 const n2 = target + getRandomInt(1, 5);
+                 expressions.push({ text: `${n2} - ${n2-target}`, value: target, group: j, x: p2.x, y: p2.y });
+             } else {
+                 expressions.push({ text: `${target}`, value: target, group: j, x: p2.x, y: p2.y });
+             }
         }
-        shuffle(expressions).forEach((e, idx) => {
-            e.x = (idx % 2 === 0) ? 15 : 85;
-            e.y = 15 + idx * 7;
-        });
+
         results.push({
             title: 'İşlem Bağlamaca (Hızlı Mod)',
             prompt: 'Aynı sonucu veren işlemleri eşleştirin.',
-            instruction: "Sonuçları aynı olan işlemleri çizgilerle birleştirin.",
+            instruction: "Sonuçları aynı olan işlemleri veya sayıları çizgilerle birleştirin.",
             pedagogicalNote: "Zihinden işlem yapma ve denklik kavramı.",
-            example: 'Örn: 5+3 = 10-2',
+            example: 'Örn: 5+3 = 8',
             expressions
         });
     }
@@ -869,72 +892,144 @@ export const generateOfflineArithmeticConnect = async (options: GeneratorOptions
 
 export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
     const {itemCount, worksheetCount, gridSize} = options;
-    return Array.from({length: worksheetCount}, () => {
-        const pairs = Array.from({length: (itemCount || 10) / 2}, (_, i) => i+1);
-        const points = pairs.flatMap(p => ([
-            {label: p.toString(), pairId: p, x: 0, y: 0},
-            {label: toRoman(p), pairId: p, x:0, y:0}
-        ]));
-        shuffle(points).forEach((p, i) => {
-            p.x = (i % 2) * ((gridSize || 6)-1);
-            p.y = Math.floor(i / 2) * 2;
-        });
-        return {
+    const results: RomanArabicMatchConnectData[] = [];
+    const dim = gridSize || 6;
+    const pairCount = Math.floor((itemCount || 6) / 2);
+
+    for(let i=0; i<worksheetCount; i++) {
+        const placements = generateSmartConnectGrid(dim, pairCount);
+        const points: RomanArabicMatchConnectData['points'] = [];
+        
+        const numbers = getRandomItems([1,2,3,4,5,6,7,8,9,10,11,12,15,20,50,100], pairCount);
+
+        for(let j=0; j<pairCount; j++) {
+            const n = numbers[j];
+            const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
+            points.push({ label: n.toString(), pairId: n, x: p1.x, y: p1.y });
+
+            const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
+            points.push({ label: toRoman(n), pairId: n, x: p2.x, y: p2.y });
+        }
+
+        results.push({
             title: 'Romen - Arap Rakamı Eşleştirme (Hızlı Mod)',
             prompt: 'Eşdeğer rakamları birleştir.',
-            gridDim: gridSize || 6,
+            gridDim: dim,
             points
-        }
-    });
+        });
+    }
+    return results;
 }
+
+export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptions): Promise<RomanNumeralConnectData[]> => {
+    const {itemCount, worksheetCount, gridSize} = options;
+    const results: RomanNumeralConnectData[] = [];
+    const dim = gridSize || 6;
+    const pairCount = Math.floor((itemCount || 6) / 2);
+
+    for(let i=0; i<worksheetCount; i++){
+        const placements = generateSmartConnectGrid(dim, pairCount);
+        const points: RomanNumeralConnectData['puzzles'][0]['points'] = [];
+        
+        const numbers = getRandomItems([1,2,3,4,5,6,7,8,9,10,50,100], pairCount);
+
+        for(let j=0; j<pairCount; j++) {
+             const roman = toRoman(numbers[j]);
+             const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
+             points.push({ label: roman, x: p1.x, y: p1.y });
+             
+             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
+             points.push({ label: roman, x: p2.x, y: p2.y });
+        }
+
+        results.push({
+            title: 'Romen Rakamı Bağlama (Hızlı Mod)',
+            prompt: 'Aynı Romen rakamlarını birleştirin.',
+            instruction: "Aynı Romen rakamlarını birbirine bağlayın. Çizgiler birbirini kesmemelidir.",
+            pedagogicalNote: "Romen rakamlarını tanıma ve uzamsal planlama.",
+            puzzles: [{title: 'Bulmaca', gridDim: dim, points}]
+        });
+    }
+    return results;
+}
+
 export const generateOfflineWeightConnect = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
     const {itemCount, worksheetCount, gridSize} = options;
-    return Array.from({length: worksheetCount}, () => {
-        const pairs = [
-            {l1: '1 kg', l2: '1000 g'},
-            {l1: '2000 g', l2: '2 kg'},
-            {l1: 'yarım kg', l2: '500 g'},
-            {l1: '1 ton', l2: '1000 kg'}
-        ];
-        const points = pairs.flatMap((p, i) => ([
-            {label: p.l1, pairId: i, x:0, y:0},
-            {label: p.l2, pairId: i, x:0, y:0}
-        ]));
-        shuffle(points).forEach((p, i) => {
-            p.x = (i % 2) * ((gridSize || 10)-1);
-            p.y = i * 2;
-        });
-        return {
+    const results: WeightConnectData[] = [];
+    const dim = gridSize || 6;
+    const pairCount = Math.floor((itemCount || 6) / 2);
+    const pairsPool = [
+        {l1: '1 kg', l2: '1000 g', img: '⚖️'},
+        {l1: '2000 g', l2: '2 kg', img: '🏋️'},
+        {l1: 'Yarım kg', l2: '500 g', img: '🍎'},
+        {l1: '1 ton', l2: '1000 kg', img: '🚛'},
+        {l1: 'Çeyrek kg', l2: '250 g', img: '🧈'},
+        {l1: '3 kg', l2: '3000 g', img: '🍉'}
+    ];
+
+    for(let i=0; i<worksheetCount; i++) {
+        const placements = generateSmartConnectGrid(dim, pairCount);
+        const points: WeightConnectData['points'] = [];
+        const selectedPairs = getRandomItems(pairsPool, pairCount);
+
+        for(let j=0; j<pairCount; j++) {
+            const pair = selectedPairs[j];
+            const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
+            points.push({ label: pair.l1, pairId: j, x: p1.x, y: p1.y, imagePrompt: '' }); // offline mode uses unicode/text
+
+            const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
+            // For p2, we can use imagePrompt field to pass Emoji for offline visual
+            points.push({ label: pair.l2, pairId: j, x: p2.x, y: p2.y, imagePrompt: pair.img });
+        }
+
+        results.push({
             title: 'Ağırlık Eşleştirme (Hızlı Mod)',
             prompt: 'Eşit ağırlıkları birleştir.',
-            gridDim: gridSize || 10,
+            instruction: 'Birbiriyle eşit olan ağırlık değerlerini çizgilerle birleştirin.',
+            pedagogicalNote: 'Ölçü birimleri dönüşümü ve görsel eşleştirme.',
+            gridDim: dim,
             points
-        }
-    });
+        });
+    }
+    return results;
 }
 
 export const generateOfflineLengthConnect = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
     const {itemCount, worksheetCount, gridSize} = options;
-     return Array.from({length: worksheetCount}, () => {
-        const pairs = [
-            {l1: '1 m', l2: '100 cm'},
-            {l1: '200 cm', l2: '2 m'},
-            {l1: 'yarım m', l2: '50 cm'},
-            {l1: '1 km', l2: '1000 m'}
-        ];
-        const points = pairs.flatMap((p, i) => ([
-            {label: p.l1, pairId: i, x:0, y:0},
-            {label: p.l2, pairId: i, x:0, y:0}
-        ]));
-        shuffle(points).forEach((p, i) => {
-            p.x = (i % 2) * ((gridSize || 10)-1);
-            p.y = i * 2;
-        });
-        return {
+    const results: LengthConnectData[] = [];
+    const dim = gridSize || 6;
+    const pairCount = Math.floor((itemCount || 6) / 2);
+    const pairsPool = [
+        {l1: '1 m', l2: '100 cm', img: '📏'},
+        {l1: '200 cm', l2: '2 m', img: '🚪'},
+        {l1: 'Yarım m', l2: '50 cm', img: '👣'},
+        {l1: '1 km', l2: '1000 m', img: '🛣️'},
+        {l1: '10 mm', l2: '1 cm', img: '✏️'},
+        {l1: '30 cm', l2: 'Cetvel Boyu', img: '📐'}
+    ];
+
+    for(let i=0; i<worksheetCount; i++) {
+        const placements = generateSmartConnectGrid(dim, pairCount);
+        const points: LengthConnectData['points'] = [];
+        const selectedPairs = getRandomItems(pairsPool, pairCount);
+
+        for(let j=0; j<pairCount; j++) {
+            const pair = selectedPairs[j];
+            const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
+            points.push({ label: pair.l1, pairId: j, x: p1.x, y: p1.y, imagePrompt: '' });
+
+            const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
+            points.push({ label: pair.l2, pairId: j, x: p2.x, y: p2.y, imagePrompt: pair.img });
+        }
+
+        results.push({
             title: 'Uzunluk Eşleştirme (Hızlı Mod)',
             prompt: 'Eşit uzunlukları birleştir.',
-            gridDim: gridSize || 10,
+            instruction: 'Birbiriyle eşit olan uzunluk ölçülerini eşleştirin.',
+            pedagogicalNote: 'Uzunluk ölçüleri dönüşümü ve görsel algı.',
+            gridDim: dim,
             points
-        }
-    });
+        });
+    }
+    return results;
 }

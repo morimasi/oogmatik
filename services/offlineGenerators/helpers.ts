@@ -11,6 +11,25 @@ export const EMOJIS = Object.keys(EMOJI_MAP);
 export const COLORS = TR_VOCAB.colors_detailed;
 export const HOMONYMS = TR_VOCAB.homonyms;
 
+// Genişletilmiş Kategori Listesi
+export const ITEM_CATEGORIES = ['animals', 'fruits_veggies', 'jobs', 'school', 'items_household', 'kitchen_food', 'sports', 'clothing', 'body_health', 'nature_space', 'technology', 'emotions', 'vehicles'];
+
+export const CATEGORY_NAMES: Record<string, string> = {
+    'animals': 'Hayvanlar',
+    'fruits_veggies': 'Meyve & Sebze',
+    'jobs': 'Meslekler',
+    'school': 'Okul',
+    'items_household': 'Ev Eşyaları',
+    'kitchen_food': 'Mutfak & Yemek',
+    'sports': 'Spor',
+    'clothing': 'Kıyafet',
+    'body_health': 'Vücut & Sağlık',
+    'nature_space': 'Doğa & Uzay',
+    'technology': 'Teknoloji',
+    'emotions': 'Duygular',
+    'vehicles': 'Araçlar'
+};
+
 // Visual Similarity Map for attention tasks
 export const VISUALLY_SIMILAR_CHARS: Record<string, string[]> = {
     'b': ['d', 'p', 'q', 'h'],
@@ -48,6 +67,22 @@ export const SYLLABLE_EMOJIS: Record<string, string> = {
     'YEM': '🌽', 'SÜT': '🥛', 'TUZ': '🧂', 'YAĞ': '🧈', 'KAN': '🩸', 'TER': '💧', 'KİL': '🧱'
 };
 
+// Professional Color Palette for Connect Games (High Contrast, Print Friendly)
+export const CONNECT_COLORS = [
+    '#EF4444', // Red
+    '#3B82F6', // Blue
+    '#10B981', // Green
+    '#F59E0B', // Amber
+    '#8B5CF6', // Violet
+    '#EC4899', // Pink
+    '#06B6D4', // Cyan
+    '#6366F1', // Indigo
+    '#84CC16', // Lime
+    '#F97316', // Orange
+    '#14B8A6', // Teal
+    '#D946EF'  // Fuchsia
+];
+
 
 // --- Helper Functions ---
 
@@ -70,6 +105,72 @@ export const getRandomItems = <T>(arr: T[], count: number): T[] => {
     if (!arr || arr.length === 0) return [];
     if (count >= arr.length) return shuffle(arr);
     return shuffle(arr).slice(0, count);
+};
+
+// Smart Grid Placement for Connect Games
+// Ensures points are not overlapping and reasonably spaced
+export const generateSmartConnectGrid = (gridSize: number, pairsCount: number) => {
+    const usedCoordinates = new Set<string>();
+    const placements: { x: number, y: number, pairIndex: number, isStart: boolean }[] = [];
+    
+    // Helper to get a valid random coordinate
+    const getValidCoord = (): { x: number, y: number } | null => {
+        let attempts = 0;
+        while (attempts < 50) {
+            const x = getRandomInt(0, gridSize - 1);
+            const y = getRandomInt(0, gridSize - 1);
+            const key = `${x},${y}`;
+            if (!usedCoordinates.has(key)) {
+                return { x, y };
+            }
+            attempts++;
+        }
+        return null;
+    };
+
+    // Helper to check distance
+    const isFarEnough = (c1: {x:number, y:number}, c2: {x:number, y:number}, minDistance: number) => {
+        return (Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y)) >= minDistance;
+    }
+
+    for (let i = 0; i < pairsCount; i++) {
+        // Place Start Point
+        const start = getValidCoord();
+        if (!start) break; // Grid full or failed to place
+        usedCoordinates.add(`${start.x},${start.y}`);
+        
+        // Place End Point (try to keep it some distance away for challenge)
+        let end = null;
+        let attempts = 0;
+        const targetDist = Math.max(2, Math.floor(gridSize / 2));
+        
+        while(attempts < 20) {
+            const candidate = getValidCoord();
+            if (candidate && isFarEnough(start, candidate, targetDist)) {
+                end = candidate;
+                break;
+            }
+            // If we fail finding far point, check if candidate is valid at least
+            if (candidate && !end) end = candidate; // Fallback
+            attempts++;
+        }
+        
+        if (!end) {
+             // Should rarely happen if grid is large enough
+             end = getValidCoord();
+        }
+        
+        if (end) {
+            usedCoordinates.add(`${end.x},${end.y}`);
+            placements.push({ ...start, pairIndex: i, isStart: true });
+            placements.push({ ...end, pairIndex: i, isStart: false });
+        } else {
+            // Rollback start if we can't place end
+             usedCoordinates.delete(`${start.x},${start.y}`);
+        }
+    }
+
+    return placements;
 };
 
 // Latin Square Generator (Backtracking)
