@@ -49,6 +49,7 @@ export const generateNumberPatternFromAI = async (options: GeneratorOptions): Pr
     return generateWithSchema(prompt, schema) as Promise<NumberPatternData[]>;
 };
 
+// ... (Rest of the existing logic problems generators remain unchanged, removed duplicated Resfebe if present) ...
 export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions): Promise<ShapeNumberPatternData[]> => {
     const { itemCount: count, difficulty, worksheetCount } = options;
     const prompt = `Generate ${worksheetCount} unique worksheets for a shape-based number pattern puzzle for kids, appropriate for difficulty level "${difficulty}". Each worksheet should contain ${count} puzzles. Each puzzle should consist of a few shapes (only triangles for now) containing numbers. There must be a logical rule connecting the numbers in each shape. One number should be a question mark.

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from '../types';
 // FIX: Error on line 3: Module '"file:///components/Worksheet"' has no default export. Fixed by adding a default export to Worksheet.tsx
@@ -19,6 +20,7 @@ interface ContentAreaProps {
   savedWorksheets: SavedWorksheet[];
   onLoadSaved: (worksheet: SavedWorksheet) => void;
   onDeleteSaved: (id: string) => void;
+  onFeedback: () => void; // Added prop
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({
@@ -33,7 +35,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onSave,
   savedWorksheets,
   onLoadSaved,
-  onDeleteSaved
+  onDeleteSaved,
+  onFeedback
 }) => {
     
     const handleSave = (name: string) => {
@@ -50,7 +53,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         <>
             {activityType && worksheetData && (
                 <div className="mb-6 fade-in print:hidden">
-                    <Toolbar settings={styleSettings} onSettingsChange={onStyleChange} onSave={handleSave} />
+                    <Toolbar 
+                        settings={styleSettings} 
+                        onSettingsChange={onStyleChange} 
+                        onSave={handleSave} 
+                        onFeedback={onFeedback}
+                    />
                 </div>
             )}
             

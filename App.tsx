@@ -6,6 +6,7 @@ import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
 import DyslexiaLogo from './components/DyslexiaLogo';
 import GlobalSearch from './components/GlobalSearch';
+import { FeedbackModal } from './components/FeedbackModal';
 
 export interface StyleSettings {
   fontSize: number;
@@ -93,6 +94,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   
   // Theme state management
   const [theme, setTheme] = useState<AppTheme>(() => {
@@ -300,8 +302,17 @@ const App: React.FC = () => {
           savedWorksheets={savedWorksheets}
           onLoadSaved={loadSavedWorksheet}
           onDeleteSaved={deleteSavedWorksheet}
+          onFeedback={() => setIsFeedbackOpen(true)}
         />
       </div>
+
+      {/* FEEDBACK MODAL */}
+      <FeedbackModal 
+        isOpen={isFeedbackOpen} 
+        onClose={() => setIsFeedbackOpen(false)}
+        activityType={selectedActivity}
+        activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined}
+      />
 
       {/* SETTINGS MODAL */}
       <Modal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} title="Görünüm Ayarları">

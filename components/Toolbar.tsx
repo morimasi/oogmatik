@@ -6,9 +6,10 @@ interface ToolbarProps {
   settings: StyleSettings;
   onSettingsChange: (newSettings: StyleSettings) => void;
   onSave: (name: string) => void;
+  onFeedback?: () => void;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, onFeedback }) => {
   const handlePrint = () => {
     window.print();
   };
@@ -63,6 +64,10 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave })
       
         {/* Eylemler */}
         <div className="flex items-center gap-2">
+            <button onClick={onFeedback} className="bg-rose-100 hover:bg-rose-200 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300 dark:hover:bg-rose-900/50 font-bold py-2 px-3 rounded-lg transition-colors flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500" title="Hata Bildir / Geri Bildirim">
+                <i className="fa-solid fa-flag"></i>
+            </button>
+            <div className="w-px h-8 bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
             <button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-offset-zinc-800">
                 <i className="fa-solid fa-save"></i><span className="hidden sm:inline">Kaydet</span>
             </button>
