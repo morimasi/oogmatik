@@ -36,30 +36,30 @@
   }
 </script>
 <style>
-  /* Import OpenDyslexic font from reliable CDN */
+  /* Import OpenDyslexic font from a reliable CDN */
   @font-face {
     font-family: 'OpenDyslexic';
-    src: url('https://cdn.jsdelivr.net/npm/opendyslexic@2.1.0/open-dyslexic-regular.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+    src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic-regular.min.css') format('css'); 
+    /* Fallback or alternative CDN if direct woff fails, using a common dyslexia font or just force local if available */
   }
+  /* Using a direct link to a woff file from a stable repo for better reliability */
   @font-face {
-    font-family: 'OpenDyslexic';
-    src: url('https://cdn.jsdelivr.net/npm/opendyslexic@2.1.0/open-dyslexic-bold.woff') format('woff');
-    font-weight: bold;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'OpenDyslexic';
-    src: url('https://cdn.jsdelivr.net/npm/opendyslexic@2.1.0/open-dyslexic-italic.woff') format('woff');
-    font-weight: normal;
-    font-style: italic;
+      font-family: 'OpenDyslexic';
+      font-style: normal;
+      font-weight: normal;
+      src: url('https://raw.githubusercontent.com/antijingoist/open-dyslexic/master/compiled/OpenDyslexic-Regular.woff') format('woff');
   }
   @font-face {
       font-family: 'OpenDyslexic';
-      src: url('https://cdn.jsdelivr.net/npm/opendyslexic@2.1.0/open-dyslexic-bold-italic.woff') format('woff');
+      font-style: normal;
       font-weight: bold;
+      src: url('https://raw.githubusercontent.com/antijingoist/open-dyslexic/master/compiled/OpenDyslexic-Bold.woff') format('woff');
+  }
+  @font-face {
+      font-family: 'OpenDyslexic';
       font-style: italic;
+      font-weight: normal;
+      src: url('https://raw.githubusercontent.com/antijingoist/open-dyslexic/master/compiled/OpenDyslexic-Italic.woff') format('woff');
   }
 
   /* Force OpenDyslexic on all elements including form inputs */

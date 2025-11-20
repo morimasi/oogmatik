@@ -34,20 +34,39 @@ const fromRoman = (roman: string): number => {
 
 
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
-    const { itemCount, worksheetCount, difficulty } = options;
+    const { itemCount, worksheetCount, difficulty, operations, numberRange } = options;
     const objects = EMOJIS.slice(0, 15);
     
-    let valueMin = 1, valueMax = 10, ops = ['+'];
-    if (difficulty === 'Orta') { valueMin = 1; valueMax = 20; ops = ['+', '-']; } 
-    else if (difficulty === 'Zor') { valueMin = 2; valueMax = 15; ops = ['+', '-', '*']; } 
-    else if (difficulty === 'Uzman') { valueMin = 2; valueMax = 25; ops = ['+', '-', '*', '/']; }
+    // Default ranges based on difficulty
+    let valueMin = 1, valueMax = 10;
+    
+    // Override with numberRange if provided
+    if (numberRange) {
+        const parts = numberRange.split('-');
+        if (parts.length === 2) {
+            valueMin = parseInt(parts[0]);
+            valueMax = parseInt(parts[1]);
+        }
+    } else if (difficulty === 'Orta') { valueMin = 1; valueMax = 20; } 
+    else if (difficulty === 'Zor') { valueMin = 2; valueMax = 50; } 
+    else if (difficulty === 'Uzman') { valueMin = 5; valueMax = 100; }
+
+    // Define operations
+    let ops = ['+'];
+    if (operations === 'add') ops = ['+'];
+    else if (operations === 'addsub') ops = ['+', '-'];
+    else if (operations === 'mult') ops = ['+', '-', '*'];
+    else if (operations === 'all') ops = ['+', '-', '*', '/'];
+    else if (difficulty === 'Orta') ops = ['+', '-'];
+    else if (difficulty === 'Zor') ops = ['+', '-', '*'];
+    else if (difficulty === 'Uzman') ops = ['+', '-', '*', '/'];
 
     const results: MathPuzzleData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const currentObjects = getRandomItems(objects, 3);
         const values = currentObjects.map(() => getRandomInt(valueMin, valueMax));
         
-        const puzzles = Array.from({ length: itemCount }).map(() => {
+        const puzzles = Array.from({ length: itemCount || 6 }).map(() => {
             const op = getRandomItems(ops, 1)[0];
             const [idx1, idx2] = [getRandomInt(0, 2), getRandomInt(0, 2)];
             
@@ -77,7 +96,7 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
     const { itemCount, worksheetCount, difficulty, patternType } = options;
     const results: NumberPatternData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const patterns = Array.from({ length: itemCount }).map(() => {
+        const patterns = Array.from({ length: itemCount || 8 }).map(() => {
             let start = getRandomInt(1, 10);
             let sequence = [start];
             let answer = 0;
@@ -150,7 +169,7 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
     const { itemCount, worksheetCount, difficulty } = options;
     const results: NumberPyramidData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const pyramids = Array.from({ length: itemCount }).map((_, index) => {
+        const pyramids = Array.from({ length: itemCount || 2 }).map((_, index) => {
             let rowsCount = 3;
             if (difficulty === 'Orta') rowsCount = 4;
             if (difficulty === 'Zor' || difficulty === 'Uzman') rowsCount = 5;
@@ -213,16 +232,14 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
     const {itemCount, worksheetCount, difficulty} = options;
     const results: OddEvenSudokuData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const puzzles = Array.from({length: itemCount}).map((_, idx) => {
+        const puzzles = Array.from({length: itemCount || 2}).map(() => {
             const grid = generateSudokuGrid(6, difficulty);
             const constrainedCells = [];
             for(let r=0; r<6; r++) for(let c=0; c<6; c++){
-                // Mark some cells as needing to be EVEN (if the solution number is even) or ODD
-                // Here simplified: Just marking random spots to say "Constraint Here" 
                 if(grid[r][c] === null && Math.random() > 0.5) constrainedCells.push({row:r, col: c});
             }
             return {
-                title: `Bulmaca ${idx+1}`,
+                title: 'Bulmaca',
                 numbersToUse: '1-6',
                 grid,
                 constrainedCells
@@ -278,7 +295,7 @@ export const generateOfflineRomanNumeralMultiplication = async (options: Generat
     const { itemCount, worksheetCount } = options;
     const results: RomanNumeralMultiplicationData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const puzzles = Array.from({ length: itemCount }, () => {
+        const puzzles = Array.from({ length: itemCount || 4 }, () => {
             const n1 = getRandomInt(1, 10);
             const n2 = getRandomInt(1, 10);
             const n3 = getRandomInt(1, 10);
@@ -378,7 +395,7 @@ export const generateOfflineDivisionPyramid = async (options: GeneratorOptions):
     const { itemCount, worksheetCount, difficulty } = options;
     const results: DivisionPyramidData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const pyramids = Array.from({ length: itemCount }).map(() => {
+        const pyramids = Array.from({ length: itemCount || 4 }).map(() => {
             // Build from top-down to ensure integer division
             let top: number;
             let mid_L: number, mid_R: number;
@@ -426,7 +443,7 @@ export const generateOfflineMultiplicationPyramid = async (options: GeneratorOpt
     const { itemCount, worksheetCount } = options;
     const results: MultiplicationPyramidData[] = [];
     for(let i=0; i<worksheetCount; i++) {
-        const pyramids = Array.from({length: itemCount}).map(() => {
+        const pyramids = Array.from({length: itemCount || 4}).map(() => {
             const base = [getRandomInt(2, 5), getRandomInt(2, 5), getRandomInt(2, 5)];
             const mid = [base[0]*base[1], base[1]*base[2]];
             const top = [mid[0]*mid[1]];
@@ -497,7 +514,7 @@ export const generateOfflineMultiplicationWheel = async (options: GeneratorOptio
      const { itemCount, worksheetCount } = options;
      const results: MultiplicationWheelData[] = [];
      for(let i=0; i<worksheetCount; i++) {
-         const puzzles = Array.from({length: itemCount}).map(() => {
+         const puzzles = Array.from({length: itemCount || 6}).map(() => {
              const center = getRandomInt(2, 9);
              const outer = Array.from({length: 8}, () => getRandomInt(1, 10));
              const outerMasked: (number|null)[] = outer.map(n => Math.random() > 0.4 ? n : null);
@@ -513,7 +530,7 @@ export const generateOfflineTargetNumber = async (options: GeneratorOptions): Pr
      return Array.from({length: worksheetCount}, () => ({ 
          title: 'Hedef Sayı', 
          prompt: 'Verilen sayılarla dört işlem yaparak hedef sayıya ulaşın.',
-         puzzles: Array.from({length: itemCount}, () => {
+         puzzles: Array.from({length: itemCount || 4}, () => {
              const n1 = getRandomInt(1, 9);
              const n2 = getRandomInt(1, 9);
              const n3 = getRandomInt(1, 9);
@@ -572,7 +589,7 @@ export const generateOfflineVisualNumberPattern = async (options: GeneratorOptio
     const {itemCount, worksheetCount} = options;
     const results: VisualNumberPatternData[] = [];
     for(let i=0; i<worksheetCount; i++) {
-        const puzzles = Array.from({length: itemCount}, () => {
+        const puzzles = Array.from({length: itemCount || 3}, () => {
             const start = getRandomInt(1, 5);
             const step = getRandomInt(2, 4);
             const items = Array.from({length: 4}, (_, k) => ({
@@ -635,7 +652,7 @@ export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promi
     const { itemCount, worksheetCount, topic } = options;
     const results: OddOneOutData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const groups = Array.from({ length: itemCount }).map(() => {
+        const groups = Array.from({ length: itemCount || 5 }).map(() => {
             const mainCatKey = topic && topic !== 'Rastgele' ? topic.toLowerCase() : getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'], 1)[0];
             const oddCatKey = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'].filter(c => c !== mainCatKey), 1)[0];
             
@@ -723,7 +740,7 @@ export const generateOfflineShapeNumberPattern = async (options: GeneratorOption
         title: 'Şekilli Sayı Örüntüsü',
         instruction: "Şekillerin içindeki sayılar arasındaki kuralı bulup '?' yerine gelecek sayıyı yazın.",
         pedagogicalNote: "Görsel ve sayısal örüntüleri birleştirerek problem çözme.",
-        patterns: Array.from({length: itemCount}, () => {
+        patterns: Array.from({length: itemCount || 3}, () => {
             const n1 = getRandomInt(1,10);
             const n2 = getRandomInt(1,10);
             return { shapes: [{ type: 'triangle', numbers: [n1, n2, '?']}, {type: 'triangle', numbers: [n1+1, n2+1, (n1+1)+(n2+1)]}]}
@@ -789,13 +806,13 @@ export const generateOfflineArithmeticConnect = async (options: GeneratorOptions
 export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
     const {itemCount, worksheetCount, gridSize} = options;
     return Array.from({length: worksheetCount}, () => {
-        const pairs = Array.from({length: itemCount / 2}, (_, i) => i+1);
+        const pairs = Array.from({length: (itemCount || 10) / 2}, (_, i) => i+1);
         const points = pairs.flatMap(p => ([
             {label: p.toString(), pairId: p, x: 0, y: 0},
             {label: toRoman(p), pairId: p, x:0, y:0}
         ]));
         shuffle(points).forEach((p, i) => {
-            p.x = (i % 2) * (gridSize-1);
+            p.x = (i % 2) * ((gridSize || 6)-1);
             p.y = Math.floor(i / 2) * 2;
         });
         return {
@@ -820,7 +837,7 @@ export const generateOfflineWeightConnect = async (options: GeneratorOptions): P
             {label: p.l2, pairId: i, x:0, y:0}
         ]));
         shuffle(points).forEach((p, i) => {
-            p.x = (i % 2) * (gridSize-1);
+            p.x = (i % 2) * ((gridSize || 10)-1);
             p.y = i * 2;
         });
         return {
@@ -846,7 +863,7 @@ export const generateOfflineLengthConnect = async (options: GeneratorOptions): P
             {label: p.l2, pairId: i, x:0, y:0}
         ]));
         shuffle(points).forEach((p, i) => {
-            p.x = (i % 2) * (gridSize-1);
+            p.x = (i % 2) * ((gridSize || 10)-1);
             p.y = i * 2;
         });
         return {

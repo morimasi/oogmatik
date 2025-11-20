@@ -93,7 +93,7 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
     const pool = [...TR_VOCAB.confusing_words.flat(), ...getWordsForDifficulty(difficulty, topic)];
     
     for (let i = 0; i < worksheetCount; i++) {
-        const rows = Array.from({ length: itemCount }, () => {
+        const rows = Array.from({ length: itemCount || 5 }).map(() => {
             const baseWord = getRandomItems(pool, 1)[0];
             const correctIndex = getRandomInt(0, 3);
             let differentWord = '';
@@ -169,7 +169,7 @@ export const generateOfflineShapeMatching = async (options: GeneratorOptions): P
     const results: ShapeMatchingData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const shapeCount = difficulty === 'Başlangıç' ? 2 : (difficulty === 'Orta' ? 3 : 4);
-        const leftColumn = Array.from({ length: itemCount }, (_, k) => ({ 
+        const leftColumn = Array.from({ length: itemCount || 5 }, (_, k) => ({ 
             id: k + 1, 
             shapes: getRandomItems(SHAPE_TYPES, shapeCount),
             color: getRandomItems(COLORS, 1)[0].css
@@ -196,7 +196,7 @@ export const generateOfflineFindIdenticalWord = async (options: GeneratorOptions
     const { itemCount, worksheetCount } = options;
     const results: FindIdenticalWordData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const groups = getRandomItems(TR_VOCAB.confusing_words, itemCount).map(pair => ({ 
+        const groups = getRandomItems(TR_VOCAB.confusing_words, itemCount || 5).map(pair => ({ 
             words: pair as [string, string],
             distractors: [pair[0] + 'a', pair[1].split('').reverse().join('')]
         }));
@@ -217,7 +217,7 @@ export const generateOfflineGridDrawing = async (options: GeneratorOptions): Pro
         const dim = gridSize || 6;
         const density = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 3);
         
-        const drawings = Array.from({length: itemCount}).map(() => {
+        const drawings = Array.from({length: itemCount || 2}).map(() => {
             return { 
                 lines: generateRandomPattern(dim, density) as [number, number][][],
                 complexityLevel: difficulty
@@ -247,7 +247,7 @@ export const generateOfflineSymbolCipher = async (options: GeneratorOptions): Pr
         const availableLetters = cipherKey.map(k => k.letter);
         const simpleWords = ['baba', 'baca', 'aba', 'caba', 'ede', 'fece'].filter(w => w.split('').every(l => availableLetters.includes(l)));
         
-        const wordsToUse = simpleWords.length >= itemCount ? getRandomItems(simpleWords, itemCount) : Array.from({length: itemCount}, () => 
+        const wordsToUse = simpleWords.length >= (itemCount || 5) ? getRandomItems(simpleWords, itemCount || 5) : Array.from({length: itemCount || 5}, () => 
             Array.from({length: 4}, () => getRandomItems(availableLetters, 1)[0]).join('')
         );
 
@@ -296,7 +296,7 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
     const { worksheetCount, itemCount } = options;
     const results: VisualOddOneOutData[] = [];
     for(let i=0; i<worksheetCount; i++) {
-        const rows = Array.from({length: itemCount}).map(() => {
+        const rows = Array.from({length: itemCount || 5}).map(() => {
             const correctIndex = getRandomInt(0, 3);
             const standard = [true, true, true, true, true, true, true];
             const odd = [true, true, false, true, true, true, true];
@@ -342,7 +342,7 @@ export const generateOfflineFindDifferentString = async (options: GeneratorOptio
     const {itemCount, worksheetCount} = options;
     const results: FindDifferentStringData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const rows = Array.from({length:itemCount}).map(() => {
+        const rows = Array.from({length:itemCount || 8}).map(() => {
             const base = getRandomItems(["X89K", "M2N4", "A7B3", "K9L1", "7UP5"], 1)[0];
             const diff = base.substring(0, 2) + (base.charAt(2) === '9' ? '8' : '9') + base.substring(3);
             const items = shuffle([base, base, base, diff]);
@@ -387,7 +387,7 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
     const results: AbcConnectData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const dim = gridSize || 5;
-        const letters = ['A','B','C','D','E','F'].slice(0, Math.floor(itemCount / 2));
+        const letters = ['A','B','C','D','E','F'].slice(0, Math.floor((itemCount || 6) / 2));
         const points = letters.flatMap(l => ([
             {label: l, x: getRandomInt(0, dim-1), y: getRandomInt(0, dim-1), color: '#ddd'},
             {label: l, x: getRandomInt(0, dim-1), y: getRandomInt(0, dim-1), color: '#ddd'}

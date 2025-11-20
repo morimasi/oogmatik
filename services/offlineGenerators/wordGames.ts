@@ -6,17 +6,31 @@ import { PROVERBS } from '../../data/sentences';
 export const generateOfflineWordSearch = async (options: GeneratorOptions & { words?: string[] }): Promise<WordSearchData[]> => {
     const { topic, itemCount, difficulty, worksheetCount, words } = options;
     const results: WordSearchData[] = [];
-    let size = options.gridSize || (difficulty === 'Orta' ? 12 : (difficulty === 'Zor' ? 14 : 10));
-
-    let maxDir = 1; // 0: H, 1: V
-    if (options.directions === 'diagonal' || difficulty === 'Orta') maxDir = 3; 
-    if (options.directions === 'all' || difficulty === 'Zor' || difficulty === 'Uzman') maxDir = 7; 
+    const size = options.gridSize || (difficulty === 'Orta' ? 12 : (difficulty === 'Zor' ? 14 : 10));
+    
+    // 0: E, 1: S, 2: SE, 3: N, 4: W, 5: SW, 6: NW, 7: NE
+    const directions: number[] = [];
+    
+    if (options.directions === 'simple' || difficulty === 'Başlangıç') {
+        directions.push(0, 1); // Right, Down
+    } else if (options.directions === 'diagonal' || difficulty === 'Orta') {
+        directions.push(0, 1, 2); // Right, Down, Down-Right
+    } else {
+        directions.push(0, 1, 2, 3, 4, 5, 6, 7); // All directions
+    }
+    
+    // Case handling
+    const isUpperCase = options.case !== 'lower';
 
     for (let i = 0; i < worksheetCount; i++) {
         const availableWords = getWordsForDifficulty(difficulty, topic);
-        const sheetWords = words 
+        let sheetWords = words 
             ? words.map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''))
-            : getRandomItems(availableWords, itemCount).map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''));
+            : getRandomItems(availableWords, itemCount || 10).map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''));
+            
+        // Sort by length descending to place longer words first
+        sheetWords.sort((a, b) => b.length - a.length);
+
         const grid: string[][] = Array.from({ length: size }, () => Array(size).fill(''));
         const placedWords: string[] = [];
         
@@ -24,8 +38,8 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
             if (word.length > size) return;
             let placed = false;
             let attempts = 0;
-            while (!placed && attempts < 50) {
-                const dir = getRandomInt(0, maxDir); // 0: E, 1: S, 2: SE, 3: N, 4: W, 5: SW, 6: NW, 7: NE
+            while (!placed && attempts < 100) {
+                const dir = getRandomItems(directions, 1)[0];
                 const dr = [0, 1, 1, -1, 0, 1, -1, -1];
                 const dc = [1, 0, 1, 0, -1, -1, -1, 1];
 
@@ -60,17 +74,23 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
             }
         });
 
+        // Fill empty cells
         for(let r=0; r<size; r++) {
             for(let c=0; c<size; c++) {
                 if(grid[r][c] === '') grid[r][c] = turkishAlphabet[getRandomInt(0, 28)];
             }
         }
+        
+        // Apply case
+        const finalGrid = grid.map(row => row.map(cell => isUpperCase ? cell.toUpperCase() : cell));
+        const finalWords = placedWords.map(w => isUpperCase ? w.toUpperCase() : w);
+
         results.push({ 
             title: `Kelime Bulmaca`, 
             instruction: "Listelenen kelimeleri tablonun içinde bul ve işaretle.",
-            pedagogicalNote: "Şekil-zemin algısı ve görsel tarama becerilerini destekler.",
-            words: placedWords, 
-            grid, 
+            pedagogicalNote: "Görsel tarama, şekil-zemin algısı ve seçici dikkat becerilerini destekler.",
+            words: finalWords, 
+            grid: finalGrid, 
             hiddenMessage: 'Başardın', 
             followUpQuestion: 'Bulduğun en uzun kelime hangisi?' 
         });
@@ -82,7 +102,7 @@ export const generateOfflineAnagram = async (options: GeneratorOptions): Promise
     const { topic, itemCount, worksheetCount, difficulty } = options;
     const results: AnagramsData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const words = getRandomItems(getWordsForDifficulty(difficulty, topic), itemCount);
+        const words = getRandomItems(getWordsForDifficulty(difficulty, topic), itemCount || 8);
         results.push({
             title: 'Anagram Çözmece',
             instruction: "Karışık verilen harfleri düzenleyerek anlamlı kelimeleri bul.",
@@ -101,10 +121,12 @@ export const generateOfflineSpellingCheck = async (options: GeneratorOptions): P
     const confusingPairs = TR_VOCAB.confusing_words;
 
     for (let i = 0; i < worksheetCount; i++) {
-        const checks = getRandomItems(confusingPairs, itemCount).map(pair => {
+        const checks = getRandomItems(confusingPairs, itemCount || 8).map(pair => {
             const correct = pair[0];
             const incorrect = pair[1];
-            return { correct, options: shuffle([correct, incorrect, correct.replace(/[aeıioöuü]/, 'e')]) };
+            // Generate a visual distractor by replacing a vowel or similar consonant
+            const distractor = correct.replace(/[aeıioöuü]/, (m) => m === 'a' ? 'e' : 'a');
+            return { correct, options: shuffle([correct, incorrect, distractor]) };
         });
         results.push({ 
             title: `Doğru Yazılışı Bul`, 
@@ -124,7 +146,7 @@ export const generateOfflineLetterBridge = async (options: GeneratorOptions): Pr
     for (let i = 0; i < worksheetCount; i++) {
         const pairs = [];
         let attempts = 0;
-        while(pairs.length < itemCount && attempts < 200) {
+        while(pairs.length < (itemCount || 8) && attempts < 200) {
             const bridgeLetter = getRandomItems(turkishAlphabet.split(''), 1)[0];
             const word1 = wordPool.find(w => w.endsWith(bridgeLetter) && w.length > 2);
             const word2 = wordPool.find(w => w.startsWith(bridgeLetter) && w.length > 2 && w !== word1);
@@ -153,7 +175,8 @@ export const generateOfflineWordLadder = async (options: GeneratorOptions): Prom
         { startWord: 'bal', endWord: 'sel', steps: 2 }, 
         { startWord: 'kış', endWord: 'yaz', steps: 3 }, 
         { startWord: 'ekim', endWord: 'ekip', steps: 1},
-        { startWord: 'koyu', endWord: 'kuyu', steps: 1}
+        { startWord: 'koyu', endWord: 'kuyu', steps: 1},
+        { startWord: 'kasa', endWord: 'masa', steps: 1}
     ];
     for (let i = 0; i < worksheetCount; i++) {
         results.push({ 
@@ -161,7 +184,7 @@ export const generateOfflineWordLadder = async (options: GeneratorOptions): Prom
             instruction: "Her basamakta sadece bir harf değiştirerek yeni kelimeye ulaş.",
             pedagogicalNote: "Harf manipülasyonu ve kelime analizi.",
             theme: 'Harf Değişimi', 
-            ladders: getRandomItems(ladders, itemCount).map(l => ({...l, steps: steps || l.steps})) 
+            ladders: getRandomItems(ladders, itemCount || 2).map(l => ({...l, steps: steps || l.steps})) 
         });
     }
     return results;
@@ -171,7 +194,7 @@ export const generateOfflineWordFormation = async (options: GeneratorOptions): P
     const { itemCount, difficulty, worksheetCount } = options;
     const results: WordFormationData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const sets = Array.from({ length: itemCount }, () => {
+        const sets = Array.from({ length: itemCount || 6 }, () => {
             const baseWord = getRandomItems(getWordsForDifficulty(difficulty), 1)[0] || "bilgisayar";
             return { letters: shuffle(baseWord.split('')), jokerCount: difficulty === 'Başlangıç' ? 2 : 1 };
         });
@@ -194,7 +217,7 @@ export const generateOfflineReverseWord = async (options: GeneratorOptions): Pro
             title: 'Ters Oku, Düz Yaz', 
             instruction: "Kelimeleri tersten oku ve doğrusunu yanına yaz.",
             pedagogicalNote: "Görsel işlemleme hızı ve ortografik bellek.",
-            words: getRandomItems(getWordsForDifficulty(difficulty), itemCount), 
+            words: getRandomItems(getWordsForDifficulty(difficulty), itemCount || 8), 
             funFact: 'Beynimiz kelimeleri harf harf değil, bütün olarak algılar.' 
         });
     }
@@ -229,7 +252,7 @@ export const generateOfflineMiniWordGrid = async (options: GeneratorOptions): Pr
      const {itemCount, worksheetCount, difficulty} = options;
      const results: MiniWordGridData[] = [];
      for(let i=0; i<worksheetCount; i++){
-         const puzzles = Array.from({length: itemCount}).map(() => {
+         const puzzles = Array.from({length: itemCount || 6}).map(() => {
             const word = getRandomItems(getWordsForDifficulty(difficulty), 1)[0] || 'kedi';
             const size = Math.max(3, Math.ceil(Math.sqrt(word.length)));
             const grid = Array.from({length: size}, () => Array(size).fill(''));
@@ -281,7 +304,7 @@ export const generateOfflineSyllableCompletion = async (options: GeneratorOption
     const {itemCount, worksheetCount, difficulty} = options;
     const results: SyllableCompletionData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount);
+        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 8);
         const wordParts = words.map(w => {
             const parts = simpleSyllabify(w);
             return {first: parts[0], second: parts.slice(1).join('')};
@@ -378,7 +401,7 @@ export const generateOfflineSpiralPuzzle = async (options: GeneratorOptions): Pr
              pedagogicalNote: "Görsel takip ve sarmal okuma becerisi.",
              theme: 'Rastgele', 
              prompt: 'İpuçlarını takip et.', 
-             clues: Array.from({length: itemCount}, (_, i) => `${i+1}. ipucu`), 
+             clues: Array.from({length: itemCount || 10}, (_, i) => `${i+1}. ipucu`), 
              grid, 
              wordStarts: [{id: 1, row: Math.floor(size/2), col: Math.floor(size/2)}], 
              passwordPrompt: 'Şifre nedir?' 
@@ -407,7 +430,7 @@ export const generateOfflineThematicJumbledWordStory = async (options: Generator
 export const generateOfflineHomonymSentenceWriting = async (options: GeneratorOptions): Promise<HomonymSentenceData[]> => {
     const { itemCount, worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const items = getRandomItems(HOMONYMS, itemCount).map(word => ({
+        const items = getRandomItems(HOMONYMS, itemCount || 4).map(word => ({
             word,
             meaning1: '1. Anlam',
             meaning2: '2. Anlam',
@@ -426,7 +449,7 @@ export const generateOfflineHomonymSentenceWriting = async (options: GeneratorOp
 export const generateOfflineWordGridPuzzle = async (options: GeneratorOptions): Promise<WordGridPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const wordList = getRandomItems(getWordsForDifficulty(difficulty), itemCount);
+        const wordList = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 10);
         return {
             title: 'Kelime Ağı (Hızlı Mod)',
             prompt: "Kelimeleri bulmacaya yerleştir.",
@@ -461,7 +484,7 @@ export const generateOfflineAntonymFlowerPuzzle = async (options: GeneratorOptio
     const antonymsPool = TR_VOCAB.antonyms;
 
     return Array.from({ length: worksheetCount }, () => {
-        const puzzles = getRandomItems(antonymsPool, itemCount).map(pair => ({
+        const puzzles = getRandomItems(antonymsPool, itemCount || 4).map(pair => ({
             centerWord: pair.word,
             antonym: pair.antonym,
             petalLetters: shuffle(pair.antonym.split(''))
@@ -498,7 +521,7 @@ export const generateOfflineSynonymAntonymGrid = async (options: GeneratorOption
 export const generateOfflineAntonymResfebe = async (options: GeneratorOptions): Promise<AntonymResfebeData[]> => {
     const { itemCount, worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const puzzles = getRandomItems(TR_VOCAB.antonyms, itemCount).map(pair => ({
+        const puzzles = getRandomItems(TR_VOCAB.antonyms, itemCount || 4).map(pair => ({
             word: pair.word,
             antonym: pair.antonym,
             clues: pair.word.split('').map(char => ({ type: 'text' as 'text', value: char }))
@@ -517,7 +540,7 @@ export const generateOfflineAntonymResfebe = async (options: GeneratorOptions): 
 export const generateOfflineResfebe = async (options: GeneratorOptions): Promise<ResfebeData[]> => {
      const { itemCount, worksheetCount, difficulty } = options;
      return Array.from({ length: worksheetCount }, () => {
-         const puzzles = getRandomItems(getWordsForDifficulty(difficulty), itemCount).map(word => ({
+         const puzzles = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 4).map(word => ({
              clues: word.split('').map(char => ({ type: 'text' as 'text' | 'image', value: char })),
              answer: word
          }));
@@ -538,7 +561,7 @@ export const generateOfflineSynonymSearchAndStory = async (options: GeneratorOpt
 export const generateOfflineSynonymMatchingPattern = async (options: GeneratorOptions): Promise<SynonymMatchingPatternData[]> => {
     const { itemCount, worksheetCount, theme } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const pairs = getRandomItems(TR_VOCAB.synonyms, itemCount);
+        const pairs = getRandomItems(TR_VOCAB.synonyms, itemCount || 8);
         return {
             title: 'Eş Anlam Deseni (Hızlı Mod)',
             prompt: 'Eş anlamlı kelimeleri bularak deseni tamamla.',
@@ -553,7 +576,7 @@ export const generateOfflineSynonymMatchingPattern = async (options: GeneratorOp
 export const generateOfflineMissingParts = async (options: GeneratorOptions): Promise<MissingPartsData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const words = getRandomItems(getWordsForDifficulty(difficulty, 'medium'), itemCount);
+        const words = getRandomItems(getWordsForDifficulty(difficulty, 'medium'), itemCount || 8);
         const leftParts = words.map((w, i) => ({ id: i, text: w.substring(0, Math.floor(w.length / 2)) }));
         const rightParts = shuffle(words.map((w, i) => ({ id: i, text: w.substring(Math.floor(w.length / 2)) })));
         return {
@@ -571,7 +594,7 @@ export const generateOfflineMissingParts = async (options: GeneratorOptions): Pr
 export const generateOfflineWordWeb = async (options: GeneratorOptions): Promise<WordWebData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const wordsToFind = getRandomItems(getWordsForDifficulty(difficulty), itemCount);
+        const wordsToFind = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 8);
         return {
             title: 'Kelime Ağı (Hızlı Mod)',
             prompt: 'Kelimeleri bulmacaya yerleştir.',
@@ -620,7 +643,7 @@ export const generateOfflineWordWebWithPassword = async (options: GeneratorOptio
         prompt: 'Kelimeleri yerleştir ve şifreyi bul.',
         instruction: 'Kelimeleri yerleştirdikten sonra renkli sütundaki harflerle şifreyi oluşturun.',
         pedagogicalNote: 'Mantıksal yerleştirme ve dikkat.',
-        words: getRandomItems(getWordsForDifficulty(difficulty), itemCount),
+        words: getRandomItems(getWordsForDifficulty(difficulty), itemCount || 8),
         grid: Array.from({ length: 15 }, () => Array(15).fill(null)),
         passwordColumnIndex: 7
     }));
@@ -662,7 +685,7 @@ export const generateOfflinePositionalAnagram = async (options: GeneratorOptions
         prompt: 'Numaralı kutulardaki harfleri değiştirerek kelimeler bulun.',
         instruction: 'Numaralı kutulardaki harflerin yerlerini değiştirerek anlamlı kelimeler bulun.',
         pedagogicalNote: 'Harf sırası farkındalığı ve problem çözme.',
-        puzzles: getRandomItems(getWordsForDifficulty(difficulty), itemCount).map((word, idx) => ({
+        puzzles: getRandomItems(getWordsForDifficulty(difficulty), itemCount || 4).map((word, idx) => ({
             id: idx,
             scrambled: shuffle(word.split('')).join(''),
             answer: word
@@ -677,7 +700,7 @@ export const generateOfflineImageAnagramSort = async (options: GeneratorOptions)
         prompt: 'Kelimeleri çözüp alfabetik sıraya dizin.',
         instruction: 'Karışık kelimeleri çözüp ilgili görsellerle alfabetik olarak sıralayın.',
         pedagogicalNote: 'Kelime sıralama ve görsel destekli kod çözme.',
-        cards: getRandomItems(getWordsForDifficulty(difficulty), itemCount).map(word => ({
+        cards: getRandomItems(getWordsForDifficulty(difficulty), itemCount || 4).map(word => ({
             imageDescription: word,
             scrambledWord: shuffle(word.split('')).join(''),
             correctWord: word
@@ -688,7 +711,7 @@ export const generateOfflineImageAnagramSort = async (options: GeneratorOptions)
 export const generateOfflineAnagramImageMatch = async (options: GeneratorOptions): Promise<AnagramImageMatchData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount);
+        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 4);
         return {
             title: 'Resim - Kelime Eşleme (Hızlı Mod)',
             prompt: 'Kelimeleri çözüp resimlerle eşleştirin.',
