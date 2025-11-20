@@ -1,10 +1,11 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
 import {
     NumberPatternData, ShapeNumberPatternData,
     ThematicOddOneOutData, PunctuationMazeData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationPhoneNumberData,
-    ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, ResfebeData, LengthConnectData, VisualNumberPatternData,
+    ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, VisualNumberPatternData,
     LogicGridPuzzleData, ShapeType,
 } from '../../types';
 
@@ -330,43 +331,6 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<WeightConnectData[]>;
-};
-
-export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<ResfebeData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Resfebe" puzzle for difficulty level "${difficulty}". Generate 4 puzzles. For each, provide clues (text or image prompts) and the answer. For image prompts, create a **photorealistic, high quality, 8k, cinematic lighting** prompt for an image generator. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            puzzles: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        clues: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    type: { type: Type.STRING, enum: ['text', 'image'] },
-                                    value: { type: Type.STRING },
-                                    imagePrompt: { type: Type.STRING }
-                                },
-                                required: ["type", "value"]
-                            }
-                        },
-                        answer: { type: Type.STRING }
-                    },
-                    required: ["clues", "answer"]
-                }
-            }
-        },
-        required: ["title", "prompt", "puzzles"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<ResfebeData[]>;
 };
 
 export const generateLengthConnectFromAI = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {

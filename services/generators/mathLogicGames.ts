@@ -192,14 +192,11 @@ export const generateOddEvenSudokuFromAI = async(options: GeneratorOptions): Pro
     return generateWithSchema(prompt, schema) as Promise<OddEvenSudokuData[]>;
 }
 
-// ... (Other functions would follow similar pattern with instruction/pedagogicalNote additions)
-
-// Stubbing other functions to keep file concise for this update, but applying the same pattern
-const createStub = (name: string) => async (options: any) => []; 
-
-// Implementing the rest properly for full coverage
 export const generateRomanNumeralConnectFromAI = async(options: GeneratorOptions): Promise<RomanNumeralConnectData[]> => {
-    // Implementation logic similar to above...
+    const { difficulty, worksheetCount, gridSize } = options;
+    const prompt = `Create a "Roman Numeral Connect" puzzle for difficulty "${difficulty}". Connect identical Roman numerals (I, V, X, L) on a ${gridSize}x${gridSize} grid without crossing lines.
+    INSTRUCTION: "Aynı Romen rakamlarını çizgiler birbirini kesmeyecek şekilde birleştir."
+    PEDAGOGICAL NOTE: ${PEDAGOGICAL_NOTES.spatial}`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -208,24 +205,34 @@ export const generateRomanNumeralConnectFromAI = async(options: GeneratorOptions
         }, required: ["title", "prompt", "puzzles"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(`Create Roman Numeral Connect puzzle. Difficulty: ${options.difficulty}`, schema);
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralConnectData[]>;
 }
 
-export const generateRomanNumeralStarHuntFromAI = async(options: GeneratorOptions) => {
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, starCount: {type: Type.INTEGER} }, required: ["title", "grid", "starCount"] } };
-    return generateWithSchema(`Create Roman Numeral Star Hunt. Difficulty: ${options.difficulty}`, schema);
+export const generateRomanNumeralStarHuntFromAI = async(options: GeneratorOptions): Promise<RomanNumeralStarHuntData[]> => {
+    const prompt = `Create a "Roman Numeral Star Hunt" puzzle. Grid border has Roman numerals indicating how many stars are in that row/col.
+    INSTRUCTION: "Satır ve sütun başlarındaki Romen rakamlarına göre yıldızları yerleştir."
+    PEDAGOGICAL NOTE: ${PEDAGOGICAL_NOTES.logic}`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, starCount: {type: Type.INTEGER} }, required: ["title", "grid", "starCount"] } };
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralStarHuntData[]>;
 }
-export const generateRoundingConnectFromAI = async(options: GeneratorOptions) => {
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, example: {type: Type.STRING}, numbers: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {value: {type: Type.INTEGER}, group: {type: Type.INTEGER}, x: {type: Type.NUMBER}, y: {type: Type.NUMBER}}, required: ["value", "group", "x", "y"]}} }, required: ["title", "prompt", "numbers"] } };
-    return generateWithSchema(`Create Rounding Connect puzzle. Difficulty: ${options.difficulty}`, schema);
+export const generateRoundingConnectFromAI = async(options: GeneratorOptions): Promise<RoundingConnectData[]> => {
+    const prompt = `Create a "Rounding Connect" puzzle. Connect numbers to their rounded nearest 10 value.
+    INSTRUCTION: "Sayıları en yakın onluğa yuvarlayarak eşleştir."
+    PEDAGOGICAL NOTE: ${PEDAGOGICAL_NOTES.arithmetic}`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, example: {type: Type.STRING}, numbers: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {value: {type: Type.INTEGER}, group: {type: Type.INTEGER}, x: {type: Type.NUMBER}, y: {type: Type.NUMBER}}, required: ["value", "group", "x", "y"]}} }, required: ["title", "prompt", "numbers"] } };
+    return generateWithSchema(prompt, schema) as Promise<RoundingConnectData[]>;
 }
-export const generateRomanNumeralMultiplicationFromAI = async(options: GeneratorOptions) => {
-     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {row1: {type: Type.STRING}, row2: {type: Type.STRING}, col1: {type: Type.STRING}, col2: {type: Type.STRING}, results: {type: Type.OBJECT, properties: {r1c1: {type: Type.STRING}, r1c2: {type: Type.STRING}, r2c1: {type: Type.STRING}, r2c2: {type: Type.STRING}}, required: ["r1c1"]}}, required: ["row1"]}} }, required: ["title", "puzzles"] } };
-    return generateWithSchema(`Create Roman Numeral Multiplication. Difficulty: ${options.difficulty}`, schema);
+export const generateRomanNumeralMultiplicationFromAI = async(options: GeneratorOptions): Promise<RomanNumeralMultiplicationData[]> => {
+    const prompt = `Create a multiplication table puzzle using Roman Numerals.
+    INSTRUCTION: "Romen rakamlarıyla verilen sayıları çarpıp sonucu yaz."
+    PEDAGOGICAL NOTE: "Romen rakamları ve çarpma pratiği."`;
+     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {row1: {type: Type.STRING}, row2: {type: Type.STRING}, col1: {type: Type.STRING}, col2: {type: Type.STRING}, results: {type: Type.OBJECT, properties: {r1c1: {type: Type.STRING}, r1c2: {type: Type.STRING}, r2c1: {type: Type.STRING}, r2c2: {type: Type.STRING}}, required: ["r1c1"]}}, required: ["row1"]}} }, required: ["title", "puzzles"] } };
+    return generateWithSchema(prompt, schema) as Promise<RomanNumeralMultiplicationData[]>;
 }
-export const generateSudoku6x6ShadedFromAI = async(options: GeneratorOptions) => {
-     // Use OddEven logic schema
-     return generateOddEvenSudokuFromAI(options) as any;
+export const generateSudoku6x6ShadedFromAI = async(options: GeneratorOptions): Promise<Sudoku6x6ShadedData[]> => {
+     const res = await generateOddEvenSudokuFromAI(options);
+     // @ts-ignore
+     return res.map(r => ({...r, title: '6x6 Gölgeli Sudoku', instruction: "Gölgeli alanlara dikkat ederek Sudoku'yu çöz."}));
 }
 
 export const generateKendokuFromAI = async(options: GeneratorOptions): Promise<KendokuData[]> => {
@@ -257,37 +264,66 @@ export const generateKendokuFromAI = async(options: GeneratorOptions): Promise<K
     return generateWithSchema(prompt, schema) as Promise<KendokuData[]>;
 }
 
-export const generateDivisionPyramidFromAI = async(options: GeneratorOptions) => {
-    // Using NumberPyramid schema structure
-    return generateNumberPyramidFromAI({...options, difficulty: 'Orta'}) as any; // Reuse logic structure
+export const generateDivisionPyramidFromAI = async(options: GeneratorOptions): Promise<DivisionPyramidData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `Create a "Division Pyramid" for difficulty level "${difficulty}". Numbers decrease upwards by integer division. Provide ${worksheetCount} unique worksheets.
+    INSTRUCTION: "Alttaki iki sayıyı bölerek üstteki kutuyu bul."
+    PEDAGOGICAL NOTE: "Bölme işlemi pratiği."`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, pyramids: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {rows: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.INTEGER}}}}, required: ["rows"]}} }, required: ["title", "pyramids"] } };
+    return generateWithSchema(prompt, schema) as Promise<DivisionPyramidData[]>;
 }
-export const generateMultiplicationPyramidFromAI = async(options: GeneratorOptions) => {
-    return generateNumberPyramidFromAI({...options, difficulty: 'Orta'}) as any;
+export const generateMultiplicationPyramidFromAI = async(options: GeneratorOptions): Promise<MultiplicationPyramidData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `Create a "Multiplication Pyramid" for difficulty level "${difficulty}". Numbers increase upwards by multiplication.
+    INSTRUCTION: "Alttaki iki sayıyı çarparak üstteki kutuyu bul."
+    PEDAGOGICAL NOTE: "Çarpma işlemi pratiği."`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, pyramids: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {rows: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.INTEGER}}}}, required: ["rows"]}} }, required: ["title", "pyramids"] } };
+    return generateWithSchema(prompt, schema) as Promise<MultiplicationPyramidData[]>;
 }
-export const generateOperationSquareSubtractionFromAI = async(options: GeneratorOptions) => {
-     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}}, required: ["grid"]}} }, required: ["title", "puzzles"] } };
-     return generateWithSchema(`Create Operation Square (Subtraction). Difficulty: ${options.difficulty}`, schema);
+export const generateOperationSquareSubtractionFromAI = async(options: GeneratorOptions): Promise<OperationSquareSubtractionData[]> => {
+     const prompt = `Create a subtraction logic square.
+     INSTRUCTION: "Satır ve sütunlardaki çıkarma işlemlerini tamamla."
+     PEDAGOGICAL NOTE: "Çıkarma işlemi ve mantıksal tamamlama."`;
+     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}}, required: ["grid"]}} }, required: ["title", "puzzles"] } };
+     return generateWithSchema(prompt, schema) as Promise<OperationSquareSubtractionData[]>;
 }
-export const generateOperationSquareFillInFromAI = async(options: GeneratorOptions) => {
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, numbersToUse: {type: Type.ARRAY, items: {type: Type.INTEGER}}, results: {type: Type.ARRAY, items: {type: Type.INTEGER}}}, required: ["grid"]}} }, required: ["title", "puzzles"] } };
-    return generateWithSchema(`Create Operation Square Fill In. Difficulty: ${options.difficulty}`, schema);
+export const generateOperationSquareFillInFromAI = async(options: GeneratorOptions): Promise<OperationSquareFillInData[]> => {
+    const prompt = `Create a fill-in operation square. Given numbers must be placed to satisfy equations.
+    INSTRUCTION: "Verilen sayıları, işlemler doğru olacak şekilde kutulara yerleştir."
+    PEDAGOGICAL NOTE: "Denklem kurma ve sayısal mantık."`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, numbersToUse: {type: Type.ARRAY, items: {type: Type.INTEGER}}, results: {type: Type.ARRAY, items: {type: Type.INTEGER}}}, required: ["grid"]}} }, required: ["title", "puzzles"] } };
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareFillInData[]>;
 }
-export const generateMultiplicationWheelFromAI = async(options: GeneratorOptions) => {
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {outerNumbers: {type: Type.ARRAY, items: {type: Type.INTEGER}}, innerResult: {type: Type.INTEGER}}, required: ["outerNumbers", "innerResult"]}} }, required: ["title", "puzzles"] } };
-    return generateWithSchema(`Create Multiplication Wheel. Difficulty: ${options.difficulty}`, schema);
+export const generateMultiplicationWheelFromAI = async(options: GeneratorOptions): Promise<MultiplicationWheelData[]> => {
+    const prompt = `Create a multiplication wheel. Center number multiplies outer ring.
+    INSTRUCTION: "Merkezdeki sayı ile dış halkayı çarpıp en dışa yaz."
+    PEDAGOGICAL NOTE: "Çarpım tablosu ezberi."`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {outerNumbers: {type: Type.ARRAY, items: {type: Type.INTEGER}}, innerResult: {type: Type.INTEGER}}, required: ["outerNumbers", "innerResult"]}} }, required: ["title", "puzzles"] } };
+    return generateWithSchema(prompt, schema) as Promise<MultiplicationWheelData[]>;
 }
-export const generateTargetNumberFromAI = async (options: GeneratorOptions) => {
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {target: {type: Type.INTEGER}, givenNumbers: {type: Type.ARRAY, items: {type: Type.INTEGER}}}, required: ["target", "givenNumbers"]}} }, required: ["title", "puzzles"] } };
-    return generateWithSchema(`Create Target Number. Difficulty: ${options.difficulty}`, schema);
+export const generateTargetNumberFromAI = async (options: GeneratorOptions): Promise<TargetNumberData[]> => {
+    const prompt = `Create a 'Target Number' game. Given 4 numbers, reach target using math.
+    INSTRUCTION: "Verilen sayıları dört işlemle kullanarak hedef sayıya ulaş."
+    PEDAGOGICAL NOTE: "İşlem önceliği ve problem çözme."`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {target: {type: Type.INTEGER}, givenNumbers: {type: Type.ARRAY, items: {type: Type.INTEGER}}}, required: ["target", "givenNumbers"]}} }, required: ["title", "puzzles"] } };
+    return generateWithSchema(prompt, schema) as Promise<TargetNumberData[]>;
 };
-export const generateOperationSquareMultDivFromAI = async(options: GeneratorOptions) => {
-    return generateOperationSquareSubtractionFromAI(options) as any;
+export const generateOperationSquareMultDivFromAI = async(options: GeneratorOptions): Promise<OperationSquareMultDivData[]> => {
+    const prompt = `Create a multiplication/division logic square.
+    INSTRUCTION: "Satır ve sütunlardaki çarpma/bölme işlemlerini tamamla."
+    PEDAGOGICAL NOTE: "Çarpma-bölme ilişkisi."`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}}, required: ["grid"]}} }, required: ["title", "puzzles"] } };
+    return generateWithSchema(prompt, schema) as Promise<OperationSquareMultDivData[]>;
 }
-export const generateShapeSudokuFromAI = async(options: GeneratorOptions) => {
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, shapesToUse: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {shape: {type: Type.STRING}, label: {type: Type.STRING}}, required: ["shape", "label"]}}}, required: ["grid", "shapesToUse"]}} }, required: ["title", "puzzles"] } };
-    return generateWithSchema(`Create Shape Sudoku. Difficulty: ${options.difficulty}`, schema);
+export const generateShapeSudokuFromAI = async(options: GeneratorOptions): Promise<ShapeSudokuData[]> => {
+    const prompt = `Create a Shape Sudoku (4x4). Use shapes instead of numbers.
+    INSTRUCTION: "Her satır, sütun ve bölgede her şekilden bir tane olsun."
+    PEDAGOGICAL NOTE: "Görsel mantık ve kategorizasyon."`;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, shapesToUse: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {shape: {type: Type.STRING}, label: {type: Type.STRING}}, required: ["shape", "label"]}}}, required: ["grid", "shapesToUse"]}} }, required: ["title", "puzzles"] } };
+    return generateWithSchema(prompt, schema) as Promise<ShapeSudokuData[]>;
 }
-export const generateFutoshikiLengthFromAI = async(options: GeneratorOptions) => {
-     // Use Futoshiki structure
-     return generateFutoshikiFromAI(options) as any;
+export const generateFutoshikiLengthFromAI = async(options: GeneratorOptions): Promise<FutoshikiLengthData[]> => {
+     const res = await generateFutoshikiFromAI(options);
+     // @ts-ignore
+     return res.map(r => ({...r, title: 'Uzunluk Karşılaştırma (Futoşiki)', instruction: 'Uzunluk birimlerini büyüklüklerine göre sırala.'}));
 }
