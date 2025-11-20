@@ -390,7 +390,7 @@ export const generateOfflineSynonymWordSearch = async (options: GeneratorOptions
         });
     }
     return results;
-}
+};
 
 export const generateOfflineSpiralPuzzle = async (options: GeneratorOptions): Promise<SpiralPuzzleData[]> => {
      const {itemCount, worksheetCount, gridSize} = options;
@@ -412,16 +412,16 @@ export const generateOfflineSpiralPuzzle = async (options: GeneratorOptions): Pr
 }
 export const generateOfflinePunctuationSpiralPuzzle = async (options: GeneratorOptions) => generateOfflineSpiralPuzzle(options) as Promise<PunctuationSpiralPuzzleData[]>;
 export const generateOfflineJumbledWordStory = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
-     const {itemCount, worksheetCount, difficulty} = options;
+     const {itemCount, worksheetCount, difficulty, topic} = options;
      return Array.from({length: worksheetCount}, () => {
-        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 4);
+        const words = getRandomItems(getWordsForDifficulty(difficulty, topic), itemCount || 4);
         const puzzles = words.map(w => ({jumbled: shuffle(w.split('')), word: w}));
         return {
-            title: 'Karışık Kelimeler ve Hikaye',
+            title: `Karışık Kelimeler ve Hikaye (${topic || 'Genel'})`,
             instruction: "Harfleri düzelt, kelimeyi bul, sonra bulduğun kelimelerle bir hikaye yaz.",
             pedagogicalNote: "Harf dizilimi farkındalığı ve yaratıcı yazma becerilerini birleştirir.",
             prompt: 'Kelimeleri çöz ve hikayeni oluştur.',
-            theme: 'Rastgele',
+            theme: topic || 'Rastgele',
             puzzles,
             storyPrompt: 'Bulduğun kelimelerden en az üçünü kullanarak kısa bir metin yaz.'
         }
