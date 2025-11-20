@@ -1,17 +1,6 @@
 import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, WordMemoryItem } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
-const offlineCharacters = [
-    { description: "Mutlu Palyaço 🤡" },
-    { description: "Cesur Astronot 🧑‍🚀" },
-    { description: "Kızgın Korsan 🏴‍☠️" },
-    { description: "Akıllı Bilim İnsanı 🧑‍🔬" },
-    { description: "Güçlü İnşaat İşçisi 👷" },
-    { description: "Şarkıcı Popstar 🎤" },
-    { description: "Yorgun Zombi 🧟" },
-    { description: "Gizemli Ninja 🥷" }
-];
-
 export const generateOfflineWordMemory = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
     const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
     const results: WordMemoryData[] = [];
@@ -277,7 +266,7 @@ export const generateOfflineColorWheelMemory = async (options: GeneratorOptions)
     for(let i=0; i<worksheetCount; i++){
         const emojis = getRandomItems(Object.keys(EMOJI_MAP), itemCount);
         const items = emojis.map((emoji, index) => ({
-            name: EMOJI_MAP[emoji],
+            name: `${EMOJI_MAP[emoji]} ${emoji}`,
             color: COLORS[index % COLORS.length].css
         }));
         results.push({
@@ -329,10 +318,14 @@ export const generateOfflineImageComprehension = async (options: GeneratorOption
 
 export const generateOfflineCharacterMemory = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
     const {itemCount, worksheetCount, memorizeRatio} = options;
+    const adjectives = ['Mutlu', 'Üzgün', 'Hızlı', 'Yavaş', 'Büyük', 'Küçük', 'Renkli', 'Komik', 'Kızgın', 'Şaşkın'];
     const results: CharacterMemoryData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
-        const allItems = getRandomItems(offlineCharacters, itemCount);
+        const allEmojis = getRandomItems(Object.keys(EMOJI_MAP), itemCount);
+        const allItems = allEmojis.map(emoji => ({
+            description: `${getRandomItems(adjectives, 1)[0]} ${EMOJI_MAP[emoji]} ${emoji}`
+        }));
         
         results.push({
             title: 'Karakter Hafıza (Hızlı Mod)',
