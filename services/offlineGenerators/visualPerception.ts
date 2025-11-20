@@ -293,25 +293,66 @@ export const generateOfflineBlockPainting = async (options: GeneratorOptions): P
 }
 
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
-    const { worksheetCount, itemCount } = options;
+    const { worksheetCount, itemCount, difficulty } = options;
     const results: VisualOddOneOutData[] = [];
+    
     for(let i=0; i<worksheetCount; i++) {
         const rows = Array.from({length: itemCount || 5}).map(() => {
             const correctIndex = getRandomInt(0, 3);
-            const standard = [true, true, true, true, true, true, true];
-            const odd = [true, true, false, true, true, true, true];
             
-            const items = Array(4).fill(null).map((_, idx) => ({
-                segments: idx === correctIndex ? odd : standard
-            }));
-            
-            return { items, correctIndex, reason: "Diğerlerinin ortasında çizgi varken bunda yok." };
+            // Difficulty Logic
+            if (difficulty === 'Zor' || difficulty === 'Uzman') {
+                 // Rotational logic: 3 items are rotations of the same base, 1 is different (e.g. extra line or mirror)
+                 // Since we only have segments, we simulate this by shifting segments
+                 const baseSegments = [true, true, false, true, false, true, true, false, false]; // Example asymmetric shape
+                 
+                 // Simple shift rotation simulation for grid 3x3
+                 const rotate90 = (segs: boolean[]) => [
+                     segs[6], segs[3], segs[0],
+                     segs[7], segs[4], segs[1],
+                     segs[8], segs[5], segs[2]
+                 ];
+                 
+                 const r0 = baseSegments;
+                 const r90 = rotate90(r0);
+                 const r180 = rotate90(r90);
+                 const r270 = rotate90(r180);
+                 
+                 const rotations = [r0, r90, r180, r270];
+                 
+                 // Create an odd one out by taking a rotation and modifying one segment
+                 const oddOne = [...r0];
+                 oddOne[4] = !oddOne[4]; // Flip center or random bit
+                 
+                 const items = Array(4).fill(null).map((_, idx) => {
+                     if (idx === correctIndex) return { segments: oddOne, rotation: 0 };
+                     return { segments: rotations[idx % 4], rotation: 0 }; // Different rotations of valid shape
+                 });
+                 
+                 return { items, correctIndex, reason: "Diğerleri aynı şeklin döndürülmüş hali, bu farklı." };
+
+            } else {
+                // Standard logic for Easy/Medium
+                const standard = [true, true, true, true, true, true, true, true, true];
+                // Randomly turn off 2-3 segments for variety
+                for(let k=0; k<3; k++) standard[getRandomInt(0,8)] = false;
+                
+                const odd = [...standard];
+                // Flip one bit to make it odd
+                const flipIdx = getRandomInt(0, 8);
+                odd[flipIdx] = !odd[flipIdx];
+                
+                const items = Array(4).fill(null).map((_, idx) => ({
+                    segments: idx === correctIndex ? odd : standard
+                }));
+                return { items, correctIndex, reason: "Diğerlerinden farklı çizgiye sahip." };
+            }
         });
 
         results.push({
             title: 'Görsel Farklı Olanı Bul',
-            instruction: "Her satırda kuralı bozan şekli bul.",
-            pedagogicalNote: "Görsel sınıflandırma ve mantıksal çıkarım.",
+            instruction: difficulty === 'Uzman' ? "Şekiller döndürülmüş olabilir. Yapısal olarak farklı olanı bul." : "Her satırda kuralı bozan şekli bul.",
+            pedagogicalNote: "Görsel sınıflandırma, zihinsel döndürme ve mantıksal çıkarım.",
             rows
         });
     }

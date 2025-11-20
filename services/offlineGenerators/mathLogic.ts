@@ -1,4 +1,6 @@
 
+
+
 import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES } from './helpers';
 
@@ -77,9 +79,24 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
             let answer = 0;
 
             if (op === '+') { answer = val1 + val2; } 
-            else if (op === '-') { if (val1 < val2) { [val1, val2] = [val2, val1]; problemStr = `${currentObjects[idx2]} ${op} ${currentObjects[idx1]} = ?`; } answer = val1 - val2; } 
+            else if (op === '-') { 
+                if (val1 < val2) { [val1, val2] = [val2, val1]; problemStr = `${currentObjects[idx2]} ${op} ${currentObjects[idx1]} = ?`; } 
+                answer = val1 - val2; 
+            } 
             else if (op === '*') { answer = val1 * val2; } 
-            else if (op === '/') { if (val2 === 0) val2 = 1; const product = val1 * val2; problemStr = `${product} ${op} ${currentObjects[idx2]} = ?`; question = `İpucu: ${currentObjects[idx2]}=${val2}`; answer = val1; }
+            else if (op === '/') { 
+                // Ensure valid division (non-zero, integer result)
+                if (val2 === 0) val2 = 1; 
+                const product = val1 * val2; 
+                // Problem becomes: product / val2 = ? (which is val1)
+                // We display the product as the dividend
+                // To make it logical with icons, we might need a different representation, 
+                // but for this format: IconA / IconB = ?
+                // Let's force IconA to be the product value for the puzzle display context
+                problemStr = `${product} ${op} ${currentObjects[idx2]} = ?`; 
+                question = `İpucu: ${currentObjects[idx2]}=${val2}. (Bölünen sayı ${product})`; 
+                answer = val1; 
+            }
             return { problem: problemStr, question, answer: answer.toString() };
         });
         results.push({ 
@@ -110,9 +127,10 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
                  const step = getRandomInt(2, 3);
                  for (let k = 0; k < 4; k++) sequence.push(sequence[k] * step);
                  answer = sequence[4] * step;
-            } else { // complex
+            } else { // complex (Expert)
                 const step1 = getRandomInt(2, 3);
                 const step2 = getRandomInt(1, 3);
+                // Pattern: n*a + b
                 for (let k = 0; k < 4; k++) sequence.push(sequence[k] * step1 + step2);
                 answer = sequence[4] * step1 + step2;
             }

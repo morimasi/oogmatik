@@ -15,6 +15,7 @@ interface SidebarProps {
   isLoading: boolean;
   isSidebarOpen: boolean;
   closeSidebar: () => void;
+  onAddToHistory: (activityType: ActivityType, data: WorksheetData) => void;
 }
 
 const getActivityById = (id: ActivityType | null): Activity | undefined => {
@@ -35,7 +36,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   setWorksheetData,
   setIsLoading,
   setError,
-  isLoading
+  isLoading,
+  onAddToHistory
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
 
@@ -53,8 +55,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     try {
         let result: WorksheetData;
         
-        console.log(`Generating ${selectedActivity} using mode: ${options.mode}`);
-
         // Hızlı Mod Fonksiyonunu Hazırla
         const runOfflineGenerator = async () => {
              const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
@@ -76,15 +76,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                          console.warn("AI Quota exceeded or Network Error. Switching to Fast Mode automatically.");
                          try {
                              result = await runOfflineGenerator();
-                             // Hata yerine kullanıcıya bilgi ver (Opsiyonel: Toast mesajı eklenebilir)
+                             // Hata yerine kullanıcıya bilgi ver
                              setError("Bilgi: Yapay zeka servisi şu an çok yoğun olduğu için etkinlik 'Hızlı Mod' ile oluşturuldu.");
-                             // Hata mesajını 5 saniye sonra temizle
                              setTimeout(() => setError(null), 5000);
                          } catch (offlineErr: any) {
                               throw new Error("Yapay zeka kotası dolu ve Hızlı Mod sırasında da bir hata oluştu: " + offlineErr.message);
                          }
                     } else {
-                        throw err; // Diğer hataları (örn: veri formatı hatası) fırlat
+                        throw err;
                     }
                 }
             } else {
@@ -99,6 +98,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         
         if (result) {
             setWorksheetData(result);
+            // Add to history automatically
+            onAddToHistory(selectedActivity, result);
         }
 
     } catch (e: any) {

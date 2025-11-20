@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect, CSSProperties, ReactNode } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity } from './types';
+import React, { useState, useEffect, CSSProperties, ReactNode, useMemo } from 'react';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity, HistoryItem } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -108,6 +108,7 @@ const App: React.FC = () => {
 
   const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
   const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
   // Effect to apply theme class to html element
   useEffect(() => {
@@ -130,6 +131,7 @@ const App: React.FC = () => {
       localStorage.setItem('app-theme', theme);
   }, [theme]);
 
+  // Load saved worksheets from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem('savedWorksheets');
@@ -142,13 +144,71 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Load history from sessionStorage
+  useEffect(() => {
+      try {
+          const stored = sessionStorage.getItem('sessionHistory');
+          if (stored) {
+              setHistoryItems(JSON.parse(stored));
+          }
+      } catch (e) {
+          console.error("Geçmiş yüklenemedi", e);
+      }
+  }, []);
+
+  // History Management Functions
+  const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
+      const activity = ACTIVITIES.find(a => a.id === activityType);
+      const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
+      
+      if (!activity || !category) return;
+
+      const newItem: HistoryItem = {
+          id: Date.now().toString() + Math.random(),
+          activityType,
+          data,
+          timestamp: new Date().toISOString(),
+          title: activity.title,
+          category: {
+              id: category.id,
+              title: category.title
+          }
+      };
+
+      const updatedHistory = [newItem, ...historyItems].slice(0, 50); // Keep last 50 items
+      setHistoryItems(updatedHistory);
+      sessionStorage.setItem('sessionHistory', JSON.stringify(updatedHistory));
+  };
+
+  const loadFromHistory = (item: HistoryItem) => {
+      setSelectedActivity(item.activityType);
+      setWorksheetData(item.data);
+      setCurrentView('generator');
+      setOpenModal(null); // Close modal if open
+  };
+
+  const saveFromHistory = (item: HistoryItem) => {
+      const name = prompt("Etkinlik için bir isim girin:", item.title);
+      if (name) {
+          addSavedWorksheet(name, item.activityType, item.data);
+      }
+  };
+
+  const printFromHistory = (item: HistoryItem) => {
+      loadFromHistory(item);
+      // Wait for render then print
+      setTimeout(() => {
+          window.print();
+      }, 500);
+  };
+
+
   const handleResetApp = () => {
     setCurrentView('generator');
     setSelectedActivity(null);
     setWorksheetData(null);
     setError(null);
     setStyleSettings(initialStyleSettings);
-    // Not resetting savedWorksheets or history as it's persistent storage
   };
 
   const updateLocalStorage = (worksheets: SavedWorksheet[]) => {
@@ -161,7 +221,6 @@ const App: React.FC = () => {
 
     if (!activity || !category) {
         console.error("Kaydedilecek etkinlik veya kategori bulunamadı.");
-        // Optionally, show an error to the user
         return;
     }
 
@@ -203,6 +262,17 @@ const App: React.FC = () => {
         setIsSidebarOpen(false); // Close sidebar on mobile after selection
     }
   };
+
+  // Group History Items
+  const groupedHistory = useMemo(() => {
+      const groups: Record<string, HistoryItem[]> = {};
+      historyItems.forEach(item => {
+          const catTitle = item.category.title;
+          if (!groups[catTitle]) groups[catTitle] = [];
+          groups[catTitle].push(item);
+      });
+      return groups;
+  }, [historyItems]);
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
@@ -284,6 +354,7 @@ const App: React.FC = () => {
           setIsLoading={setIsLoading}
           setError={setError}
           isLoading={isLoading}
+          onAddToHistory={addToHistory}
         />
         <ContentArea
           currentView={currentView}
@@ -371,13 +442,55 @@ const App: React.FC = () => {
                       </button>
                   </div>
               </div>
-              
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md text-sm text-blue-800 dark:text-blue-200">
-                  <p><i className="fa-solid fa-info-circle mr-2"></i><strong>İpucu:</strong> Pastel ve Sepya temaları, krem rengi arka planları ve yumuşak metin renkleriyle uzun süreli okumalarda göz yorgunluğunu azaltmaya yardımcı olabilir.</p>
-              </div>
           </div>
       </Modal>
 
+      {/* HISTORY MODAL */}
+      <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="Oturum Geçmişi">
+          {historyItems.length === 0 ? (
+               <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-700/50 rounded-full flex items-center justify-center mb-4 mx-auto text-zinc-400">
+                        <i className="fa-solid fa-clock-rotate-left fa-2x"></i>
+                    </div>
+                   <p className="text-zinc-500">Bu oturumda henüz bir etkinlik oluşturmadınız.</p>
+               </div>
+          ) : (
+              <div className="space-y-6">
+                  {Object.keys(groupedHistory).map((categoryTitle) => (
+                      <div key={categoryTitle} className="border rounded-lg overflow-hidden border-zinc-200 dark:border-zinc-700">
+                          <div className="bg-zinc-50 dark:bg-zinc-800/50 px-4 py-2 font-bold text-indigo-800 dark:text-indigo-300 border-b border-zinc-200 dark:border-zinc-700">
+                              {categoryTitle}
+                          </div>
+                          <div className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                              {groupedHistory[categoryTitle].map((item) => (
+                                  <div key={item.id} className="px-4 py-3 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
+                                      <div>
+                                          <p className="font-medium text-zinc-800 dark:text-zinc-200">{item.title}</p>
+                                          <p className="text-xs text-zinc-400">
+                                              {new Date(item.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}
+                                          </p>
+                                      </div>
+                                      <div className="flex gap-2">
+                                           <button onClick={() => printFromHistory(item)} className="p-2 text-zinc-500 hover:text-sky-500 transition-colors" title="Yazdır">
+                                              <i className="fa-solid fa-print"></i>
+                                          </button>
+                                          <button onClick={() => saveFromHistory(item)} className="p-2 text-zinc-500 hover:text-emerald-500 transition-colors" title="Arşivle">
+                                              <i className="fa-solid fa-save"></i>
+                                          </button>
+                                          <button onClick={() => loadFromHistory(item)} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors" title="Görüntüle">
+                                              <i className="fa-solid fa-eye"></i>
+                                          </button>
+                                      </div>
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
+                  ))}
+              </div>
+          )}
+      </Modal>
+
+      {/* OTHER MODALS */}
       <Modal isOpen={openModal === 'how-to-use'} onClose={() => setOpenModal(null)} title="Nasıl Kullanılır?">
           <p>Bursa Disleksi Ai uygulamasıyla kişiselleştirilmiş etkinlikler oluşturmak çok kolay! Aşağıdaki adımları takip edebilirsiniz:</p>
           <ol className="list-decimal list-inside space-y-2">
@@ -393,11 +506,6 @@ const App: React.FC = () => {
           <p>Bursa Disleksi Ai, disleksi gibi öğrenme güçlüğü yaşayan çocuklara ve onlara destek olan eğitimcilere ve ailelere yardımcı olmak amacıyla tasarlanmış bir yapay zeka destekli platformdur.</p>
           <p><strong>Misyonumuz</strong>, en son yapay zeka teknolojilerini kullanarak her çocuğun ihtiyacına uygun, eğlenceli, ilgi çekici ve pedagojik olarak değerli eğitici materyaller üretmektir. Uygulamamız, dikkat, hafıza, okuma-anlama ve mantıksal düşünme gibi temel becerileri geliştirmeye yönelik onlarca farklı etkinlik türü sunar.</p>
           <p>Disleksi dostu tasarım anlayışımız ve kişiselleştirilebilir içerik seçeneklerimizle, öğrenme sürecini daha keyifli ve etkili hale getirmeyi hedefliyoruz.</p>
-      </Modal>
-
-       <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="Geçmiş">
-          <p>Bu özellik yakında eklenecektir.</p>
-          <p>Bu alanda, oturumunuz sırasında oluşturduğunuz son etkinliklerin bir listesini görebileceksiniz. Bu sayede, kaydetmeyi unuttuğunuz bir çalışmaya kolayca geri dönme imkanınız olacak.</p>
       </Modal>
 
       <Modal isOpen={openModal === 'contact'} onClose={() => setOpenModal(null)} title="İletişim">

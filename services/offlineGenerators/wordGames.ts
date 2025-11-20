@@ -170,23 +170,35 @@ export const generateOfflineLetterBridge = async (options: GeneratorOptions): Pr
 };
 
 export const generateOfflineWordLadder = async (options: GeneratorOptions): Promise<WordLadderData[]> => {
-    const { itemCount, worksheetCount, steps } = options;
+    const { itemCount, worksheetCount, steps, difficulty } = options;
     const results: WordLadderData[] = [];
-    // Pre-defined logic chains for offline usage
-    const ladders = [
+    
+    // Simple ladders for beginners
+    const simpleLadders = [
         { startWord: 'bal', endWord: 'sel', steps: 2 }, 
         { startWord: 'kış', endWord: 'yaz', steps: 3 }, 
         { startWord: 'ekim', endWord: 'ekip', steps: 1},
         { startWord: 'koyu', endWord: 'kuyu', steps: 1},
         { startWord: 'kasa', endWord: 'masa', steps: 1}
     ];
+
+    // Complex ladders for Experts
+    const expertLadders = [
+         { startWord: 'KITA', endWord: 'KASA', steps: 4 }, // KITA -> KINA -> KANA -> KAKA -> KASA
+         { startWord: 'ALAN', endWord: 'ÖLEN', steps: 3 }, // ALAN -> OLAN -> ÖLEN
+         { startWord: 'SERT', endWord: 'KURT', steps: 4 }, // SERT -> SIRT -> SURT -> KURT (Conceptual)
+         { startWord: 'ELMA', endWord: 'EKME', steps: 4 }, // ELMA -> ELLA -> ELLE -> EKLE -> EKME
+    ];
+
+    const selectedLadders = difficulty === 'Zor' || difficulty === 'Uzman' ? expertLadders : simpleLadders;
+
     for (let i = 0; i < worksheetCount; i++) {
         results.push({ 
             title: 'Kelime Merdiveni', 
             instruction: "Her basamakta sadece bir harf değiştirerek yeni kelimeye ulaş.",
             pedagogicalNote: "Harf manipülasyonu ve kelime analizi.",
             theme: 'Harf Değişimi', 
-            ladders: getRandomItems(ladders, itemCount || 2).map(l => ({...l, steps: steps || l.steps})) 
+            ladders: getRandomItems(selectedLadders, itemCount || 2).map(l => ({...l, steps: steps || l.steps})) 
         });
     }
     return results;

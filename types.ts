@@ -594,3 +594,15 @@ export interface SavedWorksheet {
     title: string;
   };
 }
+
+export interface HistoryItem {
+  id: string;
+  activityType: ActivityType;
+  data: SingleWorksheetData[];
+  timestamp: string;
+  title: string;
+  category: {
+      id: string;
+      title: string;
+  };
+}
