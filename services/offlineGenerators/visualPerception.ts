@@ -323,7 +323,7 @@ export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions):
     const results: SymmetryDrawingData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const dim = gridSize || 10;
-        const dotCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : 7;
+        const dotCount = difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 5 : 7);
         const dots = Array.from({length: dotCount}).map(() => ({x: getRandomInt(0, (dim/2) - 1), y: getRandomInt(0, dim-1), color: '#000'}));
         results.push({
             title: 'Simetri Tamamlama',
@@ -496,8 +496,9 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
             const oddCatKey = getRandomItems(validCategories.filter(c => c !== mainCatKey), 1)[0];
 
             const vocab = TR_VOCAB as any;
-            const mainItems: string[] = getRandomItems(vocab[mainCatKey] || [], 3);
-            const oddItem: string | undefined = getRandomItems(vocab[oddCatKey] || [], 1)[0];
+            // FIX: Cast the result of vocab lookups to string[] to prevent the items from being typed as `any` or `unknown`.
+            const mainItems: string[] = getRandomItems((vocab[mainCatKey] || []) as string[], 3);
+            const oddItem: string | undefined = getRandomItems((vocab[oddCatKey] || []) as string[], 1)[0];
 
             if (!oddItem || mainItems.length < 3) {
                 j--; // Retry this iteration if data is insufficient.

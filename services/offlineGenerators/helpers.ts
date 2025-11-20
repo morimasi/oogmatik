@@ -1,9 +1,5 @@
-
 import { ShapeType } from '../../types';
 import { TR_VOCAB } from '../../data/vocabulary';
-
-// FIX: Export TR_VOCAB to make it available to other modules.
-export { TR_VOCAB };
 
 export const turkishAlphabet = 'abcçdefgğhıijklmnoöprsştuüvyz';
 export const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];

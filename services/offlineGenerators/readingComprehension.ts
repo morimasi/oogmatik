@@ -93,8 +93,9 @@ const generateLogicBasedStory = (topic?: string, characterName?: string) => {
 
     uniqueKeys.forEach(key => {
         const pluralKey = `${key}s`;
-        const dataArray = (template as any)[pluralKey] || [];
-        let value = '';
+        // FIX: Explicitly cast `dataArray` to `string[]` to ensure correct type inference for `value` and prevent downstream `unknown` type errors.
+        const dataArray = ((template as any)[pluralKey] || []) as string[];
+        let value: string | undefined = '';
         if (key === 'character' && characterName) {
             value = characterName;
         } else if (dataArray && dataArray.length > 0) {
@@ -125,13 +126,11 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
         const literalKey = getRandomItems(Object.keys(usedValues).filter(k => !['adjective', 'weather'].includes(k)), 1)[0];
         if (literalKey && usedValues[literalKey]) {
             const answer = usedValues[literalKey];
-            // FIX: Cast literalKey to string to resolve 'unknown' type error. It is safe within this block.
-            const pool = ((template as any)[`${literalKey as string}s`] || []) as string[];
+            const pool = ((template as any)[`${literalKey}s`] || []) as string[];
             const distractors = getRandomItems(pool.filter(item => item !== answer), 2);
             questions.push({
                 type: 'multiple-choice',
-                // FIX: Cast literalKey to string to resolve 'unknown' type error on line 101.
-                question: `Hikayedeki ${literalKey as string} neydi/kimdi?`,
+                question: `Hikayedeki ${literalKey} neydi/kimdi?`,
                 options: shuffle([answer, ...distractors]),
                 answerIndex: 0 // Will be fixed after shuffle
             });
