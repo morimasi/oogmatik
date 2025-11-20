@@ -56,8 +56,8 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
             animation-name: mixedFlip;
             animation-iteration-count: infinite;
             animation-timing-function: ease-in-out;
-            /* For <text> elements with text-anchor="middle", the transform origin
-               is implicitly the element's x,y coordinate, which we've set to the center. */
+            transform-box: fill-box; /* Use the character's geometry as the reference */
+            transform-origin: center; /* Rotate around the center of that geometry */
           }
         `}
       </style>
