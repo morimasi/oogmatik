@@ -19,8 +19,6 @@ interface SidebarProps {
 
 const getActivityById = (id: ActivityType | null): Activity | undefined => {
     if (!id) return undefined;
-    // Find the first activity that matches the ID. Since some IDs have multiple titles,
-    // we just need the core details for the generator.
     return ACTIVITIES.find(a => a.id === id);
 }
 
@@ -51,18 +49,24 @@ const Sidebar: React.FC<SidebarProps> = ({
     try {
         let result: WorksheetData;
         
-        // Correctly format the function names based on the ActivityType enum
         const pascalCaseName = toPascalCase(selectedActivity);
         const generatorFunctionName = `generate${pascalCaseName}FromAI`;
         const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
         
         console.log(`Generating ${selectedActivity} using mode: ${options.mode}`);
-        console.log(`Function names: AI=${generatorFunctionName}, Offline=${offlineGeneratorFunctionName}`);
 
         if (options.mode === 'ai') {
             const onlineGenerator = (generators as any)[generatorFunctionName];
             if (onlineGenerator) {
-                result = await onlineGenerator(options);
+                try {
+                    result = await onlineGenerator(options);
+                } catch (err: any) {
+                    // Check for 429 or quota related errors
+                    if (err.message && (err.message.includes('429') || err.message.includes('quota'))) {
+                         throw new Error("API_QUOTA_EXCEEDED");
+                    }
+                    throw err;
+                }
             } else {
                 throw new Error(`AI generator function "${generatorFunctionName}" not found.`);
             }
@@ -75,12 +79,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             }
         }
         
-        // The generator functions are designed to return an array of pages (SingleWorksheetData[]).
         setWorksheetData(result);
 
     } catch (e: any) {
         console.error("Etkinlik oluşturulurken hata:", e);
-        setError(e.message || "Bilinmeyen bir hata oluştu.");
+        if (e.message === "API_QUOTA_EXCEEDED") {
+            setError("Ücretsiz AI kullanım kotası doldu. Lütfen 'Hızlı Mod' seçeneğini kullanarak devam edin. Hızlı Mod internet gerektirmez ve sınırsızdır.");
+        } else {
+            setError(e.message || "Bilinmeyen bir hata oluştu.");
+        }
     } finally {
         setIsLoading(false);
     }

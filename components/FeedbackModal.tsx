@@ -22,6 +22,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
     setIsSending(true);
 
     // 1. Backend API'ye Loglama (Opsiyonel veritabanı kaydı için)
+    // Hata olsa bile kullanıcı deneyimini bozmamak için catch bloğunda sessizce geçiyoruz.
     try {
       await fetch('/api/feedback', {
         method: 'POST',
@@ -36,7 +37,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
         })
       });
     } catch (err) {
-      console.error("Feedback log error:", err);
+      // Sessiz hata yönetimi, kullanıcı sadece mailto işlemini görecek.
+      console.warn("Feedback log error (non-critical):", err);
     }
 
     // 2. E-posta İstemcisine Yönlendirme (morimasi@gmail.com)
@@ -45,13 +47,12 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
     
     const mailtoLink = `mailto:morimasi@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
-    // Kısa bir gecikme ile e-posta istemcisini aç ve modali kapat
-    setTimeout(() => {
-      window.location.href = mailtoLink;
-      setIsSending(false);
-      onClose();
-      alert("Geri bildiriminiz hazırlandı! Lütfen açılan e-posta penceresinden gönderimi onaylayın.");
-    }, 500);
+    // Doğrudan yönlendirme yapıyoruz, setTimeout kullanmıyoruz.
+    window.location.href = mailtoLink;
+    
+    // Modal'ı kapat
+    setIsSending(false);
+    onClose();
   };
 
   return (
