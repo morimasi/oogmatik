@@ -439,7 +439,9 @@ export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promi
             const mainWords = getRandomItems(vocab[mainCatKey] || [], 3);
             const oddWord = getRandomItems(vocab[oddCatKey] || [], 1)[0];
             
-            return { words: shuffle([...mainWords, oddWord]) };
+            // FIX: Ensure words array is of type string[] by filtering out potential undefined values.
+            const words = [...mainWords, oddWord].filter(Boolean) as string[];
+            return { words: shuffle(words) };
         });
         results.push({ 
             title: 'Farkı Fark Et (Anlamsal)',
@@ -465,7 +467,11 @@ export const generateOfflineThematicOddOneOut = async (options: GeneratorOptions
             const mainWords = getRandomItems(vocab[mainCatKey] || [], 3);
             const oddWord = getRandomItems(vocab[oddCatKey] || [], 1)[0];
             
-            rows.push({ words: shuffle([...mainWords, oddWord]), oddWord });
+            // FIX: Ensure oddWord is a string and the words array is string[] to prevent type errors.
+            if (typeof oddWord === 'string') {
+                const words = [...mainWords, oddWord].filter(Boolean) as string[];
+                rows.push({ words: shuffle(words), oddWord });
+            }
         }
         
         results.push({ 
@@ -493,7 +499,11 @@ export const generateOfflineThematicOddOneOutSentence = async (options: Generato
             const mainWords = getRandomItems(vocab[mainCatKey] || [], 3);
             const oddWord = getRandomItems(vocab[oddCatKey] || [], 1)[0];
             
-            rows.push({ words: shuffle([...mainWords, oddWord]), oddWord });
+            // FIX: Ensure oddWord is a string and the words array is string[] to prevent type errors.
+            if (typeof oddWord === 'string') {
+                const words = [...mainWords, oddWord].filter(Boolean) as string[];
+                rows.push({ words: shuffle(words), oddWord });
+            }
         }
         
         results.push({ 

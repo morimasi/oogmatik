@@ -69,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
                 const textResponse = await ai.models.generateContent({
-                    model: "gemini-2.5-flash", // Daha cömert ücretsiz katmana sahip modele geçildi
+                    model: "gemini-3-pro-preview", // Model 'gemini-2.5-flash'ten 'gemini-3-pro-preview'e güncellendi
                     contents: prompt,
                     config: {
                         responseMimeType: "application/json",
