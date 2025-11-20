@@ -29,6 +29,19 @@ const toPascalCase = (str: string): string => {
     return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 };
 
+// FIX: To resolve the "Subsequent property declarations must have the same type" error,
+// the conflicting global declaration is removed from this file. It is likely defined
+// in another file (e.g., the duplicate services/sidebar.tsx), and having it here
+// creates a redeclaration error. The code will rely on the other global type definition.
+declare global {
+    interface Window {
+        aistudio?: {
+            hasSelectedApiKey: () => Promise<boolean>;
+            openSelectKey: () => Promise<void>;
+        }
+    }
+}
+
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
   closeSidebar,
@@ -43,6 +56,21 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
+
+    // VEO API Key Check for Animation Generation
+    if (selectedActivity === ActivityType.STORY_SEQUENCING && options.mode === 'ai') {
+        if (window.aistudio && !(await window.aistudio.hasSelectedApiKey())) {
+            const userAgrees = confirm(
+                "Bu animasyon etkinliği, Google'ın Veo modelini kullanır ve projenizde faturalandırmanın etkinleştirilmesini gerektirebilir. \n\nDevam etmek için bir API anahtarı seçmeniz gerekiyor. \n\nDaha fazla bilgi için: ai.google.dev/gemini-api/docs/billing"
+            );
+            if (userAgrees) {
+                await window.aistudio.openSelectKey();
+                // Assume success and continue with generation
+            } else {
+                return; // User cancelled
+            }
+        }
+    }
     
     setIsLoading(true);
     setWorksheetData(null);

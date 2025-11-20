@@ -183,10 +183,20 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
     const { topic, difficulty, worksheetCount } = options;
     
     const prompt = `
-    '${topic}' konusunda 4 aşamalı mantıksal bir olay örgüsü oluştur (Giriş -> Olay -> Doruk -> Sonuç).
-    Panelleri karışık sırada ver.
-    Her panel için sahneyi anlatan İngilizce 'imagePrompt' oluştur.
-    ${worksheetCount} adet üret.
+    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun, 4 aşamalı mantıksal bir olay örgüsü oluştur.
+    
+    İSTENENLER:
+    1.  Bu olay örgüsünü anlatan, çocuklar için anlaşılır, KISA bir hikaye metni ('story') yaz.
+    2.  Bu hikayeyi anlatan, çocuklara yönelik, sevimli, sessiz bir animasyon filmi oluşturmak için çok detaylı, tek bir İNGİLİZCE prompt ('animationPrompt') oluştur. Prompt, sahneleri, karakter hareketlerini ve duygularını adım adım anlatmalıdır. Örneğin: "A cute, curious rabbit finds a shiny red balloon tangled in a bush. It carefully pulls the balloon free. The rabbit happily hops through a field, holding the balloon string. Suddenly, a strong gust of wind pulls the balloon away, and the rabbit looks up sadly as it floats away."
+    
+    JSON ÇIKTISI:
+    - title: "Hikaye Animasyonu: [Hikaye Başlığı]"
+    - prompt: "Animasyonu izle ve hikayeyi kendi cümlelerinle anlat."
+    - pedagogicalNote: "Olayları sıralama, neden-sonuç ilişkisi kurma ve görsel yorumlama becerilerini geliştirir."
+    - story: Oluşturulan kısa Türkçe hikaye metni.
+    - animationPrompt: Oluşturulan detaylı İngilizce animasyon istemi.
+    
+    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
     `;
     const singleSchema = {
         type: Type.OBJECT,
@@ -194,20 +204,10 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            panels: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        id: { type: Type.STRING },
-                        description: { type: Type.STRING },
-                        imagePrompt: { type: Type.STRING }
-                    },
-                    required: ["id", "description", "imagePrompt"]
-                }
-            }
+            story: { type: Type.STRING },
+            animationPrompt: { type: Type.STRING }
         },
-        required: ["title", "prompt", "panels", "pedagogicalNote"]
+        required: ["title", "prompt", "pedagogicalNote", "story", "animationPrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<StorySequencingData[]>;
