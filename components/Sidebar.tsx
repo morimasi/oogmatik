@@ -46,12 +46,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     setWorksheetData(null);
     setError(null);
 
+    const pascalCaseName = toPascalCase(selectedActivity);
+    const generatorFunctionName = `generate${pascalCaseName}FromAI`;
+    const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
+
     try {
         let result: WorksheetData;
-        
-        const pascalCaseName = toPascalCase(selectedActivity);
-        const generatorFunctionName = `generate${pascalCaseName}FromAI`;
-        const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
         
         console.log(`Generating ${selectedActivity} using mode: ${options.mode}`);
 
@@ -61,16 +61,32 @@ const Sidebar: React.FC<SidebarProps> = ({
                 try {
                     result = await onlineGenerator(options);
                 } catch (err: any) {
-                    // Check for 429 or quota related errors
-                    if (err.message && (err.message.includes('429') || err.message.includes('quota'))) {
-                         throw new Error("API_QUOTA_EXCEEDED");
+                    // Check for 429 or quota related errors to trigger fallback
+                    if (err.message && (err.message.includes('429') || err.message.includes('quota') || err.message.includes('kotası'))) {
+                         console.warn("AI Quota exceeded. Attempting fallback to Fast Mode.");
+                         
+                         const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
+                         if (offlineGenerator) {
+                             try {
+                                 // Fallback to offline generator
+                                 result = await offlineGenerator(options);
+                                 alert("Yapay zeka sunucusu şu an çok yoğun olduğu için (Kota Sınırı), etkinlik kesintisiz devam etmeniz adına 'Hızlı Mod' ile oluşturuldu.");
+                             } catch (offlineErr) {
+                                  // If offline also fails, throw original error
+                                  throw new Error("API_QUOTA_EXCEEDED");
+                             }
+                         } else {
+                             // No offline generator available
+                             throw new Error("API_QUOTA_EXCEEDED");
+                         }
+                    } else {
+                        throw err;
                     }
-                    throw err;
                 }
             } else {
                 throw new Error(`AI generator function "${generatorFunctionName}" not found.`);
             }
-        } else { // Fast mode
+        } else { // Fast mode selected by user
             const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
             if (offlineGenerator) {
                 result = await offlineGenerator(options);
@@ -83,8 +99,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 
     } catch (e: any) {
         console.error("Etkinlik oluşturulurken hata:", e);
-        if (e.message === "API_QUOTA_EXCEEDED") {
-            setError("Ücretsiz AI kullanım kotası doldu. Lütfen 'Hızlı Mod' seçeneğini kullanarak devam edin. Hızlı Mod internet gerektirmez ve sınırsızdır.");
+        if (e.message === "API_QUOTA_EXCEEDED" || e.message.includes('429')) {
+            setError("API kullanım kotası aşıldı (429). Lütfen sol panelden 'Hızlı Mod' seçeneğini kullanarak devam edin veya bir dakika bekleyin.");
         } else {
             setError(e.message || "Bilinmeyen bir hata oluştu.");
         }

@@ -76,10 +76,37 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
 
             {error && (
-                <div className="flex justify-center items-center h-full">
-                    <div className="bg-red-100 dark:bg-red-900/50 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-4 rounded-md shadow-md max-w-2xl mx-auto" role="alert">
-                        <p className="font-bold">Bir Hata Oluştu</p>
-                        <p>{error}</p>
+                <div className="flex justify-center items-center h-full p-4">
+                    <div className="bg-white dark:bg-zinc-800 border-2 border-red-100 dark:border-red-900/30 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden">
+                        <div className="bg-red-500 p-4 flex justify-center">
+                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <i className="fa-solid fa-circle-exclamation text-3xl text-white"></i>
+                            </div>
+                        </div>
+                        <div className="p-8 text-center">
+                            <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Bir Sorun Oluştu</h3>
+                            <p className="text-zinc-600 dark:text-zinc-400 mb-6">{error}</p>
+                            
+                            {(error.includes('429') || error.includes('kota') || error.includes('ücretsiz katman')) && (
+                                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 text-sm text-left mb-6">
+                                    <p className="font-bold text-amber-800 dark:text-amber-200 mb-1"><i className="fa-solid fa-lightbulb mr-2"></i>Neden?</p>
+                                    <p className="text-zinc-600 dark:text-zinc-400">
+                                        Yapay zeka modelleri (Gemini) anlık olarak çok fazla istek aldığında geçici olarak duraklatılır. 
+                                        Bu bir arıza değildir, sistemin kapasite korumasıdır.
+                                    </p>
+                                    <p className="mt-2 font-bold text-indigo-600 dark:text-indigo-400">
+                                        👉 Lütfen sol menüden "Hızlı Mod" seçeneğini kullanarak devam edin. Hızlı mod kotaya takılmaz.
+                                    </p>
+                                </div>
+                            )}
+
+                            <button 
+                                onClick={onBackToGenerator}
+                                className="w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 font-bold py-3 px-4 rounded-xl transition-colors"
+                            >
+                                Geri Dön ve Tekrar Dene
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
