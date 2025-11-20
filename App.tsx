@@ -215,10 +215,6 @@ const App: React.FC = () => {
             </button>
           </div>
 
-          <div className="absolute inset-x-0 text-center pointer-events-none hidden sm:block">
-             <p className="text-xs text-zinc-500 dark:text-zinc-400">Disleksi Dostu Yapay Zeka Destekli Etkinlikler</p>
-          </div>
-
           <div className="flex items-center gap-1 sm:gap-2">
              <button 
               onClick={() => setOpenModal('settings')}
