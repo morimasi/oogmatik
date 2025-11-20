@@ -2,11 +2,10 @@
 import React from 'react';
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
-    // FIX: Imported GeneratorOptions to fix multiple 'Cannot find name' errors.
     GeneratorOptions
 } from '../../types';
 import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay } from './common';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateLatinSquare } from './helpers';
 
 // --- PRE-DEFINED OFFLINE ASSETS ---
 
@@ -54,16 +53,16 @@ const punctuationSentences = [
 
 const shapeCountingFigures = {
     easy: {
-        svgPaths: [ {d: "M 10 90 L 50 10 L 90 90 Z", fill: 'lightblue'}, {d: "M 30 90 L 50 50 L 70 90 Z", fill: 'lightgreen'} ],
+        svgPaths: [ {d: "M 10 90 L 50 10 L 90 90 Z", fill: '#bfdbfe'}, {d: "M 30 90 L 50 50 L 70 90 Z", fill: '#bbf7d0'} ],
         correctCount: 2
     },
     medium: {
-        svgPaths: [ { d: "M 50 10 L 90 80 L 10 80 Z", fill: '#eee' }, { d: "M 50 10 L 70 45 L 30 45 Z", fill: 'gold' }, { d: "M 30 45 L 50 80 L 10 80 Z", fill: 'gold' }, { d: "M 70 45 L 90 80 L 50 80 Z", fill: 'gold' } ],
+        svgPaths: [ { d: "M 50 10 L 90 80 L 10 80 Z", fill: '#f4f4f5' }, { d: "M 50 10 L 70 45 L 30 45 Z", fill: '#fde047' }, { d: "M 30 45 L 50 80 L 10 80 Z", fill: '#fde047' }, { d: "M 70 45 L 90 80 L 50 80 Z", fill: '#fde047' } ],
         correctCount: 5 // 4 small + 1 big
     },
     hard: {
-        svgPaths: [ { d: "M 50 5 L 61 40 L 98 40 L 68 62 L 79 96 L 50 75 L 21 96 L 32 62 L 2 40 L 39 40 Z", fill: 'lightblue' }, { d: "M 50 75 L 32 62 L 68 62 Z", fill: 'rgba(0,0,0,0.1)'}, { d: "M 39 40 L 50 5 L 61 40 Z", fill: 'rgba(0,0,0,0.1)'} ],
-        correctCount: 10 // A standard 5-point star has 10 triangles
+        svgPaths: [ { d: "M 50 5 L 61 40 L 98 40 L 68 62 L 79 96 L 50 75 L 21 96 L 32 62 L 2 40 L 39 40 Z", fill: '#bfdbfe' }, { d: "M 50 75 L 32 62 L 68 62 Z", fill: 'rgba(0,0,0,0.1)'}, { d: "M 39 40 L 50 5 L 61 40 Z", fill: 'rgba(0,0,0,0.1)'} ],
+        correctCount: 10 
     }
 };
 
@@ -435,20 +434,59 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
 };
 
 export const generateOfflineWordConnect = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
-     // Handled by Logic or Word Games mostly, but mapped here for Visual Skills category
-     // Using a simplified prompt as implementation exists elsewhere often.
-     return [];
+    const { itemCount, worksheetCount } = options;
+    const results: WordConnectData[] = [];
+    const pairsPool = [...TR_VOCAB.synonyms, ...TR_VOCAB.antonyms];
+
+    for(let i = 0; i < worksheetCount; i++) {
+        const selectedPairs = getRandomItems(pairsPool, itemCount || 8);
+        const points: any[] = [];
+        const colors = getRandomItems(COLORS, selectedPairs.length);
+
+        selectedPairs.forEach((pair: any, idx) => {
+            // Left side (Word)
+            points.push({
+                word: pair.word,
+                pairId: idx,
+                x: 0,
+                y: idx,
+                color: colors[idx].css
+            });
+            // Right side (Match - Synonym or Antonym)
+            // Using 'word' property for text, imagePrompt left empty for text-based matching in offline
+            points.push({
+                word: pair.synonym || pair.antonym,
+                pairId: idx,
+                x: 1, // Column index for right side
+                y: idx, // Ideally randomized later by shuffle, but for structure simplicity
+                color: colors[idx].css
+            });
+        });
+        
+        // Shuffle y positions for the right column effectively
+        const rightPoints = points.filter(p => p.x === 1);
+        const shuffledRightY = shuffle(rightPoints.map(p => p.y));
+        rightPoints.forEach((p, idx) => p.y = shuffledRightY[idx]);
+
+        results.push({
+            title: "Kelime Bağlama (Hızlı Mod)",
+            instruction: "İlişkili kelimeleri çizgilerle birleştir.",
+            pedagogicalNote: "Anlamsal ilişkilendirme ve görsel eşleştirme.",
+            gridDim: 10,
+            points
+        });
+    }
+    return results;
 };
 
 export const generateOfflineProfessionConnect = async (options: GeneratorOptions): Promise<ProfessionConnectData[]> => {
     const {itemCount, worksheetCount} = options;
     const results: ProfessionConnectData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        // FIX: Explicitly type `professions` to `string[]` to ensure correct type inference for `p` in `flatMap`.
         const professions: string[] = getRandomItems(TR_VOCAB.jobs, itemCount || 5);
         const points = professions.flatMap((p: string, idx) => ([
-            { label: p, imageDescription: 'Meslek Sahibi', x: 0, y: idx * 2, pairId: idx },
-            { label: '', imageDescription: `${p} Aracı`, x: 5, y: idx * 2, pairId: idx }
+            { label: p, imageDescription: 'Meslek Sahibi', imagePrompt: '', x: 0, y: idx * 2, pairId: idx },
+            { label: '', imageDescription: `${p} Aracı`, imagePrompt: '', x: 5, y: idx * 2, pairId: idx }
         ]));
         results.push({ 
             title: 'Meslek Eşleştirme', 
@@ -481,29 +519,24 @@ export const generateOfflineMatchstickSymmetry = async (options: GeneratorOption
 }
 
 export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOptions): Promise<VisualOddOneOutThemedData[]> => {
-    // FIX: Changed `theme` to `topic` to match what is passed from the generator.
     const { itemCount, worksheetCount, topic } = options;
     const results: VisualOddOneOutThemedData[] = [];
     const validCategories = ['animals', 'fruits_veggies', 'jobs', 'vehicles'];
 
     for (let i = 0; i < worksheetCount; i++) {
-        // FIX: Replaced .map().filter() with a for loop to handle potential nulls and satisfy TypeScript's type checker.
         const rows: VisualOddOneOutThemedData['rows'] = [];
         for (let j = 0; j < (itemCount || 5); j++) {
-            // FIX: Cast topic to string to fix type error and handle 'Rastgele' case.
             const topicStr = topic as string;
-            // FIX: Cast result from getRandomItems and provide a fallback to ensure mainCatKey is a string, resolving an 'unknown' type error.
             const randomMainCat = getRandomItems(validCategories, 1)[0] as string | undefined;
             const mainCatKey = (topicStr && topicStr !== 'Rastgele' && validCategories.includes(topicStr.toLowerCase())) ? topicStr.toLowerCase() : randomMainCat || 'animals';
             const oddCatKey = getRandomItems(validCategories.filter(c => c !== mainCatKey), 1)[0];
 
             const vocab = TR_VOCAB as any;
-            // FIX: Cast the result of vocab lookups to string[] to prevent the items from being typed as `any` or `unknown`.
             const mainItems: string[] = getRandomItems((vocab[mainCatKey] || []) as string[], 3);
             const oddItem: string | undefined = getRandomItems((vocab[oddCatKey] || []) as string[], 1)[0];
 
             if (!oddItem || mainItems.length < 3) {
-                j--; // Retry this iteration if data is insufficient.
+                j--; 
                 continue;
             }
 
@@ -544,7 +577,6 @@ export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOp
     const { worksheetCount } = options;
     const results: SynonymAntonymColoringData[] = [];
     for(let i=0; i < worksheetCount; i++) {
-        // FIX: Add explicit types to `synonymPair` and `antonymPair` to avoid 'property does not exist' errors.
         const synonymPair: { word: string; synonym: string } = getRandomItems(TR_VOCAB.synonyms, 1)[0];
         const antonymPair: { word: string; antonym: string } = getRandomItems(TR_VOCAB.antonyms, 1)[0];
         const color1 = getRandomItems(COLORS, 1)[0].css;
@@ -574,23 +606,24 @@ export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOp
 };
 
 export const generateOfflineStarHunt = async (options: GeneratorOptions): Promise<StarHuntData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, gridSize, difficulty } = options;
+    const size = gridSize || (difficulty === 'Orta' ? 6 : (difficulty === 'Zor' ? 8 : 5));
+    
     return Array.from({ length: worksheetCount }, () => {
-        // A simple, guaranteed valid but predictable pattern. Then we shuffle rows/cols.
-        const baseGrid: (ShapeType | 'star' | 'question' | null)[][] = [
-            ['star', null, null, null],
-            [null, null, 'star', null],
-            [null, 'star', null, null],
-            [null, null, null, 'star'],
-        ];
-        const finalGrid = shuffle(baseGrid); // Shuffle rows for variety
+        // Use Latin Square generation to ensure valid non-overlapping stars (one per row/col)
+        // 1 represents a star, others are empty.
+        const latin = generateLatinSquare(size); 
+        // Convert latin square to star grid: if cell == 1 then star (ensures 1 per row/col)
+        const grid: (ShapeType | 'star' | 'question' | null)[][] = latin.map(row => 
+            row.map(val => val === 1 ? 'star' : null)
+        );
 
         return {
-            title: 'Yıldız Avı',
+            title: 'Yıldız Avı (Hızlı Mod)',
             instruction: "Her satır ve sütunda 1 yıldız olacak şekilde yerleştirin. Yıldızlar birbirine değmemelidir.",
             pedagogicalNote: "Mantıksal çıkarım ve kısıtlama yönetimi (Constraint Satisfaction).",
-            grid: finalGrid,
-            targetCount: 1
+            grid: grid,
+            targetCount: size
         };
     });
 }
@@ -608,9 +641,9 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
             instruction: "Şeklin içinde kaç tane üçgen olduğunu sayın.",
             pedagogicalNote: "Görsel ayrıştırma, parça-bütün ilişkisi ve sistematik sayma becerisi.",
             figures: [{
-                svgPaths: (figure as any).svgPaths_triforce || figure.svgPaths,
+                svgPaths: figure.svgPaths,
                 targetShape: 'triangle',
-                correctCount: (figure as any).correctCount_triforce || figure.correctCount
+                correctCount: figure.correctCount
             }]
         };
     });
