@@ -430,13 +430,7 @@ export interface ColorWheelMemoryData extends BaseActivityData { memorizeTitle: 
 export interface ImageComprehensionData extends BaseActivityData { memorizeTitle: string; testTitle: string; sceneDescription: string; imageBase64?: string; questions: string[]; }
 export interface CharacterObject { description: string; imageBase64?: string; }
 export interface CharacterMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; charactersToMemorize: CharacterObject[]; testCharacters: CharacterObject[]; }
-export interface StorySequencingData extends BaseActivityData {
-    prompt: string;
-    story: string;
-    animationPrompt?: string;
-    videoBase64?: string;
-    videoMimeType?: string;
-}
+export interface StorySequencingData extends BaseActivityData { prompt: string; panels: { id: string; description: string; imageBase64?: string; }[]; }
 export interface ChaoticNumberSearchData extends BaseActivityData { prompt: string; numbers: { value: number; x: number; y: number; size: number; rotation: number; color: string; }[]; range: { start: number; end: number; } }
 export interface MiniWordGridData extends BaseActivityData { prompt: string; puzzles: { grid: string[][]; start: { row: number; col: number }; }[]; }
 export interface PasswordFinderData extends BaseActivityData { prompt: string; words: { word: string; passwordLetter: string; isProperNoun: boolean; }[]; passwordLength: number; }

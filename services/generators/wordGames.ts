@@ -1,5 +1,3 @@
-
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -75,7 +73,7 @@ export const generateAnagramFromAI = async (options: GeneratorOptions): Promise<
     "${difficulty}" zorluk seviyesine uygun, '${topic}' konusuyla ilgili ${itemCount} tane Türkçe kelime seç.
     KELİME TÜRÜ: ${wordLengthInstruction}
     Her kelimenin harflerini karıştırarak anagramını oluştur.
-    Her kelime için, kelimenin ne olduğunu ima eden, çocuklara uygun, basit, renkli bir görsel oluşturmak için detaylı bir **İngilizce** 'imagePrompt' üret.
+    Her kelime için, kelimenin ne olduğunu ima eden, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek kaliteli ve detaylı bir 'imagePrompt' üret (high resolution, sharp focus).
     Tüm anagramlar çözüldükten sonra, çocukların bu kelimelerden en az üçünü kullanarak yaratıcı bir cümle yazmaları için bir yönlendirme metni ('sentencePrompt') oluştur.
     
     PEDAGOGICAL NOTE: "Fonolojik farkındalık, harf dizilimi belleği ve kelime türetme becerisi."
@@ -126,7 +124,7 @@ export const generateSpellingCheckFromAI = async (options: GeneratorOptions): Pr
     ZORLUK KRİTERİ: ${difficultyInstruction}
     Her kelime için:
     1. Doğru yazılışını ve 2 tane yaygın yapılan yanlış varyasyonunu içeren 3 seçenekli bir liste oluştur.
-    2. Doğru kelimeyi görselleştiren, basit ve anlaşılır, "children's book illustration" tarzında bir **İngilizce** 'imagePrompt' oluştur.
+    2. Doğru kelimeyi görselleştiren, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek kaliteli ve gerçekçi bir 'imagePrompt' oluştur (realistic object, detailed).
     
     PEDAGOGICAL NOTE: "Görsel sözcük belleği (ortografik farkındalık) ve dikkat."
     INSTRUCTION: "Seçeneklerden yazımı doğru olan kelimeyi bul ve işaretle."
@@ -347,7 +345,7 @@ export const generateWordGroupingFromAI = async (options: GeneratorOptions): Pro
     '${topic}' temalı ve "${difficulty}" seviyesinde bir "Kelime Gruplama" etkinliği oluştur.
     ${categoryCount} tane anlamlı kategori oluştur.
     Her kategori için ${Math.floor(itemCount / categoryCount)} tane kelime bul.
-    Her kelime için bir 'text' (kelimenin kendisi) ve onu görselleştiren basit, "cute icon style" bir **İngilizce** 'imagePrompt' oluştur.
+    Her kelime için bir 'text' (kelimenin kendisi) ve onu görselleştiren **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek kaliteli ve gerçekçi bir 'imagePrompt' üret (realistic object, icon style).
     Kullanıcı, resimli kelimeleri doğru kategorilere sürükleyip bırakacak.
 
     PEDAGOGICAL NOTE: "Semantik kategorizasyon, kavramsal düşünme ve görsel ilişkilendirme."
@@ -445,7 +443,7 @@ export const generateCrosswordFromAI = async (options: GeneratorOptions): Promis
     const {itemCount, difficulty, worksheetCount, topic, gridSize, passwordLength, clueType} = options;
     const prompt = `
     '${topic}' temalı, "${difficulty}" seviyesine uygun ${gridSize}x${gridSize} boyutunda bir 'Çapraz Bulmaca' oluştur.
-    ${itemCount} tane kelime seç. Bu kelimeler için '${clueType}' türünde ipuçları hazırla. Bazı ipuçları için metin yerine görsel oluşturmak üzere **İngilizce** 'imagePrompt' kullan.
+    ${itemCount} tane kelime seç. Bu kelimeler için '${clueType}' türünde ipuçları hazırla. Bazı ipuçları için metin yerine görsel oluşturmak üzere **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek kaliteli bir 'imagePrompt' kullan (realistic object, detailed).
     ${passwordLength} harfli bir şifre kelimesi belirle ve bu şifreyi oluşturan harflerin hücrelerini işaretle.
     Bulmaca çözüldükten sonra şifrenin anlamı veya temayla ilişkisi hakkında bir soru ('passwordPrompt') sor.
     
@@ -512,7 +510,7 @@ export const generateSynonymAntonymGridFromAI = async (options: GeneratorOptions
 
 export const generateAntonymResfebeFromAI = async (options: GeneratorOptions): Promise<AntonymResfebeData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create an antonym resfebe puzzle for difficulty level "${difficulty}". Generate ${itemCount} puzzles. For each puzzle, generate a Turkish word. Then, create creative visual/textual clues (resfebe) to represent that word. For image clues, provide a clear, simple English image generation prompt. Then provide the antonym of the word. Create ${worksheetCount} unique worksheets.
+    const prompt = `Create an antonym resfebe puzzle for difficulty level "${difficulty}". Generate ${itemCount} puzzles. For each puzzle, generate a Turkish word. Then, create creative visual/textual clues (resfebe) to represent that word. For image clues, provide a clear, **photorealistic, high quality** English image generation prompt (realistic object). Then provide the antonym of the word. Create ${worksheetCount} unique worksheets.
     PEDAGOGICAL NOTE: "Görsel çağrışım ve zıt kavramları eşleştirme."
     INSTRUCTION: "Resfebe ipuçlarıyla kelimeyi bul, sonra zıt anlamlısını yaz."`;
     const singleSchema = {
@@ -567,7 +565,7 @@ export const generateHomonymSentenceWritingFromAI = async (options: GeneratorOpt
     ${itemCount} tane yaygın Türkçe eş sesli kelime seç.
     Her kelime için:
     1. İki farklı anlamını ('meaning1', 'meaning2') kısaca açıkla.
-    2. Her bir anlam için, o anlamı temsil eden basit, net ve çocuklara uygun bir görsel oluşturmak için detaylı bir **İngilizce** 'imagePrompt_1' ve 'imagePrompt_2' üret.
+    2. Her bir anlam için, o anlamı temsil eden, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek kaliteli ve gerçekçi bir 'imagePrompt' (imagePrompt_1 ve imagePrompt_2) üret.
     Kullanıcının her anlam için ayrı bir cümle yazması gerekecek.
     
     PEDAGOGICAL NOTE: "Eş sesli kelimelerin (sesteş) farklı bağlamlarda kullanımını kavrama."
@@ -597,7 +595,7 @@ export const generateHomonymSentenceWritingFromAI = async (options: GeneratorOpt
 
 export const generateHomonymImageMatchFromAI = async (options: GeneratorOptions): Promise<HomonymImageMatchData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create a homonym image matching puzzle for difficulty "${difficulty}". For each worksheet, pick a common Turkish homonym. Create two image prompts (in English) for its two different meanings. Also create a simple word scramble for the homonym itself. The user will match the images and solve the scramble. 
+    const prompt = `Create a homonym image matching puzzle for difficulty "${difficulty}". For each worksheet, pick a common Turkish homonym. Create two image prompts (in English, **photorealistic, highly detailed**) for its two different meanings. Also create a simple word scramble for the homonym itself. The user will match the images and solve the scramble. 
     PEDAGOGICAL NOTE: "Görsel ve anlamsal ilişkilendirme."
     INSTRUCTION: "Resimleri incele, ortak olan eş sesli kelimeyi bul."
     Create ${worksheetCount} worksheets.`;
@@ -636,7 +634,7 @@ export const generateHomonymImageMatchFromAI = async (options: GeneratorOptions)
 
 export const generateImageAnagramSortFromAI = async (options: GeneratorOptions): Promise<ImageAnagramSortData[]> => {
     const { itemCount, topic, difficulty, worksheetCount } = options;
-    const prompt = `Create an image anagram sorting activity with theme '${topic}' for difficulty level "${difficulty}". Generate ${itemCount} cards. Each card must have a scrambled word, its correct form, a description, and a simple, clear English image generation prompt. The user will solve the anagrams and sort the cards alphabetically. 
+    const prompt = `Create an image anagram sorting activity with theme '${topic}' for difficulty level "${difficulty}". Generate ${itemCount} cards. Each card must have a scrambled word, its correct form, a description, and a **photorealistic, highly detailed** English image generation prompt. The user will solve the anagrams and sort the cards alphabetically. 
     PEDAGOGICAL NOTE: "Kelime sıralama ve görsel destekli kod çözme."
     INSTRUCTION: "Harfleri düzelt, kelimeyi bul ve görselleri isme göre sırala."
     Create ${worksheetCount} unique worksheets.`;
@@ -669,7 +667,7 @@ export const generateImageAnagramSortFromAI = async (options: GeneratorOptions):
 
 export const generateAnagramImageMatchFromAI = async (options: GeneratorOptions): Promise<AnagramImageMatchData[]> => {
     const { itemCount, topic, difficulty, worksheetCount } = options;
-    const prompt = `Create an anagram-image matching activity with theme '${topic}' for difficulty level "${difficulty}". Generate a word bank of ${itemCount} words. Then, create ${itemCount} puzzles. Each puzzle should have an image (provide English image prompt), the correct word, and a version of the answer with some letters filled in as a clue. The user finds the word in the word bank that matches the image and clue. 
+    const prompt = `Create an anagram-image matching activity with theme '${topic}' for difficulty level "${difficulty}". Generate a word bank of ${itemCount} words. Then, create ${itemCount} puzzles. Each puzzle should have an image (provide **photorealistic, highly detailed** English image prompt), the correct word, and a version of the answer with some letters filled in as a clue. The user finds the word in the word bank that matches the image and clue. 
     PEDAGOGICAL NOTE: "Kelime tanıma ve görsel eşleştirme."
     INSTRUCTION: "Resme bak, eksik harfleri tamamla ve doğru kelimeyi bul."
     Create ${worksheetCount} unique worksheets.`;

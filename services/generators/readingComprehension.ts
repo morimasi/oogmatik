@@ -1,5 +1,3 @@
-
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -43,7 +41,7 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     JSON Çıktısı:
     - story: Hikaye metni (satır sonlarına \\n ekleyerek paragrafları ayır).
     - pedagogicalNote: "${PED_NOTE}"
-    - imagePrompt: İngilizce, çocuklara uygun illüstrasyon istemi.
+    - imagePrompt: English prompt for a high-quality, photorealistic, cinematic lighting, highly detailed, 8k resolution illustration representing the story. Do not use cartoon or vector styles.
     - mainIdea: 1 cümlelik ana fikir.
     - characters: Karakter listesi.
     - setting: Mekan.
@@ -88,6 +86,8 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Pr
     '${topic}' konusunda, "${difficulty}" seviyesinde, '${storyLength}' uzunluğunda bir hikaye yaz.
     Hikaye mantıksal bir akışa (neden-sonuç) sahip olsun.
     
+    Görsel İsteği: Hikayenin ana sahnesini anlatan, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), sinematik ışıklandırmalı ve yüksek detaylı bir 'imagePrompt' oluştur.
+    
     Analiz Soruları (4 Adet):
     1. Tema: Hikayenin vermek istediği mesaj.
     2. Karakter: Ana karakterin kişilik özelliği.
@@ -128,7 +128,7 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
     '${topic}' konusunda yaratıcı yazma etkinliği.
     ${keywordCount} adet, birbiriyle ilişkili (semantik bağlamı olan) anahtar kelime seç.
     Öğrenciye ilham verecek kısa bir "Hikaye Başlatıcı" (Prompt) yaz.
-    Görsel: Hikayenin geçtiği dünyayı betimleyen İngilizce prompt.
+    Görsel: Hikayenin geçtiği dünyayı betimleyen, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek çözünürlüklü ve detaylı bir 'imagePrompt' (realistic, highly detailed, cinematic).
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {
@@ -149,7 +149,7 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
 export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda kısa bir hikaye yaz. Hikayenin temasına uygun bir **İngilizce** 'imagePrompt' oluştur.
+    '${topic}' konusunda kısa bir hikaye yaz. Hikayenin temasına uygun, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), sinematik ve yüksek kaliteli bir 'imagePrompt' oluştur.
     Hikaye içinde geçen, öğrencinin kelime dağarcığına katabileceği ${difficulty === 'Başlangıç' ? '3' : '5'} kelimeyi seç.
     Bu kelimelerin anlamını pekiştirecek sorular sor (Örn: Cümle içinde kullan, zıt anlamlısını bul).
     ${worksheetCount} adet üret.
@@ -183,20 +183,11 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
     const { topic, difficulty, worksheetCount } = options;
     
     const prompt = `
-    '${topic}' konusunda ve "${difficulty}" zorluk seviyesine uygun, 4 aşamalı mantıksal bir olay örgüsü oluştur.
-    
-    İSTENENLER:
-    1.  Bu olay örgüsünü anlatan, çocuklar için anlaşılır, KISA bir hikaye metni ('story') yaz.
-    2.  Bu hikayeyi anlatan, çocuklara yönelik, sevimli, sessiz bir animasyon filmi oluşturmak için çok detaylı, tek bir İNGİLİZCE prompt ('animationPrompt') oluştur. Prompt, sahneleri, karakter hareketlerini ve duygularını adım adım anlatmalıdır. Örneğin: "A cute, curious rabbit finds a shiny red balloon tangled in a bush. It carefully pulls the balloon free. The rabbit happily hops through a field, holding the balloon string. Suddenly, a strong gust of wind pulls the balloon away, and the rabbit looks up sadly as it floats away."
-    
-    JSON ÇIKTISI:
-    - title: "Hikaye Animasyonu: [Hikaye Başlığı]"
-    - prompt: "Animasyonu izle ve hikayeyi kendi cümlelerinle anlat."
-    - pedagogicalNote: "Olayları sıralama, neden-sonuç ilişkisi kurma ve görsel yorumlama becerilerini geliştirir."
-    - story: Oluşturulan kısa Türkçe hikaye metni.
-    - animationPrompt: Oluşturulan detaylı İngilizce animasyon istemi.
-    
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    '${topic}' konusunda 4 aşamalı mantıksal bir olay örgüsü oluştur (Giriş -> Olay -> Doruk -> Sonuç).
+    Panelleri karışık sırada ver.
+    Her panel için sahneyi anlatan, **son derece detaylı, gerçekçi ve sinematik** bir İngilizce 'imagePrompt' oluştur. Resimler fotoğraf kalitesinde (photorealistic), canlı renklere sahip ve yüksek çözünürlüklü olmalı. Asla çizgi film veya vektör tarzı isteme.
+    (Örnek Prompt Stili: "A photorealistic image of a cat knocking over a glass of milk in a sunlit kitchen, cinematic lighting, 4k resolution, highly detailed textures.")
+    ${worksheetCount} adet üret.
     `;
     const singleSchema = {
         type: Type.OBJECT,
@@ -204,10 +195,20 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            story: { type: Type.STRING },
-            animationPrompt: { type: Type.STRING }
+            panels: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.STRING },
+                        description: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING }
+                    },
+                    required: ["id", "description", "imagePrompt"]
+                }
+            }
         },
-        required: ["title", "prompt", "pedagogicalNote", "story", "animationPrompt"]
+        required: ["title", "prompt", "panels", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<StorySequencingData[]>;
@@ -274,7 +275,7 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
     "${difficulty}" seviyesine uygun ${itemCount} atasözü seç.
     Öğrenci için anlaması en kritik olan kelimeyi boşluk bırak ('start' ve 'end' olarak böl).
     Seçilen atasözlerinin genel bir temasını (örn: Tasarruf, Dostluk) 'meaning' alanında açıkla.
-    Ayrıca atasözlerinin genel temasını anlatan bir **İngilizce** 'imagePrompt' oluştur.
+    Ayrıca atasözlerinin genel temasını anlatan, **İngilizce**, fotoğraf gerçekliğinde (photorealistic), detaylı ve sanatsal bir 'imagePrompt' oluştur.
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {

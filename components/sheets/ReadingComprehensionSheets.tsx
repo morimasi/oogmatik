@@ -259,42 +259,46 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
     <div>
       <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
       
-      {data.videoBase64 ? (
-        <div className="my-8 flex justify-center bg-black rounded-xl shadow-2xl border-4 border-zinc-200 dark:border-zinc-700">
-            <video 
-                src={`data:${data.videoMimeType || 'video/mp4'};base64,${data.videoBase64}`}
-                controls 
-                autoPlay 
-                loop 
-                className="w-full max-w-3xl rounded-lg aspect-video"
-                aria-label="Hikaye animasyonu"
-            >
-                Tarayıcınız video etiketini desteklemiyor.
-            </video>
-        </div>
-      ) : (
-        <div className="my-8 text-center p-8 bg-zinc-100 dark:bg-zinc-800 rounded-lg h-96 flex flex-col justify-center items-center">
-            <svg className="animate-spin h-8 w-8 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <p className="font-semibold text-zinc-600 dark:text-zinc-400">Animasyon oluşturuluyor...</p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">Bu işlem birkaç dakika sürebilir.</p>
-        </div>
-      )}
-
-      {data.story && (
-        <div className="relative mt-8">
-            <ReadingRuler />
-            <div className="bg-white dark:bg-zinc-700/30 p-6 rounded-xl shadow-inner border border-zinc-100 dark:border-zinc-700">
-                <h4 className="font-bold text-lg mb-2 text-zinc-700 dark:text-zinc-300 flex items-center gap-2"><i className="fa-solid fa-file-alt text-zinc-400"></i>Hikaye Metni</h4>
-                <p className="text-lg leading-relaxed whitespace-pre-line text-zinc-800 dark:text-zinc-200">{data.story}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {(data.panels || []).map((panel) => (
+          <div key={panel.id} className="relative bg-black p-2 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300">
+            {/* Film Strip Holes */}
+            <div className="flex justify-between px-1 mb-1">
+                {Array.from({length: 6}).map((_, i) => <div key={i} className="w-2 h-3 bg-white rounded-sm"></div>)}
             </div>
+            
+            <div className="bg-white dark:bg-zinc-800 p-2 rounded h-full flex flex-col">
+                <div className="absolute top-0 left-0 bg-red-600 text-white font-bold w-8 h-8 flex items-center justify-center rounded-tl-lg rounded-br-lg shadow z-10">
+                    {panel.id}
+                </div>
+                <div className="aspect-square w-full overflow-hidden rounded mb-3 bg-zinc-100 dark:bg-zinc-900">
+                    <ImageDisplay base64={panel.imageBase64} description={panel.description} className="w-full h-full object-cover" />
+                </div>
+                <p className="text-sm text-center font-medium text-zinc-800 dark:text-zinc-200 mt-auto">{panel.description}</p>
+            </div>
+
+            <div className="flex justify-between px-1 mt-1">
+                {Array.from({length: 6}).map((_, i) => <div key={i} className="w-2 h-3 bg-white rounded-sm"></div>)}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="bg-zinc-100 dark:bg-zinc-800/50 p-6 rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-600 text-center">
+        <h4 className="text-lg font-bold text-zinc-600 dark:text-zinc-400 mb-4">Doğru Sıralamayı Buraya Yaz</h4>
+        <div className="flex justify-center items-center gap-4 flex-wrap">
+          {Array.from({ length: (data.panels || []).length || 4 }).map((_, index) => (
+            <React.Fragment key={index}>
+                <div className="w-16 h-16 border-2 border-zinc-400 rounded-xl bg-white dark:bg-zinc-700 flex items-center justify-center text-2xl font-bold shadow-inner">
+                    <span className="text-zinc-300 dark:text-zinc-600 text-sm absolute mb-8">{index + 1}.</span>
+                </div>
+                {index < ((data.panels || []).length - 1) && <i className="fa-solid fa-arrow-right text-zinc-400"></i>}
+            </React.Fragment>
+          ))}
         </div>
-      )}
+      </div>
     </div>
 );
-
 
 export const ProverbSayingSortSheet: React.FC<{ data: ProverbSayingSortData }> = ({ data }) => (
     <div>

@@ -1,8 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-// FIX: Import `GoogleGenAI` instead of the deprecated `GoogleGenerativeAI`.
-import { GoogleGenAI, Modality } from "@google/genai";
-// FIX: Import `Buffer` to resolve the "Cannot find name 'Buffer'" error in a serverless environment.
-import { Buffer } from 'buffer';
+import { GoogleGenAI } from "@google/genai";
 
 // Basit bir bekleme (sleep) yardımcı fonksiyonu
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -63,7 +60,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(500).json({ error: 'Sunucuda API anahtarı yapılandırılmamış.' });
         }
 
-        // FIX: Use `GoogleGenAI` instead of the deprecated `GoogleGenerativeAI`.
         const ai = new GoogleGenAI({ apiKey });
         const maxRetries = 4;
         
@@ -71,8 +67,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let data;
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
+                // MODEL GÜNCELLEMESİ: Daha gelişmiş metin modeli (Gemini 3 Pro Preview)
                 const textResponse = await ai.models.generateContent({
-                    model: "gemini-3-pro-preview", // UPGRADED MODEL
+                    model: "gemini-3-pro-preview", 
                     contents: prompt,
                     config: {
                         responseMimeType: "application/json",
@@ -131,24 +128,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         findImagePrompts(data);
         
         if (imagePromptsToProcess.length > 0) {
-            const CONCURRENCY_LIMIT = 4; // Kaynakları yönetmek için aynı anda 4 resim işle
+            const CONCURRENCY_LIMIT = 3; // Imagen modeli için eşzamanlılık limiti
             for (let i = 0; i < imagePromptsToProcess.length; i += CONCURRENCY_LIMIT) {
                 const chunk = imagePromptsToProcess.slice(i, i + CONCURRENCY_LIMIT);
                 const promises = chunk.map(async ({ obj, imagePrompt }) => {
                     for (let attempt = 0; attempt < maxRetries; attempt++) {
                         try {
+                            // MODEL GÜNCELLEMESİ: Yüksek kaliteli resim modeli (Imagen 4)
                             const imageResponse = await ai.models.generateImages({
-                                model: 'imagen-4.0-generate-001', // UPGRADED MODEL
+                                model: 'imagen-4.0-generate-001',
                                 prompt: imagePrompt,
                                 config: {
                                     numberOfImages: 1,
-                                    outputMimeType: 'image/png',
+                                    outputMimeType: 'image/jpeg',
+                                    aspectRatio: '1:1',
                                 },
                             });
                             
-                            const base64ImageBytes = imageResponse.generatedImages?.[0]?.image?.imageBytes;
-                            if (base64ImageBytes) {
-                                obj['imageBase64'] = base64ImageBytes;
+                            const base64Data = imageResponse.generatedImages?.[0]?.image?.imageBytes;
+                            
+                            if (base64Data) {
+                                obj['imageBase64'] = base64Data;
                             } else {
                                 obj['imageBase64'] = ''; // Resim döndürülmezse boş dize ata
                                 console.warn(`"${imagePrompt}" istemi için resim verisi bulunamadı.`);
@@ -176,67 +176,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 await Promise.all(promises);
             }
         }
-
-        // Adım 3: 'animationPrompt' alanlarını bul ve video oluştur
-        const animationPromptsToProcess: { obj: any, animationPrompt: string }[] = [];
-        const findAnimationPrompts = (obj: any) => {
-            if (!obj || typeof obj !== 'object') return;
-            if (Array.isArray(obj)) {
-                obj.forEach(findAnimationPrompts);
-                return;
-            }
-            Object.keys(obj).forEach(key => {
-                if (key === 'animationPrompt' && typeof obj[key] === 'string' && obj[key].length > 0) {
-                    animationPromptsToProcess.push({ obj: obj, animationPrompt: obj[key] });
-                } else {
-                    findAnimationPrompts(obj[key]);
-                }
-            });
-        };
-        findAnimationPrompts(data);
-
-        if (animationPromptsToProcess.length > 0) {
-            for (const { obj, animationPrompt } of animationPromptsToProcess) {
-                try {
-                    let operation = await ai.models.generateVideos({
-                        model: 'veo-3.1-fast-generate-preview', // NEW ANIMATION MODEL
-                        prompt: animationPrompt,
-                        config: { numberOfVideos: 1, resolution: '720p', aspectRatio: '16:9' }
-                    });
         
-                    const startTime = Date.now();
-                    const timeout = 290 * 1000; // Vercel limitinin hemen altında (300s)
-        
-                    while (!operation.done) {
-                        if (Date.now() - startTime > timeout) {
-                            throw new Error("Video generation timed out after 290 seconds.");
-                        }
-                        await sleep(10000); // 10 saniyede bir kontrol et
-                        operation = await ai.operations.getVideosOperation({ operation: operation });
-                    }
-        
-                    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-                    if (downloadLink) {
-                        const videoUrl = `${downloadLink}&key=${apiKey}`;
-                        const videoResponse = await fetch(videoUrl);
-                        if (!videoResponse.ok) {
-                            throw new Error(`Video indirilemedi: ${videoResponse.statusText}`);
-                        }
-                        const videoArrayBuffer = await videoResponse.arrayBuffer();
-                        const videoBase64 = Buffer.from(videoArrayBuffer).toString('base64');
-        
-                        obj['videoBase64'] = videoBase64;
-                        obj['videoMimeType'] = 'video/mp4';
-                    }
-                } catch (videoError: any) {
-                    console.error(`Animasyon oluşturma başarısız oldu (prompt: "${animationPrompt}"):`, videoError);
-                } finally {
-                    delete obj['animationPrompt'];
-                }
-            }
-        }
-        
-        // Adım 4: Gömülü resim/video verileriyle son JSON'u döndür
+        // Adım 3: Gömülü resim verileriyle son JSON'u döndür
         return res.status(200).json(data);
 
     } catch (error: unknown) {
