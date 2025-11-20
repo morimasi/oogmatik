@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
                 const textResponse = await ai.models.generateContent({
-                    model: "gemini-2.0-flash", // Changed to flash model for speed and better quota handling
+                    model: "gemini-2.5-flash", // Updated to latest Flash model
                     contents: prompt,
                     config: {
                         responseMimeType: "application/json",
@@ -98,7 +98,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             await Promise.all(chunk.map(async ({ obj, imagePrompt }) => {
                 try {
                     const imageResponse = await ai.models.generateImages({
-                        model: 'imagen-3.0-generate-002', // Faster model
+                        model: 'imagen-4.0-generate-001', // Updated to latest Imagen model
                         prompt: imagePrompt,
                         config: {
                             numberOfImages: 1,
