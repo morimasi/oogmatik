@@ -87,7 +87,7 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
 
 export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions): Promise<ThematicOddOneOutData[]> => {
     const { topic, difficulty, worksheetCount, itemCount } = options;
-    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficulty}". Generate ${itemCount} rows. In each row, provide 4 words as objects with text and an **English, photorealistic, highly detailed** 'imagePrompt'. One word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficulty}". Generate ${itemCount} rows. In each row, provide 4 words as objects with text and an **English, photorealistic, highly detailed** 'imagePrompt' (cinematic lighting, 8k, sharp focus). One word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -304,7 +304,7 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
 
 export const generateWeightConnectFromAI = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
     const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1kg', '1000g'), an **English, photorealistic** imagePrompt for a visual representation (e.g., 'a 1kg bag of flour'), a pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1kg', '1000g'), an **English, photorealistic, highly detailed** imagePrompt for a visual representation (e.g., 'a 1kg bag of flour', 8k, studio lighting), a pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -334,7 +334,7 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
 
 export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<ResfebeData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Resfebe" puzzle for difficulty level "${difficulty}". Generate 4 puzzles. For each, provide clues (text or image prompts) and the answer. For image prompts, create a **photorealistic, high quality** prompt for an image generator. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Resfebe" puzzle for difficulty level "${difficulty}". Generate 4 puzzles. For each, provide clues (text or image prompts) and the answer. For image prompts, create a **photorealistic, high quality, 8k, cinematic lighting** prompt for an image generator. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -371,7 +371,7 @@ export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<
 
 export const generateLengthConnectFromAI = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
     const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1m', '100cm'), an **English, photorealistic** imagePrompt for a visual representation (e.g., 'a 1 meter tall door', 'a 100cm ruler'), a pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1m', '100cm'), an **English, photorealistic** imagePrompt for a visual representation (e.g., 'a 1 meter tall door', 'a 100cm ruler', 8k, realistic), a pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -439,7 +439,7 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
 
 export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): Promise<LogicGridPuzzleData[]> => {
     const { difficulty, worksheetCount, itemCount } = options;
-    const prompt = `Create a "Logic Grid Puzzle" for difficulty level "${difficulty}". Provide ${itemCount} clues, a list of people, and categories with items (including **photorealistic** image prompts). The user solves the puzzle using the grid. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Logic Grid Puzzle" for difficulty level "${difficulty}". Provide ${itemCount} clues, a list of people, and categories with items (including **photorealistic, highly detailed** image prompts). The user solves the puzzle using the grid. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {

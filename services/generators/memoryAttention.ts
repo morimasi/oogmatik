@@ -21,7 +21,7 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
 
     const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir kelime hafıza testi oluştur.
-    Ezberlenecek ${memorizeCount} kelime seç. Her kelime için bir de **İngilizce**, fotoğraf gerçekliğinde (photorealistic), stüdyo ışığında çekilmiş gibi net ve detaylı bir 'imagePrompt' üret (realistic object, sharp focus, studio lighting).
+    Ezberlenecek ${memorizeCount} kelime seç. Her kelime için bir de **İngilizce**, fotoğraf gerçekliğinde (photorealistic), stüdyo ışığında çekilmiş gibi net, yüksek çözünürlüklü (8k) ve detaylı bir 'imagePrompt' üret (realistic object, sharp focus, studio lighting, highly detailed, cinematic).
     ${difficulty === 'Başlangıç' ? 'Kelimeler kısa (3-4 harf) ve somut olsun.' : difficulty === 'Uzman' ? 'Kelimeler aynı kategoriden ve birbirine yakın olsun (örn: Pırasa, Ispanak, Pazı) - bu ayırt etmeyi zorlaştırır.' : 'Kelimeler orta zorlukta olsun.'}
     Test için ${testCount} kelimelik bir liste oluştur. Bu listenin içinde ezberlenecek kelimeler de bulunsun. Test listesi için de 'imagePrompt' üret.
     
@@ -62,7 +62,7 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
   const testCount = itemCount;
   const prompt = `
     '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir görsel hafıza testi oluştur.
-    Ezberlenecek ${memorizeCount} tane nesne belirle. Her nesne için bir 'description' (Türkçe açıklama) ve **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek çözünürlüklü ve gerçekçi bir 'imagePrompt' üret (realistic, highly detailed).
+    Ezberlenecek ${memorizeCount} tane nesne belirle. Her nesne için bir 'description' (Türkçe açıklama) ve **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek çözünürlüklü (8k), stüdyo kalitesinde ve gerçekçi bir 'imagePrompt' üret (realistic, highly detailed, cinematic lighting, sharp focus).
     Test için ${testCount} tane nesneden oluşan bir liste oluştur (hem 'description' hem 'imagePrompt' içermeli). Bu listenin içinde ezberlenecek nesneler de bulunsun.
     ${difficulty === 'Zor' || difficulty === 'Uzman' ? 'Nesneler birbirine çok benzesin (örn: Kırmızı Elma, Yeşil Elma, Yarım Elma).' : 'Nesneler birbirinden tamamen farklı olsun.'}
     
@@ -260,7 +260,7 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
 
 export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create a color wheel memory game with ${itemCount} items, appropriate for difficulty level "${difficulty}". Each item must have a name (e.g., "Kitap"), a unique hex color code, and a **photorealistic, high-quality, studio-style** English imagePrompt (realistic object, sharp focus).
+    const prompt = `Create a color wheel memory game with ${itemCount} items, appropriate for difficulty level "${difficulty}". Each item must have a name (e.g., "Kitap"), a unique hex color code, and a **photorealistic, high-quality, studio-style** English imagePrompt (realistic object, sharp focus, 8k resolution, cinematic lighting).
     INSTRUCTION: "Renk çarkındaki nesnelerin yerlerini, renklerini ve resimlerini ezberle."
     PEDAGOGICAL NOTE: "Görsel-mekansal hafıza ve nesne-renk ilişkilendirme."
     
@@ -296,7 +296,7 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
     const { topic, itemCount: questionCount, difficulty, worksheetCount } = options;
     const prompt = `
     Generate a simple, detailed scene description about '${topic}' for an image comprehension test, appropriate for difficulty level "${difficulty}".
-    Also, create a **photorealistic, highly detailed, cinematic lighting, 8k resolution** image generation prompt (in English) that perfectly matches the scene.
+    Also, create a **photorealistic, highly detailed, cinematic lighting, 8k resolution** image generation prompt (in English) that perfectly matches the scene. The image should look like a high-quality photograph.
     Then, create ${questionCount} questions about the details in the scene. Questions should test working memory (e.g., "How many...", "What color...", "Where was...").
     
     INSTRUCTION: "Resmi dikkatlice incele ve detayları aklında tut."
@@ -328,7 +328,7 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
     const testCount = itemCount;
     const prompt = `
     Generate a character memory test about '${topic}', appropriate for difficulty level "${difficulty}".
-    Create ${memorizeCount} unique characters. For each, provide a short description and a **photorealistic, highly detailed portrait** image prompt (in English, realistic style).
+    Create ${memorizeCount} unique characters. For each, provide a short description and a **photorealistic, highly detailed portrait** image prompt (in English, realistic style, 8k, cinematic lighting).
     Then, create a test list of ${testCount} characters.
     
     INSTRUCTION: "Karakterleri ve özelliklerini ezberle."

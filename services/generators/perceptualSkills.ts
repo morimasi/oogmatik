@@ -484,7 +484,7 @@ export const generateProfessionConnectFromAI = async (options: GeneratorOptions)
     const prompt = `
     "${difficulty}" seviyesinde Meslek ve Araç eşleştirme etkinliği.
     Meslek adı ve o mesleğe ait bir aletin görselini (imagePrompt) içeren çiftler oluştur.
-    Görseller **İngilizce**, fotoğraf gerçekliğinde (photorealistic), stüdyo kalitesinde olmalıdır (realistic object, studio lighting).
+    Görseller **İngilizce**, fotoğraf gerçekliğinde (photorealistic), stüdyo kalitesinde, 8k çözünürlükte ve gerçekçi olmalıdır (realistic object, studio lighting, sharp focus).
     Kullanıcı bunları çizgilerle eşleştirmeli.
     ${worksheetCount} sayfa.
     `;
@@ -564,7 +564,7 @@ export const generateVisualOddOneOutThemedFromAI = async (options: GeneratorOpti
     const prompt = `
     '${topic}' temalı, "${difficulty}" seviyesinde "Farklı Olanı Bul".
     Her satırda 4 resim olsun. 3'ü temaya uygun, 1'i temaya uygun olmayan veya farklı bir kategoriden olsun.
-    Her öğe için **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek detaylı 'imagePrompt' oluştur.
+    Her öğe için **İngilizce**, fotoğraf gerçekliğinde (photorealistic), yüksek detaylı, sinematik ve 8k çözünürlükte 'imagePrompt' oluştur.
     ${worksheetCount} sayfa.
     `;
      const singleSchema = {
