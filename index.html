@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -7,6 +6,8 @@
     <title>Bursa Disleksi Ai</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- OpenDyslexic Font -->
+    <link href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css" rel="stylesheet">
 <script>
   tailwind.config = {
     darkMode: 'class',
@@ -36,32 +37,6 @@
   }
 </script>
 <style>
-  /* Import OpenDyslexic font from a reliable CDN */
-  @font-face {
-    font-family: 'OpenDyslexic';
-    src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic-regular.min.css') format('css'); 
-    /* Fallback or alternative CDN if direct woff fails, using a common dyslexia font or just force local if available */
-  }
-  /* Using a direct link to a woff file from a stable repo for better reliability */
-  @font-face {
-      font-family: 'OpenDyslexic';
-      font-style: normal;
-      font-weight: normal;
-      src: url('https://raw.githubusercontent.com/antijingoist/open-dyslexic/master/compiled/OpenDyslexic-Regular.woff') format('woff');
-  }
-  @font-face {
-      font-family: 'OpenDyslexic';
-      font-style: normal;
-      font-weight: bold;
-      src: url('https://raw.githubusercontent.com/antijingoist/open-dyslexic/master/compiled/OpenDyslexic-Bold.woff') format('woff');
-  }
-  @font-face {
-      font-family: 'OpenDyslexic';
-      font-style: italic;
-      font-weight: normal;
-      src: url('https://raw.githubusercontent.com/antijingoist/open-dyslexic/master/compiled/OpenDyslexic-Italic.woff') format('woff');
-  }
-
   /* Force OpenDyslexic on all elements including form inputs */
   body, button, input, select, textarea, table, th, td, a, li, ul, ol, div, span, p, h1, h2, h3, h4, h5, h6, label, pre, code {
     font-family: 'OpenDyslexic', sans-serif !important;
@@ -70,7 +45,7 @@
   @media print {
     @page {
       size: A4;
-      margin: 20mm;
+      margin: 10mm;
     }
     body {
       -webkit-print-color-adjust: exact;
@@ -101,6 +76,7 @@
       box-shadow: none !important;
       border: none !important;
       padding: 0 !important;
+      margin-bottom: 20mm;
     }
 
     .zoom-wrapper {
@@ -116,9 +92,9 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(-45deg);
-      font-size: 100px;
+      font-size: 80px;
       font-weight: bold;
-      color: rgba(0, 0, 0, 0.08);
+      color: rgba(0, 0, 0, 0.05);
       z-index: -1;
       pointer-events: none;
     }
@@ -326,7 +302,6 @@
       border-radius: 0 4px 4px 0;
       background-color: #6366F1; /* indigo-500 */
   }
-
 </style>
 <script type="importmap">
 {

@@ -81,12 +81,12 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
             }
         }
         
-        // Apply case
+        // Apply case to the final grid
         const finalGrid = grid.map(row => row.map(cell => isUpperCase ? cell.toUpperCase() : cell));
         const finalWords = placedWords.map(w => isUpperCase ? w.toUpperCase() : w);
 
         results.push({ 
-            title: `Kelime Bulmaca`, 
+            title: `Kelime Bulmaca (Hızlı Mod)`, 
             instruction: "Listelenen kelimeleri tablonun içinde bul ve işaretle.",
             pedagogicalNote: "Görsel tarama, şekil-zemin algısı ve seçici dikkat becerilerini destekler.",
             words: finalWords, 
@@ -421,7 +421,7 @@ export const generateOfflineJumbledWordStory = async (options: GeneratorOptions)
             prompt: 'Kelimeleri çöz ve hikayeni oluştur.',
             theme: 'Rastgele',
             puzzles,
-            storyPrompt: 'Bulduğun kelimeleri kullanarak kısa bir metin yaz.'
+            storyPrompt: 'Bulduğun kelimelerden en az üçünü kullanarak kısa bir metin yaz.'
         }
      });
 }

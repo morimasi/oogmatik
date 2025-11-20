@@ -133,7 +133,7 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
             };
         });
         results.push({ 
-            title: `Farklı Olanı Bul (${difficulty})`, 
+            title: `Farklı Olanı Bul (Hızlı Mod)`, 
             instruction: "Her satırda, diğerlerinden farklı yazılmış veya görünen kelimeyi bulup işaretleyin.",
             pedagogicalNote: "Bu etkinlik görsel ayrım ve detaylara dikkat becerisini güçlendirir.",
             rows 
@@ -549,7 +549,7 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
         }
         
         results.push({
-            title: 'Tematik Farklı Olanı Bul',
+            title: 'Tematik Farklı Olanı Bul (Hızlı Mod)',
             instruction: "Her grupta, konuyla ilgisiz olanı bulun.",
             pedagogicalNote: "Kategorizasyon ve mantıksal çıkarım.",
             rows

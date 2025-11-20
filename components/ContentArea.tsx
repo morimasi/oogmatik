@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from '../types';
-// FIX: Error on line 3: Module '"file:///components/Worksheet"' has no default export. Fixed by adding a default export to Worksheet.tsx
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { StyleSettings, View } from '../App';
@@ -20,7 +19,7 @@ interface ContentAreaProps {
   savedWorksheets: SavedWorksheet[];
   onLoadSaved: (worksheet: SavedWorksheet) => void;
   onDeleteSaved: (id: string) => void;
-  onFeedback: () => void; // Added prop
+  onFeedback: () => void;
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({
@@ -59,6 +58,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         onSave={handleSave} 
                         onFeedback={onFeedback}
                     />
+                    {/* Bilgi mesajı: Eğer hata mesajı "Bilgi:" ile başlıyorsa, bu bir fallback durumudur */}
+                    {error && error.startsWith("Bilgi:") && (
+                        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200 rounded-lg text-sm border border-blue-200 dark:border-blue-800 flex items-center animate-pulse">
+                            <i className="fa-solid fa-circle-info mr-2"></i>
+                            {error}
+                        </div>
+                    )}
                 </div>
             )}
             
@@ -75,7 +81,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 </div>
             )}
 
-            {error && (
+            {error && !error.startsWith("Bilgi:") && (
                 <div className="flex justify-center items-center h-full p-4">
                     <div className="bg-white dark:bg-zinc-800 border-2 border-red-100 dark:border-red-900/30 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden">
                         <div className="bg-red-500 p-4 flex justify-center">
@@ -89,23 +95,21 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             
                             {(error.includes('429') || error.includes('kota') || error.includes('ücretsiz katman')) && (
                                 <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 text-sm text-left mb-6">
-                                    <p className="font-bold text-amber-800 dark:text-amber-200 mb-1"><i className="fa-solid fa-lightbulb mr-2"></i>Neden?</p>
+                                    <p className="font-bold text-amber-800 dark:text-amber-200 mb-1"><i className="fa-solid fa-bolt mr-2"></i>Çözüm Önerisi</p>
                                     <p className="text-zinc-600 dark:text-zinc-400">
-                                        Yapay zeka modelleri (Gemini) anlık olarak çok fazla istek aldığında geçici olarak duraklatılır. 
-                                        Bu bir arıza değildir, sistemin kapasite korumasıdır.
-                                    </p>
-                                    <p className="mt-2 font-bold text-indigo-600 dark:text-indigo-400">
-                                        👉 Lütfen sol menüden "Hızlı Mod" seçeneğini kullanarak devam edin. Hızlı mod kotaya takılmaz.
+                                        Google yapay zeka servisi şu an yoğun. Beklemek yerine <strong>Hızlı Mod</strong> ile devam edebilirsiniz.
                                     </p>
                                 </div>
                             )}
 
-                            <button 
-                                onClick={onBackToGenerator}
-                                className="w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 font-bold py-3 px-4 rounded-xl transition-colors"
-                            >
-                                Geri Dön ve Tekrar Dene
-                            </button>
+                            <div className="flex flex-col gap-3">
+                                <button 
+                                    onClick={onBackToGenerator}
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition-colors"
+                                >
+                                    Ayarlara Dön
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

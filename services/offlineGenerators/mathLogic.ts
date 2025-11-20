@@ -83,7 +83,7 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
             return { problem: problemStr, question, answer: answer.toString() };
         });
         results.push({ 
-            title: `Matematik Bulmacası`, 
+            title: `Matematik Bulmacası (Hızlı Mod)`, 
             instruction: "Sembollerin sayısal değerlerini bulun ve işlemi çözün.",
             pedagogicalNote: "Cebirsel düşünme ve sembolik işlem yapma becerisi.",
             puzzles 
@@ -118,7 +118,7 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
             }
             return { sequence: `${sequence.slice(0, 5).join(', ')}, ?`, answer: answer.toString() };
         });
-        results.push({ title: 'Sayı Örüntüsü', instruction: "Örüntü kuralını bul ve '?' yerine gelecek sayıyı yaz.", pedagogicalNote: "Matematiksel tümevarım ve ilişkilendirme becerisi.", patterns });
+        results.push({ title: 'Sayı Örüntüsü (Hızlı Mod)', instruction: "Örüntü kuralını bul ve '?' yerine gelecek sayıyı yaz.", pedagogicalNote: "Matematiksel tümevarım ve ilişkilendirme becerisi.", patterns });
     }
     return results;
 };
@@ -155,7 +155,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
         const maskedGrid: (number | null)[][] = latinSquare.map(row => row.map(n => Math.random() < revealRate ? n : null));
 
         results.push({ 
-            title: `Futoşiki (${difficulty})`, 
+            title: `Futoşiki (${difficulty}) (Hızlı Mod)`, 
             prompt: 'Büyüktür/küçüktür sembollerine göre sayıları yerleştirin.', 
             instruction: "Her satır ve sütunda rakamlar bir kez bulunmalı. > ve < işaretlerine dikkat et.",
             pedagogicalNote: "Mantıksal çıkarım ve sayısal ilişki analizi.",
@@ -169,7 +169,7 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
     const { itemCount, worksheetCount, difficulty } = options;
     const results: NumberPyramidData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const pyramids = Array.from({ length: itemCount || 2 }).map((_, index) => {
+        const pyramids = Array.from({ length: itemCount || 2 }).map(() => {
             let rowsCount = 3;
             if (difficulty === 'Orta') rowsCount = 4;
             if (difficulty === 'Zor' || difficulty === 'Uzman') rowsCount = 5;
@@ -201,9 +201,9 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
                 puzzlePyramid[rowsCount - 1][rowsCount - 1] = visualPyramid[rowsCount - 1][rowsCount - 1];
             }
 
-            return { title: `Piramit ${index + 1}`, rows: puzzlePyramid };
+            return { title: `Piramit`, rows: puzzlePyramid };
         });
-        results.push({ title: 'Sihirli Piramit (Toplama)', prompt: 'Her sayı, altındaki iki sayının toplamıdır.', instruction: "Piramidin tepesine doğru toplama yaparak boşlukları doldur.", pedagogicalNote: "İşlem akıcılığı ve parça-bütün ilişkisi.", pyramids });
+        results.push({ title: 'Sihirli Piramit (Toplama) (Hızlı Mod)', prompt: 'Her sayı, altındaki iki sayının toplamıdır.', instruction: "Piramidin tepesine doğru toplama yaparak boşlukları doldur.", pedagogicalNote: "İşlem akıcılığı ve parça-bütün ilişkisi.", pyramids });
     }
     return results;
 }
@@ -211,7 +211,7 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
 export const generateOfflineNumberCapsule = async (options: GeneratorOptions): Promise<NumberCapsuleData[]> => {
      const {worksheetCount} = options;
      return Array(worksheetCount).fill({ 
-         title: 'Kapsül Oyunu', 
+         title: 'Kapsül Oyunu (Hızlı Mod)', 
          prompt: 'Kapsülleri doldurun.',
          instruction: "Her kapsülün (bağlı kutuların) içindeki sayıların toplamı, o kapsülün hedef sayısına eşit olmalıdır.",
          pedagogicalNote: "Toplama ve mantıksal eleme becerisi.",
@@ -245,7 +245,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
                 constrainedCells
             }
         });
-        results.push({title: 'Tek-Çift Sudoku', prompt: 'Gri kutulara çift sayı gelmelidir.', instruction: "Sudoku kurallarına ek olarak, gri kutulara sadece çift sayı yazabilirsin.", pedagogicalNote: "Kategorizasyon ve mantıksal kısıtlama yönetimi.", puzzles});
+        results.push({title: 'Tek-Çift Sudoku (Hızlı Mod)', prompt: 'Gri kutulara çift sayı gelmelidir.', instruction: "Sudoku kurallarına ek olarak, gri kutulara sadece çift sayı yazabilirsin.", pedagogicalNote: "Kategorizasyon ve mantıksal kısıtlama yönetimi.", puzzles});
     }
     return results;
 }
@@ -254,7 +254,7 @@ export const generateOfflineSudoku6x6Shaded = async (options: GeneratorOptions):
     const res = await generateOfflineOddEvenSudoku(options);
     return res.map(r => ({
         ...r, 
-        title: '6x6 Gölgeli Sudoku', 
+        title: '6x6 Gölgeli Sudoku (Hızlı Mod)', 
         puzzles: r.puzzles.map(p => ({grid: p.grid, shadedCells: p.constrainedCells}))
     }));
 }
@@ -280,7 +280,7 @@ export const generateOfflineRomanNumeralStarHunt = async (options: GeneratorOpti
         grid.unshift([null, ...colCounts]);
 
         results.push({
-            title: 'Yıldız Avı (Romen Rakamlı)',
+            title: 'Yıldız Avı (Romen Rakamlı) (Hızlı Mod)',
             prompt: 'Her satır, sütun ve bölgede belirtilen sayıda yıldız olmalı. Yıldızlar birbirine değemez.',
             instruction: "Tablonun kenarındaki Romen rakamları, o satır/sütundaki yıldız sayısını gösterir.",
             pedagogicalNote: "Mantıksal eleme ve uzamsal akıl yürütme.",
@@ -312,7 +312,7 @@ export const generateOfflineRomanNumeralMultiplication = async (options: Generat
             };
         });
         results.push({
-            title: 'İşlem Karesi (Romen Rakamlı)',
+            title: 'İşlem Karesi (Romen Rakamlı) (Hızlı Mod)',
             prompt: 'Çarpma işlemi yaparak işlem karesindeki boşlukları doldurun.',
             instruction: "Satır ve sütun başlıklarını çarpıp sonuçları ilgili kutulara yazın.",
             pedagogicalNote: "Romen rakamları ile çarpma işlemi pratiği.",
@@ -381,7 +381,7 @@ export const generateOfflineKendoku = async (options: GeneratorOptions): Promise
         const displayGrid = Array.from({length: size}, () => Array(size).fill(null));
 
         results.push({
-            title: 'Kendoku',
+            title: 'Kendoku (Hızlı Mod)',
             prompt: 'İşlem ipuçlarını kullanarak mantık bulmacasını çözün.',
             instruction: "Kafeslerin sol üstündeki sayı ve işleme göre kutuları doldur. Her satır ve sütunda rakamlar bir kez kullanılmalı.",
             pedagogicalNote: "Aritmetik işlem yeteneği ve problem çözme stratejileri.",
@@ -429,7 +429,7 @@ export const generateOfflineDivisionPyramid = async (options: GeneratorOptions):
             return { rows };
         });
         results.push({
-            title: 'Sihirli Piramit (Bölme)',
+            title: 'Sihirli Piramit (Bölme) (Hızlı Mod)',
             prompt: 'Her sayı, altındaki iki sayının çarpımıdır.',
             instruction: "Bölme ve çarpma işlemleriyle piramitteki eksik sayıları bulun.",
             pedagogicalNote: "Çarpma ve bölme arasındaki ters ilişkiyi kavrama.",
@@ -452,7 +452,7 @@ export const generateOfflineMultiplicationPyramid = async (options: GeneratorOpt
             rows[2][1] = null;
             return { rows };
         });
-        results.push({title: 'Sihirli Piramit (Çarpma)', prompt: 'Çarpma işlemleri', instruction: "Alt kutuları çarparak üste yaz.", pedagogicalNote: "Çarpım tablosu hakimiyeti.", pyramids});
+        results.push({title: 'Sihirli Piramit (Çarpma) (Hızlı Mod)', prompt: 'Çarpma işlemleri', instruction: "Alt kutuları çarparak üste yaz.", pedagogicalNote: "Çarpım tablosu hakimiyeti.", pyramids});
     }
     return results;
 }
@@ -478,7 +478,7 @@ export const generateOfflineOperationSquareSubtraction = async (options: Generat
         grid[2][2] = null;
 
         results.push({
-             title: 'İşlem Karesi (Çıkarma)', 
+             title: 'İşlem Karesi (Çıkarma) (Hızlı Mod)', 
              prompt: 'Çıkarma işlemleri yaparak işlem karesini tamamlayın.', 
              puzzles: [{ grid }]
         });
@@ -500,7 +500,7 @@ export const generateOfflineOperationSquareFillIn = async (options: GeneratorOpt
              [(n1+n3).toString(), null, (n2+n4).toString(), null, null]
          ];
          results.push({
-             title: 'İşlem Karesi (Yerleştirme)',
+             title: 'İşlem Karesi (Yerleştirme) (Hızlı Mod)',
              prompt: 'Verilen sayıları yerleştir.',
              instruction: "Sonuçları tutturmak için kutulara uygun sayıları yaz.",
              pedagogicalNote: "Denklem çözme ve aritmetik akıl yürütme.",
@@ -520,7 +520,7 @@ export const generateOfflineMultiplicationWheel = async (options: GeneratorOptio
              const outerMasked: (number|null)[] = outer.map(n => Math.random() > 0.4 ? n : null);
              return { outerNumbers: outerMasked, innerResult: center };
          });
-         results.push({title: 'Çarpım Çarkı', prompt: 'Merkezdeki sayıyla çarpıp dışarı yazın.', puzzles});
+         results.push({title: 'Çarpım Çarkı (Hızlı Mod)', prompt: 'Merkezdeki sayıyla çarpıp dışarı yazın.', puzzles});
      }
      return results;
 }
@@ -528,7 +528,7 @@ export const generateOfflineMultiplicationWheel = async (options: GeneratorOptio
 export const generateOfflineTargetNumber = async (options: GeneratorOptions): Promise<TargetNumberData[]> => {
      const {itemCount, worksheetCount} = options;
      return Array.from({length: worksheetCount}, () => ({ 
-         title: 'Hedef Sayı', 
+         title: 'Hedef Sayı (Hızlı Mod)', 
          prompt: 'Verilen sayılarla dört işlem yaparak hedef sayıya ulaşın.',
          puzzles: Array.from({length: itemCount || 4}, () => {
              const n1 = getRandomInt(1, 9);
@@ -556,7 +556,7 @@ export const generateOfflineOperationSquareMultDiv = async (options: GeneratorOp
         ];
         
         results.push({
-             title: 'İşlem Karesi (Çarpma/Bölme)', 
+             title: 'İşlem Karesi (Çarpma/Bölme) (Hızlı Mod)', 
              prompt: 'İşlemleri yaparak boşlukları doldurun.', 
              puzzles: [{ grid }]
         });
@@ -571,7 +571,7 @@ export const generateOfflineShapeSudoku = async (options: GeneratorOptions): Pro
         const shapes = getRandomItems(SHAPE_TYPES, 4);
         const shapeGrid = grid.map(row => row.map(cell => cell === null ? null : shapes[cell-1]));
         return {
-            title: 'Şekilli Sudoku',
+            title: 'Şekilli Sudoku (Hızlı Mod)',
             prompt: 'Şekilleri tekrar etmeyecek şekilde yerleştirin.',
             instruction: "Her satır, sütun ve 2x2'lik bölgede her şekil bir kez kullanılmalıdır.",
             pedagogicalNote: "Sayılar yerine semboller kullanarak Sudoku mantığını öğretir.",
@@ -582,7 +582,7 @@ export const generateOfflineShapeSudoku = async (options: GeneratorOptions): Pro
 
 export const generateOfflineFutoshikiLength = async (options: GeneratorOptions): Promise<FutoshikiLengthData[]> => {
      const res = await generateOfflineFutoshiki(options);
-     return res.map(r => ({...r, title: 'Futoşiki (Uzunluk)'})) as any;
+     return res.map(r => ({...r, title: 'Futoşiki (Uzunluk) (Hızlı Mod)'})) as any;
 }
 
 export const generateOfflineVisualNumberPattern = async (options: GeneratorOptions): Promise<VisualNumberPatternData[]> => {
@@ -604,7 +604,7 @@ export const generateOfflineVisualNumberPattern = async (options: GeneratorOptio
             };
         });
         results.push({
-            title: 'Görsel Sayı Örüntüsü',
+            title: 'Görsel Sayı Örüntüsü (Hızlı Mod)',
             prompt: 'Görsel dizideki kuralı bulup eksik sayıyı tamamlayın.',
             instruction: "Sayı, renk ve boyut değişimindeki kuralı bulup bir sonraki adımı tahmin et.",
             pedagogicalNote: "Çoklu değişkenli örüntü tanıma becerisi.",
@@ -633,7 +633,7 @@ export const generateOfflineLogicGridPuzzle = async (options: GeneratorOptions):
         ];
 
         results.push({ 
-            title: 'Mantık Tablosu', 
+            title: 'Mantık Tablosu (Hızlı Mod)', 
             prompt: 'Verilen ipuçlarını kullanarak kimin hangi hayvana sahip olduğunu ve hangi rengi sevdiğini bulun.',
             instruction: "Tabloda 'Evet' için ✔, 'Hayır' için ✘ işareti koyarak ilerle.",
             pedagogicalNote: "Sistematik düşünme, eleme ve çıkarım yapma becerileri.",
@@ -664,7 +664,7 @@ export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promi
             return { words: shuffle(words) };
         });
         results.push({ 
-            title: 'Farkı Fark Et (Anlamsal)',
+            title: 'Farkı Fark Et (Anlamsal) (Hızlı Mod)',
             instruction: "Her grupta, anlamsal olarak diğerlerinden farklı olan kelimeyi bulun.",
             pedagogicalNote: "Kategorik düşünme ve semantik ayrım becerisi.",
             groups 
@@ -677,7 +677,7 @@ export const generateOfflineThematicOddOneOut = async (options: GeneratorOptions
     const { itemCount, worksheetCount, topic } = options;
     const res = await generateOfflineOddOneOut({ ...options, itemCount: (itemCount || 5) * worksheetCount, worksheetCount: 1});
     return [{
-        title: `Tematik Farkı Bul (${topic || 'Rastgele'})`,
+        title: `Tematik Farkı Bul (${topic || 'Rastgele'}) (Hızlı Mod)`,
         prompt: "Her satırda temaya uymayan kelimeyi bul.",
         theme: topic || 'Genel',
         // FIX: Map string[] to ThematicOddOneOutWord[]
@@ -690,7 +690,7 @@ export const generateOfflineThematicOddOneOutSentence = async (options: Generato
     const { itemCount, worksheetCount, topic } = options;
     const res = await generateOfflineOddOneOut({ ...options, itemCount: (itemCount || 5) * worksheetCount, worksheetCount: 1});
     return [{
-        title: `Tematik Farklı Kelimeyle Cümle Kurma`,
+        title: `Tematik Farklı Kelimeyle Cümle Kurma (Hızlı Mod)`,
         prompt: "Her satırda temaya uymayan kelimeyi bul ve o kelimeyle bir cümle kur.",
         rows: res[0].groups.map(g => ({words: g.words, oddWord: ''})),
         sentencePrompt: 'Farklı kelimelerle kurduğun cümleleri aşağıya yaz.'
@@ -701,7 +701,7 @@ export const generateOfflineColumnOddOneOutSentence = async (options: GeneratorO
     const {itemCount, worksheetCount} = options;
     const res = await generateOfflineOddOneOut({ ...options, itemCount: (itemCount || 4) * worksheetCount, worksheetCount: 1});
     return [{
-        title: 'Sütunlarda Farklı Olan',
+        title: 'Sütunlarda Farklı Olan (Hızlı Mod)',
         prompt: 'Her sütunda farklı olanı bul.',
         columns: res[0].groups.map(g => ({words: g.words, oddWord: ''})),
         sentencePrompt: 'Farklı kelimelerle cümle kur.'
@@ -709,7 +709,7 @@ export const generateOfflineColumnOddOneOutSentence = async (options: GeneratorO
 };
 export const generateOfflinePunctuationMaze = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
     return Array.from({length: options.worksheetCount}, () => ({
-        title: 'Noktalama Labirenti',
+        title: 'Noktalama Labirenti (Hızlı Mod)',
         prompt: 'Doğru kuralları takip ederek çıkışa ulaş.',
         punctuationMark: '.',
         rules: shuffle([
@@ -724,7 +724,7 @@ export const generateOfflinePunctuationMaze = async (options: GeneratorOptions):
 };
 export const generateOfflinePunctuationPhoneNumber = async (options: GeneratorOptions): Promise<PunctuationPhoneNumberData[]> => {
      return Array(options.worksheetCount).fill({
-        title: 'Gizli Telefon Numarası',
+        title: 'Gizli Telefon Numarası (Hızlı Mod)',
         prompt: 'İpuçlarını çöz ve numarayı bul.',
         instruction: 'Her ipucu bir rakama karşılık geliyor.',
         clues: [
@@ -737,7 +737,7 @@ export const generateOfflinePunctuationPhoneNumber = async (options: GeneratorOp
 export const generateOfflineShapeNumberPattern = async (options: GeneratorOptions): Promise<ShapeNumberPatternData[]> => {
     const {itemCount, worksheetCount} = options;
     return Array.from({length: worksheetCount}, () => ({
-        title: 'Şekilli Sayı Örüntüsü',
+        title: 'Şekilli Sayı Örüntüsü (Hızlı Mod)',
         instruction: "Şekillerin içindeki sayılar arasındaki kuralı bulup '?' yerine gelecek sayıyı yazın.",
         pedagogicalNote: "Görsel ve sayısal örüntüleri birleştirerek problem çözme.",
         patterns: Array.from({length: itemCount || 3}, () => {
@@ -765,7 +765,7 @@ export const generateOfflineRoundingConnect = async (options: GeneratorOptions):
             n.y = getRandomInt(10, 90);
         });
         results.push({
-            title: 'Sayı Yuvarlama Bağlamaca',
+            title: 'Sayı Yuvarlama Bağlamaca (Hızlı Mod)',
             prompt: 'Sayıları en yakın onluğa yuvarlayarak eşleştirin.',
             instruction: "Sayıları en yakın onluk değerleriyle çizgilerle birleştirin.",
             pedagogicalNote: "Sayı yuvarlama pratiği ve mantıksal eşleştirme.",
@@ -792,7 +792,7 @@ export const generateOfflineArithmeticConnect = async (options: GeneratorOptions
             e.y = 15 + idx * 7;
         });
         results.push({
-            title: 'İşlem Bağlamaca',
+            title: 'İşlem Bağlamaca (Hızlı Mod)',
             prompt: 'Aynı sonucu veren işlemleri eşleştirin.',
             instruction: "Sonuçları aynı olan işlemleri çizgilerle birleştirin.",
             pedagogicalNote: "Zihinden işlem yapma ve denklik kavramı.",
@@ -816,7 +816,7 @@ export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorO
             p.y = Math.floor(i / 2) * 2;
         });
         return {
-            title: 'Romen - Arap Rakamı Eşleştirme',
+            title: 'Romen - Arap Rakamı Eşleştirme (Hızlı Mod)',
             prompt: 'Eşdeğer rakamları birleştir.',
             gridDim: gridSize || 6,
             points
@@ -841,7 +841,7 @@ export const generateOfflineWeightConnect = async (options: GeneratorOptions): P
             p.y = i * 2;
         });
         return {
-            title: 'Ağırlık Eşleştirme',
+            title: 'Ağırlık Eşleştirme (Hızlı Mod)',
             prompt: 'Eşit ağırlıkları birleştir.',
             gridDim: gridSize || 10,
             points
@@ -867,7 +867,7 @@ export const generateOfflineLengthConnect = async (options: GeneratorOptions): P
             p.y = i * 2;
         });
         return {
-            title: 'Uzunluk Eşleştirme',
+            title: 'Uzunluk Eşleştirme (Hızlı Mod)',
             prompt: 'Eşit uzunlukları birleştir.',
             gridDim: gridSize || 10,
             points
