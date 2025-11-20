@@ -1,6 +1,7 @@
 
+
 import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, JumbledWordStoryData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout, wordToRebus } from './helpers';
 import { PROVERBS } from '../../data/sentences';
 
 export const generateOfflineWordSearch = async (options: GeneratorOptions & { words?: string[] }): Promise<WordSearchData[]> => {
@@ -509,7 +510,7 @@ export const generateOfflineSynonymAntonymGrid = async (options: GeneratorOption
      const searchResult = await generateOfflineWordSearch({ ...options, words: wordsToFind, itemCount: wordsToFind.length, worksheetCount });
      return searchResult.map(res => ({
          title: 'Eş/Zıt Anlam Tablosu',
-         prompt: 'Kelimelerin eş ve zıt anlamlılarını bulup bulmacaya yerleştirin.',
+         prompt: 'Kelimelerin eş ve zıt anlamlılarını bulup bulmacada yerleştirin.',
          instruction: 'Listelenen kelimelerin eş veya zıt anlamlılarını bulmacada bul.',
          pedagogicalNote: 'Kelime anlam ilişkileri ve kelime hazinesi.',
          antonyms: getRandomItems(TR_VOCAB.antonyms, 4).map(p => ({word: p.word})),
@@ -524,7 +525,7 @@ export const generateOfflineAntonymResfebe = async (options: GeneratorOptions): 
         const puzzles = getRandomItems(TR_VOCAB.antonyms, itemCount || 4).map(pair => ({
             word: pair.word,
             antonym: pair.antonym,
-            clues: pair.word.split('').map(char => ({ type: 'text' as 'text', value: char }))
+            clues: wordToRebus(pair.word) // Uses smart rebus generator
         }));
         return {
             title: 'Zıt Anlam Resfebe (Hızlı Mod)',
@@ -541,7 +542,7 @@ export const generateOfflineResfebe = async (options: GeneratorOptions): Promise
      const { itemCount, worksheetCount, difficulty } = options;
      return Array.from({ length: worksheetCount }, () => {
          const puzzles = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 4).map(word => ({
-             clues: word.split('').map(char => ({ type: 'text' as 'text' | 'image', value: char })),
+             clues: wordToRebus(word), // Uses smart rebus generator
              answer: word
          }));
          return {
@@ -555,8 +556,37 @@ export const generateOfflineResfebe = async (options: GeneratorOptions): Promise
 };
 
 
-export const generateOfflineThematicWordSearchColor = async (options: GeneratorOptions) => generateOfflineWordSearch(options) as Promise<ThematicWordSearchColorData[]>;
-export const generateOfflineSynonymSearchAndStory = async (options: GeneratorOptions) => generateOfflineSynonymWordSearch(options) as any;
+export const generateOfflineThematicWordSearchColor = async (options: GeneratorOptions): Promise<ThematicWordSearchColorData[]> => {
+    const data = await generateOfflineWordSearch(options);
+    return data.map(d => ({
+        ...d,
+        theme: options.topic || 'Genel',
+        title: `Tematik Kelime Avı: ${options.topic || 'Genel'} (Hızlı Mod)`,
+        prompt: `Aşağıdaki tabloda ${options.topic || 'bu konuyla'} ilgili kelimeleri bulun.`
+    }));
+}
+
+export const generateOfflineSynonymSearchAndStory = async (options: GeneratorOptions): Promise<SynonymSearchAndStoryData[]> => {
+    const {itemCount, worksheetCount} = options;
+    const results: SynonymSearchAndStoryData[] = [];
+    
+    for(let i=0; i<worksheetCount; i++) {
+        const pairs = getRandomItems(TR_VOCAB.synonyms, itemCount || 8);
+        const wordsToFind = pairs.map(p => p.synonym);
+        const searchData = await generateOfflineWordSearch({...options, worksheetCount: 1, words: wordsToFind});
+        
+        results.push({
+            title: 'Eş Anlamlı Hikaye Avı (Hızlı Mod)',
+            prompt: 'Kelimelerin eş anlamlılarını bulup bulmacada ara.',
+            instruction: "Listelenen kelimelerin eş anlamlılarını bulup bulmacada işaretleyin, sonra bu kelimelerle hikaye yazın.",
+            pedagogicalNote: "Kelime dağarcığı, anlamsal ilişkiler ve yaratıcı yazma entegrasyonu.",
+            wordTable: pairs, // Correct property name for SynonymSearchAndStoryData
+            grid: searchData[0].grid,
+            storyPrompt: "Bulduğun eş anlamlı kelimeleri kullanarak kısa bir hikaye yaz."
+        });
+    }
+    return results;
+};
 
 export const generateOfflineSynonymMatchingPattern = async (options: GeneratorOptions): Promise<SynonymMatchingPatternData[]> => {
     const { itemCount, worksheetCount, theme } = options;
