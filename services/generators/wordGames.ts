@@ -12,8 +12,8 @@ import {
     WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData, ResfebeClue
 } from '../../types';
 
-// OPTIMIZED PROMPT: Forces standard realism, discouraging cartoons but keeping prompts simple for quota efficiency.
-const VISUAL_STYLE = "Create a **standard realistic photograph** image prompt in English. It should be clear and simple. Do NOT use terms like 'drawing', 'cartoon', 'vector', 'sketch', 'cinematic', '4k', '8k'. Just a clear, normal photo.";
+// OPTIMIZED PROMPT: Allows diverse styles (drawing, cartoon, vector, photo) for a more engaging experience.
+const VISUAL_STYLE = "Create an English image prompt. Select the most suitable style for the subject: 'Detailed drawing', 'Colorful cartoon illustration', 'Clean vector art', or 'Standard photograph'. Ensure it is clear, colorful, and child-friendly.";
 
 export const generateWordSearchFromAI = async (options: GeneratorOptions): Promise<WordSearchData[]> => {
   const { topic, itemCount, difficulty, worksheetCount, gridSize, directions, case: letterCase } = options;
@@ -105,7 +105,7 @@ export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions):
     '${theme}' temalı, "${difficulty}" zorluk seviyesinde bir "Karışık Kelime Hikayesi" oluştur.
     1. ${itemCount} adet kelime seç. Bu kelimelerin harflerini karıştır (jumbled).
     2. Ayrıca, bu kelimelerin kullanılabileceği yaratıcı bir hikaye yazma yönergesi (storyPrompt) ver.
-    3. Temayı yansıtan, ${VISUAL_STYLE} bir 'imagePrompt' oluştur. (Örn: 'A messy room with colorful letter blocks on the floor, realistic photo style').
+    3. Temayı yansıtan, ${VISUAL_STYLE} bir 'imagePrompt' oluştur. (Örn: 'A messy room with colorful letter blocks, colorful cartoon style').
     
     PEDAGOGICAL NOTE: "Ortografik farkındalık ve yaratıcı yazma becerisi."
     INSTRUCTION: "Harfleri düzelterek kelimeleri bul, sonra bu kelimeleri kullanarak bir hikaye yaz."

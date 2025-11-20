@@ -89,7 +89,7 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
 
 export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions): Promise<ThematicOddOneOutData[]> => {
     const { topic, difficulty, worksheetCount, itemCount } = options;
-    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficulty}". Generate ${itemCount} rows. In each row, provide 4 words as objects with text and an **English, standard realistic photograph** 'imagePrompt' (simple, clear, photorealistic). One word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficulty}". Generate ${itemCount} rows. In each row, provide 4 words as objects with text and an **English** 'imagePrompt'. Style: **Colorful cartoon**, **vector art**, or **photo**. One word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -306,7 +306,7 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
 
 export const generateWeightConnectFromAI = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
     const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1kg', '1000g'), an **English, standard realistic photograph** imagePrompt for a visual representation (e.g., 'a 1kg bag of flour', clear photo), a pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1kg', '1000g'), an **English** imagePrompt for a visual representation. Style: **Vector art** or **Photo**. A pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -336,7 +336,7 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
 
 export const generateLengthConnectFromAI = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
     const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1m', '100cm'), an **English, standard realistic photograph** imagePrompt for a visual representation (e.g., 'a 1 meter tall door', 'a 100cm ruler'), a pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1m', '100cm'), an **English** imagePrompt for a visual representation. Style: **Vector art** or **Photo**. A pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -404,7 +404,7 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
 
 export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): Promise<LogicGridPuzzleData[]> => {
     const { difficulty, worksheetCount, itemCount } = options;
-    const prompt = `Create a "Logic Grid Puzzle" for difficulty level "${difficulty}". Provide ${itemCount} clues, a list of people, and categories with items (including **standard realistic photograph** image prompts). The user solves the puzzle using the grid. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `Create a "Logic Grid Puzzle" for difficulty level "${difficulty}". Provide ${itemCount} clues, a list of people, and categories with items (including **colorful cartoon** or **photo** image prompts). The user solves the puzzle using the grid. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {

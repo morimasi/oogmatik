@@ -32,7 +32,7 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
     
     Her bulmaca için:
     1. 2-3 adet nesne tanımla (örn: 'elma', 'muz').
-    2. Her nesne için bir sayısal değer ve onu temsil eden, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında, net bir 'imagePrompt' üret.
+    2. Her nesne için bir sayısal değer ve onu temsil eden, **İngilizce** bir 'imagePrompt' üret. Style: **Clean vector art** or **Clear photograph**.
     3. Bu nesneleri kullanarak metin tabanlı bir problem ('problem') oluştur (örn: 'elma + muz = ?').
     
     Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.

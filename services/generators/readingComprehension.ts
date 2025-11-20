@@ -42,7 +42,7 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     JSON Çıktısı:
     - story: Hikaye metni (satır sonlarına \\n ekleyerek paragrafları ayır).
     - pedagogicalNote: "${PED_NOTE}"
-    - imagePrompt: Create an English image prompt for a **standard realistic photograph** representing the story. Style: Clear, simple composition, realistic texture, normal lighting. Do not use cartoon, vector, or illustration styles.
+    - imagePrompt: Create an English image prompt for a **colorful children's book illustration** or **cartoon style** scene representing the story. It should be engaging and suitable for kids.
     - mainIdea: 1 cümlelik ana fikir.
     - characters: Karakter listesi.
     - setting: Mekan.
@@ -87,7 +87,7 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Pr
     '${topic}' konusunda, "${difficulty}" seviyesinde, '${storyLength}' uzunluğunda bir hikaye yaz.
     Hikaye mantıksal bir akışa (neden-sonuç) sahip olsun.
     
-    Görsel İsteği: Hikayenin ana sahnesini anlatan, **İngilizce**, **standart gerçekçi fotoğraf** kalitesinde (standard realistic photograph), net ve basit bir 'imagePrompt' oluştur.
+    Görsel İsteği: Hikayenin ana sahnesini anlatan, **İngilizce** bir 'imagePrompt' oluştur. Use styles like 'Detailed drawing', 'Cartoon', or 'Standard photograph' based on what fits best.
     
     Analiz Soruları (4 Adet):
     1. Tema: Hikayenin vermek istediği mesaj.
@@ -129,7 +129,7 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
     '${topic}' konusunda yaratıcı yazma etkinliği.
     ${keywordCount} adet, birbiriyle ilişkili (semantik bağlamı olan) anahtar kelime seç.
     Öğrenciye ilham verecek kısa bir "Hikaye Başlatıcı" (Prompt) yaz.
-    Görsel: Hikayenin geçtiği dünyayı betimleyen, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında bir 'imagePrompt'.
+    Görsel: Hikayenin geçtiği dünyayı betimleyen, **İngilizce** bir 'imagePrompt'. Use a **colorful illustration** or **fantasy art** style.
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {
@@ -150,7 +150,7 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
 export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
   const { topic, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda kısa bir hikaye yaz. Hikayenin temasına uygun, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında bir 'imagePrompt' oluştur.
+    '${topic}' konusunda kısa bir hikaye yaz. Hikayenin temasına uygun, **İngilizce** bir 'imagePrompt' oluştur. Style: **Cartoon** or **Standard Photograph**.
     Hikaye içinde geçen, öğrencinin kelime dağarcığına katabileceği ${difficulty === 'Başlangıç' ? '3' : '5'} kelimeyi seç.
     Bu kelimelerin anlamını pekiştirecek sorular sor (Örn: Cümle içinde kullan, zıt anlamlısını bul).
     ${worksheetCount} adet üret.
@@ -186,7 +186,7 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
     const prompt = `
     '${topic}' konusunda 4 aşamalı mantıksal bir olay örgüsü oluştur (Giriş -> Olay -> Doruk -> Sonuç).
     Panelleri karışık sırada ver.
-    Her panel için sahneyi anlatan, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) kalitesinde bir 'imagePrompt' oluştur. Asla çizgi film veya vektör tarzı isteme. Net ve anlaşılır olsun.
+    Her panel için sahneyi anlatan, **İngilizce** bir 'imagePrompt' oluştur. Use **colorful vector art** or **illustration** style.
     ${worksheetCount} adet üret.
     `;
     const singleSchema = {
@@ -275,7 +275,7 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
     "${difficulty}" seviyesine uygun ${itemCount} atasözü seç.
     Öğrenci için anlaması en kritik olan kelimeyi boşluk bırak ('start' ve 'end' olarak böl).
     Seçilen atasözlerinin genel bir temasını (örn: Tasarruf, Dostluk) 'meaning' alanında açıkla.
-    Ayrıca atasözlerinin genel temasını anlatan, **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında bir 'imagePrompt' oluştur.
+    Ayrıca atasözlerinin genel temasını anlatan, **İngilizce** bir 'imagePrompt' oluştur. Style: **Symbolic illustration** or **Meaningful photograph**.
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {

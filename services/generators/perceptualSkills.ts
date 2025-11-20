@@ -13,21 +13,11 @@ const SHAPE_TYPES = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond
 export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
     const { topic, itemCount: rowCount, difficulty, worksheetCount } = options;
     const prompt = `
-    '${topic}' temalı ve "${difficulty}" zorluk seviyesinde profesyonel bir "Farkı Bul" (Find the Difference) etkinliği oluştur.
+    '${topic}' temalı ve "${difficulty}" zorluk seviyesinde profesyonel bir "Farklı Olanı Bul" (Find the Difference) etkinliği oluştur.
     AMAÇ: Çocuğun görsel ayrım becerisini ve dikkatini ölçmek.
     Her satırda 4 kelime veya metin tabanlı şekil olmalı. Bunlardan 3'ü birbirinin tıpatıp aynısı, 1 tanesi ise çok ince bir farka sahip olmalı.
-    
-    Zorluk Seviyeleri:
-    - Başlangıç: Fark belirgin (örn: "elma" vs "elam").
-    - Orta: Harf yer değiştirmesi veya benzer harf kullanımı (örn: "kalem" vs "kelam").
-    - Zor/Uzman: Görsel olarak çok benzeyen harfler (b/d, p/q, m/n) veya sadece bir nokta farkı (ı/i, o/ö).
-
     JSON Çıktısı:
-    - title: Etkinlik başlığı (örn: "Dikkatli Gözler: Kelime Avı")
-    - instruction: Çocuğa yönelik açık yönerge (örn: "Her satırda diğerlerinden farklı olan kelimeyi bul ve daire içine al.")
-    - pedagogicalNote: Öğretmen/ebeveyn için bu etkinliğin hangi beceriyi geliştirdiğine dair kısa not.
-    - rows: ${rowCount} adet satır. Her satırda 'items' (4 adet string), 'correctIndex' (farklı olanın indeksi) ve 'visualDistractionLevel' (dikkat dağıtıcı seviyesi).
-    
+    - rows: ${rowCount} adet satır.
     ${worksheetCount} adet benzersiz sayfa oluştur.
     `;
     const singleSchema = {
@@ -60,19 +50,7 @@ export const generateShapeMatchingFromAI = async (options: GeneratorOptions): Pr
   const { difficulty, worksheetCount, itemCount } = options;
   const prompt = `
     "${difficulty}" seviyesinde profesyonel bir "Şekil Eşleştirme" etkinliği hazırla.
-    AMAÇ: Görsel eşleştirme ve form algısını geliştirmek.
     Solda numaralı bir sütun, sağda harfli bir sütun olsun.
-    
-    Zorluk Seviyeleri:
-    - Başlangıç: Basit geometrik şekiller (kare, daire).
-    - Orta: Renkli şekiller veya döndürülmüş şekiller.
-    - Zor/Uzman: Karmaşık şekil kombinasyonları (örn: kare içinde daire) veya 3 boyutlu şekiller.
-
-    JSON Çıktısı:
-    - leftColumn: {id, shapes: [ShapeType], color?}
-    - rightColumn: {id, shapes: [ShapeType], color?} (Sol sütundakilerin karıştırılmış hali)
-    - complexity: Zorluk derecesi (1-10).
-    
     Kullanılabilir Şekiller: ${SHAPE_TYPES.join(', ')}.
     ${worksheetCount} sayfa oluştur.
   `;
@@ -80,8 +58,8 @@ export const generateShapeMatchingFromAI = async (options: GeneratorOptions): Pr
   const itemSchema = {
       type: Type.OBJECT,
       properties: {
-          id: { type: Type.STRING }, // number or letter cast to string
-          shapes: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } },
+          id: { type: Type.STRING }, 
+          shapes: { type: Type.ARRAY, items: { type: Type.STRING } },
           color: { type: Type.STRING }
       },
       required: ['id', 'shapes']
@@ -100,8 +78,7 @@ export const generateShapeMatchingFromAI = async (options: GeneratorOptions): Pr
     required: ['title', 'instruction', 'leftColumn', 'rightColumn', 'complexity']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
-  // @ts-ignore - ID types might mismatch slightly in prompt vs implementation but generator handles conversion
-  return generateWithSchema(prompt, schema);
+  return generateWithSchema(prompt, schema) as Promise<ShapeMatchingData[]>;
 };
 
 // --- 4. Aynısını Bul ---
@@ -109,8 +86,7 @@ export const generateFindIdenticalWordFromAI = async (options: GeneratorOptions)
     const { itemCount, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Aynısını Bul" etkinliği.
-    Her soruda bir "Hedef Kelime/Şekil Grubu" ve yanında çeldiriciler olsun. Öğrenci hedefle tıpatıp aynı olanı bulmalıdır.
-    Çeldiriciler hedefe çok benzemeli (sadece bir harf/şekil farklı olmalı).
+    Her soruda bir "Hedef Kelime/Şekil Grubu" ve yanında çeldiriciler olsun. 
     ${worksheetCount} sayfa, her sayfada ${itemCount} grup.
     `;
     const singleSchema = {
@@ -124,8 +100,8 @@ export const generateFindIdenticalWordFromAI = async (options: GeneratorOptions)
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        words: { type: Type.ARRAY, items: { type: Type.STRING }, minItems: 2, maxItems: 2, description: "First item is target, second is the identical match found in choices." },
-                        distractors: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Similar but incorrect items" }
+                        words: { type: Type.ARRAY, items: { type: Type.STRING }, minItems: 2, maxItems: 2 },
+                        distractors: { type: Type.ARRAY, items: { type: Type.STRING } }
                     },
                     required: ['words', 'distractors']
                 }
@@ -142,8 +118,6 @@ export const generateGridDrawingFromAI = async (options: GeneratorOptions): Prom
     const { gridSize, itemCount, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde ${gridSize}x${gridSize} ızgara üzerinde "Ayna Çizimi" (Copy the Pattern) etkinliği.
-    Basit çizgilerden oluşan anlamlı veya soyut desenler oluştur.
-    Zorluk arttıkça çizgi sayısı ve karmaşıklığı artsın.
     Çıktı: Koordinat noktaları [x,y] arasındaki çizgiler listesi.
     ${worksheetCount} sayfa.
     `;
@@ -178,8 +152,6 @@ export const generateSymbolCipherFromAI = async (options: GeneratorOptions): Pro
   const prompt = `
     '${topic}' temalı ve "${difficulty}" seviyesinde "Şifre Çözme" etkinliği.
     Bir "Anahtar" (Key) tablosu oluştur: Her harf bir şekille eşleşsin.
-    Sonra bu anahtarı kullanarak çözülmesi gereken gizli kelimeler/cümleler oluştur.
-    Kelimeler temayla ilgili olmalı.
     ${worksheetCount} sayfa.
   `;
   const singleSchema = {
@@ -192,7 +164,7 @@ export const generateSymbolCipherFromAI = async (options: GeneratorOptions): Pro
         type: Type.ARRAY,
         items: {
           type: Type.OBJECT,
-          properties: { shape: { type: Type.STRING, enum: SHAPE_TYPES }, letter: { type: Type.STRING }, color: { type: Type.STRING } },
+          properties: { shape: { type: Type.STRING }, letter: { type: Type.STRING }, color: { type: Type.STRING } },
           required: ['shape', 'letter']
         }
       },
@@ -201,7 +173,7 @@ export const generateSymbolCipherFromAI = async (options: GeneratorOptions): Pro
         items: {
           type: Type.OBJECT,
           properties: {
-            shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING, enum: SHAPE_TYPES } },
+            shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING } },
             wordLength: { type: Type.INTEGER },
             answer: { type: Type.STRING }
           },
@@ -220,8 +192,6 @@ export const generateBlockPaintingFromAI = async (options: GeneratorOptions): Pr
     const { difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Blok Boyama / Piksel Kodlama" etkinliği.
-    10x10 bir ızgara düşün. Belirli kareleri boyayarak basit bir resim (kalp, ev, gemi vb.) oluştur.
-    Sonra bu resmi oluşturmak için gereken "Kodları" (hangi satırda kaç kare hangi renge boyanacak) veya şekil parçalarını ver.
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
@@ -257,9 +227,6 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     const { difficulty, worksheetCount, itemCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Şekillerle Farklı Olanı Bul" etkinliği.
-    Her sırada 4 şekil olsun. Şekiller 7-segment veya 9-segment display mantığıyla (çizgilerden oluşan) oluşturulsun.
-    3 şekil aynı kurala uysun (örn: hepsi simetrik, hepsi kapalı), 1 tanesi uymasın.
-    Mantıksal bir sebebi olsun.
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
@@ -299,9 +266,6 @@ export const generateSymmetryDrawingFromAI = async (options: GeneratorOptions): 
     const { difficulty, worksheetCount, gridSize } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Simetri Tamamlama" etkinliği.
-    ${gridSize}x${gridSize} ızgaranın yarısına (veya bir kısmına) noktalar veya çizgiler yerleştir.
-    Kullanıcının diğer yarıyı simetrik olarak tamamlaması için verileri oluştur.
-    Eksen dikey veya yatay olabilir.
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
@@ -341,8 +305,6 @@ export const generateFindDifferentStringFromAI = async (options: GeneratorOption
     const { difficulty, worksheetCount, itemCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Farklı Diziyi Bul" dikkat testi.
-    Her satırda 4-5 adet harf/sayı dizisi olsun (örn: "X89K"). Bunlardan biri diğerlerinden tek bir karakterle farklı olsun (örn: "X88K").
-    Zorluk seviyesine göre dizi uzunluğunu ve benzerliğini ayarla.
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
@@ -374,17 +336,14 @@ export const generateDotPaintingFromAI = async (options: GeneratorOptions): Prom
     const { difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Nokta Boyama" (Dot to Dot / Pixel Art) etkinliği.
-    Basit bir gizli resim (kalp, çiçek, ev, araba) tasarla.
-    Bu resmi oluşturacak noktaların koordinatlarını (cx, cy) ve renklerini ver.
-    Izgara çizgileri için SVG path verilerini sağla.
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
-            prompt1: { type: Type.STRING, description: "Instruction title" },
-            prompt2: { type: Type.STRING, description: "Instruction detail" },
+            prompt1: { type: Type.STRING },
+            prompt2: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
             svgViewBox: { type: Type.STRING },
@@ -410,8 +369,6 @@ export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promi
     const { difficulty, worksheetCount, gridSize } = options;
     const prompt = `
     "${difficulty}" seviyesinde ${gridSize}x${gridSize} "Nokta Birleştirme" (Flow Free style) bulmacası.
-    Aynı harfleri (A-A, B-B, C-C...) çizgiler kesişmeden birleştirmek gerekir.
-    Çözülebilir, mantıklı bir yerleşim oluştur.
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
@@ -451,8 +408,6 @@ export const generateCoordinateCipherFromAI = async (options: GeneratorOptions):
     const { topic, gridSize, itemCount, difficulty, worksheetCount } = options;
     const prompt = `
     '${topic}' temalı, "${difficulty}" seviyesinde Koordinat Şifreleme.
-    Bir ızgaraya harfler yerleştir. Şifreli bir mesaj oluştur (Örn: "OKUMAYI SEVİYORUM").
-    Bu mesajı oluşturmak için gereken koordinatları (A1, B3 gibi) sıralı olarak ver.
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
@@ -477,12 +432,7 @@ export const generateWordConnectFromAI = async (options: GeneratorOptions): Prom
     const { itemCount, difficulty, worksheetCount, topic } = options;
     const prompt = `
     "${difficulty}" seviyesinde ve '${topic}' temalı "Kelime Bağlama" (Word Connect) etkinliği oluştur.
-    8-10 adet ilişkili kelime çifti seç (örn: Yağmur-Şemsiye, Kedi-Süt, Arı-Bal).
-    Her çift için bir 'word' (metin) ve eşleşeceği görselin 'imagePrompt'unu oluştur.
-    Görseller **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) kalitesinde, net ve basit olmalıdır.
-    Sayfada sol ve sağ sütunlara dağıtmak için koordinatlar (x, y) ata (x=0 sol, x=1 sağ).
-    PEDAGOGICAL NOTE: "Anlamsal ilişkilendirme ve görsel eşleştirme."
-    INSTRUCTION: "İlişkili kelimeleri çizgilerle birleştir."
+    Görseller **İngilizce**, 'Detailed drawing', 'Cartoon', 'Vector' veya 'Photo' tarzında olabilir.
     ${worksheetCount} sayfa üret.
     `;
     const singleSchema = {
@@ -519,9 +469,7 @@ export const generateProfessionConnectFromAI = async (options: GeneratorOptions)
     const { difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde Meslek ve Araç eşleştirme etkinliği.
-    Meslek adı ve o mesleğe ait bir aletin görselini (imagePrompt) içeren çiftler oluştur.
-    Görseller **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında, net olmalıdır.
-    Kullanıcı bunları çizgilerle eşleştirmeli.
+    Görseller **İngilizce**, 'Cartoon', 'Vector' veya 'Photo' tarzında.
     ${worksheetCount} sayfa.
     `;
      const singleSchema = {
@@ -538,7 +486,7 @@ export const generateProfessionConnectFromAI = async (options: GeneratorOptions)
                     properties: {
                         label: { type: Type.STRING },
                         imageDescription: { type: Type.STRING },
-                        imagePrompt: { type: Type.STRING }, // Will be converted to base64
+                        imagePrompt: { type: Type.STRING },
                         x: { type: Type.NUMBER },
                         y: { type: Type.NUMBER },
                         pairId: { type: Type.INTEGER }
@@ -558,8 +506,6 @@ export const generateMatchstickSymmetryFromAI = async (options: GeneratorOptions
     const { difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde Kibrit Çöpü Simetri bulmacası.
-    Izgara üzerinde kibrit çöplerinden (çizgilerden) oluşan yarım bir şekil (ev, yıldız, balık vb.) tasarla.
-    Kullanıcının diğer yarısını tamamlaması gerekir.
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
@@ -599,8 +545,8 @@ export const generateVisualOddOneOutThemedFromAI = async (options: GeneratorOpti
     const { topic, difficulty, worksheetCount } = options;
     const prompt = `
     '${topic}' temalı, "${difficulty}" seviyesinde "Farklı Olanı Bul".
-    Her satırda 4 resim olsun. 3'ü temaya uygun, 1'i temaya uygun olmayan veya farklı bir kategoriden olsun.
-    Her öğe için **İngilizce**, **standart gerçekçi fotoğraf** (standard realistic photograph) tarzında, basit ve net bir 'imagePrompt' oluştur.
+    Her satırda 4 resim olsun. 3'ü temaya uygun, 1'i farklı.
+    Style: **Colorful cartoon**, **vector** or **photo**.
     ${worksheetCount} sayfa.
     `;
      const singleSchema = {
@@ -638,9 +584,6 @@ export const generatePunctuationColoringFromAI = async (options: GeneratorOption
     const { difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Noktalama İşaretlerine Göre Boyama" etkinliği.
-    5 adet cümle yaz. Cümlenin sonuna gelmesi gereken noktalama işaretine göre (Nokta=Kırmızı, Soru İşareti=Mavi vb.) yanında verilen şeklin boyanmasını iste.
-    PEDAGOGICAL NOTE: "Dilbilgisi kurallarını görsel kodlamayla pekiştirme."
-    INSTRUCTION: "Cümlenin sonuna gelecek işarete göre yandaki kutuyu doğru renge boya."
     ${worksheetCount} sayfa.
     `;
      const singleSchema = {
@@ -668,10 +611,6 @@ export const generateSynonymAntonymColoringFromAI = async (options: GeneratorOpt
     const { difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Eş/Zıt Anlamlı Kelime Boyama" (Pixel Art mantığında).
-    Bir gizli resim oluşturacak şekilde koordinatlı kelimeler ver.
-    Renk anahtarı: "Siyah'ın zıttı olanlar Kırmızıya", "Al'ın eş anlamlısı olanlar Maviye" gibi yönergeler içersin.
-    PEDAGOGICAL NOTE: "Kelime anlam ilişkilerini sınıflandırma ve görselleştirme."
-    INSTRUCTION: "Yönergeye göre kelimeleri doğru renklere boya ve gizli resmi ortaya çıkar."
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
@@ -706,11 +645,7 @@ export const generateSynonymAntonymColoringFromAI = async (options: GeneratorOpt
 export const generateStarHuntFromAI = async (options: GeneratorOptions): Promise<StarHuntData[]> => {
     const { difficulty, worksheetCount, gridSize } = options;
     const prompt = `
-    "${difficulty}" seviyesinde Yıldız Avı (Star Battle logic puzzle) benzeri bir oyun.
-    ${gridSize || 8}x${gridSize || 8} ızgara. Her satırda ve sütunda belirli sayıda (örn: 2) yıldız olmalı.
-    Yıldızlar birbirine (çapraz dahil) değmemeli.
-    PEDAGOGICAL NOTE: "Mantıksal çıkarım ve uzamsal kısıtlama yönetimi."
-    INSTRUCTION: "Her satır ve sütunda belirtilen sayıda yıldız olacak şekilde yerleştir. Yıldızlar birbirine değemez."
+    "${difficulty}" seviyesinde Yıldız Avı (Star Battle logic puzzle).
     ${worksheetCount} sayfa.
     `;
     const singleSchema = {
