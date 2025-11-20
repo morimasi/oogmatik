@@ -12,6 +12,8 @@ export interface StyleSettings {
   borderColor: string;
   borderWidth: number;
   margin: number;
+  columns: number;
+  gap: number;
 }
 
 const initialStyleSettings: StyleSettings = {
@@ -19,6 +21,8 @@ const initialStyleSettings: StyleSettings = {
     borderColor: '#d4d4d8', // zinc-300
     borderWidth: 1,
     margin: 32, // p-8 tailwind değeri
+    columns: 1,
+    gap: 16,
 };
 
 export type View = 'generator' | 'savedList';

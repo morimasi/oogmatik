@@ -1,6 +1,5 @@
-
-import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare } from './helpers';
+import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType } from '../../types';
+import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB } from './helpers';
 import { PROVERBS } from '../../data/sentences';
 
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
@@ -423,3 +422,27 @@ export const generateOfflineVisualNumberPattern = async (options: GeneratorOptio
 export const generateOfflineLogicGridPuzzle = async (options: GeneratorOptions): Promise<LogicGridPuzzleData[]> => {
      return Array(options.worksheetCount).fill({ title: 'Zekâ Sorusu (Mantık Tablosu)', prompt: 'Verilen ipuçlarını kullanarak mantık tablosunu doldurun.', clues: [], people: [], categories: [] });
 }
+
+export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promise<OddOneOutData[]> => {
+    const { itemCount, worksheetCount } = options;
+    const results: OddOneOutData[] = [];
+    for (let i = 0; i < worksheetCount; i++) {
+        const groups = Array.from({ length: itemCount }).map(() => {
+            const mainCat = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'], 1)[0];
+            const oddCat = getRandomItems(['fruits_veggies', 'animals', 'jobs', 'vehicles'].filter(c => c !== mainCat), 1)[0];
+            
+            // FIX: The original cast to Record<string, string[]> was too strong for the TR_VOCAB object, which has multiple property types. Casting to 'unknown' first bypasses the compiler check, allowing the subsequent assertion to Record<string, string[]> which is safe in this context because the keys being used are known to correspond to string arrays.
+            const mainWords = getRandomItems((TR_VOCAB as unknown as Record<string, string[]>)[mainCat], 3);
+            const oddWord = getRandomItems((TR_VOCAB as unknown as Record<string, string[]>)[oddCat], 1)[0];
+            
+            return { words: shuffle([...mainWords, oddWord]) };
+        });
+        results.push({ 
+            title: 'Farkı Fark Et (Anlamsal)',
+            instruction: "Her grupta, anlamsal olarak diğerlerinden farklı olan kelimeyi bulun.",
+            pedagogicalNote: "Kategorik düşünme ve semantik ayrım becerisi.",
+            groups 
+        });
+    }
+    return results;
+};

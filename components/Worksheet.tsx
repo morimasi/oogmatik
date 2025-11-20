@@ -31,7 +31,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
          '--worksheet-margin': `${settings.margin}px`,
     } as React.CSSProperties;
 
-    const pageClasses = `page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0`;
+    const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0`;
 
     const renderContent = (singleData: SingleWorksheetData, index: number) => {
         switch (activityType) {
@@ -181,9 +181,15 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     const scale = settings.fontSize / 16; // Using fontSize as a proxy for zoom. 16px = 100% zoom.
     const inverseScale = 16 / settings.fontSize;
 
+    const gridStyles: CSSProperties = {
+        display: 'grid',
+        gridTemplateColumns: `repeat(${settings.columns}, 1fr)`,
+        gap: `${settings.gap}px`,
+    };
+
     return (
         <div className="worksheet-container" style={worksheetStyles}>
-            <div className="page-grid">
+            <div className="page-grid" style={gridStyles}>
             {data.map((singleData, index) => (
                 <div key={index} className={pageClasses} style={{padding: `var(--worksheet-margin)`, overflow: 'hidden'}}>
                      <div style={{

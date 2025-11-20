@@ -90,14 +90,31 @@
       left: 0;
       top: 0;
       width: 100%;
+      height: auto;
       margin: 0;
       padding: 0;
     }
     .worksheet-page {
       page-break-after: always;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .worksheet-page:last-child {
       page-break-after: auto;
+    }
+
+    /* Watermark */
+    .page::before {
+      content: 'Bursa Disleksi';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 100px;
+      font-weight: bold;
+      color: rgba(0, 0, 0, 0.08);
+      z-index: 0;
+      pointer-events: none;
     }
   }
 

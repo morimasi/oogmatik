@@ -481,6 +481,19 @@ export const generateOfflineStarHunt = async (options: GeneratorOptions): Promis
 }
 
 export const generateOfflineWordConnect = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
-    // Simple implementation for compatibility
-    return [];
-}
+    const { worksheetCount, difficulty, itemCount } = options;
+    return Array.from({length: worksheetCount}, () => {
+        const pairs = getRandomItems(TR_VOCAB.synonyms, Math.floor(itemCount/2));
+        const points = pairs.flatMap((p, i) => ([
+            {word: p.word, pairId: i, x: 0, y: i*2, color: COLORS[i % COLORS.length].css},
+            {word: p.synonym, pairId: i, x: 5, y: i*2, color: COLORS[i % COLORS.length].css}
+        ]));
+        return {
+            title: 'Kelime Bağlama',
+            instruction: 'Anlamca ilişkili kelimeleri eşleştir.',
+            pedagogicalNote: 'Semantik ilişkilendirme ve kelime dağarcığı.',
+            gridDim: 6,
+            points: shuffle(points).map((p, i) => ({...p, y: i})) // re-distribute y to avoid overlap
+        }
+    })
+};

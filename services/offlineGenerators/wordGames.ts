@@ -343,7 +343,6 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
     return results;
 };
 
-// ... (Other simple generator updates following similar pattern)
 export const generateOfflineSynonymWordSearch = async (options: GeneratorOptions): Promise<SynonymWordSearchData[]> => {
     const data = await generateOfflineWordSearch(options);
     return data.map(d => ({...d, title: 'Eş Anlamlı Kelime Avı', wordsToMatch: d.words?.map(w => ({word: w, synonym: w})) || []})) as any;
@@ -364,39 +363,317 @@ export const generateOfflineSpiralPuzzle = async (options: GeneratorOptions): Pr
 }
 export const generateOfflinePunctuationSpiralPuzzle = async (options: GeneratorOptions) => generateOfflineSpiralPuzzle(options) as any;
 export const generateOfflineJumbledWordStory = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
-     const {itemCount, worksheetCount} = options;
-     return Array(worksheetCount).fill({
-         title: 'Karışık Kelimeler',
-         instruction: "Harfleri düzelt, kelimeyi bul, hikayeyi yaz.",
-         pedagogicalNote: "Harf dizilimi ve yaratıcı yazma.",
-         prompt: 'Kelimeleri çöz.',
-         theme: 'Rastgele',
-         puzzles: [{jumbled: ['k','a','l','e','m'], word: 'kalem'}],
-         storyPrompt: 'Bu kelimeyle cümle kur.'
+     const {itemCount, worksheetCount, difficulty} = options;
+     return Array(worksheetCount).fill(0).map(() => {
+        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount || 4);
+        const puzzles = words.map(w => ({jumbled: shuffle(w.split('')), word: w}));
+        return {
+            title: 'Karışık Kelimeler ve Hikaye',
+            instruction: "Harfleri düzelt, kelimeyi bul, sonra bulduğun kelimelerle bir hikaye yaz.",
+            pedagogicalNote: "Harf dizilimi farkındalığı ve yaratıcı yazma becerilerini birleştirir.",
+            prompt: 'Kelimeleri çöz ve hikayeni oluştur.',
+            theme: 'Rastgele',
+            puzzles,
+            storyPrompt: 'Bulduğun kelimeleri kullanarak kısa bir metin yaz.'
+        }
      });
 }
 
-// Stubbing the rest with pedagogical headers
-const createStub = (title: string, note: string) => async (opts: GeneratorOptions) => Array(opts.worksheetCount).fill({title, instruction: title + " etkinliğini tamamla.", pedagogicalNote: note, prompt: "Yönergeyi takip et.", items: [], grid: [[]], puzzles: []});
+export const generateOfflineHomonymSentenceWriting = async (options: GeneratorOptions): Promise<HomonymSentenceData[]> => {
+    const { itemCount, worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const items = getRandomItems(HOMONYMS, itemCount).map(word => ({
+            word,
+            meaning1: '1. Anlam',
+            meaning2: '2. Anlam',
+            meaning2_text: 'İkinci anlam için bir cümle yaz.'
+        }));
+        return {
+            title: 'Eş Sesli Kelimeler (Hızlı Mod)',
+            prompt: "Verilen eş sesli (sesteş) kelimelerin her bir anlamı için ayrı birer cümle yazın.",
+            instruction: "Her kelimenin iki farklı anlamını düşünerek cümleler kur.",
+            pedagogicalNote: "Kelimenin farklı bağlamlardaki anlamlarını anlama ve kullanma becerisini geliştirir.",
+            items,
+        };
+    });
+};
 
-export const generateOfflineHomonymSentenceWriting = createStub('Eş Sesli Kelimeler', 'Kelimenin birden fazla anlamını kavrama.');
-export const generateOfflineWordGridPuzzle = createStub('Kelime Ağı', 'Mantıksal yerleştirme.');
-export const generateOfflineHomonymImageMatch = createStub('Eş Sesli Resim Eşleme', 'Görsel ve anlamsal ilişkilendirme.');
-export const generateOfflineAntonymFlowerPuzzle = createStub('Zıt Anlam Papatyası', 'Zıt kavramları eşleştirme.');
-export const generateOfflineSynonymAntonymGrid = createStub('Eş/Zıt Anlam Tablosu', 'Kelime dağarcığı zenginleştirme.');
-export const generateOfflineAntonymResfebe = createStub('Zıt Anlam Resfebe', 'Görsel zeka ve kelime bilgisi.');
-export const generateOfflineThematicWordSearchColor = createStub('Tematik Boyama', 'Kategorizasyon.');
-export const generateOfflineSynonymSearchAndStory = createStub('Eş Anlamlı Hikaye', 'Yaratıcı yazma.');
-export const generateOfflineThematicJumbledWordStory = createStub('Tematik Karışık Kelimeler', 'Harf düzenleme.');
-export const generateOfflineSynonymMatchingPattern = createStub('Eş Anlam Deseni', 'Görsel eşleştirme.');
-export const generateOfflineMissingParts = createStub('Eksik Parçalar', 'Görsel tamamlama.');
-export const generateOfflineWordWeb = createStub('Kelime Ağı', 'İlişkisel düşünme.');
-export const generateOfflineSyllableWordSearch = createStub('Hece Avı', 'Hece farkındalığı.');
-export const generateOfflineWordSearchWithPassword = createStub('Şifreli Kelime Avı', 'Dikkat ve kod çözme.');
-export const generateOfflineWordWebWithPassword = createStub('Şifreli Ağ', 'Bağlantısal düşünme.');
-export const generateOfflineLetterGridWordFind = createStub('Harf Tablosu', 'Görsel tarama.');
-export const generateOfflineWordPlacementPuzzle = createStub('Kelime Yerleştirme', 'Uzamsal mantık.');
-export const generateOfflinePositionalAnagram = createStub('Konumlu Anagram', 'Sıralama becerisi.');
-export const generateOfflineImageAnagramSort = createStub('Resimli Sıralama', 'Görsel destekli kelime bulma.');
-export const generateOfflineAnagramImageMatch = createStub('Anagram Eşleme', 'Kelime-resim ilişkisi.');
-export const generateOfflineResfebe = createStub('Resfebe', 'Resim ve harflerle kelime türetme.');
+export const generateOfflineWordGridPuzzle = async (options: GeneratorOptions): Promise<WordGridPuzzleData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const wordList = getRandomItems(getWordsForDifficulty(difficulty), itemCount);
+        return {
+            title: 'Kelime Ağı (Hızlı Mod)',
+            prompt: "Kelimeleri bulmacaya yerleştir.",
+            instruction: "Listeden kelimeleri bulmacaya uygun şekilde yerleştirin.",
+            pedagogicalNote: "Mantıksal yerleştirme ve görsel-uzamsal planlama.",
+            theme: 'Genel',
+            wordList,
+            grid: Array.from({ length: 10 }, () => Array(10).fill(null)),
+            unusedWordPrompt: "Kullanmadığın kelimeyle bir cümle kur."
+        };
+    });
+};
+
+export const generateOfflineHomonymImageMatch = async (options: GeneratorOptions): Promise<HomonymImageMatchData[]> => {
+    const { itemCount, worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const word = getRandomItems(HOMONYMS, 1)[0];
+        return {
+            title: 'Eş Sesli Resim Eşleme (Hızlı Mod)',
+            prompt: "Resimlerin ortak kelimesini bul.",
+            instruction: "Resimlerin anlattığı ortak kelimeyi bulup harfleri düzenleyin.",
+            pedagogicalNote: "Görsel ipuçlarından yola çıkarak anlamsal bağlantı kurma.",
+            leftImages: [{ id: 1, word: '1. Anlam', imageBase64: '' }],
+            rightImages: [{ id: 2, word: '2. Anlam', imageBase64: '' }],
+            wordScramble: { letters: shuffle(word.split('')), word }
+        };
+    });
+};
+
+export const generateOfflineAntonymFlowerPuzzle = async (options: GeneratorOptions): Promise<AntonymFlowerPuzzleData[]> => {
+    const { itemCount, worksheetCount, passwordLength } = options;
+    const antonymsPool = TR_VOCAB.antonyms;
+
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = getRandomItems(antonymsPool, itemCount).map(pair => ({
+            centerWord: pair.word,
+            antonym: pair.antonym,
+            petalLetters: shuffle(pair.antonym.split(''))
+        }));
+        return {
+            title: 'Zıt Anlam Papatyası (Hızlı Mod)',
+            prompt: 'Papatyaların ortasındaki kelimenin zıt anlamlısını yapraklardaki harflerle oluşturun.',
+            instruction: 'Harfleri düzenleyerek zıt anlamlı kelimeyi bulun.',
+            pedagogicalNote: 'Zıt anlamlı kelime dağarcığını ve anagram çözme becerisini geliştirir.',
+            puzzles,
+            passwordLength: passwordLength || 0
+        };
+    });
+};
+
+export const generateOfflineSynonymAntonymGrid = async (options: GeneratorOptions): Promise<SynonymAntonymGridData[]> => {
+    const {itemCount, worksheetCount, difficulty} = options;
+     const words = getRandomItems(TR_VOCAB.synonyms, itemCount).map(p => p.synonym);
+     const searchResult = await generateOfflineWordSearch({ ...options, words: words, itemCount: words.length, worksheetCount });
+     return searchResult.map(res => ({
+         title: 'Eş/Zıt Anlam Tablosu',
+         prompt: 'Kelimelerin eş ve zıt anlamlılarını bulup bulmacaya yerleştirin.',
+         instruction: 'Listelenen kelimelerin eş veya zıt anlamlılarını bulmacada bul.',
+         pedagogicalNote: 'Kelime anlam ilişkileri ve kelime hazinesi.',
+         antonyms: getRandomItems(TR_VOCAB.antonyms, 3).map(p => ({word: p.word})),
+         synonyms: getRandomItems(TR_VOCAB.synonyms, 3).map(p => ({word: p.word})),
+         grid: res.grid,
+     }))
+};
+
+export const generateOfflineAntonymResfebe = async (options: GeneratorOptions): Promise<AntonymResfebeData[]> => {
+    const { itemCount, worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = getRandomItems(TR_VOCAB.antonyms, itemCount).map(pair => ({
+            word: pair.word,
+            antonym: pair.antonym,
+            // FIX: Explicitly cast 'text' to the literal type 'text' to match the AntonymResfebeData interface.
+            clues: pair.word.split('').map(char => ({ type: 'text' as 'text', value: char }))
+        }));
+        return {
+            title: 'Zıt Anlam Resfebe (Hızlı Mod)',
+            prompt: "Resfebeyi çöz, kelimeyi bul, sonra zıt anlamlısını yaz.",
+            instruction: 'İpuçlarını birleştirerek kelimeyi bulun ve zıt anlamlısını yazın.',
+            pedagogicalNote: 'Görsel çağrışım ve zıt kavramları eşleştirme.',
+            puzzles,
+            antonymsPrompt: "Bulduğun kelimelerin zıt anlamlılarıyla cümle kur."
+        };
+    });
+};
+
+export const generateOfflineResfebe = async (options: GeneratorOptions): Promise<ResfebeData[]> => {
+     const { itemCount, worksheetCount, difficulty } = options;
+     return Array.from({ length: worksheetCount }, () => {
+         const puzzles = getRandomItems(getWordsForDifficulty(difficulty), itemCount).map(word => ({
+             clues: word.split('').map(char => ({ type: 'text' as 'text' | 'image', value: char })),
+             answer: word
+         }));
+         return {
+             title: 'Resfebe (Hızlı Mod)',
+             prompt: 'Harf ve şekillerden kelimeyi tahmin et.',
+             instruction: 'İpuçlarını birleştirerek kelimeyi bulun.',
+             pedagogicalNote: 'Yaratıcı düşünme ve sembolik akıl yürütme.',
+             puzzles
+         };
+     });
+};
+
+
+export const generateOfflineThematicWordSearchColor = async (options: GeneratorOptions) => generateOfflineWordSearch(options) as any;
+export const generateOfflineSynonymSearchAndStory = async (options: GeneratorOptions) => generateOfflineSynonymWordSearch(options) as any;
+export const generateOfflineThematicJumbledWordStory = async (options: GeneratorOptions) => generateOfflineJumbledWordStory(options) as any;
+
+export const generateOfflineSynonymMatchingPattern = async (options: GeneratorOptions): Promise<SynonymMatchingPatternData[]> => {
+    const { itemCount, worksheetCount, theme } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const pairs = getRandomItems(TR_VOCAB.synonyms, itemCount);
+        return {
+            title: 'Eş Anlam Deseni (Hızlı Mod)',
+            prompt: 'Eş anlamlı kelimeleri bularak deseni tamamla.',
+            instruction: 'Eş anlamlı kelimeleri bularak eşleştirin.',
+            pedagogicalNote: 'Kelime dağarcığı ve görsel eşleştirme.',
+            theme: theme || 'Genel',
+            pairs
+        };
+    });
+};
+
+export const generateOfflineMissingParts = async (options: GeneratorOptions): Promise<MissingPartsData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const words = getRandomItems(getWordsForDifficulty(difficulty, 'medium'), itemCount);
+        const leftParts = words.map((w, i) => ({ id: i, text: w.substring(0, Math.floor(w.length / 2)) }));
+        const rightParts = shuffle(words.map((w, i) => ({ id: i, text: w.substring(Math.floor(w.length / 2)) })));
+        return {
+            title: 'Eksik Parçalar (Hızlı Mod)',
+            prompt: 'Kelime parçalarını birleştir.',
+            instruction: 'Sol ve sağdaki parçaları birleştirerek anlamlı kelimeler oluşturun.',
+            pedagogicalNote: 'Görsel bütünleme ve hece farkındalığı.',
+            leftParts,
+            rightParts,
+            givenParts: []
+        };
+    });
+};
+
+export const generateOfflineWordWeb = async (options: GeneratorOptions): Promise<WordWebData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const wordsToFind = getRandomItems(getWordsForDifficulty(difficulty), itemCount);
+        return {
+            title: 'Kelime Ağı (Hızlı Mod)',
+            prompt: 'Kelimeleri bulmacaya yerleştir.',
+            instruction: 'Verilen kelimeleri bulmacaya yerleştirin.',
+            pedagogicalNote: 'Mantıksal yerleştirme ve kelime bilgisi.',
+            wordsToFind,
+            grid: Array.from({ length: 15 }, () => Array(15).fill(null)),
+            keyWordPrompt: "Ortadaki anahtar kelime nedir?"
+        };
+    });
+};
+
+export const generateOfflineSyllableWordSearch = async (options: GeneratorOptions): Promise<SyllableWordSearchData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    const searchData = await generateOfflineWordSearch({ ...options, itemCount });
+    return searchData.map(data => ({
+        title: 'Hece ve Kelime Avı (Hızlı Mod)',
+        prompt: 'Heceleri birleştir, kelimeleri bulmacada ara.',
+        instruction: 'Önce heceleri birleştirip kelimeleri oluştur, sonra bu kelimeleri bulmacada bul.',
+        pedagogicalNote: 'Hece birleştirme ve görsel tarama becerilerini entegre eder.',
+        syllablesToCombine: ['ke', 'lem'],
+        wordsToCreate: [{ syllable1: 'ke', syllable2: 'lem', answer: 'kelem' }],
+        wordsToFindInSearch: data.words || [],
+        grid: data.grid,
+        passwordPrompt: "Şifreyi çöz."
+    }));
+};
+
+export const generateOfflineWordSearchWithPassword = async (options: GeneratorOptions): Promise<WordSearchWithPasswordData[]> => {
+    const searchData = await generateOfflineWordSearch(options);
+    return searchData.map(data => ({
+        title: 'Şifreli Kelime Avı (Hızlı Mod)',
+        prompt: 'Kelimeleri bul ve şifreyi çöz.',
+        instruction: 'Kelimeleri bulduktan sonra renkli kutulardaki harflerle şifreyi oluşturun.',
+        pedagogicalNote: 'Dikkat ve sıralı işlem becerisi.',
+        grid: data.grid,
+        words: data.words || [],
+        passwordCells: [{ row: 0, col: 0 }, { row: 1, col: 1 }]
+    }));
+};
+
+export const generateOfflineWordWebWithPassword = async (options: GeneratorOptions): Promise<WordWebWithPasswordData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => ({
+        title: 'Şifreli Kelime Ağı (Hızlı Mod)',
+        prompt: 'Kelimeleri yerleştir ve şifreyi bul.',
+        instruction: 'Kelimeleri yerleştirdikten sonra renkli sütundaki harflerle şifreyi oluşturun.',
+        pedagogicalNote: 'Mantıksal yerleştirme ve dikkat.',
+        words: getRandomItems(getWordsForDifficulty(difficulty), itemCount),
+        grid: Array.from({ length: 15 }, () => Array(15).fill(null)),
+        passwordColumnIndex: 7
+    }));
+};
+
+export const generateOfflineLetterGridWordFind = async (options: GeneratorOptions): Promise<LetterGridWordFindData[]> => {
+    const searchData = await generateOfflineWordSearch(options);
+    return searchData.map(data => ({
+        title: 'Harf Tablosundan Kelime Bulma (Hızlı Mod)',
+        prompt: 'Gizli kelimeleri bul ve metin yaz.',
+        instruction: 'Tabloda gizlenmiş kelimeleri bulun ve bu kelimelerle bir metin yazın.',
+        pedagogicalNote: 'Görsel tarama ve yaratıcı yazma.',
+        grid: data.grid,
+        words: data.words || [],
+        writingPrompt: "Bulduğun kelimelerle bir hikaye yaz."
+    }));
+};
+
+export const generateOfflineWordPlacementPuzzle = async (options: GeneratorOptions): Promise<WordPlacementPuzzleData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => ({
+        title: 'Kelime Yerleştirme (Hızlı Mod)',
+        prompt: 'Kelimeleri harf sayısına göre yerleştir.',
+        instruction: 'Verilen kelimeleri harf sayılarına göre bulmaca diyagramına yerleştirin.',
+        pedagogicalNote: 'Sınıflandırma ve mantıksal yerleştirme.',
+        grid: Array.from({ length: 10 }, () => Array(10).fill(null)),
+        wordGroups: [
+            { length: 4, words: getRandomItems(getWordsForDifficulty(difficulty).filter(w => w.length === 4), 3) },
+            { length: 5, words: getRandomItems(getWordsForDifficulty(difficulty).filter(w => w.length === 5), 3) }
+        ],
+        unusedWordPrompt: "Boşta kalan kelime hangisidir?"
+    }));
+};
+
+export const generateOfflinePositionalAnagram = async (options: GeneratorOptions): Promise<PositionalAnagramData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, (_, i) => ({
+        title: 'Yer Değiştirmeli Anagram (Hızlı Mod)',
+        prompt: 'Numaralı kutulardaki harfleri değiştirerek kelimeler bulun.',
+        instruction: 'Numaralı kutulardaki harflerin yerlerini değiştirerek anlamlı kelimeler bulun.',
+        pedagogicalNote: 'Harf sırası farkındalığı ve problem çözme.',
+        puzzles: getRandomItems(getWordsForDifficulty(difficulty), itemCount).map((word, idx) => ({
+            id: idx,
+            scrambled: shuffle(word.split('')).join(''),
+            answer: word
+        }))
+    }));
+};
+
+export const generateOfflineImageAnagramSort = async (options: GeneratorOptions): Promise<ImageAnagramSortData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => ({
+        title: 'Kart Sıralama (Hızlı Mod)',
+        prompt: 'Kelimeleri çözüp alfabetik sıraya dizin.',
+        instruction: 'Karışık kelimeleri çözüp ilgili görsellerle alfabetik olarak sıralayın.',
+        pedagogicalNote: 'Kelime sıralama ve görsel destekli kod çözme.',
+        cards: getRandomItems(getWordsForDifficulty(difficulty), itemCount).map(word => ({
+            imageDescription: word,
+            scrambledWord: shuffle(word.split('')).join(''),
+            correctWord: word
+        }))
+    }));
+};
+
+export const generateOfflineAnagramImageMatch = async (options: GeneratorOptions): Promise<AnagramImageMatchData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const words = getRandomItems(getWordsForDifficulty(difficulty), itemCount);
+        return {
+            title: 'Resim - Kelime Eşleme (Hızlı Mod)',
+            prompt: 'Kelimeleri çözüp resimlerle eşleştirin.',
+            instruction: 'Karışık kelimeleri çözüp ilgili görsellerle eşleştirin.',
+            pedagogicalNote: 'Kelime tanıma ve görsel eşleştirme.',
+            wordBank: shuffle(words),
+            puzzles: words.map(word => ({
+                imageDescription: word,
+                partialAnswer: word.substring(0, 1) + "_".repeat(word.length - 1),
+                correctWord: word
+            }))
+        };
+    });
+};
