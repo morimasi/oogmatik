@@ -1,7 +1,6 @@
 
-
 import { 
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
     GeneratorOptions
 } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare, generateMaze } from './helpers';
@@ -39,8 +38,6 @@ const matchstickPatterns = [
     { name: 'Boat', lines: [{x1:0, y1:4, x2:6, y2:4}, {x1:1, y1:4, x2:2, y2:3}, {x1:5,y1:4, x2:4, y2:3}, {x1:2,y1:3, x2:4, y2:3}] },
     { name: 'Fish', lines: [{x1:1, y1:3, x2:3, y2:1}, {x1:1, y1:3, x2:3, y2:5}, {x1:3,y1:1, x2:3,y2:5}] }
 ];
-
-// ... (Previous functions FindTheDifference, WordComparison, ShapeMatching, FindIdenticalWord, GridDrawing, SymbolCipher, BlockPainting, VisualOddOneOut, SymmetryDrawing, FindDifferentString, DotPainting, AbcConnect, CoordinateCipher, WordConnect, ProfessionConnect, MatchstickSymmetry, VisualOddOneOutThemed, PunctuationColoring, SynonymAntonymColoring, StarHunt, ShapeCounting remain the same as they were in the previous complete file content, just ensuring imports are correct)
 
 export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
     const { topic, itemCount, worksheetCount, difficulty } = options;
@@ -577,6 +574,7 @@ export const generateOfflineStarHunt = async (options: GeneratorOptions): Promis
     const size = gridSize || (difficulty === 'Orta' ? 6 : (difficulty === 'Zor' ? 8 : 5));
     
     return Array.from({ length: worksheetCount }, () => {
+        // Use Latin Square to generate a valid non-colliding grid for stars
         const latin = generateLatinSquare(size); 
         const grid: (ShapeType | 'star' | 'question' | null)[][] = latin.map(row => 
             row.map(val => val === 1 ? 'star' : null)

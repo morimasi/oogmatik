@@ -17,6 +17,7 @@ export const generateReadingFlowFromAI = async (options: GeneratorOptions): Prom
     '${topic}' konulu, "${difficulty}" seviyesinde Akıcı Okuma (Reading Flow) metni.
     Metni hecelere böl ve her heceye farklı renk (siyah/mavi) ata.
     Okuma hızını artıracak şekilde kısa ve ritmik cümleler kullan.
+    Özellikle "Satır sonu heceleme" kurallarına dikkat et.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -72,7 +73,7 @@ export const generateLetterDiscriminationFromAI = async (options: GeneratorOptio
     const prompt = `
     Harf Karışıklığı (b-d, p-q, m-n) egzersizi.
     Görsel olarak birbirine benzeyen harflerden oluşan satırlar üret.
-    Hedef harfi belirle.
+    Hedef harfi belirle. Örneğin "b" harfini "d" lerin arasından bulma.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -109,6 +110,7 @@ export const generateRapidNamingFromAI = async (options: GeneratorOptions): Prom
     Hızlı İsimlendirme (RAN) testi. Tip: ${type || 'object'}.
     Izgara şeklinde sıralanmış öğeler (renk, sayı veya nesne).
     Nesneler için **İngilizce** 'imagePrompt' gereklidir.
+    Renkler için hex kodu (value) ve renk ismi (label) ver.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -153,6 +155,7 @@ export const generatePhonologicalAwarenessFromAI = async (options: GeneratorOpti
     Fonolojik Farkındalık etkinliği.
     Hece sayma veya kafiye bulma soruları.
     Her soru için görsel (imagePrompt) oluştur.
+    Zorluk seviyesi: ${difficulty}.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -173,7 +176,7 @@ export const generatePhonologicalAwarenessFromAI = async (options: GeneratorOpti
                         question: { type: Type.STRING },
                         word: { type: Type.STRING },
                         imagePrompt: { type: Type.STRING },
-                        options: { type: Type.ARRAY, items: { type: Type.STRING } }, // Mixed types handled as string in JSON
+                        options: { type: Type.ARRAY, items: { type: Type.STRING } }, 
                         answer: { type: Type.STRING }
                     },
                     required: ['type', 'question', 'word', 'options', 'answer', 'imagePrompt']
