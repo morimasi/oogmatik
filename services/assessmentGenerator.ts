@@ -91,15 +91,18 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     ${testResultsDesc}
 
     ANALİZ KURALLARI:
-    1. Okuma Testi (Lexical): Düşük doğruluk -> Disleksi riski.
+    1. Okuma Testi:
+       - Kelime Tanıma (Lexical): Kelime köklerini tanıma becerisi.
+       - Cümle Okuma (Comprehension): Cümle tamamlama ve anlam bütünlüğü kurma becerisi.
+       - Analiz: Eğer kelime tanıma iyi ama cümle anlama düşükse "Hiperleksi" veya dikkat sorunları olabilir. Her ikisi düşükse "Disleksi" riski yüksektir.
     2. Matematik Testi: Düşük skor/yavaş hız -> Diskalkuli riski.
     3. Dikkat Testi (Harf Avı - Grid): Düşük skor, yüksek hata -> Dikkat eksikliği.
     4. Görsel Test (Matris Mantığı): Düşük skor -> Görsel algı / Soyut düşünme zayıflığı.
     5. Bilişsel Test (Sıralı Bellek): Düşük skor -> İşleyen Bellek (Working Memory) zayıflığı.
-       * İşleyen bellek düşüklüğü hem DEHB hem de Disleksi için kritik bir belirleyicidir. Eğer Okuma skoru da düşükse Disleksi ihtimali artar.
+       * İşleyen bellek düşüklüğü hem DEHB hem de Disleksi için kritik bir belirleyicidir.
     
     GÖREVLER:
-    1. "overallSummary": Pedagojik ve yapıcı bir özet yaz. Özellikle bellek ve dikkat arasındaki ilişkiye değin.
+    1. "overallSummary": Pedagojik ve yapıcı bir özet yaz. Özellikle kelime okuma ve cümle anlama arasındaki ilişkiye değin.
     2. "scores": 5 alanda (reading, writing, math, attention, cognitive) 0-100 arası "İHTİYAÇ/RİSK" skoru ver (Yüksek skor = Yüksek Risk).
     3. "chartData": Radar grafiği için veri. Label (Alan adı) ve Value (0-100 Puan). 
        (Labels: "Okuma", "Matematik", "Dikkat", "Görsel", "Bellek").

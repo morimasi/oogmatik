@@ -19,14 +19,14 @@ const shuffle = <T,>(array: T[]): T[] => {
 
 const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-// --- VISUAL ASSETS (Matrix Reasoning) ---
+// --- VISUAL ASSETS ---
 const MatrixCell = ({ item, className = "" }: { item: any, className?: string }) => {
     if (!item) return <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-600`}></div>;
 
     const { type, rotation = 0, count = 1, fill = false, shape = 'circle' } = item;
     
     return (
-        <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-800 dark:border-zinc-400 flex items-center justify-center relative overflow-hidden`}>
+        <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-800 dark:border-zinc-400 flex items-center justify-center relative overflow-hidden transition-all duration-300`}>
             <svg viewBox="0 0 100 100" className="w-3/4 h-3/4">
                 <g transform={`rotate(${rotation}, 50, 50)`} style={{ transition: 'transform 0.3s' }}>
                     {type === 'line' && (
@@ -40,7 +40,6 @@ const MatrixCell = ({ item, className = "" }: { item: any, className?: string })
                             {shape === 'circle' && <circle cx="50" cy="50" r="35" fill={fill ? "currentColor" : "none"} stroke="currentColor" strokeWidth="6" className="text-zinc-800 dark:text-zinc-200" />}
                             {shape === 'square' && <rect x="15" y="15" width="70" height="70" fill={fill ? "currentColor" : "none"} stroke="currentColor" strokeWidth="6" className="text-zinc-800 dark:text-zinc-200" />}
                             {shape === 'triangle' && <polygon points="50,15 85,85 15,85" fill={fill ? "currentColor" : "none"} stroke="currentColor" strokeWidth="6" className="text-zinc-800 dark:text-zinc-200" />}
-                            {/* Inner elements based on count */}
                             {count > 1 && <circle cx="50" cy="50" r="12" fill={fill ? "white" : "currentColor"} className={fill ? "text-zinc-800" : "text-zinc-800 dark:text-zinc-200"} />}
                         </>
                     )}
@@ -49,7 +48,6 @@ const MatrixCell = ({ item, className = "" }: { item: any, className?: string })
                             <rect x="10" y="10" width="80" height="80" fill="none" stroke="currentColor" strokeWidth="4" className="text-zinc-300" />
                             <line x1="50" y1="10" x2="50" y2="90" stroke="currentColor" strokeWidth="2" className="text-zinc-300" />
                             <line x1="10" y1="50" x2="90" y2="50" stroke="currentColor" strokeWidth="2" className="text-zinc-300" />
-                            {/* Fill quadrants based on rotation/count logic */}
                             {count === 1 && <rect x="12" y="12" width="36" height="36" rx="4" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
                             {count === 2 && <rect x="52" y="12" width="36" height="36" rx="4" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
                             {count === 3 && <rect x="52" y="52" width="36" height="36" rx="4" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
@@ -67,20 +65,77 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
     const grade = parseInt(gradeStr.split('.')[0]) || 1;
     
     if (category === 'reading') {
-        // Lexical Decision Task
-        const realWords = ['Masa', 'Kitap', 'Kalem', 'Okul', 'Elma', 'Kedi', 'Güneş', 'Araba', 'Deniz', 'Yol', 'Bilgisayar', 'Telefon'];
-        const fakeWords = ['Kipat', 'Maso', 'Lemka', 'Oluk', 'Alma', 'Deki', 'Şüneş', 'Baraba', 'Zenid', 'Lyo', 'Gilbisayar', 'Feleton'];
-        
         const items = [];
-        for(let i=0; i<10; i++) {
-            const isReal = Math.random() > 0.5;
-            items.push({
-                q: isReal ? realWords[i % realWords.length] : fakeWords[i % fakeWords.length],
-                isReal: isReal,
-                id: i
-            });
+        
+        // PART 1: Lexical Decision (Word Recognition)
+        // Adjust word complexity by grade
+        const lexicalItems = [];
+        if (grade <= 2) {
+            const real = ['Anne', 'Baba', 'Okul', 'Kapı', 'Kedi', 'Top', 'Su', 'Elma'];
+            const fake = ['Nane', 'Buba', 'Ukul', 'Kipı', 'Deki', 'Pot', 'Us', 'Alma'];
+            for(let i=0; i<6; i++) {
+                const isReal = Math.random() > 0.5;
+                lexicalItems.push({
+                    subtype: 'lexical',
+                    q: isReal ? real[i] : fake[i],
+                    isReal: isReal,
+                    id: `lex-${i}`
+                });
+            }
+        } else {
+            const real = ['Televizyon', 'Cumhuriyet', 'Sandalye', 'Öğretmen', 'Hastane', 'Bilgisayar', 'Arkadaşlık', 'Kütüphane'];
+            const fake = ['Telizyon', 'Cuhmuriyet', 'Saldanye', 'Ötğermen', 'Hatsane', 'Gilbisayar', 'Arkadaş', 'Kütüp'];
+            for(let i=0; i<6; i++) {
+                const isReal = Math.random() > 0.5;
+                lexicalItems.push({
+                    subtype: 'lexical',
+                    q: isReal ? real[i] : fake[i],
+                    isReal: isReal,
+                    id: `lex-${i}`
+                });
+            }
         }
-        return shuffle(items);
+        items.push(...shuffle(lexicalItems));
+
+        // PART 2: Sentence Comprehension (Cloze Test)
+        const sentenceItems = [];
+        if (grade <= 2) {
+            const sentences = [
+                { q: "Ali topu ___.", opts: ["attı", "yedi", "uyudu"], a: "attı" },
+                { q: "Ayşe okula ___.", opts: ["gitti", "uçtu", "yüzdü"], a: "gitti" },
+                { q: "Kedi süt ___.", opts: ["içti", "giydi", "yazdı"], a: "içti" },
+                { q: "Gökyüzü ___ renktir.", opts: ["mavi", "kare", "ekşi"], a: "mavi" }
+            ];
+            sentenceItems.push(...shuffle(sentences).slice(0, 4));
+        } else if (grade <= 4) {
+            const sentences = [
+                { q: "Hava çok soğuk olduğu için ___ giydim.", opts: ["mont", "mayo", "terlik"], a: "mont" },
+                { q: "Kitap okumayı çok ___.", opts: ["seviyorum", "koşuyorum", "yüzüyorum"], a: "seviyorum" },
+                { q: "Dişlerimizi fırçalamak sağlığımız için ___.", opts: ["önemlidir", "zararlıdır", "gereksizdir"], a: "önemlidir" },
+                { q: "Trafik ışığı kırmızı yanınca ___.", opts: ["durmalıyız", "geçmeliyiz", "koşmalıyız"], a: "durmalıyız" },
+                { q: "Yaz tatilinde denize girip ___.", opts: ["yüzdük", "kaydık", "üşüdük"], a: "yüzdük" }
+            ];
+            sentenceItems.push(...shuffle(sentences).slice(0, 5));
+        } else {
+            const sentences = [
+                { q: "Başarılı olmak için planlı ve düzenli ___ gerekir.", opts: ["çalışmak", "uyumak", "oynamak"], a: "çalışmak" },
+                { q: "Bilim insanları laboratuvarda yeni ___ yapıyorlar.", opts: ["deneyler", "yemekler", "resimler"], a: "deneyler" },
+                { q: "Küresel ısınma nedeniyle buzullar ___.", opts: ["eriyor", "donuyor", "büyüyor"], a: "eriyor" },
+                { q: "Empati kurmak, başkalarının duygularını ___ demektir.", opts: ["anlamak", "yargılamak", "görmezden gelmek"], a: "anlamak" },
+                { q: "Teknolojinin gelişmesiyle iletişim ___.", opts: ["hızlandı", "zorlaştı", "imkansızlaştı"], a: "hızlandı" }
+            ];
+            sentenceItems.push(...shuffle(sentences).slice(0, 5));
+        }
+
+        items.push(...sentenceItems.map((s, i) => ({
+            subtype: 'sentence',
+            q: s.q,
+            opts: s.opts,
+            a: s.a,
+            id: `sent-${i}`
+        })));
+
+        return items; // Mix of Lexical and Sentence items (ordered: Lexical first, then Sentence)
     }
     
     if (category === 'math') {
@@ -116,10 +171,10 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
     }
 
     if (category === 'visual') {
-        // Professional Matrix Reasoning (IQ style)
         const items = [];
         
-        // 1. Rotation Logic (Clockwise)
+        // Logic: Rotation, Shape Progression, Grid Movement
+        // (Logic kept same as previous iteration for brevity, but ensures professional rendering)
         const createRotationMatrix = () => {
             const type = Math.random() > 0.5 ? 'line' : 'arrow';
             const startRot = getRandomInt(0, 3) * 90;
@@ -133,14 +188,11 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             return { grid: seq, target, distractors };
         };
 
-        // 2. Shape Logic (Progression A->B, C->D)
         const createShapeMatrix = () => {
             const shapes = ['circle', 'square', 'triangle'];
             const base = shapes[getRandomInt(0, 2)];
             const otherShape = shapes.find(s => s !== base) || 'triangle';
             const fill = Math.random() > 0.5;
-            
-            // Pattern: Row 1 [Base, 1] -> [Base, 2]. Row 2 [Other, 1] -> [Target: Other, 2]
             const seq = [
                 { type: 'shape', shape: base, count: 1, fill },
                 { type: 'shape', shape: base, count: 2, fill },
@@ -148,18 +200,15 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             ];
             const target = { type: 'shape', shape: otherShape, count: 2, fill };
             const distractors = [
-                { type: 'shape', shape: otherShape, count: 1, fill }, // Wrong count
-                { type: 'shape', shape: base, count: 2, fill } // Wrong shape
+                { type: 'shape', shape: otherShape, count: 1, fill },
+                { type: 'shape', shape: base, count: 2, fill }
             ];
             return { grid: seq, target, distractors };
         };
 
-        // 3. Grid Logic (Movement)
         const createGridMatrix = () => {
-            // Logic: Filled quadrant moves CW
             const startPos = getRandomInt(1, 4);
             const nextPos = (pos: number) => pos >= 4 ? 1 : pos + 1;
-            
             const seq = [
                 { type: 'grid', count: startPos },
                 { type: 'grid', count: nextPos(startPos) },
@@ -167,8 +216,8 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             ];
             const target = { type: 'grid', count: nextPos(nextPos(nextPos(startPos))) };
             const distractors = [
-                { type: 'grid', count: startPos }, // Same as start
-                { type: 'grid', count: nextPos(startPos) } // Duplicate
+                { type: 'grid', count: startPos },
+                { type: 'grid', count: nextPos(startPos) }
             ];
             return { grid: seq, target, distractors };
         };
@@ -181,7 +230,7 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
 
             items.push({
                 type: 'matrix',
-                grid: matrix.grid, // Contains 3 items (Top-Left, Top-Right, Bottom-Left)
+                grid: matrix.grid,
                 opts: shuffle([matrix.target, ...matrix.distractors]),
                 a: matrix.target,
                 id: i
@@ -191,7 +240,6 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
     }
 
     if (category === 'cognitive') {
-        // Sequential Memory (Working Memory)
         const items = [];
         const icons = ['apple-whole', 'car', 'dog', 'cat', 'sun', 'moon', 'tree', 'fish']; 
         
@@ -519,7 +567,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const isTestReady = (isAttention = false) => {
         if (isTransitioning) return false;
         if (isAttention) return testState.attentionState && testState.attentionState.length > 0;
-        // Safety check for items array and current index
         return testState.items && testState.items.length > 0 && !!testState.items[testState.currentIndex];
     };
 
@@ -618,22 +665,41 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         isTestReady() ? (
                             <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
+                                
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                    <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest">Bu kelime gerçek mi?</h3>
-                                    <div className="text-5xl md:text-7xl font-black mb-12 p-10 bg-white dark:bg-zinc-700 border-4 border-zinc-100 dark:border-zinc-600 rounded-3xl w-full max-w-md shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic select-none">
-                                        {currentItem?.q}
-                                    </div>
-                                    <div className="flex gap-6 w-full max-w-md">
-                                        <button onClick={() => handleAnswer(currentItem?.isReal === false, 'reading', 'Okuma')} className="flex-1 p-5 bg-rose-50 text-rose-600 font-black rounded-2xl border-b-4 border-rose-200 hover:bg-rose-100 transition-all text-xl shadow-sm active:scale-95">
-                                            HAYIR
-                                        </button>
-                                        <button onClick={() => handleAnswer(currentItem?.isReal === true, 'reading', 'Okuma')} className="flex-1 p-5 bg-emerald-50 text-emerald-600 font-black rounded-2xl border-b-4 border-emerald-200 hover:bg-emerald-100 transition-all text-xl shadow-sm active:scale-95">
-                                            EVET
-                                        </button>
-                                    </div>
+                                    {currentItem?.subtype === 'lexical' ? (
+                                        <>
+                                            <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest"><i className="fa-solid fa-font mr-2"></i>Bu kelime gerçek mi?</h3>
+                                            <div className="text-5xl md:text-7xl font-black mb-12 p-10 bg-white dark:bg-zinc-700 border-4 border-zinc-100 dark:border-zinc-600 rounded-3xl w-full max-w-md shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic select-none transform hover:scale-105 transition-transform duration-300">
+                                                {currentItem?.q}
+                                            </div>
+                                            <div className="flex gap-6 w-full max-w-md">
+                                                <button onClick={() => handleAnswer(currentItem?.isReal === false, 'reading', 'Okuma')} className="flex-1 p-5 bg-rose-50 text-rose-600 font-black rounded-2xl border-b-4 border-rose-200 hover:bg-rose-100 transition-all text-xl shadow-sm active:scale-95">
+                                                    <i className="fa-solid fa-xmark mr-2"></i> HAYIR
+                                                </button>
+                                                <button onClick={() => handleAnswer(currentItem?.isReal === true, 'reading', 'Okuma')} className="flex-1 p-5 bg-emerald-50 text-emerald-600 font-black rounded-2xl border-b-4 border-emerald-200 hover:bg-emerald-100 transition-all text-xl shadow-sm active:scale-95">
+                                                    <i className="fa-solid fa-check mr-2"></i> EVET
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest"><i className="fa-solid fa-paragraph mr-2"></i>Cümleyi Tamamla</h3>
+                                            <div className="text-2xl md:text-3xl font-bold mb-12 p-8 bg-sky-50 dark:bg-sky-900/20 border-2 border-sky-100 dark:border-sky-800 rounded-2xl w-full max-w-2xl shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic leading-relaxed select-none">
+                                                {currentItem?.q}
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
+                                                {currentItem?.opts?.map((opt: string, i: number) => (
+                                                    <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'reading', 'Okuma')} className="p-4 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl text-lg font-bold text-zinc-700 dark:text-zinc-200 hover:border-sky-500 hover:text-sky-600 hover:shadow-md transition-all active:scale-95">
+                                                        {opt}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                        ) : <TransitionScreen message="Sorular Yükleniyor..." />
+                        ) : <TransitionScreen message="Okuma Testi Hazırlanıyor..." />
                     )}
 
                     {currentStep === 3 && (
@@ -696,7 +762,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
                                     <h3 className="text-zinc-400 font-bold uppercase tracking-widest mb-8">Eksik Parçayı Bul</h3>
                                     
-                                    {/* Professional 2x2 Matrix Grid */}
                                     <div className="mb-8 grid grid-cols-2 gap-4 p-6 bg-zinc-100 dark:bg-zinc-900 rounded-2xl shadow-inner border-2 border-zinc-200 dark:border-zinc-700 max-w-md w-full">
                                         {currentItem?.grid?.map((item: any, i: number) => (
                                             <MatrixCell key={i} item={item} className="w-full aspect-square rounded-lg shadow-sm" />
@@ -706,7 +771,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                         </div>
                                     </div>
 
-                                    {/* Options */}
                                     <div className="flex gap-4 justify-center w-full max-w-2xl">
                                         {currentItem?.opts?.map((opt: any, i:number) => (
                                             <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'visual', 'Görsel Algı')} className="w-20 h-20 md:w-24 md:h-24 hover:scale-105 transition-transform focus:outline-none">
