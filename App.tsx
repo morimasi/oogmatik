@@ -242,14 +242,50 @@ const AppContent: React.FC = () => {
       },
       {
           targetId: 'tour-content',
-          title: 'Çalışma Alanı',
-          content: 'Seçtiğiniz etkinliğin ayarlarını buradan yapabilir, yapay zeka ile oluşturulan içerikleri anında görebilirsiniz. "Hızlı Mod" ile internet olmadan da içerik üretebilirsiniz.',
+          title: 'Etkinlik Oluşturucu',
+          content: 'Buradan seçtiğiniz etkinliğin zorluk seviyesini ve ayarlarını yapabilirsiniz. "Oluştur" dedikten sonra yapay zeka size özel bir sayfa hazırlayacaktır.',
           position: 'left'
       },
       {
+          targetId: 'tour-toolbar',
+          title: 'Yazdırma ve Kaydetme',
+          content: 'Etkinlik oluşturulduktan sonra burada belirecek araç çubuğu ile çalışmanızı PDF olarak yazdırabilir veya arşivinize kaydedebilirsiniz.',
+          position: 'bottom'
+      },
+      {
+          targetId: 'tour-feedback-btn',
+          title: 'Geri Bildirim',
+          content: 'Görüşleriniz bizim için değerli. Bir hata bulursanız veya öneriniz varsa buradan bize iletebilirsiniz.',
+          position: 'bottom'
+      },
+      {
+          targetId: 'tour-messages-btn',
+          title: 'Mesaj Merkezi',
+          content: 'Eğitmenleriniz veya diğer kullanıcılarla buradan güvenli bir şekilde mesajlaşabilirsiniz.',
+          position: 'bottom'
+      },
+      {
+          targetId: 'tour-shared-btn',
+          title: 'Paylaşılanlar',
+          content: 'Size özel gönderilen veya sizin başkalarıyla paylaştığınız etkinlikleri burada bulabilirsiniz.',
+          position: 'bottom'
+      },
+      {
+          targetId: 'tour-archive-btn',
+          title: 'Arşivim',
+          content: 'Kaydettiğiniz tüm çalışma sayfalarına buradan ulaşın. Tekrar yazdırmak veya düzenlemek için ideal.',
+          position: 'bottom'
+      },
+      {
+          targetId: 'tour-history-btn',
+          title: 'Geçmiş',
+          content: 'Son yaptığınız çalışmalar otomatik olarak burada tutulur. Kaydetmeyi unutsanız bile buradan geri dönebilirsiniz.',
+          position: 'bottom'
+      },
+      {
           targetId: 'tour-actions',
-          title: 'Kullanıcı İşlemleri',
-          content: 'Giriş yaparak etkinliklerinizi kaydedebilir, diğer kullanıcılarla paylaşabilir ve mesajlaşabilirsiniz.',
+          title: 'Profil ve Ayarlar',
+          content: 'Giriş yaparak etkinliklerinizi buluta kaydedebilir, profilinizi düzenleyebilir ve tema ayarlarını değiştirebilirsiniz.',
           position: 'bottom'
       }
   ];
@@ -291,7 +327,7 @@ const AppContent: React.FC = () => {
              <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="Hakkımızda">
                 <i className="fa-solid fa-circle-info fa-lg"></i>
              </button>
-             <button onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="İletişim / Hata Bildir">
+             <button id="tour-feedback-btn" onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="İletişim / Hata Bildir">
                 <i className="fa-solid fa-comment-dots fa-lg"></i>
              </button>
              
@@ -307,7 +343,7 @@ const AppContent: React.FC = () => {
                         </button>
                     )}
                     
-                    <button onClick={() => setCurrentView('messages')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md relative" title="Mesajlar">
+                    <button id="tour-messages-btn" onClick={() => setCurrentView('messages')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md relative" title="Mesajlar">
                         <i className="fa-solid fa-envelope fa-lg"></i>
                         {unreadCount > 0 && (
                             <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-white dark:border-zinc-900">
@@ -316,14 +352,14 @@ const AppContent: React.FC = () => {
                         )}
                     </button>
 
-                    <button onClick={() => setCurrentView('shared')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Paylaşılanlar">
+                    <button id="tour-shared-btn" onClick={() => setCurrentView('shared')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Paylaşılanlar">
                         <i className="fa-solid fa-share-nodes fa-lg"></i>
                     </button>
 
-                    <button onClick={() => setCurrentView('savedList')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Arşiv">
+                    <button id="tour-archive-btn" onClick={() => setCurrentView('savedList')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Arşiv">
                         <i className="fa-solid fa-box-archive fa-lg"></i>
                     </button>
-                    <button onClick={() => setOpenModal('history')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Geçmiş">
+                    <button id="tour-history-btn" onClick={() => setOpenModal('history')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Geçmiş">
                         <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
                     </button>
                     

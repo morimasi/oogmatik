@@ -93,7 +93,7 @@
     .worksheet-page {
       position: relative;
       width: 210mm !important;
-      min-height: 296mm !important; /* Bir sayfayı doldur */
+      height: 296mm !important; /* Bir sayfayı tam doldur, hafif boşluk bırak */
       margin: 0 !important;
       /* Padding inline stilden gelir (kullanıcı ayarı), burada ezmiyoruz */
       page-break-after: always !important; /* Her sayfadan sonra yeni kağıt */
@@ -114,21 +114,8 @@
       overflow: hidden !important;
     }
 
-    /* Filigran */
-    .worksheet-page::after {
-      content: 'Bursa Disleksi Ai';
-      position: absolute;
-      bottom: 5mm;
-      right: 10mm;
-      font-size: 9pt;
-      color: #ddd !important;
-      z-index: 999;
-      pointer-events: none;
-      visibility: visible;
-    }
-    
     /* Gizlenmesi Gereken Diğer Elemanlar */
-    .no-print, header, aside, .tour-overlay, button {
+    .no-print, header, aside, .tour-overlay, button, .tour-highlight {
       display: none !important;
     }
   }

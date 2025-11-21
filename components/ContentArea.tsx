@@ -6,6 +6,7 @@ import Toolbar from './Toolbar';
 import { StyleSettings, View } from '../App';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { SharedWorksheetsView } from './SharedWorksheetsView';
+import { useAuth } from '../context/AuthContext';
 
 interface ContentAreaProps {
   currentView: View;
@@ -38,7 +39,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onDeleteSaved,
   onFeedback
 }) => {
-    
+    const { user } = useAuth();
+
     const handleSave = (name: string) => {
         if (activityType && worksheetData) {
             onSave(name, activityType, worksheetData);
@@ -46,6 +48,30 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             alert("Kaydedilecek bir çalışma sayfası bulunmuyor.");
         }
     }
+
+    const handleShare = () => {
+        if (!user) {
+            alert("Etkinlik paylaşmak için lütfen önce giriş yapın.");
+            return;
+        }
+        if (!activityType || !worksheetData) return;
+
+        const name = prompt('Etkinliği paylaşmadan önce kaydetmelisiniz. Etkinlik adı:', 'Paylaşılacak Etkinlik');
+        if (name) {
+            onSave(name, activityType, worksheetData);
+            // In a real app we would redirect or open the modal immediately.
+            // Since the modal state is in App.tsx, we give a helpful message.
+            alert("Etkinlik başarıyla kaydedildi!\n\nŞimdi 'Arşiv' menüsüne giderek kaydettiğiniz etkinliği seçip 'Paylaş' butonuna tıklayabilirsiniz.");
+        }
+    };
+
+    const handleDownloadPDF = () => {
+        // Using browser's native print-to-pdf capability which renders best results
+        const originalTitle = document.title;
+        document.title = `BursaDisleksi_Etkinlik_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}`;
+        window.print();
+        document.title = originalTitle;
+    };
 
   return (
     <main id="tour-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative">
@@ -58,6 +84,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         onSettingsChange={onStyleChange} 
                         onSave={handleSave} 
                         onFeedback={onFeedback}
+                        onShare={handleShare}
+                        onDownloadPDF={handleDownloadPDF}
                     />
                     {/* Bilgi mesajı: Eğer hata mesajı "Bilgi:" ile başlıyorsa, bu bir fallback durumudur */}
                     {error && error.startsWith("Bilgi:") && (

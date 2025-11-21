@@ -25,7 +25,6 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         if (isOpen) {
             setCurrentStepIndex(0);
             setIsReady(true);
-            // Prevent body scrolling when tour is open
             document.body.style.overflow = 'hidden';
         } else {
             setIsReady(false);
@@ -36,31 +35,55 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         };
     }, [isOpen]);
 
-    // Calculate position of the target element
+    // Calculate position of the target element OR Skip if missing
     useLayoutEffect(() => {
         if (!isOpen || !isReady) return;
 
+        let skipTimeout: ReturnType<typeof setTimeout>;
+
         const updateRect = () => {
             const step = steps[currentStepIndex];
+            if (!step) return;
+
             const element = document.getElementById(step.targetId);
+            
             if (element) {
-                // Scroll element into view if needed with padding
+                // Scroll element into view if needed
                 element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 
                 // Wait slightly for scroll to finish then measure
                 setTimeout(() => {
                     const rect = element.getBoundingClientRect();
-                    setTargetRect(rect);
+                    // Check if element is actually visible in viewport dimensions (not 0x0)
+                    if (rect.width === 0 && rect.height === 0) {
+                         // Element exists but invisible, skip
+                         handleNextAuto();
+                    } else {
+                        setTargetRect(rect);
+                    }
                 }, 350);
             } else {
-                // Element not found, warn but don't crash
-                console.warn(`Tour target #${step.targetId} not found`);
+                // Element not found (e.g. user not logged in, or toolbar not generated yet)
+                // Automatically skip to next step
+                console.warn(`Tour target #${step.targetId} not found, skipping step.`);
+                handleNextAuto();
+            }
+        };
+
+        const handleNextAuto = () => {
+            if (currentStepIndex < steps.length - 1) {
+                skipTimeout = setTimeout(() => setCurrentStepIndex(prev => prev + 1), 100);
+            } else {
+                onClose();
             }
         };
 
         updateRect();
         window.addEventListener('resize', updateRect);
-        return () => window.removeEventListener('resize', updateRect);
+        return () => {
+            window.removeEventListener('resize', updateRect);
+            clearTimeout(skipTimeout);
+        };
     }, [isOpen, currentStepIndex, steps, isReady]);
 
     if (!isOpen || !targetRect) return null;
@@ -115,9 +138,6 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
     };
 
     const tooltipStyle = getTooltipStyle();
-
-    // SVG Path for the "cutout" spotlight effect
-    // This creates a path that covers the entire screen but excludes the target rect
     const padding = 8; // Padding around the element
     
     return createPortal(
@@ -140,10 +160,6 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                         </mask>
                     </defs>
                     
-                    {/* Dark overlay with blur. 
-                        backdrop-filter blurs everything BEHIND this rect.
-                        The mask cuts a hole in this rect, revealing the unblurred content behind it.
-                    */}
                     <rect 
                         x="0" y="0" width="100%" height="100%" 
                         fill="rgba(0,0,0,0.75)" 
@@ -170,7 +186,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             <div 
                 className="absolute bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6 w-full max-w-xs md:max-w-sm border border-zinc-200 dark:border-zinc-700 flex flex-col gap-4 transition-all duration-500 ease-out z-[10000]"
                 style={{ top: tooltipStyle.top, left: tooltipStyle.left }}
-                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside tooltip
+                onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-start">
                     <h3 className="font-bold text-xl text-indigo-600 dark:text-indigo-400">{currentStep.title}</h3>
@@ -200,7 +216,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                             onClick={handleNext}
                             className="px-6 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-lg hover:shadow-indigo-500/30 transition-all transform active:scale-95 flex items-center gap-2"
                         >
-                            {isLastStep ? 'Keşfetmeye Başla' : 'İleri'} 
+                            {isLastStep ? 'Bitir' : 'İleri'} 
                             {!isLastStep && <i className="fa-solid fa-arrow-right text-xs"></i>}
                             {isLastStep && <i className="fa-solid fa-check text-xs"></i>}
                         </button>

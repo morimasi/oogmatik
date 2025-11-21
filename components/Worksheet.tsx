@@ -213,8 +213,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     }}>
                         {renderContent(singleData, index)}
                     </div>
-                    <div className="absolute bottom-2 right-4 text-xs text-zinc-400 print:block hidden">Bursa Disleksi Ai</div>
-                    <div className="absolute bottom-2 left-4 text-xs text-zinc-400 print:block hidden">{index + 1} / {data.length}</div>
+                    <div className="absolute bottom-2 left-0 right-0 flex justify-between px-8 text-xs text-zinc-400 print:flex hidden pointer-events-none">
+                        <span>Sayfa {index + 1} / {data.length}</span>
+                        <span>Bursa Disleksi Ai</span>
+                    </div>
                 </div>
             ))}
             </div>
