@@ -119,7 +119,6 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
     const results: FutoshikiData[] = [];
 
     for (let i = 0; i < worksheetCount; i++) {
-        // Use itemCount to generate multiple puzzles per page
         const puzzles = Array.from({length: itemCount || 2}).map(() => {
             const latinSquare = generateLatinSquare(size);
             const constraints: { row1: number; col1: number; row2: number; col2: number; symbol: '>' | '<' }[] = [];
@@ -163,7 +162,6 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
     const results: NumberPyramidData[] = [];
     
     for (let i = 0; i < worksheetCount; i++) {
-        // Use itemCount to generate multiple pyramids per page
         const pyramids = Array.from({ length: itemCount || 2 }).map(() => {
             const rowsCount = settings.pyramidRows || 3;
 
@@ -260,10 +258,10 @@ export const generateOfflineRomanNumeralStarHunt = async (options: GeneratorOpti
 
     const results: RomanNumeralStarHuntData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        // For this game, we create multiple pages if needed, but usually one grid per page is standard.
-        // If itemCount is > 1, we create multiple grids in the same data object if UI supports it,
-        // or just one larger grid. The existing UI expects 'grid' not 'grids'.
-        // So we treat this one as single per page for better UX, ignoring high itemCount.
+        // itemCount usually affects inner items, but here it might affect number of grids generated? 
+        // But RomanNumeralStarHuntData schema holds one grid per worksheet entry usually.
+        // We will generate 'itemCount' number of puzzles if possible, but the type definition only holds ONE grid.
+        // So we will generate 'worksheetCount' entries, each with 1 grid.
         
         const latin = generateLatinSquare(size);
         const solution = latin.map(row => row.map(val => val === 1 ? 1 : 0));

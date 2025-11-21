@@ -141,8 +141,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.MULTIPLICATION_PYRAMID:
             case ActivityType.LOGIC_GRID_PUZZLE:
             case ActivityType.ROMAN_NUMERAL_STAR_HUNT:
-                // Increased limits for math/logic games as requested
-                return [ itemCountField(2, 1, 20, 'Bulmaca Sayısı') ];
+                return [ itemCountField(2, 1, 20, 'Adet') ];
 
             // Reading
             case ActivityType.STORY_COMPREHENSION:
@@ -229,7 +228,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 ];
             case ActivityType.PUNCTUATION_COLORING:
             case ActivityType.SYNONYM_ANTONYM_COLORING:
-                return [ ...commonFields, itemCountField(4, 2, 20, 'Soru Sayısı') ];
+                return [ ...commonFields, itemCountField(4, 2, 10, 'Cümle/Öğe') ];
             case ActivityType.DOT_PAINTING:
             case ActivityType.SYLLABLE_TRAIN:
                 return [ ...commonFields ];
@@ -238,9 +237,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [{ key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' }];
             case ActivityType.RAPID_NAMING:
                 return [{ key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] }];
-
-            case ActivityType.PROVERB_SAYING_SORT:
-                return [ ...commonFields, itemCountField(8, 4, 20) ];
 
             default:
                 return [ ...commonFields, itemCountField(10, 5, 20) ];

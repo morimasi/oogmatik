@@ -85,28 +85,28 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     Yaş: ${profile.age}
     Sınıf: ${profile.grade}
     
-    GÖZLEMLER VE DETAYLI TEST VERİLERİ:
-    ${profile.observations.length > 0 ? profile.observations.join('\n') : "Belirtilmedi."}
+    GÖZLEMLER ve DETAYLAR:
+    ${profile.observations.length > 0 ? profile.observations.join(', ') : "Belirtilmedi."}
 
     ${testResultsDesc}
 
     ANALİZ KURALLARI:
-    1. Okuma Testi Analizi (Çok Önemli):
-       - "Lexical Reading Score" (Kelime Tanıma): Düşükse, ortografik işlemleme veya "yüzeyel disleksi" riski olabilir.
-       - "Sentence Comprehension Score" (Cümle Anlama): Düşükse, dil anlama veya "semantik işlemleme" sorunu olabilir.
-       - KIYASLAMA:
-         * Kelime Tanıma İYİ ama Cümle Anlama KÖTÜ -> "Hiperleksi" şüphesi veya Dikkat Eksikliği.
-         * Kelime Tanıma KÖTÜ ama Cümle Anlama İYİ -> "Telafi Edilmiş Disleksi" (Bağlamı kullanarak okuma).
-         * İkisi de KÖTÜ -> "Fonolojik Disleksi" veya "Karma Tip Okuma Güçlüğü".
-    2. Matematik Testi: Düşük skor -> Diskalkuli riski.
-    3. Dikkat Testi (Harf Avı): Düşük skor, yüksek hata -> Dikkat eksikliği.
-    4. Görsel Test (Matris): Düşük skor -> Görsel algı / Soyut düşünme zayıflığı.
-    5. Bilişsel Test (Sıralı Bellek): Düşük skor -> İşleyen Bellek zayıflığı (Disleksi ve DEHB için ortak risk).
+    1. OKUMA TESTİ ANALİZİ (Çok Önemli):
+       - Gözlemlerdeki "Kelime Tanıma" (Lexical) ve "Cümle Anlama" (Comprehension) skorlarını karşılaştır.
+       - HİPERLEKSİ RİSKİ: Eğer Kelime Tanıma yüksek ama Cümle Anlama düşükse -> "Hiperleksi" riski veya "Anlama güçlüğü" olarak işaretle.
+       - DİSLEKSİ RİSKİ: Eğer her ikisi de düşükse -> "Disleksi" (Fonolojik/Yüzeyel) riski.
+       - TELAFİ EDİLMİŞ DİSLEKSİ: Eğer Kelime Tanıma düşük ama Cümle Anlama iyiyse -> Bağlamı kullanarak okuma stratejisi geliştirmiş olabilir.
+    2. MATEMATİK TESTİ: Düşük skor/yavaş hız -> Diskalkuli riski.
+    3. DİKKAT TESTİ (Harf Avı - Grid): Düşük skor, yüksek hata -> Dikkat eksikliği.
+    4. GÖRSEL TEST (Matris Mantığı): Düşük skor -> Görsel algı / Soyut düşünme zayıflığı.
+    5. BİLİŞSEL TEST (Sıralı Bellek): Düşük skor -> İşleyen Bellek (Working Memory) zayıflığı.
+       * İşleyen bellek düşüklüğü hem DEHB hem de Disleksi için kritik bir belirleyicidir.
     
     GÖREVLER:
-    1. "overallSummary": Pedagojik ve yapıcı bir özet yaz. Özellikle kelime okuma ve cümle anlama arasındaki ilişkiye değinerek spesifik bir yorum yap.
-    2. "scores": 5 alanda (reading, writing, math, attention, cognitive) 0-100 arası "RİSK SKORU" ver (Yüksek skor = Yüksek Risk/İhtiyaç).
-    3. "chartData": Radar grafiği verisi. (Labels: "Okuma", "Matematik", "Dikkat", "Görsel", "Bellek").
+    1. "overallSummary": Pedagojik ve yapıcı bir özet yaz. Özellikle okuma analizindeki (varsa) kelime vs anlama farkına değin.
+    2. "scores": 5 alanda (reading, writing, math, attention, cognitive) 0-100 arası "İHTİYAÇ/RİSK" skoru ver (Yüksek skor = Yüksek Risk).
+    3. "chartData": Radar grafiği için veri. Label (Alan adı) ve Value (0-100 Puan). 
+       (Labels: "Okuma", "Matematik", "Dikkat", "Görsel", "Bellek").
     4. "roadmap": 3 etkinlik öner. ActivityID şunlardan biri: ${Object.values(ActivityType).join(', ')}.
     `;
 
@@ -165,7 +165,7 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
         // Use 'gemini-3-pro-preview' for maximum reasoning capability in assessment reports.
         return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview') as unknown as AssessmentReport;
     } catch (error) {
-        console.warn("AI Assessment generation failed. Falling back to heuristic mode.", error);
+        console.warn("AI Assessment generation failed (likely 429 or 500). Falling back to heuristic mode.", error);
         return generateOfflineAssessmentReport(profile);
     }
 };

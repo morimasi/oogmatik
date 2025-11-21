@@ -62,22 +62,20 @@ const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, classNa
 
 // --- GENERATORS ---
 const createGradeAppropriateMatrix = (grade: number, index: number) => {
-    // Grade 1-2: Shapes, Counting (Basic)
-    // Grade 3-4: Rotation, Direction (Intermediate)
-    // Grade 5-6: Grid Logic, Abstraction (Advanced)
+    // Matrix Logic Adaptation based on Grade
+    // 1-2: Shapes, Counting (Basic)
+    // 3-4: Rotation, Direction (Intermediate)
+    // 5-6: Grid Logic, Abstraction (Advanced)
     
     const difficultyLevel = grade <= 2 ? 0 : (grade <= 4 ? 1 : 2);
-    // Mix types slightly for variety
-    let type = 'shape';
-    if (difficultyLevel === 1) type = index % 2 === 0 ? 'arrow' : 'shape';
-    if (difficultyLevel === 2) type = index % 2 === 0 ? 'grid' : 'arrow';
+    const type = index < 2 ? (difficultyLevel === 0 ? 'shape' : 'arrow') : (index < 4 ? (difficultyLevel === 1 ? 'arrow' : 'grid') : 'grid');
     
     if (type === 'shape') {
         const shapes = ['circle', 'square', 'triangle'];
         const base = shapes[getRandomInt(0, 2)];
         const other = shapes.find(s => s !== base) || 'triangle';
         const fill = Math.random() > 0.5;
-        // Logic: A, A, B -> ? (B)
+        // Sequence: A, A, B -> ? (B)
         return {
             grid: [
                 { type: 'shape', shape: base, count: 1, fill },
@@ -123,8 +121,7 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
     if (category === 'reading') {
         const items = [];
         
-        // 1. Lexical Decision (Kelime Tanıma)
-        // Measures: Decoding speed and orthographic lexicon
+        // 1. Lexical Decision (Kelime Tanıma) - Decoding
         let realWords: string[] = [], fakeWords: string[] = [];
         if (grade <= 2) {
             realWords = ['Elma', 'Kapı', 'Masa', 'Oyun', 'Baba', 'Anne', 'Okul', 'Kedi'];
@@ -142,8 +139,7 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             items.push({ subtype: 'lexical', q: isReal ? realWords[i] : fakeWords[i], isReal, id: `lex-${i}` });
         }
 
-        // 2. Sentence Comprehension (Cümle Anlama)
-        // Measures: Syntactic processing and semantic understanding
+        // 2. Sentence Comprehension (Cümle Anlama) - Meaning
         let sentences: {q: string, opts: string[], a: string}[] = [];
         if (grade <= 2) {
             sentences = [
@@ -178,28 +174,23 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             let n1=0, n2=0, op='', ans=0;
             
             if (grade === 1) {
-                // Simple Addition/Subtraction (0-20)
                 n1 = getRandomInt(1, 10); n2 = getRandomInt(1, 10); op = Math.random() > 0.5 ? '+' : '-';
                 if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
                 ans = op === '+' ? n1 + n2 : n1 - n2;
             } else if (grade === 2) {
-                // Up to 100
                 n1 = getRandomInt(10, 50); n2 = getRandomInt(1, 20); op = Math.random() > 0.5 ? '+' : '-';
                 if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
                 ans = op === '+' ? n1 + n2 : n1 - n2;
             } else if (grade === 3) {
-                // Intro to Multiplication
                 op = Math.random() > 0.3 ? (Math.random() > 0.5 ? '+' : '-') : 'x';
                 if (op === 'x') { n1 = getRandomInt(1, 9); n2 = getRandomInt(1, 9); ans = n1 * n2; }
                 else { n1 = getRandomInt(20, 100); n2 = getRandomInt(10, 50); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
             } else if (grade === 4) {
-                // Mixed Operations
                 op = ['+', '-', 'x', '/'][getRandomInt(0,3)];
                 if (op === 'x') { n1 = getRandomInt(5, 12); n2 = getRandomInt(2, 9); ans = n1 * n2; }
                 else if (op === '/') { n2 = getRandomInt(2, 9); ans = getRandomInt(2, 12); n1 = n2 * ans; }
                 else { n1 = getRandomInt(50, 200); n2 = getRandomInt(20, 100); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
             } else { // 5-6
-                // Advanced
                 op = ['+', '-', 'x', '/'][getRandomInt(0,3)];
                 if (op === 'x') { n1 = getRandomInt(10, 25); n2 = getRandomInt(2, 9); ans = n1 * n2; }
                 else if (op === '/') { n2 = getRandomInt(3, 12); ans = getRandomInt(5, 20); n1 = n2 * ans; }
@@ -209,7 +200,7 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             const dist1 = ans + getRandomInt(1, 5);
             const dist2 = Math.max(0, ans - getRandomInt(1, 5));
             const opts = shuffle([ans, dist1, dist2]);
-            items.push({ q: `${n1} ${op.replace('x', '×').replace('/', '÷')} ${n2} = ?`, opts, a: ans, id: i });
+            items.push({ q: `${n1} ${op} ${n2} = ?`, opts, a: ans, id: i });
         }
         return items;
     }
@@ -251,7 +242,6 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
 
     if (category === 'cognitive') {
         const items = [];
-        // Working Memory Sequence
         const len = grade <= 2 ? 3 : (grade <= 4 ? 4 : 5);
         const icons = ['apple-whole', 'car', 'dog', 'cat', 'sun', 'moon', 'tree', 'fish', 'star', 'heart']; 
         
@@ -408,7 +398,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const [testState, setTestState] = useState({
         score: 0, total: 0, startTime: 0, items: [] as any[], currentIndex: 0,
         attentionState: [] as { char: string; isSelected: boolean; isCorrectTarget: boolean }[],
-        answers: [] as {id: any, correct: boolean, subtype?: string}[]
+        answers: [] as boolean[] // Track individual correct/wrong answers
     });
 
     // --- LOGIC ---
@@ -447,25 +437,29 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         // 1. Show Feedback
         setFeedbackState(isCorrect ? 'correct' : 'wrong');
         
-        // 2. Wait 1s then move
+        // 2. Update state and move after delay
         setTimeout(() => {
-            const nextScore = isCorrect ? testState.score + 1 : testState.score;
-            const currentItem = testState.items[testState.currentIndex];
-            const newAnswers = [...testState.answers, { id: currentItem.id, correct: isCorrect, subtype: currentItem.subtype }];
-
-            if (testState.items && testState.currentIndex < testState.items.length - 1) {
-                setTestState(prev => ({ ...prev, score: nextScore, currentIndex: prev.currentIndex + 1, answers: newAnswers }));
+            setTestState(prev => {
+                const nextScore = isCorrect ? prev.score + 1 : prev.score;
+                const nextAnswers = [...prev.answers, isCorrect];
                 
-                // If next item is cognitive, trigger memory phase
-                const nextItem = testState.items[testState.currentIndex + 1];
-                if (category === 'cognitive' && nextItem?.type === 'sequence') {
-                    setIsMemorizing(true);
+                if (prev.items && prev.currentIndex < prev.items.length - 1) {
+                    // Move to next item
+                    const nextIndex = prev.currentIndex + 1;
+                    
+                    // If next item is cognitive, trigger memory phase
+                    const nextItem = prev.items[nextIndex];
+                    if (category === 'cognitive' && nextItem?.type === 'sequence') {
+                        setIsMemorizing(true);
+                    }
+                    setFeedbackState('none');
+                    return { ...prev, score: nextScore, currentIndex: nextIndex, answers: nextAnswers };
+                } else {
+                    // Finish Test - Need to pass final values since state update is async/batched
+                    finishTestWithValues(nextScore, nextAnswers, prev.items, prev.total, prev.startTime, category, testName);
+                    return prev; // Return current state, effect will handle transition
                 }
-                
-                setFeedbackState('none');
-            } else {
-                finishTest(nextScore, category, testName, newAnswers);
-            }
+            });
         }, 1000); 
     };
 
@@ -495,29 +489,40 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         saveResult('attention', 'Dikkat Testi (d-b Ayrımı)', score, totalTargets, accuracy, duration);
     };
 
-    const finishTest = (finalScore: number, category: TestCategory, testName: string, answers: any[]) => {
-        const duration = Math.round((Date.now() - testState.startTime) / 1000);
-        const accuracy = testState.total > 0 ? (finalScore / testState.total) * 100 : 0;
+    // Helper to finish test with latest values
+    const finishTestWithValues = (finalScore: number, finalAnswers: boolean[], items: any[], total: number, startTime: number, category: TestCategory, testName: string) => {
+        const duration = Math.round((Date.now() - startTime) / 1000);
+        const accuracy = total > 0 ? (finalScore / total) * 100 : 0;
         
-        // Detailed tracking for Reading
+        // Special sub-score calculation for Reading
         if (category === 'reading') {
-            const lexicalCorrect = answers.filter(a => a.subtype === 'lexical' && a.correct).length;
-            const lexicalTotal = answers.filter(a => a.subtype === 'lexical').length;
-            const sentenceCorrect = answers.filter(a => a.subtype === 'sentence' && a.correct).length;
-            const sentenceTotal = answers.filter(a => a.subtype === 'sentence').length;
-            
-            // Inject details into observations specifically for the AI prompt
-            setProfile(prev => ({
-                ...prev,
-                observations: [
-                    ...prev.observations,
-                    `Lexical Reading Score: ${lexicalCorrect}/${lexicalTotal}`,
-                    `Sentence Comprehension Score: ${sentenceCorrect}/${sentenceTotal}`
-                ]
-            }));
+             let lexCorrect = 0, lexTotal = 0;
+             let sentCorrect = 0, sentTotal = 0;
+             
+             items.forEach((item, idx) => {
+                 if (item.subtype === 'lexical') {
+                     lexTotal++;
+                     if (finalAnswers[idx]) lexCorrect++;
+                 } else if (item.subtype === 'sentence') {
+                     sentTotal++;
+                     if (finalAnswers[idx]) sentCorrect++;
+                 }
+             });
+             
+             const lexScore = lexTotal > 0 ? Math.round((lexCorrect/lexTotal)*100) : 0;
+             const sentScore = sentTotal > 0 ? Math.round((sentCorrect/sentTotal)*100) : 0;
+             
+             // Update profile observations directly here
+             setProfile(prev => ({
+                 ...prev,
+                 observations: [
+                     ...prev.observations, 
+                     `Okuma Analizi: Kelime Tanıma (Decoding) Başarısı %${lexScore}, Cümle Anlama (Comprehension) Başarısı %${sentScore}.`
+                 ]
+             }));
         }
 
-        saveResult(category, testName, finalScore, testState.total, accuracy, duration);
+        saveResult(category, testName, finalScore, total, accuracy, duration);
     };
 
     const saveResult = (id: TestCategory, name: string, score: number, total: number, accuracy: number, duration: number) => {
@@ -544,7 +549,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const triggerTransition = (msg: string, nextStepIndex: number) => {
         setIsTransitioning(true);
         setTransitionMessage(msg);
-        setTestState(prev => ({ ...prev, items: [], attentionState: [], currentIndex: 0, answers: [] }));
+        setTestState(prev => ({ ...prev, items: [], attentionState: [], answers: [], currentIndex: 0 }));
 
         setTimeout(() => {
             setCurrentStep(nextStepIndex);

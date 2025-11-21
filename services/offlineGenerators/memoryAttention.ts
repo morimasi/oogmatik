@@ -6,6 +6,7 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
     const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
     const results: WordMemoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
+        // Ensure itemCount defaults to a reasonable number if not provided
         const count = itemCount || 12;
         const memorizeCount = Math.floor(count * ((memorizeRatio || 50) / 100));
         
@@ -69,9 +70,10 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
 export const generateOfflineNumberSearch = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
     const { worksheetCount, difficulty, itemCount } = options;
     const results: NumberSearchData[] = [];
+    const count = itemCount || 50;
+
     for (let i = 0; i < worksheetCount; i++) {
         let range = { start: 1, end: 20 };
-        const count = itemCount || 50;
         
         if (difficulty === 'Orta') range = { start: 1, end: count };
         if (difficulty === 'Zor') range = { start: 100, end: 100 + count };
@@ -79,7 +81,6 @@ export const generateOfflineNumberSearch = async (options: GeneratorOptions): Pr
 
         const numbersToFind = Array.from({ length: range.end - range.start + 1 }, (_, k) => k + range.start);
         
-        // Create enough distractors based on grid size approx
         const distractors = Array.from({ length: 150 - numbersToFind.length }, () => {
              const base = getRandomInt(range.start, range.end);
              if (difficulty === 'Zor' || difficulty === 'Uzman') {
@@ -221,7 +222,6 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
         for (let k = 0; k < pairCount; k++) {
             const r = getRandomInt(0, size - 1);
             const c = getRandomInt(0, size - 2);
-            // Ensure we don't overwrite
             grid[r][c] = pair[0];
             grid[r][c + 1] = pair[1];
         }
@@ -250,9 +250,7 @@ export const generateOfflineTargetSearch = async (options: GeneratorOptions): Pr
         const targetCount = itemCount || getRandomInt(15, 25);
         
         for (let k = 0; k < targetCount; k++) {
-            const r = getRandomInt(0, size - 1);
-            const c = getRandomInt(0, size - 1);
-            grid[r][c] = target;
+            grid[getRandomInt(0, size - 1)][getRandomInt(0, size - 1)] = target;
         }
         results.push({ 
             title: 'Dikkatli Göz', 
@@ -328,7 +326,7 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     const adjectives = ['Mutlu', 'Üzgün', 'Hızlı', 'Yavaş', 'Büyük', 'Küçük', 'Renkli', 'Komik', 'Kızgın', 'Şaşkın'];
     const results: CharacterMemoryData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const count = itemCount || 12;
+        const count = itemCount || 8;
         const memorizeCount = Math.floor(count * ((memorizeRatio || 50) / 100));
         const allEmojis = getRandomItems(Object.keys(EMOJI_MAP), count);
         const allItems = allEmojis.map(emoji => ({
@@ -375,14 +373,15 @@ export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptio
     const {itemCount, worksheetCount, difficulty} = options;
     const results: ChaoticNumberSearchData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const range = {start: 1, end: itemCount || 50};
+        const count = itemCount || 50;
+        const range = {start: 1, end: count};
         const targetNumbers = Array.from({length: range.end}, (_,k) => k+1);
         
-        let distractorCount = 50;
-        if(difficulty === 'Zor') distractorCount = 75;
-        if(difficulty === 'Uzman') distractorCount = 100;
+        let distractorCount = count;
+        if(difficulty === 'Zor') distractorCount = Math.floor(count * 1.5);
+        if(difficulty === 'Uzman') distractorCount = count * 2;
         
-        const distractorNumbers = Array.from({length: distractorCount}, () => getRandomInt(range.end+1, range.end+50));
+        const distractorNumbers = Array.from({length: distractorCount}, () => getRandomInt(range.end+1, range.end + count));
         
         const numbers = shuffle([...targetNumbers, ...distractorNumbers]).map(value => ({
             value,

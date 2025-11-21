@@ -235,11 +235,12 @@ export const generateOfflineProverbFillInTheBlank = async (options: GeneratorOpt
 export const generateOfflineProverbSayingSort = async (options: GeneratorOptions): Promise<ProverbSayingSortData[]> => {
     const { itemCount, worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const countPerType = Math.ceil((itemCount || 8) / 2);
+        const count = itemCount || 8;
+        const countPerType = Math.ceil(count / 2);
         const items = shuffle([
             ...getRandomItems(PROVERBS, countPerType).map(t => ({text: t, type: 'atasözü' as const})),
             ...getRandomItems(SAYINGS, countPerType).map(t => ({text: t, type: 'özdeyiş' as const}))
-        ]);
+        ]).slice(0, count);
         return {
             title: 'Atasözü mü Özdeyiş mi?',
             prompt: 'Söyleyeni belli olanlara Özdeyiş, anonim olanlara Atasözü denir. Sınıflandır.',

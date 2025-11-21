@@ -525,15 +525,25 @@ export const generateOfflinePunctuationColoring = async (options: GeneratorOptio
         { text: 'Eyvah, geç kaldım', correctMark: '!' }, { text: 'Kedi, köpek ve kuş besliyorum', correctMark: '.' }
     ];
     return Array.from({ length: worksheetCount }, () => {
-        const sentences = getRandomItems(punctuationSentences, itemCount || 4).map((s, i) => ({
+        // Use itemCount to determine number of sentences
+        const count = itemCount || 4;
+        // Generate more sentences if needed by duplicating or expanding pool
+        const sentences = getRandomItems(punctuationSentences, Math.min(count, punctuationSentences.length)).map((s, i) => ({
             ...s,
             color: COLORS[i % COLORS.length].css
         }));
+        
+        // If user wants more items than we have unique ones, fill with random duplicates
+        while (sentences.length < count) {
+             const s = getRandomItems(punctuationSentences, 1)[0];
+             sentences.push({ ...s, color: COLORS[sentences.length % COLORS.length].css });
+        }
+
         return {
             title: 'Noktalama Boyama',
             instruction: "Cümlenin sonuna gelecek işarete göre kutuyu boya.",
             pedagogicalNote: "Dilbilgisi kurallarını görselleştirme.",
-            sentences
+            sentences: sentences.slice(0, count)
         };
     });
 }
