@@ -1,15 +1,12 @@
+
 import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData, StoryQuestion, ProverbSearchData } from '../../types';
 import { shuffle, getRandomItems, getWordsForDifficulty, getRandomInt } from './helpers';
 import { PROVERBS, STORY_TEMPLATES, SAYINGS } from '../../data/sentences';
 import { generateOfflineWordSearch } from './wordGames';
-import { generateWithSchema } from '../../services/geminiClient';
-import { Type } from "@google/genai";
 
 // --- OFFLINE DATA POOLS ---
 
-// Expanded story sequences for StorySequencing to ensure high variety and professional content.
 const logicalStories = [
-    // Story 1: Plant growing
     {
         theme: "Bir Tohumun Hikayesi",
         panels: [
@@ -19,7 +16,6 @@ const logicalStories = [
             { id: 'D', description: 'Filiz büyüdü, sarmaşıkları uzadı ve fasulyeler verdi.' }
         ]
     },
-    // Story 2: Cat trouble
     {
         theme: "Yaramaz Kedi Mırnav",
         panels: [
@@ -29,7 +25,6 @@ const logicalStories = [
             { id: 'D', description: 'Sahibinin ayak seslerini duyunca masanın altına saklandı.' }
         ]
     },
-    // Story 3: Baking a cake
     {
         theme: "Lezzetli Bir Kek",
         panels: [
@@ -39,7 +34,6 @@ const logicalStories = [
             { id: 'D', description: 'Mis gibi kokan keki fırından çıkarıp afiyetle yediler.' }
         ]
     },
-    // Story 4: Building a snowman
     {
         theme: "Kış Eğlencesi",
         panels: [
@@ -48,30 +42,9 @@ const logicalStories = [
             { id: 'C', description: 'İki büyük kar topunu üst üste koyup kardan adamın gövdesini yaptılar.' },
             { id: 'D', description: 'Kardan adama havuçtan burun, kömürden göz ve eski bir atkı taktılar.' }
         ]
-    },
-    // Story 5: Caterpillar to butterfly
-    {
-        theme: "Tırtılın Dönüşümü",
-        panels: [
-            { id: 'A', description: 'Minik bir tırtıl, yeşil bir yaprağın üzerindeki yumurtadan çıktı.' },
-            { id: 'B', description: 'Tırtıl, günlerce oburca yaprak yiyerek büyüdü ve şişmanladı.' },
-            { id: 'C', description: 'Kendine güvenli bir koza ördü ve içinde derin bir uykuya daldı.' },
-            { id: 'D', description: 'Bir sabah, kozadan rengarenk kanatları olan güzel bir kelebek çıktı.' }
-        ]
-    },
-    // Story 6: Getting ready for school
-    {
-        theme: "Okul Sabahı",
-        panels: [
-            { id: 'A', description: 'Alarm çaldı ve Zeynep uykulu gözlerle yatağından kalktı.' },
-            { id: 'B', description: 'Elini yüzünü yıkadı, kahvaltısını yaptı ve okul kıyafetlerini giydi.' },
-            { id: 'C', description: 'Ders programına göre kitaplarını ve defterlerini çantasına koydu.' },
-            { id: 'D', description: 'Annesine "hoşça kal" deyip neşeyle okul servisine bindi.' }
-        ]
     }
 ];
 
-// Dynamic prompts for ProverbFillInTheBlank
 const proverbUsagePrompts = [
     'Seçtiğin bir atasözünü günlük hayattan bir olayla ilişkilendirerek anlat.',
     'Bu atasözlerinden bir tanesiyle ilgili kısa bir anını yaz.',
@@ -95,7 +68,6 @@ const generateLogicBasedStory = (topic?: string, characterName?: string) => {
 
     uniqueKeys.forEach(key => {
         const pluralKey = `${key}s`;
-        // FIX: Explicitly cast `dataArray` to `string[]` to ensure correct type inference for `value` and prevent downstream `unknown` type errors.
         const dataArray = ((template as any)[pluralKey] || []) as string[];
         let value: string | undefined = '';
         if (key === 'character' && characterName) {
@@ -124,7 +96,6 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
         const { story, usedValues, template } = generateLogicBasedStory(topic, characterName);
         const questions: StoryQuestion[] = [];
 
-        // 1. Literal Question (Hatırlama)
         const literalKey = getRandomItems(Object.keys(usedValues).filter(k => !['adjective', 'weather'].includes(k)), 1)[0] as string;
         if (literalKey && usedValues[literalKey]) {
             const answer = usedValues[literalKey];
@@ -134,23 +105,20 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
                 type: 'multiple-choice',
                 question: `Hikayedeki ${literalKey} neydi/kimdi?`,
                 options: shuffle([answer, ...distractors]),
-                answerIndex: 0 // Will be fixed after shuffle
+                answerIndex: 0 
             });
         }
 
-        // 2. Inferential Question (Çıkarım)
         questions.push({
             type: 'open-ended',
             question: `Sence ${usedValues['character'] || 'ana karakter'} hikayenin sonunda ne hissetmiştir? Neden?`
         });
 
-        // 3. Critical Question (Değerlendirme)
         questions.push({
             type: 'open-ended',
             question: `Eğer hikayenin yazarı sen olsaydın, sonunu nasıl değiştirirdin?`
         });
 
-        // Fix answer indices for multiple-choice questions after shuffling
         questions.forEach(q => {
             if (q.type === 'multiple-choice' && q.options.length > 0) {
                 const correctAnswer = q.options[q.answerIndex];
@@ -221,45 +189,25 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
 };
 
 export const generateOfflineStorySequencing = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
+    const { worksheetCount } = options;
+    const results: StorySequencingData[] = [];
     
-    const prompt = `
-    "${difficulty}" zorluk seviyesine uygun, "${topic || 'rastgele'}" konulu, 4 panelli bir "Hikaye Sıralama" etkinliği oluştur.
-    ETKİNLİK AMACI: Çocuğun olayları mantıksal bir sıraya koyma becerisini geliştirmek.
-    
-    İÇERİK KURALLARI:
-    1.  Birbirini takip eden, net bir başlangıcı, gelişmesi ve sonu olan 4 aşamalı bir hikaye oluştur. Hikaye çocuklar için anlaşılır ve ilgi çekici olsun.
-    2.  Her panel (aşama) için:
-        -   'id': 'A', 'B', 'C', 'D' harflerinden birini ata.
-        -   'description': Olayın o anki aşamasını anlatan kısa ve net bir Türkçe metin yaz.
-        -   'imagePrompt': Bu açıklamayı görselleştiren, **İngilizce**, detaylı ve "children's book illustration, simple, colorful, cute, flat vector style" tarzında bir resim oluşturma istemi (prompt) oluştur.
-    3.  JSON çıktısı vermeden önce, oluşturduğun 4 paneli MUTLAKA karıştır (shuffle). Böylece öğrencinin doğru sırayı bulması gerekir.
-    
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-    `;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING, description: "Instruction for the user, e.g., 'Order the panels to create a meaningful story.'" },
-            pedagogicalNote: { type: Type.STRING },
-            panels: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        id: { type: Type.STRING },
-                        description: { type: Type.STRING, description: "Description of the panel in Turkish." },
-                        imagePrompt: { type: Type.STRING, description: "Detailed English prompt for image generation." }
-                    },
-                    required: ["id", "description", "imagePrompt"]
-                }
-            }
-        },
-        required: ["title", "prompt", "panels", "pedagogicalNote"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<StorySequencingData[]>;
+    for (let i = 0; i < worksheetCount; i++) {
+        const selectedStory = getRandomItems(logicalStories, 1)[0];
+        const shuffledPanels = shuffle(selectedStory.panels.map(p => ({...p}))); // Clone to safely shuffle
+        
+        results.push({
+            title: `Hikaye Sıralama: ${selectedStory.theme} (Hızlı Mod)`,
+            prompt: "Karışık verilen resim ve olayları doğru oluş sırasına göre dizin.",
+            pedagogicalNote: "Olay örgüsü kurma ve mantıksal sıralama becerisi.",
+            panels: shuffledPanels.map(p => ({
+                id: p.id,
+                description: p.description,
+                imageBase64: '' // Empty for offline fast mode
+            }))
+        });
+    }
+    return results;
 };
 
 export const generateOfflineProverbFillInTheBlank = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {
@@ -327,7 +275,7 @@ export const generateOfflineProverbSearch = async (options: GeneratorOptions): P
     const { worksheetCount, gridSize, difficulty } = options;
     const results: ProverbSearchData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const proverb = getRandomItems(PROVERBS.filter(p => p.length < 30), 1)[0]; // Shorter proverbs for better grid fit
+        const proverb = getRandomItems(PROVERBS.filter(p => p.length < 30), 1)[0]; 
         const searchResult = await generateOfflineWordSearch({ ...options, words: proverb.replace(/[.,]/g, '').split(' '), itemCount: 1, worksheetCount: 1, gridSize });
         results.push({
             title: 'Atasözü Avı',

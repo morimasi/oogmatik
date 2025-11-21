@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -17,7 +18,7 @@ EĞİTİMSEL İÇERİK KURALLARI:
 1. Çıktı JSON formatında olmalı.
 2. "pedagogicalNote": Bilişsel beceri açıklaması.
 3. "instruction": Net yönerge.
-4. "imagePrompt": İlgili görseller için İngilizce detaylı açıklama.
+4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
 5. İçerik zengin ve eğitici olmalı.
 `;
 
@@ -30,13 +31,14 @@ export const generateWordSearchFromAI = async (options: GeneratorOptions): Promi
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
+      imagePrompt: { type: Type.STRING }, // Added
       grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
       words: { type: Type.ARRAY, items: { type: Type.STRING } },
       hiddenMessage: { type: Type.STRING },
       followUpQuestion: { type: Type.STRING },
       writingPrompt: { type: Type.STRING }
     },
-    required: ['title', 'instruction', 'grid', 'words', 'hiddenMessage', 'pedagogicalNote']
+    required: ['title', 'instruction', 'grid', 'words', 'hiddenMessage', 'pedagogicalNote', 'imagePrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<WordSearchData[]>;
@@ -51,6 +53,7 @@ export const generateSpiralPuzzleFromAI = async (options: GeneratorOptions): Pro
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             prompt: { type: Type.STRING },
             theme: { type: Type.STRING },
             clues: { type: Type.ARRAY, items: { type: Type.STRING } },
@@ -58,7 +61,7 @@ export const generateSpiralPuzzleFromAI = async (options: GeneratorOptions): Pro
             wordStarts: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ['id', 'row', 'col'] } },
             passwordPrompt: { type: Type.STRING }
         },
-        required: ['title', 'instruction', 'grid', 'clues', 'wordStarts', 'passwordPrompt', 'pedagogicalNote']
+        required: ['title', 'instruction', 'grid', 'clues', 'wordStarts', 'passwordPrompt', 'pedagogicalNote', 'imagePrompt']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<SpiralPuzzleData[]>;
@@ -68,7 +71,7 @@ export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions):
     const { theme, worksheetCount } = options;
     const prompt = `
     '${theme}' temalı Karışık Kelime Hikayesi.
-    **İngilizce** 'imagePrompt'.
+    **İngilizce** 'imagePrompt' ana görsel için.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -88,42 +91,42 @@ export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions):
 export const generateWordGridPuzzleFromAI = async (options: GeneratorOptions): Promise<WordGridPuzzleData[]> => {
     const { worksheetCount } = options;
     const prompt = `Kelime Ağı Bulmacası. ${PEDAGOGICAL_PROMPT}`;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, theme: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, wordList: {type: Type.ARRAY, items: {type: Type.STRING}}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, unusedWordPrompt: {type: Type.STRING} }, required: ['title', 'wordList', 'grid', 'unusedWordPrompt', 'instruction', 'pedagogicalNote'] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, theme: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, wordList: {type: Type.ARRAY, items: {type: Type.STRING}}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, unusedWordPrompt: {type: Type.STRING} }, required: ['title', 'wordList', 'grid', 'unusedWordPrompt', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<WordGridPuzzleData[]>;
 };
 
 export const generateAntonymFlowerPuzzleFromAI = async (options: GeneratorOptions): Promise<AntonymFlowerPuzzleData[]> => {
     const { worksheetCount } = options;
     const prompt = `Zıt Anlam Çiçeği. ${PEDAGOGICAL_PROMPT}`;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {centerWord: {type: Type.STRING}, antonym: {type: Type.STRING}, petalLetters: {type: Type.ARRAY, items: {type: Type.STRING}}}, required: ['centerWord', 'antonym', 'petalLetters']}}, passwordLength: {type: Type.INTEGER} }, required: ['title', 'puzzles', 'passwordLength', 'instruction', 'pedagogicalNote'] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {centerWord: {type: Type.STRING}, antonym: {type: Type.STRING}, petalLetters: {type: Type.ARRAY, items: {type: Type.STRING}}}, required: ['centerWord', 'antonym', 'petalLetters']}}, passwordLength: {type: Type.INTEGER} }, required: ['title', 'puzzles', 'passwordLength', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<AntonymFlowerPuzzleData[]>;
 };
 
 export const generateSynonymMatchingPatternFromAI = async (options: GeneratorOptions): Promise<SynonymMatchingPatternData[]> => {
     const { worksheetCount } = options;
     const prompt = `Eş Anlam Eşleştirme. ${PEDAGOGICAL_PROMPT}`;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, theme: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, pairs: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {word: {type: Type.STRING}, synonym: {type: Type.STRING}}, required: ['word', 'synonym']}} }, required: ['title', 'pairs', 'instruction', 'pedagogicalNote'] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, theme: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, pairs: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {word: {type: Type.STRING}, synonym: {type: Type.STRING}}, required: ['word', 'synonym']}} }, required: ['title', 'pairs', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<SynonymMatchingPatternData[]>;
 };
 
 export const generateMissingPartsFromAI = async (options: GeneratorOptions): Promise<MissingPartsData[]> => {
      const { worksheetCount } = options;
      const prompt = `Eksik Parçalar (Kelime). ${PEDAGOGICAL_PROMPT}`;
-     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, leftParts: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, text: {type: Type.STRING}}, required: ['id', 'text']}}, rightParts: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, text: {type: Type.STRING}}, required: ['id', 'text']}}, givenParts: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {word: {type: Type.STRING}, parts: {type: Type.ARRAY, items: {type: Type.STRING}}}, required: ['word', 'parts']}} }, required: ['title', 'leftParts', 'rightParts', 'instruction', 'pedagogicalNote'] } };
+     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, leftParts: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, text: {type: Type.STRING}}, required: ['id', 'text']}}, rightParts: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, text: {type: Type.STRING}}, required: ['id', 'text']}}, givenParts: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {word: {type: Type.STRING}, parts: {type: Type.ARRAY, items: {type: Type.STRING}}}, required: ['word', 'parts']}} }, required: ['title', 'leftParts', 'rightParts', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<MissingPartsData[]>;
 };
 
 export const generateWordWebFromAI = async (options: GeneratorOptions): Promise<WordWebData[]> => {
     const { worksheetCount } = options;
     const prompt = `Kelime Ağı. ${PEDAGOGICAL_PROMPT}`;
-     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, wordsToFind: {type: Type.ARRAY, items: {type: Type.STRING}}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, keyWordPrompt: {type: Type.STRING} }, required: ['title', 'wordsToFind', 'grid', 'keyWordPrompt', 'instruction', 'pedagogicalNote'] } };
+     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, wordsToFind: {type: Type.ARRAY, items: {type: Type.STRING}}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, keyWordPrompt: {type: Type.STRING} }, required: ['title', 'wordsToFind', 'grid', 'keyWordPrompt', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<WordWebData[]>;
 };
 
 export const generateWordWebWithPasswordFromAI = async (options: GeneratorOptions): Promise<WordWebWithPasswordData[]> => {
     const { worksheetCount } = options;
     const prompt = `Şifreli Kelime Ağı. ${PEDAGOGICAL_PROMPT}`;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, words: { type: Type.ARRAY, items: { type: Type.STRING } }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }, passwordColumnIndex: { type: Type.INTEGER } }, required: ['title', 'prompt', 'words', 'grid', 'passwordColumnIndex', 'instruction', 'pedagogicalNote'] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: {type: Type.STRING}, words: { type: Type.ARRAY, items: { type: Type.STRING } }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }, passwordColumnIndex: { type: Type.INTEGER } }, required: ['title', 'prompt', 'words', 'grid', 'passwordColumnIndex', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<WordWebWithPasswordData[]>;
 };
 
@@ -131,11 +134,11 @@ export const generateHomonymSentenceWritingFromAI = async (options: GeneratorOpt
     const { worksheetCount } = options;
     const prompt = `
     Eş Sesli Kelime Cümle Yazma.
-    Her anlam için **İngilizce** 'imagePrompt'.
+    Her anlam için **İngilizce** 'imagePrompt' ve bir tane de ana 'imagePrompt'.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, meaning1: { type: Type.STRING }, imagePrompt_1: { type: Type.STRING }, meaning2: { type: Type.STRING }, imagePrompt_2: { type: Type.STRING } }, required: ["word", "meaning1", "imagePrompt_1", "meaning2", "imagePrompt_2"] } } }, required: ["title", "prompt", "items", "instruction", "pedagogicalNote"] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: {type: Type.STRING}, items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, meaning1: { type: Type.STRING }, imagePrompt_1: { type: Type.STRING }, meaning2: { type: Type.STRING }, imagePrompt_2: { type: Type.STRING } }, required: ["word", "meaning1", "imagePrompt_1", "meaning2", "imagePrompt_2"] } } }, required: ["title", "prompt", "items", "instruction", "pedagogicalNote", "imagePrompt"] } };
     return generateWithSchema(prompt, schema) as Promise<HomonymSentenceData[]>;
 };
 
@@ -143,11 +146,11 @@ export const generateHomonymImageMatchFromAI = async (options: GeneratorOptions)
     const { worksheetCount } = options;
     const prompt = `
     Eş Sesli Resim Eşleme.
-    Görseller için **İngilizce** 'imagePrompt'.
+    Görseller için **İngilizce** 'imagePrompt'. Ana 'imagePrompt' ekle.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, leftImages: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["id", "word", "imagePrompt"] } }, rightImages: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["id", "word", "imagePrompt"] } }, wordScramble: { type: Type.OBJECT, properties: { letters: { type: Type.ARRAY, items: { type: Type.STRING } }, word: { type: Type.STRING } }, required: ["letters", "word"] } }, required: ["title", "prompt", "leftImages", "rightImages", "wordScramble", "instruction", "pedagogicalNote"] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: {type: Type.STRING}, leftImages: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["id", "word", "imagePrompt"] } }, rightImages: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, word: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["id", "word", "imagePrompt"] } }, wordScramble: { type: Type.OBJECT, properties: { letters: { type: Type.ARRAY, items: { type: Type.STRING } }, word: { type: Type.STRING } }, required: ["letters", "word"] } }, required: ["title", "prompt", "leftImages", "rightImages", "wordScramble", "instruction", "pedagogicalNote", "imagePrompt"] } };
     return generateWithSchema(prompt, schema) as Promise<HomonymImageMatchData[]>;
 };
 
@@ -155,11 +158,11 @@ export const generateImageAnagramSortFromAI = async (options: GeneratorOptions):
     const { worksheetCount } = options;
     const prompt = `
     Resimli Anagram Sıralama.
-    **İngilizce** 'imagePrompt'.
+    **İngilizce** 'imagePrompt' ve ana 'imagePrompt'.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, cards: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { imageDescription: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, scrambledWord: { type: Type.STRING }, correctWord: { type: Type.STRING } }, required: ["imageDescription", "imagePrompt", "scrambledWord", "correctWord"] } } }, required: ["title", "prompt", "cards", "instruction", "pedagogicalNote"] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: {type: Type.STRING}, cards: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { imageDescription: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, scrambledWord: { type: Type.STRING }, correctWord: { type: Type.STRING } }, required: ["imageDescription", "imagePrompt", "scrambledWord", "correctWord"] } } }, required: ["title", "prompt", "cards", "instruction", "pedagogicalNote", "imagePrompt"] } };
     return generateWithSchema(prompt, schema) as Promise<ImageAnagramSortData[]>;
 };
 
@@ -167,46 +170,46 @@ export const generateAnagramImageMatchFromAI = async (options: GeneratorOptions)
     const { worksheetCount } = options;
     const prompt = `
     Anagram Resim Eşleme.
-    **İngilizce** 'imagePrompt'.
+    **İngilizce** 'imagePrompt' ve ana 'imagePrompt'.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, wordBank: { type: Type.ARRAY, items: { type: Type.STRING } }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { imageDescription: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, partialAnswer: { type: Type.STRING }, correctWord: { type: Type.STRING } }, required: ["imageDescription", "imagePrompt", "partialAnswer", "correctWord"] } } }, required: ["title", "prompt", "wordBank", "puzzles", "instruction", "pedagogicalNote"] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: {type: Type.STRING}, wordBank: { type: Type.ARRAY, items: { type: Type.STRING } }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { imageDescription: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, partialAnswer: { type: Type.STRING }, correctWord: { type: Type.STRING } }, required: ["imageDescription", "imagePrompt", "partialAnswer", "correctWord"] } } }, required: ["title", "prompt", "wordBank", "puzzles", "instruction", "pedagogicalNote", "imagePrompt"] } };
     return generateWithSchema(prompt, schema) as Promise<AnagramImageMatchData[]>;
 };
 
 export const generateSyllableWordSearchFromAI = async (options: GeneratorOptions): Promise<SyllableWordSearchData[]> => {
      const { worksheetCount } = options;
      const prompt = `Hece ve Kelime Avı. ${PEDAGOGICAL_PROMPT}`;
-     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, syllablesToCombine: {type: Type.ARRAY, items: {type: Type.STRING}}, wordsToCreate: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {syllable1: {type: Type.STRING}, syllable2: {type: Type.STRING}, answer: {type: Type.STRING}}, required: ['syllable1','syllable2','answer']}}, wordsToFindInSearch: {type: Type.ARRAY, items: {type: Type.STRING}}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, passwordPrompt: {type: Type.STRING} }, required: ['title', 'syllablesToCombine', 'wordsToCreate', 'grid', 'instruction', 'pedagogicalNote'] } };
+     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, syllablesToCombine: {type: Type.ARRAY, items: {type: Type.STRING}}, wordsToCreate: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {syllable1: {type: Type.STRING}, syllable2: {type: Type.STRING}, answer: {type: Type.STRING}}, required: ['syllable1','syllable2','answer']}}, wordsToFindInSearch: {type: Type.ARRAY, items: {type: Type.STRING}}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, passwordPrompt: {type: Type.STRING} }, required: ['title', 'syllablesToCombine', 'wordsToCreate', 'grid', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<SyllableWordSearchData[]>;
 }
 
 export const generateWordSearchWithPasswordFromAI = async (options: GeneratorOptions): Promise<WordSearchWithPasswordData[]> => {
     const { worksheetCount } = options;
     const prompt = `Şifreli Kelime Avı. ${PEDAGOGICAL_PROMPT}`;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }, words: { type: Type.ARRAY, items: { type: Type.STRING } }, passwordCells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ['row', 'col'] } } }, required: ['title', 'prompt', 'grid', 'words', 'passwordCells', 'instruction', 'pedagogicalNote'] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: {type: Type.STRING}, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }, words: { type: Type.ARRAY, items: { type: Type.STRING } }, passwordCells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ['row', 'col'] } } }, required: ['title', 'prompt', 'grid', 'words', 'passwordCells', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<WordSearchWithPasswordData[]>;
 };
 
 export const generateLetterGridWordFindFromAI = async (options: GeneratorOptions): Promise<LetterGridWordFindData[]> => {
     const { worksheetCount } = options;
     const prompt = `Harf Izgarasında Kelime Bul. ${PEDAGOGICAL_PROMPT}`;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }, words: { type: Type.ARRAY, items: { type: Type.STRING } }, writingPrompt: { type: Type.STRING } }, required: ['title', 'prompt', 'grid', 'words', 'writingPrompt', 'instruction', 'pedagogicalNote'] } };
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: {type: Type.STRING}, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }, words: { type: Type.ARRAY, items: { type: Type.STRING } }, writingPrompt: { type: Type.STRING } }, required: ['title', 'prompt', 'grid', 'words', 'writingPrompt', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<LetterGridWordFindData[]>;
 };
 
 export const generateWordPlacementPuzzleFromAI = async (options: GeneratorOptions): Promise<WordPlacementPuzzleData[]> => {
      const { worksheetCount } = options;
      const prompt = `Kelime Yerleştirme (Kriss Kross). ${PEDAGOGICAL_PROMPT}`;
-     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, wordGroups: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {length: {type: Type.INTEGER}, words: {type: Type.ARRAY, items: {type: Type.STRING}}}, required: ['length','words']}}, unusedWordPrompt: {type: Type.STRING} }, required: ['title', 'grid', 'wordGroups', 'instruction', 'pedagogicalNote'] } };
+     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, wordGroups: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {length: {type: Type.INTEGER}, words: {type: Type.ARRAY, items: {type: Type.STRING}}}, required: ['length','words']}}, unusedWordPrompt: {type: Type.STRING} }, required: ['title', 'grid', 'wordGroups', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<WordPlacementPuzzleData[]>;
 }
 
 export const generatePositionalAnagramFromAI = async (options: GeneratorOptions): Promise<PositionalAnagramData[]> => {
      const { worksheetCount } = options;
      const prompt = `Yer Değiştirmeli Anagram. ${PEDAGOGICAL_PROMPT}`;
-     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, scrambled: {type: Type.STRING}, answer: {type: Type.STRING}}, required: ['id','scrambled','answer']}} }, required: ['title', 'puzzles', 'instruction', 'pedagogicalNote'] } };
+     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, scrambled: {type: Type.STRING}, answer: {type: Type.STRING}}, required: ['id','scrambled','answer']}} }, required: ['title', 'puzzles', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<PositionalAnagramData[]>;
 }
 
@@ -214,7 +217,7 @@ export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<
     const { worksheetCount } = options;
     const prompt = `
     Resfebe.
-    **İngilizce** 'imagePrompt' (resimler için).
+    **İngilizce** 'imagePrompt' (resimler ve ana kapak için).
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -225,9 +228,10 @@ export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: {type: Type.STRING},
             puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { clues: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { type: { type: Type.STRING, enum: ['text', 'image'] }, value: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["type", "value"] } }, answer: { type: Type.STRING } }, required: ["clues", "answer"] } }
         },
-        required: ["title", "prompt", "puzzles", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "puzzles", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ResfebeData[]>;

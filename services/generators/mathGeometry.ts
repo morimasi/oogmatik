@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -9,7 +10,7 @@ EĞİTİMSEL İÇERİK KURALLARI:
 1. Çıktı JSON formatında olmalı.
 2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi (örn: sayı hissi, geometrik algı) desteklediğini açıkla.
 3. "instruction": Öğrenciye yönelik net ve anlaşılır bir yönerge.
-4. "imagePrompt": Nesneler ve şekiller için net, çocuk dostu, İngilizce görsel tasviri.
+4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
 5. İçerik "Lorem ipsum" olmamalı, gerçek matematiksel problemler içermeli.
 `;
 
@@ -33,6 +34,7 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
+      imagePrompt: { type: Type.STRING }, // Added
       puzzles: {
         type: Type.ARRAY,
         items: {
@@ -57,7 +59,7 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
         },
       },
     },
-    required: ['title', 'puzzles', 'instruction', 'pedagogicalNote']
+    required: ['title', 'puzzles', 'instruction', 'pedagogicalNote', 'imagePrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<MathPuzzleData[]>;
@@ -78,6 +80,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             figures: {
                 type: Type.ARRAY,
                 items: {
@@ -101,7 +104,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
                 }
             }
         },
-        required: ["title", "instruction", "figures", "pedagogicalNote"]
+        required: ["title", "instruction", "figures", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ShapeCountingData[]>;

@@ -177,6 +177,8 @@ export interface BaseActivityData {
     title: string;
     instruction?: string;
     pedagogicalNote?: string;
+    imagePrompt?: string;
+    imageBase64?: string;
 }
 
 // --- DYSLEXIA SUPPORT TYPES ---

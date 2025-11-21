@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -13,7 +14,8 @@ EĞİTİMSEL İÇERİK KURALLARI:
 1. Çıktı JSON formatında olmalı.
 2. "pedagogicalNote": Etkinliğin desteklediği bilişsel beceriyi (örn: mantıksal akıl yürütme, işlem akıcılığı) açıkla.
 3. "instruction": Öğrenciye yönelik net, kısa ve cesaretlendirici bir yönerge.
-4. Veriler tutarlı ve çözülebilir olmalı (rastgele sayı yığını olmamalı).
+4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Matematiksel, geometrik veya soyut bir illüstrasyon.
+5. Veriler tutarlı ve çözülebilir olmalı (rastgele sayı yığını olmamalı).
 `;
 
 const baseMathSchema = (itemProp: string, itemType: any) => ({
@@ -23,9 +25,10 @@ const baseMathSchema = (itemProp: string, itemType: any) => ({
         prompt: { type: Type.STRING },
         instruction: { type: Type.STRING },
         pedagogicalNote: { type: Type.STRING },
+        imagePrompt: { type: Type.STRING }, // Added
         [itemProp]: { type: Type.ARRAY, items: itemType }
     },
-    required: ["title", "prompt", "instruction", "pedagogicalNote", itemProp]
+    required: ["title", "prompt", "instruction", "pedagogicalNote", "imagePrompt", itemProp]
 });
 
 export const generateDivisionPyramidFromAI = async(options: GeneratorOptions): Promise<DivisionPyramidData[]> => {
@@ -184,10 +187,11 @@ export const generateRomanNumeralStarHuntFromAI = async (options: GeneratorOptio
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             starCount: { type: Type.INTEGER }
         },
-        required: ["title", "grid", "starCount", "instruction"]
+        required: ["title", "grid", "starCount", "instruction", "imagePrompt"]
     }};
     return generateWithSchema(prompt, schema) as Promise<RomanNumeralStarHuntData[]>;
 };
@@ -201,6 +205,7 @@ export const generateRoundingConnectFromAI = async (options: GeneratorOptions): 
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             example: { type: Type.STRING },
             numbers: {
                 type: Type.ARRAY,
@@ -211,7 +216,7 @@ export const generateRoundingConnectFromAI = async (options: GeneratorOptions): 
                 }
             }
         },
-        required: ["title", "numbers", "instruction"]
+        required: ["title", "numbers", "instruction", "imagePrompt"]
     }};
     return generateWithSchema(prompt, schema) as Promise<RoundingConnectData[]>;
 };
@@ -242,7 +247,7 @@ export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } } }, required: ["row", "col"] },
+                        cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] },
                         operation: { type: Type.STRING },
                         target: { type: Type.INTEGER }
                     },
@@ -262,7 +267,8 @@ export const generateFutoshikiLengthFromAI = async(options: GeneratorOptions): P
          ...r, 
          title: 'Uzunluk Karşılaştırma (Futoşiki)', 
          instruction: 'Nesnelerin uzunluklarını (cm, m) büyüktür/küçüktür işaretlerine göre sırala.',
-         pedagogicalNote: 'Ölçme birimleri ve sıralama mantığı.'
+         pedagogicalNote: 'Ölçme birimleri ve sıralama mantığı.',
+         imagePrompt: "Illustration of various measuring tools like ruler, tape measure."
     }));
 }
 
@@ -273,6 +279,7 @@ export const generateSudoku6x6ShadedFromAI = async(options: GeneratorOptions): P
          ...r, 
          title: '6x6 Gölgeli Sudoku', 
          instruction: "Gölgeli alanlara sadece ÇİFT sayılar gelebilir.",
-         pedagogicalNote: "Görsel kısıtlamalı mantık yürütme."
+         pedagogicalNote: "Görsel kısıtlamalı mantık yürütme.",
+         imagePrompt: "Abstract geometric sudoku grid with shaded areas."
     }));
 }

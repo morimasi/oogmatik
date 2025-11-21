@@ -1,13 +1,10 @@
 
 
-
-import React from 'react';
 import { 
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
     GeneratorOptions
 } from '../../types';
-import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay } from './common';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateLatinSquare, ITEM_CATEGORIES, generateSmartConnectGrid, CONNECT_COLORS } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare } from './helpers';
 
 // --- PRE-DEFINED OFFLINE ASSETS ---
 
@@ -69,25 +66,6 @@ const shapeCountingFigures = {
 };
 
 // --- GENERATOR FUNCTIONS ---
-
-const generateRandomPattern = (dim: number, density: number): number[][][] => {
-    const lines: number[][][] = [];
-    for (let i = 0; i < dim * density; i++) {
-        const x1 = getRandomInt(0, dim);
-        const y1 = getRandomInt(0, dim);
-        const direction = getRandomInt(0, 3);
-        let x2 = x1, y2 = y1;
-        if (direction === 0 && x1 < dim) x2++;
-        else if (direction === 1 && y1 < dim) y2++;
-        else if (direction === 2 && x1 < dim && y1 < dim) { x2++; y2++; }
-        else if (direction === 3 && x1 < dim && y1 > 0) { x2++; y2--; }
-        
-        if (x1 !== x2 || y1 !== y2) {
-             lines.push([[x1, y1], [x2, y2]]);
-        }
-    }
-    return lines;
-};
 
 export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
     const { topic, itemCount, worksheetCount, difficulty } = options;
@@ -304,11 +282,8 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
             
             // Difficulty Logic
             if (difficulty === 'Zor' || difficulty === 'Uzman') {
-                 // Rotational logic: 3 items are rotations of the same base, 1 is different (e.g. extra line or mirror)
-                 // Since we only have segments, we simulate this by shifting segments
-                 const baseSegments = [true, true, false, true, false, true, true, false, false]; // Example asymmetric shape
+                 const baseSegments = [true, true, false, true, false, true, true, false, false];
                  
-                 // Simple shift rotation simulation for grid 3x3
                  const rotate90 = (segs: boolean[]) => [
                      segs[6], segs[3], segs[0],
                      segs[7], segs[4], segs[1],
@@ -322,25 +297,21 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
                  
                  const rotations = [r0, r90, r180, r270];
                  
-                 // Create an odd one out by taking a rotation and modifying one segment
                  const oddOne = [...r0];
-                 oddOne[4] = !oddOne[4]; // Flip center or random bit
+                 oddOne[4] = !oddOne[4]; 
                  
                  const items = Array(4).fill(null).map((_, idx) => {
                      if (idx === correctIndex) return { segments: oddOne, rotation: 0 };
-                     return { segments: rotations[idx % 4], rotation: 0 }; // Different rotations of valid shape
+                     return { segments: rotations[idx % 4], rotation: 0 };
                  });
                  
                  return { items, correctIndex, reason: "Diğerleri aynı şeklin döndürülmüş hali, bu farklı." };
 
             } else {
-                // Standard logic for Easy/Medium
                 const standard = [true, true, true, true, true, true, true, true, true];
-                // Randomly turn off 2-3 segments for variety
                 for(let k=0; k<3; k++) standard[getRandomInt(0,8)] = false;
                 
                 const odd = [...standard];
-                // Flip one bit to make it odd
                 const flipIdx = getRandomInt(0, 8);
                 odd[flipIdx] = !odd[flipIdx];
                 
@@ -417,7 +388,7 @@ export const generateOfflineDotPainting = async (options: GeneratorOptions): Pro
             prompt1: 'Sadece renkli noktaları takip et.',
             prompt2: `Gizli Şekil: ${shape.name}`,
             svgViewBox: '0 0 100 100',
-            gridPaths: [], // For offline, we rely on the visual SVG grid in the component
+            gridPaths: [], 
             dots: shapeDots,
             hiddenImageName: shape.name
         });
@@ -503,17 +474,15 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
                 color: colors[idx].css
             });
             // Right side (Match - Synonym or Antonym)
-            // Using 'word' property for text, imagePrompt left empty for text-based matching in offline
             points.push({
                 word: pair.synonym || pair.antonym,
                 pairId: idx,
-                x: 1, // Column index for right side
-                y: idx, // Ideally randomized later by shuffle, but for structure simplicity
+                x: 1, 
+                y: idx, 
                 color: colors[idx].css
             });
         });
         
-        // Shuffle y positions for the right column effectively
         const rightPoints = points.filter(p => p.x === 1);
         const shuffledRightY = shuffle(rightPoints.map(p => p.y));
         rightPoints.forEach((p, idx) => p.y = shuffledRightY[idx]);
@@ -646,7 +615,7 @@ export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOp
         results.push({
             title: 'Eş/Zıt Anlamlı Boyama',
             instruction: "Kelimelerin ilişkisine göre (eş/zıt) boyama yap.",
-            pedagogicalNote: "Kelime anlamı ilişkilerini pekiştirme.",
+            pedagogicalNote: "Kelime anlamı ilişkileri pekiştirme.",
             colorKey,
             wordsOnImage
         });
@@ -659,10 +628,7 @@ export const generateOfflineStarHunt = async (options: GeneratorOptions): Promis
     const size = gridSize || (difficulty === 'Orta' ? 6 : (difficulty === 'Zor' ? 8 : 5));
     
     return Array.from({ length: worksheetCount }, () => {
-        // Use Latin Square generation to ensure valid non-overlapping stars (one per row/col)
-        // 1 represents a star, others are empty.
         const latin = generateLatinSquare(size); 
-        // Convert latin square to star grid: if cell == 1 then star (ensures 1 per row/col)
         const grid: (ShapeType | 'star' | 'question' | null)[][] = latin.map(row => 
             row.map(val => val === 1 ? 'star' : null)
         );

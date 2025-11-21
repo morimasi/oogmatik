@@ -204,6 +204,21 @@ export const generateLatinSquare = (size: number): number[][] => {
     return grid;
 }
 
+export const generateRandomPattern = (dim: number, density: number): [number, number][][] => {
+    const lines: [number, number][][] = [];
+    const count = Math.max(3, Math.floor(dim * density));
+    for(let i=0; i<count; i++) {
+        const x1 = getRandomInt(0, dim);
+        const y1 = getRandomInt(0, dim);
+        const dirs = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
+        const d = getRandomItems(dirs, 1)[0];
+        const x2 = x1 + d[0];
+        const y2 = y1 + d[1];
+        if(x2>=0 && x2<=dim && y2>=0 && y2<=dim) lines.push([[x1,y1], [x2,y2]]);
+    }
+    return lines;
+};
+
 // Sudoku Generator Helper
 export const generateSudokuGrid = (size: number = 6, difficulty: string): (number | null)[][] => {
     // Only supports 6x6 (2x3 blocks) or 9x9 (3x3) for standard logic. 

@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -14,7 +15,7 @@ EĞİTİMSEL İÇERİK KURALLARI:
 1. Çıktı JSON formatında olmalı.
 2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi (örn: sıralı düşünme, görsel ayırt etme, mantıksal çıkarım) desteklediğini açıklayan kısa bir not.
 3. "instruction": Öğrenciye yönelik kısa, net ve cesaretlendirici bir yönerge (örn: "Sıradaki sayıyı bul ve yaz.").
-4. "imagePrompt": Varsa görseller için İngilizce, çocuk dostu, renkli, vektörel stil betimlemesi.
+4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
 5. İçerik asla "Lorem ipsum" veya yer tutucu olmamalı, gerçek ve eğitici veri üret.
 `;
 
@@ -40,6 +41,7 @@ export const generateNumberPatternFromAI = async (options: GeneratorOptions): Pr
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             patterns: {
                 type: Type.ARRAY,
                 items: {
@@ -52,7 +54,7 @@ export const generateNumberPatternFromAI = async (options: GeneratorOptions): Pr
                 },
             },
         },
-        required: ['title', 'instruction', 'patterns', 'pedagogicalNote']
+        required: ['title', 'instruction', 'patterns', 'pedagogicalNote', 'imagePrompt']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<NumberPatternData[]>;
@@ -75,6 +77,7 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             patterns: {
                 type: Type.ARRAY,
                 items: {
@@ -96,7 +99,7 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
                 }
             }
         },
-        required: ["title", "patterns", "instruction", "pedagogicalNote"]
+        required: ["title", "patterns", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ShapeNumberPatternData[]>;
@@ -108,6 +111,7 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
     '${topic}' temalı, "${difficulty}" seviyesinde "Tematik Farklı Olanı Bul" etkinliği.
     Her satırda 4 kelime/kavram olsun. 3'ü temaya uygun, 1'i farklı.
     Her kelime için **İngilizce** 'imagePrompt' oluştur. Stil: "Cute colorful icon" veya "Vector illustration".
+    Ana görsel (imagePrompt) tema ile ilgili olsun.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -118,6 +122,7 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             theme: { type: Type.STRING },
             rows: {
                 type: Type.ARRAY,
@@ -142,7 +147,7 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
             },
             sentencePrompt: { type: Type.STRING }
         },
-        required: ["title", "prompt", "theme", "rows", "sentencePrompt", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "theme", "rows", "sentencePrompt", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutData[]>;
@@ -165,6 +170,7 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             punctuationMark: { type: Type.STRING },
             rules: {
                 type: Type.ARRAY,
@@ -179,7 +185,7 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
                 }
             }
         },
-        required: ["title", "prompt", "punctuationMark", "rules", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "punctuationMark", "rules", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<PunctuationMazeData[]>;
@@ -200,6 +206,7 @@ export const generateThematicOddOneOutSentenceFromAI = async (options: Generator
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             rows: {
                 type: Type.ARRAY,
                 items: {
@@ -213,7 +220,7 @@ export const generateThematicOddOneOutSentenceFromAI = async (options: Generator
             },
             sentencePrompt: { type: Type.STRING }
         },
-        required: ["title", "prompt", "rows", "sentencePrompt", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "rows", "sentencePrompt", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutSentenceData[]>;
@@ -234,6 +241,7 @@ export const generateColumnOddOneOutSentenceFromAI = async (options: GeneratorOp
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             columns: {
                 type: Type.ARRAY,
                 items: {
@@ -247,7 +255,7 @@ export const generateColumnOddOneOutSentenceFromAI = async (options: GeneratorOp
             },
             sentencePrompt: { type: Type.STRING }
         },
-        required: ["title", "prompt", "columns", "sentencePrompt", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "columns", "sentencePrompt", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ColumnOddOneOutSentenceData[]>;
@@ -269,6 +277,7 @@ export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOpt
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             clues: {
                 type: Type.ARRAY,
                 items: {
@@ -292,7 +301,7 @@ export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOpt
                 }
             }
         },
-        required: ["title", "prompt", "instruction", "clues", "solution", "pedagogicalNote"]
+        required: ["title", "prompt", "instruction", "clues", "solution", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<PunctuationPhoneNumberData[]>;
@@ -314,6 +323,7 @@ export const generateArithmeticConnectFromAI = async (options: GeneratorOptions)
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             example: { type: Type.STRING },
             expressions: {
                 type: Type.ARRAY,
@@ -330,7 +340,7 @@ export const generateArithmeticConnectFromAI = async (options: GeneratorOptions)
                 }
             }
         },
-        required: ["title", "prompt", "example", "expressions", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "example", "expressions", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ArithmeticConnectData[]>;
@@ -350,6 +360,7 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -365,7 +376,7 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
                 }
             }
         },
-        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<RomanArabicMatchConnectData[]>;
@@ -387,6 +398,7 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added (Main image)
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -403,7 +415,7 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
                 }
             }
         },
-        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<WeightConnectData[]>;
@@ -425,6 +437,7 @@ export const generateLengthConnectFromAI = async (options: GeneratorOptions): Pr
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -441,7 +454,7 @@ export const generateLengthConnectFromAI = async (options: GeneratorOptions): Pr
                 }
             }
         },
-        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<LengthConnectData[]>;
@@ -462,6 +475,7 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             puzzles: {
                 type: Type.ARRAY,
                 items: {
@@ -486,7 +500,7 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
                 }
             }
         },
-        required: ["title", "prompt", "puzzles", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "puzzles", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<VisualNumberPatternData[]>;
@@ -508,6 +522,7 @@ export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): 
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             clues: { type: Type.ARRAY, items: { type: Type.STRING } },
             people: { type: Type.ARRAY, items: { type: Type.STRING } },
             categories: {
@@ -533,7 +548,7 @@ export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): 
                 }
             }
         },
-        required: ["title", "prompt", "clues", "people", "categories", "instruction", "pedagogicalNote"]
+        required: ["title", "prompt", "clues", "people", "categories", "instruction", "pedagogicalNote", "imagePrompt"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<LogicGridPuzzleData[]>;

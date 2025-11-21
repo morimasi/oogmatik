@@ -1,12 +1,22 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
-import { ShapeType } from '../../types';
+import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../data/vocabulary';
 
-export const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string }> = ({ title, instruction, note }) => (
+// Updated PedagogicalHeader to accept full data or at least imageBase64
+export const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string; data?: BaseActivityData }> = ({ title, instruction, note, data }) => (
     <div className="mb-6 text-center print:mb-4">
         <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100 font-dyslexic">{title}</h3>
         <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
+        
+        {/* Main Activity Image if available */}
+        {data?.imageBase64 && (
+            <div className="my-4 mx-auto max-w-md rounded-xl overflow-hidden shadow-md border border-zinc-200 dark:border-zinc-700">
+                <ImageDisplay base64={data.imageBase64} description={data.imagePrompt || title} className="w-full h-48 object-cover" />
+            </div>
+        )}
+
         {note && <div className="inline-block px-4 py-1 mt-2 border-t border-zinc-200 dark:border-zinc-700">
             <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-graduation-cap mr-1"></i>Eğitmen Notu: {note}</p>
         </div>}
@@ -122,7 +132,7 @@ export const ImageDisplay: React.FC<{ base64?: string; description?: string; cla
             {description ? (
                 <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 px-2 line-clamp-2">{description}</p>
             ) : (
-                <p className="text-xs text-zinc-400 italic">Görsel Mevcut Değil</p>
+                <p className="text-xs text-zinc-400 italic">Görsel</p>
             )}
         </div>
     );

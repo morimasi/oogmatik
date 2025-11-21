@@ -1,4 +1,5 @@
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -12,7 +13,7 @@ EĞİTİMSEL İÇERİK KURALLARI:
 1. Çıktı JSON formatında olmalı.
 2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi desteklediğini açıkla (örn: görsel hafıza, seçici dikkat).
 3. "instruction": Öğrenciye yönelik net yönerge.
-4. "imagePrompt": Görseller için detaylı İngilizce açıklama.
+4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
 5. İçerik dolu ve gerçekçi olmalı.
 `;
 
@@ -38,12 +39,13 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             wordsToMemorize: { type: Type.ARRAY, items: itemSchema },
             testWords: { type: Type.ARRAY, items: itemSchema }
         },
-        required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords', 'instruction', 'pedagogicalNote']
+        required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords', 'instruction', 'pedagogicalNote', 'imagePrompt']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<WordMemoryData[]>;
@@ -71,12 +73,13 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
+      imagePrompt: { type: Type.STRING }, // Added
       memorizeTitle: { type: Type.STRING },
       testTitle: { type: Type.STRING },
       itemsToMemorize: { type: Type.ARRAY, items: itemSchema },
       testItems: { type: Type.ARRAY, items: itemSchema }
     },
-    required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems', 'instruction', 'pedagogicalNote']
+    required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems', 'instruction', 'pedagogicalNote', 'imagePrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<VisualMemoryData[]>;
@@ -91,6 +94,7 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             numbers: { type: Type.ARRAY, items: { type: Type.STRING } },
             range: {
                 type: Type.OBJECT,
@@ -98,7 +102,7 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
                 required: ['start', 'end']
             }
         },
-        required: ['title', 'numbers', 'range', 'instruction', 'pedagogicalNote']
+        required: ['title', 'numbers', 'range', 'instruction', 'pedagogicalNote', 'imagePrompt']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<NumberSearchData[]>;
@@ -113,9 +117,10 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
+      imagePrompt: { type: Type.STRING }, // Added
       rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
     },
-    required: ['title', 'rows', 'instruction', 'pedagogicalNote']
+    required: ['title', 'rows', 'instruction', 'pedagogicalNote', 'imagePrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<FindDuplicateData[]>;
@@ -135,10 +140,11 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             targetLetters: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
-        required: ['title', 'grid', 'targetLetters', 'instruction', 'pedagogicalNote']
+        required: ['title', 'grid', 'targetLetters', 'instruction', 'pedagogicalNote', 'imagePrompt']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<LetterGridTestData[]>;
@@ -153,10 +159,11 @@ export const generateFindLetterPairFromAI = async (options: GeneratorOptions): P
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             targetPair: { type: Type.STRING }
         },
-        required: ['title', 'grid', 'targetPair', 'instruction', 'pedagogicalNote']
+        required: ['title', 'grid', 'targetPair', 'instruction', 'pedagogicalNote', 'imagePrompt']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<FindLetterPairData[]>;
@@ -171,11 +178,12 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
+      imagePrompt: { type: Type.STRING }, // Added
       grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
       target: { type: Type.STRING },
       distractor: { type: Type.STRING }
     },
-    required: ['title', 'grid', 'target', 'distractor', 'instruction', 'pedagogicalNote']
+    required: ['title', 'grid', 'target', 'distractor', 'instruction', 'pedagogicalNote', 'imagePrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<TargetSearchData[]>;
@@ -195,6 +203,7 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             items: {
@@ -210,7 +219,7 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
                 }
             }
         },
-        required: ["title", "memorizeTitle", "testTitle", "items", 'instruction', 'pedagogicalNote']
+        required: ["title", "memorizeTitle", "testTitle", "items", 'instruction', 'pedagogicalNote', 'imagePrompt']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData[]>;
@@ -230,10 +239,11 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // This is already present as 'imagePrompt' for the scene, but we keep consistency
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             sceneDescription: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
+            // imagePrompt: { type: Type.STRING }, // Replaced by top-level for consistency, but keeping both is fine if keys match
             questions: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
         required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions", 'instruction', 'pedagogicalNote']
@@ -256,6 +266,7 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }, // Added
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             charactersToMemorize: {
@@ -281,7 +292,7 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
                 }
             }
         },
-        required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters", 'instruction', 'pedagogicalNote']
+        required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters", 'instruction', 'pedagogicalNote', 'imagePrompt']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData[]>;
@@ -300,6 +311,7 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
              title: { type: Type.STRING },
              instruction: { type: Type.STRING },
              pedagogicalNote: { type: Type.STRING },
+             imagePrompt: { type: Type.STRING }, // Added
              items: {
                  type: Type.ARRAY,
                  items: {
@@ -309,7 +321,7 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
                  }
              }
          },
-         required: ["title", "items", 'instruction', 'pedagogicalNote']
+         required: ["title", "items", 'instruction', 'pedagogicalNote', 'imagePrompt']
      };
      const schema = { type: Type.ARRAY, items: singleSchema };
      return generateWithSchema(prompt, schema) as Promise<StroopTestData[]>;
@@ -324,6 +336,7 @@ export const generateChaoticNumberSearchFromAI = async (options: GeneratorOption
              prompt: { type: Type.STRING },
              instruction: { type: Type.STRING },
              pedagogicalNote: { type: Type.STRING },
+             imagePrompt: { type: Type.STRING }, // Added
              numbers: {
                  type: Type.ARRAY,
                  items: {
@@ -341,7 +354,7 @@ export const generateChaoticNumberSearchFromAI = async (options: GeneratorOption
              },
              range: { type: Type.OBJECT, properties: {start: {type: Type.INTEGER}, end: {type: Type.INTEGER}}, required: ["start", "end"]}
          },
-         required: ["title", "numbers", "range", 'instruction', 'pedagogicalNote']
+         required: ["title", "numbers", "range", 'instruction', 'pedagogicalNote', 'imagePrompt']
      };
      const schema = { type: Type.ARRAY, items: singleSchema };
      return generateWithSchema(prompt, schema) as Promise<ChaoticNumberSearchData[]>;
