@@ -1,226 +1,75 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { User, FeedbackItem, Message } from '../types';
 import { authService } from '../services/authService';
 import { messagingService } from '../services/messagingService';
-import { User, FeedbackItem, Message, UserRole, UserStatus, SubscriptionPlan } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { ImageDisplay } from './sheets/common';
 
-// --- UI COMPONENTS ---
-
-const StatCard: React.FC<{ title: string; value: string | number; change: string; icon: string; color: string; trend: 'up' | 'down' }> = ({ title, value, change, icon, color, trend }) => (
-    <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-start justify-between hover:shadow-md transition-shadow">
-        <div>
-            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">{title}</p>
-            <h3 className="text-3xl font-bold text-zinc-800 dark:text-zinc-100">{value}</h3>
-            <div className={`flex items-center gap-1 mt-2 text-xs font-bold ${trend === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
-                <i className={`fa-solid fa-arrow-${trend}`}></i>
-                <span>{change}</span>
-                <span className="text-zinc-400 font-normal ml-1">geçen haftaya göre</span>
-            </div>
-        </div>
-        <div className={`p-3 rounded-lg ${color} bg-opacity-10 text-opacity-100 flex items-center justify-center`}>
-            <i className={`${icon} text-xl`}></i>
-        </div>
-    </div>
-);
-
-const ActivityChart = () => {
-    const data = [40, 65, 45, 80, 55, 90, 70];
-    return (
-        <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 h-full">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-lg text-zinc-800 dark:text-zinc-100">Haftalık Aktivite</h3>
-                <button className="text-zinc-400 hover:text-indigo-500"><i className="fa-solid fa-ellipsis"></i></button>
-            </div>
-            <div className="flex items-end justify-between gap-2 h-40">
-                {data.map((h, i) => (
-                    <div key={i} className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-t-md relative group overflow-hidden">
-                        <div 
-                            className="absolute bottom-0 left-0 right-0 bg-indigo-500 group-hover:bg-indigo-600 transition-all duration-500 rounded-t-md" 
-                            style={{ height: `${h}%` }}
-                        ></div>
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                            {h}
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-zinc-400 font-medium">
-                <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
-            </div>
-        </div>
-    );
+interface AdminDashboardProps {
+    onBack: () => void;
 }
 
-// --- MODAL FOR USER EDIT/CREATE ---
-interface UserModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSave: (user: Partial<User>) => void;
-    initialData?: User | null;
-}
-
-const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSave, initialData }) => {
-    const [formData, setFormData] = useState<Partial<User>>({
-        name: '', email: '', role: 'user', status: 'active', subscriptionPlan: 'free'
-    });
-
-    useEffect(() => {
-        if (initialData) {
-            setFormData(initialData);
-        } else {
-            setFormData({ name: '', email: '', role: 'user', status: 'active', subscriptionPlan: 'free' });
-        }
-    }, [initialData, isOpen]);
-
-    if (!isOpen) return null;
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSave(formData);
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl w-full max-w-md p-6 animate-fade-in">
-                <h3 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-100">
-                    {initialData ? 'Kullanıcı Düzenle' : 'Yeni Kullanıcı Ekle'}
-                </h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Ad Soyad</label>
-                        <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">E-posta</label>
-                        <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Rol</label>
-                            <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value as UserRole})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600">
-                                <option value="user">Kullanıcı</option>
-                                <option value="admin">Yönetici</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Durum</label>
-                            <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value as UserStatus})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600">
-                                <option value="active">Aktif</option>
-                                <option value="suspended">Askıya Alınmış</option>
-                                <option value="pending">Beklemede</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Abonelik Planı</label>
-                        <select value={formData.subscriptionPlan} onChange={e => setFormData({...formData, subscriptionPlan: e.target.value as SubscriptionPlan})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600">
-                            <option value="free">Ücretsiz</option>
-                            <option value="pro">Pro</option>
-                            <option value="enterprise">Kurumsal</option>
-                        </select>
-                    </div>
-                    <div className="flex justify-end gap-3 mt-6">
-                        <button type="button" onClick={onClose} className="px-4 py-2 text-zinc-600 hover:bg-zinc-100 rounded-lg">İptal</button>
-                        <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Kaydet</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const { user } = useAuth();
+    const [activeTab, setActiveTab] = useState<'users' | 'feedbacks' | 'messages'>('users');
     const [users, setUsers] = useState<User[]>([]);
     const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'feedbacks' | 'messages' | 'settings'>('overview');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [replyText, setReplyText] = useState('');
-    const [replyingTo, setReplyingTo] = useState<string | null>(null);
     
-    // Modal States
-    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
+    // Message Tab States
+    const [selectedConversationUserId, setSelectedConversationUserId] = useState<string | null>(null);
+    const [replyText, setReplyText] = useState('');
 
-    // System Settings State (Mock)
-    const [systemSettings, setSystemSettings] = useState({
-        maintenanceMode: false,
-        allowRegistrations: true,
-        aiEnabled: true
-    });
+    // Feedback Reply States
+    const [replyingFeedbackId, setReplyingFeedbackId] = useState<string | null>(null);
+    const [feedbackReplyMessage, setFeedbackReplyMessage] = useState('');
 
     useEffect(() => {
-        if (user?.role === 'admin') {
-            loadData();
-        }
-    }, [user, activeTab]);
+        loadData();
+        const interval = setInterval(loadData, 5000); // Auto refresh
+        return () => clearInterval(interval);
+    }, []);
 
     const loadData = () => {
         setUsers(authService.getAllUsers());
         setFeedbacks(messagingService.getAllFeedbacks());
-        if (user && user.id) {
-            setMessages(messagingService.getMessagesForUser(user.id));
+        if (user) {
+            setMessages(messagingService.getMessagesForUser(user.id)); // Admin sees their own messages (which includes messages from users)
         }
     };
 
-    if (user?.role !== 'admin') return <div className="flex items-center justify-center h-screen bg-zinc-100 text-red-500 font-bold">Yetkisiz Erişim</div>;
-
-    const filteredUsers = users.filter(u => 
-        u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        u.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // --- USER MANAGEMENT ACTIONS ---
-    const handleDeleteUser = async (userId: string) => {
-        if (confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
-            await authService.deleteUser(userId);
+    // --- USER ACTIONS ---
+    const handleDeleteUser = async (id: string) => {
+        if (confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
+            await authService.deleteUser(id);
             loadData();
         }
     };
 
-    const handleSaveUser = async (userData: Partial<User>) => {
-        try {
-            if (editingUser) {
-                await authService.adminUpdateUser(editingUser.id, userData);
-            } else {
-                await authService.adminCreateUser(userData);
-            }
-            setIsUserModalOpen(false);
-            setEditingUser(null);
-            loadData();
-        } catch (e: any) {
-            alert(e.message);
-        }
-    };
-
-    const openEditUser = (u: User) => {
-        setEditingUser(u);
-        setIsUserModalOpen(true);
-    };
-
-    const openCreateUser = () => {
-        setEditingUser(null);
-        setIsUserModalOpen(true);
+    const handleToggleStatus = (id: string) => {
+        authService.toggleUserStatus(id);
+        loadData();
     };
 
     // --- FEEDBACK ACTIONS ---
-    const handleReplyFeedback = async (feedbackId: string) => {
-        if (!replyText.trim()) return;
+    const handleFeedbackReply = async (feedbackId: string) => {
+        if (!feedbackReplyMessage.trim() || !user) return;
         try {
-            await messagingService.replyToFeedback(feedbackId, replyText, user);
-            alert("Yanıt gönderildi.");
-            setReplyingTo(null);
-            setReplyText('');
+            await messagingService.replyToFeedback(feedbackId, feedbackReplyMessage, user);
+            setReplyingFeedbackId(null);
+            setFeedbackReplyMessage('');
             loadData();
-        } catch (error) {
-            alert("Bir hata oluştu.");
+            alert('Yanıt gönderildi.');
+        } catch (e) {
+            console.error(e);
+            alert('Hata oluştu.');
         }
     };
 
+    // --- MESSAGE ACTIONS ---
     const handleSendMessage = async (receiverId: string, content: string) => {
-        if (!content.trim()) return;
+        if (!content.trim() || !user) return;
         try {
             await messagingService.sendMessage({
                 senderId: user.id,
@@ -228,274 +77,261 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 receiverId,
                 content
             });
+            setReplyText('');
             loadData();
         } catch (e) { console.error(e); }
     };
 
+    // Group messages by user for the admin view
+    interface ConversationGroup {
+        userId: string;
+        userName: string;
+        messages: Message[];
+        lastDate: string;
+        unreadCount: number;
+        userAvatar?: string;
+    }
+
+    const groupedMessages = messages.reduce<Record<string, ConversationGroup>>((acc, msg) => {
+        if (!user) return acc;
+        const otherId = msg.senderId === user.id ? msg.receiverId : msg.senderId;
+        
+        if (!acc[otherId]) {
+            const u = users.find(usr => usr.id === otherId);
+            acc[otherId] = {
+                userId: otherId,
+                userName: u ? u.name : (msg.senderId === user.id ? 'Kullanıcı' : msg.senderName),
+                messages: [],
+                lastDate: msg.timestamp,
+                unreadCount: 0,
+                userAvatar: u?.avatar
+            };
+        }
+        acc[otherId].messages.push(msg);
+        if (new Date(msg.timestamp) > new Date(acc[otherId].lastDate)) {
+            acc[otherId].lastDate = msg.timestamp;
+        }
+        if (msg.receiverId === user.id && !msg.isRead) {
+            acc[otherId].unreadCount++;
+        }
+        return acc;
+    }, {});
+
+    const sortedConversations: ConversationGroup[] = (Object.values(groupedMessages) as ConversationGroup[]).sort((a, b) => 
+        new Date(b.lastDate).getTime() - new Date(a.lastDate).getTime()
+    );
+
+    const currentConversationMessages = selectedConversationUserId 
+        ? groupedMessages[selectedConversationUserId]?.messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) || []
+        : [];
+
+    if (!user || user.role !== 'admin') return <div className="p-8 text-center text-red-600">Yetkisiz Erişim</div>;
+
     return (
-        <div className="flex h-screen bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 flex flex-col z-10 shadow-sm">
-                <div className="p-6 border-b border-zinc-200 dark:border-zinc-700 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
-                    <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">Admin Paneli</h2>
+        <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
+            <header className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 p-4 flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                    <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800"><i className="fa-solid fa-arrow-left"></i></button>
+                    <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Yönetici Paneli</h2>
                 </div>
-                
-                <nav className="flex-1 p-4 space-y-1">
-                    {[
-                        {id: 'overview', icon: 'fa-gauge-high', label: 'Genel Bakış'},
-                        {id: 'users', icon: 'fa-users', label: 'Kullanıcılar'},
-                        {id: 'feedbacks', icon: 'fa-comments', label: 'Geri Bildirimler'},
-                        {id: 'messages', icon: 'fa-envelope', label: 'Mesajlar'},
-                        {id: 'settings', icon: 'fa-gear', label: 'Sistem Ayarları'}
-                    ].map((tab) => (
-                        <button 
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
-                        >
-                            <i className={`fa-solid ${tab.icon} w-5 text-center`}></i> {tab.label}
-                        </button>
-                    ))}
-                </nav>
-
-                <div className="p-4 border-t border-zinc-200 dark:border-zinc-700">
-                    <button onClick={onBack} className="w-full py-2 px-4 rounded-lg border border-zinc-300 dark:border-zinc-600 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2 text-sm font-bold">
-                        <i className="fa-solid fa-arrow-right-from-bracket"></i> Çıkış
-                    </button>
+                <div className="flex gap-2">
+                    <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'users' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Kullanıcılar</button>
+                    <button onClick={() => setActiveTab('feedbacks')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'feedbacks' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Geri Bildirimler</button>
+                    <button onClick={() => setActiveTab('messages')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'messages' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Mesajlar</button>
                 </div>
-            </aside>
+            </header>
 
-            {/* Main Content */}
-            <main className="flex-1 overflow-y-auto">
-                <header className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 p-4 md:px-8 md:py-4 flex justify-between items-center sticky top-0 z-20">
-                    <h1 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 capitalize">
-                        {activeTab === 'overview' ? 'Gösterge Paneli' : 
-                         activeTab === 'users' ? 'Kullanıcı Yönetimi' :
-                         activeTab === 'feedbacks' ? 'Geri Bildirimler' : 
-                         activeTab === 'messages' ? 'Mesajlar' : 'Sistem Ayarları'}
-                    </h1>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold">
-                            {user.name.charAt(0)}
+            <div className="flex-1 overflow-hidden p-4 md:p-8">
+                {/* USERS TAB */}
+                {activeTab === 'users' && (
+                    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700">
+                                    <tr>
+                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Kullanıcı</th>
+                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">E-posta</th>
+                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Rol</th>
+                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Plan</th>
+                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Durum</th>
+                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400 text-right">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
+                                    {users.map(u => (
+                                        <tr key={u.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30">
+                                            <td className="p-4 flex items-center gap-3">
+                                                <img src={u.avatar} alt="" className="w-8 h-8 rounded-full bg-zinc-200" />
+                                                <span className="font-medium text-zinc-900 dark:text-zinc-100">{u.name}</span>
+                                            </td>
+                                            <td className="p-4 text-zinc-600 dark:text-zinc-400">{u.email}</td>
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>{u.role}</span>
+                                            </td>
+                                            <td className="p-4 text-zinc-600 dark:text-zinc-400 capitalize">{u.subscriptionPlan}</td>
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 rounded text-xs font-bold ${u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{u.status}</span>
+                                            </td>
+                                            <td className="p-4 text-right space-x-2">
+                                                {u.id !== user.id && (
+                                                    <>
+                                                        <button onClick={() => handleToggleStatus(u.id)} className="text-amber-600 hover:text-amber-800" title={u.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}>
+                                                            <i className={`fa-solid ${u.status === 'active' ? 'fa-ban' : 'fa-check'}`}></i>
+                                                        </button>
+                                                        <button onClick={() => handleDeleteUser(u.id)} className="text-red-600 hover:text-red-800" title="Sil">
+                                                            <i className="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </header>
+                )}
 
-                <div className="p-4 md:p-8 max-w-7xl mx-auto">
-                    {activeTab === 'overview' && (
-                        <div className="space-y-6 fade-in">
-                            {/* KPI Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <StatCard title="Toplam Kullanıcı" value={users.length} change="+12%" icon="fa-solid fa-users" color="bg-indigo-500 text-indigo-500" trend="up" />
-                                <StatCard title="Geri Bildirim" value={feedbacks.length} change="+5%" icon="fa-solid fa-comment-dots" color="bg-emerald-500 text-emerald-500" trend="up" />
-                                <StatCard title="Üretilen İçerik" value={users.reduce((a,b)=>a+b.worksheetCount, 0)} change="+18%" icon="fa-solid fa-file-pen" color="bg-blue-500 text-blue-500" trend="up" />
-                                <StatCard title="Mesaj Trafiği" value={messages.length} change="-2%" icon="fa-solid fa-envelope-open-text" color="bg-amber-500 text-amber-500" trend="down" />
-                            </div>
-                            <div className="h-80"><ActivityChart /></div>
-                        </div>
-                    )}
-
-                    {activeTab === 'users' && (
-                        <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden fade-in">
-                            <div className="p-4 border-b flex flex-col sm:flex-row justify-between gap-4 items-center">
-                                <input 
-                                    type="text" 
-                                    placeholder="Kullanıcı Ara..." 
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-4 pr-4 py-2 border rounded-lg bg-zinc-50 dark:bg-zinc-900 w-full sm:w-64"
-                                />
-                                <button onClick={openCreateUser} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors flex items-center gap-2">
-                                    <i className="fa-solid fa-plus"></i> Yeni Kullanıcı
-                                </button>
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead className="bg-zinc-50 dark:bg-zinc-900 text-xs uppercase text-zinc-500 font-semibold">
-                                        <tr>
-                                            <th className="p-4">Kullanıcı</th>
-                                            <th className="p-4">Rol</th>
-                                            <th className="p-4">Durum</th>
-                                            <th className="p-4">Plan</th>
-                                            <th className="p-4 text-right">İşlemler</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700 text-sm">
-                                        {filteredUsers.map(u => (
-                                            <tr key={u.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center overflow-hidden">
-                                                            <img src={u.avatar} alt={u.name} className="w-full h-full object-cover" />
-                                                        </div>
-                                                        <div><p className="font-bold">{u.name}</p><p className="text-xs text-zinc-500">{u.email}</p></div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
-                                                        {u.role === 'admin' ? 'Yönetici' : 'Kullanıcı'}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                        {u.status === 'active' ? 'Aktif' : 'Askıda'}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4 capitalize">{u.subscriptionPlan}</td>
-                                                <td className="p-4 text-right">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button onClick={() => openEditUser(u)} className="text-blue-600 hover:bg-blue-50 p-2 rounded" title="Düzenle">
-                                                            <i className="fa-solid fa-pen"></i>
-                                                        </button>
-                                                        {u.id !== user.id && (
-                                                            <button onClick={() => handleDeleteUser(u.id)} className="text-red-600 hover:bg-red-50 p-2 rounded" title="Sil">
-                                                                <i className="fa-solid fa-trash"></i>
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'feedbacks' && (
-                        <div className="space-y-4 fade-in">
-                            {feedbacks.length === 0 && <p className="text-center text-zinc-500">Henüz geri bildirim yok.</p>}
-                            {feedbacks.map(fb => (
-                                <div key={fb.id} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center font-bold">
-                                                {fb.rating}
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-lg">{fb.activityTitle}</h4>
-                                                <p className="text-sm text-zinc-500">{fb.userName} • {new Date(fb.timestamp).toLocaleDateString('tr-TR')}</p>
-                                            </div>
+                {/* FEEDBACKS TAB */}
+                {activeTab === 'feedbacks' && (
+                    <div className="grid grid-cols-1 gap-4 overflow-y-auto h-full pb-20">
+                        {feedbacks.length === 0 && <div className="text-center p-8 text-zinc-400">Henüz geri bildirim yok.</div>}
+                        {feedbacks.map(fb => (
+                            <div key={fb.id} className={`bg-white dark:bg-zinc-800 p-6 rounded-xl border ${fb.status === 'new' ? 'border-indigo-500 shadow-md' : 'border-zinc-200 dark:border-zinc-700 shadow-sm'}`}>
+                                <div className="flex justify-between items-start mb-4">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-zinc-900 dark:text-zinc-100">{fb.userName || 'Anonim'}</span>
+                                            <span className="text-xs text-zinc-500">({fb.userEmail})</span>
+                                            {fb.status === 'new' && <span className="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">YENİ</span>}
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${fb.status === 'replied' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                            {fb.status === 'replied' ? 'Yanıtlandı' : 'Yeni'}
-                                        </span>
+                                        <p className="text-xs text-zinc-400">{new Date(fb.timestamp).toLocaleString('tr-TR')}</p>
                                     </div>
-                                    <p className="text-zinc-700 dark:text-zinc-300 mb-4 bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg italic">"{fb.message}"</p>
-                                    
-                                    {fb.adminReply && (
-                                        <div className="mb-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 rounded-r-lg">
-                                            <p className="text-xs font-bold text-indigo-600 mb-1">Sizin Yanıtınız:</p>
-                                            <p className="text-sm">{fb.adminReply}</p>
-                                        </div>
-                                    )}
-
-                                    {fb.status !== 'replied' && fb.userId && (
-                                        <div>
-                                            {replyingTo === fb.id ? (
-                                                <div className="mt-4 animate-fade-in">
-                                                    <textarea 
-                                                        className="w-full p-3 border rounded-lg mb-2 dark:bg-zinc-700 dark:border-zinc-600"
-                                                        rows={3}
-                                                        placeholder="Yanıtınızı yazın..."
-                                                        value={replyText}
-                                                        onChange={(e) => setReplyText(e.target.value)}
-                                                    ></textarea>
-                                                    <div className="flex gap-2">
-                                                        <button onClick={() => handleReplyFeedback(fb.id)} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Gönder</button>
-                                                        <button onClick={() => setReplyingTo(null)} className="px-4 py-2 text-zinc-500 hover:bg-zinc-100 rounded">İptal</button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <button onClick={() => setReplyingTo(fb.id)} className="text-indigo-600 font-bold text-sm hover:underline">
-                                                    <i className="fa-solid fa-reply mr-1"></i> Yanıtla
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {activeTab === 'messages' && (
-                        <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 h-[600px] flex fade-in">
-                            {/* Simple Message List for Admin */}
-                            <div className="w-full p-4 overflow-y-auto">
-                                {messages.length === 0 ? (
-                                    <p className="text-center text-zinc-500 mt-10">Mesaj kutusu boş.</p>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {messages.map(msg => (
-                                            <div key={msg.id} className={`p-4 rounded-lg border ${msg.senderId === user.id ? 'bg-indigo-50 ml-auto border-indigo-200 max-w-lg' : 'bg-zinc-50 border-zinc-200 max-w-lg'}`}>
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <span className="font-bold text-sm">{msg.senderId === user.id ? 'Siz' : msg.senderName}</span>
-                                                    <span className="text-xs text-zinc-400">{new Date(msg.timestamp).toLocaleString('tr-TR')}</span>
-                                                </div>
-                                                <p className="text-sm">{msg.content}</p>
-                                                {msg.senderId !== user.id && (
-                                                    <button 
-                                                        onClick={() => {
-                                                            const reply = prompt("Yanıtınız:");
-                                                            if(reply) handleSendMessage(msg.senderId, reply);
-                                                        }} 
-                                                        className="mt-2 text-xs text-indigo-600 hover:underline"
-                                                    >
-                                                        Yanıtla
-                                                    </button>
-                                                )}
-                                            </div>
+                                    <div className="flex text-yellow-400 text-sm">
+                                        {Array.from({length: 5}).map((_, i) => (
+                                            <i key={i} className={`${i < fb.rating ? 'fa-solid' : 'fa-regular'} fa-star`}></i>
                                         ))}
+                                    </div>
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <span className="inline-block px-2 py-1 bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs rounded mb-2">
+                                        {fb.activityTitle || 'Genel'}
+                                    </span>
+                                    <p className="text-zinc-700 dark:text-zinc-200">{fb.message}</p>
+                                </div>
+
+                                {fb.adminReply ? (
+                                    <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                        <p className="text-xs font-bold text-green-800 dark:text-green-200 mb-1"><i className="fa-solid fa-reply mr-1"></i> Yanıtınız:</p>
+                                        <p className="text-sm text-zinc-700 dark:text-zinc-300">{fb.adminReply}</p>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        {replyingFeedbackId === fb.id ? (
+                                            <div className="mt-4">
+                                                <textarea 
+                                                    value={feedbackReplyMessage}
+                                                    onChange={(e) => setFeedbackReplyMessage(e.target.value)}
+                                                    className="w-full p-3 border rounded-lg mb-2 text-sm bg-white dark:bg-zinc-700 dark:border-zinc-600"
+                                                    placeholder="Yanıtınızı yazın..."
+                                                    rows={3}
+                                                />
+                                                <div className="flex justify-end gap-2">
+                                                    <button onClick={() => setReplyingFeedbackId(null)} className="text-xs text-zinc-500 hover:text-zinc-700">İptal</button>
+                                                    <button onClick={() => handleFeedbackReply(fb.id)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700">Gönder</button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <button 
+                                                onClick={() => { setReplyingFeedbackId(fb.id); setFeedbackReplyMessage(''); }}
+                                                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center gap-1"
+                                            >
+                                                <i className="fa-solid fa-reply"></i> Yanıtla
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    )}
+                        ))}
+                    </div>
+                )}
 
-                    {activeTab === 'settings' && (
-                        <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 fade-in">
-                            <h3 className="text-lg font-bold mb-6">Sistem Genel Ayarları</h3>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between p-4 border rounded-lg dark:border-zinc-600">
-                                    <div>
-                                        <p className="font-bold">Bakım Modu</p>
-                                        <p className="text-sm text-zinc-500">Kullanıcı girişlerini geçici olarak durdurur.</p>
+                {/* MESSAGES TAB */}
+                {activeTab === 'messages' && (
+                    <div className="flex h-full bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+                        {/* Conversation List */}
+                        <div className="w-1/3 border-r border-zinc-200 dark:border-zinc-700 overflow-y-auto">
+                            {sortedConversations.map(group => (
+                                <button
+                                    key={group.userId}
+                                    onClick={() => { setSelectedConversationUserId(group.userId); }}
+                                    className={`w-full p-4 text-left border-b border-zinc-100 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors ${selectedConversationUserId === group.userId ? 'bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-l-indigo-500' : ''}`}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-3">
+                                            <img src={group.userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${group.userName}`} alt="" className="w-10 h-10 rounded-full bg-zinc-200" />
+                                            <div>
+                                                <p className="font-bold text-sm text-zinc-800 dark:text-zinc-100">{group.userName}</p>
+                                                <p className="text-xs text-zinc-500 truncate max-w-[120px]">{group.messages[group.messages.length-1].content}</p>
+                                            </div>
+                                        </div>
+                                        {group.unreadCount > 0 && (
+                                            <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{group.unreadCount}</span>
+                                        )}
                                     </div>
-                                    <button onClick={() => setSystemSettings({...systemSettings, maintenanceMode: !systemSettings.maintenanceMode})} className={`relative w-12 h-6 rounded-full transition-colors ${systemSettings.maintenanceMode ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
-                                        <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-all ${systemSettings.maintenanceMode ? 'left-7' : 'left-1'}`}></div>
-                                    </button>
-                                </div>
-                                <div className="flex items-center justify-between p-4 border rounded-lg dark:border-zinc-600">
-                                    <div>
-                                        <p className="font-bold">Yeni Kayıt Alımı</p>
-                                        <p className="text-sm text-zinc-500">Yeni üye kayıtlarını aç/kapat.</p>
-                                    </div>
-                                    <button onClick={() => setSystemSettings({...systemSettings, allowRegistrations: !systemSettings.allowRegistrations})} className={`relative w-12 h-6 rounded-full transition-colors ${systemSettings.allowRegistrations ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
-                                        <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-all ${systemSettings.allowRegistrations ? 'left-7' : 'left-1'}`}></div>
-                                    </button>
-                                </div>
-                                <div className="flex items-center justify-between p-4 border rounded-lg dark:border-zinc-600">
-                                    <div>
-                                        <p className="font-bold">AI Üretim Motoru</p>
-                                        <p className="text-sm text-zinc-500">Tüm sistemde AI üretimini aktif/pasif yap.</p>
-                                    </div>
-                                    <button onClick={() => setSystemSettings({...systemSettings, aiEnabled: !systemSettings.aiEnabled})} className={`relative w-12 h-6 rounded-full transition-colors ${systemSettings.aiEnabled ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
-                                        <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-all ${systemSettings.aiEnabled ? 'left-7' : 'left-1'}`}></div>
-                                    </button>
-                                </div>
-                            </div>
+                                </button>
+                            ))}
+                            {sortedConversations.length === 0 && <div className="p-8 text-center text-zinc-400 text-sm">Mesaj kutusu boş.</div>}
                         </div>
-                    )}
-                </div>
-            </main>
 
-            <UserModal 
-                isOpen={isUserModalOpen} 
-                onClose={() => setIsUserModalOpen(false)} 
-                onSave={handleSaveUser} 
-                initialData={editingUser} 
-            />
+                        {/* Chat Area */}
+                        <div className="flex-1 flex flex-col">
+                            {selectedConversationUserId ? (
+                                <>
+                                    <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+                                        <h3 className="font-bold text-zinc-800 dark:text-zinc-100">{groupedMessages[selectedConversationUserId]?.userName}</h3>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-100/50 dark:bg-zinc-900/50">
+                                        {currentConversationMessages.map(msg => {
+                                            const isMe = msg.senderId === user.id;
+                                            return (
+                                                <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                                    <div className={`max-w-[70%] p-3 rounded-xl text-sm ${isMe ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100 rounded-bl-none shadow-sm'}`}>
+                                                        {msg.content}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="p-4 bg-white dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700">
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="text"
+                                                value={replyText}
+                                                onChange={e => setReplyText(e.target.value)}
+                                                onKeyDown={e => e.key === 'Enter' && handleSendMessage(selectedConversationUserId, replyText)}
+                                                className="flex-1 p-2 border rounded-lg dark:bg-zinc-700 dark:border-zinc-600 outline-none focus:ring-2 focus:ring-indigo-500"
+                                                placeholder="Mesaj yaz..."
+                                            />
+                                            <button 
+                                                onClick={() => handleSendMessage(selectedConversationUserId, replyText)}
+                                                className="bg-indigo-600 text-white px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+                                            >
+                                                <i className="fa-solid fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex-1 flex items-center justify-center text-zinc-400">
+                                    <p>Bir sohbet seçin.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

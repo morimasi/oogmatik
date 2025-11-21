@@ -132,6 +132,12 @@ export const authService = {
         return updatedUser;
     },
 
+    // Get available contacts for messaging (excluding current user)
+    getContacts: (currentUserId: string): User[] => {
+        const users = getUsersDB();
+        return users.filter(u => u.id !== currentUserId && u.status === 'active');
+    },
+
     // --- ADMIN METHODS ---
     getAllUsers: (): User[] => {
         return getUsersDB();
