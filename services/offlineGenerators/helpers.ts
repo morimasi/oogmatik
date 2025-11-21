@@ -2,7 +2,6 @@
 import { ShapeType } from '../../types';
 import { TR_VOCAB, EMOJI_MAP } from '../../data/vocabulary';
 
-// FIX: Export TR_VOCAB so other modules can import it from this file.
 export { TR_VOCAB, EMOJI_MAP };
 
 export const turkishAlphabet = 'abcçdefgğhıijklmnoöprsştuüvyz';
@@ -11,7 +10,6 @@ export const EMOJIS = Object.keys(EMOJI_MAP);
 export const COLORS = TR_VOCAB.colors_detailed;
 export const HOMONYMS = TR_VOCAB.homonyms;
 
-// Genişletilmiş Kategori Listesi
 export const ITEM_CATEGORIES = ['animals', 'fruits_veggies', 'jobs', 'school', 'items_household', 'kitchen_food', 'sports', 'clothing', 'body_health', 'nature_space', 'technology', 'emotions', 'vehicles'];
 
 export const CATEGORY_NAMES: Record<string, string> = {
@@ -30,7 +28,6 @@ export const CATEGORY_NAMES: Record<string, string> = {
     'vehicles': 'Araçlar'
 };
 
-// Visual Similarity Map for attention tasks
 export const VISUALLY_SIMILAR_CHARS: Record<string, string[]> = {
     'b': ['d', 'p', 'q', 'h'],
     'd': ['b', 'p', 'q', 'a'],
@@ -55,7 +52,6 @@ export const VISUALLY_SIMILAR_CHARS: Record<string, string[]> = {
     'h': ['k', 'n', 'b']
 };
 
-// Resfebe Syllable Map
 export const SYLLABLE_EMOJIS: Record<string, string> = {
     'AT': '🐴', 'EV': '🏠', 'AY': '🌙', 'EL': '🖐️', 'GÜL': '🌹', 'OK': '🏹', 'BAL': '🍯', 
     'TAŞ': '🪨', 'KAR': '❄️', 'YAZ': '☀️', 'SU': '💧', 'ON': '🔟', 'BİR': '1️⃣', 'ÜÇ': '3️⃣',
@@ -67,22 +63,9 @@ export const SYLLABLE_EMOJIS: Record<string, string> = {
     'YEM': '🌽', 'SÜT': '🥛', 'TUZ': '🧂', 'YAĞ': '🧈', 'KAN': '🩸', 'TER': '💧', 'KİL': '🧱'
 };
 
-// Professional Color Palette for Connect Games (High Contrast, Print Friendly)
 export const CONNECT_COLORS = [
-    '#EF4444', // Red
-    '#3B82F6', // Blue
-    '#10B981', // Green
-    '#F59E0B', // Amber
-    '#8B5CF6', // Violet
-    '#EC4899', // Pink
-    '#06B6D4', // Cyan
-    '#6366F1', // Indigo
-    '#84CC16', // Lime
-    '#F97316', // Orange
-    '#14B8A6', // Teal
-    '#D946EF'  // Fuchsia
+    '#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#6366F1', '#84CC16', '#F97316', '#14B8A6', '#D946EF'
 ];
-
 
 // --- Helper Functions ---
 
@@ -107,73 +90,120 @@ export const getRandomItems = <T>(arr: T[], count: number): T[] => {
     return shuffle(arr).slice(0, count);
 };
 
-// Smart Grid Placement for Connect Games
-// Ensures points are not overlapping and reasonably spaced
-export const generateSmartConnectGrid = (gridSize: number, pairsCount: number) => {
-    const usedCoordinates = new Set<string>();
-    const placements: { x: number, y: number, pairIndex: number, isStart: boolean }[] = [];
+// --- ADVANCED ALGORITHMS ---
+
+// 1. Improved Turkish Syllabification
+export const simpleSyllabify = (text: string): string[] => {
+    if (!text) return [];
     
-    // Helper to get a valid random coordinate
-    const getValidCoord = (): { x: number, y: number } | null => {
-        let attempts = 0;
-        while (attempts < 50) {
-            const x = getRandomInt(0, gridSize - 1);
-            const y = getRandomInt(0, gridSize - 1);
-            const key = `${x},${y}`;
-            if (!usedCoordinates.has(key)) {
-                return { x, y };
-            }
-            attempts++;
-        }
-        return null;
-    };
-
-    // Helper to check distance
-    const isFarEnough = (c1: {x:number, y:number}, c2: {x:number, y:number}, minDistance: number) => {
-        return (Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y)) >= minDistance;
-    }
-
-    for (let i = 0; i < pairsCount; i++) {
-        // Place Start Point
-        const start = getValidCoord();
-        if (!start) break; // Grid full or failed to place
-        usedCoordinates.add(`${start.x},${start.y}`);
-        
-        // Place End Point (try to keep it some distance away for challenge)
-        let end = null;
-        let attempts = 0;
-        const targetDist = Math.max(2, Math.floor(gridSize / 2));
-        
-        while(attempts < 20) {
-            const candidate = getValidCoord();
-            if (candidate && isFarEnough(start, candidate, targetDist)) {
-                end = candidate;
+    // Helper to check if char is a vowel
+    const isVowel = (c: string) => 'aeıioöuüAEIİOÖUÜ'.includes(c);
+    
+    let syllables: string[] = [];
+    let currentWord = text.trim();
+    
+    // Iterate until word is fully processed
+    while (currentWord.length > 0) {
+        // Find first vowel from the start
+        let vowelIndex = -1;
+        for(let i=0; i<currentWord.length; i++) {
+            if (isVowel(currentWord[i])) {
+                vowelIndex = i;
                 break;
             }
-            // If we fail finding far point, check if candidate is valid at least
-            if (candidate && !end) end = candidate; // Fallback
-            attempts++;
         }
         
-        if (!end) {
-             // Should rarely happen if grid is large enough
-             end = getValidCoord();
+        // No vowel left, rest is part of previous syllable (or standalone if starts with consonants)
+        if (vowelIndex === -1) {
+            if (syllables.length > 0) {
+                syllables[syllables.length - 1] += currentWord;
+            } else {
+                syllables.push(currentWord);
+            }
+            break;
         }
         
-        if (end) {
-            usedCoordinates.add(`${end.x},${end.y}`);
-            placements.push({ ...start, pairIndex: i, isStart: true });
-            placements.push({ ...end, pairIndex: i, isStart: false });
-        } else {
-            // Rollback start if we can't place end
-             usedCoordinates.delete(`${start.x},${start.y}`);
+        // Find NEXT vowel to determine where to split
+        let nextVowelIndex = -1;
+        for(let i=vowelIndex+1; i<currentWord.length; i++) {
+            if(isVowel(currentWord[i])) {
+                nextVowelIndex = i;
+                break;
+            }
         }
+        
+        // If no next vowel, the rest is the last syllable
+        if (nextVowelIndex === -1) {
+            syllables.push(currentWord);
+            break;
+        }
+        
+        // Calculate consonants between vowels
+        const consonantsBetween = nextVowelIndex - vowelIndex - 1;
+        
+        // Turkish Syllabification Rule:
+        // V-CV (a-ra-ba): 1 consonant -> goes to next syllable. Split index = nextVowelIndex - 1
+        // VC-CV (al-tın): 2 consonants -> split between. Split index = nextVowelIndex - 1
+        // VCC-CV (türk-çe): 3 consonants -> split after first two? No, rule is last consonant joins next vowel.
+        // So: CCC -> CC-C. CC -> C-C. C -> -C.
+        
+        // Split always happens BEFORE the last consonant of the group between vowels
+        let splitIndex = nextVowelIndex - 1;
+        
+        // Check specialized clusters (tr, pr, bl etc might stay together in loanwords but general TR rule is split before last consonant)
+        // We stick to standard grammar rule: "Satır sonunda..." logic.
+        
+        syllables.push(currentWord.substring(0, splitIndex));
+        currentWord = currentWord.substring(splitIndex);
     }
-
-    return placements;
+    
+    return syllables;
 };
 
-// Latin Square Generator (Backtracking)
+// 2. Recursive Backtracker Maze Generator
+export const generateMaze = (rows: number, cols: number) => {
+    // Initialize grid: 1 = Wall, 0 = Path. Start filled with walls.
+    // We use odd dimensions for walls/paths logic (cells at odd indices)
+    const height = rows * 2 + 1;
+    const width = cols * 2 + 1;
+    const grid = Array.from({ length: height }, () => Array(width).fill(1));
+    
+    const dirs = [
+        { r: -2, c: 0 }, // N
+        { r: 2, c: 0 },  // S
+        { r: 0, c: 2 },  // E
+        { r: 0, c: -2 }  // W
+    ];
+
+    const carve = (r: number, c: number) => {
+        grid[r][c] = 0; // Mark cell as empty
+        
+        // Randomize directions
+        const shuffledDirs = shuffle(dirs);
+        
+        for (const d of shuffledDirs) {
+            const nr = r + d.r;
+            const nc = c + d.c;
+            
+            if (nr > 0 && nr < height - 1 && nc > 0 && nc < width - 1 && grid[nr][nc] === 1) {
+                // Carve path between current and next
+                grid[r + d.r/2][c + d.c/2] = 0;
+                carve(nr, nc);
+            }
+        }
+    };
+
+    // Start from random odd coordinate
+    carve(1, 1);
+    
+    // Ensure entrance and exit
+    grid[1][0] = 0; // Left entrance
+    grid[height - 2][width - 1] = 0; // Right exit
+
+    return grid;
+};
+
+// 3. Latin Square Generator (Backtracking)
 export const generateLatinSquare = (size: number): number[][] => {
     const grid = Array.from({ length: size }, () => Array(size).fill(0));
     
@@ -187,7 +217,6 @@ export const generateLatinSquare = (size: number): number[][] => {
         const r = Math.floor(idx / size);
         const c = idx % size;
         
-        // Optimization: Pre-check if cell is filled (not needed here as we start with 0s, but good practice)
         if (grid[r][c] !== 0) return solve(idx + 1);
 
         const nums = shuffle(Array.from({length: size}, (_, i) => i + 1));
@@ -204,6 +233,7 @@ export const generateLatinSquare = (size: number): number[][] => {
     return grid;
 }
 
+// 4. Random Pattern for Grid Drawing
 export const generateRandomPattern = (dim: number, density: number): [number, number][][] => {
     const lines: [number, number][][] = [];
     const count = Math.max(3, Math.floor(dim * density));
@@ -219,29 +249,22 @@ export const generateRandomPattern = (dim: number, density: number): [number, nu
     return lines;
 };
 
-// Sudoku Generator Helper
+// 5. Sudoku Generator
 export const generateSudokuGrid = (size: number = 6, difficulty: string): (number | null)[][] => {
-    // Only supports 6x6 (2x3 blocks) or 9x9 (3x3) for standard logic. 
-    // For arbitrary size latin square, use generateLatinSquare.
-    // Here we use a standard backtracking for 6x6 with block constraints.
     const grid: (number | null)[][] = Array.from({ length: size }, () => Array(size).fill(null));
-    const boxHeight = size === 6 ? 2 : 3;
-    const boxWidth = 3;
+    const boxHeight = size === 6 ? 2 : (size === 9 ? 3 : size);
+    const boxWidth = size === 6 ? 3 : (size === 9 ? 3 : 1);
 
     function isValid(num: number, row: number, col: number) {
-        // Check row and column
         for (let i = 0; i < size; i++) {
-            if (grid[row][i] === num || grid[i][col] === num) {
-                return false;
-            }
+            if (grid[row][i] === num || grid[i][col] === num) return false;
         }
-        // Check box
-        const startRow = row - (row % boxHeight);
-        const startCol = col - (col % boxWidth);
-        for (let r = 0; r < boxHeight; r++) {
-            for (let c = 0; c < boxWidth; c++) {
-                if (grid[r + startRow][c + startCol] === num) {
-                    return false;
+        if (size === 4 || size === 6 || size === 9) {
+            const startRow = row - (row % boxHeight);
+            const startCol = col - (col % boxWidth);
+            for (let r = 0; r < boxHeight; r++) {
+                for (let c = 0; c < boxWidth; c++) {
+                    if (grid[r + startRow][c + startCol] === num) return false;
                 }
             }
         }
@@ -256,10 +279,8 @@ export const generateSudokuGrid = (size: number = 6, difficulty: string): (numbe
                     for (let num of numbers) {
                         if (isValid(num, r, c)) {
                             grid[r][c] = num;
-                            if (solve()) {
-                                return true;
-                            }
-                            grid[r][c] = null; // backtrack
+                            if (solve()) return true;
+                            grid[r][c] = null;
                         }
                     }
                     return false;
@@ -269,14 +290,9 @@ export const generateSudokuGrid = (size: number = 6, difficulty: string): (numbe
         return true;
     }
     
-    solve(); // Create a full grid
+    solve();
 
-    // Remove numbers based on difficulty
-    let emptyCount = 0;
-    if (difficulty === 'Başlangıç') emptyCount = Math.floor(size * size * 0.4);
-    else if (difficulty === 'Orta') emptyCount = Math.floor(size * size * 0.55);
-    else if (difficulty === 'Zor') emptyCount = Math.floor(size * size * 0.65);
-    else emptyCount = Math.floor(size * size * 0.75);
+    let emptyCount = Math.floor(size * size * (difficulty === 'Başlangıç' ? 0.4 : difficulty === 'Orta' ? 0.5 : 0.6));
     
     for (let i = 0; i < emptyCount; i++) {
         let r, c;
@@ -290,30 +306,50 @@ export const generateSudokuGrid = (size: number = 6, difficulty: string): (numbe
     return grid;
 };
 
+export const generateSmartConnectGrid = (gridSize: number, pairsCount: number) => {
+    const usedCoordinates = new Set<string>();
+    const placements: { x: number, y: number, pairIndex: number, isStart: boolean }[] = [];
+    
+    const getValidCoord = (): { x: number, y: number } | null => {
+        let attempts = 0;
+        while (attempts < 50) {
+            const x = getRandomInt(0, gridSize - 1);
+            const y = getRandomInt(0, gridSize - 1);
+            const key = `${x},${y}`;
+            if (!usedCoordinates.has(key)) return { x, y };
+            attempts++;
+        }
+        return null;
+    };
+
+    for (let i = 0; i < pairsCount; i++) {
+        const start = getValidCoord();
+        if (!start) break;
+        usedCoordinates.add(`${start.x},${start.y}`);
+        
+        const end = getValidCoord(); // Simplified: random pos, players figure out path
+        if (end) {
+            usedCoordinates.add(`${end.x},${end.y}`);
+            placements.push({ ...start, pairIndex: i, isStart: true });
+            placements.push({ ...end, pairIndex: i, isStart: false });
+        }
+    }
+    return placements;
+};
+
 export const getWordsForDifficulty = (difficulty: string, topic?: string): string[] => {
     let pool: string[] = [];
     
     if (topic && topic !== 'Rastgele' && topic in TR_VOCAB) {
         const vocabList = (TR_VOCAB as any)[topic];
-        if (Array.isArray(vocabList) && vocabList.length > 0 && typeof vocabList[0] === 'string') {
-            pool = vocabList as string[];
-        }
+        if (Array.isArray(vocabList)) pool = vocabList as string[];
     } 
     
     if (pool.length === 0) {
-         const allKeys = Object.keys(TR_VOCAB).filter(k => 
-            !k.endsWith('_words') && 
-            !k.endsWith('_detailed') &&
-            k !== 'synonyms' && 
-            k !== 'antonyms' && 
-            k !== 'confusing_words' &&
-            k !== 'homonyms'
-         );
+         const allKeys = Object.keys(TR_VOCAB).filter(k => !k.includes('_'));
          allKeys.forEach(key => {
              const list = (TR_VOCAB as any)[key];
-             if (Array.isArray(list) && typeof list[0] === 'string') {
-                 pool = [...pool, ...list];
-             }
+             if (Array.isArray(list)) pool = [...pool, ...list];
          });
     }
 
@@ -324,138 +360,53 @@ export const getWordsForDifficulty = (difficulty: string, topic?: string): strin
         filteredPool = [...pool.filter(w => w.length >= 4 && w.length <= 6), ...TR_VOCAB.medium_words];
     } else if (difficulty === 'Zor') {
         filteredPool = [...pool.filter(w => w.length >= 7), ...TR_VOCAB.hard_words];
-    } else if (difficulty === 'Uzman') {
-        filteredPool = [...TR_VOCAB.expert_words, ...TR_VOCAB.hard_words.filter(w => w.length > 8)];
+    } else {
+        filteredPool = [...TR_VOCAB.expert_words];
     }
     
     if (filteredPool.length < 10) filteredPool = pool;
-
     return [...new Set(shuffle(filteredPool))];
 };
 
-// --- Crossword Generation Helper ---
 export const generateCrosswordLayout = (words: string[]) => {
-    // Sort words by length descending
-    const sortedWords = words.sort((a, b) => b.length - a.length);
-    const gridObj: Record<string, string> = {}; // "row,col": "char"
+    // Simplified Z-layout for offline reliability
+    const gridObj: Record<string, string> = {};
     const placements: { word: string, row: number, col: number, dir: 'across' | 'down' }[] = [];
-    
-    if (sortedWords.length === 0) return { grid: [[]], placements: [] };
-
-    // Place first word horizontal at 0,0
-    const firstWord = sortedWords[0];
-    placements.push({ word: firstWord, row: 0, col: 0, dir: 'across' });
-    for(let i=0; i<firstWord.length; i++) gridObj[`0,${i}`] = firstWord[i];
-
-    const remaining = sortedWords.slice(1);
-    // Limit iterations to prevent infinite loops in fast mode
-    for (const word of remaining) {
-        let placed = false;
-        // Try to intersect with existing letters
-        for (const key of Object.keys(gridObj)) {
-            if(placed) break;
-            const [rStr, cStr] = key.split(',');
-            const r = parseInt(rStr), c = parseInt(cStr);
-            const char = gridObj[key];
-
-            // Check where this char exists in the current word
-            for (let i = 0; i < word.length; i++) {
-                if (word[i] === char) {
-                    // Attempt vertical placement intersecting at i
-                    // Word start would be at (r - i, c)
-                    const startR = r - i;
-                    const startC = c;
-                    
-                    // Check collisions
-                    let valid = true;
-                    for(let k=0; k<word.length; k++) {
-                        const checkR = startR + k;
-                        const checkC = startC;
-                        const existing = gridObj[`${checkR},${checkC}`];
-                        
-                        // If cell matches letter or is empty, fine. BUT...
-                        // We must ensure we don't touch other words incorrectly (adjacent cells)
-                        if (existing && existing !== word[k]) { valid = false; break; }
-                        
-                        // Check neighbors if cell is empty (to avoid adjacent words merging)
-                        if (!existing) {
-                            // Detailed check skipped for "Fast Mode" brevity, assuming density handles it loosely
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    // Fallback: Simple diagonal/staircase layout if complex algo fails or for simplicity in offline mode
-    const simplePlacements: { word: string, row: number, col: number, dir: 'across' | 'down' }[] = [];
-    let currentRow = 0;
-    let currentCol = 0;
     
     words.forEach((w, idx) => {
         const dir = idx % 2 === 0 ? 'across' : 'down';
-        simplePlacements.push({ word: w, row: currentRow, col: currentCol, dir });
-        if (dir === 'across') {
-            currentCol += 2; // gap
-            currentRow += 2;
-        } else {
-             currentRow += 2;
-             currentCol -= 1; // shift back slightly
+        const row = idx * 2;
+        const col = idx % 2 === 0 ? 0 : 4;
+        
+        placements.push({ word: w, row, col, dir });
+        for(let k=0; k<w.length; k++) {
+            const r = dir === 'across' ? row : row + k;
+            const c = dir === 'across' ? col + k : col;
+            gridObj[`${r},${c}`] = w[k];
         }
     });
     
-    const finalGridObj: Record<string, string> = {};
-    const independentPlacements = words.map((w, i) => {
-        const row = i * 2;
-        const col = i % 2 === 0 ? 0 : 4; // Z pattern
-        for(let k=0; k<w.length; k++) finalGridObj[`${row},${col+k}`] = w[k];
-        return { word: w, row, col, dir: 'across' as const };
-    });
-
-    return { gridObj: finalGridObj, placements: independentPlacements };
+    return { gridObj, placements };
 };
 
-// --- Syllabification Helper ---
-export const simpleSyllabify = (word: string): string[] => {
-    // Basic Turkish syllabification attempt (heuristic)
-    if (word.length <= 2) return [word];
-    
-    const vowels = 'aeıioöuü';
-    const syllables: string[] = [];
-    let current = '';
-    
-    // Heuristic: Split after vowels if not followed by 2 consonants
-    // This is very basic. For offline reliability, we can use a simpler chunking.
-    // Or just 3-char chunks max.
-    
-    // Better approach for offline Resfebe: Try to match known keys in SYLLABLE_EMOJIS
-    
-    return word.length > 4 ? [word.substring(0, 2), word.substring(2)] : [word];
-};
-
-// --- Rebus Helper ---
 export const wordToRebus = (word: string): { type: 'text' | 'image'; value: string }[] => {
     const upperWord = word.toUpperCase();
     const parts: { type: 'text' | 'image'; value: string }[] = [];
     let remaining = upperWord;
     
-    // Greedy matching for syllables in our map
     while(remaining.length > 0) {
         let matched = false;
-        // Sort keys by length descending to match longest possible syllable first
         const keys = Object.keys(SYLLABLE_EMOJIS).sort((a,b) => b.length - a.length);
         
         for (const key of keys) {
             if (remaining.startsWith(key)) {
-                parts.push({ type: 'image', value: `${SYLLABLE_EMOJIS[key]} (${key})` }); // Showing hint text for offline mode simplicity
+                parts.push({ type: 'image', value: `${SYLLABLE_EMOJIS[key]} (${key})` }); 
                 remaining = remaining.slice(key.length);
                 matched = true;
                 break;
             }
         }
-        
         if (!matched) {
-            // If no match, just take the first letter as text
             parts.push({ type: 'text', value: remaining[0] });
             remaining = remaining.slice(1);
         }

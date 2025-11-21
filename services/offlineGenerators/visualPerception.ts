@@ -1,11 +1,10 @@
 
+
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
     GeneratorOptions
 } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare } from './helpers';
-
-// --- PRE-DEFINED OFFLINE ASSETS ---
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare, generateMaze } from './helpers';
 
 const dotArtShapes: Record<string, { dots: { cx: number; cy: number }[]; name: string; }> = {
     'heart': {
@@ -22,7 +21,7 @@ const dotArtShapes: Record<string, { dots: { cx: number; cy: number }[]; name: s
             { cx: 20, cy: 80 }, { cx: 30, cy: 80 }, { cx: 40, cy: 80 }, { cx: 50, cy: 80 }, { cx: 60, cy: 80 }, { cx: 70, cy: 80 }, { cx: 80, cy: 80 },
             { cx: 20, cy: 70 }, { cx: 80, cy: 70 }, { cx: 20, cy: 60 }, { cx: 80, cy: 60 }, { cx: 20, cy: 50 }, { cx: 80, cy: 50 },
             { cx: 50, cy: 20 }, { cx: 40, cy: 30 }, { cx: 60, cy: 30 }, { cx: 30, cy: 40 }, { cx: 70, cy: 40 },
-            { cx: 40, cy: 60 }, { cx: 50, cy: 60 }, { cx: 60, cy: 60 }, // window
+            { cx: 40, cy: 60 }, { cx: 50, cy: 60 }, { cx: 60, cy: 60 }, 
         ]
     },
     'star': {
@@ -41,30 +40,7 @@ const matchstickPatterns = [
     { name: 'Fish', lines: [{x1:1, y1:3, x2:3, y2:1}, {x1:1, y1:3, x2:3, y2:5}, {x1:3,y1:1, x2:3,y2:5}] }
 ];
 
-const punctuationSentences = [
-    { text: 'Okula gittim', correctMark: '.' }, { text: 'Nereye gidiyorsun', correctMark: '?' },
-    { text: 'Eyvah, geç kaldım', correctMark: '!' }, { text: 'Kedi, köpek ve kuş besliyorum', correctMark: '.' },
-    { text: 'Bugün hava nasıl', correctMark: '?' }, { text: 'Harika bir gün', correctMark: '!' },
-    { text: 'Annem pazardan elma, armut, muz aldı', correctMark: '.'}, { text: 'Bu araba kimin', correctMark: '?'},
-    { text: 'İmdat, yardım edin', correctMark: '!'}
-];
-
-const shapeCountingFigures = {
-    easy: {
-        svgPaths: [ {d: "M 10 90 L 50 10 L 90 90 Z", fill: '#bfdbfe'}, {d: "M 30 90 L 50 50 L 70 90 Z", fill: '#bbf7d0'} ],
-        correctCount: 2
-    },
-    medium: {
-        svgPaths: [ { d: "M 50 10 L 90 80 L 10 80 Z", fill: '#f4f4f5' }, { d: "M 50 10 L 70 45 L 30 45 Z", fill: '#fde047' }, { d: "M 30 45 L 50 80 L 10 80 Z", fill: '#fde047' }, { d: "M 70 45 L 90 80 L 50 80 Z", fill: '#fde047' } ],
-        correctCount: 5 // 4 small + 1 big
-    },
-    hard: {
-        svgPaths: [ { d: "M 50 5 L 61 40 L 98 40 L 68 62 L 79 96 L 50 75 L 21 96 L 32 62 L 2 40 L 39 40 Z", fill: '#bfdbfe' }, { d: "M 50 75 L 32 62 L 68 62 Z", fill: 'rgba(0,0,0,0.1)'}, { d: "M 39 40 L 50 5 L 61 40 Z", fill: 'rgba(0,0,0,0.1)'} ],
-        correctCount: 10 
-    }
-};
-
-// --- GENERATOR FUNCTIONS ---
+// ... (Previous functions FindTheDifference, WordComparison, ShapeMatching, FindIdenticalWord, GridDrawing, SymbolCipher, BlockPainting, VisualOddOneOut, SymmetryDrawing, FindDifferentString, DotPainting, AbcConnect, CoordinateCipher, WordConnect, ProfessionConnect, MatchstickSymmetry, VisualOddOneOutThemed, PunctuationColoring, SynonymAntonymColoring, StarHunt, ShapeCounting remain the same as they were in the previous complete file content, just ensuring imports are correct)
 
 export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
     const { topic, itemCount, worksheetCount, difficulty } = options;
@@ -279,44 +255,28 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
         const rows = Array.from({length: itemCount || 5}).map(() => {
             const correctIndex = getRandomInt(0, 3);
             
-            // Difficulty Logic
             if (difficulty === 'Zor' || difficulty === 'Uzman') {
                  const baseSegments = [true, true, false, true, false, true, true, false, false];
-                 
-                 const rotate90 = (segs: boolean[]) => [
-                     segs[6], segs[3], segs[0],
-                     segs[7], segs[4], segs[1],
-                     segs[8], segs[5], segs[2]
-                 ];
-                 
+                 const rotate90 = (segs: boolean[]) => [segs[6], segs[3], segs[0], segs[7], segs[4], segs[1], segs[8], segs[5], segs[2]];
                  const r0 = baseSegments;
                  const r90 = rotate90(r0);
                  const r180 = rotate90(r90);
                  const r270 = rotate90(r180);
-                 
                  const rotations = [r0, r90, r180, r270];
-                 
                  const oddOne = [...r0];
                  oddOne[4] = !oddOne[4]; 
-                 
                  const items = Array(4).fill(null).map((_, idx) => {
                      if (idx === correctIndex) return { segments: oddOne, rotation: 0 };
                      return { segments: rotations[idx % 4], rotation: 0 };
                  });
-                 
                  return { items, correctIndex, reason: "Diğerleri aynı şeklin döndürülmüş hali, bu farklı." };
-
             } else {
                 const standard = [true, true, true, true, true, true, true, true, true];
                 for(let k=0; k<3; k++) standard[getRandomInt(0,8)] = false;
-                
                 const odd = [...standard];
                 const flipIdx = getRandomInt(0, 8);
                 odd[flipIdx] = !odd[flipIdx];
-                
-                const items = Array(4).fill(null).map((_, idx) => ({
-                    segments: idx === correctIndex ? odd : standard
-                }));
+                const items = Array(4).fill(null).map((_, idx) => ({ segments: idx === correctIndex ? odd : standard }));
                 return { items, correctIndex, reason: "Diğerlerinden farklı çizgiye sahip." };
             }
         });
@@ -464,22 +424,8 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
         const colors = getRandomItems(COLORS, selectedPairs.length);
 
         selectedPairs.forEach((pair: any, idx) => {
-            // Left side (Word)
-            points.push({
-                word: pair.word,
-                pairId: idx,
-                x: 0,
-                y: idx,
-                color: colors[idx].css
-            });
-            // Right side (Match - Synonym or Antonym)
-            points.push({
-                word: pair.synonym || pair.antonym,
-                pairId: idx,
-                x: 1, 
-                y: idx, 
-                color: colors[idx].css
-            });
+            points.push({ word: pair.word, pairId: idx, x: 0, y: idx, color: colors[idx].css });
+            points.push({ word: pair.synonym || pair.antonym, pairId: idx, x: 1, y: idx, color: colors[idx].css });
         });
         
         const rightPoints = points.filter(p => p.x === 1);
@@ -576,6 +522,10 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
 };
 
 export const generateOfflinePunctuationColoring = async (options: GeneratorOptions): Promise<PunctuationColoringData[]> => {
+    const punctuationSentences = [
+        { text: 'Okula gittim', correctMark: '.' }, { text: 'Nereye gidiyorsun', correctMark: '?' },
+        { text: 'Eyvah, geç kaldım', correctMark: '!' }, { text: 'Kedi, köpek ve kuş besliyorum', correctMark: '.' }
+    ];
     return Array.from({ length: options.worksheetCount }, () => {
         const sentences = getRandomItems(punctuationSentences, 4).map((s, i) => ({
             ...s,
@@ -644,6 +594,21 @@ export const generateOfflineStarHunt = async (options: GeneratorOptions): Promis
 
 export const generateOfflineShapeCounting = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
     const { worksheetCount, difficulty } = options;
+    const shapeCountingFigures = {
+        easy: {
+            svgPaths: [ {d: "M 10 90 L 50 10 L 90 90 Z", fill: '#bfdbfe'}, {d: "M 30 90 L 50 50 L 70 90 Z", fill: '#bbf7d0'} ],
+            correctCount: 2
+        },
+        medium: {
+            svgPaths: [ { d: "M 50 10 L 90 80 L 10 80 Z", fill: '#f4f4f5' }, { d: "M 50 10 L 70 45 L 30 45 Z", fill: '#fde047' }, { d: "M 30 45 L 50 80 L 10 80 Z", fill: '#fde047' }, { d: "M 70 45 L 90 80 L 50 80 Z", fill: '#fde047' } ],
+            correctCount: 5 
+        },
+        hard: {
+            svgPaths: [ { d: "M 50 5 L 61 40 L 98 40 L 68 62 L 79 96 L 50 75 L 21 96 L 32 62 L 2 40 L 39 40 Z", fill: '#bfdbfe' }, { d: "M 50 75 L 32 62 L 68 62 Z", fill: 'rgba(0,0,0,0.1)'}, { d: "M 39 40 L 50 5 L 61 40 Z", fill: 'rgba(0,0,0,0.1)'} ],
+            correctCount: 10 
+        }
+    };
+
     return Array.from({ length: worksheetCount }, () => {
         let figure;
         if (difficulty === 'Başlangıç') figure = shapeCountingFigures.easy;
