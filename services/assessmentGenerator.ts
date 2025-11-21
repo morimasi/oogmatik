@@ -5,39 +5,38 @@ import { AssessmentProfile, AssessmentReport, ActivityType } from '../types';
 
 export const generateAssessmentReport = async (profile: AssessmentProfile): Promise<AssessmentReport> => {
     // Construct dynamic description of test results
-    let testResultsDesc = "İnteraktif test uygulanmadı.";
-    if (profile.testResults) {
-        testResultsDesc = `
-        İNTERAKTİF TEST SONUÇLARI ("${profile.testResults.testName}"):
-        - Skor: ${profile.testResults.score} / ${profile.testResults.totalItems}
-        - Doğruluk Oranı: %${profile.testResults.accuracy.toFixed(1)}
-        - Tamamlama Süresi: ${profile.testResults.durationSeconds} saniye
-        - Hatalı Tıklama (Dürtüsellik/Dikkatsizlik): ${profile.testResults.errorCount}
-        `;
+    let testResultsDesc = "İnteraktif test verisi yok.";
+    if (profile.testResults && Object.keys(profile.testResults).length > 0) {
+        testResultsDesc = "İNTERAKTİF BATARYA SONUÇLARI:\n";
+        for(const [key, result] of Object.entries(profile.testResults)) {
+            testResultsDesc += `- ${result.name}: Skor ${result.score}/${result.total}, Doğruluk %${result.accuracy.toFixed(1)}, Süre ${result.duration}sn.\n`;
+        }
     }
 
     const prompt = `
-    Sen 20 yıllık deneyime sahip bir Özel Eğitim Uzmanısın. Aşağıdaki öğrenci profilini analiz ederek öğrenme güçlüğü (disleksi, disgrafi, diskalkuli) risklerini değerlendir ve bir eğitim planı oluştur.
+    Sen 20 yıllık deneyime sahip bir Özel Eğitim Uzmanısın. Öğrenme güçlüğü (disleksi, disgrafi, diskalkuli) risklerini değerlendir.
 
     ÖĞRENCİ PROFİLİ:
     Yaş: ${profile.age}
     Sınıf: ${profile.grade}
     
     GÖZLEMLER:
-    ${profile.observations.length > 0 ? profile.observations.join(', ') : "Ebeveyn tarafından özel bir gözlem belirtilmedi."}
+    ${profile.observations.length > 0 ? profile.observations.join(', ') : "Belirtilmedi."}
 
     ${testResultsDesc}
 
     ANALİZ KURALLARI:
-    1. Eğer "İnteraktif Test" sonuçlarında doğruluk düşükse veya hata sayısı yüksekse, "Dikkat" ve "Görsel Algı" skorlarını buna göre düşür ve raporda bundan bahset (Örn: "Harf avı testindeki düşük performans, görsel ayırt etme güçlüğüne işaret ediyor").
-    2. Süre çok kısaysa ve hata çoksa "Dürtüsellik" vurgusu yap. Süre çok uzunsa "İşlemleme Hızı Yavaşlığı" olabilir.
-    3. Gözlemler ile test sonucunu birleştir.
-
+    1. Okuma Testi (Lexical): Düşük doğruluk -> Disleksi riski.
+    2. Matematik Testi: Düşük skor/yavaş hız -> Diskalkuli riski.
+    3. Dikkat Testi (Harf Avı): Çok hata -> Dürtüsellik; Yavaşlık -> İşlemleme hızı.
+    4. Görsel Test: Düşük skor -> Disgrafi/Görsel Algı.
+    
     GÖREVLER:
-    1. Öğrencinin durumunu özetle (overallSummary). Profesyonel, pedagojik, pozitif ve yapıcı bir dil kullan.
-    2. 4 ana alanda (okuma, yazma, matematik, dikkat) 0-100 arası "ihtiyaç skoru" belirle. (100 = Çok acil destek gerekli, 0 = Sorun yok).
-    3. Güçlü ve zayıf yönleri maddeler halinde listele.
-    4. Bu öğrenci için en uygun 3-5 adet etkinliği (roadmap) öner. Etkinlik ID'leri şunlardan biri OLMALIDIR: ${Object.values(ActivityType).join(', ')}.
+    1. "overallSummary": Pedagojik ve yapıcı bir özet yaz.
+    2. "scores": 4 alanda (reading, writing, math, attention) 0-100 arası "İHTİYAÇ/RİSK" skoru ver (Yüksek skor = Yüksek Risk).
+    3. "chartData": Radar grafiği için veri. Label (Alan adı) ve Value (0-100 Puan). 
+       (Labels: "Okuma", "Yazma", "Matematik", "Dikkat").
+    4. "roadmap": 3 etkinlik öner. ActivityID şunlardan biri: ${Object.values(ActivityType).join(', ')}.
     `;
 
     const schema = {
@@ -53,6 +52,18 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
                     attention: { type: Type.INTEGER },
                 },
                 required: ['reading', 'writing', 'math', 'attention']
+            },
+            chartData: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        label: { type: Type.STRING },
+                        value: { type: Type.INTEGER },
+                        fullMark: { type: Type.INTEGER }
+                    },
+                    required: ['label', 'value', 'fullMark']
+                }
             },
             analysis: {
                 type: Type.OBJECT,
@@ -75,9 +86,8 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
                 }
             }
         },
-        required: ['overallSummary', 'scores', 'analysis', 'roadmap']
+        required: ['overallSummary', 'scores', 'chartData', 'analysis', 'roadmap']
     };
 
-    // Safe cast since the prompt enforces the structure match
     return await generateWithSchema(prompt, schema) as unknown as AssessmentReport;
 };

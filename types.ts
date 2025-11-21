@@ -194,20 +194,23 @@ export interface Message {
 }
 
 // --- ASSESSMENT MODULE TYPES ---
-export interface InteractiveTestResult {
-    testName: string;
+export type TestCategory = 'reading' | 'math' | 'attention' | 'visual';
+
+export interface TestResult {
+    id: TestCategory;
+    name: string;
     score: number;
-    totalItems: number;
-    accuracy: number; // percentage
-    durationSeconds: number;
-    errorCount: number;
+    total: number;
+    accuracy: number; // 0-100
+    duration: number; // seconds
+    timestamp: number;
 }
 
 export interface AssessmentProfile {
     age: number;
     grade: string;
     observations: string[];
-    testResults?: InteractiveTestResult; // New Field
+    testResults: Record<string, TestResult>; 
 }
 
 export interface AssessmentReport {
@@ -218,6 +221,7 @@ export interface AssessmentReport {
         math: number; // 0-100
         attention: number; // 0-100
     };
+    chartData?: { label: string; value: number; fullMark: number }[];
     analysis: {
         strengths: string[];
         weaknesses: string[];
