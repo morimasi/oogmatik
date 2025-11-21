@@ -21,14 +21,14 @@ const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (m
 
 // --- VISUAL ASSETS (Matrix Reasoning) ---
 const MatrixCell = ({ item, className = "" }: { item: any, className?: string }) => {
-    if (!item) return <div className={className}></div>;
+    if (!item) return <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-600`}></div>;
 
     const { type, rotation = 0, count = 1, fill = false, shape = 'circle' } = item;
     
     return (
         <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-800 dark:border-zinc-400 flex items-center justify-center relative overflow-hidden`}>
             <svg viewBox="0 0 100 100" className="w-3/4 h-3/4">
-                <g transform={`rotate(${rotation}, 50, 50)`}>
+                <g transform={`rotate(${rotation}, 50, 50)`} style={{ transition: 'transform 0.3s' }}>
                     {type === 'line' && (
                         <line x1="50" y1="10" x2="50" y2="90" stroke="currentColor" strokeWidth="8" strokeLinecap="round" className="text-zinc-800 dark:text-zinc-200" />
                     )}
@@ -41,7 +41,7 @@ const MatrixCell = ({ item, className = "" }: { item: any, className?: string })
                             {shape === 'square' && <rect x="15" y="15" width="70" height="70" fill={fill ? "currentColor" : "none"} stroke="currentColor" strokeWidth="6" className="text-zinc-800 dark:text-zinc-200" />}
                             {shape === 'triangle' && <polygon points="50,15 85,85 15,85" fill={fill ? "currentColor" : "none"} stroke="currentColor" strokeWidth="6" className="text-zinc-800 dark:text-zinc-200" />}
                             {/* Inner elements based on count */}
-                            {count > 1 && <circle cx="50" cy="50" r="10" fill={fill ? "white" : "currentColor"} className={fill ? "text-zinc-800" : "text-zinc-800 dark:text-zinc-200"} />}
+                            {count > 1 && <circle cx="50" cy="50" r="12" fill={fill ? "white" : "currentColor"} className={fill ? "text-zinc-800" : "text-zinc-800 dark:text-zinc-200"} />}
                         </>
                     )}
                     {type === 'grid' && (
@@ -50,10 +50,10 @@ const MatrixCell = ({ item, className = "" }: { item: any, className?: string })
                             <line x1="50" y1="10" x2="50" y2="90" stroke="currentColor" strokeWidth="2" className="text-zinc-300" />
                             <line x1="10" y1="50" x2="90" y2="50" stroke="currentColor" strokeWidth="2" className="text-zinc-300" />
                             {/* Fill quadrants based on rotation/count logic */}
-                            {count === 1 && <rect x="10" y="10" width="40" height="40" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
-                            {count === 2 && <rect x="50" y="10" width="40" height="40" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
-                            {count === 3 && <rect x="50" y="50" width="40" height="40" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
-                            {count === 4 && <rect x="10" y="50" width="40" height="40" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
+                            {count === 1 && <rect x="12" y="12" width="36" height="36" rx="4" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
+                            {count === 2 && <rect x="52" y="12" width="36" height="36" rx="4" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
+                            {count === 3 && <rect x="52" y="52" width="36" height="36" rx="4" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
+                            {count === 4 && <rect x="12" y="52" width="36" height="36" rx="4" fill="currentColor" className="text-zinc-800 dark:text-zinc-200" />}
                         </g>
                     )}
                 </g>
@@ -119,7 +119,7 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
         // Professional Matrix Reasoning (IQ style)
         const items = [];
         
-        // 1. Rotation Logic
+        // 1. Rotation Logic (Clockwise)
         const createRotationMatrix = () => {
             const type = Math.random() > 0.5 ? 'line' : 'arrow';
             const startRot = getRandomInt(0, 3) * 90;
@@ -128,26 +128,28 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             const target = { type, rotation: (startRot + 3 * step) % 360 };
             const distractors = [
                 { type, rotation: (startRot + 180) % 360 },
-                { type, rotation: (startRot - 45) % 360 }
+                { type, rotation: (startRot - 45 + 360) % 360 }
             ];
             return { grid: seq, target, distractors };
         };
 
-        // 2. Shape Logic
+        // 2. Shape Logic (Progression A->B, C->D)
         const createShapeMatrix = () => {
             const shapes = ['circle', 'square', 'triangle'];
             const base = shapes[getRandomInt(0, 2)];
+            const otherShape = shapes.find(s => s !== base) || 'triangle';
             const fill = Math.random() > 0.5;
-            // Logic: A->B (Add dot), C->D (Add dot)
+            
+            // Pattern: Row 1 [Base, 1] -> [Base, 2]. Row 2 [Other, 1] -> [Target: Other, 2]
             const seq = [
                 { type: 'shape', shape: base, count: 1, fill },
                 { type: 'shape', shape: base, count: 2, fill },
-                { type: 'shape', shape: shapes.find(s=>s!==base), count: 1, fill }
+                { type: 'shape', shape: otherShape, count: 1, fill }
             ];
-            const target = { type: 'shape', shape: seq[2].shape, count: 2, fill };
+            const target = { type: 'shape', shape: otherShape, count: 2, fill };
             const distractors = [
-                { type: 'shape', shape: seq[2].shape, count: 1, fill },
-                { type: 'shape', shape: base, count: 2, fill: !fill }
+                { type: 'shape', shape: otherShape, count: 1, fill }, // Wrong count
+                { type: 'shape', shape: base, count: 2, fill } // Wrong shape
             ];
             return { grid: seq, target, distractors };
         };
@@ -179,7 +181,7 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
 
             items.push({
                 type: 'matrix',
-                grid: matrix.grid,
+                grid: matrix.grid, // Contains 3 items (Top-Left, Top-Right, Bottom-Left)
                 opts: shuffle([matrix.target, ...matrix.distractors]),
                 a: matrix.target,
                 id: i
@@ -365,7 +367,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 attentionState: [] 
             });
             // If it's cognitive, trigger memorize immediately for the first item
-            if (items.length > 0 && items[0].type === 'sequence') {
+            if (items.length > 0 && items[0]?.type === 'sequence') {
                 setIsMemorizing(true);
             }
         }
@@ -393,7 +395,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 setTestState(prev => ({ ...prev, score: nextScore, currentIndex: prev.currentIndex + 1 }));
                 
                 // If next item is cognitive, trigger memory phase
-                if (category === 'cognitive') {
+                const nextItem = testState.items[testState.currentIndex + 1];
+                if (category === 'cognitive' && nextItem?.type === 'sequence') {
                     setIsMemorizing(true);
                 }
                 
@@ -520,7 +523,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         return testState.items && testState.items.length > 0 && !!testState.items[testState.currentIndex];
     };
 
-    const currentItem = testState.items[testState.currentIndex];
+    const currentItem = testState.items?.[testState.currentIndex];
 
     // --- RENDER ---
     return (
