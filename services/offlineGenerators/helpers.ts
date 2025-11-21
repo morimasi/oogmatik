@@ -1,5 +1,4 @@
 
-
 import { ShapeType } from '../../types';
 import { TR_VOCAB, EMOJI_MAP } from '../../data/vocabulary';
 
@@ -105,6 +104,7 @@ export interface DifficultySettings {
     mazeComplexity: number;
     memoryItems: number;
     matchingPairs: number;
+    sentenceCount: number; // Added
 }
 
 export const getDifficultySettings = (difficulty: string): DifficultySettings => {
@@ -127,7 +127,10 @@ export const getDifficultySettings = (difficulty: string): DifficultySettings =>
                 distractorLevel: 'low', // Farklı karakterler (O vs X)
                 mazeComplexity: 5,
                 memoryItems: 4,
-                matchingPairs: 3
+                matchingPairs: 3,
+                
+                // Reading
+                sentenceCount: 5
             };
         case 'Orta':
             return {
@@ -144,7 +147,10 @@ export const getDifficultySettings = (difficulty: string): DifficultySettings =>
                 distractorLevel: 'medium', // Benzer şekiller
                 mazeComplexity: 10,
                 memoryItems: 8,
-                matchingPairs: 5
+                matchingPairs: 5,
+                
+                // Reading
+                sentenceCount: 10
             };
         case 'Zor':
             return {
@@ -161,7 +167,10 @@ export const getDifficultySettings = (difficulty: string): DifficultySettings =>
                 distractorLevel: 'high', // (b vs d, p vs q)
                 mazeComplexity: 15,
                 memoryItems: 12,
-                matchingPairs: 8
+                matchingPairs: 8,
+                
+                // Reading
+                sentenceCount: 15
             };
         case 'Uzman':
             return {
@@ -178,7 +187,10 @@ export const getDifficultySettings = (difficulty: string): DifficultySettings =>
                 distractorLevel: 'very_high', // Görsel tuzaklar
                 mazeComplexity: 20,
                 memoryItems: 16,
-                matchingPairs: 10
+                matchingPairs: 10,
+                
+                // Reading
+                sentenceCount: 20
             };
         default:
             return getDifficultySettings('Orta');

@@ -1,3 +1,4 @@
+
 export const PROVERBS = [
   "Damlaya damlaya göl olur.",
   "Sakla samanı, gelir zamanı.",
@@ -281,46 +282,69 @@ export const SAYINGS = [
   "Küçük şeylere gereğinden çok önem verenler, elinden büyük iş gelmeyenlerdir. - Eflatun"
 ];
 
-export const STORY_TEMPLATES = [
-  // Original Template 1 (Fantasy/Adventure)
-  {
-    template: "Bir zamanlar {place} diyarında yaşayan küçük bir {character} varmış. Bu {character}, en çok {activity} yapmayı severmiş. Bir gün, {object} bulmuş ve hayatı tamamen değişmiş.",
-    places: ["büyülü orman", "kayıp uzay gemisi", "deniz altı krallığı", "bulutlar ülkesi", "şekerden kale", "oyuncaklar diyarı", "karanlık mağara", "kristal şehir", "konuşan hayvanlar vadisi", "zaman adası", "robotlar gezegeni"],
-    characters: ["cesur bir tavşan", "meraklı bir robot", "şarkı söyleyen bir balık", "unutkan bir peri", "dost canlısı bir ejderha", "şaşkın bir uzaylı", "yaramaz bir kedi", "bilge bir kaplumbağa", "korkak bir büyücü", "maceracı bir prenses"],
-    activities: ["uçurtma uçurmayı", "eski kitapları okumayı", "harita çizmeyi", "yıldızları saymayı", "gizemli şarkılar mırıldanmayı", "bulmaca çözmeyi", "yeni yerler keşfetmeyi", "dans etmeyi", "icatlar yapmayı"],
-    objects: ["sihirli bir değnek", "eski bir harita", "konuşan bir taş", "görünmezlik pelerini", "zaman makinesi", "uçan bir halı", "altın bir anahtar", "parlayan bir kristal", "eski bir günlük", "sihirli bir yüzük"]
-  },
-  // Original Template 2 (Daily Life)
-  {
-    template: "{character}, sabah erkenden uyandı. Pencereden baktığında her yerin {weather} olduğunu gördü. Hemen {clothing} giydi ve dışarı çıktı. Amacı {goal} idi.",
-    characters: ["Ali", "Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Mert", "Selin", "Burak", "Ceren", "Deniz", "Umut", "Cemre", "Arda", "İpek"],
-    weather: ["karlı ve bembeyaz", "yağmurlu ve ıslak", "pırıl pırıl güneşli", "sert rüzgarlı", "yoğun sisli", "pamuk gibi bulutlu", "gökkuşağıyla süslü"],
-    clothing: ["kalın montunu", "rengarenk botlarını", "yünlü şapkasını", "su geçirmez yağmurluğunu", "güneş gözlüğünü", "en sevdiği kazağını", "sıcak tutan atkısını"],
-    goals: ["arkadaşlarıyla buluşmaktı", "kayıp kedisini aramaktı", "okula gitmekti", "parkta oynamaktı", "dedesini ziyaret etmekti", "köpeğini gezdirmekti", "bisiklet sürmekti", "bir sırrı çözmekti", "hazine avına çıkmaktı"]
-  },
-  // Original Template 3 (Animal Story)
-  {
-    template: "Büyük bir {place} içinde, sevimli bir {animal} yaşarmış. Bu {animal} çok {adjective} biriymiş. En sevdiği yiyecek {food} imiş. Bir gün ormanda {verb} yaparken yeni bir arkadaş edinmiş.",
-    places: ["ağaç kovuğu", "derin bir mağara", "nehir kenarındaki bir yuva", "yüksek bir dağın tepesi", "sıcacık bir kulübe", "geniş bir çayır", "eski bir kale harabesi"],
-    animals: ["ayı", "tilki", "sincap", "kirpi", "porsuk", "baykuş", "kunduz", "vaşak"],
-    adjectives: ["cesur", "meraklı", "komik", "uykucu", "obur", "utangaç", "becerikli", "sakar", "neşeli"],
-    foods: ["bal", "muz", "taze balık", "çıtır fındık", "kırmızı elma", "lezzetli mantar", "tatlı böğürtlen"],
-    verbs: ["yürüyüş", "keşif", "saklambaç", "yaramazlık", "şarkı söyleme", "tırmanma", "yüzme"]
-  },
-  // New Template 4 (Mystery/Detective)
-  {
-    template: "Dedektif {character}, kayıp {object}'ı arıyordu. En son {place}'de görüldüğü söylenmişti. Oraya vardığında yerde bir {clue} buldu. Bu {clue}, onu adım adım suçluya götürecekti.",
-    characters: ["Sherlock Holmes", "Zeki Poyraz", "Gizem Çözen Zeynep", "İz Sürücü Karabaş", "Bilge Baykuş"],
-    objects: ["elmas gerdanlığı", "kırmızı bisikleti", "değerli tabloyu", "altın anahtarı", "gizli formülü", "ünlü yazarın günlüğünü"],
-    places: ["eski bir kütüphanede", "terk edilmiş bir tiyatroda", "kalabalık bir tren istasyonunda", "limandaki bir depoda", "büyük bir otelin lobisinde"],
-    clues: ["çamurlu bir ayak izi", "yere düşmüş bir tüy", "kopmuş bir düğme", "şifreli bir not kağıdı", "tek bir eldiven", "kırık bir gözlük"]
-  },
-  // New Template 5 (School Adventure)
-  {
-    template: "Okulun en heyecanlı günüydü: Bilim Fuarı! {character}, projesi olan {project} ile çok iddialıydı. Ancak fuar başlamadan hemen önce, projenin en önemli parçası olan {item} kayboldu. {friend} ile birlikte hemen aramaya koyuldular.",
-    characters: ["Mucit Efe", "Bilim Meraklısı Duru", "Dahi Can", "Araştırmacı Elif"],
-    projects: ["roket maketini", "yanardağ deneyini", "robot kolunu", "bitki sulama sistemini", "mıknatıslı trenini"],
-    items: ["roketin motoru", "yanardağın sirkesi", "robotun çipi", "sistemin su pompası", "trenin mıknatısı"],
-    friends: ["en iyi arkadaşı Mert", "sınıf arkadaşı Selin", "komşusu Arda", "kardeşi İpek"]
-  }
-];
+// --- DYNAMIC STORY GENERATION MODULES ---
+// This structure allows generating stories of specific lengths (5, 10, 15, 20 sentences)
+// by chaining logical sentence parts.
+
+export const DYNAMIC_STORY_MODULES = {
+    intros: [
+        "Bir zamanlar {place} diyarında yaşayan küçük bir {character} varmış.",
+        "Güneşli bir sabah, {character} erkenden uyandı ve {place} yolunu tuttu.",
+        "{character}, en sevdiği oyuncağını aramak için {place} tarafına doğru yürüdü.",
+        "Karanlık bir gecede, {character} penceresinden dışarı, {place} manzarasına bakıyordu.",
+        "Herkesin tanıdığı {character}, o gün {place} içinde ilginç bir şey fark etti.",
+        "Eski zamanlarda, {place} civarında {character} isimli bir kahraman yaşardı.",
+        "Okuldan dönen {character}, kestirme yoldan {place} içinden geçmeye karar verdi.",
+        "{place} o gün her zamankinden daha sessizdi, {character} bunu garipsedi."
+    ],
+    actions: [
+        "Yerde parlayan gizemli bir {object} buldu.",
+        "Birdenbire karşısına {adjective} bir {animal} çıktı.",
+        "Hızla koşmaya başladı çünkü hava kararıyordu.",
+        "Çantasından {object} çıkardı ve dikkatle inceledi.",
+        "Etrafına bakındı ama kimseyi göremedi.",
+        "Yüksek bir ses duydu ve korkuyla irkildi.",
+        "Yerdeki izleri takip etmeye karar verdi.",
+        "Ağacın dalında asılı duran {object} dikkatini çekti.",
+        "O sırada yağmur yağmaya başladı ve sığınacak yer aradı.",
+        "Cebindeki son {food} parçasını çıkarıp yedi.",
+        "Karşısına çıkan nehrin üzerinden atladı.",
+        "Uzaktaki bir ışıltı ona yol gösteriyordu.",
+        "Yorgunluktan bir taşın üzerine oturdu.",
+        "Ona doğru yaklaşan gölgeyi fark etti.",
+        "Elindeki haritaya baktı ama yönünü şaşırmıştı.",
+        "Cesaretini toplayıp mağaraya girdi.",
+        "Yerdeki anahtarı alıp kapıyı açtı.",
+        "Kuşların sesi ona huzur verdi.",
+        "Rüzgar o kadar sert esiyordu ki ayakta zor duruyordu.",
+        "Sonunda aradığı ipucunu bulmuştu.",
+        "{friend} ile karşılaştı ve ona durumu anlattı.",
+        "Birlikte {activity} yapmaya başladılar.",
+        "Zamanın nasıl geçtiğini anlamadı.",
+        "Gökyüzünde beliren gökkuşağına hayran kaldı.",
+        "Çamura saplanan ayağını zorlukla kurtardı."
+    ],
+    conclusions: [
+        "Sonunda {character} evine sağ salim döndü ve derin bir nefes aldı.",
+        "O günden sonra {character} bir daha asla {place} tarafına gitmedi.",
+        "Bu macera {character} için unutulmaz bir anı olmuştu.",
+        "{character}, yaşadıklarını günlüğüne yazarak uykuya daldı.",
+        "Artık {character}, cesur olmanın ne demek olduğunu öğrenmişti.",
+        "Böylece {character} ve {friend} sonsuza dek mutlu yaşadılar.",
+        "Günün sonunda {character}, {object} ile birlikte huzurla gülümsedi.",
+        "Her şey normale döndüğünde {character} çok rahatlamıştı."
+    ],
+    fillers: {
+        places: ["büyülü orman", "ıssız ada", "kalabalık şehir", "eski kütüphane", "karanlık mağara", "çiçekli bahçe", "uzay istasyonu", "deniz kıyısı"],
+        characters: ["Ali", "Ayşe", "Minik Tavşan", "Robot Robi", "Dedektif Can", "Kaptan Efe", "Prenses Elif", "Bilge Baykuş"],
+        objects: ["anahtar", "harita", "pusula", "mektup", "kolye", "fener", "kitap", "sihirli değnek"],
+        animals: ["kurt", "ayı", "sincap", "kartal", "yunus", "ejderha", "kedi", "köpek"],
+        adjectives: ["kocaman", "parlak", "korkunç", "sevimli", "gizemli", "hızlı", "renkli", "eski"],
+        foods: ["elma", "ekmek", "kurabiye", "havuç", "sandviç", "çikolata"],
+        friends: ["Mehmet", "Zeynep", "Boncuk", "Maviş", "Kardeşi", "Komşusu"],
+        activities: ["koşmaya", "saklanmaya", "gülmeye", "şarkı söylemeye", "düşünmeye", "aramaya"]
+    }
+};
+
+// Keep old templates for backward compatibility if needed, but dynamic generator relies on above
+export const STORY_TEMPLATES = []; 
