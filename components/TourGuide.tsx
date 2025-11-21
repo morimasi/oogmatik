@@ -47,33 +47,35 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
 
             const element = document.getElementById(step.targetId);
             
-            if (element) {
+            // Element exists and is visible (has dimensions)
+            if (element && element.offsetParent !== null) {
                 // Scroll element into view if needed
                 element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 
                 // Wait slightly for scroll to finish then measure
                 setTimeout(() => {
                     const rect = element.getBoundingClientRect();
-                    // Check if element is actually visible in viewport dimensions (not 0x0)
+                    // Check again if element is actually visible in viewport dimensions
                     if (rect.width === 0 && rect.height === 0) {
-                         // Element exists but invisible, skip
                          handleNextAuto();
                     } else {
                         setTargetRect(rect);
                     }
                 }, 350);
             } else {
-                // Element not found (e.g. user not logged in, or toolbar not generated yet)
-                // Automatically skip to next step
-                console.warn(`Tour target #${step.targetId} not found, skipping step.`);
+                // Element not found or hidden (e.g. Toolbar not generated yet)
+                // Automatically skip to next step without closing if possible
+                console.log(`Tour target #${step.targetId} not visible, skipping step.`);
                 handleNextAuto();
             }
         };
 
         const handleNextAuto = () => {
             if (currentStepIndex < steps.length - 1) {
-                skipTimeout = setTimeout(() => setCurrentStepIndex(prev => prev + 1), 100);
+                // Move to next step immediately
+                skipTimeout = setTimeout(() => setCurrentStepIndex(prev => prev + 1), 0);
             } else {
+                // If it's the last step and missing, close tour
                 onClose();
             }
         };
@@ -102,6 +104,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
 
     const handlePrev = (e: React.MouseEvent) => {
         e.stopPropagation();
+        // Find previous visible step
         if (currentStepIndex > 0) {
             setCurrentStepIndex(prev => prev - 1);
         }
@@ -112,7 +115,8 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         const gap = 20;
         let top = 0;
         let left = 0;
-        const tooltipWidth = 320; // Approx max width
+        const tooltipWidth = 320; 
+        const tooltipHeight = 200; // Approx
         
         const pos = currentStep.position || 'bottom';
 
@@ -120,7 +124,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             top = targetRect.bottom + gap;
             left = targetRect.left + (targetRect.width / 2) - (tooltipWidth / 2);
         } else if (pos === 'top') {
-            top = targetRect.top - gap - 200; // Approx height adjustment
+            top = targetRect.top - gap - tooltipHeight; 
             left = targetRect.left + (targetRect.width / 2) - (tooltipWidth / 2);
         } else if (pos === 'right') {
             top = targetRect.top;
@@ -131,19 +135,24 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         }
 
         // Keep within viewport with padding
-        left = Math.max(20, Math.min(window.innerWidth - tooltipWidth - 20, left));
-        top = Math.max(20, Math.min(window.innerHeight - 250, top));
+        const padding = 20;
+        if (left < padding) left = padding;
+        if (left + tooltipWidth > window.innerWidth - padding) left = window.innerWidth - tooltipWidth - padding;
+        
+        if (top < padding) top = padding;
+        // If bottom goes off screen, flip to top? (Simple clamp for now)
+        // if (top + tooltipHeight > window.innerHeight - padding) top = targetRect.top - gap - tooltipHeight;
 
         return { top, left };
     };
 
     const tooltipStyle = getTooltipStyle();
-    const padding = 8; // Padding around the element
+    const padding = 8; // Padding around the highlight area
     
     return createPortal(
-        <div className="fixed inset-0 z-[9999] overflow-hidden font-sans" onClick={onClose}>
+        <div className="fixed inset-0 z-[9999] overflow-hidden font-sans tour-overlay" onClick={onClose}>
             {/* Blurred Background via Backdrop Filter + SVG Mask */}
-            <div className="absolute inset-0 pointer-events-none transition-all duration-500 ease-in-out">
+            <div className="absolute inset-0 pointer-events-none transition-all duration-300 ease-in-out">
                 <svg width="100%" height="100%" className="absolute inset-0">
                     <defs>
                         <mask id="tour-mask">
@@ -155,16 +164,15 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                                 width={targetRect.width + (padding*2)} 
                                 height={targetRect.height + (padding*2)} 
                                 fill="black" 
-                                rx="12" 
+                                rx="8" 
                             />
                         </mask>
                     </defs>
                     
                     <rect 
                         x="0" y="0" width="100%" height="100%" 
-                        fill="rgba(0,0,0,0.75)" 
+                        fill="rgba(0,0,0,0.6)" 
                         mask="url(#tour-mask)" 
-                        style={{ backdropFilter: 'blur(8px)' }} 
                     />
                     
                     {/* Spotlight animated border */}
@@ -175,50 +183,49 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                         height={targetRect.height + (padding*2)} 
                         fill="none" 
                         stroke="#6366F1" 
-                        strokeWidth="4" 
-                        rx="12"
-                        className="animate-pulse shadow-[0_0_30px_rgba(99,102,241,0.6)]"
+                        strokeWidth="3" 
+                        rx="8"
+                        className="tour-highlight transition-all duration-300 ease-out"
                     />
                 </svg>
             </div>
 
             {/* Tooltip Card */}
             <div 
-                className="absolute bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6 w-full max-w-xs md:max-w-sm border border-zinc-200 dark:border-zinc-700 flex flex-col gap-4 transition-all duration-500 ease-out z-[10000]"
+                className="absolute bg-white dark:bg-zinc-900 rounded-xl shadow-2xl p-6 w-full max-w-xs border border-zinc-200 dark:border-zinc-700 flex flex-col gap-3 transition-all duration-300 ease-out z-[10000]"
                 style={{ top: tooltipStyle.top, left: tooltipStyle.left }}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-xl text-indigo-600 dark:text-indigo-400">{currentStep.title}</h3>
+                    <h3 className="font-bold text-lg text-indigo-600 dark:text-indigo-400">{currentStep.title}</h3>
                     <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
-                        <i className="fa-solid fa-times text-lg"></i>
+                        <i className="fa-solid fa-times"></i>
                     </button>
                 </div>
                 
-                <p className="text-zinc-600 dark:text-zinc-300 text-md leading-relaxed">
+                <p className="text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed">
                     {currentStep.content}
                 </p>
 
-                <div className="flex justify-between items-center pt-2 border-t border-zinc-100 dark:border-zinc-800 mt-2">
-                    <div className="text-xs font-bold text-zinc-400 font-mono tracking-widest">
-                        ADIM {currentStepIndex + 1} / {steps.length}
+                <div className="flex justify-between items-center pt-3 border-t border-zinc-100 dark:border-zinc-800 mt-1">
+                    <div className="text-[10px] font-bold text-zinc-400 font-mono tracking-widest">
+                        {currentStepIndex + 1} / {steps.length}
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-2">
                         {currentStepIndex > 0 && (
                             <button 
                                 onClick={handlePrev}
-                                className="px-4 py-2 text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="px-3 py-1.5 text-xs font-bold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                             >
                                 Geri
                             </button>
                         )}
                         <button 
                             onClick={handleNext}
-                            className="px-6 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-lg hover:shadow-indigo-500/30 transition-all transform active:scale-95 flex items-center gap-2"
+                            className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md transition-all transform active:scale-95 flex items-center gap-2"
                         >
-                            {isLastStep ? 'Bitir' : 'İleri'} 
-                            {!isLastStep && <i className="fa-solid fa-arrow-right text-xs"></i>}
-                            {isLastStep && <i className="fa-solid fa-check text-xs"></i>}
+                            {isLastStep ? 'Tamamla' : 'İleri'} 
+                            {!isLastStep && <i className="fa-solid fa-chevron-right text-[10px]"></i>}
                         </button>
                     </div>
                 </div>

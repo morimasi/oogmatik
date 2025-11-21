@@ -1,10 +1,8 @@
 
 import React, { CSSProperties } from 'react';
-// FIX: Changed AnagramData to AnagramsData to match the exported type from types.ts.
 import { ActivityType, SingleWorksheetData, AnagramsData } from '../types';
 import { StyleSettings } from '../App';
 
-// Import all the new component files
 import * as WordGameSheets from './sheets/WordGameSheets';
 import * as ReadingSheets from './sheets/ReadingComprehensionSheets';
 import * as MemorySheets from './sheets/MemoryAttentionSheets';
@@ -12,7 +10,6 @@ import * as MathLogicSheets from './sheets/MathLogicSheets';
 import * as VisualSheets from './sheets/VisualPerceptionSheets';
 import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 
-// FIX: Added 'FindLetterPairData' to the import list to fix a 'Cannot find name' error.
 import {
     WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData, SynonymWordSearchData, SynonymSearchAndStoryData, StoryData, StroopTestData, NumberPatternData, SpellingCheckData, LetterGridTestData, NumberSearchData, WordMemoryData, StoryCreationPromptData, FindTheDifferenceData, WordComparisonData, WordsInStoryData, OddOneOutData, ShapeMatchingData, SymbolCipherData, ProverbFillData, LetterBridgeData, FindDuplicateData, FindLetterPairData, WordLadderData, FindIdenticalWordData, WordFormationData, ReverseWordData, WordGroupingData, VisualMemoryData, StoryAnalysisData, CoordinateCipherData, TargetSearchData, ShapeNumberPatternData, GridDrawingData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StorySequencingData, ChaoticNumberSearchData, BlockPaintingData, MiniWordGridData, VisualOddOneOutData, ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, PasswordFinderData, SyllableCompletionData, WordConnectData, SpiralPuzzleData, CrosswordData, JumbledWordStoryData, HomonymSentenceData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, ThematicOddOneOutData, SynonymAntonymGridData, PunctuationColoringData, TargetNumberData, OperationSquareMultDivData, FutoshikiData, ShapeSudokuData, WeightConnectData, PunctuationMazeData, AntonymResfebeData, ThematicOddOneOutSentenceData, ProverbSentenceFinderData, ColumnOddOneOutSentenceData, SynonymAntonymColoringData, PunctuationPhoneNumberData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData, RomanNumeralMultiplicationData, ArithmeticConnectData, RomanArabicMatchConnectData, Sudoku6x6ShadedData, KendokuData, DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData, OperationSquareFillInData, MultiplicationWheelData, ResfebeData, FutoshikiLengthData, MatchstickSymmetryData, WordWebData, StarHuntData, LengthConnectData, VisualNumberPatternData, MissingPartsData, ProfessionConnectData, VisualOddOneOutThemedData, LogicGridPuzzleData, ImageAnagramSortData, AnagramImageMatchData, SyllableWordSearchData, WordWebWithPasswordData, WordPlacementPuzzleData, PositionalAnagramData, MathPuzzleData,
     ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData
@@ -28,12 +25,20 @@ interface WorksheetProps {
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
     if (!data || !activityType) return null;
 
-    // FIX: Cast the style object to React.CSSProperties to allow CSS custom properties without type errors.
     const worksheetStyles: CSSProperties = {
         '--worksheet-border-color': settings.borderColor,
         '--worksheet-border-width': `${settings.borderWidth}px`,
-         '--worksheet-margin': `${settings.margin}px`,
+        '--worksheet-margin': `${settings.margin}px`,
+        '--worksheet-gap': `${settings.gap}px`, // Inject dynamic gap for all flex/grid items in content
     } as React.CSSProperties;
+
+    // Content column styles: splits text/questions into columns like a newspaper
+    const contentWrapperStyles: CSSProperties = {
+        columnCount: settings.columns > 1 ? settings.columns : 'auto',
+        columnGap: '2rem', // Standard gap between columns
+        width: '100%',
+        height: '100%',
+    };
 
     const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0 print:border-none`;
 
@@ -48,7 +53,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                  return <WordGameSheets.WordSearchSheet data={singleData as WordSearchData | WordSearchWithPasswordData | ProverbSearchData | LetterGridWordFindData | ThematicWordSearchColorData} />;
             case ActivityType.SYNONYM_WORD_SEARCH: return <WordGameSheets.SynonymWordSearchSheet data={singleData as SynonymWordSearchData} />;
             case ActivityType.SYNONYM_SEARCH_STORY: return <WordGameSheets.SynonymSearchAndStorySheet data={singleData as SynonymSearchAndStoryData} />;
-            // FIX: The component expects a single AnagramsData object, not an array. Corrected the type cast.
             case ActivityType.ANAGRAM: return <WordGameSheets.AnagramSheet data={singleData as AnagramsData} />;
             case ActivityType.SPELLING_CHECK: return <WordGameSheets.SpellingCheckSheet data={singleData as SpellingCheckData} />;
             case ActivityType.LETTER_BRIDGE: return <WordGameSheets.LetterBridgeSheet data={singleData as LetterBridgeData} />;
@@ -77,7 +81,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             case ActivityType.WORD_WEB: return <WordGameSheets.WordWebSheet data={singleData as WordWebData} />;
             case ActivityType.SYLLABLE_WORD_SEARCH: return <WordGameSheets.SyllableWordSearchSheet data={singleData as SyllableWordSearchData} />;
             case ActivityType.WORD_WEB_WITH_PASSWORD: return <WordGameSheets.WordWebWithPasswordSheet data={singleData as WordWebWithPasswordData} />;
-            // FIX: Removed duplicate case for LETTER_GRID_WORD_FIND. It is already handled in the WORD_SEARCH block above.
             case ActivityType.WORD_PLACEMENT_PUZZLE: return <WordGameSheets.WordPlacementPuzzleSheet data={singleData as WordPlacementPuzzleData} />;
             case ActivityType.POSITIONAL_ANAGRAM: return <WordGameSheets.PositionalAnagramSheet data={singleData as PositionalAnagramData} />;
             case ActivityType.IMAGE_ANAGRAM_SORT: return <WordGameSheets.ImageAnagramSortSheet data={singleData as ImageAnagramSortData} />;
@@ -146,7 +149,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             case ActivityType.SHAPE_SUDOKU: return <MathLogicSheets.ShapeSudokuSheet data={singleData as ShapeSudokuData} />;
             case ActivityType.VISUAL_NUMBER_PATTERN: return <MathLogicSheets.VisualNumberPatternSheet data={singleData as VisualNumberPatternData} />;
             case ActivityType.LOGIC_GRID_PUZZLE: return <MathLogicSheets.LogicGridPuzzleSheet data={singleData as LogicGridPuzzleData} />;
-            case ActivityType.RESFEBE: return <WordGameSheets.ResfebeSheet data={singleData as ResfebeData} />; // Resfebe is more of a word game
+            case ActivityType.RESFEBE: return <WordGameSheets.ResfebeSheet data={singleData as ResfebeData} />;
             case ActivityType.MULTIPLICATION_WHEEL: return <MathLogicSheets.MultiplicationWheelSheet data={singleData as MultiplicationWheelData} />;
 
 
@@ -191,18 +194,17 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         }
     };
 
-    const scale = settings.fontSize / 16; // Using fontSize as a proxy for zoom. 16px = 100% zoom.
+    const scale = settings.fontSize / 16; 
     const inverseScale = 16 / settings.fontSize;
 
-    const gridStyles: CSSProperties = {
-        display: 'grid',
-        gridTemplateColumns: `repeat(${settings.columns}, 1fr)`,
-        gap: `${settings.gap}px`,
+    const containerStyles: CSSProperties = {
+        display: 'block',
+        width: '100%',
     };
 
     return (
         <div className="worksheet-container print:p-0" style={worksheetStyles}>
-            <div className="page-grid print:block print:w-full" style={gridStyles}>
+            <div className="page-grid print:block print:w-full" style={containerStyles}>
             {data.map((singleData, index) => (
                 <div key={index} className={pageClasses} style={{padding: `var(--worksheet-margin)`, overflow: 'hidden'}}>
                      <div className="zoom-wrapper" style={{
@@ -211,11 +213,15 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         width: `${100 * inverseScale}%`,
                         height: `${100 * inverseScale}%`,
                     }}>
-                        {renderContent(singleData, index)}
+                        {/* Wrapper for internal column layout */}
+                        <div style={contentWrapperStyles}>
+                            {renderContent(singleData, index)}
+                        </div>
                     </div>
+                    {/* Pagination & Watermark */}
                     <div className="absolute bottom-2 left-0 right-0 flex justify-between px-8 text-xs text-zinc-400 print:flex hidden pointer-events-none">
-                        <span>Sayfa {index + 1} / {data.length}</span>
-                        <span>Bursa Disleksi Ai</span>
+                        <span className="font-bold">Bursa Disleksi Ai</span>
+                        <span className="font-mono">Sayfa {index + 1} / {data.length}</span>
                     </div>
                 </div>
             ))}

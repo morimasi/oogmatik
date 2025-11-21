@@ -53,13 +53,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
                     <input type="range" id="margin" min="0" max="80" value={settings.margin} onChange={(e) => onSettingsChange({...settings, margin: Number(e.target.value)})} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" aria-label="Kenar Boşluğu"/>
                 </div>
                  <div className="flex-1 flex items-center gap-2 min-w-[150px]">
-                    <label htmlFor="columns" className="text-sm font-medium">Sütun:</label>
-                    <input type="range" id="columns" min="1" max="4" step="1" value={settings.columns} onChange={(e) => onSettingsChange({...settings, columns: Number(e.target.value)})} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" aria-label="Sütun Sayısı"/>
+                    <label htmlFor="columns" className="text-sm font-medium" title="İçeriği sütunlara böler">Sütun:</label>
+                    <input type="range" id="columns" min="1" max="3" step="1" value={settings.columns} onChange={(e) => onSettingsChange({...settings, columns: Number(e.target.value)})} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" aria-label="Sütun Sayısı"/>
                     <span className="text-sm font-bold w-6 text-center">{settings.columns}</span>
                 </div>
                 <div className="flex-1 flex items-center gap-2 min-w-[150px]">
-                    <label htmlFor="gap" className="text-sm font-medium">Aralık:</label>
-                    <input type="range" id="gap" min="0" max="64" step="4" value={settings.gap} onChange={(e) => onSettingsChange({...settings, gap: Number(e.target.value)})} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" aria-label="Öğe Aralığı"/>
+                    <label htmlFor="gap" className="text-sm font-medium" title="Öğeler arası boşluk">Aralık:</label>
+                    <input type="range" id="gap" min="8" max="48" step="4" value={settings.gap} onChange={(e) => onSettingsChange({...settings, gap: Number(e.target.value)})} className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer" aria-label="Öğe Aralığı"/>
                 </div>
             </div>
         </div>

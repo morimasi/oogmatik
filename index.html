@@ -43,6 +43,30 @@
     font-family: 'OpenDyslexic', sans-serif !important;
   }
 
+  /* --- DYNAMIC LAYOUT RULES FOR WORKSHEET CONTENT --- */
+  /* Apply user-selected gap to all grid and flex containers inside the worksheet page */
+  .worksheet-page .grid, 
+  .worksheet-page .flex,
+  .worksheet-page .space-y-4 > * + *,
+  .worksheet-page .space-y-6 > * + *,
+  .worksheet-page .space-y-8 > * + *,
+  .worksheet-page .gap-4,
+  .worksheet-page .gap-6,
+  .worksheet-page .gap-8 {
+      gap: var(--worksheet-gap, 1rem) !important;
+  }
+
+  /* Prevent items from splitting across columns when column-count is active */
+  .worksheet-page > div > div,
+  .worksheet-page .rounded-xl,
+  .worksheet-page .border,
+  .worksheet-page .shadow-sm,
+  .worksheet-page li,
+  .worksheet-page table {
+      break-inside: avoid;
+      page-break-inside: avoid;
+  }
+
   /* --- PROFESSIONAL PRINT CSS (A4 PIXEL PERFECT) --- */
   @media print {
     @page {

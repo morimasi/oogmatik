@@ -22,6 +22,7 @@ interface ContentAreaProps {
   onLoadSaved: (worksheet: SavedWorksheet) => void;
   onDeleteSaved: (id: string) => void;
   onFeedback: () => void;
+  onOpenAuth: () => void; 
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({
@@ -37,7 +38,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   savedWorksheets,
   onLoadSaved,
   onDeleteSaved,
-  onFeedback
+  onFeedback,
+  onOpenAuth
 }) => {
     const { user } = useAuth();
 
@@ -51,24 +53,26 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     const handleShare = () => {
         if (!user) {
-            alert("Etkinlik paylaşmak için lütfen önce giriş yapın.");
+            if(confirm("Paylaşım yapabilmek için lütfen önce sisteme kaydolun veya giriş yapın. Giriş ekranına gitmek ister misiniz?")) {
+                onOpenAuth();
+            }
             return;
         }
         if (!activityType || !worksheetData) return;
 
+        // In a real scenario, this would open a modal to select users.
+        // For now, we prompt to save first if it's a generated sheet.
         const name = prompt('Etkinliği paylaşmadan önce kaydetmelisiniz. Etkinlik adı:', 'Paylaşılacak Etkinlik');
         if (name) {
             onSave(name, activityType, worksheetData);
-            // In a real app we would redirect or open the modal immediately.
-            // Since the modal state is in App.tsx, we give a helpful message.
-            alert("Etkinlik başarıyla kaydedildi!\n\nŞimdi 'Arşiv' menüsüne giderek kaydettiğiniz etkinliği seçip 'Paylaş' butonuna tıklayabilirsiniz.");
+            alert("Etkinlik başarıyla kaydedildi! Şimdi 'Arşiv' menüsüne giderek 'Paylaş' butonuna tıklayabilir ve arkadaşlarınızı seçebilirsiniz.");
         }
     };
 
     const handleDownloadPDF = () => {
-        // Using browser's native print-to-pdf capability which renders best results
         const originalTitle = document.title;
-        document.title = `BursaDisleksi_Etkinlik_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}`;
+        const activityName = activityType ? activityType.replace(/_/g, ' ').toLowerCase() : 'etkinlik';
+        document.title = `BursaDisleksi_${activityName}_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}`;
         window.print();
         document.title = originalTitle;
     };
@@ -87,7 +91,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         onShare={handleShare}
                         onDownloadPDF={handleDownloadPDF}
                     />
-                    {/* Bilgi mesajı: Eğer hata mesajı "Bilgi:" ile başlıyorsa, bu bir fallback durumudur */}
                     {error && error.startsWith("Bilgi:") && (
                         <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200 rounded-lg text-sm border border-blue-200 dark:border-blue-800 flex items-center animate-pulse">
                             <i className="fa-solid fa-circle-info mr-2"></i>

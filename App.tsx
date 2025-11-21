@@ -117,9 +117,8 @@ const AppContent: React.FC = () => {
 
   // First Launch Tour Check
   useEffect(() => {
-      const hasSeenTour = localStorage.getItem('has_seen_tour_v1');
+      const hasSeenTour = localStorage.getItem('has_seen_tour_v2');
       if (!hasSeenTour) {
-          // Small delay to ensure UI is rendered
           const timer = setTimeout(() => {
               setIsTourOpen(true);
           }, 1500);
@@ -129,7 +128,7 @@ const AppContent: React.FC = () => {
 
   const handleTourClose = () => {
       setIsTourOpen(false);
-      localStorage.setItem('has_seen_tour_v1', 'true');
+      localStorage.setItem('has_seen_tour_v2', 'true');
   };
 
   useEffect(() => {
@@ -220,72 +219,72 @@ const AppContent: React.FC = () => {
     if (isSidebarOpen) setIsSidebarOpen(false);
   };
 
-  // TOUR STEPS CONFIGURATION
+  // EXPANDED TOUR STEPS
   const tourSteps: TourStep[] = [
       {
           targetId: 'tour-logo',
-          title: 'Hoş Geldiniz!',
-          content: 'Bursa Disleksi Ai uygulamasına hoş geldiniz. Disleksi dostu eğitim materyalleri oluşturmak için tasarlanmıştır.',
+          title: 'Bursa Disleksi Ai',
+          content: 'Eğitim materyallerinizi kişiselleştiren yapay zeka asistanına hoş geldiniz.',
           position: 'bottom'
       },
       {
           targetId: 'tour-sidebar',
           title: 'Etkinlik Menüsü',
-          content: 'Sol menüden kategorilere ayrılmış yüzlerce etkinlik arasından seçim yapabilirsiniz. Kelime oyunları, matematik, dikkat çalışmaları ve özel disleksi modülleri burada.',
+          content: 'Soldaki bu panelden yüzlerce farklı etkinlik türü arasından seçim yapabilirsiniz.',
           position: 'right'
       },
       {
           targetId: 'tour-search',
           title: 'Hızlı Arama',
-          content: 'Aradığınız etkinliği bulamıyor musunuz? Buradan ismini yazarak saniyeler içinde ulaşabilirsiniz.',
+          content: 'Aradığınız özel bir etkinlik mi var? Buradan ismini yazarak hemen bulun.',
           position: 'bottom'
       },
       {
           targetId: 'tour-content',
-          title: 'Etkinlik Oluşturucu',
-          content: 'Buradan seçtiğiniz etkinliğin zorluk seviyesini ve ayarlarını yapabilirsiniz. "Oluştur" dedikten sonra yapay zeka size özel bir sayfa hazırlayacaktır.',
+          title: 'İçerik Oluşturucu',
+          content: 'Seçtiğiniz etkinliğin ayarlarını buradan yapıp, yapay zeka ile saniyeler içinde üretebilirsiniz.',
           position: 'left'
       },
       {
           targetId: 'tour-toolbar',
-          title: 'Yazdırma ve Kaydetme',
-          content: 'Etkinlik oluşturulduktan sonra burada belirecek araç çubuğu ile çalışmanızı PDF olarak yazdırabilir veya arşivinize kaydedebilirsiniz.',
+          title: 'Yazdırma ve Paylaşım',
+          content: 'Etkinliğinizi oluşturduktan sonra bu araç çubuğu belirecektir. Buradan PDF indirebilir, yazdırabilir veya başkalarıyla paylaşabilirsiniz.',
           position: 'bottom'
       },
       {
           targetId: 'tour-feedback-btn',
           title: 'Geri Bildirim',
-          content: 'Görüşleriniz bizim için değerli. Bir hata bulursanız veya öneriniz varsa buradan bize iletebilirsiniz.',
+          content: 'Görüşleriniz bizim için önemli. Öneri veya hata bildirimlerinizi buradan iletebilirsiniz.',
           position: 'bottom'
       },
       {
           targetId: 'tour-messages-btn',
           title: 'Mesaj Merkezi',
-          content: 'Eğitmenleriniz veya diğer kullanıcılarla buradan güvenli bir şekilde mesajlaşabilirsiniz.',
+          content: 'Eğitmenlerinizle veya öğrencilerinizle güvenli iletişim kurun.',
           position: 'bottom'
       },
       {
           targetId: 'tour-shared-btn',
           title: 'Paylaşılanlar',
-          content: 'Size özel gönderilen veya sizin başkalarıyla paylaştığınız etkinlikleri burada bulabilirsiniz.',
+          content: 'Size gönderilen veya sizin paylaştığınız etkinlikleri burada bulabilirsiniz.',
           position: 'bottom'
       },
       {
           targetId: 'tour-archive-btn',
           title: 'Arşivim',
-          content: 'Kaydettiğiniz tüm çalışma sayfalarına buradan ulaşın. Tekrar yazdırmak veya düzenlemek için ideal.',
+          content: 'Kaydettiğiniz çalışma sayfalarına buradan ulaşarak tekrar kullanabilirsiniz.',
           position: 'bottom'
       },
       {
           targetId: 'tour-history-btn',
           title: 'Geçmiş',
-          content: 'Son yaptığınız çalışmalar otomatik olarak burada tutulur. Kaydetmeyi unutsanız bile buradan geri dönebilirsiniz.',
+          content: 'Son yaptığınız çalışmalar otomatik olarak burada saklanır.',
           position: 'bottom'
       },
       {
-          targetId: 'tour-actions',
-          title: 'Profil ve Ayarlar',
-          content: 'Giriş yaparak etkinliklerinizi buluta kaydedebilir, profilinizi düzenleyebilir ve tema ayarlarını değiştirebilirsiniz.',
+          targetId: 'tour-profile-btn',
+          title: 'Profiliniz',
+          content: 'Profil ayarlarınızı düzenlemek, avatarınızı değiştirmek veya çıkış yapmak için burayı kullanın.',
           position: 'bottom'
       }
   ];
@@ -334,7 +333,7 @@ const AppContent: React.FC = () => {
              <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
 
              {/* Authenticated User Actions */}
-             <div id="tour-actions" className="flex items-center gap-2">
+             <div className="flex items-center gap-2">
              {user ? (
                  <>
                     {user.role === 'admin' && (
@@ -364,7 +363,7 @@ const AppContent: React.FC = () => {
                     </button>
                     
                     {/* Profile Dropdown Trigger */}
-                    <button onClick={() => setCurrentView('profile')} className="ml-2">
+                    <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
                         <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
                     </button>
                  </>
@@ -408,6 +407,7 @@ const AppContent: React.FC = () => {
           onLoadSaved={loadSavedWorksheet}
           onDeleteSaved={deleteSavedWorksheet}
           onFeedback={() => setIsFeedbackOpen(true)}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
         />
       </div>
 
