@@ -1,4 +1,5 @@
 
+
 import { ShapeType } from '../../types';
 import { TR_VOCAB, EMOJI_MAP } from '../../data/vocabulary';
 
@@ -91,14 +92,28 @@ export const getRandomItems = <T>(arr: T[], count: number): T[] => {
 };
 
 // --- ADVANCED DIFFICULTY CONFIGURATION ENGINE ---
-export const getDifficultySettings = (difficulty: string) => {
+export interface DifficultySettings {
+    gridSize: number;
+    wordLength: { min: number; max: number };
+    directions: number[]; // 0-7
+    wordComplexity: 'simple' | 'medium' | 'hard' | 'expert';
+    numberRange: { min: number; max: number };
+    operations: string[];
+    sudokuSize: number;
+    pyramidRows: number;
+    distractorLevel: 'low' | 'medium' | 'high' | 'very_high';
+    mazeComplexity: number;
+    memoryItems: number;
+    matchingPairs: number;
+}
+
+export const getDifficultySettings = (difficulty: string): DifficultySettings => {
     switch (difficulty) {
         case 'Başlangıç':
             return {
                 // Word Games
                 gridSize: 8,
-                minWordLength: 3,
-                maxWordLength: 5,
+                wordLength: { min: 3, max: 5 },
                 directions: [0, 1], // Sadece sağ ve aşağı
                 wordComplexity: 'simple', // Somut kelimeler (at, ev, top)
                 
@@ -117,8 +132,7 @@ export const getDifficultySettings = (difficulty: string) => {
         case 'Orta':
             return {
                 gridSize: 12,
-                minWordLength: 4,
-                maxWordLength: 7,
+                wordLength: { min: 4, max: 7 },
                 directions: [0, 1, 2], // + Çapraz
                 wordComplexity: 'medium', // Günlük kelimeler
                 
@@ -135,8 +149,7 @@ export const getDifficultySettings = (difficulty: string) => {
         case 'Zor':
             return {
                 gridSize: 15,
-                minWordLength: 6,
-                maxWordLength: 9,
+                wordLength: { min: 6, max: 9 },
                 directions: [0, 1, 2, 3, 4, 5], // + Ters yönler
                 wordComplexity: 'hard', // Soyut kavramlar
                 
@@ -153,8 +166,7 @@ export const getDifficultySettings = (difficulty: string) => {
         case 'Uzman':
             return {
                 gridSize: 18,
-                minWordLength: 8,
-                maxWordLength: 14,
+                wordLength: { min: 8, max: 14 },
                 directions: [0, 1, 2, 3, 4, 5, 6, 7], // Tüm yönler (Ters çapraz dahil)
                 wordComplexity: 'expert', // Akademik/Teknik
                 
@@ -420,7 +432,7 @@ export const getWordsForDifficulty = (difficulty: string, topic?: string): strin
     }
 
     // Strict Length Filtering based on Difficulty
-    let filteredPool = pool.filter(w => w.length >= settings.minWordLength && w.length <= settings.maxWordLength);
+    let filteredPool = pool.filter(w => w.length >= settings.wordLength.min && w.length <= settings.wordLength.max);
     
     // Complexity Filtering (Simulated by specific lists)
     if (difficulty === 'Başlangıç') {

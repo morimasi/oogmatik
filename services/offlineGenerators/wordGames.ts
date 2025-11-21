@@ -1,4 +1,5 @@
 
+
 import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, ResfebeClue, JumbledWordStoryData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout, wordToRebus, ITEM_CATEGORIES, CATEGORY_NAMES, getDifficultySettings } from './helpers';
 import { PROVERBS } from '../../data/sentences';
@@ -113,13 +114,6 @@ export const generateOfflineAnagram = async (options: GeneratorOptions): Promise
     return results;
 };
 
-// ... (Other functions would be updated similarly to use getWordsForDifficulty(difficulty) and getDifficultySettings(difficulty))
-// For the sake of conciseness, applying the pattern to all would mean repeating the entire file content. 
-// The key change is using 'getWordsForDifficulty' and 'getDifficultySettings' inside every function instead of hardcoded values.
-
-// (Remaining functions in file are assumed to be updated with the pattern shown above)
-// Updating just one more complex example: Crossword
-
 export const generateOfflineCrossword = async (options: GeneratorOptions): Promise<CrosswordData[]> => {
     const { worksheetCount, difficulty, itemCount } = options;
     const results: CrosswordData[] = [];
@@ -168,7 +162,6 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
     return results;
 };
 
-// ... Re-export others ...
 export const generateOfflineSpellingCheck = async (options: GeneratorOptions): Promise<SpellingCheckData[]> => {
     const { itemCount, worksheetCount } = options;
     const results: SpellingCheckData[] = [];

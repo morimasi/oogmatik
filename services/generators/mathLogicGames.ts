@@ -247,7 +247,7 @@ export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] },
+                        cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } },
                         operation: { type: Type.STRING },
                         target: { type: Type.INTEGER }
                     },
