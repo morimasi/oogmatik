@@ -193,6 +193,32 @@ export interface Message {
     relatedFeedbackId?: string; // If this message is a reply to a feedback
 }
 
+// --- ASSESSMENT MODULE TYPES ---
+export interface AssessmentProfile {
+    age: number;
+    grade: string;
+    observations: string[];
+}
+
+export interface AssessmentReport {
+    overallSummary: string;
+    scores: {
+        reading: number; // 0-100
+        writing: number; // 0-100
+        math: number; // 0-100
+        attention: number; // 0-100
+    };
+    analysis: {
+        strengths: string[];
+        weaknesses: string[];
+    };
+    roadmap: {
+        activityId: ActivityType;
+        reason: string;
+        frequency: string;
+    }[];
+}
+
 // --- BASE INTERFACES ---
 export interface BaseActivityData {
     title: string;

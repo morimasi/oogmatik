@@ -16,6 +16,7 @@ import { messagingService } from './services/messagingService';
 import { TourGuide, TourStep } from './components/TourGuide';
 import { SharedWorksheetsView } from './components/SharedWorksheetsView';
 import { SavedWorksheetsView } from './components/SavedWorksheetsView';
+import { AssessmentModule } from './components/AssessmentModule';
 
 export interface StyleSettings {
   fontSize: number;
@@ -37,7 +38,7 @@ const initialStyleSettings: StyleSettings = {
     showPedagogicalNote: true,
 };
 
-export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared';
+export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment';
 type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings';
 
 // Modal Component (reused)
@@ -221,76 +222,6 @@ const AppContent: React.FC = () => {
     if (isSidebarOpen) setIsSidebarOpen(false);
   };
 
-  // EXPANDED TOUR STEPS
-  const tourSteps: TourStep[] = [
-      {
-          targetId: 'tour-logo',
-          title: 'Bursa Disleksi Ai',
-          content: 'Eğitim materyallerinizi kişiselleştiren yapay zeka asistanına hoş geldiniz.',
-          position: 'bottom'
-      },
-      {
-          targetId: 'tour-sidebar',
-          title: 'Etkinlik Menüsü',
-          content: 'Soldaki bu panelden yüzlerce farklı etkinlik türü arasından seçim yapabilirsiniz.',
-          position: 'right'
-      },
-      {
-          targetId: 'tour-search',
-          title: 'Hızlı Arama',
-          content: 'Aradığınız özel bir etkinlik mi var? Buradan ismini yazarak hemen bulun.',
-          position: 'bottom'
-      },
-      {
-          targetId: 'tour-content',
-          title: 'İçerik Oluşturucu',
-          content: 'Seçtiğiniz etkinliğin ayarlarını buradan yapıp, yapay zeka ile saniyeler içinde üretebilirsiniz.',
-          position: 'left'
-      },
-      {
-          targetId: 'tour-toolbar',
-          title: 'Yazdırma ve Paylaşım',
-          content: 'Etkinliğinizi oluşturduktan sonra bu araç çubuğu belirecektir. Buradan PDF indirebilir, yazdırabilir veya başkalarıyla paylaşabilirsiniz.',
-          position: 'bottom'
-      },
-      {
-          targetId: 'tour-feedback-btn',
-          title: 'Geri Bildirim',
-          content: 'Görüşleriniz bizim için önemli. Öneri veya hata bildirimlerinizi buradan iletebilirsiniz.',
-          position: 'bottom'
-      },
-      {
-          targetId: 'tour-messages-btn',
-          title: 'Mesaj Merkezi',
-          content: 'Eğitmenlerinizle veya öğrencilerinizle güvenli iletişim kurun.',
-          position: 'bottom'
-      },
-      {
-          targetId: 'tour-shared-btn',
-          title: 'Paylaşılanlar',
-          content: 'Size gönderilen veya sizin paylaştığınız etkinlikleri burada bulabilirsiniz.',
-          position: 'bottom'
-      },
-      {
-          targetId: 'tour-archive-btn',
-          title: 'Arşivim',
-          content: 'Kaydettiğiniz çalışma sayfalarına buradan ulaşarak tekrar kullanabilirsiniz.',
-          position: 'bottom'
-      },
-      {
-          targetId: 'tour-history-btn',
-          title: 'Geçmiş',
-          content: 'Son yaptığınız çalışmalar otomatik olarak burada saklanır.',
-          position: 'bottom'
-      },
-      {
-          targetId: 'tour-profile-btn',
-          title: 'Profiliniz',
-          content: 'Profil ayarlarınızı düzenlemek, avatarınızı değiştirmek veya çıkış yapmak için burayı kullanın.',
-          position: 'bottom'
-      }
-  ];
-
   // View Routing
   if (currentView === 'admin') {
       return <AdminDashboard onBack={() => setCurrentView('generator')} />;
@@ -301,11 +232,21 @@ const AppContent: React.FC = () => {
   if (currentView === 'messages') {
       return <MessagesView onBack={() => setCurrentView('generator')} />;
   }
+  if (currentView === 'assessment') {
+      return (
+          <AssessmentModule 
+              onBack={() => setCurrentView('generator')} 
+              onSelectActivity={(id) => {
+                  handleSelectActivity(id);
+              }} 
+          />
+      );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
       
-      <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={handleTourClose} />
+      <TourGuide steps={[]} isOpen={isTourOpen} onClose={handleTourClose} />
 
       <header className="relative bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
@@ -321,17 +262,14 @@ const AppContent: React.FC = () => {
                 <GlobalSearch onSelectActivity={handleSelectActivity} />
              </div>
              
-             {/* Helper Icons */}
-             <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="Nasıl Kullanılır?">
-                <i className="fa-solid fa-circle-question fa-lg"></i>
+             <button 
+                onClick={() => setCurrentView('assessment')}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                title="Öğrenme Güçlüğü Analizi"
+             >
+                 <i className="fa-solid fa-user-doctor"></i> Değerlendirme
              </button>
-             <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="Hakkımızda">
-                <i className="fa-solid fa-circle-info fa-lg"></i>
-             </button>
-             <button id="tour-feedback-btn" onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="İletişim / Hata Bildir">
-                <i className="fa-solid fa-comment-dots fa-lg"></i>
-             </button>
-             
+
              <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
 
              {/* Authenticated User Actions */}
@@ -384,17 +322,19 @@ const AppContent: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
+        {/* Sidebar is always shown for remaining views (generator, savedList, shared) */}
         <Sidebar
-          isSidebarOpen={isSidebarOpen}
-          closeSidebar={() => setIsSidebarOpen(false)}
-          selectedActivity={selectedActivity}
-          onSelectActivity={handleSelectActivity}
-          setWorksheetData={setWorksheetData}
-          setIsLoading={setIsLoading}
-          setError={setError}
-          isLoading={isLoading}
-          onAddToHistory={addToHistory}
+            isSidebarOpen={isSidebarOpen}
+            closeSidebar={() => setIsSidebarOpen(false)}
+            selectedActivity={selectedActivity}
+            onSelectActivity={handleSelectActivity}
+            setWorksheetData={setWorksheetData}
+            setIsLoading={setIsLoading}
+            setError={setError}
+            isLoading={isLoading}
+            onAddToHistory={addToHistory}
         />
+        
         <ContentArea
           currentView={currentView}
           onBackToGenerator={() => { setCurrentView('generator'); setSelectedActivity(null); setWorksheetData(null); }}
