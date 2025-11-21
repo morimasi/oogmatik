@@ -28,7 +28,7 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
         const fakeWords = ['Kipat', 'Maso', 'Lemka', 'Oluk', 'Alma', 'Deki', 'Şüneş', 'Baraba', 'Zenid', 'Lyo', 'Gilbisayar', 'Feleton'];
         
         const items = [];
-        for(let i=0; i<12; i++) {
+        for(let i=0; i<10; i++) { // 10 soru
             const isReal = Math.random() > 0.5;
             items.push({
                 q: isReal ? realWords[i % realWords.length] : fakeWords[i % fakeWords.length],
@@ -69,6 +69,7 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             // Distractors close to answer
             const dist1 = ans + getRandomInt(1, 5);
             const dist2 = ans - getRandomInt(1, 5);
+            const dist3 = ans + 10;
             opts = shuffle([ans, dist1, dist2]);
             
             items.push({ q: `${n1} ${op} ${n2} = ?`, opts, a: ans, id: i });
@@ -95,6 +96,8 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
 // --- COMPONENTS ---
 
 const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
+    if (!data || data.length === 0) return <p className="text-center text-zinc-400">Veri yok</p>;
+    
     const size = 300;
     const center = size / 2;
     const radius = 100;
@@ -106,13 +109,19 @@ const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
         return { x: center + r * Math.cos(angle), y: center + r * Math.sin(angle) };
     };
 
-    const points = data.map((d, i) => getCoords(d.value, i)).map(p => `${p.x},${p.y}`).join(' ');
+    const points = data.map((d, i) => {
+        const c = getCoords(d.value, i);
+        return `${c.x},${c.y}`;
+    }).join(' ');
 
     return (
         <svg width={size} height={size} className="mx-auto drop-shadow-xl">
             <circle cx={center} cy={center} r={radius} fill="none" stroke="#e5e7eb" strokeWidth="1" />
-            {[20, 40, 60, 80].map((level, idx) => {
-                const pts = data.map((_, i) => getCoords(level, i)).map(p => `${p.x},${p.y}`).join(' ');
+            {[25, 50, 75, 100].map((level, idx) => {
+                const pts = data.map((_, i) => {
+                    const c = getCoords(level, i);
+                    return `${c.x},${c.y}`;
+                }).join(' ');
                 return <polygon key={idx} points={pts} fill="none" stroke="#f3f4f6" strokeWidth="1" strokeDasharray="4 4" />;
             })}
             {data.map((_, i) => {
@@ -122,7 +131,7 @@ const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
             <polygon points={points} fill="rgba(99, 102, 241, 0.4)" stroke="#4f46e5" strokeWidth="3" />
             {data.map((d, i) => {
                 const p = getCoords(d.value, i);
-                const labelP = getCoords(125, i);
+                const labelP = getCoords(125, i); // Label further out
                 return (
                     <g key={i}>
                         <circle cx={p.x} cy={p.y} r="5" fill="#4f46e5" stroke="white" strokeWidth="2" />
@@ -139,7 +148,7 @@ const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
 
 const TestProgress = ({ current, total, label }: { current: number; total: number; label: string }) => {
     const isSinglePage = total <= 1; 
-    const progress = isSinglePage ? 100 : Math.min(100, Math.max(0, ((current) / total) * 100));
+    const progress = isSinglePage ? 100 : Math.min(100, Math.max(0, ((current + 1) / total) * 100));
     
     return (
         <div className="w-full mb-6 px-4">
@@ -182,10 +191,13 @@ const ObservationList = ({ observations, setProfile }: { observations: string[],
     );
 };
 
-const LoadingSpinner = () => (
-    <div className="flex flex-col items-center justify-center h-full p-12">
-        <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-        <p className="text-zinc-500 font-medium animate-pulse">Yükleniyor...</p>
+const TransitionScreen = ({ message, icon = "fa-spinner" }: { message: string, icon?: string }) => (
+    <div className="flex flex-col items-center justify-center h-full p-12 animate-in fade-in duration-500">
+        <div className="w-24 h-24 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mb-6 shadow-lg relative">
+            <i className={`fa-solid ${icon} text-5xl text-indigo-600 dark:text-indigo-400 ${icon === 'fa-spinner' ? 'fa-spin' : 'animate-bounce'}`}></i>
+        </div>
+        <h3 className="text-3xl font-bold text-zinc-800 dark:text-zinc-100 mb-3 text-center">Harika Gidiyorsun!</h3>
+        <p className="text-zinc-500 dark:text-zinc-400 font-medium text-xl text-center max-w-md">{message}</p>
     </div>
 );
 
@@ -194,6 +206,9 @@ const LoadingSpinner = () => (
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [transitionMessage, setTransitionMessage] = useState('Yükleniyor...');
+    
     const [profile, setProfile] = useState<AssessmentProfile>({
         age: 7, grade: '1. Sınıf', observations: [], testResults: {}
     });
@@ -222,17 +237,20 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     }, []);
 
     const handleAnswer = (isCorrect: boolean, category: TestCategory, testName: string) => {
-        // Visual Feedback
+        // 1. Show Feedback
         setFeedbackState(isCorrect ? 'correct' : 'wrong');
         
-        // 1s delay before moving to next question or finishing
+        // 2. Wait 1s then move
         setTimeout(() => {
+            // Ensure component is still mounted and state is valid
             const nextScore = isCorrect ? testState.score + 1 : testState.score;
             
-            if (testState.currentIndex < testState.items.length - 1) {
+            // If there are more items
+            if (testState.items && testState.currentIndex < testState.items.length - 1) {
                 setTestState(prev => ({ ...prev, score: nextScore, currentIndex: prev.currentIndex + 1 }));
                 setFeedbackState('none');
             } else {
+                // Finished this test
                 finishTest(nextScore, category, testName);
             }
         }, 1000); 
@@ -278,61 +296,79 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         }));
         
         setFeedbackState('none');
-        // Explicitly clear items so next test can show loading state instead of stale data
+        
+        // Decide next message
+        let nextMsg = "Sonraki aşamaya geçiliyor...";
+        if (id === 'reading') nextMsg = "Sırada Matematik Testi var.";
+        if (id === 'math') nextMsg = "Şimdi Dikkat Testine geçiyoruz.";
+        if (id === 'attention') nextMsg = "Görsel Algı Testi hazırlanıyor.";
+        if (id === 'visual') nextMsg = "Testler tamamlandı! Gözlem aşaması.";
+
+        // Trigger Transition
+        triggerTransition(nextMsg, currentStep + 1);
+    };
+
+    const triggerTransition = (msg: string, nextStepIndex: number) => {
+        setIsTransitioning(true);
+        setTransitionMessage(msg);
+        // Clear items immediately to prevent stale render or "Uncaught" errors on next step before logic runs
         setTestState(prev => ({ ...prev, items: [], attentionState: [], currentIndex: 0 }));
-        setCurrentStep(prev => prev + 1);
+
+        setTimeout(() => {
+            setCurrentStep(nextStepIndex);
+            setIsTransitioning(false);
+        }, 1500); // 1.5s transition time
     };
 
     // --- STEP EFFECTS ---
     useEffect(() => {
-        // Use a timeout to break the render cycle and allow UI update
-        const timer = setTimeout(() => {
-            if (currentStep === 2) { // Reading
-                const questions = generateDynamicTest('reading', profile.grade);
-                startTestPhase(questions);
-            } else if (currentStep === 3) { // Math
-                const questions = generateDynamicTest('math', profile.grade);
-                startTestPhase(questions);
-            } else if (currentStep === 4) { // Attention
-                const targets = ['b'];
-                const distractors = ['d', 'p', 'q', 'h'];
-                const gridItems = Array.from({ length: 36 }).map(() => {
-                    const isTarget = Math.random() < 0.3;
-                    const char = isTarget ? targets[0] : distractors[getRandomInt(0, distractors.length-1)];
-                    return { char, isSelected: false, isCorrectTarget: isTarget };
-                });
-                startTestPhase(gridItems, true);
-            } else if (currentStep === 5) { // Visual
-                const questions = generateDynamicTest('visual', profile.grade);
-                startTestPhase(questions);
-            } else if (currentStep === 7) { // Generate Report
-                handleReportGeneration();
-            }
-        }, 50); // Small delay to ensure state reset propagates
+        // Only generate data if NOT transitioning and items are empty
+        if (isTransitioning) return;
 
-        return () => clearTimeout(timer);
-    }, [currentStep, startTestPhase, profile.grade]);
+        if (currentStep === 2 && testState.items.length === 0) { // Reading
+            startTestPhase(generateDynamicTest('reading', profile.grade));
+        } else if (currentStep === 3 && testState.items.length === 0) { // Math
+            startTestPhase(generateDynamicTest('math', profile.grade));
+        } else if (currentStep === 4 && testState.attentionState.length === 0) { // Attention
+            const targets = ['b'];
+            const distractors = ['d', 'p', 'q', 'h'];
+            const gridItems = Array.from({ length: 36 }).map(() => {
+                const isTarget = Math.random() < 0.3;
+                const char = isTarget ? targets[0] : distractors[getRandomInt(0, distractors.length-1)];
+                return { char, isSelected: false, isCorrectTarget: isTarget };
+            });
+            startTestPhase(gridItems, true);
+        } else if (currentStep === 5 && testState.items.length === 0) { // Visual
+            startTestPhase(generateDynamicTest('visual', profile.grade));
+        } else if (currentStep === 7 && !report && !isLoading) { // Generate Report
+            handleReportGeneration();
+        }
+    }, [currentStep, isTransitioning, profile.grade, testState.items.length, testState.attentionState.length, startTestPhase, report, isLoading]);
 
     const handleReportGeneration = async () => {
         setIsLoading(true);
         try {
-            await new Promise(r => setTimeout(r, 1500)); // "Thinking" delay
+            await new Promise(r => setTimeout(r, 1000)); // "Thinking" delay visualization
             const result = await generateAssessmentReport(profile);
-            setReport(result);
-            setIsLoading(false);
-            setCurrentStep(8);
+            if (result) {
+                setReport(result);
+                setCurrentStep(8); // Go to result only if success
+            } else {
+                throw new Error("Rapor boş döndü");
+            }
         } catch (error) {
             console.error(error);
-            setIsLoading(false);
             alert("Rapor oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
-            setCurrentStep(6); // Go back
+            setCurrentStep(6); // Go back to observation
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    // Safe check to prevent rendering before data is ready
+    // Robust Check to prevent rendering if data is not ready (avoids Uncaught errors)
     const isTestReady = (isAttention = false) => {
+        if (isTransitioning) return false;
         if (isAttention) return testState.attentionState && testState.attentionState.length > 0;
-        // Check if items exist AND if currentIndex is valid
         return testState.items && testState.items.length > 0 && testState.items[testState.currentIndex];
     };
 
@@ -351,7 +387,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         const isDone = i < currentStep;
                         return (
                             <div key={i} className="flex items-center">
-                                <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${isActive ? 'bg-indigo-600 scale-125' : isDone ? 'bg-green-500' : 'bg-zinc-300 dark:bg-zinc-600'} transition-all`}></div>
+                                <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${isActive ? 'bg-indigo-600 scale-125' : isDone ? 'bg-green-500' : 'bg-zinc-300 dark:bg-zinc-600'} transition-all`} title={s}></div>
                                 {i < steps.length - 1 && <div className={`w-4 md:w-8 h-0.5 ${isDone ? 'bg-green-500' : 'bg-zinc-200 dark:bg-zinc-700'}`}></div>}
                             </div>
                         )
@@ -361,8 +397,24 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start md:items-center">
-                <div className="w-full max-w-3xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative min-h-[500px] transition-all">
+                <div className="w-full max-w-3xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative min-h-[550px] transition-all">
                     
+                    {/* FEEDBACK OVERLAY - Covers whole card */}
+                    {feedbackState !== 'none' && (
+                        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-zinc-900/80 backdrop-blur-[2px] transition-all duration-200 animate-in fade-in">
+                            <div className={`w-32 h-32 rounded-full flex items-center justify-center shadow-2xl transform scale-110 transition-transform ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-6xl text-white`}></i>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* TRANSITION SCREEN */}
+                    {isTransitioning && (
+                        <div className="absolute inset-0 z-40 bg-white dark:bg-zinc-800">
+                            <TransitionScreen message={transitionMessage} icon="fa-hourglass-half" />
+                        </div>
+                    )}
+
                     {/* --- 0: INTRO --- */}
                     {currentStep === 0 && (
                         <div className="p-10 text-center flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white dark:from-zinc-800 dark:to-zinc-900">
@@ -412,21 +464,14 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => setCurrentStep(2)} className="mt-10 py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity">Devam Et</button>
+                            <button onClick={() => triggerTransition('Okuma Testine Hazırlanılıyor...', 2)} className="mt-10 py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity">Devam Et</button>
                         </div>
                     )}
 
                     {/* --- 2: READING (LEXICAL) --- */}
                     {currentStep === 2 && (
                         isTestReady() ? (
-                            <div className="flex flex-col h-full relative">
-                                {feedbackState !== 'none' && (
-                                    <div className={`absolute inset-0 z-10 flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in`}>
-                                        <div className={`w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transform scale-110 transition-transform ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                            <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-7xl text-white`}></i>
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
                                     <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest">Bu kelime gerçek mi?</h3>
@@ -443,20 +488,13 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <LoadingSpinner />
+                        ) : <TransitionScreen message="Sorular Yükleniyor..." />
                     )}
 
                     {/* --- 3: MATH --- */}
                     {currentStep === 3 && (
                         isTestReady() ? (
-                            <div className="flex flex-col h-full relative">
-                                {feedbackState !== 'none' && (
-                                    <div className={`absolute inset-0 z-10 flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in`}>
-                                        <div className={`w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transform scale-110 transition-transform ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                            <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-7xl text-white`}></i>
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" /></div>
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
                                     <div className="text-4xl md:text-6xl font-bold mb-10 text-indigo-900 dark:text-indigo-200 font-mono bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 w-full max-w-lg select-none">
@@ -471,13 +509,13 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <LoadingSpinner />
+                        ) : <TransitionScreen message="Sorular Yükleniyor..." />
                     )}
 
                     {/* --- 4: ATTENTION (GRID) --- */}
                     {currentStep === 4 && (
                         isTestReady(true) ? (
-                            <div className="flex flex-col h-full">
+                            <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-6 px-6 flex justify-between items-center border-b pb-4 border-zinc-100 dark:border-zinc-700">
                                     <div>
                                         <h3 className="font-bold text-lg">Dikkat Testi</h3>
@@ -505,20 +543,13 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <LoadingSpinner />
+                        ) : <TransitionScreen message="Izgara Oluşturuluyor..." />
                     )}
 
                     {/* --- 5: VISUAL --- */}
                     {currentStep === 5 && (
                         isTestReady() ? (
-                            <div className="flex flex-col h-full relative">
-                                {feedbackState !== 'none' && (
-                                    <div className={`absolute inset-0 z-10 flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in`}>
-                                        <div className={`w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transform scale-110 transition-transform ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                            <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-7xl text-white`}></i>
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Algı" /></div>
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
                                     <h3 className="text-zinc-400 font-bold uppercase tracking-widest mb-8">Aynısını Bul</h3>
@@ -534,12 +565,12 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <LoadingSpinner />
+                        ) : <TransitionScreen message="Şekiller Hazırlanıyor..." />
                     )}
 
                     {/* --- 6: OBSERVATIONS --- */}
                     {currentStep === 6 && (
-                        <div className="p-8 flex flex-col flex-1 h-full">
+                        <div className="p-8 flex flex-col flex-1 h-full animate-in fade-in slide-in-from-right-4 duration-300">
                             <h3 className="text-2xl font-bold mb-2 text-center">Eğitmen Gözlemi</h3>
                             <p className="text-center text-zinc-500 mb-8 text-sm">Test sırasında veya genel olarak gözlemlediğiniz durumlar.</p>
                             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 -mr-2">
@@ -553,7 +584,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         </div>
                     )}
 
-                    {/* --- 7: LOADING --- */}
+                    {/* --- 7: LOADING REPORT --- */}
                     {currentStep === 7 && (
                         <div className="p-8 text-center flex-1 flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900">
                             <div className="relative w-32 h-32 mb-8">
@@ -570,7 +601,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
                     {/* --- 8: REPORT --- */}
                     {currentStep === 8 && report && (
-                        <div className="flex flex-col h-full">
+                        <div className="flex flex-col h-full animate-in zoom-in-95 duration-500">
                             <div className="p-8 bg-indigo-700 text-white text-center relative overflow-hidden shrink-0">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
                                 <div className="relative z-10">
