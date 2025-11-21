@@ -201,7 +201,7 @@ export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {data.items.map((item, idx) => (
+            {data.items?.map((item, idx) => (
                 <div key={idx} className="flex items-center p-4 bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700">
                     {item.imageBase64 && (
                         <div className="mr-4 flex-shrink-0">
