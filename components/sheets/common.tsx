@@ -17,7 +17,7 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
             </div>
         )}
 
-        {note && <div className="inline-block px-4 py-1 mt-2 border-t border-zinc-200 dark:border-zinc-700">
+        {note && <div className="pedagogical-note inline-block px-4 py-1 mt-2 border-t border-zinc-200 dark:border-zinc-700">
             <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-graduation-cap mr-1"></i>Eğitmen Notu: {note}</p>
         </div>}
     </div>

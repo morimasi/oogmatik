@@ -204,6 +204,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
     return (
         <div className="worksheet-container print:p-0" style={worksheetStyles}>
+            {!settings.showPedagogicalNote && (
+                <style>{`.pedagogical-note { display: none !important; }`}</style>
+            )}
             <div className="page-grid print:block print:w-full" style={containerStyles}>
             {data.map((singleData, index) => (
                 <div key={index} className={pageClasses} style={{padding: `var(--worksheet-margin)`, overflow: 'hidden'}}>

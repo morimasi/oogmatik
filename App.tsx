@@ -24,6 +24,7 @@ export interface StyleSettings {
   margin: number;
   columns: number;
   gap: number;
+  showPedagogicalNote: boolean;
 }
 
 const initialStyleSettings: StyleSettings = {
@@ -33,6 +34,7 @@ const initialStyleSettings: StyleSettings = {
     margin: 32,
     columns: 1,
     gap: 16,
+    showPedagogicalNote: true,
 };
 
 export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared';

@@ -83,6 +83,17 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
                 value={settings.gap} 
                 onChange={(v: number) => onSettingsChange({...settings, gap: v})}
              />
+
+             <div className="h-3 w-px bg-zinc-300 dark:bg-zinc-700 hidden sm:block"></div>
+
+             {/* Pedagogical Note Toggle */}
+             <button
+                onClick={() => onSettingsChange({...settings, showPedagogicalNote: !settings.showPedagogicalNote})}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${settings.showPedagogicalNote ? 'bg-indigo-50 text-indigo-600' : 'bg-zinc-100 text-zinc-400'}`}
+                title={settings.showPedagogicalNote ? "Eğitmen Notunu Gizle" : "Eğitmen Notunu Göster"}
+             >
+                 <i className={`fa-solid ${settings.showPedagogicalNote ? 'fa-eye' : 'fa-eye-slash'}`}></i> Not
+             </button>
         </div>
       
         {/* Actions Group */}

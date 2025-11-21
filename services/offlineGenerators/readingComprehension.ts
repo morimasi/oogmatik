@@ -48,7 +48,7 @@ const buildDynamicStory = (difficulty: string, topic?: string, characterName?: s
     // Random fillers for remaining unique placeholders
     story = story.replace(/{(\w+)}/g, (match, p1) => {
         const list = (fillers as any)[p1 + 's']; // e.g. 'adjective' -> 'adjectives'
-        return list ? getRandomItems(list, 1)[0] : match;
+        return list ? (getRandomItems(list, 1)[0] as string) : match;
     });
 
     return { story, chosenValues };

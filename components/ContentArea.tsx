@@ -77,6 +77,31 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         document.title = originalTitle;
     };
 
+    const LandingText = () => {
+        const text = "Her şey tersti sen farkında olana kadar...";
+        return (
+            <h2 className="text-3xl font-bold mb-2 text-zinc-800 dark:text-zinc-200 leading-normal text-center max-w-2xl mx-auto">
+                {text.split('').map((char, i) => {
+                    if (char === ' ') return <span key={i}> </span>;
+                    // Apply animation to 'e', 'a', 'o', 'b', 'd', 'p'
+                    const isAnimated = ['e', 'a', 'ı', 'i', 'o', 'ö', 'u', 'ü', 'b', 'd', 'p'].includes(char.toLowerCase()) && Math.random() > 0.3;
+                    const delay = Math.random() * -5;
+                    const duration = 4 + Math.random() * 4;
+                    
+                    return (
+                        <span 
+                            key={i} 
+                            className={`inline-block ${isAnimated ? 'dyslexia-flip text-indigo-600 dark:text-indigo-400' : ''}`}
+                            style={isAnimated ? { animationDelay: `${delay}s`, animationDuration: `${duration}s` } : {}}
+                        >
+                            {char}
+                        </span>
+                    );
+                })}
+            </h2>
+        );
+    };
+
   return (
     <main id="tour-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative">
       {currentView === 'generator' ? (
@@ -148,7 +173,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
 
             {!isLoading && !error && !worksheetData && (
-                 <div className="flex justify-center items-center h-full">
+                 <div className="flex justify-center items-center h-full relative">
                     <div className="absolute inset-0 overflow-hidden -z-10">
                         <i className="fa-solid fa-lightbulb text-zinc-200/50 dark:text-zinc-700/50 absolute text-8xl" style={{ top: '15%', left: '10%', animation: 'float 8s ease-in-out infinite' }}></i>
                         <i className="fa-solid fa-book-open text-zinc-200/50 dark:text-zinc-700/50 absolute text-7xl" style={{ top: '60%', left: '5%', animation: 'float 12s ease-in-out infinite 2s' }}></i>
@@ -156,14 +181,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         <i className="fa-solid fa-atom text-zinc-200/50 dark:text-zinc-700/50 absolute text-6xl" style={{ bottom: '10%', right: '20%', animation: 'float 9s ease-in-out infinite 3s' }}></i>
                          <i className="fa-solid fa-shapes text-zinc-200/50 dark:text-zinc-700/50 absolute text-7xl" style={{ bottom: '15%', left: '30%', animation: 'float 11s ease-in-out infinite 0.5s' }}></i>
                     </div>
-                     <div className="text-center p-8">
+                     <div className="text-center p-8 z-10">
                         <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-indigo-100/50 dark:ring-indigo-900/20">
                             <i className="fa-solid fa-wand-magic-sparkles text-5xl text-indigo-500 dark:text-indigo-400"></i>
                         </div>
-                        <h2 className="text-3xl font-bold mb-2 text-zinc-800 dark:text-zinc-200">Başlamaya Hazır Mısınız?</h2>
-                        <p className="text-lg text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
-                           Öğrenmeyi eğlenceli hale getirin. Sol menüden bir etkinlik seçerek yapay zekanın sihrini keşfedin.
-                        </p>
+                        <LandingText />
                     </div>
                 </div>
             )}
