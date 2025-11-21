@@ -194,10 +194,20 @@ export interface Message {
 }
 
 // --- ASSESSMENT MODULE TYPES ---
+export interface InteractiveTestResult {
+    testName: string;
+    score: number;
+    totalItems: number;
+    accuracy: number; // percentage
+    durationSeconds: number;
+    errorCount: number;
+}
+
 export interface AssessmentProfile {
     age: number;
     grade: string;
     observations: string[];
+    testResults?: InteractiveTestResult; // New Field
 }
 
 export interface AssessmentReport {
