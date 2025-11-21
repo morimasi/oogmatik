@@ -5,8 +5,8 @@ export const generateWithSchema = async (prompt: string, schema: any) => {
         // Yapay zekanın her seferinde farklı çıktı üretmesini sağlamak için benzersiz bir bağlam ekliyoruz.
         const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
         
-        // Changed visual style instruction to allow variety: drawing, cartoon, vector, or photo.
-        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Benzersiz ol. Random Seed: ${uniqueSeed}.\n2. GÖRSEL TUTARLILIĞI: 'imagePrompt' alanları, metinle BİREBİR uyumlu olmalıdır.\n3. GÖRSEL KALİTESİ: 'imagePrompt'lar çeşitlilik içermelidir. Konuya uygun olarak 'Colorful cartoon', 'Vector art', 'Children book illustration' veya 'Standard photograph' tarzlarını kullan. Çizim, karikatür ve vektör serbesttir. Çocuk dostu ve renkli olsun.]`;
+        // Enhanced Prompt: Force realistic or high-quality illustration styles over simple icons.
+        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Benzersiz ol. Random Seed: ${uniqueSeed}.\n2. GÖRSEL TUTARLILIĞI: 'imagePrompt' alanları, metinle BİREBİR uyumlu olmalıdır.\n3. GÖRSEL KALİTESİ: 'imagePrompt'lar için 'basit ikon' yerine 'detaylı çocuk kitabı illüstrasyonu', 'canlı renkli dijital sanat' veya 'net, gerçekçi fotoğraf' ifadelerini kullan. Görseller zengin ve açıklayıcı olmalı. Asla bulanık veya soyut olmamalı.]`;
 
         const response = await fetch('/api/generate', {
             method: 'POST',

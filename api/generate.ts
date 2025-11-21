@@ -1,4 +1,3 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from "@google/genai";
 
@@ -92,14 +91,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         findImagePrompts(data);
         
         if (imagePromptsToProcess.length > 0) {
-            // Sadece 1 görsel dene, kota harcama
-            const chunk = imagePromptsToProcess.slice(0, 1); 
+            // Increased limit from 1 to 3 images max to allow for richer content without hitting strict timeouts
+            const chunk = imagePromptsToProcess.slice(0, 3); 
             
             await Promise.all(chunk.map(async ({ obj, imagePrompt }) => {
                 try {
                     const imageResponse = await ai.models.generateImages({
-                        model: 'imagen-4.0-generate-001', // Updated to latest Imagen model
-                        prompt: imagePrompt,
+                        model: 'imagen-4.0-generate-001', // High quality image generation model
+                        prompt: imagePrompt + " high quality, detailed illustration, white background", // Enhance prompt
                         config: {
                             numberOfImages: 1,
                             outputMimeType: 'image/jpeg',
@@ -110,8 +109,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (base64Data) obj['imageBase64'] = base64Data;
                     delete obj['imagePrompt'];
                 } catch (imgError) {
-                    console.warn("Görsel oluşturulamadı (Normal, kotayı korumak için).");
-                    obj['imageBase64'] = ''; // Boş bırak
+                    console.warn("Görsel oluşturulamadı (Normal, kotayı korumak için veya içerik filtresi):", imgError);
+                    obj['imageBase64'] = ''; // Boş bırak, frontend fallback gösterecek
                     delete obj['imagePrompt'];
                 }
             }));
