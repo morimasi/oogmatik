@@ -32,7 +32,7 @@ const initialStyleSettings: StyleSettings = {
     gap: 16,
 };
 
-export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages';
+export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared';
 type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings';
 
 // Modal Component (reused)
@@ -253,6 +253,10 @@ const AppContent: React.FC = () => {
                                 {unreadCount}
                             </span>
                         )}
+                    </button>
+
+                    <button onClick={() => setCurrentView('shared')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Paylaşılanlar">
+                        <i className="fa-solid fa-share-nodes fa-lg"></i>
                     </button>
 
                     <button onClick={() => setCurrentView('savedList')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Arşiv">

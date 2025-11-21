@@ -5,6 +5,7 @@ import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { StyleSettings, View } from '../App';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
+import { SharedWorksheetsView } from './SharedWorksheetsView';
 
 interface ContentAreaProps {
   currentView: View;
@@ -142,14 +143,19 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 </div>
             )}
         </>
-      ) : (
+      ) : currentView === 'savedList' ? (
         <SavedWorksheetsView 
             savedWorksheets={savedWorksheets}
             onLoad={onLoadSaved}
             onDelete={onDeleteSaved}
             onBack={onBackToGenerator}
         />
-      )}
+      ) : currentView === 'shared' ? (
+        <SharedWorksheetsView 
+            onLoad={onLoadSaved}
+            onBack={onBackToGenerator}
+        />
+      ) : null}
     </main>
   );
 };

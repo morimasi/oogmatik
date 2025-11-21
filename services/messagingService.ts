@@ -1,9 +1,10 @@
 
-import { FeedbackItem, Message, User } from '../types';
+import { FeedbackItem, Message, User, SavedWorksheet } from '../types';
 import { authService } from './authService';
 
 const MESSAGES_KEY = 'app_messages';
 const FEEDBACKS_KEY = 'app_feedbacks';
+const SHARED_WORKSHEETS_KEY = 'app_shared_worksheets';
 
 // Mock implementation using localStorage to simulate a backend service
 export const messagingService = {
@@ -88,5 +89,42 @@ export const messagingService = {
             messages[index].isRead = true;
             localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
         }
+    },
+
+    // --- SHARING WORKSHEETS ---
+    shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
+        const sharedWorksheets = JSON.parse(localStorage.getItem(SHARED_WORKSHEETS_KEY) || '[]');
+        
+        // Create a new copy of the worksheet for the recipient
+        const newSharedWorksheet: SavedWorksheet = {
+            ...worksheet,
+            id: `shared-${Date.now()}-${Math.random()}`, // New ID for the shared copy
+            sharedBy: senderId,
+            sharedByName: senderName,
+            sharedWith: receiverId,
+            createdAt: new Date().toISOString()
+        };
+
+        sharedWorksheets.push(newSharedWorksheet);
+        localStorage.setItem(SHARED_WORKSHEETS_KEY, JSON.stringify(sharedWorksheets));
+
+        // Also send a notification message
+        await messagingService.sendMessage({
+            senderId: senderId,
+            senderName: senderName,
+            receiverId: receiverId,
+            content: `Size "${worksheet.name}" adlı bir çalışma sayfası gönderdi.`
+        });
+    },
+
+    getSharedWorksheetsForUser: (userId: string): SavedWorksheet[] => {
+        const sharedWorksheets = JSON.parse(localStorage.getItem(SHARED_WORKSHEETS_KEY) || '[]') as SavedWorksheet[];
+        return sharedWorksheets.filter(ws => ws.sharedWith === userId);
+    },
+
+    deleteSharedWorksheet: (worksheetId: string) => {
+        const sharedWorksheets = JSON.parse(localStorage.getItem(SHARED_WORKSHEETS_KEY) || '[]') as SavedWorksheet[];
+        const updated = sharedWorksheets.filter(ws => ws.id !== worksheetId);
+        localStorage.setItem(SHARED_WORKSHEETS_KEY, JSON.stringify(updated));
     }
 };

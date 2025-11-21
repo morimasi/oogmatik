@@ -727,6 +727,10 @@ export interface SavedWorksheet {
     id: string;
     title: string;
   };
+  // Added for sharing
+  sharedBy?: string; // User ID of who shared it
+  sharedByName?: string; // Name of who shared it
+  sharedWith?: string; // User ID of who it is shared with
 }
 
 export interface HistoryItem {

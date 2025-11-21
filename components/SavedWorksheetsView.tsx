@@ -1,6 +1,10 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
-import { SavedWorksheet } from '../types';
+import { SavedWorksheet, User } from '../types';
 import { ACTIVITIES } from '../constants';
+import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/authService';
+import { messagingService } from '../services/messagingService';
 
 interface SavedWorksheetsViewProps {
   savedWorksheets: SavedWorksheet[];
@@ -10,7 +14,18 @@ interface SavedWorksheetsViewProps {
 }
 
 export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedWorksheets, onLoad, onDelete, onBack }) => {
+  const { user } = useAuth();
   const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [selectedWorksheetToShare, setSelectedWorksheetToShare] = useState<SavedWorksheet | null>(null);
+  const [contacts, setContacts] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+      if (user) {
+          setContacts(authService.getContacts(user.id));
+      }
+  }, [user]);
 
   const getActivityTitle = (type: SavedWorksheet['activityType']) => {
     const activity = ACTIVITIES.find(a => a.id === type);
@@ -30,7 +45,6 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
     }, {} as Record<string, { title: string; worksheets: SavedWorksheet[] }>);
 
     // Sort worksheets within each group by date (newest first)
-    // FIX: Explicitly typed 'group' to resolve a TypeScript inference issue where it was 'unknown'.
     Object.values(grouped).forEach((group: { title: string; worksheets: SavedWorksheet[] }) => {
       group.worksheets.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     });
@@ -39,8 +53,6 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
   }, [savedWorksheets]);
 
   useEffect(() => {
-    // FIX: Moved state update into a useEffect hook to prevent "Cannot update a component while rendering" error.
-    // This will open the first category by default when the component mounts or when worksheets change.
     if (groupedWorksheets.length > 0 && openCategory === null) {
       setOpenCategory(groupedWorksheets[0][0]);
     }
@@ -50,6 +62,26 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
   const toggleCategory = (categoryId: string) => {
     setOpenCategory(prev => (prev === categoryId ? null : categoryId));
   };
+
+  const handleShareClick = (worksheet: SavedWorksheet) => {
+      setSelectedWorksheetToShare(worksheet);
+      setIsShareModalOpen(true);
+  };
+
+  const handleShareSubmit = async (receiverId: string) => {
+      if (!selectedWorksheetToShare || !user) return;
+      try {
+          await messagingService.shareWorksheet(selectedWorksheetToShare, user.id, user.name, receiverId);
+          alert('Çalışma sayfası başarıyla paylaşıldı!');
+          setIsShareModalOpen(false);
+          setSelectedWorksheetToShare(null);
+      } catch (error) {
+          console.error("Share error:", error);
+          alert('Paylaşım sırasında bir hata oluştu.');
+      }
+  };
+
+  const filteredContacts = contacts.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="bg-white dark:bg-zinc-800/50 rounded-xl shadow-sm p-4 sm:p-6 md:p-8">
@@ -116,6 +148,9 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
                                                         <button onClick={() => onLoad(ws)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" title="Yükle">
                                                             <i className="fa-solid fa-upload"></i>
                                                         </button>
+                                                        <button onClick={() => handleShareClick(ws)} className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" title="Paylaş">
+                                                            <i className="fa-solid fa-share-nodes"></i>
+                                                        </button>
                                                         <button onClick={() => { if(confirm(`'${ws.name}' etkinliğini silmek istediğinizden emin misiniz?`)) onDelete(ws.id) }} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Sil">
                                                             <i className="fa-solid fa-trash-alt"></i>
                                                         </button>
@@ -131,6 +166,55 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
                 </div>
             ))}
         </div>
+      )}
+
+      {/* SHARE MODAL */}
+      {isShareModalOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl w-full max-w-md flex flex-col border border-zinc-200 dark:border-zinc-700 overflow-hidden max-h-[80vh]">
+                  <div className="bg-indigo-600 p-4 flex justify-between items-center">
+                      <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                          <i className="fa-solid fa-share-nodes"></i> Paylaş
+                      </h3>
+                      <button onClick={() => setIsShareModalOpen(false)} className="text-white/80 hover:text-white transition-colors">
+                          <i className="fa-solid fa-times text-xl"></i>
+                      </button>
+                  </div>
+                  
+                  <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
+                      <input 
+                          type="text" 
+                          placeholder="Kişi ara..." 
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
+                      />
+                  </div>
+
+                  <div className="overflow-y-auto flex-1 p-2">
+                      {filteredContacts.length === 0 ? (
+                          <p className="text-center text-zinc-500 p-4">Kişi bulunamadı.</p>
+                      ) : (
+                          <div className="space-y-2">
+                              {filteredContacts.map(contact => (
+                                  <button 
+                                      key={contact.id}
+                                      onClick={() => handleShareSubmit(contact.id)}
+                                      className="w-full flex items-center gap-3 p-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors text-left"
+                                  >
+                                      <img src={contact.avatar} alt={contact.name} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-600" />
+                                      <div>
+                                          <p className="font-bold text-zinc-800 dark:text-zinc-100">{contact.name}</p>
+                                          <p className="text-xs text-zinc-500">{contact.email}</p>
+                                      </div>
+                                      <i className="fa-solid fa-paper-plane ml-auto text-indigo-500"></i>
+                                  </button>
+                              ))}
+                          </div>
+                      )}
+                  </div>
+              </div>
+          </div>
       )}
     </div>
   );
