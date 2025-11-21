@@ -1,3 +1,4 @@
+
 import { Activity, ActivityType, ActivityCategory } from './types';
 
 export const ACTIVITIES: Activity[] = [
@@ -720,10 +721,47 @@ export const ACTIVITIES: Activity[] = [
     title: 'Yer Değiştirmeli Anagram',
     description: 'Numaralı kutucuklardaki harflerin yerlerini değiştirerek kelimeler bulun.',
     icon: 'fa-solid fa-arrow-down-1-9',
+  },
+  // DYSLEXIA MODULES
+  {
+    id: ActivityType.READING_FLOW,
+    title: 'Heceli Okuma',
+    description: 'Renklendirilmiş hecelerle okuma akıcılığını artırın.',
+    icon: 'fa-solid fa-book-open-reader',
+  },
+  {
+    id: ActivityType.LETTER_DISCRIMINATION,
+    title: 'Harf Karışıklığı',
+    description: 'b-d, p-q gibi karışan harfleri ayırt etme çalışmaları.',
+    icon: 'fa-solid fa-arrow-right-arrow-left',
+  },
+  {
+    id: ActivityType.RAPID_NAMING,
+    title: 'Hızlı İsimlendirme (RAN)',
+    description: 'Sembolleri veya renkleri olabildiğince hızlı isimlendirin.',
+    icon: 'fa-solid fa-stopwatch',
+  },
+  {
+    id: ActivityType.PHONOLOGICAL_AWARENESS,
+    title: 'Fonolojik Farkındalık',
+    description: 'Hece sayma ve kafiye bulma çalışmaları.',
+    icon: 'fa-solid fa-ear-listen',
   }
 ];
 
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
+  {
+    id: 'dyslexia_support',
+    title: '🧩 Disleksi Özel Eğitim',
+    description: 'Okuma, harf ayrımı ve fonolojik farkındalık için özel modüller',
+    icon: 'fa-solid fa-universal-access',
+    activities: [
+      ActivityType.READING_FLOW,
+      ActivityType.LETTER_DISCRIMINATION,
+      ActivityType.RAPID_NAMING,
+      ActivityType.PHONOLOGICAL_AWARENESS
+    ]
+  },
   {
     id: 'memory_attention',
     title: '🧠 Hafıza & Dikkat',

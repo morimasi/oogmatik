@@ -9,9 +9,9 @@ import {
     SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordWebWithPasswordData,
     WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData, ResfebeClue
 } from '../../types';
-import { GridComponent, ImageDisplay, PedagogicalHeader } from './common';
+import { GridComponent, ImageDisplay, PedagogicalHeader, ShapeDisplay } from './common';
 
-// ... (WordSearchSheet, SynonymSearchAndStorySheet, SynonymWordSearchSheet, AnagramSheet, SpellingCheckSheet, LetterBridgeSheet, WordLadderSheet, WordFormationSheet, ReverseWordSheet, WordGroupingSheet, MiniWordGridSheet, PasswordFinderSheet, SyllableCompletionSheet, SpiralPuzzleSheet, CrosswordSheet are unchanged, assume they are present here) ...
+// ... (Existing components WordSearchSheet through AntonymFlowerPuzzleSheet remain same, replacing subsequent ones)
 
 export const WordSearchSheet: React.FC<{ data: WordSearchData | WordSearchWithPasswordData | ProverbSearchData | LetterGridWordFindData | ThematicWordSearchColorData }> = ({ data }) => {
     const isWithPassword = 'passwordCells' in data && !!data.passwordCells;
@@ -690,26 +690,320 @@ export const WordGridPuzzleSheet: React.FC<{ data: WordGridPuzzleData }> = ({ da
     </div>
 );
 
-// Stub sheets replaced with SimpleSheet or custom implementations above.
-// Keeping SimpleSheet for any remaining generic fallbacks.
-const SimpleSheet: React.FC<{ data: any, defaultTitle: string }> = ({ data, defaultTitle }) => (
+// === NEWLY IMPLEMENTED SHEETS FOR WORD GAMES ===
+
+export const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title || defaultTitle} instruction={data.instruction || data.prompt || "Etkinliği tamamlayın."} note={data.pedagogicalNote} />
-        <div className="p-4 text-center text-zinc-500 italic">Bu etkinlik için içerik oluşturuldu.</div>
-        <pre className="text-xs bg-zinc-100 p-2 rounded max-h-64 overflow-auto">{JSON.stringify(data, null, 2)}</pre>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="space-y-8">
+            {(data.items || []).map((item, idx) => (
+                <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border-l-8 border-indigo-500">
+                    <h4 className="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">{item.word}</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-700">1</div>
+                                <span className="font-medium">{item.meaning1}</span>
+                            </div>
+                            <ImageDisplay base64={item.imageBase64_1} description={item.meaning1} className="h-32 w-full object-cover rounded mb-2" />
+                            <div className="border-b-2 border-dashed border-zinc-300 h-8 w-full mt-auto"></div>
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center font-bold text-rose-700">2</div>
+                                <span className="font-medium">{item.meaning2}</span>
+                            </div>
+                            <ImageDisplay base64={item.imageBase64_2} description={item.meaning2} className="h-32 w-full object-cover rounded mb-2" />
+                            <div className="border-b-2 border-dashed border-zinc-300 h-8 w-full mt-auto"></div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
     </div>
 );
 
-export const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = (props) => <SimpleSheet {...props} defaultTitle="Eş Sesli Cümle" />;
-export const HomonymImageMatchSheet: React.FC<{ data: HomonymImageMatchData }> = (props) => <SimpleSheet {...props} defaultTitle="Eş Sesli Resim Eşleştirme" />;
-export const SynonymAntonymGridSheet: React.FC<{ data: SynonymAntonymGridData }> = (props) => <SimpleSheet {...props} defaultTitle="Eş/Zıt Anlam Tablosu" />;
+export const HomonymImageMatchSheet: React.FC<{ data: HomonymImageMatchData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex justify-between items-center mb-8 gap-8">
+            <div className="flex-1 grid grid-cols-1 gap-4">
+                {data.leftImages.map((img, i) => (
+                    <div key={i} className="border p-2 rounded-lg shadow-sm bg-white">
+                        <ImageDisplay base64={img.imageBase64} description={img.word} className="h-32 w-full object-contain" />
+                    </div>
+                ))}
+            </div>
+            
+            <div className="flex flex-col items-center justify-center p-4 bg-zinc-100 rounded-xl border-2 border-dashed border-zinc-400">
+                <h4 className="font-bold mb-4 text-zinc-500 uppercase">Ortak Kelime</h4>
+                <div className="flex gap-2 mb-4">
+                    {data.wordScramble.letters.map((l, i) => (
+                        <div key={i} className="w-10 h-10 bg-white border rounded flex items-center justify-center font-bold text-lg shadow-sm">
+                            {l}
+                        </div>
+                    ))}
+                </div>
+                <div className="w-32 h-10 border-b-2 border-zinc-800"></div>
+            </div>
+
+            <div className="flex-1 grid grid-cols-1 gap-4">
+                {data.rightImages.map((img, i) => (
+                    <div key={i} className="border p-2 rounded-lg shadow-sm bg-white">
+                        <ImageDisplay base64={img.imageBase64} description={img.word} className="h-32 w-full object-contain" />
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
+export const SynonymAntonymGridSheet: React.FC<{ data: SynonymAntonymGridData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1 bg-white p-4 rounded-lg border border-zinc-300">
+                <GridComponent grid={data.grid} />
+            </div>
+            <div className="w-full md:w-1/3 space-y-6">
+                <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                    <h4 className="font-bold text-emerald-800 mb-2">Eş Anlamlısını Bul:</h4>
+                    <ul className="list-disc list-inside text-sm">
+                        {data.synonyms.map(s => <li key={s.word}>{s.word}</li>)}
+                    </ul>
+                </div>
+                <div className="bg-rose-50 p-4 rounded-lg border border-rose-200">
+                    <h4 className="font-bold text-rose-800 mb-2">Zıt Anlamlısını Bul:</h4>
+                    <ul className="list-disc list-inside text-sm">
+                        {data.antonyms.map(a => <li key={a.word}>{a.word}</li>)}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+export const SynonymMatchingPatternSheet: React.FC<{ data: SynonymMatchingPatternData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="grid grid-cols-2 gap-y-8 gap-x-12 max-w-3xl mx-auto relative">
+            {/* Dotted connector lines visual */}
+            <div className="absolute inset-0 pointer-events-none flex justify-center">
+                <div className="w-0 border-r-2 border-dashed border-zinc-200"></div>
+            </div>
+            
+            {data.pairs.map((pair, i) => (
+                <React.Fragment key={i}>
+                    <div className="p-4 bg-white border rounded-lg shadow-sm text-center font-medium flex items-center justify-between group hover:border-indigo-300 cursor-pointer">
+                        <span>{pair.word}</span>
+                        <div className="w-3 h-3 bg-zinc-300 rounded-full group-hover:bg-indigo-500 transition-colors"></div>
+                    </div>
+                    <div className="p-4 bg-white border rounded-lg shadow-sm text-center font-medium flex items-center justify-between flex-row-reverse group hover:border-indigo-300 cursor-pointer">
+                        <span>{pair.synonym}</span>
+                        <div className="w-3 h-3 bg-zinc-300 rounded-full group-hover:bg-indigo-500 transition-colors"></div>
+                    </div>
+                </React.Fragment>
+            ))}
+        </div>
+    </div>
+);
+
+export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex justify-between gap-8 max-w-4xl mx-auto">
+            <div className="flex-1 flex flex-col gap-3">
+                <h4 className="text-center font-bold mb-2">Başlangıç</h4>
+                {data.leftParts.map((part, i) => (
+                    <div key={i} className="p-3 bg-sky-50 border border-sky-200 rounded text-center font-bold text-lg shadow-sm">{part.text}-</div>
+                ))}
+            </div>
+            <div className="flex-1 flex flex-col gap-3">
+                <h4 className="text-center font-bold mb-2">Bitiş</h4>
+                {data.rightParts.map((part, i) => (
+                    <div key={i} className="p-3 bg-orange-50 border border-orange-200 rounded text-center font-bold text-lg shadow-sm">-{part.text}</div>
+                ))}
+            </div>
+        </div>
+        <div className="mt-8 p-4 border-2 border-dashed border-zinc-300 rounded-xl text-center">
+            <p className="text-zinc-500 text-sm mb-4">Bulduğun kelimeleri buraya yaz:</p>
+            <div className="grid grid-cols-2 gap-4">
+                {Array.from({length: data.leftParts.length}).map((_, i) => <div key={i} className="border-b border-zinc-400 h-8"></div>)}
+            </div>
+        </div>
+    </div>
+);
+
+export const WordWebSheet: React.FC<{ data: WordWebData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex flex-col items-center">
+            <div className="mb-6 bg-white p-2 border rounded shadow-lg">
+                <GridComponent grid={data.grid} cellClassName="w-8 h-8 text-sm" />
+            </div>
+            <div className="w-full max-w-2xl">
+                <h4 className="font-bold mb-2 border-b">Kelimeler</h4>
+                <div className="flex flex-wrap gap-2">
+                    {data.wordsToFind.map(w => <span key={w} className="px-2 py-1 bg-zinc-100 rounded text-xs">{w}</span>)}
+                </div>
+                <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                    <p className="font-bold text-yellow-800">Soru:</p>
+                    <p>{data.keyWordPrompt}</p>
+                    <div className="w-full border-b border-yellow-600/30 mt-4 h-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+export const SyllableWordSearchSheet: React.FC<{ data: SyllableWordSearchData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        
+        <div className="mb-8 p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
+            <h4 className="font-bold text-purple-800 mb-3">Hece Havuzu</h4>
+            <div className="flex justify-center flex-wrap gap-3">
+                {data.syllablesToCombine.map((syl, i) => (
+                    <div key={i} className="w-12 h-12 rounded-full bg-white border-2 border-purple-200 flex items-center justify-center font-bold shadow-sm">{syl}</div>
+                ))}
+            </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <GridComponent grid={data.grid} />
+            </div>
+            <div className="space-y-6">
+                <div className="bg-white p-4 rounded-lg border shadow-sm">
+                    <h4 className="font-bold mb-2">Birleştirilecek Kelimeler:</h4>
+                    {data.wordsToCreate.map((item, i) => (
+                        <div key={i} className="flex items-center gap-2 mb-2 text-lg">
+                            <span className="font-mono bg-zinc-100 px-2 rounded">{item.syllable1}</span>
+                            +
+                            <span className="font-mono bg-zinc-100 px-2 rounded">{item.syllable2}</span>
+                            =
+                            <div className="w-24 border-b-2 border-zinc-300"></div>
+                        </div>
+                    ))}
+                </div>
+                <div className="bg-zinc-50 p-4 rounded-lg border">
+                    <h4 className="font-bold mb-2">Bulmacadaki Diğer Kelimeler:</h4>
+                    <div className="flex flex-wrap gap-2 text-sm">
+                        {data.wordsToFindInSearch.map(w => <span key={w} className="px-2 py-1 bg-white border rounded">{w}</span>)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+export const WordWebWithPasswordSheet: React.FC<{ data: WordWebWithPasswordData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex justify-center">
+            <GridComponent grid={data.grid} passwordColumnIndex={data.passwordColumnIndex} />
+        </div>
+        <div className="mt-8 text-center">
+            <h4 className="font-bold mb-4">Yerleştirilecek Kelimeler</h4>
+            <div className="flex flex-wrap justify-center gap-3">
+                {data.words.map(w => <span key={w} className="px-3 py-1 bg-zinc-100 rounded-full border">{w} ({w.length})</span>)}
+            </div>
+        </div>
+    </div>
+);
+
+export const WordPlacementPuzzleSheet: React.FC<{ data: WordPlacementPuzzleData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1">
+                <GridComponent grid={data.grid} showLetters={false} cellClassName="w-8 h-8 bg-white" />
+            </div>
+            <div className="w-full md:w-1/3 space-y-4">
+                {data.wordGroups.map((group, i) => (
+                    <div key={i} className="p-4 bg-zinc-50 rounded border">
+                        <h4 className="font-bold mb-2 border-b pb-1">{group.length} Harfli Kelimeler</h4>
+                        <ul className="space-y-1 text-sm">
+                            {group.words.map(w => <li key={w}>{w.toUpperCase()}</li>)}
+                        </ul>
+                    </div>
+                ))}
+                <div className="p-4 bg-red-50 border border-red-200 rounded text-center">
+                    <p className="text-xs font-bold text-red-600 uppercase mb-1">Soru</p>
+                    <p className="text-sm">{data.unusedWordPrompt}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+export const PositionalAnagramSheet: React.FC<{ data: PositionalAnagramData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="space-y-6 max-w-2xl mx-auto">
+            {data.puzzles.map((puzzle, i) => (
+                <div key={i} className="p-4 bg-white border rounded-xl shadow-sm">
+                    <div className="flex justify-center gap-2 mb-4">
+                        {puzzle.scrambled.split('').map((char, idx) => (
+                            <div key={idx} className="flex flex-col items-center">
+                                <div className="w-10 h-10 border-2 border-zinc-300 rounded flex items-center justify-center font-bold text-xl mb-1">{char}</div>
+                                <span className="text-xs text-zinc-400">{idx+1}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-2 justify-center">
+                        <span className="font-bold text-zinc-500">Cevap:</span>
+                        <div className="flex gap-2">
+                             {Array.from({length: puzzle.answer.length}).map((_, k) => <div key={k} className="w-8 h-8 border-b-2 border-zinc-400"></div>)}
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+export const ImageAnagramSortSheet: React.FC<{ data: ImageAnagramSortData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {data.cards.map((card, i) => (
+                <div key={i} className="border-2 border-zinc-200 rounded-xl p-3 bg-white flex flex-col items-center text-center">
+                    <div className="w-full aspect-square bg-zinc-100 rounded-lg mb-2 overflow-hidden">
+                        <ImageDisplay base64={card.imageBase64} description={card.imageDescription} className="w-full h-full object-contain" />
+                    </div>
+                    <p className="font-mono text-lg font-bold tracking-widest mb-2 bg-zinc-100 px-2 rounded">{card.scrambledWord}</p>
+                    <div className="w-full h-8 border-b border-dotted border-zinc-400"></div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+export const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        
+        <div className="mb-8 p-4 bg-zinc-100 rounded-lg text-center">
+            <span className="font-bold mr-2">Kelime Bankası:</span>
+            {data.wordBank.map(w => <span key={w} className="inline-block mx-2 px-2 py-1 bg-white rounded shadow-sm">{w}</span>)}
+        </div>
+
+        <div className="grid grid-cols-2 gap-6">
+            {data.puzzles.map((puzzle, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 border rounded-xl bg-white">
+                    <div className="w-24 h-24 bg-zinc-50 rounded border">
+                        <ImageDisplay base64={puzzle.imageBase64} description={puzzle.imageDescription} className="w-full h-full object-contain" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm text-zinc-500 mb-1">Bu nedir?</p>
+                        <p className="font-mono text-xl tracking-widest mb-2">{puzzle.partialAnswer}</p>
+                        <div className="h-8 border-b border-zinc-300 w-full"></div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
 export const AntonymResfebeSheet: React.FC<{ data: AntonymResfebeData }> = (props) => <ResfebeSheet {...props} />;
-export const SynonymMatchingPatternSheet: React.FC<{ data: SynonymMatchingPatternData }> = (props) => <SimpleSheet {...props} defaultTitle="Eş Anlamlı Desen Bulmaca" />;
-export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = (props) => <SimpleSheet {...props} defaultTitle="Eksik Parçalar" />;
-export const WordWebSheet: React.FC<{ data: WordWebData }> = (props) => <SimpleSheet {...props} defaultTitle="Kelime Ağı" />;
-export const SyllableWordSearchSheet: React.FC<{ data: SyllableWordSearchData }> = (props) => <SimpleSheet {...props} defaultTitle="Hece & Kelime Avı" />;
-export const WordWebWithPasswordSheet: React.FC<{ data: WordWebWithPasswordData }> = (props) => <SimpleSheet {...props} defaultTitle="Şifreli Kelime Ağı" />;
-export const WordPlacementPuzzleSheet: React.FC<{ data: WordPlacementPuzzleData }> = (props) => <SimpleSheet {...props} defaultTitle="Kelime Yerleştirme" />;
-export const PositionalAnagramSheet: React.FC<{ data: PositionalAnagramData }> = (props) => <SimpleSheet {...props} defaultTitle="Yer Değiştirmeli Anagram" />;
-export const ImageAnagramSortSheet: React.FC<{ data: ImageAnagramSortData }> = (props) => <SimpleSheet {...props} defaultTitle="Resimli Anagram Sıralama" />;
-export const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> = (props) => <SimpleSheet {...props} defaultTitle="Anagram Resim Eşleştirme" />;

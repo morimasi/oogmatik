@@ -116,6 +116,11 @@ export enum ActivityType {
   LETTER_GRID_WORD_FIND = 'LETTER_GRID_WORD_FIND',
   WORD_PLACEMENT_PUZZLE = 'WORD_PLACEMENT_PUZZLE',
   POSITIONAL_ANAGRAM = 'POSITIONAL_ANAGRAM',
+  // DYSLEXIA SUPPORT MODULES
+  READING_FLOW = 'READING_FLOW',
+  LETTER_DISCRIMINATION = 'LETTER_DISCRIMINATION',
+  RAPID_NAMING = 'RAPID_NAMING',
+  PHONOLOGICAL_AWARENESS = 'PHONOLOGICAL_AWARENESS'
 }
 
 export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia';
@@ -172,6 +177,49 @@ export interface BaseActivityData {
     title: string;
     instruction?: string;
     pedagogicalNote?: string;
+}
+
+// --- DYSLEXIA SUPPORT TYPES ---
+export interface ReadingFlowData extends BaseActivityData {
+    prompt: string;
+    text: {
+        paragraphs: {
+            sentences: {
+                syllables: { text: string; color: string }[];
+            }[];
+        }[];
+    };
+    readingSpeedTarget?: string;
+}
+
+export interface LetterDiscriminationData extends BaseActivityData {
+    prompt: string;
+    targetLetters: string[]; // e.g. ['b', 'd']
+    rows: {
+        letters: string[];
+        targetCount: number;
+    }[];
+}
+
+export interface RapidNamingData extends BaseActivityData {
+    prompt: string;
+    grid: {
+        items: { type: 'color' | 'icon' | 'number' | 'letter'; value: string; label: string }[];
+    };
+    type: 'color' | 'object' | 'number' | 'letter';
+}
+
+export interface PhonologicalAwarenessData extends BaseActivityData {
+    prompt: string;
+    exercises: {
+        type: 'syllable-counting' | 'rhyming';
+        question: string;
+        word: string;
+        imagePrompt?: string;
+        imageBase64?: string;
+        options: number[] | string[]; // numbers for counting, strings for rhyming
+        answer: number | string;
+    }[];
 }
 
 // ... (Existing interfaces remain the same, omitted for brevity but they are implicitly here) ...
@@ -603,7 +651,11 @@ export type SingleWorksheetData =
   | WordWebWithPasswordData
   | LetterGridWordFindData
   | WordPlacementPuzzleData
-  | PositionalAnagramData;
+  | PositionalAnagramData
+  | ReadingFlowData
+  | LetterDiscriminationData
+  | RapidNamingData
+  | PhonologicalAwarenessData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

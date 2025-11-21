@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, ActivityType, GeneratorOptions } from '../types';
 
@@ -245,7 +246,21 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [
                     itemCountField(8, 4, 12),
                     gridSizeField(10, 6, 15)
-                ]
+                ];
+            
+            // --- DISLEKSI DESTEK ---
+            case ActivityType.READING_FLOW:
+                return [
+                    { key: 'topic', label: 'Metin Konusu', type: 'text', defaultValue: 'Rastgele' }
+                ];
+            case ActivityType.LETTER_DISCRIMINATION:
+                return []; // Automatically handled by level
+            case ActivityType.RAPID_NAMING:
+                return [
+                    { key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] }
+                ];
+            case ActivityType.PHONOLOGICAL_AWARENESS:
+                return [];
 
             // --- DEFAULT FALLBACK ---
             default:

@@ -210,6 +210,19 @@ const AppContent: React.FC = () => {
           <div className="flex items-center gap-2">
              <GlobalSearch onSelectActivity={handleSelectActivity} />
              
+             {/* Helper Icons */}
+             <button onClick={() => setOpenModal('how-to-use')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="Nasıl Kullanılır?">
+                <i className="fa-solid fa-circle-question fa-lg"></i>
+             </button>
+             <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="Hakkımızda">
+                <i className="fa-solid fa-circle-info fa-lg"></i>
+             </button>
+             <button onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="İletişim / Hata Bildir">
+                <i className="fa-solid fa-envelope fa-lg"></i>
+             </button>
+             
+             <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
+
              {/* Authenticated User Actions */}
              {user ? (
                  <>
@@ -287,24 +300,79 @@ const AppContent: React.FC = () => {
           </div>
       </Modal>
 
-      <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="Geçmiş">
+      <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi">
           {userHistory.length === 0 ? (
-               <div className="text-center py-8 text-zinc-500">Geçmiş bulunamadı.</div>
+               <div className="text-center py-8 text-zinc-500">
+                   <i className="fa-solid fa-clock-rotate-left text-4xl mb-3 opacity-20"></i>
+                   <p>Henüz bir işlem geçmişiniz bulunmuyor.</p>
+               </div>
           ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                   {userHistory.map((item) => (
-                      <div key={item.id} className="p-3 border rounded flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-800">
-                          <div>
-                              <p className="font-bold">{item.title}</p>
-                              <p className="text-xs text-zinc-400">{new Date(item.timestamp).toLocaleString()}</p>
+                      <div key={item.id} className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                          <div className="flex items-center gap-3">
+                               <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                   <i className="fa-solid fa-file-pen"></i>
+                               </div>
+                               <div>
+                                  <p className="font-bold text-sm text-zinc-800 dark:text-zinc-200">{item.title}</p>
+                                  <div className="flex items-center gap-2 text-xs text-zinc-500">
+                                      <span><i className="fa-regular fa-calendar mr-1"></i>{new Date(item.timestamp).toLocaleDateString('tr-TR')}</span>
+                                      <span><i className="fa-regular fa-clock mr-1"></i>{new Date(item.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}</span>
+                                  </div>
+                               </div>
                           </div>
-                          <button onClick={() => { loadSavedWorksheet(item as any); setOpenModal(null); }} className="text-indigo-600"><i className="fa-solid fa-eye"></i></button>
+                          <button onClick={() => { loadSavedWorksheet(item as any); setOpenModal(null); }} className="px-3 py-1.5 text-xs font-bold bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 transition-colors">
+                              Tekrar Aç
+                          </button>
                       </div>
                   ))}
               </div>
           )}
       </Modal>
-      {/* About/Help modals omitted for brevity, logic same as before */}
+
+      <Modal isOpen={openModal === 'how-to-use'} onClose={() => setOpenModal(null)} title="Nasıl Kullanılır?">
+        <div className="space-y-6">
+            <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold shrink-0">1</div>
+                <div>
+                    <h4 className="font-bold text-lg">Etkinlik Seçin</h4>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Sol menüden kategorileri inceleyin ve oluşturmak istediğiniz etkinliği seçin.</p>
+                </div>
+            </div>
+            <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold shrink-0">2</div>
+                <div>
+                    <h4 className="font-bold text-lg">Özelleştirin</h4>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Zorluk seviyesi, tema ve soru sayısı gibi ayarları öğrencinize göre düzenleyin.</p>
+                </div>
+            </div>
+            <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold shrink-0">3</div>
+                <div>
+                    <h4 className="font-bold text-lg">Oluşturun ve Yazdırın</h4>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">"Etkinliği Oluştur" butonuna basın. Hazırlanan sayfayı yazdırabilir veya PDF olarak kaydedebilirsiniz.</p>
+                </div>
+            </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">
+        <div className="text-center space-y-4">
+            <DyslexiaLogo className="h-12 w-auto mx-auto mb-4" />
+            <p className="text-zinc-600 dark:text-zinc-300">
+                Bursa Disleksi Ai, disleksi ve öğrenme güçlüğü yaşayan bireylerin eğitimine destek olmak amacıyla geliştirilmiş yapay zeka destekli bir platformdur.
+            </p>
+            <p className="text-zinc-600 dark:text-zinc-300">
+                Eğitmenler ve aileler için özelleştirilebilir, eğlenceli ve bilimsel temelli etkinlikler sunarak öğrenme sürecini kolaylaştırmayı hedefler.
+            </p>
+            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                <p className="text-xs text-zinc-400">Versiyon 1.0.0</p>
+                <p className="text-xs text-zinc-400">© 2024 Bursa Disleksi</p>
+            </div>
+        </div>
+      </Modal>
+
     </div>
   );
 };
