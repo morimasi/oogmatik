@@ -1,6 +1,6 @@
 
-import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, EMOJI_MAP, COLORS, simpleSyllabify } from './helpers';
+import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData } from '../../types';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, EMOJI_MAP, COLORS, simpleSyllabify, CONNECT_COLORS } from './helpers';
 
 // --- 1. Reading Flow (Heceli/Renkli Okuma) ---
 export const generateOfflineReadingFlow = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
@@ -124,6 +124,108 @@ export const generateOfflinePhonologicalAwareness = async (options: GeneratorOpt
             instruction: 'Her kelimeyi sesli söyle ve hecelerini say.',
             pedagogicalNote: 'Ses farkındalığı ve heceleme becerisi.',
             exercises
+        };
+    });
+};
+
+// --- 5. Mirror Letters (Ayna Harfler) ---
+export const generateOfflineMirrorLetters = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
+    const { worksheetCount, difficulty } = options;
+    const pairs = [['b', 'd'], ['p', 'q']];
+    const selectedPair = getRandomItems(pairs, 1)[0];
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const rows = Array.from({ length: 5 }, () => {
+            const rowItems = Array.from({ length: 8 }, () => {
+                const isCorrect = Math.random() > 0.5;
+                const letter = isCorrect ? selectedPair[0] : selectedPair[1];
+                // In fast mode, we rely on actual letter substitution for mirroring effect since we can't easily rotate text in plain text mode
+                // But for UI rendering, we will pass rotation flags
+                return {
+                    letter: selectedPair[0], // Always show the target letter base
+                    isMirrored: !isCorrect, // If not correct, it should be mirrored
+                    rotation: !isCorrect ? 180 : 0 // Visual rotation
+                };
+            });
+            return { items: rowItems };
+        });
+
+        return {
+            title: 'Ayna Harf Savaşçısı',
+            instruction: `Sadece doğru duran "${selectedPair[0]}" harflerini daire içine al.`,
+            pedagogicalNote: 'Uzamsal algı ve harf yönü ayırt etme (Reversal errors).',
+            targetPair: selectedPair.join('/'),
+            rows
+        };
+    });
+};
+
+// --- 6. Syllable Train (Hece Treni) ---
+export const generateOfflineSyllableTrain = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
+    const { worksheetCount, difficulty, topic } = options;
+    const words = getRandomItems(getWordsForDifficulty(difficulty, topic), 5);
+
+    return Array.from({ length: worksheetCount }, () => {
+        const trains = words.map(word => ({
+            word: word,
+            syllables: simpleSyllabify(word),
+            imagePrompt: '' // fast mode fallback
+        }));
+
+        return {
+            title: 'Hece Treni',
+            instruction: 'Kelimelerin hecelerini vagonlara yerleştir ve oku.',
+            pedagogicalNote: 'Kelime analizi ve parçadan bütüne gitme.',
+            trains
+        };
+    });
+};
+
+// --- 7. Visual Tracking Lines (Görsel Takip) ---
+export const generateOfflineVisualTrackingLines = async (options: GeneratorOptions): Promise<VisualTrackingLineData[]> => {
+    const { worksheetCount, difficulty } = options;
+    const width = 600;
+    const height = 400;
+    const pathCount = difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 4 : 5);
+
+    return Array.from({ length: worksheetCount }, () => {
+        const paths = [];
+        const startYStep = height / (pathCount + 1);
+        const endYStep = height / (pathCount + 1);
+        const colors = getRandomItems(CONNECT_COLORS, pathCount);
+        
+        // Generate shuffled end indices to create crossing lines
+        const endIndices = shuffle(Array.from({length: pathCount}, (_, i) => i));
+
+        for (let i = 0; i < pathCount; i++) {
+            const startY = startYStep * (i + 1);
+            const endY = endYStep * (endIndices[i] + 1);
+            
+            // Bezier curve generation logic for "tangled" look
+            // Control points pull the line up/down/left/right
+            const cp1x = width * 0.33;
+            const cp1y = startY + getRandomInt(-50, 50);
+            const cp2x = width * 0.66;
+            const cp2y = endY + getRandomInt(-50, 50);
+
+            const pathData = `M 50 ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${width-50} ${endY}`;
+
+            paths.push({
+                id: i,
+                color: colors[i],
+                d: pathData,
+                startLabel: (i + 1).toString(),
+                endLabel: String.fromCharCode(65 + endIndices[i]) // A, B, C... matching the shuffled end
+            });
+        }
+
+        return {
+            title: 'Görsel Takip Yolları',
+            instruction: 'Soldaki numaradan başlayıp çizgiyi gözünle takip et ve hangi harfe ulaştığını bul.',
+            pedagogicalNote: 'Göz takibi (Eye tracking) ve şekil-zemin ayrımı.',
+            width,
+            height,
+            paths
         };
     });
 };

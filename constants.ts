@@ -746,6 +746,24 @@ export const ACTIVITIES: Activity[] = [
     title: 'Fonolojik Farkındalık',
     description: 'Hece sayma ve kafiye bulma çalışmaları.',
     icon: 'fa-solid fa-ear-listen',
+  },
+  {
+    id: ActivityType.MIRROR_LETTERS,
+    title: 'Ayna Harf Savaşçısı',
+    description: 'Ters dönmüş harfleri bul ve düzelt.',
+    icon: 'fa-solid fa-retweet',
+  },
+  {
+    id: ActivityType.SYLLABLE_TRAIN,
+    title: 'Hece Treni',
+    description: 'Kelimeleri vagonlara ayırarak görselleştir.',
+    icon: 'fa-solid fa-train-subway',
+  },
+  {
+    id: ActivityType.VISUAL_TRACKING_LINES,
+    title: 'Görsel Takip Yolları',
+    description: 'Karmaşık çizgileri takip ederek hedefe ulaş.',
+    icon: 'fa-solid fa-route',
   }
 ];
 
@@ -759,7 +777,10 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.READING_FLOW,
       ActivityType.LETTER_DISCRIMINATION,
       ActivityType.RAPID_NAMING,
-      ActivityType.PHONOLOGICAL_AWARENESS
+      ActivityType.PHONOLOGICAL_AWARENESS,
+      ActivityType.MIRROR_LETTERS,
+      ActivityType.SYLLABLE_TRAIN,
+      ActivityType.VISUAL_TRACKING_LINES
     ]
   },
   {

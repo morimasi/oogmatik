@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, ActivityType, GeneratorOptions } from '../types';
 
@@ -260,6 +258,11 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] }
                 ];
             case ActivityType.PHONOLOGICAL_AWARENESS:
+                return [];
+            case ActivityType.SYLLABLE_TRAIN:
+                return [ ...commonFields ];
+            case ActivityType.MIRROR_LETTERS:
+            case ActivityType.VISUAL_TRACKING_LINES:
                 return [];
 
             // --- DEFAULT FALLBACK ---

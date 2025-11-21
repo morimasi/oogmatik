@@ -1,7 +1,7 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData } from '../../types';
+import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -187,4 +187,133 @@ export const generatePhonologicalAwarenessFromAI = async (options: GeneratorOpti
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<PhonologicalAwarenessData[]>;
+};
+
+export const generateMirrorLettersFromAI = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
+    const { worksheetCount, difficulty } = options;
+    const prompt = `
+    Ayna Harf Savaşçısı (Mirror Letters).
+    b/d, p/q gibi harflerin karışık olduğu bir ızgara oluştur.
+    Bazı harfler normal, bazıları ters (ayna) dönmüş olsun.
+    Kullanıcı sadece doğru yönlü olanları bulmalı.
+    'isMirrored' true ise harf ters çevrilmiş demektir.
+    Zorluk: ${difficulty}.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            targetPair: { type: Type.STRING },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        items: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    letter: { type: Type.STRING },
+                                    isMirrored: { type: Type.BOOLEAN },
+                                    rotation: { type: Type.NUMBER }
+                                },
+                                required: ['letter', 'isMirrored', 'rotation']
+                            }
+                        }
+                    },
+                    required: ['items']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'targetPair', 'rows', 'pedagogicalNote', 'imagePrompt']
+    };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<MirrorLettersData[]>;
+};
+
+export const generateSyllableTrainFromAI = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
+    const { worksheetCount, difficulty, topic } = options;
+    const prompt = `
+    Hece Treni (Syllable Train). Konu: ${topic}.
+    Kelimeleri hecelerine ayır (vagonlar).
+    Her kelime için bir tren oluştur.
+    Görsel (imagePrompt) kelimeyi betimlesin.
+    Zorluk: ${difficulty}.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            trains: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        syllables: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        imagePrompt: { type: Type.STRING }
+                    },
+                    required: ['word', 'syllables', 'imagePrompt']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'trains', 'pedagogicalNote', 'imagePrompt']
+    };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<SyllableTrainData[]>;
+};
+
+export const generateVisualTrackingLinesFromAI = async (options: GeneratorOptions): Promise<VisualTrackingLineData[]> => {
+    const { worksheetCount, difficulty } = options;
+    const prompt = `
+    Görsel Takip Yolları (Visual Tracking / Tangle Maze).
+    Soldaki nesneleri sağdaki hedeflerle birleştiren karmaşık yollar oluştur.
+    Yollar birbirine dolanmalı (spaghetti lines).
+    SVG path verisi üret (M x y C ... formatında).
+    Başlangıç ve bitiş noktalarını etiketle.
+    Zorluk: ${difficulty}.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            width: { type: Type.INTEGER },
+            height: { type: Type.INTEGER },
+            paths: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.INTEGER },
+                        color: { type: Type.STRING },
+                        d: { type: Type.STRING },
+                        startLabel: { type: Type.STRING },
+                        endLabel: { type: Type.STRING },
+                        startImage: { type: Type.STRING },
+                        endImage: { type: Type.STRING }
+                    },
+                    required: ['id', 'color', 'd', 'startLabel', 'endLabel']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'paths', 'width', 'height', 'pedagogicalNote', 'imagePrompt']
+    };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<VisualTrackingLineData[]>;
 };

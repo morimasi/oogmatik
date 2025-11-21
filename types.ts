@@ -119,7 +119,10 @@ export enum ActivityType {
   READING_FLOW = 'READING_FLOW',
   LETTER_DISCRIMINATION = 'LETTER_DISCRIMINATION',
   RAPID_NAMING = 'RAPID_NAMING',
-  PHONOLOGICAL_AWARENESS = 'PHONOLOGICAL_AWARENESS'
+  PHONOLOGICAL_AWARENESS = 'PHONOLOGICAL_AWARENESS',
+  MIRROR_LETTERS = 'MIRROR_LETTERS',
+  SYLLABLE_TRAIN = 'SYLLABLE_TRAIN',
+  VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES'
 }
 
 export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia';
@@ -240,6 +243,36 @@ export interface PhonologicalAwarenessData extends BaseActivityData {
         options: number[] | string[]; // numbers for counting, strings for rhyming
         answer: number | string;
     }[];
+}
+
+export interface MirrorLettersData extends BaseActivityData {
+    targetPair: string;
+    rows: {
+        items: { letter: string; isMirrored: boolean; rotation: number }[];
+    }[];
+}
+
+export interface SyllableTrainData extends BaseActivityData {
+    trains: {
+        word: string;
+        syllables: string[];
+        imagePrompt?: string;
+        imageBase64?: string;
+    }[];
+}
+
+export interface VisualTrackingLineData extends BaseActivityData {
+    paths: {
+        id: number;
+        color: string;
+        d: string; // SVG path data
+        startLabel: string;
+        endLabel: string;
+        startImage?: string; // imageBase64 or icon
+        endImage?: string;
+    }[];
+    width: number;
+    height: number;
 }
 
 // ... (Existing interfaces remain the same, omitted for brevity but they are implicitly here) ...
@@ -675,7 +708,10 @@ export type SingleWorksheetData =
   | ReadingFlowData
   | LetterDiscriminationData
   | RapidNamingData
-  | PhonologicalAwarenessData;
+  | PhonologicalAwarenessData
+  | MirrorLettersData
+  | SyllableTrainData
+  | VisualTrackingLineData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 
