@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData } from '../../types';
+import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { ImageDisplay, PedagogicalHeader } from './common';
 
 export const ReadingFlowSheet: React.FC<{ data: ReadingFlowData }> = ({ data }) => (
@@ -184,14 +184,7 @@ export const VisualTrackingLinesSheet: React.FC<{ data: VisualTrackingLineData }
             </div>
             
             <div className="absolute top-0 bottom-0 right-0 flex flex-col justify-around px-2 py-4 h-full">
-                {/* We need to sort ends visually to match the lines, but SVG paths handle the geometry. 
-                    We just place labels evenly. The user finds which one connects where. 
-                    Wait, in SVG logic we drew lines to specific shuffled Y endpoints. 
-                    So we need to place labels at those specific Y points or just evenly distributed matching the logical ends.
-                    Our generator made them evenly distributed. */}
                 {Array.from({length: data.paths.length}).map((_, i) => {
-                    // Find which path ends at this index (logic from generator: endYStep * (endIndices[i] + 1))
-                    // Actually, labels should just be listed A, B, C... and the lines point to them.
                     const label = String.fromCharCode(65 + i);
                     return (
                         <div key={`end-${i}`} className="w-8 h-8 rounded-full bg-zinc-100 border-2 border-zinc-400 flex items-center justify-center font-bold shadow-sm z-10 text-zinc-600">
@@ -200,6 +193,31 @@ export const VisualTrackingLinesSheet: React.FC<{ data: VisualTrackingLineData }
                     );
                 })}
             </div>
+        </div>
+    </div>
+);
+
+export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {data.items.map((item, idx) => (
+                <div key={idx} className="flex items-center p-4 bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700">
+                    {item.imageBase64 && (
+                        <div className="mr-4 flex-shrink-0">
+                            <ImageDisplay base64={item.imageBase64} description={item.correct} className="w-16 h-16 rounded-lg object-cover" />
+                        </div>
+                    )}
+                    <div className="flex-1">
+                        <div className="bg-zinc-100 dark:bg-zinc-900 p-3 rounded-lg mb-3 text-center">
+                            <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 tracking-widest transform scale-x-[-1] inline-block" style={{ direction: 'rtl', unicodeBidi: 'bidi-override' }}>
+                                {item.reversed}
+                            </span>
+                        </div>
+                        <div className="border-b-2 border-dashed border-zinc-400 dark:border-zinc-600 h-8 w-full"></div>
+                    </div>
+                </div>
+            ))}
         </div>
     </div>
 );

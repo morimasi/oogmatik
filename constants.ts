@@ -764,6 +764,12 @@ export const ACTIVITIES: Activity[] = [
     title: 'Görsel Takip Yolları',
     description: 'Karmaşık çizgileri takip ederek hedefe ulaş.',
     icon: 'fa-solid fa-route',
+  },
+  {
+    id: ActivityType.BACKWARD_SPELLING,
+    title: 'Ters Kelime Avcısı',
+    description: 'Tersten yazılmış kelimeleri doğru şekilde yazın.',
+    icon: 'fa-solid fa-backward',
   }
 ];
 
@@ -780,7 +786,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.PHONOLOGICAL_AWARENESS,
       ActivityType.MIRROR_LETTERS,
       ActivityType.SYLLABLE_TRAIN,
-      ActivityType.VISUAL_TRACKING_LINES
+      ActivityType.VISUAL_TRACKING_LINES,
+      ActivityType.BACKWARD_SPELLING
     ]
   },
   {

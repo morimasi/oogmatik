@@ -98,6 +98,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.HOMONYM_SENTENCE_WRITING:
             case ActivityType.MISSING_PARTS:
             case ActivityType.SYLLABLE_COMPLETION:
+            case ActivityType.BACKWARD_SPELLING:
                 return [ ...commonFields, itemCountField(8, 4, 20) ];
             case ActivityType.WORD_GROUPING:
                  return [

@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData } from '../../types';
+import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, EMOJI_MAP, COLORS, simpleSyllabify, CONNECT_COLORS } from './helpers';
 
 // --- 1. Reading Flow (Heceli/Renkli Okuma) ---
@@ -226,6 +226,27 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
             width,
             height,
             paths
+        };
+    });
+};
+
+// --- 8. Backward Spelling (Ters Kelime Avcısı) ---
+export const generateOfflineBackwardSpelling = async (options: GeneratorOptions): Promise<BackwardSpellingData[]> => {
+    const { worksheetCount, difficulty, topic, itemCount } = options;
+    const words = getRandomItems(getWordsForDifficulty(difficulty, topic), itemCount || 8);
+
+    return Array.from({ length: worksheetCount }, () => {
+        const items = words.map(word => ({
+            reversed: word.split('').reverse().join(''),
+            correct: word,
+            imagePrompt: '' // No images in offline mode by default
+        }));
+
+        return {
+            title: 'Ters Kelime Avcısı',
+            instruction: 'Tersten yazılmış kelimeleri oku ve doğrusunu yanına yaz.',
+            pedagogicalNote: 'Ortografik işlemleme ve görsel dikkat becerisi.',
+            items
         };
     });
 };

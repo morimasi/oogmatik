@@ -122,7 +122,8 @@ export enum ActivityType {
   PHONOLOGICAL_AWARENESS = 'PHONOLOGICAL_AWARENESS',
   MIRROR_LETTERS = 'MIRROR_LETTERS',
   SYLLABLE_TRAIN = 'SYLLABLE_TRAIN',
-  VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES'
+  VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES',
+  BACKWARD_SPELLING = 'BACKWARD_SPELLING'
 }
 
 export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia';
@@ -194,7 +195,7 @@ export interface Message {
 }
 
 // --- ASSESSMENT MODULE TYPES ---
-export type TestCategory = 'reading' | 'math' | 'attention' | 'visual';
+export type TestCategory = 'reading' | 'math' | 'attention' | 'visual' | 'cognitive';
 
 export interface TestResult {
     id: TestCategory;
@@ -220,6 +221,7 @@ export interface AssessmentReport {
         writing: number; // 0-100
         math: number; // 0-100
         attention: number; // 0-100
+        cognitive: number; // 0-100 (Working Memory / Processing)
     };
     chartData?: { label: string; value: number; fullMark: number }[];
     analysis: {
@@ -313,6 +315,15 @@ export interface VisualTrackingLineData extends BaseActivityData {
     }[];
     width: number;
     height: number;
+}
+
+export interface BackwardSpellingData extends BaseActivityData {
+    items: {
+        reversed: string;
+        correct: string;
+        imagePrompt?: string;
+        imageBase64?: string;
+    }[];
 }
 
 // ... (Existing interfaces remain the same, omitted for brevity but they are implicitly here) ...
@@ -602,6 +613,7 @@ export interface MiniWordGridData extends BaseActivityData { prompt: string; puz
 export interface PasswordFinderData extends BaseActivityData { prompt: string; words: { word: string; passwordLetter: string; isProperNoun: boolean; }[]; passwordLength: number; }
 export interface SyllableCompletionData extends BaseActivityData { prompt: string; theme: string; wordParts: { first: string; second: string; }[]; syllables: string[]; storyTemplate?: string; storyPrompt: string; }
 export interface SynonymWordSearchData extends BaseActivityData { prompt: string; wordsToMatch: { word: string; synonym: string; }[]; grid: string[][]; }
+export interface WordConnectData extends BaseActivityData { gridDim: number; points: { word: string; pairId: number; x: number; y: number; color?: string; }[]; }
 export interface SpiralPuzzleData extends BaseActivityData { prompt: string; theme: string; clues: string[]; grid: string[][]; wordStarts: { id: number; row: number; col: number; }[]; passwordPrompt: string; }
 export interface CrosswordClue { id: number; direction: 'across' | 'down'; text: string; start: { row: number; col: number }; word: string; imageBase64?: string; }
 export interface CrosswordData extends BaseActivityData { prompt: string; theme: string; grid: (string | null)[][]; clues: CrosswordClue[]; passwordCells: { row: number; col: number; }[]; passwordLength: number; passwordPrompt: string; }
@@ -751,7 +763,8 @@ export type SingleWorksheetData =
   | PhonologicalAwarenessData
   | MirrorLettersData
   | SyllableTrainData
-  | VisualTrackingLineData;
+  | VisualTrackingLineData
+  | BackwardSpellingData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 
