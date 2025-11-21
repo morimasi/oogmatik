@@ -35,7 +35,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
          '--worksheet-margin': `${settings.margin}px`,
     } as React.CSSProperties;
 
-    const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0`;
+    const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0 print:border-none`;
 
     const renderContent = (singleData: SingleWorksheetData, index: number) => {
         switch (activityType) {
@@ -201,8 +201,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     };
 
     return (
-        <div className="worksheet-container" style={worksheetStyles}>
-            <div className="page-grid" style={gridStyles}>
+        <div className="worksheet-container print:p-0" style={worksheetStyles}>
+            <div className="page-grid print:block print:w-full" style={gridStyles}>
             {data.map((singleData, index) => (
                 <div key={index} className={pageClasses} style={{padding: `var(--worksheet-margin)`, overflow: 'hidden'}}>
                      <div className="zoom-wrapper" style={{

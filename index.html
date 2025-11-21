@@ -43,63 +43,93 @@
     font-family: 'OpenDyslexic', sans-serif !important;
   }
 
+  /* --- PROFESSIONAL PRINT CSS (A4 PIXEL PERFECT) --- */
   @media print {
     @page {
-      size: A4;
-      margin: 10mm;
+      size: A4; /* Kesin A4 Boyutu */
+      margin: 0mm; /* Tarayıcı kenar boşluklarını sıfırla, içeriği biz yöneteceğiz */
     }
-    body {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
+    
+    html, body {
+      width: 210mm;
+      height: auto !important; /* Çoklu sayfalar için auto olmalı */
+      min-height: 297mm;
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: white !important;
+      color: black !important;
+      overflow: visible !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
-    /* Hide everything by default */
+
+    /* UI Elementlerini Gizle */
     body * {
       visibility: hidden;
     }
-    /* Only show the printable area and its children */
+    
+    /* Sadece Yazdırılabilir Alanı Göster */
     .printable-area, .printable-area * {
       visibility: visible;
     }
-    /* Position the printable area to take up the whole page */
+
     .printable-area {
       position: absolute;
       left: 0;
       top: 0;
       width: 100%;
-      height: auto;
       margin: 0;
       padding: 0 !important;
     }
-    
-    .worksheet-page {
-      break-inside: avoid;
-      overflow: visible !important;
-      box-shadow: none !important;
-      border: none !important;
-      padding: 0 !important;
-      margin-bottom: 20mm;
-      background-color: white !important;
-      color: black !important;
-    }
 
-    .zoom-wrapper {
-      transform: none !important;
+    /* Grid Yapısını İptal Et - Sayfaları Alt Alta Sırala */
+    .page-grid {
+      display: block !important;
       width: 100% !important;
       height: auto !important;
     }
 
-    /* Watermark */
-    .printable-area::after {
-      content: 'Bursa Disleksi';
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-45deg);
-      font-size: 80px;
-      font-weight: bold;
-      color: rgba(0, 0, 0, 0.05);
-      z-index: -1;
+    /* Tekil Çalışma Sayfası Ayarları */
+    .worksheet-page {
+      position: relative;
+      width: 210mm !important;
+      min-height: 296mm !important; /* Bir sayfayı doldur */
+      margin: 0 !important;
+      /* Padding inline stilden gelir (kullanıcı ayarı), burada ezmiyoruz */
+      page-break-after: always !important; /* Her sayfadan sonra yeni kağıt */
+      break-after: always !important;
+      border: none !important;
+      box-shadow: none !important;
+      background-color: white !important;
+      color: black !important;
+      overflow: hidden !important;
+      break-inside: avoid !important;
+    }
+
+    /* Zoom/Scale Efektlerini Sıfırla - Netlik İçin */
+    .zoom-wrapper {
+      transform: none !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+
+    /* Filigran */
+    .worksheet-page::after {
+      content: 'Bursa Disleksi Ai';
+      position: absolute;
+      bottom: 5mm;
+      right: 10mm;
+      font-size: 9pt;
+      color: #ddd !important;
+      z-index: 999;
       pointer-events: none;
+      visibility: visible;
+    }
+    
+    /* Gizlenmesi Gereken Diğer Elemanlar */
+    .no-print, header, aside, .tour-overlay, button {
+      display: none !important;
     }
   }
 
