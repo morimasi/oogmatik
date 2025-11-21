@@ -1,4 +1,5 @@
 
+
 import { User, UserRole } from '../types';
 
 const USERS_KEY = 'app_users_db';
@@ -11,15 +12,36 @@ const DEFAULT_ADMIN: User = {
     name: 'Sistem Yöneticisi',
     role: 'admin',
     createdAt: new Date().toISOString(),
-    worksheetCount: 0,
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin'
+    lastLogin: new Date().toISOString(),
+    worksheetCount: 12,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
+    status: 'active',
+    subscriptionPlan: 'enterprise'
+};
+
+// Helper to generate mock users for admin dashboard visualization
+const generateMockUsers = (): User[] => {
+    const names = ["Ahmet Yılmaz", "Ayşe Demir", "Mehmet Öztürk", "Fatma Kaya", "Can Yıldız", "Elif Çelik", "Burak Şahin", "Ceren Arslan"];
+    return names.map((name, i) => ({
+        id: `user-${100 + i}`,
+        email: `user${100 + i}@ornek.com`,
+        name,
+        role: 'user',
+        createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
+        lastLogin: new Date(Date.now() - Math.random() * 1000000000).toISOString(),
+        worksheetCount: Math.floor(Math.random() * 50),
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+        status: Math.random() > 0.8 ? 'suspended' : 'active',
+        subscriptionPlan: Math.random() > 0.7 ? 'pro' : 'free'
+    }));
 };
 
 // Helper to get users DB
 const getUsersDB = (): User[] => {
     const stored = localStorage.getItem(USERS_KEY);
     if (!stored) {
-        const initialUsers = [DEFAULT_ADMIN];
+        // Initial seed with admin and mock users
+        const initialUsers = [DEFAULT_ADMIN, ...generateMockUsers()];
         localStorage.setItem(USERS_KEY, JSON.stringify(initialUsers));
         return initialUsers;
     }
@@ -43,10 +65,15 @@ export const authService = {
         const user = users.find(u => u.email === email);
         
         if (!user) throw new Error('Kullanıcı bulunamadı.');
+        if (user.status === 'suspended') throw new Error('Hesabınız askıya alınmıştır. Yönetici ile iletişime geçin.');
         
         // Mock Password Validation
         if (user.role === 'admin' && password !== 'admin123') throw new Error('Hatalı şifre.');
         if (user.role === 'user' && password !== '123456') throw new Error('Hatalı şifre.');
+
+        // Update last login
+        user.lastLogin = new Date().toISOString();
+        saveUsersDB(users);
 
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
         return user;
@@ -66,8 +93,11 @@ export const authService = {
             name,
             role: 'user',
             createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
             worksheetCount: 0,
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+            status: 'active',
+            subscriptionPlan: 'free'
         };
 
         users.push(newUser);
@@ -112,5 +142,14 @@ export const authService = {
         let users = getUsersDB();
         users = users.filter(u => u.id !== userId);
         saveUsersDB(users);
+    },
+
+    toggleUserStatus: (userId: string) => {
+        const users = getUsersDB();
+        const index = users.findIndex(u => u.id === userId);
+        if (index !== -1) {
+            users[index].status = users[index].status === 'active' ? 'suspended' : 'active';
+            saveUsersDB(users);
+        }
     }
 };

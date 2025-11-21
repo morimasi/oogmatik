@@ -150,6 +150,8 @@ export interface ActivityCategory {
 
 // --- USER & AUTH TYPES ---
 export type UserRole = 'user' | 'admin';
+export type UserStatus = 'active' | 'suspended' | 'pending';
+export type SubscriptionPlan = 'free' | 'pro' | 'enterprise';
 
 export interface User {
     id: string;
@@ -158,7 +160,10 @@ export interface User {
     role: UserRole;
     avatar?: string;
     createdAt: string;
+    lastLogin: string;
     worksheetCount: number; // Stats
+    status: UserStatus;
+    subscriptionPlan: SubscriptionPlan;
 }
 
 export interface FeedbackItem {
