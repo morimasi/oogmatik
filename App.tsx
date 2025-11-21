@@ -115,6 +115,23 @@ const AppContent: React.FC = () => {
       localStorage.setItem('app-theme', theme);
   }, [theme]);
 
+  // First Launch Tour Check
+  useEffect(() => {
+      const hasSeenTour = localStorage.getItem('has_seen_tour_v1');
+      if (!hasSeenTour) {
+          // Small delay to ensure UI is rendered
+          const timer = setTimeout(() => {
+              setIsTourOpen(true);
+          }, 1500);
+          return () => clearTimeout(timer);
+      }
+  }, []);
+
+  const handleTourClose = () => {
+      setIsTourOpen(false);
+      localStorage.setItem('has_seen_tour_v1', 'true');
+  };
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem('savedWorksheets');
@@ -208,31 +225,31 @@ const AppContent: React.FC = () => {
       {
           targetId: 'tour-logo',
           title: 'Hoş Geldiniz!',
-          content: 'Bursa Disleksi Ai uygulamasına hoş geldiniz. Bu turda size uygulamayı nasıl kullanacağınızı adım adım göstereceğiz.',
+          content: 'Bursa Disleksi Ai uygulamasına hoş geldiniz. Disleksi dostu eğitim materyalleri oluşturmak için tasarlanmıştır.',
           position: 'bottom'
       },
       {
           targetId: 'tour-sidebar',
           title: 'Etkinlik Menüsü',
-          content: 'Sol menüden kategorilere ayrılmış yüzlerce etkinlik arasından seçim yapabilirsiniz. Kelime oyunları, matematik, dikkat çalışmaları ve daha fazlası burada.',
+          content: 'Sol menüden kategorilere ayrılmış yüzlerce etkinlik arasından seçim yapabilirsiniz. Kelime oyunları, matematik, dikkat çalışmaları ve özel disleksi modülleri burada.',
           position: 'right'
       },
       {
           targetId: 'tour-search',
           title: 'Hızlı Arama',
-          content: 'Aradığınız belirli bir etkinlik mi var? Buradan ismini yazarak saniyeler içinde bulabilirsiniz.',
+          content: 'Aradığınız etkinliği bulamıyor musunuz? Buradan ismini yazarak saniyeler içinde ulaşabilirsiniz.',
           position: 'bottom'
       },
       {
           targetId: 'tour-content',
           title: 'Çalışma Alanı',
-          content: 'Seçtiğiniz etkinliğin ayarlarını buradan yapabilir, yapay zeka ile oluşturulan içerikleri burada görüntüleyebilirsiniz.',
+          content: 'Seçtiğiniz etkinliğin ayarlarını buradan yapabilir, yapay zeka ile oluşturulan içerikleri anında görebilirsiniz. "Hızlı Mod" ile internet olmadan da içerik üretebilirsiniz.',
           position: 'left'
       },
       {
           targetId: 'tour-actions',
           title: 'Kullanıcı İşlemleri',
-          content: 'Mesajlaşma, paylaşılan dosyalar, arşiviniz ve profil ayarlarınıza buradan ulaşabilirsiniz. Ayrıca kayıtlı çalışmalarınızı buradan yönetebilirsiniz.',
+          content: 'Giriş yaparak etkinliklerinizi kaydedebilir, diğer kullanıcılarla paylaşabilir ve mesajlaşabilirsiniz.',
           position: 'bottom'
       }
   ];
@@ -251,7 +268,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
       
-      <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
+      <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={handleTourClose} />
 
       <header className="relative bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">

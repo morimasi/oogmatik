@@ -25,9 +25,15 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         if (isOpen) {
             setCurrentStepIndex(0);
             setIsReady(true);
+            // Prevent body scrolling when tour is open
+            document.body.style.overflow = 'hidden';
         } else {
             setIsReady(false);
+            document.body.style.overflow = '';
         }
+        return () => {
+            document.body.style.overflow = '';
+        };
     }, [isOpen]);
 
     // Calculate position of the target element
@@ -38,16 +44,16 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             const step = steps[currentStepIndex];
             const element = document.getElementById(step.targetId);
             if (element) {
-                // Scroll element into view if needed
+                // Scroll element into view if needed with padding
                 element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 
                 // Wait slightly for scroll to finish then measure
                 setTimeout(() => {
                     const rect = element.getBoundingClientRect();
                     setTargetRect(rect);
-                }, 300);
+                }, 350);
             } else {
-                // Element not found, maybe skip or close?
+                // Element not found, warn but don't crash
                 console.warn(`Tour target #${step.targetId} not found`);
             }
         };
@@ -80,13 +86,10 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
 
     // Determine tooltip position style
     const getTooltipStyle = () => {
-        const gap = 15;
+        const gap = 20;
         let top = 0;
         let left = 0;
         const tooltipWidth = 320; // Approx max width
-        
-        // Default logic based on preferred position or screen space
-        // Simple implementation: Center horizontally if top/bottom, center vertically if left/right
         
         const pos = currentStep.position || 'bottom';
 
@@ -94,7 +97,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             top = targetRect.bottom + gap;
             left = targetRect.left + (targetRect.width / 2) - (tooltipWidth / 2);
         } else if (pos === 'top') {
-            top = targetRect.top - gap - 200; // Approx height
+            top = targetRect.top - gap - 200; // Approx height adjustment
             left = targetRect.left + (targetRect.width / 2) - (tooltipWidth / 2);
         } else if (pos === 'right') {
             top = targetRect.top;
@@ -104,9 +107,9 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             left = targetRect.left - tooltipWidth - gap;
         }
 
-        // Keep within viewport
-        left = Math.max(10, Math.min(window.innerWidth - tooltipWidth - 10, left));
-        top = Math.max(10, Math.min(window.innerHeight - 200, top));
+        // Keep within viewport with padding
+        left = Math.max(20, Math.min(window.innerWidth - tooltipWidth - 20, left));
+        top = Math.max(20, Math.min(window.innerHeight - 250, top));
 
         return { top, left };
     };
@@ -114,28 +117,17 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
     const tooltipStyle = getTooltipStyle();
 
     // SVG Path for the "cutout" spotlight effect
-    // We draw a giant rectangle covering the screen, then a smaller counter-clockwise rectangle for the hole
-    const padding = 5;
-    const cutoutPath = `
-        M 0 0
-        H ${window.innerWidth}
-        V ${window.innerHeight}
-        H 0
-        Z
-        M ${targetRect.left - padding} ${targetRect.top - padding}
-        V ${targetRect.bottom + padding}
-        H ${targetRect.right + padding}
-        V ${targetRect.top - padding}
-        Z
-    `;
-
+    // This creates a path that covers the entire screen but excludes the target rect
+    const padding = 8; // Padding around the element
+    
     return createPortal(
-        <div className="fixed inset-0 z-[100] overflow-hidden" onClick={onClose}>
+        <div className="fixed inset-0 z-[9999] overflow-hidden font-sans" onClick={onClose}>
             {/* Blurred Background via Backdrop Filter + SVG Mask */}
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none transition-all duration-500 ease-in-out">
                 <svg width="100%" height="100%" className="absolute inset-0">
                     <defs>
                         <mask id="tour-mask">
+                            {/* White fills the mask (visible), Black hides it (transparent hole) */}
                             <rect x="0" y="0" width="100%" height="100%" fill="white" />
                             <rect 
                                 x={targetRect.left - padding} 
@@ -143,20 +135,23 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                                 width={targetRect.width + (padding*2)} 
                                 height={targetRect.height + (padding*2)} 
                                 fill="black" 
-                                rx="8" 
+                                rx="12" 
                             />
                         </mask>
                     </defs>
                     
-                    {/* Dark overlay with blur */}
+                    {/* Dark overlay with blur. 
+                        backdrop-filter blurs everything BEHIND this rect.
+                        The mask cuts a hole in this rect, revealing the unblurred content behind it.
+                    */}
                     <rect 
                         x="0" y="0" width="100%" height="100%" 
-                        fill="rgba(0,0,0,0.6)" 
+                        fill="rgba(0,0,0,0.75)" 
                         mask="url(#tour-mask)" 
-                        style={{ backdropFilter: 'blur(4px)' }} 
+                        style={{ backdropFilter: 'blur(8px)' }} 
                     />
                     
-                    {/* Spotlight border */}
+                    {/* Spotlight animated border */}
                     <rect 
                         x={targetRect.left - padding} 
                         y={targetRect.top - padding} 
@@ -164,48 +159,50 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                         height={targetRect.height + (padding*2)} 
                         fill="none" 
                         stroke="#6366F1" 
-                        strokeWidth="3" 
-                        rx="8"
-                        className="animate-pulse"
+                        strokeWidth="4" 
+                        rx="12"
+                        className="animate-pulse shadow-[0_0_30px_rgba(99,102,241,0.6)]"
                     />
                 </svg>
             </div>
 
             {/* Tooltip Card */}
             <div 
-                className="absolute bg-white dark:bg-zinc-800 rounded-xl shadow-2xl p-5 w-full max-w-xs md:max-w-sm border border-zinc-200 dark:border-zinc-700 flex flex-col gap-3 transition-all duration-300"
+                className="absolute bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6 w-full max-w-xs md:max-w-sm border border-zinc-200 dark:border-zinc-700 flex flex-col gap-4 transition-all duration-500 ease-out z-[10000]"
                 style={{ top: tooltipStyle.top, left: tooltipStyle.left }}
                 onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside tooltip
             >
-                <div className="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-700 pb-2">
-                    <h3 className="font-bold text-lg text-indigo-600 dark:text-indigo-400">{currentStep.title}</h3>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
-                        <i className="fa-solid fa-times"></i>
+                <div className="flex justify-between items-start">
+                    <h3 className="font-bold text-xl text-indigo-600 dark:text-indigo-400">{currentStep.title}</h3>
+                    <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
+                        <i className="fa-solid fa-times text-lg"></i>
                     </button>
                 </div>
                 
-                <p className="text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed">
+                <p className="text-zinc-600 dark:text-zinc-300 text-md leading-relaxed">
                     {currentStep.content}
                 </p>
 
-                <div className="flex justify-between items-center pt-2">
-                    <div className="text-xs text-zinc-400 font-mono">
-                        {currentStepIndex + 1} / {steps.length}
+                <div className="flex justify-between items-center pt-2 border-t border-zinc-100 dark:border-zinc-800 mt-2">
+                    <div className="text-xs font-bold text-zinc-400 font-mono tracking-widest">
+                        ADIM {currentStepIndex + 1} / {steps.length}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         {currentStepIndex > 0 && (
                             <button 
                                 onClick={handlePrev}
-                                className="px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                                className="px-4 py-2 text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                             >
                                 Geri
                             </button>
                         )}
                         <button 
                             onClick={handleNext}
-                            className="px-4 py-1.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md transition-colors flex items-center gap-2"
+                            className="px-6 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-lg hover:shadow-indigo-500/30 transition-all transform active:scale-95 flex items-center gap-2"
                         >
-                            {isLastStep ? 'Bitir' : 'İleri'} <i className="fa-solid fa-arrow-right text-xs"></i>
+                            {isLastStep ? 'Keşfetmeye Başla' : 'İleri'} 
+                            {!isLastStep && <i className="fa-solid fa-arrow-right text-xs"></i>}
+                            {isLastStep && <i className="fa-solid fa-check text-xs"></i>}
                         </button>
                     </div>
                 </div>
