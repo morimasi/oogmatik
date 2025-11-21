@@ -13,6 +13,9 @@ import { ProfileView } from './components/ProfileView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { MessagesView } from './components/MessagesView';
 import { messagingService } from './services/messagingService';
+import { TourGuide, TourStep } from './components/TourGuide';
+import { SharedWorksheetsView } from './components/SharedWorksheetsView';
+import { SavedWorksheetsView } from './components/SavedWorksheetsView';
 
 export interface StyleSettings {
   fontSize: number;
@@ -82,6 +85,7 @@ const AppContent: React.FC = () => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isTourOpen, setIsTourOpen] = useState(false);
   
   const [theme, setTheme] = useState<AppTheme>(() => {
       const storedTheme = localStorage.getItem('app-theme');
@@ -199,6 +203,40 @@ const AppContent: React.FC = () => {
     if (isSidebarOpen) setIsSidebarOpen(false);
   };
 
+  // TOUR STEPS CONFIGURATION
+  const tourSteps: TourStep[] = [
+      {
+          targetId: 'tour-logo',
+          title: 'Hoş Geldiniz!',
+          content: 'Bursa Disleksi Ai uygulamasına hoş geldiniz. Bu turda size uygulamayı nasıl kullanacağınızı adım adım göstereceğiz.',
+          position: 'bottom'
+      },
+      {
+          targetId: 'tour-sidebar',
+          title: 'Etkinlik Menüsü',
+          content: 'Sol menüden kategorilere ayrılmış yüzlerce etkinlik arasından seçim yapabilirsiniz. Kelime oyunları, matematik, dikkat çalışmaları ve daha fazlası burada.',
+          position: 'right'
+      },
+      {
+          targetId: 'tour-search',
+          title: 'Hızlı Arama',
+          content: 'Aradığınız belirli bir etkinlik mi var? Buradan ismini yazarak saniyeler içinde bulabilirsiniz.',
+          position: 'bottom'
+      },
+      {
+          targetId: 'tour-content',
+          title: 'Çalışma Alanı',
+          content: 'Seçtiğiniz etkinliğin ayarlarını buradan yapabilir, yapay zeka ile oluşturulan içerikleri burada görüntüleyebilirsiniz.',
+          position: 'left'
+      },
+      {
+          targetId: 'tour-actions',
+          title: 'Kullanıcı İşlemleri',
+          content: 'Mesajlaşma, paylaşılan dosyalar, arşiviniz ve profil ayarlarınıza buradan ulaşabilirsiniz. Ayrıca kayıtlı çalışmalarınızı buradan yönetebilirsiniz.',
+          position: 'bottom'
+      }
+  ];
+
   // View Routing
   if (currentView === 'admin') {
       return <AdminDashboard onBack={() => setCurrentView('generator')} />;
@@ -212,20 +250,25 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
+      
+      <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
+
       <header className="relative bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-3 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
-             <button onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3">
+             <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg">
                 <DyslexiaLogo className="h-10 w-auto" />
             </button>
           </div>
 
           <div className="flex items-center gap-2">
-             <GlobalSearch onSelectActivity={handleSelectActivity} />
+             <div id="tour-search">
+                <GlobalSearch onSelectActivity={handleSelectActivity} />
+             </div>
              
              {/* Helper Icons */}
-             <button onClick={() => setOpenModal('how-to-use')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="Nasıl Kullanılır?">
+             <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="Nasıl Kullanılır?">
                 <i className="fa-solid fa-circle-question fa-lg"></i>
              </button>
              <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="Hakkımızda">
@@ -238,6 +281,7 @@ const AppContent: React.FC = () => {
              <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
 
              {/* Authenticated User Actions */}
+             <div id="tour-actions" className="flex items-center gap-2">
              {user ? (
                  <>
                     {user.role === 'admin' && (
@@ -276,6 +320,7 @@ const AppContent: React.FC = () => {
                      Giriş Yap
                  </button>
              )}
+             </div>
              
              <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
              <button onClick={() => setOpenModal('settings')} className="text-zinc-500 hover:text-indigo-500 p-2"><i className="fa-solid fa-gear fa-lg"></i></button>
@@ -358,32 +403,6 @@ const AppContent: React.FC = () => {
                   ))}
               </div>
           )}
-      </Modal>
-
-      <Modal isOpen={openModal === 'how-to-use'} onClose={() => setOpenModal(null)} title="Nasıl Kullanılır?">
-        <div className="space-y-6">
-            <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold shrink-0">1</div>
-                <div>
-                    <h4 className="font-bold text-lg">Etkinlik Seçin</h4>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Sol menüden kategorileri inceleyin ve oluşturmak istediğiniz etkinliği seçin.</p>
-                </div>
-            </div>
-            <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold shrink-0">2</div>
-                <div>
-                    <h4 className="font-bold text-lg">Özelleştirin</h4>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Zorluk seviyesi, tema ve soru sayısı gibi ayarları öğrencinize göre düzenleyin.</p>
-                </div>
-            </div>
-            <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold shrink-0">3</div>
-                <div>
-                    <h4 className="font-bold text-lg">Oluşturun ve Yazdırın</h4>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">"Etkinliği Oluştur" butonuna basın. Hazırlanan sayfayı yazdırabilir veya PDF olarak kaydedebilirsiniz.</p>
-                </div>
-            </div>
-        </div>
       </Modal>
 
       <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">

@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { User, FeedbackItem, Message } from '../types';
 import { authService } from '../services/authService';
 import { messagingService } from '../services/messagingService';
 import { useAuth } from '../context/AuthContext';
-import { ImageDisplay } from './sheets/common';
 
 interface AdminDashboardProps {
     onBack: () => void;
@@ -35,7 +33,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         setUsers(authService.getAllUsers());
         setFeedbacks(messagingService.getAllFeedbacks());
         if (user) {
-            setMessages(messagingService.getMessagesForUser(user.id)); // Admin sees their own messages (which includes messages from users)
+            setMessages(messagingService.getMessagesForUser(user.id)); 
         }
     };
 
@@ -82,7 +80,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         } catch (e) { console.error(e); }
     };
 
-    // Group messages by user for the admin view
+    // Group messages logic
     interface ConversationGroup {
         userId: string;
         userName: string;
@@ -144,10 +142,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             <div className="flex-1 overflow-hidden p-4 md:p-8">
                 {/* USERS TAB */}
                 {activeTab === 'users' && (
-                    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden">
-                        <div className="overflow-x-auto">
+                    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden flex flex-col h-full">
+                        <div className="overflow-x-auto flex-1">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700">
+                                <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 sticky top-0">
                                     <tr>
                                         <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Kullanıcı</th>
                                         <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">E-posta</th>
@@ -157,7 +155,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                         <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400 text-right">İşlemler</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
+                                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700 overflow-y-auto">
                                     {users.map(u => (
                                         <tr key={u.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30">
                                             <td className="p-4 flex items-center gap-3">

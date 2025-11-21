@@ -48,7 +48,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     }
 
   return (
-    <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative">
+    <main id="tour-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative">
       {currentView === 'generator' ? (
         <>
             {activityType && worksheetData && (
