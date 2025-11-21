@@ -1,11 +1,11 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../data/vocabulary';
 
 // Updated PedagogicalHeader to accept full data or at least imageBase64
-export const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string; data?: BaseActivityData }> = ({ title, instruction, note, data }) => (
+// Memoized for performance
+export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => (
     <div className="mb-6 text-center print:mb-4">
         <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100 font-dyslexic">{title}</h3>
         <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
@@ -21,7 +21,7 @@ export const PedagogicalHeader: React.FC<{ title: string; instruction: string; n
             <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-graduation-cap mr-1"></i>Eğitmen Notu: {note}</p>
         </div>}
     </div>
-);
+));
 
 export const ReadingRuler: React.FC = () => {
     const [position, setPosition] = useState(0);
@@ -67,7 +67,8 @@ export const ReadingRuler: React.FC = () => {
     );
 };
 
-export const Shape: React.FC<{ name: ShapeType; className?: string }> = ({ name, className = "w-10 h-10" }) => {
+// Memoized Shape Component
+export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: ShapeType; className?: string }) => {
     switch (name) {
         case 'circle':
             return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><circle cx="50" cy="50" r="45" stroke="black" strokeWidth="5" /></svg>;
@@ -96,27 +97,25 @@ export const Shape: React.FC<{ name: ShapeType; className?: string }> = ({ name,
         default:
             return null;
     }
-};
+});
 
-
-export const ImageDisplay: React.FC<{ base64?: string; description?: string; className?: string }> = ({ base64, description, className = "w-full h-32" }) => {
+// Memoized Image Display
+export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string; className?: string }) => {
     if (base64) {
-        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-zinc-100 dark:bg-zinc-700 shadow-sm`} />;
+        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-zinc-100 dark:bg-zinc-700 shadow-sm`} loading="lazy" />;
     }
     
     // Smart Fallback with Emojis
     let emojiIcon = null;
     if (description) {
         const lowerDesc = description.toLowerCase();
-        // Find an emoji key whose mapping value is inside the description
-        // EMOJI_MAP format: { "🍎": "Elma", ... }
         const foundKey = Object.keys(EMOJI_MAP).find(key => lowerDesc.includes(EMOJI_MAP[key].toLowerCase()));
         if (foundKey) {
             emojiIcon = foundKey;
         }
     }
 
-    // Fallback UI for missing images (Quota limits or Offline mode)
+    // Fallback UI for missing images
     return (
         <div className={`bg-zinc-50 dark:bg-zinc-800/50 rounded-md border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center text-center p-3 ${className}`}>
             {emojiIcon ? (
@@ -136,9 +135,10 @@ export const ImageDisplay: React.FC<{ base64?: string; description?: string; cla
             )}
         </div>
     );
-};
+});
 
-export const GridComponent: React.FC<{ grid: (string | number | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string, passwordColumnIndex?: number, showLetters?: boolean }> = ({ grid, passwordCells, cellClassName = 'w-10 h-10', passwordColumnIndex, showLetters = true }) => (
+// Memoized Grid Component
+export const GridComponent = React.memo(({ grid, passwordCells, cellClassName = 'w-10 h-10', passwordColumnIndex, showLetters = true }: { grid: (string | number | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string, passwordColumnIndex?: number, showLetters?: boolean }) => (
     <table className="table-fixed w-full border-collapse">
         <tbody>
             {(grid || []).map((row, rowIndex) => (
@@ -156,9 +156,9 @@ export const GridComponent: React.FC<{ grid: (string | number | null)[][]; passw
             ))}
         </tbody>
     </table>
-);
+));
 
-export const SegmentDisplay: React.FC<{ segments: boolean[] }> = ({ segments }) => {
+export const SegmentDisplay = React.memo(({ segments }: { segments: boolean[] }) => {
     const segmentClasses = (isActive: boolean) => isActive ? 'bg-zinc-800 dark:bg-zinc-100' : 'bg-zinc-200 dark:bg-zinc-700';
     return (
         <div className="grid grid-cols-3 grid-rows-3 w-12 h-16 gap-0.5">
@@ -167,13 +167,17 @@ export const SegmentDisplay: React.FC<{ segments: boolean[] }> = ({ segments }) 
             ))}
         </div>
     );
-};
+});
 
-export const CagedGridSvg: React.FC<{
+export const CagedGridSvg = React.memo(({
+    size,
+    cages,
+    gridData
+}: {
     size: number;
     cages: { cells: { row: number; col: number }[]; operation?: string; target: number }[];
     gridData: (number | null)[][];
-}> = ({ size, cages, gridData }) => {
+}) => {
     const cellSize = 50;
     const totalSize = size * cellSize;
 
@@ -212,10 +216,9 @@ export const CagedGridSvg: React.FC<{
                             {isEdge(r, c, 'bottom') && <line x1={c * cellSize} y1={(r + 1) * cellSize} x2={(c + 1) * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
                             {isEdge(r, c, 'left') && <line x1={c * cellSize} y1={r * cellSize} x2={c * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
                             {isEdge(r, c, 'right') && <line x1={(c + 1) * cellSize} y1={r * cellSize} x2={(c + 1) * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
-                            {/* Only show numbers if not null in gridData (solution or pre-filled) */}
+                            
                             {gridData?.[r]?.[c] !== null && (
                                 <text x={c * cellSize + cellSize / 2} y={r * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-zinc-400 opacity-30">
-                                    {/* {gridData?.[r]?.[c]} */} 
                                 </text>
                             )}
                         </g>
@@ -235,11 +238,11 @@ export const CagedGridSvg: React.FC<{
             </svg>
         </div>
     );
-};
+});
 
-
-export const ShapeDisplay: React.FC<{ shapes: ShapeType[] }> = ({ shapes }) => (
+// Memoized Shape Display
+export const ShapeDisplay = React.memo(({ shapes }: { shapes: ShapeType[] }) => (
     <div className="flex items-center justify-center gap-2">
         {(shapes || []).map((shape, i) => <Shape key={i} name={shape} className="w-8 h-8 text-zinc-700 dark:text-zinc-300" />)}
     </div>
-);
+));

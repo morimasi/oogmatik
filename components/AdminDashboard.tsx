@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import { messagingService } from '../services/messagingService';
-import { User, FeedbackItem, Message } from '../types';
+import { User, FeedbackItem, Message, UserRole, UserStatus, SubscriptionPlan } from '../types';
 
 // --- UI COMPONENTS ---
 
@@ -52,6 +52,84 @@ const ActivityChart = () => {
     );
 }
 
+// --- MODAL FOR USER EDIT/CREATE ---
+interface UserModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSave: (user: Partial<User>) => void;
+    initialData?: User | null;
+}
+
+const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSave, initialData }) => {
+    const [formData, setFormData] = useState<Partial<User>>({
+        name: '', email: '', role: 'user', status: 'active', subscriptionPlan: 'free'
+    });
+
+    useEffect(() => {
+        if (initialData) {
+            setFormData(initialData);
+        } else {
+            setFormData({ name: '', email: '', role: 'user', status: 'active', subscriptionPlan: 'free' });
+        }
+    }, [initialData, isOpen]);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave(formData);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl w-full max-w-md p-6 animate-fade-in">
+                <h3 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-100">
+                    {initialData ? 'Kullanıcı Düzenle' : 'Yeni Kullanıcı Ekle'}
+                </h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Ad Soyad</label>
+                        <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">E-posta</label>
+                        <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Rol</label>
+                            <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value as UserRole})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600">
+                                <option value="user">Kullanıcı</option>
+                                <option value="admin">Yönetici</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Durum</label>
+                            <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value as UserStatus})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600">
+                                <option value="active">Aktif</option>
+                                <option value="suspended">Askıya Alınmış</option>
+                                <option value="pending">Beklemede</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Abonelik Planı</label>
+                        <select value={formData.subscriptionPlan} onChange={e => setFormData({...formData, subscriptionPlan: e.target.value as SubscriptionPlan})} className="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-600">
+                            <option value="free">Ücretsiz</option>
+                            <option value="pro">Pro</option>
+                            <option value="enterprise">Kurumsal</option>
+                        </select>
+                    </div>
+                    <div className="flex justify-end gap-3 mt-6">
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-zinc-600 hover:bg-zinc-100 rounded-lg">İptal</button>
+                        <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
@@ -61,16 +139,31 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     const [searchTerm, setSearchTerm] = useState('');
     const [replyText, setReplyText] = useState('');
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    
+    // Modal States
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    // System Settings State (Mock)
+    const [systemSettings, setSystemSettings] = useState({
+        maintenanceMode: false,
+        allowRegistrations: true,
+        aiEnabled: true
+    });
 
     useEffect(() => {
         if (user?.role === 'admin') {
-            setUsers(authService.getAllUsers());
-            setFeedbacks(messagingService.getAllFeedbacks());
-            if (user.id) {
-                setMessages(messagingService.getMessagesForUser(user.id));
-            }
+            loadData();
         }
     }, [user, activeTab]);
+
+    const loadData = () => {
+        setUsers(authService.getAllUsers());
+        setFeedbacks(messagingService.getAllFeedbacks());
+        if (user && user.id) {
+            setMessages(messagingService.getMessagesForUser(user.id));
+        }
+    };
 
     if (user?.role !== 'admin') return <div className="flex items-center justify-center h-screen bg-zinc-100 text-red-500 font-bold">Yetkisiz Erişim</div>;
 
@@ -79,6 +172,40 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         u.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // --- USER MANAGEMENT ACTIONS ---
+    const handleDeleteUser = async (userId: string) => {
+        if (confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+            await authService.deleteUser(userId);
+            loadData();
+        }
+    };
+
+    const handleSaveUser = async (userData: Partial<User>) => {
+        try {
+            if (editingUser) {
+                await authService.adminUpdateUser(editingUser.id, userData);
+            } else {
+                await authService.adminCreateUser(userData);
+            }
+            setIsUserModalOpen(false);
+            setEditingUser(null);
+            loadData();
+        } catch (e: any) {
+            alert(e.message);
+        }
+    };
+
+    const openEditUser = (u: User) => {
+        setEditingUser(u);
+        setIsUserModalOpen(true);
+    };
+
+    const openCreateUser = () => {
+        setEditingUser(null);
+        setIsUserModalOpen(true);
+    };
+
+    // --- FEEDBACK ACTIONS ---
     const handleReplyFeedback = async (feedbackId: string) => {
         if (!replyText.trim()) return;
         try {
@@ -86,7 +213,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             alert("Yanıt gönderildi.");
             setReplyingTo(null);
             setReplyText('');
-            setFeedbacks(messagingService.getAllFeedbacks()); // Refresh
+            loadData();
         } catch (error) {
             alert("Bir hata oluştu.");
         }
@@ -95,14 +222,13 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     const handleSendMessage = async (receiverId: string, content: string) => {
         if (!content.trim()) return;
         try {
-            const receiver = users.find(u => u.id === receiverId);
             await messagingService.sendMessage({
                 senderId: user.id,
                 senderName: user.name,
                 receiverId,
                 content
             });
-            setMessages(messagingService.getMessagesForUser(user.id)); // Refresh
+            loadData();
         } catch (e) { console.error(e); }
     };
 
@@ -121,7 +247,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                         {id: 'users', icon: 'fa-users', label: 'Kullanıcılar'},
                         {id: 'feedbacks', icon: 'fa-comments', label: 'Geri Bildirimler'},
                         {id: 'messages', icon: 'fa-envelope', label: 'Mesajlar'},
-                        {id: 'settings', icon: 'fa-gear', label: 'Ayarlar'}
+                        {id: 'settings', icon: 'fa-gear', label: 'Sistem Ayarları'}
                     ].map((tab) => (
                         <button 
                             key={tab.id}
@@ -151,7 +277,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                     </h1>
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold">
-                            Y
+                            {user.name.charAt(0)}
                         </div>
                     </div>
                 </header>
@@ -172,7 +298,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
                     {activeTab === 'users' && (
                         <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden fade-in">
-                            <div className="p-4 border-b flex flex-col sm:flex-row justify-between gap-4">
+                            <div className="p-4 border-b flex flex-col sm:flex-row justify-between gap-4 items-center">
                                 <input 
                                     type="text" 
                                     placeholder="Kullanıcı Ara..." 
@@ -180,6 +306,9 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-4 pr-4 py-2 border rounded-lg bg-zinc-50 dark:bg-zinc-900 w-full sm:w-64"
                                 />
+                                <button onClick={openCreateUser} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                                    <i className="fa-solid fa-plus"></i> Yeni Kullanıcı
+                                </button>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
@@ -188,7 +317,8 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                             <th className="p-4">Kullanıcı</th>
                                             <th className="p-4">Rol</th>
                                             <th className="p-4">Durum</th>
-                                            <th className="p-4">Mesaj Gönder</th>
+                                            <th className="p-4">Plan</th>
+                                            <th className="p-4 text-right">İşlemler</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700 text-sm">
@@ -196,24 +326,34 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                             <tr key={u.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center">{u.name.charAt(0)}</div>
+                                                        <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center overflow-hidden">
+                                                            <img src={u.avatar} alt={u.name} className="w-full h-full object-cover" />
+                                                        </div>
                                                         <div><p className="font-bold">{u.name}</p><p className="text-xs text-zinc-500">{u.email}</p></div>
                                                     </div>
                                                 </td>
-                                                <td className="p-4">{u.role}</td>
-                                                <td className="p-4">{u.status}</td>
                                                 <td className="p-4">
-                                                    {u.role !== 'admin' && (
-                                                        <button 
-                                                            onClick={() => {
-                                                                const msg = prompt("Mesajınız:");
-                                                                if(msg) handleSendMessage(u.id, msg);
-                                                            }}
-                                                            className="text-indigo-600 hover:bg-indigo-50 p-2 rounded"
-                                                        >
-                                                            <i className="fa-solid fa-paper-plane"></i>
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
+                                                        {u.role === 'admin' ? 'Yönetici' : 'Kullanıcı'}
+                                                    </span>
+                                                </td>
+                                                <td className="p-4">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                        {u.status === 'active' ? 'Aktif' : 'Askıda'}
+                                                    </span>
+                                                </td>
+                                                <td className="p-4 capitalize">{u.subscriptionPlan}</td>
+                                                <td className="p-4 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button onClick={() => openEditUser(u)} className="text-blue-600 hover:bg-blue-50 p-2 rounded" title="Düzenle">
+                                                            <i className="fa-solid fa-pen"></i>
                                                         </button>
-                                                    )}
+                                                        {u.id !== user.id && (
+                                                            <button onClick={() => handleDeleteUser(u.id)} className="text-red-600 hover:bg-red-50 p-2 rounded" title="Sil">
+                                                                <i className="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -312,8 +452,50 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                             </div>
                         </div>
                     )}
+
+                    {activeTab === 'settings' && (
+                        <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 fade-in">
+                            <h3 className="text-lg font-bold mb-6">Sistem Genel Ayarları</h3>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between p-4 border rounded-lg dark:border-zinc-600">
+                                    <div>
+                                        <p className="font-bold">Bakım Modu</p>
+                                        <p className="text-sm text-zinc-500">Kullanıcı girişlerini geçici olarak durdurur.</p>
+                                    </div>
+                                    <button onClick={() => setSystemSettings({...systemSettings, maintenanceMode: !systemSettings.maintenanceMode})} className={`relative w-12 h-6 rounded-full transition-colors ${systemSettings.maintenanceMode ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
+                                        <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-all ${systemSettings.maintenanceMode ? 'left-7' : 'left-1'}`}></div>
+                                    </button>
+                                </div>
+                                <div className="flex items-center justify-between p-4 border rounded-lg dark:border-zinc-600">
+                                    <div>
+                                        <p className="font-bold">Yeni Kayıt Alımı</p>
+                                        <p className="text-sm text-zinc-500">Yeni üye kayıtlarını aç/kapat.</p>
+                                    </div>
+                                    <button onClick={() => setSystemSettings({...systemSettings, allowRegistrations: !systemSettings.allowRegistrations})} className={`relative w-12 h-6 rounded-full transition-colors ${systemSettings.allowRegistrations ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
+                                        <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-all ${systemSettings.allowRegistrations ? 'left-7' : 'left-1'}`}></div>
+                                    </button>
+                                </div>
+                                <div className="flex items-center justify-between p-4 border rounded-lg dark:border-zinc-600">
+                                    <div>
+                                        <p className="font-bold">AI Üretim Motoru</p>
+                                        <p className="text-sm text-zinc-500">Tüm sistemde AI üretimini aktif/pasif yap.</p>
+                                    </div>
+                                    <button onClick={() => setSystemSettings({...systemSettings, aiEnabled: !systemSettings.aiEnabled})} className={`relative w-12 h-6 rounded-full transition-colors ${systemSettings.aiEnabled ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
+                                        <div className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-all ${systemSettings.aiEnabled ? 'left-7' : 'left-1'}`}></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main>
+
+            <UserModal 
+                isOpen={isUserModalOpen} 
+                onClose={() => setIsUserModalOpen(false)} 
+                onSave={handleSaveUser} 
+                initialData={editingUser} 
+            />
         </div>
     );
 };

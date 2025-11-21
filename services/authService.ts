@@ -1,5 +1,4 @@
 
-
 import { User, UserRole } from '../types';
 
 const USERS_KEY = 'app_users_db';
@@ -133,15 +132,53 @@ export const authService = {
         return updatedUser;
     },
 
-    // Admin Methods
+    // --- ADMIN METHODS ---
     getAllUsers: (): User[] => {
         return getUsersDB();
     },
 
-    deleteUser: (userId: string) => {
+    // Admin can delete any user (except self usually, handled in UI)
+    deleteUser: async (userId: string): Promise<void> => {
         let users = getUsersDB();
         users = users.filter(u => u.id !== userId);
         saveUsersDB(users);
+    },
+
+    // Admin can edit any user properties
+    adminUpdateUser: async (userId: string, updates: Partial<User>): Promise<User> => {
+        const users = getUsersDB();
+        const index = users.findIndex(u => u.id === userId);
+        if (index === -1) throw new Error('Kullanıcı bulunamadı');
+
+        const updatedUser = { ...users[index], ...updates };
+        users[index] = updatedUser;
+        saveUsersDB(users);
+        return updatedUser;
+    },
+
+    // Admin create user without login
+    adminCreateUser: async (user: Partial<User>): Promise<User> => {
+        const users = getUsersDB();
+        if (users.find(u => u.email === user.email)) {
+            throw new Error('E-posta zaten kullanımda.');
+        }
+        
+        const newUser: User = {
+            id: Date.now().toString(),
+            email: user.email || '',
+            name: user.name || '',
+            role: user.role || 'user',
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            worksheetCount: 0,
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`,
+            status: user.status || 'active',
+            subscriptionPlan: user.subscriptionPlan || 'free'
+        };
+        
+        users.push(newUser);
+        saveUsersDB(users);
+        return newUser;
     },
 
     toggleUserStatus: (userId: string) => {
