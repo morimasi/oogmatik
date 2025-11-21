@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { ActivityType } from '../types';
+import { messagingService } from '../services/messagingService';
+import { useAuth } from '../context/AuthContext';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -10,10 +12,12 @@ interface FeedbackModalProps {
 }
 
 export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, activityType, activityTitle }) => {
+  const { user } = useAuth();
   const [rating, setRating] = useState<number>(0);
   const [message, setMessage] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(user?.email || '');
   const [isSending, setIsSending] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   if (!isOpen) return null;
 
@@ -21,39 +25,46 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
     e.preventDefault();
     setIsSending(true);
 
-    // 1. Backend API'ye Loglama (Opsiyonel veritabanı kaydı için)
-    // Hata olsa bile kullanıcı deneyimini bozmamak için catch bloğunda sessizce geçiyoruz.
     try {
-      await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          activityType,
-          activityTitle,
+      await messagingService.submitFeedback({
+          userId: user?.id,
+          userName: user?.name || 'Misafir',
+          userEmail: email,
+          activityType: activityType || 'Genel',
+          activityTitle: activityTitle || 'Genel Uygulama',
           rating,
-          message,
-          email,
-          timestamp: new Date().toISOString()
-        })
+          message
       });
-    } catch (err) {
-      // Sessiz hata yönetimi, kullanıcı sadece mailto işlemini görecek.
-      console.warn("Feedback log error (non-critical):", err);
-    }
+      
+      setShowSuccess(true);
+      setTimeout(() => {
+          setShowSuccess(false);
+          setMessage('');
+          setRating(0);
+          setIsSending(false);
+          onClose();
+      }, 2000);
 
-    // 2. E-posta İstemcisine Yönlendirme (morimasi@gmail.com)
-    const subject = `Geri Bildirim: ${activityTitle || 'Genel'} (${activityType || 'Genel'})`;
-    const body = `Merhaba,\n\nUygulama üzerinden aşağıdaki geri bildirim yapılmıştır:\n\nEtkinlik: ${activityTitle || 'Genel'}\nPuan: ${rating}/5\n\nMesaj:\n${message}\n\nKullanıcı E-postası: ${email}\n\nTarih: ${new Date().toLocaleString('tr-TR')}`;
-    
-    const mailtoLink = `mailto:morimasi@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
-    // Doğrudan yönlendirme yapıyoruz, setTimeout kullanmıyoruz.
-    window.location.href = mailtoLink;
-    
-    // Modal'ı kapat
-    setIsSending(false);
-    onClose();
+    } catch (err) {
+      console.error("Feedback send error:", err);
+      alert("Bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+      setIsSending(false);
+    }
   };
+
+  if (showSuccess) {
+      return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl p-8 text-center animate-bounce-in">
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="fa-solid fa-check text-3xl text-green-600 dark:text-green-400"></i>
+                </div>
+                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Teşekkürler!</h3>
+                <p className="text-zinc-500 dark:text-zinc-400">Geri bildiriminiz yöneticiye iletildi.</p>
+            </div>
+        </div>
+      );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
@@ -100,14 +111,15 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
 
           <div>
              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              E-posta Adresiniz (İsteğe bağlı)
+              E-posta Adresiniz {user ? '(Otomatik)' : '(İsteğe bağlı)'}
             </label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              disabled={!!user}
+              className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all disabled:opacity-60"
               placeholder="ornek@email.com"
             />
           </div>
@@ -139,17 +151,17 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Hazırlanıyor...</span>
+                  <span>Gönderiliyor...</span>
                 </>
               ) : (
                 <>
                   <i className="fa-solid fa-paper-plane"></i>
-                  <span>Yöneticiye Gönder</span>
+                  <span>Yöneticiye İlet</span>
                 </>
               )}
             </button>
             <p className="text-xs text-zinc-400 text-center mt-2">
-              *Geri bildiriminiz doğrudan e-posta uygulamanız üzerinden gönderilecektir.
+              *Mesajınız doğrudan sistem üzerinden yöneticiye iletilecektir.
             </p>
           </div>
         </form>

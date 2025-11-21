@@ -11,6 +11,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { ProfileView } from './components/ProfileView';
 import { AdminDashboard } from './components/AdminDashboard';
+import { MessagesView } from './components/MessagesView';
+import { messagingService } from './services/messagingService';
 
 export interface StyleSettings {
   fontSize: number;
@@ -30,7 +32,7 @@ const initialStyleSettings: StyleSettings = {
     gap: 16,
 };
 
-export type View = 'generator' | 'savedList' | 'profile' | 'admin';
+export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages';
 type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings';
 
 // Modal Component (reused)
@@ -79,6 +81,7 @@ const AppContent: React.FC = () => {
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   
   const [theme, setTheme] = useState<AppTheme>(() => {
       const storedTheme = localStorage.getItem('app-theme');
@@ -121,6 +124,16 @@ const AppContent: React.FC = () => {
           if (stored) setHistoryItems(JSON.parse(stored));
       } catch (e) { console.error(e); }
   }, []);
+
+  // Check unread messages periodically
+  useEffect(() => {
+      if(user) {
+          const check = () => setUnreadCount(messagingService.getUnreadCount(user.id));
+          check();
+          const interval = setInterval(check, 5000);
+          return () => clearInterval(interval);
+      }
+  }, [user]);
 
   const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
       const activity = ACTIVITIES.find(a => a.id === activityType);
@@ -186,14 +199,15 @@ const AppContent: React.FC = () => {
     if (isSidebarOpen) setIsSidebarOpen(false);
   };
 
-  // Admin View Handling
+  // View Routing
   if (currentView === 'admin') {
       return <AdminDashboard onBack={() => setCurrentView('generator')} />;
   }
-
-  // Profile View Handling
   if (currentView === 'profile') {
       return <ProfileView onBack={() => setCurrentView('generator')} />;
+  }
+  if (currentView === 'messages') {
+      return <MessagesView onBack={() => setCurrentView('generator')} />;
   }
 
   return (
@@ -218,7 +232,7 @@ const AppContent: React.FC = () => {
                 <i className="fa-solid fa-circle-info fa-lg"></i>
              </button>
              <button onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors hidden sm:block" title="İletişim / Hata Bildir">
-                <i className="fa-solid fa-envelope fa-lg"></i>
+                <i className="fa-solid fa-comment-dots fa-lg"></i>
              </button>
              
              <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
@@ -227,16 +241,27 @@ const AppContent: React.FC = () => {
              {user ? (
                  <>
                     {user.role === 'admin' && (
-                        <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-600 hover:bg-purple-50 rounded-md" title="Yönetici Paneli">
+                        <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-600 hover:bg-purple-50 rounded-md relative" title="Yönetici Paneli">
                             <i className="fa-solid fa-shield-halved fa-lg"></i>
                         </button>
                     )}
+                    
+                    <button onClick={() => setCurrentView('messages')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md relative" title="Mesajlar">
+                        <i className="fa-solid fa-envelope fa-lg"></i>
+                        {unreadCount > 0 && (
+                            <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-white dark:border-zinc-900">
+                                {unreadCount}
+                            </span>
+                        )}
+                    </button>
+
                     <button onClick={() => setCurrentView('savedList')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Arşiv">
                         <i className="fa-solid fa-box-archive fa-lg"></i>
                     </button>
                     <button onClick={() => setOpenModal('history')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Geçmiş">
                         <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
                     </button>
+                    
                     {/* Profile Dropdown Trigger */}
                     <button onClick={() => setCurrentView('profile')} className="ml-2">
                         <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
@@ -284,7 +309,7 @@ const AppContent: React.FC = () => {
         />
       </div>
 
-      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} />
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       
       <Modal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} title="Görünüm Ayarları">

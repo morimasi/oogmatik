@@ -1,5 +1,4 @@
 
-
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -168,13 +167,27 @@ export interface User {
 
 export interface FeedbackItem {
     id: string;
-    userId?: string;
+    userId?: string; // Optional if anonymous
+    userName?: string;
     userEmail?: string; // For non-logged in or fallback
     activityType: string | null;
+    activityTitle?: string;
     rating: number;
     message: string;
     timestamp: string;
-    status: 'new' | 'read' | 'archived';
+    status: 'new' | 'read' | 'archived' | 'replied';
+    adminReply?: string;
+}
+
+export interface Message {
+    id: string;
+    senderId: string; // 'admin' or userId
+    receiverId: string; // userId or 'admin'
+    senderName: string;
+    content: string;
+    timestamp: string;
+    isRead: boolean;
+    relatedFeedbackId?: string; // If this message is a reply to a feedback
 }
 
 // --- BASE INTERFACES ---
