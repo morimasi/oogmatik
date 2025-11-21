@@ -6,12 +6,26 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { user, updateUser, logout } = useAuth();
     const [name, setName] = useState(user?.name || '');
     const [isEditing, setIsEditing] = useState(false);
+    const [isChangingAvatar, setIsChangingAvatar] = useState(false);
 
     if (!user) return null;
 
     const handleSave = async () => {
         await updateUser({ name });
         setIsEditing(false);
+    };
+
+    const handleAvatarChange = async () => {
+        setIsChangingAvatar(true);
+        // Generate a random seed for a new avatar
+        const randomSeed = Math.random().toString(36).substring(7);
+        const newAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}`;
+        
+        // Simulate a small network delay for better UX feeling
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        await updateUser({ avatar: newAvatarUrl });
+        setIsChangingAvatar(false);
     };
 
     return (
@@ -23,26 +37,32 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
             <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
                 <div className="relative group">
-                    <img src={user.avatar} alt={user.name} className="w-32 h-32 rounded-full bg-indigo-100 border-4 border-white shadow-lg" />
-                    <button className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full shadow-md hover:bg-indigo-700" title="Avatarı Değiştir">
-                        <i className="fa-solid fa-camera"></i>
+                    <img src={user.avatar} alt={user.name} className="w-32 h-32 rounded-full bg-indigo-100 border-4 border-white shadow-lg transition-transform duration-300 group-hover:scale-105" />
+                    <button 
+                        onClick={handleAvatarChange}
+                        disabled={isChangingAvatar}
+                        className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed" 
+                        title="Avatarı Değiştir"
+                    >
+                        <i className={`fa-solid fa-camera ${isChangingAvatar ? 'fa-spin' : ''}`}></i>
                     </button>
                 </div>
                 
                 <div className="flex-1 text-center md:text-left">
                     {isEditing ? (
-                        <div className="flex gap-2 items-center">
+                        <div className="flex gap-2 items-center justify-center md:justify-start">
                             <input 
                                 value={name} 
                                 onChange={(e) => setName(e.target.value)} 
-                                className="text-2xl font-bold bg-zinc-100 dark:bg-zinc-700 p-2 rounded border border-zinc-300"
+                                className="text-2xl font-bold bg-zinc-100 dark:bg-zinc-700 p-2 rounded border border-zinc-300 dark:border-zinc-600 focus:border-indigo-500 outline-none text-zinc-800 dark:text-zinc-100"
+                                autoFocus
                             />
-                            <button onClick={handleSave} className="text-green-600 p-2"><i className="fa-solid fa-check"></i></button>
+                            <button onClick={handleSave} className="text-green-600 p-2 hover:bg-green-50 rounded-full transition-colors"><i className="fa-solid fa-check fa-lg"></i></button>
                         </div>
                     ) : (
-                        <h3 className="text-3xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center justify-center md:justify-start gap-3">
+                        <h3 className="text-3xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center justify-center md:justify-start gap-3 group">
                             {user.name}
-                            <button onClick={() => setIsEditing(true)} className="text-sm text-zinc-400 hover:text-indigo-500"><i className="fa-solid fa-pen"></i></button>
+                            <button onClick={() => setIsEditing(true)} className="text-sm text-zinc-400 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-pen"></i></button>
                         </h3>
                     )}
                     <p className="text-zinc-500 dark:text-zinc-400">{user.email}</p>
@@ -54,12 +74,12 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
-                    <p className="text-sm text-zinc-500">Kayıt Tarihi</p>
-                    <p className="font-medium">{new Date(user.createdAt).toLocaleDateString('tr-TR')}</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">Kayıt Tarihi</p>
+                    <p className="font-medium text-zinc-800 dark:text-zinc-200">{new Date(user.createdAt).toLocaleDateString('tr-TR')}</p>
                 </div>
                 <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
-                    <p className="text-sm text-zinc-500">Toplam Etkinlik</p>
-                    <p className="font-medium text-2xl">{user.worksheetCount}</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">Toplam Etkinlik</p>
+                    <p className="font-medium text-2xl text-zinc-800 dark:text-zinc-200">{user.worksheetCount}</p>
                 </div>
             </div>
 
