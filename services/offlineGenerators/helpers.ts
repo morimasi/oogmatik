@@ -90,10 +90,65 @@ export const getRandomItems = <T>(arr: T[], count: number): T[] => {
     return shuffle(arr).slice(0, count);
 };
 
+// --- DIFFICULTY CONFIGURATION ENGINE ---
+// Bu fonksiyon, seçilen zorluk seviyesine göre matematiksel ve yapısal parametreleri döndürür.
+export const getDifficultySettings = (difficulty: string) => {
+    switch (difficulty) {
+        case 'Başlangıç':
+            return {
+                gridSize: 8,
+                minWordLength: 3,
+                maxWordLength: 5,
+                numberRange: { min: 1, max: 10 },
+                operations: ['+'], // Sadece toplama
+                directions: [0, 1], // Sadece sağ ve aşağı (Kelime bulmaca)
+                distractorLevel: 'low',
+                sudokuSize: 4, // 4x4
+                mazeComplexity: 5
+            };
+        case 'Orta':
+            return {
+                gridSize: 10,
+                minWordLength: 4,
+                maxWordLength: 7,
+                numberRange: { min: 1, max: 20 },
+                operations: ['+', '-'], // Toplama ve Çıkarma
+                directions: [0, 1, 2], // Sağ, Aşağı, Çapraz
+                distractorLevel: 'medium',
+                sudokuSize: 6, // 6x6
+                mazeComplexity: 10
+            };
+        case 'Zor':
+            return {
+                gridSize: 12,
+                minWordLength: 5,
+                maxWordLength: 9,
+                numberRange: { min: 1, max: 50 },
+                operations: ['+', '-', '*'], // Çarpma ekle
+                directions: [0, 1, 2, 3, 4, 5, 6, 7], // Tüm yönler (Ters dahil)
+                distractorLevel: 'high',
+                sudokuSize: 9, // 9x9
+                mazeComplexity: 15
+            };
+        case 'Uzman':
+            return {
+                gridSize: 15, // Çok geniş alan
+                minWordLength: 6,
+                maxWordLength: 12,
+                numberRange: { min: 10, max: 100 },
+                operations: ['+', '-', '*', '/'], // Bölme ekle
+                directions: [0, 1, 2, 3, 4, 5, 6, 7],
+                distractorLevel: 'very_high', // Görsel olarak çok benzer çeldiriciler
+                sudokuSize: 9,
+                mazeComplexity: 20
+            };
+        default:
+            return getDifficultySettings('Orta');
+    }
+};
+
 // --- ADVANCED ALGORITHMS ---
 
-// 1. Improved Turkish Syllabification
-// Türkçenin heceleme kurallarına (ünlü-ünsüz uyumu, satır sonu kuralları) uygun algoritma
 export const simpleSyllabify = (text: string): string[] => {
     if (!text) return [];
     
@@ -103,9 +158,7 @@ export const simpleSyllabify = (text: string): string[] => {
     let syllables: string[] = [];
     let currentWord = text.trim();
     
-    // Kelime bitene kadar hecele
     while (currentWord.length > 0) {
-        // İlk ünlüyü bul
         let vowelIndex = -1;
         for(let i=0; i<currentWord.length; i++) {
             if (isVowel(currentWord[i])) {
@@ -114,19 +167,12 @@ export const simpleSyllabify = (text: string): string[] => {
             }
         }
         
-        // Ünlü yoksa kalanı ekle ve bitir (örn: spor -> spor, tren -> tren)
         if (vowelIndex === -1) {
-            if (syllables.length > 0) {
-                // Eğer önceki hece varsa ona ekle (hatalı durum düzeltme)
-                // Ancak Türkçe'de sesli harf olmayan kelime pek olmadığı için tek parça alırız.
-                syllables.push(currentWord);
-            } else {
-                syllables.push(currentWord);
-            }
+            if (syllables.length > 0) syllables.push(currentWord);
+            else syllables.push(currentWord);
             break;
         }
         
-        // Bir sonraki ünlüyü bul
         let nextVowelIndex = -1;
         for(let i=vowelIndex+1; i<currentWord.length; i++) {
             if(isVowel(currentWord[i])) {
@@ -135,89 +181,59 @@ export const simpleSyllabify = (text: string): string[] => {
             }
         }
         
-        // Sonraki ünlü yoksa, kelimenin geri kalanı son hecedir.
         if (nextVowelIndex === -1) {
             syllables.push(currentWord);
             break;
         }
         
-        // İki ünlü arasındaki ünsüz sayısını bul
-        // kural:
-        // 1 ünsüz: sonraki heceye (a-ra-ba) -> splitIndex = nextVowelIndex - 1
-        // 2 ünsüz: ortadan bölünür (al-tın) -> splitIndex = nextVowelIndex - 1
-        // 3 ünsüz: ilk ikisi kalır, sonuncusu gider (türk-çe, kurt-lar) -> splitIndex = nextVowelIndex - 1
-        // GENEL KURAL: Her zaman son ünsüz bir sonraki heceye aittir.
-        
         let splitIndex = nextVowelIndex - 1;
-        
         syllables.push(currentWord.substring(0, splitIndex));
         currentWord = currentWord.substring(splitIndex);
     }
-    
     return syllables;
 };
 
-// 2. Recursive Backtracker Maze Generator
-// Garantili çözümü olan, estetik labirentler üretir.
 export const generateMaze = (rows: number, cols: number) => {
-    // Grid boyutu: Duvarlar için 2x+1. 1 = Duvar, 0 = Yol.
     const height = rows * 2 + 1;
     const width = cols * 2 + 1;
     const grid = Array.from({ length: height }, () => Array(width).fill(1));
     
     const dirs = [
-        { r: -2, c: 0 }, // Kuzey
-        { r: 2, c: 0 },  // Güney
-        { r: 0, c: 2 },  // Doğu
-        { r: 0, c: -2 }  // Batı
+        { r: -2, c: 0 }, { r: 2, c: 0 }, { r: 0, c: 2 }, { r: 0, c: -2 }
     ];
 
     const carve = (r: number, c: number) => {
-        grid[r][c] = 0; // Hücreyi boşalt
-        
+        grid[r][c] = 0;
         const shuffledDirs = shuffle(dirs);
-        
         for (const d of shuffledDirs) {
             const nr = r + d.r;
             const nc = c + d.c;
-            
             if (nr > 0 && nr < height - 1 && nc > 0 && nc < width - 1 && grid[nr][nc] === 1) {
-                // Aradaki duvarı yık
                 grid[r + d.r/2][c + d.c/2] = 0;
                 carve(nr, nc);
             }
         }
     };
 
-    // Başlangıç noktası (tek sayı olmalı)
     carve(1, 1);
-    
-    // Giriş ve Çıkış
-    grid[1][0] = 0; // Sol giriş
-    grid[height - 2][width - 1] = 0; // Sağ çıkış
-
+    grid[1][0] = 0; 
+    grid[height - 2][width - 1] = 0; 
     return grid;
 };
 
-// 3. Latin Square Generator (Backtracking)
-// Futoşiki ve Kendoku için her satır/sütunda sayı tekrarı olmayan grid üretir.
 export const generateLatinSquare = (size: number): number[][] => {
     const grid = Array.from({ length: size }, () => Array(size).fill(0));
-    
     const isValid = (r: number, c: number, num: number) => {
         for(let k=0; k<size; k++) {
             if(grid[r][k] === num || grid[k][c] === num) return false;
         }
         return true;
     }
-
     const solve = (idx: number): boolean => {
         if (idx === size * size) return true;
         const r = Math.floor(idx / size);
         const c = idx % size;
-        
         if (grid[r][c] !== 0) return solve(idx + 1);
-
         const nums = shuffle(Array.from({length: size}, (_, i) => i + 1));
         for(const num of nums) {
             if (isValid(r, c, num)) {
@@ -228,12 +244,10 @@ export const generateLatinSquare = (size: number): number[][] => {
         }
         return false;
     }
-    
     solve(0);
     return grid;
 }
 
-// 4. Random Pattern for Grid Drawing
 export const generateRandomPattern = (dim: number, density: number): [number, number][][] => {
     const lines: [number, number][][] = [];
     const count = Math.max(3, Math.floor(dim * density));
@@ -249,12 +263,14 @@ export const generateRandomPattern = (dim: number, density: number): [number, nu
     return lines;
 };
 
-// 5. Sudoku Generator & Solver
 export const generateSudokuGrid = (size: number = 6, difficulty: string): (number | null)[][] => {
     const grid: (number | null)[][] = Array.from({ length: size }, () => Array(size).fill(null));
-    const boxHeight = size === 6 ? 2 : (size === 9 ? 3 : 2);
-    const boxWidth = size === 6 ? 3 : (size === 9 ? 3 : 2);
-
+    
+    // Calculate box dimensions based on total size
+    let boxHeight = 2, boxWidth = 3;
+    if (size === 4) { boxHeight = 2; boxWidth = 2; }
+    else if (size === 9) { boxHeight = 3; boxWidth = 3; }
+    
     function isValid(num: number, row: number, col: number) {
         for (let i = 0; i < size; i++) {
             if (grid[row][i] === num || grid[i][col] === num) return false;
@@ -288,14 +304,15 @@ export const generateSudokuGrid = (size: number = 6, difficulty: string): (numbe
         return true;
     }
     
-    // Fill diagonal boxes first for randomness
-    for (let i = 0; i < size; i = i + boxHeight) {
-         // Fill box logic simplified: fill randomly valid
-    }
-    
     solve();
 
-    let emptyCount = Math.floor(size * size * (difficulty === 'Başlangıç' ? 0.3 : difficulty === 'Orta' ? 0.5 : 0.65));
+    // Remove cells based on difficulty
+    let removeRatio = 0.4;
+    if (difficulty === 'Orta') removeRatio = 0.5;
+    if (difficulty === 'Zor') removeRatio = 0.6;
+    if (difficulty === 'Uzman') removeRatio = 0.7;
+
+    let emptyCount = Math.floor(size * size * removeRatio);
     
     for (let i = 0; i < emptyCount; i++) {
         let r, c;
@@ -343,31 +360,32 @@ export const generateSmartConnectGrid = (gridSize: number, pairsCount: number) =
 export const getWordsForDifficulty = (difficulty: string, topic?: string): string[] => {
     let pool: string[] = [];
     
+    // Topic filtering
     if (topic && topic !== 'Rastgele' && topic in TR_VOCAB) {
         const vocabList = (TR_VOCAB as any)[topic];
         if (Array.isArray(vocabList)) pool = vocabList as string[];
     } 
     
+    // Fallback or General pool
     if (pool.length === 0) {
-         const allKeys = Object.keys(TR_VOCAB).filter(k => !k.includes('_'));
+         const allKeys = Object.keys(TR_VOCAB).filter(k => !k.includes('_') && k !== 'synonyms' && k !== 'antonyms');
          allKeys.forEach(key => {
              const list = (TR_VOCAB as any)[key];
              if (Array.isArray(list)) pool = [...pool, ...list];
          });
     }
 
-    let filteredPool: string[] = [];
-    if (difficulty === 'Başlangıç') {
-        filteredPool = [...pool.filter(w => w.length <= 4), ...TR_VOCAB.easy_words];
-    } else if (difficulty === 'Orta') {
-        filteredPool = [...pool.filter(w => w.length >= 4 && w.length <= 6), ...TR_VOCAB.medium_words];
-    } else if (difficulty === 'Zor') {
-        filteredPool = [...pool.filter(w => w.length >= 7), ...TR_VOCAB.hard_words];
-    } else {
-        filteredPool = [...TR_VOCAB.expert_words];
+    // Filter by length constraints based on difficulty settings
+    const settings = getDifficultySettings(difficulty);
+    let filteredPool = pool.filter(w => w.length >= settings.minWordLength && w.length <= settings.maxWordLength);
+    
+    // If overly strict filtering removed too many words, relax constraints
+    if (filteredPool.length < 10) {
+        if (difficulty === 'Başlangıç') filteredPool = [...TR_VOCAB.easy_words];
+        else if (difficulty === 'Uzman') filteredPool = [...TR_VOCAB.hard_words, ...TR_VOCAB.expert_words];
+        else filteredPool = pool.filter(w => w.length > 3); 
     }
     
-    if (filteredPool.length < 10) filteredPool = pool;
     return [...new Set(shuffle(filteredPool))];
 };
 

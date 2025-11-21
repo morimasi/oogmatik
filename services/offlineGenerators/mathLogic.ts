@@ -1,6 +1,8 @@
 
+
+
 import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES, ITEM_CATEGORIES, generateSmartConnectGrid, CONNECT_COLORS, generateMaze } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES, ITEM_CATEGORIES, generateSmartConnectGrid, CONNECT_COLORS, generateMaze, getDifficultySettings } from './helpers';
 
 // --- ROMAN NUMERAL HELPERS ---
 const toRoman = (num: number): string => {
@@ -18,27 +20,26 @@ const toRoman = (num: number): string => {
 
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty, operations, numberRange } = options;
+    const settings = getDifficultySettings(difficulty);
     const objects = EMOJIS.slice(0, 15);
-    let valueMin = 1, valueMax = 10;
     
+    let valueMin = settings.numberRange.min;
+    let valueMax = settings.numberRange.max;
+    
+    // Custom override
     if (numberRange) {
         const parts = numberRange.split('-');
         if (parts.length === 2) {
             valueMin = parseInt(parts[0]);
             valueMax = parseInt(parts[1]);
         }
-    } else if (difficulty === 'Orta') { valueMin = 1; valueMax = 20; } 
-    else if (difficulty === 'Zor') { valueMin = 2; valueMax = 50; } 
-    else if (difficulty === 'Uzman') { valueMin = 5; valueMax = 100; }
+    }
 
-    let ops = ['+'];
+    let ops = settings.operations;
     if (operations === 'add') ops = ['+'];
     else if (operations === 'addsub') ops = ['+', '-'];
     else if (operations === 'mult') ops = ['+', '-', '*'];
     else if (operations === 'all') ops = ['+', '-', '*', '/'];
-    else if (difficulty === 'Orta') ops = ['+', '-'];
-    else if (difficulty === 'Zor') ops = ['+', '-', '*'];
-    else if (difficulty === 'Uzman') ops = ['+', '-', '*', '/'];
 
     const results: MathPuzzleData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -71,7 +72,7 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
             return { problem: problemStr, question, answer: answer.toString() };
         });
         results.push({ 
-            title: `Matematik Bulmacası (Hızlı Mod)`, 
+            title: `Matematik Bulmacası (${difficulty})`, 
             instruction: "Sembollerin sayısal değerlerini bulun ve işlemi çözün.",
             pedagogicalNote: "Cebirsel düşünme ve sembolik işlem yapma becerisi.",
             puzzles 
@@ -113,7 +114,10 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
 
 export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promise<FutoshikiData[]> => {
     const { difficulty, worksheetCount } = options;
-    const size = difficulty === 'Başlangıç' ? 4 : (difficulty === 'Orta' ? 5 : 6);
+    const settings = getDifficultySettings(difficulty);
+    // Map settings to Futoshiki logic (4x4 to 6x6 is usually standard, use sudokuSize scaled)
+    const size = Math.min(6, Math.max(4, settings.sudokuSize - 2)); 
+    
     const results: FutoshikiData[] = [];
 
     for (let i = 0; i < worksheetCount; i++) {
@@ -141,7 +145,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
         const maskedGrid: (number | null)[][] = latinSquare.map(row => row.map(n => Math.random() < revealRate ? n : null));
 
         results.push({ 
-            title: `Futoşiki (${difficulty}) (Hızlı Mod)`, 
+            title: `Futoşiki (${difficulty})`, 
             prompt: 'Büyüktür/küçüktür sembollerine göre sayıları yerleştirin.', 
             instruction: "Her satır ve sütunda rakamlar bir kez bulunmalı. > ve < işaretlerine dikkat et.",
             pedagogicalNote: "Mantıksal çıkarım ve sayısal ilişki analizi.",
@@ -214,12 +218,15 @@ export const generateOfflineNumberCapsule = async (options: GeneratorOptions): P
 
 export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
     const {itemCount, worksheetCount, difficulty} = options;
+    const settings = getDifficultySettings(difficulty);
+    const size = 6; // Odd/Even usually fixed size for kids, but difficulty affects hidden cells
+    
     const results: OddEvenSudokuData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const puzzles = Array.from({length: itemCount || 2}).map(() => {
-            const grid = generateSudokuGrid(6, difficulty);
+            const grid = generateSudokuGrid(size, difficulty);
             const constrainedCells = [];
-            for(let r=0; r<6; r++) for(let c=0; c<6; c++){
+            for(let r=0; r<size; r++) for(let c=0; c<size; c++){
                 if(grid[r][c] === null && Math.random() > 0.5) constrainedCells.push({row:r, col: c});
             }
             return {
@@ -520,14 +527,19 @@ export const generateOfflineOperationSquareMultDiv = async (options: GeneratorOp
 
 export const generateOfflineShapeSudoku = async (options: GeneratorOptions): Promise<ShapeSudokuData[]> => {
     const {itemCount, worksheetCount, difficulty} = options;
+    const size = difficulty === 'Başlangıç' ? 4 : (difficulty === 'Orta' ? 6 : 9);
+    const boxWidth = size === 6 ? 3 : Math.sqrt(size); // 2x2 for 4, 3x2 for 6, 3x3 for 9
+    
     return Array.from({length: worksheetCount}, () => {
-        const grid = generateSudokuGrid(4, difficulty);
-        const shapes = getRandomItems(SHAPE_TYPES, 4);
-        const shapeGrid = grid.map(row => row.map(cell => cell === null ? null : shapes[cell-1]));
+        const grid = generateSudokuGrid(size, difficulty);
+        const shapes = getRandomItems(SHAPE_TYPES, size);
+        // Map numbers to shapes, handling grid being number|null
+        const shapeGrid = grid.map(row => row.map(cell => cell === null ? null : shapes[(cell-1) % shapes.length]));
+        
         return {
             title: 'Şekilli Sudoku (Hızlı Mod)',
             prompt: 'Şekilleri tekrar etmeyecek şekilde yerleştirin.',
-            instruction: "Her satır, sütun ve 2x2'lik bölgede her şekil bir kez kullanılmalıdır.",
+            instruction: `Her satır, sütun ve bölgede her şekil bir kez kullanılmalıdır.`,
             pedagogicalNote: "Sayılar yerine semboller kullanarak Sudoku mantığını öğretir.",
             puzzles: [{grid: shapeGrid, shapesToUse: shapes.map(s => ({shape: s, label: s}))}]
         }
@@ -652,7 +664,8 @@ export const generateOfflineColumnOddOneOutSentence = async (options: GeneratorO
 
 export const generateOfflinePunctuationMaze = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
     const { worksheetCount, difficulty } = options;
-    const rows = 10, cols = 10;
+    const settings = getDifficultySettings(difficulty);
+    const rows = settings.mazeComplexity, cols = settings.mazeComplexity;
     
     return Array.from({length: worksheetCount}, () => {
         // Generate a real maze path
@@ -664,8 +677,6 @@ export const generateOfflinePunctuationMaze = async (options: GeneratorOptions):
             for(let c=0; c<maze[r].length; c++) {
                 const isPath = maze[r][c] === 0;
                 const text = isPath ? "Doğru Kural" : "Yanlış Kural"; 
-                // In a real UI, we would map these to grid coordinates
-                // Here we just return a list of rules that would logically form a path
                 if (rules.length < 10) rules.push({ id: rules.length+1, text, isCorrect: isPath });
             }
         }
@@ -807,7 +818,7 @@ export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorO
             points.push({ label: n.toString(), pairId: n, x: p1.x, y: p1.y });
 
             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
-            points.push({ label: "I" /* Simplified for fast mode */, pairId: n, x: p2.x, y: p2.y });
+            points.push({ label: toRoman(n), pairId: n, x: p2.x, y: p2.y });
         }
 
         results.push({ title: 'Romen - Arap Rakamı Eşleştirme', prompt: 'Eşdeğer rakamları birleştir.', gridDim: dim, points });
@@ -827,7 +838,7 @@ export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptio
         const numbers = getRandomItems([1,2,3,4,5,6,7,8,9,10,50,100], pairCount);
 
         for(let j=0; j<pairCount; j++) {
-             const roman = "V" /* Simplified */;
+             const roman = toRoman(numbers[j]);
              const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
              points.push({ label: roman, x: p1.x, y: p1.y });
              const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
