@@ -2,54 +2,25 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
-import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbSayingSortData, ProverbWordChainData, MultipleChoiceStoryQuestion, OpenEndedStoryQuestion, StoryQuestion, ProverbFillData, ProverbSearchData } from '../../types';
+import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData, ProverbSearchData } from '../../types';
 
-// Shared Pedagogy Note
-const PED_NOTE = "Disleksik bireyler için optimize edilmiş; kısa paragraflar, somut dil ve açık yönergeler içerir.";
+const PEDAGOGICAL_PROMPT = `
+EĞİTİMSEL İÇERİK KURALLARI:
+1. Çıktı JSON formatında olmalı.
+2. "pedagogicalNote": Bilişsel beceri açıklaması.
+3. "instruction": Net yönerge.
+4. "imagePrompt": İngilizce görsel açıklama (varsa).
+5. İçerik özgün ve eğitici olmalı.
+`;
 
 export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
-    const { topic, difficulty, worksheetCount, characterName, storyLength, genre } = options;
-    
-    let wordCount = "100-150";
-    if (storyLength === 'short') wordCount = "60-80";
-    else if (storyLength === 'long') wordCount = "200-250";
-   
-    const diffPrompt = difficulty === 'Başlangıç' 
-        ? "Kısa, basit cümleler (Özne-Yüklem). Deyim kullanma. Somut olaylar." 
-        : difficulty === 'Uzman' 
-        ? "Zengin betimlemeler, çıkarım gerektiren olaylar." 
-        : "Orta uzunlukta cümleler.";
-
-    const charInstruction = characterName ? `Ana karakterin adı: ${characterName}.` : "";
-    const genreInstruction = genre ? `Tür: ${genre}.` : "";
-
+    const { topic, difficulty, worksheetCount, characterName, storyLength } = options;
     const prompt = `
-    DİSLEKSİ DOSTU İÇERİK ÜRETİMİ:
-    Konu: '${topic}'. Zorluk: "${difficulty}". Uzunluk: ${wordCount} kelime.
-    ${charInstruction} ${genreInstruction}
-    
-    Yazım Kuralları:
-    1. ${diffPrompt}
-    2. Paragrafları kısa tut.
-    3. Karmaşık, iç içe geçmiş cümlelerden kaçın.
-    4. Hikayede net bir "Giriş - Olay - Sonuç" yapısı olsun.
-
-    Sorular (Bloom Taksonomisi):
-    1. Hatırlama (Literal): Metinde açıkça yazan bir detay.
-    2. Çıkarım (Inferential): Karakterin duygusu veya olayların nedeni.
-    3. Değerlendirme (Critical): "Sen olsan ne yapardın?" tarzı.
-
-    JSON Çıktısı:
-    - story: Hikaye metni (satır sonlarına \\n ekleyerek paragrafları ayır).
-    - pedagogicalNote: "${PED_NOTE}"
-    - imagePrompt: Create an English image prompt for a **colorful children's book illustration** or **cartoon style** scene representing the story. It should be engaging and suitable for kids.
-    - mainIdea: 1 cümlelik ana fikir.
-    - characters: Karakter listesi.
-    - setting: Mekan.
-    - questions: 3 adet soru (Type: multiple-choice veya open-ended).
-    
+    '${topic}' konulu, "${difficulty}" seviyesinde hikaye.
+    **İngilizce** 'imagePrompt' oluştur. Stil: "Colorful storybook illustration".
+    ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
-  `;
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -81,20 +52,11 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
 };
 
 export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Promise<StoryAnalysisData[]> => {
-  const { topic, difficulty, worksheetCount, storyLength } = options;
-  
+  const { topic, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda, "${difficulty}" seviyesinde, '${storyLength}' uzunluğunda bir hikaye yaz.
-    Hikaye mantıksal bir akışa (neden-sonuç) sahip olsun.
-    
-    Görsel İsteği: Hikayenin ana sahnesini anlatan, **İngilizce** bir 'imagePrompt' oluştur. Use styles like 'Detailed drawing', 'Cartoon', or 'Standard photograph' based on what fits best.
-    
-    Analiz Soruları (4 Adet):
-    1. Tema: Hikayenin vermek istediği mesaj.
-    2. Karakter: Ana karakterin kişilik özelliği.
-    3. Sebep-Sonuç: Bir olayın nedenine odaklan.
-    4. Çıkarım: Metinde yazmayan ama anlaşılan bir detay.
-    
+    '${topic}' konulu Hikaye Analizi.
+    **İngilizce** 'imagePrompt'.
+    ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {
@@ -123,13 +85,11 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateStoryCreationPromptFromAI = async (options: GeneratorOptions): Promise<StoryCreationPromptData[]> => {
-  const { topic, itemCount: keywordCount, difficulty, worksheetCount } = options;
-  
+  const { topic, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda yaratıcı yazma etkinliği.
-    ${keywordCount} adet, birbiriyle ilişkili (semantik bağlamı olan) anahtar kelime seç.
-    Öğrenciye ilham verecek kısa bir "Hikaye Başlatıcı" (Prompt) yaz.
-    Görsel: Hikayenin geçtiği dünyayı betimleyen, **İngilizce** bir 'imagePrompt'. Use a **colorful illustration** or **fantasy art** style.
+    '${topic}' konulu Hikaye Oluşturma İstemi.
+    **İngilizce** 'imagePrompt'.
+    ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {
@@ -148,11 +108,11 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
 };
 
 export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
-  const { topic, difficulty, worksheetCount } = options;
+  const { topic, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusunda kısa bir hikaye yaz. Hikayenin temasına uygun, **İngilizce** bir 'imagePrompt' oluştur. Style: **Cartoon** or **Standard Photograph**.
-    Hikaye içinde geçen, öğrencinin kelime dağarcığına katabileceği ${difficulty === 'Başlangıç' ? '3' : '5'} kelimeyi seç.
-    Bu kelimelerin anlamını pekiştirecek sorular sor (Örn: Cümle içinde kullan, zıt anlamlısını bul).
+    '${topic}' konulu Metindeki Kelimeler.
+    **İngilizce** 'imagePrompt'.
+    ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {
@@ -162,17 +122,7 @@ export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Pro
       story: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
       imagePrompt: { type: Type.STRING },
-      questions: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            word: { type: Type.STRING },
-            question: { type: Type.STRING }
-          },
-          required: ['word', 'question']
-        }
-      }
+      questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, question: { type: Type.STRING } }, required: ['word', 'question'] } }
     },
     required: ['title', 'story', 'questions', 'pedagogicalNote', 'imagePrompt']
   };
@@ -181,12 +131,11 @@ export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Pro
 };
 
 export const generateStorySequencingFromAI = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
-    
+    const { topic, worksheetCount } = options;
     const prompt = `
-    '${topic}' konusunda 4 aşamalı mantıksal bir olay örgüsü oluştur (Giriş -> Olay -> Doruk -> Sonuç).
-    Panelleri karışık sırada ver.
-    Her panel için sahneyi anlatan, **İngilizce** bir 'imagePrompt' oluştur. Use **colorful vector art** or **illustration** style.
+    '${topic}' konulu Hikaye Sıralama.
+    Her panel için **İngilizce** 'imagePrompt'.
+    ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
     const singleSchema = {
@@ -195,18 +144,7 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            panels: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        id: { type: Type.STRING },
-                        description: { type: Type.STRING },
-                        imagePrompt: { type: Type.STRING }
-                    },
-                    required: ["id", "description", "imagePrompt"]
-                }
-            }
+            panels: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, description: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["id", "description", "imagePrompt"] } }
         },
         required: ["title", "prompt", "panels", "pedagogicalNote"]
     };
@@ -215,25 +153,15 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
 };
 
 export const generateProverbSayingSortFromAI = async(options: GeneratorOptions): Promise<ProverbSayingSortData[]> => {
-    const { difficulty, worksheetCount, itemCount } = options;
-    const prompt = `Türkçe Atasözü ve Özdeyiş (Vecize) ayırma etkinliği. ${itemCount} adet karışık cümle ver. Her birinin türünü belirt.`;
+    const { worksheetCount } = options;
+    const prompt = `Atasözü/Özdeyiş Ayırma. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            items: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        text: { type: Type.STRING },
-                        type: { type: Type.STRING, enum: ['atasözü', 'özdeyiş'] }
-                    },
-                    required: ["text", "type"]
-                }
-            }
+            items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: { type: Type.STRING }, type: { type: Type.STRING, enum: ['atasözü', 'özdeyiş'] } }, required: ["text", "type"] } }
         },
         required: ["title", "prompt", "items", "pedagogicalNote"]
     };
@@ -242,25 +170,15 @@ export const generateProverbSayingSortFromAI = async(options: GeneratorOptions):
 }
 
 export const generateProverbWordChainFromAI = async(options: GeneratorOptions): Promise<ProverbWordChainData[]> => {
-    const { worksheetCount, itemCount } = options;
-    const prompt = `${itemCount} adet atasözü seç. Bu atasözlerini oluşturan tüm kelimeleri karışık bir "Kelime Bulutu" olarak ver. Ayrıca çözümleri listele.`;
+    const { worksheetCount } = options;
+    const prompt = `Atasözü Zinciri. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            wordCloud: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        word: { type: Type.STRING },
-                        color: { type: Type.STRING }
-                    },
-                    required: ["word", "color"]
-                }
-            },
+            wordCloud: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, color: { type: Type.STRING } }, required: ["word", "color"] } },
             solutions: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
         required: ["title", "prompt", "wordCloud", "solutions", "pedagogicalNote"]
@@ -270,12 +188,11 @@ export const generateProverbWordChainFromAI = async(options: GeneratorOptions): 
 }
 
 export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {
-  const { itemCount, difficulty, worksheetCount } = options;
+  const { worksheetCount } = options;
   const prompt = `
-    "${difficulty}" seviyesine uygun ${itemCount} atasözü seç.
-    Öğrenci için anlaması en kritik olan kelimeyi boşluk bırak ('start' ve 'end' olarak böl).
-    Seçilen atasözlerinin genel bir temasını (örn: Tasarruf, Dostluk) 'meaning' alanında açıkla.
-    Ayrıca atasözlerinin genel temasını anlatan, **İngilizce** bir 'imagePrompt' oluştur. Style: **Symbolic illustration** or **Meaningful photograph**.
+    Atasözü Tamamlama.
+    **İngilizce** 'imagePrompt'.
+    ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
   `;
   const singleSchema = {
@@ -284,18 +201,7 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
       title: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
       imagePrompt: { type: Type.STRING },
-      proverbs: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            start: { type: Type.STRING },
-            end: { type: Type.STRING },
-            full: { type: Type.STRING }
-          },
-          required: ['start', 'end', 'full']
-        }
-      },
+      proverbs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { start: { type: Type.STRING }, end: { type: Type.STRING }, full: { type: Type.STRING } }, required: ['start', 'end', 'full'] } },
       meaning: { type: Type.STRING },
       usagePrompt: { type: Type.STRING }
     },
@@ -306,8 +212,8 @@ export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOpti
 };
 
 export const generateProverbSearchFromAI = async (options: GeneratorOptions): Promise<ProverbSearchData[]> => {
-  const { difficulty, worksheetCount, gridSize } = options;
-  const prompt = `Atasözü Avı bulmacası. Bir atasözünü ${gridSize}x${gridSize} ızgaraya gizle.`;
+  const { worksheetCount } = options;
+  const prompt = `Atasözü Avı. ${PEDAGOGICAL_PROMPT}`;
   const singleSchema = {
     type: Type.OBJECT,
     properties: {
@@ -323,5 +229,4 @@ export const generateProverbSearchFromAI = async (options: GeneratorOptions): Pr
   return generateWithSchema(prompt, schema) as Promise<ProverbSearchData[]>;
 };
 
-// Re-exports for consistent API
 export const generateProverbSentenceFinderFromAI = generateProverbWordChainFromAI;

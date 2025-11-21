@@ -6,60 +6,75 @@ import {
     NumberPatternData, ShapeNumberPatternData,
     ThematicOddOneOutData, PunctuationMazeData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationPhoneNumberData,
     ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, VisualNumberPatternData,
-    LogicGridPuzzleData, ShapeType,
+    LogicGridPuzzleData
 } from '../../types';
 
-const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
+const PEDAGOGICAL_PROMPT = `
+EĞİTİMSEL İÇERİK KURALLARI:
+1. Çıktı JSON formatında olmalı.
+2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi (örn: sıralı düşünme, görsel ayırt etme, mantıksal çıkarım) desteklediğini açıklayan kısa bir not.
+3. "instruction": Öğrenciye yönelik kısa, net ve cesaretlendirici bir yönerge (örn: "Sıradaki sayıyı bul ve yaz.").
+4. "imagePrompt": Varsa görseller için İngilizce, çocuk dostu, renkli, vektörel stil betimlemesi.
+5. İçerik asla "Lorem ipsum" veya yer tutucu olmamalı, gerçek ve eğitici veri üret.
+`;
 
 export const generateNumberPatternFromAI = async (options: GeneratorOptions): Promise<NumberPatternData[]> => {
     const { itemCount, difficulty, worksheetCount, patternType } = options;
     
-    let patternRules = "Basit aritmetik artışlar veya azalışlar (örn: +2, -5).";
-    if (patternType === 'geometric' || difficulty === 'Orta') patternRules = "Artış ve azalış karışık, veya basit çarpma/bölme (örn: x2, /3).";
-    if (patternType === 'complex' || difficulty === 'Zor') patternRules = "İki aşamalı kurallar (örn: x2 +1) veya Fibonacci benzeri diziler.";
-    if (difficulty === 'Uzman') patternRules = "Karmaşık matematiksel diziler, üslü sayılar, kesirler veya asal sayılar içeren örüntüler.";
+    let patternRules = "Basit aritmetik artışlar (örn: +2, +5).";
+    if (patternType === 'geometric' || difficulty === 'Orta') patternRules = "Artış/Azalış karışık veya çarpma/bölme.";
+    if (patternType === 'complex' || difficulty === 'Zor') patternRules = "İki aşamalı kurallar (x2 +1) veya Fibonacci.";
+    if (difficulty === 'Uzman') patternRules = "Karmaşık diziler, karesel artışlar.";
 
     const prompt = `
-    "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, ${itemCount} tane sayı örüntüsü bulmacası oluştur.
-    Örüntü Tipi: ${patternRules}
-    Her örüntü bir dizi sayı içermeli ve sonunda bir soru işareti olmalıdır. (örn: "2, 4, 6, 8, ?").
-    Her örüntü için doğru cevabı da belirt.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    "${difficulty}" zorluk seviyesinde, ${itemCount} adet Sayı Örüntüsü oluştur.
+    Kural: ${patternRules}
+    Her örüntü bir dizi sayı ve sonunda '?' içermeli.
+    Cevabı (answer) belirt.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet çalışma sayfası verisi üret.
     `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING, description: 'The title for the number pattern puzzles.' },
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             patterns: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        sequence: { type: Type.STRING, description: 'The number sequence with a question mark.' },
-                        answer: { type: Type.STRING, description: 'The correct next number in the sequence.' },
+                        sequence: { type: Type.STRING },
+                        answer: { type: Type.STRING },
                     },
                      required: ['sequence', 'answer']
                 },
             },
         },
-        required: ['title', 'patterns']
+        required: ['title', 'instruction', 'patterns', 'pedagogicalNote']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<NumberPatternData[]>;
 };
 
-// ... (Rest of the existing logic problems generators remain unchanged, removed duplicated Resfebe if present) ...
 export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions): Promise<ShapeNumberPatternData[]> => {
-    const { itemCount: count, difficulty, worksheetCount } = options;
-    const prompt = `Generate ${worksheetCount} unique worksheets for a shape-based number pattern puzzle for kids, appropriate for difficulty level "${difficulty}". Each worksheet should contain ${count} puzzles. Each puzzle should consist of a few shapes (only triangles for now) containing numbers. There must be a logical rule connecting the numbers in each shape. One number should be a question mark.
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur. Başlıklar, istemler ve içerikler çocuklar için eğlenceli, ilgi çekici ve yaratıcı olsun.
-    Return the data in a JSON array.`;
+    const { difficulty, worksheetCount } = options;
+    const prompt = `
+    "${difficulty}" seviyesinde Şekilli Sayı Örüntüsü (Shape Number Pattern) oluştur.
+    Üçgenlerin köşelerindeki sayılarla (veya merkezindeki) bir matematiksel ilişki kur.
+    Örn: Üst sayı = Sol alt + Sağ alt.
+    Bir şekildeki sayı '?' olsun.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
 
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             patterns: {
                 type: Type.ARRAY,
                 items: {
@@ -81,20 +96,28 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
                 }
             }
         },
-        required: ["title", "patterns"]
+        required: ["title", "patterns", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ShapeNumberPatternData[]>;
 };
 
 export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions): Promise<ThematicOddOneOutData[]> => {
-    const { topic, difficulty, worksheetCount, itemCount } = options;
-    const prompt = `Create a "Thematic Odd One Out" puzzle with the theme '${topic}', appropriate for difficulty level "${difficulty}". Generate ${itemCount} rows. In each row, provide 4 words as objects with text and an **English** 'imagePrompt'. Style: **Colorful cartoon**, **vector art**, or **photo**. One word does not fit the theme. Also provide a sentence prompt using the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const { topic, difficulty, worksheetCount } = options;
+    const prompt = `
+    '${topic}' temalı, "${difficulty}" seviyesinde "Tematik Farklı Olanı Bul" etkinliği.
+    Her satırda 4 kelime/kavram olsun. 3'ü temaya uygun, 1'i farklı.
+    Her kelime için **İngilizce** 'imagePrompt' oluştur. Stil: "Cute colorful icon" veya "Vector illustration".
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             theme: { type: Type.STRING },
             rows: {
                 type: Type.ARRAY,
@@ -119,7 +142,7 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
             },
             sentencePrompt: { type: Type.STRING }
         },
-        required: ["title", "prompt", "theme", "rows", "sentencePrompt"]
+        required: ["title", "prompt", "theme", "rows", "sentencePrompt", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutData[]>;
@@ -127,12 +150,21 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
 
 export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Punctuation Maze" puzzle for difficulty level "${difficulty}". Specify a punctuation mark (e.g., '.'). Provide a list of 8 rules about its usage, some correct and some incorrect. The user follows the path of correct rules in a conceptual maze. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `
+    "${difficulty}" seviyesinde "Noktalama Labirenti".
+    Bir noktalama işareti seç (örn: Nokta, Virgül).
+    Bu işaretin kullanımıyla ilgili 8 kural yaz (bazıları doğru, bazıları yanlış).
+    Doğru kurallar labirentin çıkış yolunu göstersin.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             punctuationMark: { type: Type.STRING },
             rules: {
                 type: Type.ARRAY,
@@ -147,7 +179,7 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
                 }
             }
         },
-        required: ["title", "prompt", "punctuationMark", "rules"]
+        required: ["title", "prompt", "punctuationMark", "rules", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<PunctuationMazeData[]>;
@@ -155,12 +187,19 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
 
 export const generateThematicOddOneOutSentenceFromAI = async (options: GeneratorOptions): Promise<ThematicOddOneOutSentenceData[]> => {
     const { topic, difficulty, worksheetCount } = options;
-    const prompt = `Create a "Thematic Odd One Out Sentence" puzzle with theme '${topic}' for difficulty level "${difficulty}". Provide 5 rows of words, where one is the odd one out. The user must then write a sentence with the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `
+    '${topic}' temalı, "${difficulty}" seviyesinde "Farklı Olanla Cümle Kur" etkinliği.
+    5 satır oluştur. Her satırda biri hariç diğerleri temaya uyan kelimeler olsun.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             rows: {
                 type: Type.ARRAY,
                 items: {
@@ -174,7 +213,7 @@ export const generateThematicOddOneOutSentenceFromAI = async (options: Generator
             },
             sentencePrompt: { type: Type.STRING }
         },
-        required: ["title", "prompt", "rows", "sentencePrompt"]
+        required: ["title", "prompt", "rows", "sentencePrompt", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ThematicOddOneOutSentenceData[]>;
@@ -182,12 +221,19 @@ export const generateThematicOddOneOutSentenceFromAI = async (options: Generator
 
 export const generateColumnOddOneOutSentenceFromAI = async (options: GeneratorOptions): Promise<ColumnOddOneOutSentenceData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Column Odd One Out Sentence" puzzle for difficulty level "${difficulty}". Provide 4 columns of words, where one in each column is the odd one out. The user must write a sentence with the odd words. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `
+    "${difficulty}" seviyesinde "Sütunda Farklı Olanı Bul" etkinliği.
+    4 sütun oluştur. Her sütunda anlamsal olarak uyumsuz bir kelime olsun.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             columns: {
                 type: Type.ARRAY,
                 items: {
@@ -201,7 +247,7 @@ export const generateColumnOddOneOutSentenceFromAI = async (options: GeneratorOp
             },
             sentencePrompt: { type: Type.STRING }
         },
-        required: ["title", "prompt", "columns", "sentencePrompt"]
+        required: ["title", "prompt", "columns", "sentencePrompt", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ColumnOddOneOutSentenceData[]>;
@@ -209,13 +255,20 @@ export const generateColumnOddOneOutSentenceFromAI = async (options: GeneratorOp
 
 export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOptions): Promise<PunctuationPhoneNumberData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Punctuation Phone Number" puzzle for difficulty level "${difficulty}". Provide 7 clues related to punctuation that resolve to numbers, forming a phone number. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `
+    "${difficulty}" seviyesinde "Noktalama Telefonu" bulmacası.
+    7 adet ipucu ver. Her ipucu bir noktalama işareti kuralını veya sayısını işaret etsin ve bir rakama karşılık gelsin.
+    Örn: "Cümle sonuna konan nokta sayısı = 3".
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             clues: {
                 type: Type.ARRAY,
                 items: {
@@ -239,7 +292,7 @@ export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOpt
                 }
             }
         },
-        required: ["title", "prompt", "instruction", "clues", "solution"]
+        required: ["title", "prompt", "instruction", "clues", "solution", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<PunctuationPhoneNumberData[]>;
@@ -247,12 +300,20 @@ export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOpt
 
 export const generateArithmeticConnectFromAI = async (options: GeneratorOptions): Promise<ArithmeticConnectData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create an "Arithmetic Connect" puzzle for difficulty level "${difficulty}". Provide a set of 12 arithmetic expressions placed randomly. The expressions belong to groups with the same result. Provide each expression's text, value, group ID, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `
+    "${difficulty}" seviyesinde "İşlem Bağlamaca".
+    10-12 adet aritmetik işlem (veya sonuç sayı) oluştur.
+    Aynı sonuca çıkan işlemleri eşleştirmek üzere gruplandır.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             example: { type: Type.STRING },
             expressions: {
                 type: Type.ARRAY,
@@ -269,20 +330,26 @@ export const generateArithmeticConnectFromAI = async (options: GeneratorOptions)
                 }
             }
         },
-        required: ["title", "prompt", "example", "expressions"]
+        required: ["title", "prompt", "example", "expressions", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ArithmeticConnectData[]>;
 };
 
 export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
-    const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Roman-Arabic Match Connect" puzzle for difficulty level "${difficulty}". Provide a list of points on a ${gridSize}x${gridSize} grid. Each point has a label (Roman or Arabic number), a pairId, and coordinates. The user connects points with the same pairId. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const { difficulty, worksheetCount } = options;
+    const prompt = `
+    "${difficulty}" seviyesinde Romen ve Arap rakamlarını eşleştirme oyunu.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -298,20 +365,28 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
                 }
             }
         },
-        required: ["title", "prompt", "gridDim", "points"]
+        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<RomanArabicMatchConnectData[]>;
 };
 
 export const generateWeightConnectFromAI = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
-    const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Weight Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1kg', '1000g'), an **English** imagePrompt for a visual representation. Style: **Vector art** or **Photo**. A pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const { difficulty, worksheetCount } = options;
+    const prompt = `
+    "${difficulty}" seviyesinde Ağırlık Eşleştirme.
+    Farklı birimlerdeki (kg, g) eşit ağırlıkları eşleştir.
+    Görseller için **İngilizce** 'imagePrompt' oluştur (tartı, meyve, sebze vb.). Stil: "Flat icon" veya "Vector".
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -328,20 +403,28 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
                 }
             }
         },
-        required: ["title", "prompt", "gridDim", "points"]
+        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<WeightConnectData[]>;
 };
 
 export const generateLengthConnectFromAI = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
-    const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `Create a "Length Connect" puzzle for difficulty level "${difficulty}". Provide points on a ${gridSize}x${gridSize} grid. For each point, provide a text label (e.g., '1m', '100cm'), an **English** imagePrompt for a visual representation. Style: **Vector art** or **Photo**. A pairId for matching, and coordinates. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const { difficulty, worksheetCount } = options;
+    const prompt = `
+    "${difficulty}" seviyesinde Uzunluk Eşleştirme.
+    Farklı birimlerdeki (m, cm, km) eşit uzunlukları eşleştir.
+    Görseller için **İngilizce** 'imagePrompt' (cetvel, metre, yol vb.).
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -358,7 +441,7 @@ export const generateLengthConnectFromAI = async (options: GeneratorOptions): Pr
                 }
             }
         },
-        required: ["title", "prompt", "gridDim", "points"]
+        required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<LengthConnectData[]>;
@@ -366,12 +449,19 @@ export const generateLengthConnectFromAI = async (options: GeneratorOptions): Pr
 
 export const generateVisualNumberPatternFromAI = async (options: GeneratorOptions): Promise<VisualNumberPatternData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `Create a "Visual Number Pattern" puzzle for difficulty level "${difficulty}". Generate 3 puzzles. Each puzzle is a sequence of items with a number, color, and size, following a specific rule. Provide the rule and the answer. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const prompt = `
+    "${difficulty}" seviyesinde Görsel Sayı Örüntüsü.
+    Sayıların rengi, boyutu ve değeri bir kurala göre değişsin.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             puzzles: {
                 type: Type.ARRAY,
                 items: {
@@ -396,20 +486,28 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
                 }
             }
         },
-        required: ["title", "prompt", "puzzles"]
+        required: ["title", "prompt", "puzzles", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<VisualNumberPatternData[]>;
 };
 
 export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): Promise<LogicGridPuzzleData[]> => {
-    const { difficulty, worksheetCount, itemCount } = options;
-    const prompt = `Create a "Logic Grid Puzzle" for difficulty level "${difficulty}". Provide ${itemCount} clues, a list of people, and categories with items (including **colorful cartoon** or **photo** image prompts). The user solves the puzzle using the grid. Create ${worksheetCount} unique worksheets and return as a JSON array.`;
+    const { difficulty, worksheetCount } = options;
+    const prompt = `
+    "${difficulty}" seviyesinde Mantık Tablosu (Logic Grid Puzzle).
+    Kişiler, nesneler ve özellikleri içeren ipuçları ver.
+    Nesneler için **İngilizce** 'imagePrompt' oluştur.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             clues: { type: Type.ARRAY, items: { type: Type.STRING } },
             people: { type: Type.ARRAY, items: { type: Type.STRING } },
             categories: {
@@ -435,7 +533,7 @@ export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): 
                 }
             }
         },
-        required: ["title", "prompt", "clues", "people", "categories"]
+        required: ["title", "prompt", "clues", "people", "categories", "instruction", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<LogicGridPuzzleData[]>;

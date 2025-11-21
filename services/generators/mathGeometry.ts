@@ -4,52 +4,43 @@ import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
 import { MathPuzzleData, ShapeCountingData } from '../../types';
 
+const PEDAGOGICAL_PROMPT = `
+EĞİTİMSEL İÇERİK KURALLARI:
+1. Çıktı JSON formatında olmalı.
+2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi (örn: sayı hissi, geometrik algı) desteklediğini açıkla.
+3. "instruction": Öğrenciye yönelik net ve anlaşılır bir yönerge.
+4. "imagePrompt": Nesneler ve şekiller için net, çocuk dostu, İngilizce görsel tasviri.
+5. İçerik "Lorem ipsum" olmamalı, gerçek matematiksel problemler içermeli.
+`;
+
 export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
   const { topic, itemCount, difficulty, worksheetCount, operations, numberRange } = options;
   
-  let rangeDesc = numberRange || "1-10";
-  if (!numberRange) {
-      if (difficulty === 'Orta') rangeDesc = "1-20";
-      else if (difficulty === 'Zor') rangeDesc = "1-50";
-      else if (difficulty === 'Uzman') rangeDesc = "1-100";
-  }
-
-  let opsDesc = "toplama ve çıkarma (+, -)";
-  if (operations === 'add') opsDesc = "sadece toplama (+)";
-  else if (operations === 'mult') opsDesc = "toplama, çıkarma ve çarpma";
-  else if (operations === 'all') opsDesc = "dört işlem (+, -, *, /)";
-  else if(difficulty === 'Başlangıç') opsDesc = "sadece toplama (+)";
+  let rangeDesc = numberRange || (difficulty === 'Orta' ? "1-20" : difficulty === 'Zor' ? "1-50" : "1-10");
+  let opsDesc = operations === 'add' ? "toplama" : operations === 'mult' ? "çarpma" : "dört işlem";
   
-  let complexity = "basit denklemler (A + B = C).";
-  if (difficulty === 'Zor') complexity = "iki aşamalı denklemler (A + B = C, C - A = B).";
-  if (difficulty === 'Uzman') complexity = "karmaşık ve çoklu bilinmeyenli denklemler (A+A=B, B+C=10 gibi).";
-
   const prompt = `
-    "${difficulty}" zorluk seviyesindeki bir öğrenciye uygun, '${topic || 'Rastgele'}' konusuyla ilgili ${itemCount} tane matematik bulmacası oluştur.
-    SAYI ARALIĞI: ${rangeDesc}
-    İŞLEMLER: ${opsDesc}
-    KARMAŞIKLIK: ${complexity}
-    
-    Her bulmaca için:
-    1. 2-3 adet nesne tanımla (örn: 'elma', 'muz').
-    2. Her nesne için bir sayısal değer ve onu temsil eden, **İngilizce** bir 'imagePrompt' üret. Style: **Clean vector art** or **Clear photograph**.
-    3. Bu nesneleri kullanarak metin tabanlı bir problem ('problem') oluştur (örn: 'elma + muz = ?').
-    
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    "${difficulty}" seviyesinde, '${topic || 'Genel'}' temalı ${itemCount} adet Matematik Bulmacası.
+    Sayı Aralığı: ${rangeDesc}. İşlemler: ${opsDesc}.
+    Nesneler (Elma, Armut vb.) sayılar yerine geçsin.
+    Her nesne için **İngilizce** 'imagePrompt' oluştur. Stil: "Simple flat vector icon, colorful".
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
   `;
     const singleSchema = {
     type: Type.OBJECT,
     properties: {
-      title: { type: Type.STRING, description: 'The title of the puzzle set.'},
+      title: { type: Type.STRING },
+      instruction: { type: Type.STRING },
+      pedagogicalNote: { type: Type.STRING },
       puzzles: {
         type: Type.ARRAY,
         items: {
           type: Type.OBJECT,
           properties: {
-            problem: { type: Type.STRING, description: 'The math problem with object names, e.g., "elma + muz = 12"' },
-            question: { type: Type.STRING, description: 'The question to be solved, e.g., "Muzun değeri kaçtır?"' },
-            answer: { type: Type.STRING, description: 'The numerical answer.' },
+            problem: { type: Type.STRING },
+            question: { type: Type.STRING },
+            answer: { type: Type.STRING },
             objects: {
                 type: Type.ARRAY,
                 items: {
@@ -66,7 +57,7 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
         },
       },
     },
-    required: ['title', 'puzzles']
+    required: ['title', 'puzzles', 'instruction', 'pedagogicalNote']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<MathPuzzleData[]>;
@@ -74,20 +65,19 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
 
 export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
     const { difficulty, worksheetCount } = options;
-    
-    let complexity = "Çok basit, az sayıda şekil, örtüşme yok.";
-    if (difficulty === 'Orta') complexity = "Orta karmaşıklık, bazı şekiller iç içe.";
-    if (difficulty === 'Zor' || difficulty === 'Uzman') complexity = "Çok karmaşık, bir sürü iç içe geçmiş üçgen, dikkatli saymayı gerektiren.";
-
-    const prompt = `Create a 'count the triangles' puzzle appropriate for difficulty level "${difficulty}". 
-    COMPLEXITY: ${complexity}
-    Generate 1 complex figure composed of overlapping triangles and other shapes. The figure should be represented as a list of SVG paths, each with a 'd' attribute and a fill color. The user's goal is to count all the triangles in the figure. 
-    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
+    const prompt = `
+    "${difficulty}" seviyesinde "Şekil Sayma" (Örn: Kaç üçgen var?).
+    Karmaşık, iç içe geçmiş şekillerden oluşan SVG path verileri üret.
+    SVG pathleri 'd' attribute olarak ve renkleri 'fill' olarak ver.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
             figures: {
                 type: Type.ARRAY,
                 items: {
@@ -103,13 +93,15 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
                                 },
                                 required: ["d", "fill"]
                             }
-                        }
+                        },
+                        targetShape: { type: Type.STRING },
+                        correctCount: { type: Type.INTEGER }
                     },
-                    required: ["svgPaths"]
+                    required: ["svgPaths", "targetShape", "correctCount"]
                 }
             }
         },
-        required: ["title", "prompt", "figures"]
+        required: ["title", "instruction", "figures", "pedagogicalNote"]
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ShapeCountingData[]>;

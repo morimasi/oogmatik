@@ -7,30 +7,22 @@ import {
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData
 } from '../../types';
 
-// Common Pedagogical Notes
-const NOTES = {
-    memory: "Kısa süreli bellek kapasitesini ve bilgiyi geri çağırma (retrieval) hızını artırır.",
-    attention: "Seçici dikkat (selective attention) ve sürdürülebilir dikkat becerilerini güçlendirir.",
-    visual: "Görsel ayrımlaştırma ve şekil-zemin algısı (figure-ground perception) çalışmasıdır.",
-    inhibition: "Otomatik tepkileri bastırma ve bilişsel esneklik (cognitive flexibility) sağlar."
-};
+const PEDAGOGICAL_PROMPT = `
+EĞİTİMSEL İÇERİK KURALLARI:
+1. Çıktı JSON formatında olmalı.
+2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi desteklediğini açıkla (örn: görsel hafıza, seçici dikkat).
+3. "instruction": Öğrenciye yönelik net yönerge.
+4. "imagePrompt": Görseller için detaylı İngilizce açıklama.
+5. İçerik dolu ve gerçekçi olmalı.
+`;
 
 export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
     const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
-    const memorizeCount = Math.floor(itemCount * (memorizeRatio / 100));
-    const testCount = itemCount;
-
     const prompt = `
-    '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir kelime hafıza testi oluştur.
-    Ezberlenecek ${memorizeCount} kelime seç. Her kelime için bir de **İngilizce** 'imagePrompt' üret. Style: 'Icon', 'Vector art', or 'Clear photograph'.
-    ${difficulty === 'Başlangıç' ? 'Kelimeler kısa (3-4 harf) ve somut olsun.' : difficulty === 'Uzman' ? 'Kelimeler aynı kategoriden ve birbirine yakın olsun (örn: Pırasa, Ispanak, Pazı) - bu ayırt etmeyi zorlaştırır.' : 'Kelimeler orta zorlukta olsun.'}
-    Test için ${testCount} kelimelik bir liste oluştur. Bu listenin içinde ezberlenecek kelimeler de bulunsun. Test listesi için de 'imagePrompt' üret.
-    
-    INSTRUCTION: "İlk sayfadaki kelimeleri ve resimleri dikkatlice incele ve ezberle. Sayfayı çevir ve aklında kalanları işaretle."
-    PEDAGOGICAL NOTE: ${NOTES.memory} + " Görsel ve sözel bellek entegrasyonu."
-    
-    Her seferinde tamamen yeni, benzersiz ve daha önce ürettiklerinden farklı bir içerik oluştur.
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    "${difficulty}" seviyesinde, '${topic}' temalı Kelime Hafıza Testi.
+    ${itemCount} kelime seç. Her biri için **İngilizce** 'imagePrompt' oluştur.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
     `;
     const itemSchema = {
         type: Type.OBJECT,
@@ -51,26 +43,19 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
             wordsToMemorize: { type: Type.ARRAY, items: itemSchema },
             testWords: { type: Type.ARRAY, items: itemSchema }
         },
-        required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords']
+        required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords', 'instruction', 'pedagogicalNote']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<WordMemoryData[]>;
 };
 
 export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
-  const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
-  const memorizeCount = Math.floor(itemCount * (memorizeRatio / 100));
-  const testCount = itemCount;
+  const { topic, itemCount, difficulty, worksheetCount } = options;
   const prompt = `
-    '${topic}' konusuyla ilgili ve "${difficulty}" zorluk seviyesine uygun bir görsel hafıza testi oluştur.
-    Ezberlenecek ${memorizeCount} tane nesne belirle. Her nesne için bir 'description' (Türkçe açıklama) ve **İngilizce** bir 'imagePrompt' üret. Style: 'Colorful illustration', '3D Icon', or 'Clean photo'.
-    Test için ${testCount} tane nesneden oluşan bir liste oluştur (hem 'description' hem 'imagePrompt' içermeli). Bu listenin içinde ezberlenecek nesneler de bulunsun.
-    ${difficulty === 'Zor' || difficulty === 'Uzman' ? 'Nesneler birbirine çok benzesin (örn: Kırmızı Elma, Yeşil Elma, Yarım Elma).' : 'Nesneler birbirinden tamamen farklı olsun.'}
-    
-    INSTRUCTION: "Görsellere dikkatlice bak. Arka sayfada sadece gördüklerini bul."
-    PEDAGOGICAL NOTE: "Görsel hafıza ve detay algısını güçlendirir."
-
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    "${difficulty}" seviyesinde, '${topic}' temalı Görsel Hafıza Testi.
+    Nesneler için **İngilizce** 'imagePrompt' ve Türkçe 'description' üret.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
   `;
   const itemSchema = {
       type: Type.OBJECT,
@@ -91,7 +76,7 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
       itemsToMemorize: { type: Type.ARRAY, items: itemSchema },
       testItems: { type: Type.ARRAY, items: itemSchema }
     },
-    required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems']
+    required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems', 'instruction', 'pedagogicalNote']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<VisualMemoryData[]>;
@@ -99,21 +84,7 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
 
 export const generateNumberSearchFromAI = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
     const { difficulty, worksheetCount } = options;
-    let range = { start: 1, end: 20 };
-    if (difficulty === 'Orta') range = { start: 1, end: 50 };
-    if (difficulty === 'Zor') range = { start: 100, end: 150 };
-    if (difficulty === 'Uzman') range = { start: 1000, end: 1100 };
-
-    const prompt = `
-    "${difficulty}" zorluk seviyesine uygun bir sayı avı etkinliği oluştur. 
-    ${range.start} ile ${range.end} arasındaki sayıları içersin.
-    Bu sayıları ve dikkat dağıtıcı başka sayıları/karakterleri rastgele bir sırada içeren bir liste oluştur. Toplam 100 öğe olsun.
-    
-    INSTRUCTION: "Sayıları sırasıyla (1, 2, 3...) bularak takip et ve işaretle."
-    PEDAGOGICAL NOTE: "Sıralı işlem yapma ve sürdürülebilir dikkat."
-    
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-    `;
+    const prompt = `"${difficulty}" seviyesinde Sayı Avı. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -123,32 +94,19 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
             numbers: { type: Type.ARRAY, items: { type: Type.STRING } },
             range: {
                 type: Type.OBJECT,
-                properties: {
-                    start: { type: Type.INTEGER },
-                    end: { type: Type.INTEGER }
-                },
+                properties: { start: { type: Type.INTEGER }, end: { type: Type.INTEGER } },
                 required: ['start', 'end']
             }
         },
-        required: ['title', 'numbers', 'range']
+        required: ['title', 'numbers', 'range', 'instruction', 'pedagogicalNote']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<NumberSearchData[]>;
 };
 
 export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOptions): Promise<FindDuplicateData[]> => {
-  const { itemCount: rows, difficulty, worksheetCount, cols } = options;
-  const prompt = `
-    "${difficulty}" zorluk seviyesine uygun 'İkiliyi Bul' etkinliği için ${rows} satır ve ${cols} sütundan oluşan bir tablo oluştur.
-    Her satıra rastgele harfler ve rakamlar yerleştir.
-    ${difficulty === 'Zor' || difficulty === 'Uzman' ? 'Karakterler birbirine çok benzer olsun (b, d, p, q gibi).' : 'Karakterler birbirinden farklı olsun.'}
-    Her satırda, karakterlerden sadece bir tanesi iki defa tekrar etsin.
-    
-    INSTRUCTION: "Her satırda iki kez yazılmış olan harfi veya sayıyı bul."
-    PEDAGOGICAL NOTE: ${NOTES.visual}
-
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-  `;
+  const { difficulty, worksheetCount } = options;
+  const prompt = `"${difficulty}" seviyesinde 'İkiliyi Bul'. Her satırda bir karakteri tekrar et. ${PEDAGOGICAL_PROMPT}`;
   const singleSchema = {
     type: Type.OBJECT,
     properties: {
@@ -157,7 +115,7 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
       pedagogicalNote: { type: Type.STRING },
       rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
     },
-    required: ['title', 'rows']
+    required: ['title', 'rows', 'instruction', 'pedagogicalNote']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<FindDuplicateData[]>;
@@ -165,17 +123,11 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
 
 export const generateLetterGridTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
     const { gridSize, difficulty, worksheetCount, targetLetters } = options;
-    const letters = targetLetters || 'b,d,p,q';
-    const targetLettersArray = letters.split(',').map(l => l.trim().toLowerCase());
     const prompt = `
-    ${gridSize}x${gridSize} boyutunda ve "${difficulty}" zorluk seviyesine uygun bir harf ızgarası oluştur.
-    Izgarayı rastgele Türkçe küçük harflerle doldur.
-    Aranacak hedef harfler şunlar: ${targetLettersArray.join(', ')}. Bu harfleri ızgaraya serpiştir. "${difficulty}" seviyesine göre çeldirici harflerin (b,d,p,q,m,n gibi) yoğunluğunu ayarla.
-    
-    INSTRUCTION: "Aşağıdaki kutuda ${targetLettersArray.join(', ')} harflerini bul ve daire içine al."
-    PEDAGOGICAL NOTE: "Benzer uyaranlar arasında hedefi bulma (diskriminasyon)."
-
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
+    "${difficulty}" seviyesinde Harf Izgarası. 
+    Hedefler: ${targetLetters || 'b, d'}.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
     `;
     const singleSchema = {
         type: Type.OBJECT,
@@ -183,16 +135,10 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            grid: {
-                type: Type.ARRAY,
-                items: { type: Type.ARRAY, items: { type: Type.STRING } },
-            },
-            targetLetters: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-            }
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            targetLetters: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
-        required: ['title', 'grid', 'targetLetters']
+        required: ['title', 'grid', 'targetLetters', 'instruction', 'pedagogicalNote']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<LetterGridTestData[]>;
@@ -200,49 +146,25 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
 
 export const generateFindLetterPairFromAI = async (options: GeneratorOptions): Promise<FindLetterPairData[]> => {
     const { gridSize, difficulty, worksheetCount, targetPair } = options;
-    const pair = targetPair || 'bd';
-    const prompt = `
-    'Harf İkilisini Bul' etkinliği için ${gridSize}x${gridSize} boyutunda ve "${difficulty}" zorluk seviyesine uygun bir harf ızgarası oluştur.
-    Izgarayı rastgele Türkçe harflerle doldur.
-    Hedef harf ikilisi olan '${pair}' harflerini ızgarada yanyana olacak şekilde birkaç yere yerleştir.
-    
-    INSTRUCTION: "Yan yana gelen ${pair} harflerini bul."
-    PEDAGOGICAL NOTE: "Görsel tarama ve bütünleştirme."
-
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-    `;
+    const prompt = `"${difficulty}" seviyesinde Harf İkilisini Bul (${targetPair || 'bd'}). ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            grid: {
-                type: Type.ARRAY,
-                items: { type: Type.ARRAY, items: { type: Type.STRING } }
-            },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             targetPair: { type: Type.STRING }
         },
-        required: ['title', 'grid', 'targetPair']
+        required: ['title', 'grid', 'targetPair', 'instruction', 'pedagogicalNote']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<FindLetterPairData[]>;
 };
 
 export const generateTargetSearchFromAI = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
-  const { gridSize, difficulty, worksheetCount, targetChar, distractorChar } = options;
-  const target = targetChar || 'd';
-  const distractor = distractorChar || 'b';
-  const prompt = `
-    "${difficulty}" zorluk seviyesine uygun 'Dikkatli Göz' etkinliği oluştur.
-    ${gridSize}x${gridSize} boyutunda bir tabloyu '${distractor}' karakteriyle doldur.
-    İçine rastgele yerlere 15-20 tane '${target}' karakteri serpiştir. "${difficulty}" seviyesi arttıkça, çeldirici karakterlerin arasına 'p', 'q' gibi benzer karakterler de ekle.
-    
-    INSTRUCTION: "Sadece '${target}' harflerini bul ve say."
-    PEDAGOGICAL NOTE: "Zemin-şekil algısı ve seçici dikkat."
-
-    Bu kurallara göre, her biri benzersiz içeriklere sahip ${worksheetCount} tane çalışma sayfası verisi oluşturup bir JSON dizisi olarak döndür.
-  `;
+  const { difficulty, worksheetCount } = options;
+  const prompt = `"${difficulty}" seviyesinde Hedef Karakter Avı. ${PEDAGOGICAL_PROMPT}`;
   const singleSchema = {
     type: Type.OBJECT,
     properties: {
@@ -253,7 +175,7 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
       target: { type: Type.STRING },
       distractor: { type: Type.STRING }
     },
-    required: ['title', 'grid', 'target', 'distractor']
+    required: ['title', 'grid', 'target', 'distractor', 'instruction', 'pedagogicalNote']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<TargetSearchData[]>;
@@ -261,11 +183,12 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
 
 export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
-    const prompt = `Create a color wheel memory game with ${itemCount} items, appropriate for difficulty level "${difficulty}". Each item must have a name (e.g., "Kitap"), a unique hex color code, and a **English** imagePrompt. Style: 'Simple icon' or 'Clean flat illustration'.
-    INSTRUCTION: "Renk çarkındaki nesnelerin yerlerini, renklerini ve resimlerini ezberle."
-    PEDAGOGICAL NOTE: "Görsel-mekansal hafıza ve nesne-renk ilişkilendirme."
-    
-    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.`;
+    const prompt = `
+    "${difficulty}" seviyesinde Renk Çemberi Hafıza Oyunu.
+    Her öğe için **İngilizce** 'imagePrompt'.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -287,23 +210,19 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
                 }
             }
         },
-        required: ["title", "memorizeTitle", "testTitle", "items"]
+        required: ["title", "memorizeTitle", "testTitle", "items", 'instruction', 'pedagogicalNote']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData[]>;
 };
 
 export const generateImageComprehensionFromAI = async (options: GeneratorOptions): Promise<ImageComprehensionData[]> => {
-    const { topic, itemCount: questionCount, difficulty, worksheetCount } = options;
+    const { topic, difficulty, worksheetCount } = options;
     const prompt = `
-    Generate a simple, detailed scene description about '${topic}' for an image comprehension test, appropriate for difficulty level "${difficulty}".
-    Also, create an **English** image generation prompt that perfectly matches the scene. Style: **Colorful cartoon** or **Children's book illustration** or **Standard Photo**.
-    Then, create ${questionCount} questions about the details in the scene. Questions should test working memory (e.g., "How many...", "What color...", "Where was...").
-    
-    INSTRUCTION: "Resmi dikkatlice incele ve detayları aklında tut."
-    PEDAGOGICAL NOTE: "Görsel detayları işleme ve kısa süreli bellekte tutma."
-
-    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.
+    "${difficulty}" seviyesinde Resim Anlama.
+    Detaylı bir sahne betimle (sceneDescription) ve buna uygun **İngilizce** 'imagePrompt'.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
     `;
     const singleSchema = {
         type: Type.OBJECT,
@@ -317,25 +236,19 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
             imagePrompt: { type: Type.STRING },
             questions: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
-        required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions"]
+        required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions", 'instruction', 'pedagogicalNote']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<ImageComprehensionData[]>;
 };
 
 export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
-    const memorizeCount = Math.floor(itemCount * (memorizeRatio/100));
-    const testCount = itemCount;
+    const { topic, difficulty, worksheetCount } = options;
     const prompt = `
-    Generate a character memory test about '${topic}', appropriate for difficulty level "${difficulty}".
-    Create ${memorizeCount} unique characters. For each, provide a short description and an **English** image prompt. Style: **Cute cartoon character** or **Standard portrait**.
-    Then, create a test list of ${testCount} characters.
-    
-    INSTRUCTION: "Karakterleri ve özelliklerini ezberle."
-    PEDAGOGICAL NOTE: "Yüz tanıma ve isim-eşya ilişkilendirme belleği."
-
-    Create ${worksheetCount} unique worksheets based on these rules and return them in a JSON array.
+    "${difficulty}" seviyesinde Karakter Hafıza.
+    Karakterler için **İngilizce** 'imagePrompt'.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
     `;
     const singleSchema = {
         type: Type.OBJECT,
@@ -368,7 +281,7 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
                 }
             }
         },
-        required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters"]
+        required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters", 'instruction', 'pedagogicalNote']
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData[]>;
@@ -379,15 +292,8 @@ export const generateBurdonTestFromAI = async (options: GeneratorOptions): Promi
 };
 
 export const generateStroopTestFromAI = async (options: GeneratorOptions): Promise<StroopTestData[]> => {
-     const { itemCount, worksheetCount } = options;
-     const prompt = `Generate a Stroop Test data set. Create ${itemCount} items. Each item should have a 'text' (a color name in Turkish, e.g., 'KIRMIZI', 'MAVİ') and a 'color' (a CSS color value like 'blue', 'green').
-     CRITICAL: The 'color' MUST NOT match the 'text'. If text is 'KIRMIZI', color cannot be 'red'.
-     
-     INSTRUCTION: "Kelimeyi okuma, rengini söyle!"
-     PEDAGOGICAL NOTE: ${NOTES.inhibition}
-     
-     Create ${worksheetCount} worksheets.`;
-     
+     const { worksheetCount } = options;
+     const prompt = `Stroop Testi oluştur. Renk isimleri ile renkler uyumsuz olsun. ${PEDAGOGICAL_PROMPT}`;
      const singleSchema = {
          type: Type.OBJECT,
          properties: {
@@ -403,27 +309,19 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
                  }
              }
          },
-         required: ["title", "items"]
+         required: ["title", "items", 'instruction', 'pedagogicalNote']
      };
      const schema = { type: Type.ARRAY, items: singleSchema };
      return generateWithSchema(prompt, schema) as Promise<StroopTestData[]>;
 }
 
 export const generateChaoticNumberSearchFromAI = async (options: GeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
-     const { itemCount, worksheetCount } = options;
-     const prompt = `Generate a 'Chaotic Number Search' dataset. 
-     Create ${itemCount} numbers. Each number object needs: value (integer), x (0-100), y (0-100), size (1-4), rotation (-45 to 45), color (hex).
-     
-     INSTRUCTION: "Sayıları sırasıyla bul."
-     PEDAGOGICAL NOTE: ${NOTES.visual}
-
-     Create ${worksheetCount} worksheets.`;
-
+     const prompt = `Kaotik Sayı Avı. ${PEDAGOGICAL_PROMPT}`;
      const singleSchema = {
          type: Type.OBJECT,
          properties: {
              title: { type: Type.STRING },
-             prompt: { type: Type.STRING }, // prompt field used as sub-instruction
+             prompt: { type: Type.STRING },
              instruction: { type: Type.STRING },
              pedagogicalNote: { type: Type.STRING },
              numbers: {
@@ -443,7 +341,7 @@ export const generateChaoticNumberSearchFromAI = async (options: GeneratorOption
              },
              range: { type: Type.OBJECT, properties: {start: {type: Type.INTEGER}, end: {type: Type.INTEGER}}, required: ["start", "end"]}
          },
-         required: ["title", "numbers", "range"]
+         required: ["title", "numbers", "range", 'instruction', 'pedagogicalNote']
      };
      const schema = { type: Type.ARRAY, items: singleSchema };
      return generateWithSchema(prompt, schema) as Promise<ChaoticNumberSearchData[]>;
