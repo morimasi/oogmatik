@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, ActivityType, GeneratorOptions } from '../types';
 
@@ -19,47 +17,42 @@ interface ConfigField {
     label: string;
     type: FieldType;
     defaultValue: any;
-    options?: string[] | { label: string; value: any }[]; // For select/multiselect
+    options?: string[] | { label: string; value: any }[]; 
     min?: number;
     max?: number;
     step?: number;
     description?: string;
-    condition?: (currentValues: any) => boolean; // Conditional rendering
+    condition?: (currentValues: any) => boolean;
+    width?: 'full' | 'half' | 'third'; // Layout Hint
 }
 
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading }) => {
     const [mode, setMode] = useState<'ai' | 'fast'>('ai');
     const [difficulty, setDifficulty] = useState<'Başlangıç' | 'Orta' | 'Zor' | 'Uzman'>('Orta');
     const [worksheetCount, setWorksheetCount] = useState(1);
-    
-    // Dynamic State for specific options
     const [specificOptions, setSpecificOptions] = useState<Record<string, any>>({});
-    const [animateMeter, setAnimateMeter] = useState(false);
 
-    // Difficulty Visuals Configuration
-    const difficultyConfig = {
-        'Başlangıç': { color: 'bg-emerald-400', width: '25%', text: 'Yeni Başlayanlar İçin', icon: 'fa-seedling' },
-        'Orta': { color: 'bg-yellow-400', width: '50%', text: 'Standart Seviye', icon: 'fa-layer-group' },
-        'Zor': { color: 'bg-orange-500', width: '75%', text: 'Zorlayıcı', icon: 'fa-bolt' },
-        'Uzman': { color: 'bg-red-600', width: '100%', text: 'Profesyonel / Çok Zor', icon: 'fa-fire' }
+    // Difficulty Colors for minimalist dot
+    const difficultyColor = {
+        'Başlangıç': 'bg-emerald-500',
+        'Orta': 'bg-yellow-500',
+        'Zor': 'bg-orange-500',
+        'Uzman': 'bg-red-600'
     };
-
-    const currentConfig = difficultyConfig[difficulty];
 
     // --- CONFIGURATION DEFINITIONS ---
     const getConfigFields = (actId: ActivityType): ConfigField[] => {
         const commonFields: ConfigField[] = [
-             { key: 'topic', label: 'Konu / Tema', type: 'text', defaultValue: 'Rastgele', description: 'Örn: Uzay, Orman, Okul...' }
+             { key: 'topic', label: 'Konu / Tema', type: 'text', defaultValue: 'Rastgele', width: 'full', description: 'Örn: Uzay' }
         ];
-         const itemCountField = (defaultValue = 10, min = 4, max = 20, label = "Öğe / Soru Sayısı"): ConfigField => ({
-            key: 'itemCount', label, type: 'number', defaultValue, min, max
+         const itemCountField = (defaultValue = 10, min = 4, max = 20, label = "Soru Sayısı"): ConfigField => ({
+            key: 'itemCount', label, type: 'number', defaultValue, min, max, width: 'half'
         });
         const gridSizeField = (defaultValue = 12, min = 8, max = 20): ConfigField => ({
-            key: 'gridSize', label: 'Tablo Boyutu', type: 'number', defaultValue, min, max
+            key: 'gridSize', label: 'Tablo', type: 'number', defaultValue, min, max, width: 'half'
         });
 
         switch (actId) {
-            // --- KELİME OYUNLARI ---
             case ActivityType.WORD_SEARCH:
             case ActivityType.THEMATIC_WORD_SEARCH_COLOR:
             case ActivityType.WORD_SEARCH_WITH_PASSWORD:
@@ -70,12 +63,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     ...commonFields,
                     itemCountField(10, 5, 20, 'Kelime Sayısı'),
                     gridSizeField(12, 8, 20),
-                    { key: 'case', label: 'Harf Durumu', type: 'select', defaultValue: 'upper', options: [{label: 'BÜYÜK HARF', value: 'upper'}, {label: 'küçük harf', value: 'lower'}] },
-                    { key: 'directions', label: 'İzin Verilen Yönler', type: 'select', defaultValue: 'simple', options: [
-                        {label: 'Sadece Yatay & Dikey (Kolay)', value: 'simple'},
-                        {label: 'Çapraz Dahil (Orta)', value: 'diagonal'},
-                        {label: 'Her Yön & Ters (Zor)', value: 'all'}
-                    ]}
+                    { key: 'case', label: 'Harf', type: 'select', defaultValue: 'upper', width: 'half', options: [{label: 'BÜYÜK', value: 'upper'}, {label: 'küçük', value: 'lower'}] },
+                    { key: 'directions', label: 'Yönler', type: 'select', defaultValue: 'simple', width: 'half', options: [{label: 'Basit', value: 'simple'}, {label: 'Çapraz', value: 'diagonal'}, {label: 'Tümü', value: 'all'}] }
                 ];
             case ActivityType.ANAGRAM:
             case ActivityType.IMAGE_ANAGRAM_SORT:
@@ -83,8 +72,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.POSITIONAL_ANAGRAM:
                 return [
                     ...commonFields,
-                    itemCountField(8, 4, 15, 'Kelime Sayısı'),
-                    { key: 'showImages', label: 'Görsel İpucu Olsun mu?', type: 'checkbox', defaultValue: true }
+                    itemCountField(8, 4, 15, 'Kelime'),
+                    { key: 'showImages', label: 'Görsel İpucu', type: 'checkbox', defaultValue: true, width: 'half' }
                 ];
             case ActivityType.CROSSWORD:
             case ActivityType.SPIRAL_PUZZLE:
@@ -92,14 +81,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                  return [
                     ...commonFields,
                     gridSizeField(10, 8, 15),
-                    itemCountField(8, 5, 12, 'Kelime Sayısı'),
-                    { key: 'passwordLength', label: 'Şifre Uzunluğu', type: 'number', defaultValue: 5, min: 3, max: 10 },
-                    { key: 'clueType', label: 'İpucu Türü', type: 'select', defaultValue: 'def', options: [{label: 'Tanım / Anlam', value: 'def'}, {label: 'Eş Anlamlısı', value: 'syn'}, {label: 'Zıt Anlamlısı', value: 'ant'}] }
+                    itemCountField(8, 5, 12, 'Kelime'),
+                    { key: 'passwordLength', label: 'Şifre Uz.', type: 'number', defaultValue: 5, min: 3, max: 10, width: 'half' },
+                    { key: 'clueType', label: 'İpucu', type: 'select', defaultValue: 'def', width: 'half', options: [{label: 'Tanım', value: 'def'}, {label: 'Eş Anlam', value: 'syn'}, {label: 'Zıt Anlam', value: 'ant'}] }
                 ];
             case ActivityType.WORD_LADDER:
                 return [
-                     { key: 'steps', label: 'Basamak Sayısı', type: 'number', defaultValue: 4, min: 3, max: 6 },
-                     itemCountField(2, 1, 4, 'Merdiven Sayısı')
+                     { key: 'steps', label: 'Basamak', type: 'number', defaultValue: 4, min: 3, max: 6, width: 'half' },
+                     itemCountField(2, 1, 4, 'Adet')
                 ];
             case ActivityType.SPELLING_CHECK:
             case ActivityType.REVERSE_WORD:
@@ -109,19 +98,19 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.HOMONYM_SENTENCE_WRITING:
             case ActivityType.MISSING_PARTS:
             case ActivityType.SYLLABLE_COMPLETION:
-                return [ ...commonFields, itemCountField(8) ];
+                return [ ...commonFields, itemCountField(8, 4, 20) ];
             case ActivityType.WORD_GROUPING:
                  return [
-                     itemCountField(12, 6, 20, 'Toplam Kelime'),
-                     { key: 'categoryCount', label: 'Kategori Sayısı', type: 'number', defaultValue: 3, min: 2, max: 4},
+                     itemCountField(12, 6, 20, 'Toplam'),
+                     { key: 'categoryCount', label: 'Kategori', type: 'number', defaultValue: 3, min: 2, max: 4, width: 'half'},
                  ];
             case ActivityType.WORD_WEB:
             case ActivityType.WORD_WEB_WITH_PASSWORD:
             case ActivityType.WORD_PLACEMENT_PUZZLE:
             case ActivityType.WORD_GRID_PUZZLE:
-                return [ ...commonFields, itemCountField(10, 6, 15, 'Kelime Sayısı'), gridSizeField(15, 10, 20) ];
+                return [ ...commonFields, itemCountField(10, 6, 15, 'Kelime'), gridSizeField(15, 10, 20) ];
 
-            // --- MATEMATİK & MANTIK ---
+            // Math
             case ActivityType.MATH_PUZZLE:
             case ActivityType.TARGET_NUMBER:
             case ActivityType.KENDOKU:
@@ -130,24 +119,15 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.OPERATION_SQUARE_MULT_DIV:
             case ActivityType.MULTIPLICATION_WHEEL:
                 return [
-                    { key: 'operations', label: 'İşlemler', type: 'select', defaultValue: 'addsub', options: [
-                        {label: 'Toplama (+)', value: 'add'},
-                        {label: 'Toplama & Çıkarma (+ -)', value: 'addsub'},
-                        {label: 'Çarpma Dahil (+ - x)', value: 'mult'},
-                        {label: 'Dört İşlem (+ - x /)', value: 'all'}
-                    ]},
-                    { key: 'numberRange', label: 'Sayı Aralığı', type: 'select', defaultValue: '1-20', options: ['1-10', '1-20', '1-50', '1-100', '100-1000'] },
+                    { key: 'operations', label: 'İşlemler', type: 'select', defaultValue: 'addsub', width: 'full', options: [{label: 'Toplama (+)', value: 'add'}, {label: 'Topla & Çıkar', value: 'addsub'}, {label: 'Çarpma (+ - x)', value: 'mult'}, {label: 'Dört İşlem', value: 'all'}]},
+                    { key: 'numberRange', label: 'Aralık', type: 'select', defaultValue: '1-20', width: 'half', options: ['1-10', '1-20', '1-50', '1-100', '100-1000'] },
                     itemCountField(6, 4, 12)
                 ];
             case ActivityType.NUMBER_PATTERN:
             case ActivityType.SHAPE_NUMBER_PATTERN:
             case ActivityType.VISUAL_NUMBER_PATTERN:
                  return [
-                    { key: 'patternType', label: 'Örüntü Tipi', type: 'select', defaultValue: 'arithmetic', options: [
-                        {label: 'Aritmetik Artış (2, 4, 6...)', value: 'arithmetic'},
-                        {label: 'Geometrik Artış (2, 4, 8...)', value: 'geometric'},
-                        {label: 'Karmaşık (x2 +1...)', value: 'complex'}
-                    ]},
+                    { key: 'patternType', label: 'Örüntü', type: 'select', defaultValue: 'arithmetic', width: 'full', options: [{label: 'Aritmetik', value: 'arithmetic'}, {label: 'Geometrik', value: 'geometric'}, {label: 'Karmaşık', value: 'complex'}]},
                     itemCountField(8, 4, 12)
                  ];
             case ActivityType.SUDOKU_6X6_SHADED:
@@ -158,38 +138,21 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.DIVISION_PYRAMID:
             case ActivityType.MULTIPLICATION_PYRAMID:
             case ActivityType.LOGIC_GRID_PUZZLE:
-                return [ itemCountField(2, 1, 4, 'Bulmaca Sayısı') ];
+                return [ itemCountField(2, 1, 4, 'Adet') ];
 
-            // --- OKUMA & ANLAMA ---
+            // Reading
             case ActivityType.STORY_COMPREHENSION:
             case ActivityType.STORY_ANALYSIS:
             case ActivityType.STORY_SEQUENCING:
             case ActivityType.WORDS_IN_STORY:
                 return [
-                    { key: 'topic', label: 'Hikaye Konusu', type: 'text', defaultValue: 'Rastgele' },
-                    { key: 'characterName', label: 'Ana Karakter İsmi', type: 'text', defaultValue: '', description: 'İsteğe bağlı' },
-                    { key: 'storyLength', label: 'Hikaye Uzunluğu', type: 'select', defaultValue: 'medium', options: [
-                        {label: 'Kısa (50-80 kelime)', value: 'short'},
-                        {label: 'Orta (100-150 kelime)', value: 'medium'},
-                        {label: 'Uzun (200+ kelime)', value: 'long'}
-                    ]},
-                    { key: 'genre', label: 'Tür', type: 'select', defaultValue: 'adventure', options: [
-                        {label: 'Macera', value: 'adventure'},
-                        {label: 'Komik', value: 'funny'},
-                        {label: 'Öğretici', value: 'educational'},
-                        {label: 'Masal', value: 'fairytale'}
-                    ]}
+                    { key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' },
+                    { key: 'characterName', label: 'Karakter', type: 'text', defaultValue: '', width: 'full', description: 'İsteğe bağlı' },
+                    { key: 'storyLength', label: 'Uzunluk', type: 'select', defaultValue: 'medium', width: 'half', options: [{label: 'Kısa', value: 'short'}, {label: 'Orta', value: 'medium'}, {label: 'Uzun', value: 'long'}]},
+                    { key: 'genre', label: 'Tür', type: 'select', defaultValue: 'adventure', width: 'half', options: [{label: 'Macera', value: 'adventure'}, {label: 'Komik', value: 'funny'}, {label: 'Öğretici', value: 'educational'}]}
                 ];
-            case ActivityType.STORY_CREATION_PROMPT:
-                return [ ...commonFields, itemCountField(5, 3, 8, 'Anahtar Kelime Sayısı') ];
-            case ActivityType.PROVERB_FILL_IN_THE_BLANK:
-            case ActivityType.PROVERB_SAYING_SORT:
-            case ActivityType.PROVERB_WORD_CHAIN:
-            case ActivityType.PROVERB_SEARCH:
-            case ActivityType.PROVERB_SENTENCE_FINDER:
-                return [ itemCountField(8, 5, 15) ];
             
-            // --- HAFIZA & DİKKAT ---
+            // Memory & Attention
             case ActivityType.WORD_MEMORY:
             case ActivityType.VISUAL_MEMORY:
             case ActivityType.CHARACTER_MEMORY:
@@ -197,7 +160,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [
                     ...commonFields,
                     itemCountField(12, 6, 24),
-                    { key: 'memorizeRatio', label: 'Ezberlenecek Miktar', type: 'range', defaultValue: 50, min: 20, max: 80, description: '% kaçı ezberlenecek?' }
+                    { key: 'memorizeRatio', label: 'Ezber %', type: 'range', defaultValue: 50, min: 20, max: 80, width: 'full' }
                 ];
             case ActivityType.FIND_THE_DIFFERENCE:
             case ActivityType.FIND_DIFFERENT_STRING:
@@ -208,38 +171,35 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                  return [
                     ...commonFields,
                     itemCountField(8, 5, 15),
-                    { key: 'similarity', label: 'Benzerlik Oranı', type: 'select', defaultValue: 'high', options: [
-                        {label: 'Düşük (Kolay Fark Edilir)', value: 'low'},
-                        {label: 'Yüksek (Zor Fark Edilir)', value: 'high'}
-                    ]}
+                    { key: 'similarity', label: 'Benzerlik', type: 'select', defaultValue: 'high', width: 'half', options: [{label: 'Düşük', value: 'low'}, {label: 'Yüksek', value: 'high'}]}
                  ];
             case ActivityType.LETTER_GRID_TEST:
             case ActivityType.BURDON_TEST:
                 return [
                     gridSizeField(15, 10, 25),
-                    { key: 'targetLetters', label: 'Hedef Harfler', type: 'text', defaultValue: 'b,d,p', description: 'Virgülle ayırın' }
+                    { key: 'targetLetters', label: 'Hedefler', type: 'text', defaultValue: 'b,d,p', width: 'half' }
                 ];
             case ActivityType.TARGET_SEARCH:
                  return [
                     gridSizeField(20, 10, 30),
-                    { key: 'targetChar', label: 'Hedef Karakter', type: 'text', defaultValue: 'd'},
-                    { key: 'distractorChar', label: 'Çeldirici Karakter', type: 'text', defaultValue: 'b'}
+                    { key: 'targetChar', label: 'Hedef', type: 'text', defaultValue: 'd', width: 'half'},
+                    { key: 'distractorChar', label: 'Çeldirici', type: 'text', defaultValue: 'b', width: 'half'}
                  ];
             case ActivityType.FIND_THE_DUPLICATE_IN_ROW:
                  return [
-                    itemCountField(10, 5, 20, 'Satır Sayısı'),
-                    { key: 'cols', label: 'Sütun Sayısı', type: 'number', defaultValue: 15, min: 10, max: 25}
+                    itemCountField(10, 5, 20, 'Satır'),
+                    { key: 'cols', label: 'Sütun', type: 'number', defaultValue: 15, min: 10, max: 25, width: 'half'}
                  ]
             case ActivityType.STROOP_TEST:
             case ActivityType.CHAOTIC_NUMBER_SEARCH:
                  return [itemCountField(20, 10, 40)];
 
-            // --- GÖRSEL ALGI ---
+            // Visual
             case ActivityType.GRID_DRAWING:
             case ActivityType.SYMMETRY_DRAWING:
             case ActivityType.MATCHSTICK_SYMMETRY:
                 return [
-                    itemCountField(2, 1, 4, 'Çizim Sayısı'),
+                    itemCountField(2, 1, 4, 'Adet'),
                     gridSizeField(8, 5, 12),
                 ];
             case ActivityType.SHAPE_MATCHING:
@@ -259,39 +219,19 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.PUNCTUATION_COLORING:
             case ActivityType.SYNONYM_ANTONYM_COLORING:
             case ActivityType.DOT_PAINTING:
-                return [ ...commonFields ];
-            
-            // --- DISLEKSI DESTEK (NEW FIELDS) ---
-            case ActivityType.READING_FLOW:
-                return [
-                    { key: 'topic', label: 'Metin Konusu', type: 'text', defaultValue: 'Rastgele' }
-                ];
-            case ActivityType.LETTER_DISCRIMINATION:
-                return []; // Automatically handled by level
-            case ActivityType.RAPID_NAMING:
-                return [
-                    { key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] }
-                ];
-            case ActivityType.PHONOLOGICAL_AWARENESS:
-                return [];
             case ActivityType.SYLLABLE_TRAIN:
                 return [ ...commonFields ];
-            case ActivityType.MIRROR_LETTERS:
-                return [];
-            case ActivityType.VISUAL_TRACKING_LINES:
-                return [];
+            
+            case ActivityType.READING_FLOW:
+                return [{ key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' }];
+            case ActivityType.RAPID_NAMING:
+                return [{ key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] }];
 
-            // --- DEFAULT FALLBACK ---
             default:
-                // Generic settings for unconfigured activities to prevent empty states
-                return [
-                    ...commonFields,
-                    itemCountField(10, 5, 20)
-                ];
+                return [ ...commonFields, itemCountField(10, 5, 20) ];
         }
     };
 
-    // Initialize default values when activity changes
     useEffect(() => {
         const fields = getConfigFields(activity.id);
         const initialValues: Record<string, any> = {};
@@ -303,33 +243,15 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         setWorksheetCount(1);
     }, [activity.id]);
 
-    // Trigger animation when difficulty changes AND update default params
     useEffect(() => {
-        setAnimateMeter(true);
-        
-        // Update specific options based on difficulty
-        // This ensures visual feedback matches logical generation
         let newGridSize = 12;
         let newItemCount = 10;
         let newDirections = 'diagonal';
 
-        if (difficulty === 'Başlangıç') {
-            newGridSize = 8;
-            newItemCount = 6;
-            newDirections = 'simple';
-        } else if (difficulty === 'Orta') {
-            newGridSize = 12;
-            newItemCount = 10;
-            newDirections = 'diagonal';
-        } else if (difficulty === 'Zor') {
-            newGridSize = 15;
-            newItemCount = 12;
-            newDirections = 'all';
-        } else if (difficulty === 'Uzman') {
-            newGridSize = 18;
-            newItemCount = 15;
-            newDirections = 'all';
-        }
+        if (difficulty === 'Başlangıç') { newGridSize = 8; newItemCount = 6; newDirections = 'simple'; } 
+        else if (difficulty === 'Orta') { newGridSize = 12; newItemCount = 10; newDirections = 'diagonal'; } 
+        else if (difficulty === 'Zor') { newGridSize = 15; newItemCount = 12; newDirections = 'all'; } 
+        else if (difficulty === 'Uzman') { newGridSize = 18; newItemCount = 15; newDirections = 'all'; }
 
         setSpecificOptions(prev => ({
             ...prev,
@@ -337,9 +259,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             itemCount: prev.hasOwnProperty('itemCount') ? newItemCount : undefined,
             directions: prev.hasOwnProperty('directions') ? newDirections : undefined
         }));
-
-        const timer = setTimeout(() => setAnimateMeter(false), 500);
-        return () => clearTimeout(timer);
     }, [difficulty]);
 
     const handleOptionChange = (key: string, value: any) => {
@@ -353,16 +272,20 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             difficulty,
             worksheetCount,
             timestamp: Date.now(),
-            ...specificOptions // Spread dynamic options
+            ...specificOptions
         });
     };
 
+    const configFields = useMemo(() => getConfigFields(activity.id), [activity.id]);
+
     const renderField = (field: ConfigField) => {
         if (field.condition && !field.condition(specificOptions)) return null;
+        
+        const widthClass = field.width === 'full' ? 'col-span-2' : 'col-span-1';
 
         return (
-            <div key={field.key} className="mb-4">
-                <label htmlFor={field.key} className="block text-sm font-semibold mb-1 text-zinc-700 dark:text-zinc-300">
+            <div key={field.key} className={`${widthClass}`}>
+                <label htmlFor={field.key} className="block text-[10px] font-bold uppercase text-zinc-500 mb-1 tracking-wider">
                     {field.label}
                 </label>
                 
@@ -372,61 +295,54 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         id={field.key}
                         value={specificOptions[field.key] || ''}
                         onChange={(e) => handleOptionChange(field.key, e.target.value)}
-                        className="w-full p-2 border border-zinc-300 rounded-md bg-white dark:bg-zinc-700 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full py-1.5 px-2 text-sm border border-zinc-300 rounded bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-zinc-700 dark:border-zinc-600"
                         placeholder={field.description}
                     />
                 )}
 
                 {field.type === 'number' && (
-                    <div className="flex items-center">
-                        <input
-                            type="number"
-                            id={field.key}
-                            min={field.min}
-                            max={field.max}
-                            step={field.step}
-                            value={specificOptions[field.key] || 0}
-                            onChange={(e) => handleOptionChange(field.key, Number(e.target.value))}
-                            className="w-full p-2 border border-zinc-300 rounded-md bg-white dark:bg-zinc-700 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        />
-                    </div>
+                    <input
+                        type="number"
+                        id={field.key}
+                        min={field.min}
+                        max={field.max}
+                        step={field.step}
+                        value={specificOptions[field.key] || 0}
+                        onChange={(e) => handleOptionChange(field.key, Number(e.target.value))}
+                        className="w-full py-1.5 px-2 text-sm border border-zinc-300 rounded bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-zinc-700 dark:border-zinc-600"
+                    />
                 )}
 
                 {field.type === 'select' && (
-                    <div className="relative">
-                        <select
-                            id={field.key}
-                            value={specificOptions[field.key] || ''}
-                            onChange={(e) => handleOptionChange(field.key, e.target.value)}
-                            className="w-full p-2 border border-zinc-300 rounded-md bg-white dark:bg-zinc-700 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none"
-                        >
-                            {field.options?.map((opt: any, idx: number) => {
-                                const val = typeof opt === 'object' ? opt.value : opt;
-                                const lbl = typeof opt === 'object' ? opt.label : opt;
-                                return <option key={idx} value={val}>{lbl}</option>
-                            })}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-zinc-500">
-                            <i className="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
+                    <select
+                        id={field.key}
+                        value={specificOptions[field.key] || ''}
+                        onChange={(e) => handleOptionChange(field.key, e.target.value)}
+                        className="w-full py-1.5 px-2 text-sm border border-zinc-300 rounded bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-zinc-700 dark:border-zinc-600"
+                    >
+                        {field.options?.map((opt: any, idx: number) => {
+                            const val = typeof opt === 'object' ? opt.value : opt;
+                            const lbl = typeof opt === 'object' ? opt.label : opt;
+                            return <option key={idx} value={val}>{lbl}</option>
+                        })}
+                    </select>
                 )}
 
                 {field.type === 'checkbox' && (
-                    <div className="flex items-center mt-1">
+                    <div className="flex items-center h-full pt-1">
                         <input
                             type="checkbox"
                             id={field.key}
                             checked={!!specificOptions[field.key]}
                             onChange={(e) => handleOptionChange(field.key, e.target.checked)}
-                            className="w-5 h-5 text-indigo-600 bg-zinc-100 border-zinc-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-zinc-800 focus:ring-2 dark:bg-zinc-700 dark:border-zinc-600"
+                            className="w-4 h-4 text-indigo-600 rounded border-zinc-300 focus:ring-indigo-500"
                         />
-                        <span className="ml-2 text-sm text-zinc-600 dark:text-zinc-400">{field.description || 'Evet'}</span>
+                        <span className="ml-2 text-sm text-zinc-700 dark:text-zinc-300">{field.description || 'Aktif'}</span>
                     </div>
                 )}
 
                  {field.type === 'range' && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 pt-1">
                         <input
                             type="range"
                             id={field.key}
@@ -434,133 +350,97 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             max={field.max}
                             value={specificOptions[field.key] || field.min}
                             onChange={(e) => handleOptionChange(field.key, Number(e.target.value))}
-                            className="w-full h-2 bg-zinc-200 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                            className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         />
-                        <span className="text-sm font-mono w-8 text-center">{specificOptions[field.key]}</span>
+                        <span className="text-xs font-mono w-6 text-right">{specificOptions[field.key]}%</span>
                     </div>
-                )}
-
-                {field.description && field.type !== 'text' && field.type !== 'checkbox' && (
-                    <p className="text-xs text-zinc-500 mt-1">{field.description}</p>
                 )}
             </div>
         );
     };
 
-    const configFields = useMemo(() => getConfigFields(activity.id), [activity.id]);
-
     return (
-        <div className="flex flex-col h-full">
-            <div className="p-4 border-b dark:border-zinc-700">
-                <button onClick={onBack} className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline mb-2 flex items-center gap-2">
-                    <i className="fa-solid fa-arrow-left"></i> Etkinlik Listesine Dön
+        <div className="flex flex-col h-full bg-zinc-50 dark:bg-zinc-900">
+            <div className="px-4 py-3 border-b bg-white dark:bg-zinc-800 dark:border-zinc-700 shadow-sm z-10">
+                <button onClick={onBack} className="text-xs font-semibold text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 flex items-center gap-1 mb-1">
+                    <i className="fa-solid fa-chevron-left"></i> Listeye Dön
                 </button>
-                <h3 className="font-bold text-lg">{activity.title}</h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">{activity.description}</p>
+                <h3 className="font-bold text-base text-zinc-800 dark:text-zinc-100 truncate">{activity.title}</h3>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-                {/* GENEL AYARLAR KARTI */}
-                <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-3 flex items-center">
-                        <i className="fa-solid fa-sliders mr-2"></i> Genel Ayarlar
-                    </h4>
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-3 custom-scrollbar">
+                <div className="space-y-3">
+                    
+                    {/* COMPACT GENERAL SETTINGS CARD */}
+                    <div className="bg-white dark:bg-zinc-800 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* Mode Selection */}
+                            <div className="col-span-2 bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-md flex">
+                                <button type="button" onClick={() => setMode('ai')} className={`flex-1 py-1 text-xs font-bold rounded transition-all flex items-center justify-center gap-1 ${mode === 'ai' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-500'}`}>
+                                    <i className="fa-solid fa-wand-magic-sparkles"></i> AI
+                                </button>
+                                <button type="button" onClick={() => setMode('fast')} className={`flex-1 py-1 text-xs font-bold rounded transition-all flex items-center justify-center gap-1 ${mode === 'fast' ? 'bg-white dark:bg-zinc-600 text-emerald-600 shadow-sm' : 'text-zinc-500'}`}>
+                                    <i className="fa-solid fa-bolt"></i> Hızlı
+                                </button>
+                            </div>
 
-                    {/* Üretim Modu */}
-                    <div className="mb-4">
-                        <div className="grid grid-cols-2 gap-2 bg-zinc-200 dark:bg-zinc-700 p-1 rounded-lg">
-                            <button type="button" onClick={() => setMode('ai')} className={`p-2 text-sm rounded-md transition-all flex items-center justify-center gap-2 ${mode === 'ai' ? 'bg-white dark:bg-zinc-600 shadow-sm font-bold text-indigo-600 dark:text-indigo-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
-                                <i className="fa-solid fa-wand-magic-sparkles"></i> Yapay Zeka
-                            </button>
-                            <button type="button" onClick={() => setMode('fast')} className={`p-2 text-sm rounded-md transition-all flex items-center justify-center gap-2 ${mode === 'fast' ? 'bg-white dark:bg-zinc-600 shadow-sm font-bold text-emerald-600 dark:text-emerald-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
-                                <i className="fa-solid fa-bolt"></i> Hızlı Mod
-                            </button>
-                        </div>
-                    </div>
+                            {/* Difficulty */}
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase text-zinc-500 mb-1 tracking-wider">Zorluk</label>
+                                <div className="relative">
+                                    <select 
+                                        value={difficulty} 
+                                        onChange={e => setDifficulty(e.target.value as any)} 
+                                        className="w-full py-1.5 pl-2 pr-6 text-sm border border-zinc-300 rounded bg-white appearance-none outline-none focus:border-indigo-500 dark:bg-zinc-700 dark:border-zinc-600"
+                                    >
+                                        <option value="Başlangıç">Başlangıç</option>
+                                        <option value="Orta">Orta</option>
+                                        <option value="Zor">Zor</option>
+                                        <option value="Uzman">Uzman</option>
+                                    </select>
+                                    <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${difficultyColor[difficulty]}`}></div>
+                                </div>
+                            </div>
 
-                    {/* Zorluk Seviyesi */}
-                    <div className="mb-4">
-                        <label className="block text-sm font-semibold mb-1 flex justify-between">
-                            <span>Zorluk</span>
-                            <span className={`text-xs font-normal transition-colors duration-300 ${difficulty === 'Uzman' ? 'text-red-600 font-bold animate-pulse' : 'text-zinc-500'}`}>
-                                {currentConfig.text}
-                            </span>
-                        </label>
-                         <div className="relative">
-                            <select 
-                                value={difficulty} 
-                                onChange={e => setDifficulty(e.target.value as any)} 
-                                className="w-full p-2 border border-zinc-300 rounded-md bg-white dark:bg-zinc-700 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none z-10 relative"
-                            >
-                                <option value="Başlangıç">Başlangıç (Kolay)</option>
-                                <option value="Orta">Orta (Standart)</option>
-                                <option value="Zor">Zor (İleri)</option>
-                                <option value="Uzman">Uzman (Profesyonel)</option>
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none z-10 text-zinc-500">
-                                <i className="fa-solid fa-chevron-down text-xs"></i>
+                            {/* Page Count */}
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase text-zinc-500 mb-1 tracking-wider">Sayfa: <span className="text-zinc-800 dark:text-zinc-200">{worksheetCount}</span></label>
+                                <input 
+                                    type="range" min="1" max="5" step="1"
+                                    value={worksheetCount} 
+                                    onChange={e => setWorksheetCount(Number(e.target.value))} 
+                                    className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2" 
+                                />
                             </div>
                         </div>
-                        <div className="mt-2 h-1.5 w-full bg-zinc-200 dark:bg-zinc-600 rounded-full overflow-hidden">
-                            <div 
-                                className={`h-full transition-all duration-500 ease-out ${currentConfig.color} ${animateMeter && difficulty === 'Uzman' ? 'animate-pulse' : ''}`} 
-                                style={{ width: currentConfig.width }}
-                            ></div>
-                        </div>
                     </div>
 
-                    {/* Sayfa Sayısı */}
-                    <div>
-                        <label className="block text-sm font-semibold mb-1">Çeşitlilik (Sayfa)</label>
-                        <div className="flex items-center gap-3">
-                            <input 
-                                type="range" 
-                                min="1" 
-                                max="5" 
-                                step="1"
-                                value={worksheetCount} 
-                                onChange={e => setWorksheetCount(Number(e.target.value))} 
-                                className="w-full h-2 bg-zinc-300 dark:bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
-                            />
-                            <span className="font-mono font-bold text-lg w-6 text-center">{worksheetCount}</span>
+                    {/* DYNAMIC SPECIFIC SETTINGS */}
+                    <div className="bg-white dark:bg-zinc-800 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                        <h4 className="text-xs font-bold text-zinc-400 uppercase mb-3 border-b border-zinc-100 pb-1">Etkinlik Ayarları</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                            {configFields.length > 0 ? configFields.map(renderField) : (
+                                <p className="col-span-2 text-xs text-zinc-400 italic text-center py-2">Özel ayar yok.</p>
+                            )}
                         </div>
                     </div>
                 </div>
-
-                {/* ÖZEL AYARLAR KARTI - Dynamic Fields */}
-                <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/30 shadow-sm">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400 mb-4 flex items-center">
-                        <i className="fa-solid fa-gear mr-2"></i> Etkinlik Ayarları
-                    </h4>
-                    
-                    <div className="space-y-4">
-                        {configFields.length > 0 ? configFields.map(renderField) : (
-                            <p className="text-sm text-zinc-500 text-center p-4 bg-zinc-50 dark:bg-zinc-800 rounded-md">Bu etkinlik için özel bir ayar bulunmuyor.</p>
-                        )}
-                    </div>
-                </div>
-
             </form>
 
-            <div className="p-4 border-t dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
+            <div className="p-3 bg-white dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700">
                 <button
                     type="submit"
                     onClick={handleSubmit}
                     disabled={isLoading}
-                    className={`w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg hover:shadow-indigo-500/30 flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-800 disabled:opacity-70 disabled:cursor-not-allowed transform active:scale-[0.98]`}
+                    className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed`}
                 >
                     {isLoading ? (
                         <>
-                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span>Hazırlanıyor...</span>
+                            <i className="fa-solid fa-spinner fa-spin"></i> Hazırlanıyor...
                         </>
                     ) : (
                         <>
-                            <i className="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>Etkinliği Oluştur</span>
+                            <i className="fa-solid fa-play"></i> Oluştur
                         </>
                     )}
                 </button>
