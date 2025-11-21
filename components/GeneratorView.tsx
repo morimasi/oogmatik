@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, ActivityType, GeneratorOptions } from '../types';
 
@@ -302,9 +303,41 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         setWorksheetCount(1);
     }, [activity.id]);
 
-    // Trigger animation when difficulty changes
+    // Trigger animation when difficulty changes AND update default params
     useEffect(() => {
         setAnimateMeter(true);
+        
+        // Update specific options based on difficulty
+        // This ensures visual feedback matches logical generation
+        let newGridSize = 12;
+        let newItemCount = 10;
+        let newDirections = 'diagonal';
+
+        if (difficulty === 'Başlangıç') {
+            newGridSize = 8;
+            newItemCount = 6;
+            newDirections = 'simple';
+        } else if (difficulty === 'Orta') {
+            newGridSize = 12;
+            newItemCount = 10;
+            newDirections = 'diagonal';
+        } else if (difficulty === 'Zor') {
+            newGridSize = 15;
+            newItemCount = 12;
+            newDirections = 'all';
+        } else if (difficulty === 'Uzman') {
+            newGridSize = 18;
+            newItemCount = 15;
+            newDirections = 'all';
+        }
+
+        setSpecificOptions(prev => ({
+            ...prev,
+            gridSize: prev.hasOwnProperty('gridSize') ? newGridSize : undefined,
+            itemCount: prev.hasOwnProperty('itemCount') ? newItemCount : undefined,
+            directions: prev.hasOwnProperty('directions') ? newDirections : undefined
+        }));
+
         const timer = setTimeout(() => setAnimateMeter(false), 500);
         return () => clearTimeout(timer);
     }, [difficulty]);

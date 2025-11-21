@@ -1,5 +1,4 @@
 
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -237,26 +236,29 @@ export const generateRomanNumeralMultiplicationFromAI = async (options: Generato
 export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<KendokuData[]> => {
     const { difficulty } = options;
     const prompt = `"${difficulty}" seviyesinde Kendoku (Calcudoku). ${PEDAGOGICAL_PROMPT}`;
-    const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {
-        type: Type.OBJECT,
-        properties: {
-            size: { type: Type.INTEGER },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
-            cages: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } },
-                        operation: { type: Type.STRING },
-                        target: { type: Type.INTEGER }
-                    },
-                    required: ["cells", "target"]
+    const schema = { 
+        type: Type.ARRAY, 
+        items: baseMathSchema('puzzles', {
+            type: Type.OBJECT,
+            properties: {
+                size: { type: Type.INTEGER },
+                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
+                cages: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } },
+                            operation: { type: Type.STRING },
+                            target: { type: Type.INTEGER }
+                        },
+                        required: ["cells", "target"]
+                    }
                 }
-            }
-        },
-        required: ["size", "cages"]
-    }) };
+            },
+            required: ["size", "cages"]
+        }) 
+    };
     return generateWithSchema(prompt, schema) as Promise<KendokuData[]>;
 };
 
