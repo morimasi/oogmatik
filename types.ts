@@ -143,6 +143,30 @@ export interface ActivityCategory {
   activities: ActivityType[];
 }
 
+// --- USER & AUTH TYPES ---
+export type UserRole = 'user' | 'admin';
+
+export interface User {
+    id: string;
+    email: string;
+    name: string;
+    role: UserRole;
+    avatar?: string;
+    createdAt: string;
+    worksheetCount: number; // Stats
+}
+
+export interface FeedbackItem {
+    id: string;
+    userId?: string;
+    userEmail?: string; // For non-logged in or fallback
+    activityType: string | null;
+    rating: number;
+    message: string;
+    timestamp: string;
+    status: 'new' | 'read' | 'archived';
+}
+
 // --- BASE INTERFACES ---
 export interface BaseActivityData {
     title: string;
@@ -150,6 +174,7 @@ export interface BaseActivityData {
     pedagogicalNote?: string;
 }
 
+// ... (Existing interfaces remain the same, omitted for brevity but they are implicitly here) ...
 // --- 1. Find The Difference & Word Comparison ---
 export interface FindTheDifferenceData extends BaseActivityData {
   rows: {
@@ -584,6 +609,7 @@ export type WorksheetData = SingleWorksheetData[] | null;
 
 export interface SavedWorksheet {
   id: string;
+  userId: string; // New field for user ownership
   name: string;
   activityType: ActivityType;
   worksheetData: SingleWorksheetData[];
@@ -597,6 +623,7 @@ export interface SavedWorksheet {
 
 export interface HistoryItem {
   id: string;
+  userId: string; // New field
   activityType: ActivityType;
   data: SingleWorksheetData[];
   timestamp: string;
