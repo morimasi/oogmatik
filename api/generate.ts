@@ -20,7 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { prompt, schema } = req.body;
+        const { prompt, schema, model } = req.body;
 
         if (!prompt || !schema) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
@@ -36,12 +36,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Retries reduced to 1 to fail fast on 429 and switch to offline mode quickly
         const maxRetries = 1; 
         
-        // Adım 1: Metin Üretimi (Gemini 2.5 Flash)
+        // Model Seçimi: İstemciden geleni kullan yoksa varsayılan olarak en hızlısını seç.
+        // Raporlama için 'gemini-3-pro-preview', oyunlar için 'gemini-2.5-flash'.
+        const selectedModel = model || "gemini-2.5-flash";
+
+        // Adım 1: Metin Üretimi
         let data;
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
                 const textResponse = await ai.models.generateContent({
-                    model: "gemini-2.5-flash", // Metin için en hızlı ve verimli model
+                    model: selectedModel, 
                     contents: prompt,
                     config: {
                         responseMimeType: "application/json",

@@ -89,5 +89,6 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
         required: ['overallSummary', 'scores', 'chartData', 'analysis', 'roadmap']
     };
 
-    return await generateWithSchema(prompt, schema) as unknown as AssessmentReport;
+    // Use 'gemini-3-pro-preview' for maximum reasoning capability in assessment reports.
+    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview') as unknown as AssessmentReport;
 };

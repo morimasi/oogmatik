@@ -1,6 +1,6 @@
 
 // This function will now call our own backend proxy instead of Google's API directly.
-export const generateWithSchema = async (prompt: string, schema: any) => {
+export const generateWithSchema = async (prompt: string, schema: any, model?: string) => {
     try {
         // Yapay zekanın her seferinde farklı çıktı üretmesini sağlamak için benzersiz bir bağlam ekliyoruz.
         const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
@@ -14,7 +14,7 @@ export const generateWithSchema = async (prompt: string, schema: any) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ prompt: enhancedPrompt, schema }),
+            body: JSON.stringify({ prompt: enhancedPrompt, schema, model }),
         });
 
         if (!response.ok) {
