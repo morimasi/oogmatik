@@ -213,7 +213,7 @@ export interface AssessmentReport {
         weaknesses: string[];
     };
     roadmap: {
-        activityId: ActivityType;
+        activityId: string; // string to match ActivityType loosely
         reason: string;
         frequency: string;
     }[];
