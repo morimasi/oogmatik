@@ -36,12 +36,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Retries reduced to 1 to fail fast on 429 and switch to offline mode quickly
         const maxRetries = 1; 
         
-        // Adım 1: Metin Üretimi
+        // Adım 1: Metin Üretimi (Gemini 2.5 Flash)
         let data;
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
                 const textResponse = await ai.models.generateContent({
-                    model: "gemini-2.5-flash", // Updated to latest Flash model
+                    model: "gemini-2.5-flash", // Metin için en hızlı ve verimli model
                     contents: prompt,
                     config: {
                         responseMimeType: "application/json",
@@ -71,8 +71,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!data) return res.status(500).json({ error: "Yapay zeka yanıt vermedi." });
 
-        // Adım 2: Görsel Üretimi (Imagen) - İsteğe bağlı ve hata toleranslı
-        // Görsel üretimi çok kota yer, bu yüzden hata olursa sessizce geçiyoruz.
+        // Adım 2: Görsel Üretimi (Imagen 4.0) - Hata Toleranslı
+        // Görsel üretimi başarısız olsa bile metin verisi döndürülür (Sistem Çökmez).
         const imagePromptsToProcess: { obj: any, imagePrompt: string }[] = [];
         const findImagePrompts = (obj: any) => {
             if (!obj || typeof obj !== 'object') return;
@@ -92,13 +92,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         findImagePrompts(data);
         
         if (imagePromptsToProcess.length > 0) {
-            // Sadece 1 görsel dene, kota harcama
+            // KOTA DOSTU STRATEJİ: Sadece 1 görsel üret, diğerlerini atla.
+            // Bu sayede kota aşımı riski azalır ve yanıt süresi kısalır.
             const chunk = imagePromptsToProcess.slice(0, 1); 
             
             await Promise.all(chunk.map(async ({ obj, imagePrompt }) => {
                 try {
                     const imageResponse = await ai.models.generateImages({
-                        model: 'imagen-4.0-generate-001', // Updated to latest Imagen model
+                        model: 'imagen-4.0-generate-001', // En yüksek kalite görsel modeli
                         prompt: imagePrompt,
                         config: {
                             numberOfImages: 1,
@@ -108,15 +109,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     });
                     const base64Data = imageResponse.generatedImages?.[0]?.image?.imageBytes;
                     if (base64Data) obj['imageBase64'] = base64Data;
-                    delete obj['imagePrompt'];
+                    delete obj['imagePrompt']; // Prompt'u temizle, artık veriye sahibiz
                 } catch (imgError) {
-                    console.warn("Görsel oluşturulamadı (Normal, kotayı korumak için).");
-                    obj['imageBase64'] = ''; // Boş bırak
+                    console.warn("Görsel oluşturulamadı (Hata Toleransı Devrede). Metin içeriği korunuyor.");
+                    obj['imageBase64'] = ''; // Alanı boş bırak, arayüzde fallback gösterilir
                     delete obj['imagePrompt'];
                 }
             }));
             
-            // Diğer tüm imagePrompt'ları temizle ki client tarafında kırık görünmesin
+            // İşlenmeyen diğer imagePrompt'ları temizle
              imagePromptsToProcess.forEach(({obj}) => {
                  if(obj.imagePrompt) delete obj.imagePrompt;
                  if(!obj.imageBase64) obj.imageBase64 = '';

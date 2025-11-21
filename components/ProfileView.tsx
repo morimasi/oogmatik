@@ -17,7 +17,7 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const handleAvatarChange = async () => {
         setIsChangingAvatar(true);
-        // Generate a random seed for a new avatar
+        // Generate a random seed for a new avatar using DiceBear API
         const randomSeed = Math.random().toString(36).substring(7);
         const newAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}`;
         
@@ -31,18 +31,18 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     return (
         <div className="max-w-2xl mx-auto mt-8 p-6 bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700">
             <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold">Profilim</h2>
-                <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800"><i className="fa-solid fa-times"></i></button>
+                <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Profilim</h2>
+                <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"><i className="fa-solid fa-times"></i></button>
             </div>
 
             <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
                 <div className="relative group">
-                    <img src={user.avatar} alt={user.name} className="w-32 h-32 rounded-full bg-indigo-100 border-4 border-white shadow-lg transition-transform duration-300 group-hover:scale-105" />
+                    <img src={user.avatar} alt={user.name} className="w-32 h-32 rounded-full bg-indigo-100 border-4 border-white dark:border-zinc-600 shadow-lg transition-transform duration-300 group-hover:scale-105" />
                     <button 
                         onClick={handleAvatarChange}
                         disabled={isChangingAvatar}
                         className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed" 
-                        title="Avatarı Değiştir"
+                        title="Avatarı Değiştir (Rastgele)"
                     >
                         <i className={`fa-solid fa-camera ${isChangingAvatar ? 'fa-spin' : ''}`}></i>
                     </button>
@@ -57,7 +57,7 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 className="text-2xl font-bold bg-zinc-100 dark:bg-zinc-700 p-2 rounded border border-zinc-300 dark:border-zinc-600 focus:border-indigo-500 outline-none text-zinc-800 dark:text-zinc-100"
                                 autoFocus
                             />
-                            <button onClick={handleSave} className="text-green-600 p-2 hover:bg-green-50 rounded-full transition-colors"><i className="fa-solid fa-check fa-lg"></i></button>
+                            <button onClick={handleSave} className="text-green-600 p-2 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full transition-colors"><i className="fa-solid fa-check fa-lg"></i></button>
                         </div>
                     ) : (
                         <h3 className="text-3xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center justify-center md:justify-start gap-3 group">

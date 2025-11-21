@@ -15,7 +15,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         }
     }, [user]);
 
-    if (user?.role !== 'admin') return <div className="p-8 text-center text-red-500">Yetkisiz Erişim</div>;
+    if (user?.role !== 'admin') return <div className="p-8 text-center text-red-500 font-bold">Yetkisiz Erişim: Bu sayfa sadece yöneticiler içindir.</div>;
 
     return (
         <div className="flex h-full bg-zinc-100 dark:bg-zinc-900">
@@ -52,15 +52,15 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                         <h3 className="text-2xl font-bold mb-6 text-zinc-800 dark:text-zinc-200">Sistem Durumu</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                             <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm border-l-4 border-indigo-500">
-                                <p className="text-sm text-zinc-500">Toplam Üye</p>
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400">Toplam Üye</p>
                                 <p className="text-4xl font-bold text-zinc-800 dark:text-zinc-100">{users.length}</p>
                             </div>
                             <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
-                                <p className="text-sm text-zinc-500">Toplam Etkinlik</p>
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400">Toplam Etkinlik</p>
                                 <p className="text-4xl font-bold text-zinc-800 dark:text-zinc-100">{users.reduce((acc, u) => acc + (u.worksheetCount || 0), 0)}</p>
                             </div>
                             <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
-                                <p className="text-sm text-zinc-500">Sunucu Durumu</p>
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400">Sunucu Durumu</p>
                                 <p className="text-xl font-bold text-emerald-500 flex items-center gap-2"><i className="fa-solid fa-check-circle"></i> Aktif</p>
                             </div>
                         </div>
@@ -107,7 +107,8 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                                                 setUsers(authService.getAllUsers());
                                                             }
                                                         }}
-                                                        className="text-red-500 hover:text-red-700 p-2"
+                                                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors"
+                                                        title="Kullanıcıyı Sil"
                                                     >
                                                         <i className="fa-solid fa-trash"></i>
                                                     </button>
