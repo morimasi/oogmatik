@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AssessmentProfile, AssessmentReport, ActivityType, TestCategory } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
@@ -11,7 +11,89 @@ interface AssessmentModuleProps {
 
 const steps = ['Giriş', 'Profil', 'Okuma', 'Matematik', 'Dikkat', 'Görsel', 'Gözlem', 'Analiz', 'Sonuç'];
 
-// --- RADAR CHART COMPONENT ---
+// --- UTILS ---
+const shuffle = <T,>(array: T[]): T[] => {
+    return [...array].sort(() => Math.random() - 0.5);
+};
+
+const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// --- GENERATORS ---
+const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
+    const grade = parseInt(gradeStr.split('.')[0]) || 1;
+    
+    if (category === 'reading') {
+        // Lexical Decision Task (Gerçek vs Uydurma Kelime)
+        const realWords = ['Masa', 'Kitap', 'Kalem', 'Okul', 'Elma', 'Kedi', 'Güneş', 'Araba', 'Deniz', 'Yol', 'Bilgisayar', 'Telefon'];
+        const fakeWords = ['Kipat', 'Maso', 'Lemka', 'Oluk', 'Alma', 'Deki', 'Şüneş', 'Baraba', 'Zenid', 'Lyo', 'Gilbisayar', 'Feleton'];
+        
+        const items = [];
+        for(let i=0; i<12; i++) {
+            const isReal = Math.random() > 0.5;
+            items.push({
+                q: isReal ? realWords[i % realWords.length] : fakeWords[i % fakeWords.length],
+                isReal: isReal,
+                id: i
+            });
+        }
+        return shuffle(items);
+    }
+    
+    if (category === 'math') {
+        // Adaptive Math Logic based on Grade
+        const items = [];
+        for(let i=0; i<8; i++) {
+            let n1, n2, op, ans, opts;
+            
+            if (grade <= 2) { // Simple Add/Sub
+                n1 = getRandomInt(1, 20);
+                n2 = getRandomInt(1, 10);
+                op = Math.random() > 0.5 ? '+' : '-';
+                if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
+                ans = op === '+' ? n1 + n2 : n1 - n2;
+            } else { // Mul/Div/Complex Add
+                if (Math.random() > 0.5) {
+                    n1 = getRandomInt(2, 10);
+                    n2 = getRandomInt(2, 10);
+                    op = 'x';
+                    ans = n1 * n2;
+                } else {
+                    n1 = getRandomInt(20, 100);
+                    n2 = getRandomInt(10, 50);
+                    op = Math.random() > 0.5 ? '+' : '-';
+                    if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
+                    ans = op === '+' ? n1 + n2 : n1 - n2;
+                }
+            }
+            
+            // Distractors close to answer
+            const dist1 = ans + getRandomInt(1, 5);
+            const dist2 = ans - getRandomInt(1, 5);
+            opts = shuffle([ans, dist1, dist2]);
+            
+            items.push({ q: `${n1} ${op} ${n2} = ?`, opts, a: ans, id: i });
+        }
+        return items;
+    }
+
+    if (category === 'visual') {
+        // Shape Discrimination
+        const shapes = ['triangle', 'square', 'circle', 'star', 'hexagon'];
+        const items = [];
+        for(let i=0; i<6; i++) {
+            const target = shapes[getRandomInt(0, shapes.length-1)];
+            const others = shapes.filter(s => s !== target);
+            const opts = shuffle([target, others[0], others[1]]);
+            items.push({ q: target, opts, a: target, id: i });
+        }
+        return items;
+    }
+    
+    return [];
+};
+
+// --- COMPONENTS ---
+
 const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
     const size = 300;
     const center = size / 2;
@@ -19,41 +101,34 @@ const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
     const angleStep = (Math.PI * 2) / data.length;
 
     const getCoords = (value: number, index: number) => {
-        const angle = index * angleStep - Math.PI / 2; // Start from top
+        const angle = index * angleStep - Math.PI / 2;
         const r = (value / 100) * radius;
-        return {
-            x: center + r * Math.cos(angle),
-            y: center + r * Math.sin(angle)
-        };
+        return { x: center + r * Math.cos(angle), y: center + r * Math.sin(angle) };
     };
 
     const points = data.map((d, i) => getCoords(d.value, i)).map(p => `${p.x},${p.y}`).join(' ');
-    const bgPoints = data.map((_, i) => getCoords(100, i)).map(p => `${p.x},${p.y}`).join(' ');
 
     return (
-        <svg width={size} height={size} className="mx-auto">
-            {/* Background Grid */}
+        <svg width={size} height={size} className="mx-auto drop-shadow-xl">
             {[20, 40, 60, 80, 100].map((level, idx) => {
                 const pts = data.map((_, i) => getCoords(level, i)).map(p => `${p.x},${p.y}`).join(' ');
-                return <polygon key={idx} points={pts} fill="none" stroke="#e5e7eb" strokeWidth="1" />;
+                return <polygon key={idx} points={pts} fill={idx % 2 === 0 ? "#f3f4f6" : "#fff"} stroke="#e5e7eb" strokeWidth="1" />;
             })}
-            {/* Axes */}
             {data.map((_, i) => {
                 const p = getCoords(100, i);
-                return <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="#e5e7eb" strokeWidth="1" />;
+                return <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="#d1d5db" strokeWidth="1" />;
             })}
-            {/* Data Area */}
-            <polygon points={points} fill="rgba(99, 102, 241, 0.3)" stroke="#4f46e5" strokeWidth="2" />
-            {/* Labels & Dots */}
+            <polygon points={points} fill="rgba(99, 102, 241, 0.4)" stroke="#4f46e5" strokeWidth="3" />
             {data.map((d, i) => {
                 const p = getCoords(d.value, i);
-                const labelP = getCoords(115, i);
+                const labelP = getCoords(120, i);
                 return (
                     <g key={i}>
-                        <circle cx={p.x} cy={p.y} r="4" fill="#4f46e5" />
-                        <text x={labelP.x} y={labelP.y} textAnchor="middle" dominantBaseline="middle" className="text-xs font-bold fill-zinc-600 dark:fill-zinc-300">
+                        <circle cx={p.x} cy={p.y} r="5" fill="#4f46e5" stroke="white" strokeWidth="2" />
+                        <text x={labelP.x} y={labelP.y} textAnchor="middle" dominantBaseline="middle" className="text-xs font-bold fill-zinc-600 dark:fill-zinc-300 uppercase tracking-wider">
                             {d.label}
                         </text>
+                        <text x={labelP.x} y={labelP.y + 15} textAnchor="middle" className="text-[10px] fill-indigo-500 font-bold">%{d.value}</text>
                     </g>
                 );
             })}
@@ -61,24 +136,52 @@ const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
     );
 };
 
-// --- PROGRESS BAR COMPONENT ---
 const TestProgress = ({ current, total, label }: { current: number; total: number; label: string }) => {
-    const progress = Math.min(100, Math.max(0, ((current + 1) / total) * 100));
+    const isSinglePage = total <= 1; 
+    const progress = isSinglePage ? 100 : Math.min(100, Math.max(0, ((current) / total) * 100));
+    
     return (
-        <div className="w-full mb-8 px-4">
-            <div className="flex justify-between text-xs font-bold uppercase text-zinc-500 mb-2 tracking-wider">
-                <span>{label}</span>
-                <span>{current + 1} / {total}</span>
+        <div className="w-full mb-6 px-4">
+            <div className="flex justify-between text-xs font-bold uppercase text-zinc-400 mb-2 tracking-widest">
+                <span className="flex items-center gap-2"><i className="fa-solid fa-list-check"></i> {label}</span>
+                <span>{isSinglePage ? 'Tek Aşama' : `${current + 1} / ${total}`}</span>
             </div>
-            <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-3 overflow-hidden shadow-inner">
-                <div 
-                    className="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all duration-500 ease-out shadow-sm" 
-                    style={{ width: `${progress}%` }}
-                ></div>
+            <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-2 overflow-hidden">
+                <div className="bg-indigo-500 h-2 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
             </div>
         </div>
     );
 };
+
+const ObservationList = ({ observations, setProfile }: { observations: string[], setProfile: React.Dispatch<React.SetStateAction<AssessmentProfile>> }) => {
+    const items = [
+        "Okurken satır atlıyor veya yerini kaybediyor", 
+        "b-d, p-q harflerini karıştırıyor", 
+        "Heceleyerek veya çok yavaş okuyor", 
+        "Yazısı okunaksız ve düzensiz", 
+        "Tahtadan deftere geçirmekte zorlanıyor", 
+        "Matematiksel sembolleri karıştırıyor (+ ile x)", 
+        "Sağ-sol yönlerini karıştırıyor", 
+        "Dikkatini toplamakta güçlük çekiyor", 
+        "Eşyalarını sık sık kaybediyor veya unutuyor"
+    ];
+    return (
+        <div className="grid grid-cols-1 gap-3">
+            {items.map((obs, i) => (
+                <button key={i} onClick={() => {
+                    setProfile(p => ({...p, observations: p.observations.includes(obs) ? p.observations.filter(o=>o!==obs) : [...p.observations, obs]}))
+                }} className={`p-4 text-left border-2 rounded-xl transition-all flex items-center gap-3 ${observations.includes(obs) ? 'bg-indigo-50 border-indigo-500 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-200' : 'bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 hover:border-indigo-200'}`}>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${observations.includes(obs) ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-zinc-300'}`}>
+                        {observations.includes(obs) && <i className="fa-solid fa-check text-xs"></i>}
+                    </div>
+                    <span className="text-sm font-medium">{obs}</span>
+                </button>
+            ))}
+        </div>
+    );
+};
+
+// --- MAIN COMPONENT ---
 
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity }) => {
     const [currentStep, setCurrentStep] = useState(0);
@@ -87,80 +190,120 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         age: 7, grade: '1. Sınıf', observations: [], testResults: {}
     });
     const [report, setReport] = useState<AssessmentReport | null>(null);
+    const [feedbackState, setFeedbackState] = useState<'none' | 'correct' | 'wrong'>('none');
 
-    // --- TEST STATES ---
     const [testState, setTestState] = useState({
         score: 0, total: 0, startTime: 0, items: [] as any[], currentIndex: 0,
+        attentionState: [] as { char: string; isSelected: boolean; isCorrectTarget: boolean }[] 
     });
 
-    // --- HELPER: Start a Test Phase ---
-    const startTestPhase = (items: any[]) => {
-        setTestState({ score: 0, total: items.length, startTime: Date.now(), items, currentIndex: 0 });
-    };
-
-    const handleTestAnswer = (isCorrect: boolean, category: TestCategory, testName: string) => {
-        const nextScore = isCorrect ? testState.score + 1 : testState.score;
-        
-        if (testState.currentIndex < testState.items.length - 1) {
-            setTestState(prev => ({ ...prev, score: nextScore, currentIndex: prev.currentIndex + 1 }));
+    // --- LOGIC ---
+    const startTestPhase = useCallback((items: any[], isAttention = false) => {
+        setFeedbackState('none');
+        if (isAttention) {
+            setTestState({ 
+                score: 0, total: 1, startTime: Date.now(), items: [], currentIndex: 0,
+                attentionState: items 
+            });
         } else {
-            // Test Finished
-            const duration = Math.round((Date.now() - testState.startTime) / 1000);
-            setProfile(prev => ({
-                ...prev,
-                testResults: {
-                    ...prev.testResults,
-                    [category]: {
-                        id: category,
-                        name: testName,
-                        score: nextScore,
-                        total: testState.total,
-                        accuracy: (nextScore / testState.total) * 100,
-                        duration,
-                        timestamp: Date.now()
-                    }
-                }
-            }));
-            setCurrentStep(prev => prev + 1);
+            setTestState({ 
+                score: 0, total: items.length, startTime: Date.now(), items, currentIndex: 0,
+                attentionState: [] 
+            });
         }
+    }, []);
+
+    const handleAnswer = (isCorrect: boolean, category: TestCategory, testName: string) => {
+        // Visual Feedback
+        setFeedbackState(isCorrect ? 'correct' : 'wrong');
+        
+        // Small delay before moving to next question
+        setTimeout(() => {
+            const nextScore = isCorrect ? testState.score + 1 : testState.score;
+            if (testState.currentIndex < testState.items.length - 1) {
+                setTestState(prev => ({ ...prev, score: nextScore, currentIndex: prev.currentIndex + 1 }));
+                setFeedbackState('none');
+            } else {
+                finishTest(nextScore, category, testName);
+            }
+        }, 600); // 600ms delay
     };
 
-    // --- INIT TESTS ---
-    useEffect(() => {
-        if (currentStep === 2) { // Reading
-            startTestPhase([
-                { q: 'masa', isReal: true }, { q: 'kipat', isReal: false },
-                { q: 'elma', isReal: true }, { q: 'çilek', isReal: true },
-                { q: 'televizyon', isReal: true }, { q: 'kalem', isReal: true },
-                { q: 'filit', isReal: false }, { q: 'bardo', isReal: false },
-                { q: ' sandalye', isReal: true }, { q: 'zort', isReal: false }
-            ]);
-        } else if (currentStep === 3) { // Math
-            startTestPhase([
-                { q: '3 + 2 = ?', opts: [4, 5, 6], a: 5 }, { q: '7 - 4 = ?', opts: [2, 3, 4], a: 3 },
-                { q: '5 + 5 = ?', opts: [10, 9, 11], a: 10 }, { q: '8 - 0 = ?', opts: [0, 8, 9], a: 8 },
-                { q: 'En büyük hangisi?', opts: [12, 9, 15], a: 15 },
-                { q: '10 + 10 = ?', opts: [20, 100, 10], a: 20 }
-            ]);
-        } else if (currentStep === 4) { // Attention
-            // Simulating Grid Clicks: Just random checks for now or simplified version
-            startTestPhase(Array(10).fill(0).map((_,i) => ({ q: 'b' }))); // Simplified logic handled in render
-        } else if (currentStep === 5) { // Visual
-            startTestPhase([
-                { q: 'triangle', opts: ['square', 'triangle', 'circle'], a: 'triangle' },
-                { q: 'star', opts: ['star', 'pentagon', 'hexagon'], a: 'star' },
-                { q: 'circle', opts: ['oval', 'circle', 'sphere'], a: 'circle' },
-                { q: 'square', opts: ['rect', 'square', 'diamond'], a: 'square' },
-                { q: 'hexagon', opts: ['pentagon', 'hexagon', 'octagon'], a: 'hexagon' }
-            ]);
-        } else if (currentStep === 7) { // Analysis Trigger
-            handleFinish();
-        }
-    }, [currentStep]);
+    const handleAttentionClick = (index: number) => {
+        setTestState(prev => {
+            const newState = [...prev.attentionState];
+            newState[index] = { ...newState[index], isSelected: !newState[index].isSelected };
+            return { ...prev, attentionState: newState };
+        });
+    };
 
-    const handleFinish = async () => {
+    const finishAttentionTest = () => {
+        let score = 0;
+        let totalTargets = 0;
+        testState.attentionState.forEach(item => {
+            if (item.isCorrectTarget) totalTargets++;
+            if (item.isSelected && item.isCorrectTarget) score++; // Doğru tespit
+            if (item.isSelected && !item.isCorrectTarget) score -= 0.5; // Yanlış alarm cezası
+        });
+        score = Math.max(0, score); // Negatif skor engelleme
+        
+        // Calculate accuracy based on precision and recall logic roughly
+        const accuracy = totalTargets > 0 ? Math.min(100, (score / totalTargets) * 100) : 0;
+        const duration = Math.round((Date.now() - testState.startTime) / 1000);
+        
+        saveResult('attention', 'Dikkat Testi (d-b Ayrımı)', score, totalTargets, accuracy, duration);
+    };
+
+    const finishTest = (finalScore: number, category: TestCategory, testName: string) => {
+        const duration = Math.round((Date.now() - testState.startTime) / 1000);
+        const accuracy = (finalScore / testState.total) * 100;
+        saveResult(category, testName, finalScore, testState.total, accuracy, duration);
+    };
+
+    const saveResult = (id: TestCategory, name: string, score: number, total: number, accuracy: number, duration: number) => {
+        setProfile(prev => ({
+            ...prev,
+            testResults: {
+                ...prev.testResults,
+                [id]: { id, name, score, total, accuracy, duration, timestamp: Date.now() }
+            }
+        }));
+        setCurrentStep(prev => prev + 1);
+        setFeedbackState('none');
+    };
+
+    // --- STEP EFFECTS ---
+    useEffect(() => {
+        if (currentStep === 2) { 
+            const questions = generateDynamicTest('reading', profile.grade);
+            startTestPhase(questions);
+        } else if (currentStep === 3) { 
+            const questions = generateDynamicTest('math', profile.grade);
+            startTestPhase(questions);
+        } else if (currentStep === 4) { 
+            // Professional Grid: 36 items (6x6)
+            // Targets: 'b', Distractors: 'd', 'p', 'q'
+            const targets = ['b'];
+            const distractors = ['d', 'p', 'q', 'h'];
+            const gridItems = Array.from({ length: 36 }).map(() => {
+                const isTarget = Math.random() < 0.3; // 30% Target density
+                const char = isTarget ? targets[0] : distractors[getRandomInt(0, distractors.length-1)];
+                return { char, isSelected: false, isCorrectTarget: isTarget };
+            });
+            startTestPhase(gridItems, true);
+        } else if (currentStep === 5) { 
+            const questions = generateDynamicTest('visual', profile.grade);
+            startTestPhase(questions);
+        } else if (currentStep === 7) { 
+            handleReportGeneration();
+        }
+    }, [currentStep, startTestPhase, profile.grade]);
+
+    const handleReportGeneration = async () => {
         setIsLoading(true);
         try {
+            // Artificial delay for UX to show "Thinking" animation
+            await new Promise(r => setTimeout(r, 1500));
             const result = await generateAssessmentReport(profile);
             setReport(result);
             setIsLoading(false);
@@ -168,118 +311,80 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         } catch (error) {
             console.error(error);
             setIsLoading(false);
-            setCurrentStep(6); // Retry from observations
+            setCurrentStep(6);
+            alert("Rapor oluşturulurken bir hata oluştu.");
         }
-    };
-
-    const ObservationList = ({ category }: { category: string }) => {
-        const items = [
-            "Okurken satır atlıyor", "b-d harflerini karıştırıyor", "Heceleyerek okuyor", 
-            "Yazısı okunaksız", "Tahtadan geçirmekte zorlanıyor", "İşlem hatası yapıyor", 
-            "Sağ-sol karıştırıyor", "Çabuk sıkılıyor", "Eşya kaybediyor"
-        ];
-        return (
-            <div className="grid grid-cols-1 gap-2">
-                {items.map((obs, i) => (
-                    <button key={i} onClick={() => {
-                        setProfile(p => ({...p, observations: p.observations.includes(obs) ? p.observations.filter(o=>o!==obs) : [...p.observations, obs]}))
-                    }} className={`p-3 text-left border rounded-lg ${profile.observations.includes(obs) ? 'bg-indigo-100 border-indigo-500 text-indigo-900' : 'bg-white hover:bg-gray-50'}`}>
-                        {profile.observations.includes(obs) && <i className="fa-solid fa-check mr-2"></i>} {obs}
-                    </button>
-                ))}
-            </div>
-        );
     };
 
     // --- RENDER ---
     return (
-        <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
-            {/* Enhanced Stepper Header */}
-            <div className="px-4 py-6 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-10">
-                <div className="flex flex-col md:flex-row justify-between items-center max-w-5xl mx-auto gap-4">
-                    <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors font-bold text-sm flex items-center self-start md:self-center">
-                        <i className="fa-solid fa-arrow-left mr-2"></i>Çıkış
-                    </button>
-                    
-                    <div className="flex-1 w-full md:mx-8 overflow-x-auto no-scrollbar py-2">
-                        <div className="flex items-center justify-between relative min-w-[300px]">
-                            {/* Connecting Line */}
-                            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-zinc-200 dark:bg-zinc-700 -z-10 rounded-full"></div>
-                            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-green-500 -z-10 rounded-full transition-all duration-500" style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}></div>
-                            
-                            {steps.map((s, i) => {
-                                const isCompleted = i < currentStep;
-                                const isActive = i === currentStep;
-                                // Show fewer steps on mobile to save space if needed, currently showing all dot style
-                                return (
-                                    <div key={i} className="flex flex-col items-center relative group cursor-default">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all duration-300 ${
-                                            isCompleted ? 'bg-green-500 border-green-500 text-white' : 
-                                            isActive ? 'bg-indigo-600 border-indigo-600 text-white scale-125 shadow-lg ring-4 ring-indigo-100 dark:ring-indigo-900' : 
-                                            'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-400'
-                                        }`}>
-                                            {isCompleted ? <i className="fa-solid fa-check"></i> : i + 1}
-                                        </div>
-                                        {/* Tooltip / Label */}
-                                        <span className={`absolute top-10 text-[10px] font-bold whitespace-nowrap px-2 py-1 rounded transition-all duration-300 ${isActive ? 'text-indigo-600 dark:text-indigo-400 translate-y-0 opacity-100' : 'text-zinc-400 opacity-0 -translate-y-2 hidden md:block'}`}>
-                                            {s}
-                                        </span>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                    <div className="w-16 hidden md:block"></div> {/* Spacer */}
+        <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 font-sans">
+            {/* HEADER */}
+            <div className="px-4 py-4 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-20 flex justify-between items-center sticky top-0">
+                <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 transition-colors font-bold text-sm flex items-center">
+                    <i className="fa-solid fa-arrow-left mr-2"></i>Çıkış
+                </button>
+                
+                <div className="flex items-center gap-1 md:gap-2 overflow-x-auto no-scrollbar">
+                    {steps.map((s, i) => {
+                        const isActive = i === currentStep;
+                        const isDone = i < currentStep;
+                        return (
+                            <div key={i} className="flex items-center">
+                                <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${isActive ? 'bg-indigo-600 scale-125' : isDone ? 'bg-green-500' : 'bg-zinc-300 dark:bg-zinc-600'} transition-all`}></div>
+                                {i < steps.length - 1 && <div className={`w-4 md:w-8 h-0.5 ${isDone ? 'bg-green-500' : 'bg-zinc-200 dark:bg-zinc-700'}`}></div>}
+                            </div>
+                        )
+                    })}
                 </div>
+                <div className="w-16"></div> {/* Spacer */}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center">
-                <div className="w-full max-w-3xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start md:items-center">
+                <div className="w-full max-w-3xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative min-h-[500px] transition-all">
                     
-                    {/* 0: INTRO */}
+                    {/* --- 0: INTRO --- */}
                     {currentStep === 0 && (
-                        <div className="p-8 md:p-12 text-center flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-white to-zinc-50 dark:from-zinc-800 dark:to-zinc-900">
-                            <div className="w-24 h-24 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mb-8 animate-bounce shadow-lg">
-                                <i className="fa-solid fa-rocket text-5xl text-indigo-600 dark:text-indigo-400"></i>
+                        <div className="p-10 text-center flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white dark:from-zinc-800 dark:to-zinc-900">
+                            <div className="w-28 h-28 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-8 shadow-xl animate-pulse">
+                                <i className="fa-solid fa-brain text-6xl text-indigo-600 dark:text-indigo-400"></i>
                             </div>
-                            <h2 className="text-3xl md:text-4xl font-black mb-4 text-zinc-800 dark:text-zinc-100">Bilişsel Değerlendirme</h2>
-                            <p className="text-lg text-zinc-600 dark:text-zinc-300 mb-10 max-w-lg leading-relaxed">
-                                4 temel alanda (Okuma, Matematik, Dikkat, Görsel) çocuğunuzun becerilerini ölçen interaktif ve eğlenceli bir test serisine başlıyorsunuz.
+                            <h2 className="text-4xl font-black mb-4 text-zinc-800 dark:text-zinc-100 tracking-tight">Bilişsel Değerlendirme</h2>
+                            <p className="text-lg text-zinc-600 dark:text-zinc-300 mb-8 max-w-md leading-relaxed">
+                                Yapay zeka destekli bu modül, öğrencinin <strong>Okuma</strong>, <strong>Matematik</strong>, <strong>Dikkat</strong> ve <strong>Görsel Algı</strong> becerilerini analiz ederek kişiselleştirilmiş bir eğitim rotası oluşturur.
                             </p>
-                            <button onClick={() => setCurrentStep(1)} className="btn-primary text-lg px-10 py-4 rounded-2xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transform hover:-translate-y-1 transition-all">
-                                Başla <i className="fa-solid fa-arrow-right ml-2"></i>
+                            <button onClick={() => setCurrentStep(1)} className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold rounded-2xl shadow-lg hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1 flex items-center gap-3">
+                                <span>Analizi Başlat</span> <i className="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
                     )}
 
-                    {/* 1: PROFILE */}
+                    {/* --- 1: PROFILE --- */}
                     {currentStep === 1 && (
                         <div className="p-8 md:p-12 flex flex-col flex-1 justify-center max-w-lg mx-auto w-full">
-                            <h3 className="text-2xl font-bold mb-8 text-center">Öğrenci Bilgileri</h3>
-                            <div className="space-y-8">
-                                <div className="bg-zinc-50 dark:bg-zinc-700/30 p-6 rounded-xl border border-zinc-200 dark:border-zinc-600">
-                                    <label className="block font-bold mb-4 text-lg flex justify-between">
-                                        <span>Yaş</span>
-                                        <span className="text-indigo-600">{profile.age}</span>
-                                    </label>
+                            <h3 className="text-2xl font-bold mb-8 text-center text-zinc-800 dark:text-zinc-100">Öğrenci Profili</h3>
+                            <div className="space-y-6">
+                                <div className="bg-zinc-50 dark:bg-zinc-700/30 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-600">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <label className="font-bold text-lg"><i className="fa-solid fa-cake-candles text-pink-500 mr-2"></i>Yaş</label>
+                                        <span className="text-2xl font-black text-indigo-600">{profile.age}</span>
+                                    </div>
                                     <input 
                                         type="range" min="5" max="15" 
                                         value={profile.age} 
                                         onChange={e => setProfile({...profile, age: +e.target.value})} 
                                         className="w-full h-3 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
                                     />
-                                    <div className="flex justify-between text-xs text-zinc-400 mt-2 font-bold">
-                                        <span>5</span><span>10</span><span>15</span>
-                                    </div>
                                 </div>
+                                
                                 <div>
-                                    <label className="block font-bold mb-3 text-lg">Sınıf Seviyesi</label>
+                                    <label className="block font-bold mb-3 text-lg ml-1"><i className="fa-solid fa-graduation-cap text-indigo-500 mr-2"></i>Sınıf Seviyesi</label>
                                     <div className="grid grid-cols-2 gap-3">
                                         {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf'].map(g => (
                                             <button 
                                                 key={g} 
                                                 onClick={() => setProfile({...profile, grade: g})} 
-                                                className={`p-3 border-2 rounded-xl font-medium transition-all ${profile.grade === g ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-zinc-200 dark:border-zinc-600 hover:border-indigo-300'}`}
+                                                className={`p-4 border-2 rounded-xl font-bold transition-all text-sm ${profile.grade === g ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'border-zinc-200 dark:border-zinc-600 hover:border-indigo-300'}`}
                                             >
                                                 {g}
                                             </button>
@@ -287,47 +392,52 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => setCurrentStep(2)} className="btn-primary mt-10 py-4 text-lg rounded-xl shadow-md">Teste Başla</button>
+                            <button onClick={() => setCurrentStep(2)} className="mt-10 py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity">Devam Et</button>
                         </div>
                     )}
 
-                    {/* 2: READING TEST (Lexical) */}
+                    {/* --- 2: READING (LEXICAL) --- */}
                     {currentStep === 2 && (
-                        <div className="flex flex-col h-full">
-                            <div className="pt-8">
-                                <TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" />
-                            </div>
+                        <div className="flex flex-col h-full relative">
+                            {feedbackState !== 'none' && (
+                                <div className={`absolute inset-0 z-10 flex items-center justify-center bg-opacity-20 backdrop-blur-sm transition-all duration-300 ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                    <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-9xl text-white drop-shadow-lg animate-bounce`}></i>
+                                </div>
+                            )}
+                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
                             <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <h3 className="text-xl font-bold text-zinc-400 mb-8 uppercase tracking-widest">Bu Kelime Gerçek mi?</h3>
-                                <div className="text-5xl md:text-7xl font-black mb-12 p-12 bg-zinc-100 dark:bg-zinc-700/50 rounded-3xl w-full shadow-inner text-zinc-800 dark:text-zinc-100 transition-all duration-300 transform scale-100 hover:scale-105 cursor-default">
+                                <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest">Bu kelime gerçek mi?</h3>
+                                <div className="text-5xl md:text-7xl font-black mb-12 p-10 bg-white dark:bg-zinc-700 border-4 border-zinc-100 dark:border-zinc-600 rounded-3xl w-full max-w-md shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic">
                                     {testState.items[testState.currentIndex]?.q}
                                 </div>
                                 <div className="flex gap-6 w-full max-w-md">
-                                    <button onClick={() => handleTestAnswer(false, 'reading', 'Okuma')} className="flex-1 p-6 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 font-bold rounded-2xl border-b-4 border-red-200 dark:border-red-800 hover:translate-y-1 active:border-b-0 transition-all text-xl shadow-sm">
-                                        <i className="fa-solid fa-xmark mr-2"></i> HAYIR
+                                    <button onClick={() => handleAnswer(testState.items[testState.currentIndex]?.isReal === false, 'reading', 'Okuma')} className="flex-1 p-5 bg-rose-50 text-rose-600 font-black rounded-2xl border-b-4 border-rose-200 hover:bg-rose-100 transition-all text-xl shadow-sm">
+                                        HAYIR
                                     </button>
-                                    <button onClick={() => handleTestAnswer(true, 'reading', 'Okuma')} className="flex-1 p-6 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-300 font-bold rounded-2xl border-b-4 border-green-200 dark:border-green-800 hover:translate-y-1 active:border-b-0 transition-all text-xl shadow-sm">
-                                        <i className="fa-solid fa-check mr-2"></i> EVET
+                                    <button onClick={() => handleAnswer(testState.items[testState.currentIndex]?.isReal === true, 'reading', 'Okuma')} className="flex-1 p-5 bg-emerald-50 text-emerald-600 font-black rounded-2xl border-b-4 border-emerald-200 hover:bg-emerald-100 transition-all text-xl shadow-sm">
+                                        EVET
                                     </button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* 3: MATH TEST */}
+                    {/* --- 3: MATH --- */}
                     {currentStep === 3 && (
-                        <div className="flex flex-col h-full">
-                            <div className="pt-8">
-                                <TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" />
-                            </div>
+                        <div className="flex flex-col h-full relative">
+                             {feedbackState !== 'none' && (
+                                <div className={`absolute inset-0 z-10 flex items-center justify-center bg-opacity-20 backdrop-blur-sm ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                    <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-9xl text-white drop-shadow-lg`}></i>
+                                </div>
+                            )}
+                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" /></div>
                             <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <h3 className="text-xl font-bold text-zinc-400 mb-8 uppercase tracking-widest">İşlemi Çöz</h3>
-                                <div className="text-5xl md:text-6xl font-bold mb-12 text-zinc-800 dark:text-zinc-100 font-mono bg-zinc-50 dark:bg-zinc-900 p-8 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-600">
+                                <div className="text-4xl md:text-6xl font-bold mb-10 text-indigo-900 dark:text-indigo-200 font-mono bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 w-full max-w-lg">
                                     {testState.items[testState.currentIndex]?.q}
                                 </div>
                                 <div className="grid grid-cols-3 gap-4 w-full max-w-lg">
-                                    {testState.items[testState.currentIndex]?.opts.map((opt: number) => (
-                                        <button key={opt} onClick={() => handleTestAnswer(opt === testState.items[testState.currentIndex].a, 'math', 'Matematik')} className="p-6 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 text-3xl font-bold rounded-xl hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm transition-all transform hover:-translate-y-1">
+                                    {testState.items[testState.currentIndex]?.opts.map((opt: number, i:number) => (
+                                        <button key={i} onClick={() => handleAnswer(opt === testState.items[testState.currentIndex].a, 'math', 'Matematik')} className="p-6 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 text-3xl font-bold rounded-2xl hover:border-indigo-500 hover:text-indigo-600 hover:shadow-md transition-all">
                                             {opt}
                                         </button>
                                     ))}
@@ -336,55 +446,31 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         </div>
                     )}
 
-                    {/* 4: ATTENTION TEST */}
+                    {/* --- 4: ATTENTION (GRID) --- */}
                     {currentStep === 4 && (
                         <div className="flex flex-col h-full">
-                            <div className="pt-8">
-                                <TestProgress current={testState.score} total={25} label="Dikkat Testi (b harflerini bul)" />
-                            </div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <div className="grid grid-cols-5 gap-3 md:gap-4 mb-8 bg-zinc-100 dark:bg-zinc-900/50 p-6 rounded-2xl">
-                                    {Array.from({length: 25}).map((_, i) => {
-                                        const char = Math.random() > 0.4 ? 'd' : 'b'; // More distractors
-                                        return (
-                                            <button key={i} onClick={(e) => {
-                                                const btn = e.currentTarget;
-                                                if (btn.disabled) return;
-                                                btn.disabled = true;
-                                                if(char === 'b') { 
-                                                    btn.classList.add('bg-green-500', 'text-white', 'border-green-600');
-                                                    btn.classList.remove('bg-white', 'hover:bg-zinc-50');
-                                                    setTestState(p => ({...p, score: p.score + 1}));
-                                                } else {
-                                                    btn.classList.add('bg-red-500', 'text-white', 'border-red-600');
-                                                    btn.classList.remove('bg-white', 'hover:bg-zinc-50');
-                                                }
-                                            }} className="w-12 h-12 md:w-16 md:h-16 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl text-3xl font-bold bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 flex items-center justify-center transition-all font-serif pb-1">
-                                                {char}
-                                            </button>
-                                        )
-                                    })}
+                            <div className="pt-6 px-6 flex justify-between items-center border-b pb-4 border-zinc-100 dark:border-zinc-700">
+                                <div>
+                                    <h3 className="font-bold text-lg">Dikkat Testi</h3>
+                                    <p className="text-xs text-zinc-500">Sadece "b" harflerini bul.</p>
                                 </div>
-                                <button onClick={() => handleTestAnswer(true, 'attention', 'Dikkat')} className="btn-primary w-full max-w-xs py-3 rounded-xl shadow-lg">Tamamla</button>
+                                <button onClick={finishAttentionTest} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-full shadow-md transition-colors">
+                                    Tamamla
+                                </button>
                             </div>
-                        </div>
-                    )}
-
-                    {/* 5: VISUAL TEST */}
-                    {currentStep === 5 && (
-                        <div className="flex flex-col h-full">
-                            <div className="pt-8">
-                                <TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Algı Testi" />
-                            </div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <h3 className="text-xl font-bold text-zinc-400 mb-8 uppercase tracking-widest">Aynısını Bul</h3>
-                                <div className="mb-10 p-8 border-4 border-indigo-100 dark:border-zinc-600 rounded-3xl inline-block bg-white dark:bg-zinc-800 shadow-lg">
-                                    <i className={`fa-solid fa-${testState.items[testState.currentIndex]?.q} text-8xl text-indigo-500`}></i>
-                                </div>
-                                <div className="flex gap-6 justify-center w-full max-w-2xl">
-                                    {testState.items[testState.currentIndex]?.opts.map((opt: string) => (
-                                        <button key={opt} onClick={() => handleTestAnswer(opt === testState.items[testState.currentIndex].a, 'visual', 'Görsel Algı')} className="p-6 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-300 transition-all flex-1 shadow-sm group">
-                                            <i className={`fa-solid fa-${opt} text-5xl text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-500 transition-colors`}></i>
+                            <div className="p-4 md:p-8 flex-1 flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/30">
+                                <div className="grid grid-cols-6 gap-2 md:gap-4">
+                                    {testState.attentionState.map((item, i) => (
+                                        <button 
+                                            key={i} 
+                                            onClick={() => handleAttentionClick(i)} 
+                                            className={`w-10 h-10 md:w-14 md:h-14 rounded-lg text-2xl md:text-3xl font-bold flex items-center justify-center transition-all font-dyslexic shadow-sm border ${
+                                                item.isSelected 
+                                                    ? 'bg-indigo-600 text-white border-indigo-600 transform scale-110' 
+                                                    : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-600 text-zinc-400 hover:border-indigo-300'
+                                            }`}
+                                        >
+                                            {item.char}
                                         </button>
                                     ))}
                                 </div>
@@ -392,89 +478,119 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         </div>
                     )}
 
-                    {/* 6: OBSERVATIONS */}
+                    {/* --- 5: VISUAL --- */}
+                    {currentStep === 5 && (
+                        <div className="flex flex-col h-full relative">
+                             {feedbackState !== 'none' && (
+                                <div className={`absolute inset-0 z-10 flex items-center justify-center bg-opacity-20 backdrop-blur-sm ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                    <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-9xl text-white drop-shadow-lg`}></i>
+                                </div>
+                            )}
+                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Algı" /></div>
+                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
+                                <h3 className="text-zinc-400 font-bold uppercase tracking-widest mb-8">Aynısını Bul</h3>
+                                <div className="mb-12 p-8 border-4 border-zinc-100 dark:border-zinc-600 rounded-full bg-white dark:bg-zinc-700 shadow-xl w-40 h-40 flex items-center justify-center">
+                                    <i className={`fa-solid fa-${testState.items[testState.currentIndex]?.q} text-7xl text-indigo-600 dark:text-indigo-400`}></i>
+                                </div>
+                                <div className="flex gap-4 md:gap-8 justify-center w-full max-w-2xl">
+                                    {testState.items[testState.currentIndex]?.opts.map((opt: string, i:number) => (
+                                        <button key={i} onClick={() => handleAnswer(opt === testState.items[testState.currentIndex].a, 'visual', 'Görsel Algı')} className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-400 hover:scale-105 transition-all shadow-sm bg-white dark:bg-zinc-800">
+                                            <i className={`fa-solid fa-${opt} text-4xl md:text-5xl text-zinc-600 dark:text-zinc-300`}></i>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- 6: OBSERVATIONS --- */}
                     {currentStep === 6 && (
                         <div className="p-8 flex flex-col flex-1 h-full">
-                            <h3 className="text-2xl font-bold mb-2 text-center">Gözlem Formu</h3>
-                            <p className="text-center text-zinc-500 mb-6 text-sm">Çocuğunuzda gözlemlediğiniz durumları işaretleyiniz.</p>
-                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                                <ObservationList category="general" />
+                            <h3 className="text-2xl font-bold mb-2 text-center">Eğitmen Gözlemi</h3>
+                            <p className="text-center text-zinc-500 mb-8 text-sm">Test sırasında veya genel olarak gözlemlediğiniz durumlar.</p>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 -mr-2">
+                                <ObservationList observations={profile.observations} setProfile={setProfile} />
                             </div>
-                            <div className="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700">
-                                <button onClick={() => setCurrentStep(7)} className="btn-primary w-full py-4 text-lg shadow-lg rounded-xl">Analizi Başlat</button>
+                            <div className="mt-6 pt-4">
+                                <button onClick={() => setCurrentStep(7)} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2">
+                                    <i className="fa-solid fa-wand-magic-sparkles"></i> Analizi Başlat
+                                </button>
                             </div>
                         </div>
                     )}
 
-                    {/* 7: LOADING */}
+                    {/* --- 7: LOADING --- */}
                     {currentStep === 7 && (
-                        <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                            <div className="relative w-24 h-24 mb-8">
-                                <div className="absolute inset-0 border-4 border-zinc-200 rounded-full"></div>
-                                <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
-                                <i className="fa-solid fa-brain absolute inset-0 flex items-center justify-center text-3xl text-indigo-600"></i>
+                        <div className="p-8 text-center flex-1 flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+                            <div className="relative w-32 h-32 mb-8">
+                                <div className="absolute inset-0 border-8 border-zinc-200 dark:border-zinc-700 rounded-full"></div>
+                                <div className="absolute inset-0 border-8 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <i className="fa-solid fa-brain text-4xl text-indigo-600 dark:text-indigo-400 animate-pulse"></i>
+                                </div>
                             </div>
-                            <h3 className="text-xl font-bold animate-pulse text-zinc-800 dark:text-zinc-100">Yapay Zeka Raporu Hazırlıyor...</h3>
-                            <p className="text-zinc-500 mt-2">Test sonuçları ve gözlemler analiz ediliyor.</p>
+                            <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Veriler Analiz Ediliyor</h3>
+                            <p className="text-zinc-500 max-w-xs mx-auto">Google Gemini AI, test sonuçlarını ve gözlemleri işleyerek pedagojik rapor hazırlıyor...</p>
                         </div>
                     )}
 
-                    {/* 8: REPORT */}
+                    {/* --- 8: REPORT --- */}
                     {currentStep === 8 && report && (
                         <div className="flex flex-col h-full">
-                            <div className="p-8 bg-indigo-600 text-white text-center relative overflow-hidden">
+                            <div className="p-8 bg-indigo-700 text-white text-center relative overflow-hidden shrink-0">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                                <h2 className="text-3xl font-bold mb-2 relative z-10">Sonuç Raporu</h2>
-                                <p className="opacity-90 max-w-2xl mx-auto relative z-10 text-indigo-100">{report.overallSummary}</p>
+                                <div className="relative z-10">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold mb-4 border border-white/30">
+                                        <i className="fa-solid fa-file-medical-alt"></i> Bilişsel Değerlendirme Raporu
+                                    </div>
+                                    <h2 className="text-3xl font-bold mb-2">Sonuçlar Hazır</h2>
+                                    <p className="opacity-90 text-sm max-w-2xl mx-auto">{report.overallSummary}</p>
+                                </div>
                             </div>
                             
                             <div className="p-6 overflow-y-auto flex-1 bg-zinc-50 dark:bg-zinc-900/50 custom-scrollbar">
-                                <div className="max-w-3xl mx-auto space-y-6">
-                                    {/* Chart Section */}
-                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm text-center border border-zinc-200 dark:border-zinc-700">
-                                        <h4 className="font-bold text-zinc-500 mb-6 uppercase tracking-wider text-sm">Beceriler ve Risk Analizi</h4>
-                                        {report.chartData ? <RadarChart data={report.chartData} /> : <p>Grafik verisi yok.</p>}
+                                <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* Chart Card */}
+                                    <div className="md:col-span-1 bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center">
+                                        <h4 className="font-bold text-zinc-500 mb-4 text-xs uppercase tracking-wider">Risk Analizi Grafiği</h4>
+                                        {report.chartData ? <RadarChart data={report.chartData} /> : <p>Veri yok.</p>}
                                     </div>
 
-                                    {/* Strengths & Weaknesses */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-2xl border border-green-200 dark:border-green-800/50">
-                                            <h4 className="font-bold text-green-800 dark:text-green-400 mb-4 flex items-center"><div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center mr-2"><i className="fa-solid fa-check"></i></div> Güçlü Yönler</h4>
-                                            <ul className="space-y-2">
-                                                {report.analysis.strengths.map((s, i) => (
-                                                    <li key={i} className="flex items-start text-sm text-green-900 dark:text-green-200"><span className="mr-2">•</span>{s}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                        <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-2xl border border-red-200 dark:border-red-800/50">
-                                            <h4 className="font-bold text-red-800 dark:text-red-400 mb-4 flex items-center"><div className="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center mr-2"><i className="fa-solid fa-exclamation"></i></div> Destek Alanları</h4>
-                                            <ul className="space-y-2">
-                                                {report.analysis.weaknesses.map((s, i) => (
-                                                    <li key={i} className="flex items-start text-sm text-red-900 dark:text-red-200"><span className="mr-2">•</span>{s}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    {/* Roadmap */}
-                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700">
-                                        <h4 className="font-bold text-xl mb-6 flex items-center"><i className="fa-solid fa-map-location-dot mr-2 text-indigo-500"></i>Önerilen Eğitim Rotası</h4>
-                                        <div className="space-y-4">
-                                            {report.roadmap.map((item, idx) => (
-                                                <div key={idx} className="p-4 rounded-xl border border-zinc-100 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-md transition-shadow">
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded">{idx + 1}</span>
-                                                            <h5 className="font-bold text-indigo-600 dark:text-indigo-400">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
-                                                        </div>
-                                                        <p className="text-xs text-zinc-500 dark:text-zinc-400">{item.reason}</p>
-                                                        <p className="text-[10px] text-zinc-400 mt-1 uppercase font-bold"><i className="fa-regular fa-clock mr-1"></i>{item.frequency}</p>
-                                                    </div>
-                                                    <button onClick={() => onSelectActivity(item.activityId as ActivityType)} className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-md transition-colors w-full sm:w-auto">
-                                                        Oluştur
-                                                    </button>
+                                    {/* Details Card */}
+                                    <div className="md:col-span-2 space-y-6">
+                                        <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700">
+                                            <h4 className="font-bold text-lg mb-4 border-b pb-2 dark:border-zinc-700">Güçlü Yönler & İhtiyaçlar</h4>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div>
+                                                    <h5 className="text-green-600 font-bold text-sm mb-2 flex items-center"><i className="fa-solid fa-thumbs-up mr-2"></i>Güçlü Yönler</h5>
+                                                    <ul className="text-sm space-y-1 text-zinc-600 dark:text-zinc-300">
+                                                        {report.analysis.strengths.map((s, i) => <li key={i}>• {s}</li>)}
+                                                    </ul>
                                                 </div>
-                                            ))}
+                                                <div>
+                                                    <h5 className="text-rose-600 font-bold text-sm mb-2 flex items-center"><i className="fa-solid fa-triangle-exclamation mr-2"></i>Destek Alanları</h5>
+                                                    <ul className="text-sm space-y-1 text-zinc-600 dark:text-zinc-300">
+                                                        {report.analysis.weaknesses.map((s, i) => <li key={i}>• {s}</li>)}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-zinc-800 dark:to-zinc-800/50 p-6 rounded-2xl border border-indigo-100 dark:border-zinc-700">
+                                            <h4 className="font-bold text-lg mb-4 text-indigo-900 dark:text-indigo-200 flex items-center"><i className="fa-solid fa-route mr-2"></i>Önerilen Yol Haritası</h4>
+                                            <div className="space-y-3">
+                                                {report.roadmap.map((item, idx) => (
+                                                    <div key={idx} className="bg-white dark:bg-zinc-700 p-4 rounded-xl shadow-sm flex justify-between items-center group hover:shadow-md transition-all">
+                                                        <div>
+                                                            <div className="font-bold text-indigo-600 dark:text-indigo-300">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</div>
+                                                            <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{item.reason} • <span className="font-semibold">{item.frequency}</span></div>
+                                                        </div>
+                                                        <button onClick={() => onSelectActivity(item.activityId as ActivityType)} className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                                            <i className="fa-solid fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
