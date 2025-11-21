@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, ActivityType, GeneratorOptions } from '../types';
 
@@ -24,121 +27,24 @@ interface ConfigField {
     condition?: (currentValues: any) => boolean; // Conditional rendering
 }
 
-const DIFFICULTY_LEVELS = ['Başlangıç', 'Orta', 'Zor', 'Uzman'] as const;
-type DifficultyLevel = typeof DIFFICULTY_LEVELS[number];
-
-const getDifficultyContext = (actId: ActivityType, level: DifficultyLevel): string => {
-    // Kelime Oyunları
-    const wordGames = [
-        ActivityType.WORD_SEARCH, ActivityType.CROSSWORD, ActivityType.ANAGRAM, 
-        ActivityType.WORD_LADDER, ActivityType.SPELLING_CHECK, ActivityType.WORD_SEARCH_WITH_PASSWORD
-    ];
-    
-    // Matematik Oyunları
-    const mathGames = [
-        ActivityType.MATH_PUZZLE, ActivityType.NUMBER_PATTERN, ActivityType.FUTOSHIKI, 
-        ActivityType.SUDOKU_6X6_SHADED, ActivityType.KENDOKU, ActivityType.NUMBER_PYRAMID
-    ];
-
-    // Okuma & Anlama
-    const readingGames = [
-        ActivityType.STORY_COMPREHENSION, ActivityType.STORY_ANALYSIS, ActivityType.PROVERB_FILL_IN_THE_BLANK
-    ];
-
-    if (wordGames.includes(actId)) {
-        if (level === 'Başlangıç') return "5-8 Kelime, Büyük Harf, Sadece Düz";
-        if (level === 'Orta') return "10-12 Kelime, Çapraz Yön Dahil";
-        if (level === 'Zor') return "15+ Kelime, Ters Yön Dahil, Karmaşık";
-        if (level === 'Uzman') return "20+ Kelime, Gizli Şifreler, Geniş Tablo";
-    }
-    
-    if (mathGames.includes(actId)) {
-        if (level === 'Başlangıç') return "Sayılar 1-10, Temel Toplama/Eşleştirme";
-        if (level === 'Orta') return "Sayılar 1-50, Toplama & Çıkarma";
-        if (level === 'Zor') return "Sayılar 1-100, Çarpma Dahil, Mantık";
-        if (level === 'Uzman') return "Çok Basamaklı, Dört İşlem, Karmaşık Mantık";
-    }
-
-    if (readingGames.includes(actId)) {
-        if (level === 'Başlangıç') return "Kısa Metin, Basit Sorular (Ne? Kim?)";
-        if (level === 'Orta') return "Orta Uzunluk, Çıkarım Soruları (Neden?)";
-        if (level === 'Zor') return "Uzun Metin, Analiz ve Yorumlama";
-        if (level === 'Uzman') return "Detaylı Metin, Eleştirel Düşünme";
-    }
-
-    // Default / Visual
-    if (level === 'Başlangıç') return "Az sayıda büyük öğe, net görseller.";
-    if (level === 'Orta') return "Standart yoğunluk, orta seviye detay.";
-    if (level === 'Zor') return "Yüksek yoğunluk, benzer çeldiriciler.";
-    if (level === 'Uzman') return "Maksimum detay, çok sayıda çeldirici.";
-    
-    return "";
-};
-
-const DifficultyCard: React.FC<{
-    level: DifficultyLevel;
-    selected: boolean;
-    onClick: () => void;
-    contextText: string;
-}> = ({ level, selected, onClick, contextText }) => {
-    const configs = {
-        'Başlangıç': { color: 'emerald', icon: 'fa-seedling', label: 'Kolay' },
-        'Orta': { color: 'yellow', icon: 'fa-layer-group', label: 'Standart' },
-        'Zor': { color: 'orange', icon: 'fa-bolt', label: 'Zorlayıcı' },
-        'Uzman': { color: 'red', icon: 'fa-fire', label: 'Profesyonel' }
-    };
-    
-    const conf = configs[level];
-    
-    // Tailwind dynamic class construction needs full class names usually, but we use simple mappings here
-    const borderColor = selected 
-        ? (level === 'Başlangıç' ? 'border-emerald-500 ring-2 ring-emerald-200' : 
-           level === 'Orta' ? 'border-yellow-500 ring-2 ring-yellow-200' :
-           level === 'Zor' ? 'border-orange-500 ring-2 ring-orange-200' :
-           'border-red-600 ring-2 ring-red-200')
-        : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300';
-        
-    const bgColor = selected 
-        ? (level === 'Başlangıç' ? 'bg-emerald-50 dark:bg-emerald-900/20' : 
-           level === 'Orta' ? 'bg-yellow-50 dark:bg-yellow-900/20' :
-           level === 'Zor' ? 'bg-orange-50 dark:bg-orange-900/20' :
-           'bg-red-50 dark:bg-red-900/20')
-        : 'bg-white dark:bg-zinc-800';
-
-    const iconColor = level === 'Başlangıç' ? 'text-emerald-500' : 
-                      level === 'Orta' ? 'text-yellow-500' : 
-                      level === 'Zor' ? 'text-orange-500' : 'text-red-600';
-
-    return (
-        <button 
-            type="button"
-            onClick={onClick}
-            className={`relative flex flex-col items-start p-3 rounded-xl border-2 transition-all duration-200 w-full text-left h-full ${borderColor} ${bgColor}`}
-        >
-            <div className="flex justify-between w-full mb-1">
-                <span className={`font-bold text-sm ${selected ? 'text-zinc-800 dark:text-zinc-100' : 'text-zinc-500'}`}>{level}</span>
-                <i className={`fa-solid ${conf.icon} ${iconColor}`}></i>
-            </div>
-            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider mb-2">{conf.label}</p>
-            <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-tight mt-auto">
-                {contextText}
-            </p>
-            {selected && (
-                <div className={`absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs ${iconColor.replace('text-', 'bg-')}`}>
-                    <i className="fa-solid fa-check"></i>
-                </div>
-            )}
-        </button>
-    );
-}
-
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading }) => {
     const [mode, setMode] = useState<'ai' | 'fast'>('ai');
-    const [difficulty, setDifficulty] = useState<DifficultyLevel>('Orta');
+    const [difficulty, setDifficulty] = useState<'Başlangıç' | 'Orta' | 'Zor' | 'Uzman'>('Orta');
     const [worksheetCount, setWorksheetCount] = useState(1);
     
     // Dynamic State for specific options
     const [specificOptions, setSpecificOptions] = useState<Record<string, any>>({});
+    const [animateMeter, setAnimateMeter] = useState(false);
+
+    // Difficulty Visuals Configuration
+    const difficultyConfig = {
+        'Başlangıç': { color: 'bg-emerald-400', width: '25%', text: 'Yeni Başlayanlar İçin', icon: 'fa-seedling' },
+        'Orta': { color: 'bg-yellow-400', width: '50%', text: 'Standart Seviye', icon: 'fa-layer-group' },
+        'Zor': { color: 'bg-orange-500', width: '75%', text: 'Zorlayıcı', icon: 'fa-bolt' },
+        'Uzman': { color: 'bg-red-600', width: '100%', text: 'Profesyonel / Çok Zor', icon: 'fa-fire' }
+    };
+
+    const currentConfig = difficultyConfig[difficulty];
 
     // --- CONFIGURATION DEFINITIONS ---
     const getConfigFields = (actId: ActivityType): ConfigField[] => {
@@ -378,6 +284,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         setWorksheetCount(1);
     }, [activity.id]);
 
+    // Trigger animation when difficulty changes
+    useEffect(() => {
+        setAnimateMeter(true);
+        const timer = setTimeout(() => setAnimateMeter(false), 500);
+        return () => clearTimeout(timer);
+    }, [difficulty]);
+
     const handleOptionChange = (key: string, value: any) => {
         setSpecificOptions(prev => ({ ...prev, [key]: value }));
     };
@@ -514,19 +427,34 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         </div>
                     </div>
 
-                    {/* Zorluk Seviyesi - YENİ KART SİSTEMİ */}
+                    {/* Zorluk Seviyesi */}
                     <div className="mb-4">
-                        <label className="block text-sm font-semibold mb-2">Zorluk Seviyesi</label>
-                        <div className="grid grid-cols-2 gap-2">
-                            {DIFFICULTY_LEVELS.map((lvl) => (
-                                <DifficultyCard 
-                                    key={lvl}
-                                    level={lvl}
-                                    selected={difficulty === lvl}
-                                    onClick={() => setDifficulty(lvl)}
-                                    contextText={getDifficultyContext(activity.id, lvl)}
-                                />
-                            ))}
+                        <label className="block text-sm font-semibold mb-1 flex justify-between">
+                            <span>Zorluk</span>
+                            <span className={`text-xs font-normal transition-colors duration-300 ${difficulty === 'Uzman' ? 'text-red-600 font-bold animate-pulse' : 'text-zinc-500'}`}>
+                                {currentConfig.text}
+                            </span>
+                        </label>
+                         <div className="relative">
+                            <select 
+                                value={difficulty} 
+                                onChange={e => setDifficulty(e.target.value as any)} 
+                                className="w-full p-2 border border-zinc-300 rounded-md bg-white dark:bg-zinc-700 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none z-10 relative"
+                            >
+                                <option value="Başlangıç">Başlangıç (Kolay)</option>
+                                <option value="Orta">Orta (Standart)</option>
+                                <option value="Zor">Zor (İleri)</option>
+                                <option value="Uzman">Uzman (Profesyonel)</option>
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none z-10 text-zinc-500">
+                                <i className="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                        <div className="mt-2 h-1.5 w-full bg-zinc-200 dark:bg-zinc-600 rounded-full overflow-hidden">
+                            <div 
+                                className={`h-full transition-all duration-500 ease-out ${currentConfig.color} ${animateMeter && difficulty === 'Uzman' ? 'animate-pulse' : ''}`} 
+                                style={{ width: currentConfig.width }}
+                            ></div>
                         </div>
                     </div>
 

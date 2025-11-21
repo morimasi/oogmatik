@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType } from '../../types';
 import { EMOJI_MAP } from '../../data/vocabulary';
@@ -90,26 +91,15 @@ export const Shape: React.FC<{ name: ShapeType; className?: string }> = ({ name,
 
 export const ImageDisplay: React.FC<{ base64?: string; description?: string; className?: string }> = ({ base64, description, className = "w-full h-32" }) => {
     if (base64) {
-        return (
-            <div className={`relative group overflow-hidden rounded-xl shadow-md border-2 border-white dark:border-zinc-600 bg-zinc-100 dark:bg-zinc-800 ${className}`}>
-                <img 
-                    src={`data:image/jpeg;base64,${base64}`} 
-                    alt={description || 'Yapay zeka görseli'} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                />
-                {description && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] p-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity truncate text-center backdrop-blur-sm">
-                        {description}
-                    </div>
-                )}
-            </div>
-        );
+        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-zinc-100 dark:bg-zinc-700 shadow-sm`} />;
     }
     
     // Smart Fallback with Emojis
     let emojiIcon = null;
     if (description) {
         const lowerDesc = description.toLowerCase();
+        // Find an emoji key whose mapping value is inside the description
+        // EMOJI_MAP format: { "🍎": "Elma", ... }
         const foundKey = Object.keys(EMOJI_MAP).find(key => lowerDesc.includes(EMOJI_MAP[key].toLowerCase()));
         if (foundKey) {
             emojiIcon = foundKey;
@@ -118,7 +108,7 @@ export const ImageDisplay: React.FC<{ base64?: string; description?: string; cla
 
     // Fallback UI for missing images (Quota limits or Offline mode)
     return (
-        <div className={`bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center text-center p-3 ${className}`}>
+        <div className={`bg-zinc-50 dark:bg-zinc-800/50 rounded-md border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center text-center p-3 ${className}`}>
             {emojiIcon ? (
                 <div className="text-6xl mb-2 filter drop-shadow-md transform hover:scale-110 transition-transform cursor-default" role="img" aria-label={description}>
                     {emojiIcon}
