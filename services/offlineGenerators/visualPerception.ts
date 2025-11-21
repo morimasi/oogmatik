@@ -3,7 +3,7 @@ import {
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
     GeneratorOptions
 } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare, generateMaze } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare, generateMaze, getDifficultySettings } from './helpers';
 
 const dotArtShapes: Record<string, { dots: { cx: number; cy: number }[]; name: string; }> = {
     'heart': {

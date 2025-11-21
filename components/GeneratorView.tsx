@@ -106,6 +106,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.JUMBLED_WORD_STORY:
             case ActivityType.HOMONYM_SENTENCE_WRITING:
             case ActivityType.MISSING_PARTS:
+            case ActivityType.SYLLABLE_COMPLETION:
                 return [ ...commonFields, itemCountField(8) ];
             case ActivityType.WORD_GROUPING:
                  return [
@@ -182,6 +183,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.PROVERB_FILL_IN_THE_BLANK:
             case ActivityType.PROVERB_SAYING_SORT:
             case ActivityType.PROVERB_WORD_CHAIN:
+            case ActivityType.PROVERB_SEARCH:
+            case ActivityType.PROVERB_SENTENCE_FINDER:
                 return [ itemCountField(8, 5, 15) ];
             
             // --- HAFIZA & DİKKAT ---
@@ -232,6 +235,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             // --- GÖRSEL ALGI ---
             case ActivityType.GRID_DRAWING:
             case ActivityType.SYMMETRY_DRAWING:
+            case ActivityType.MATCHSTICK_SYMMETRY:
                 return [
                     itemCountField(2, 1, 4, 'Çizim Sayısı'),
                     gridSizeField(8, 5, 12),
@@ -241,12 +245,21 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.COORDINATE_CIPHER:
             case ActivityType.ABC_CONNECT:
             case ActivityType.WORD_CONNECT:
+            case ActivityType.ROMAN_NUMERAL_CONNECT:
+            case ActivityType.ROMAN_ARABIC_MATCH_CONNECT:
+            case ActivityType.WEIGHT_CONNECT:
+            case ActivityType.LENGTH_CONNECT:
+            case ActivityType.STAR_HUNT:
                 return [
                     itemCountField(8, 4, 12),
                     gridSizeField(10, 6, 15)
                 ];
+            case ActivityType.PUNCTUATION_COLORING:
+            case ActivityType.SYNONYM_ANTONYM_COLORING:
+            case ActivityType.DOT_PAINTING:
+                return [ ...commonFields ];
             
-            // --- DISLEKSI DESTEK ---
+            // --- DISLEKSI DESTEK (NEW FIELDS) ---
             case ActivityType.READING_FLOW:
                 return [
                     { key: 'topic', label: 'Metin Konusu', type: 'text', defaultValue: 'Rastgele' }
@@ -262,12 +275,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.SYLLABLE_TRAIN:
                 return [ ...commonFields ];
             case ActivityType.MIRROR_LETTERS:
+                return [];
             case ActivityType.VISUAL_TRACKING_LINES:
                 return [];
 
             // --- DEFAULT FALLBACK ---
             default:
-                // Generic settings for unconfigured activities
+                // Generic settings for unconfigured activities to prevent empty states
                 return [
                     ...commonFields,
                     itemCountField(10, 5, 20)
