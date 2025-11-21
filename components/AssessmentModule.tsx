@@ -20,7 +20,7 @@ const shuffle = <T,>(array: T[]): T[] => {
 const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 // --- VISUAL ASSETS ---
-const MatrixCell = ({ item, className = "" }: { item: any, className?: string }) => {
+const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, className = "" }) => {
     if (!item) return <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-600`}></div>;
 
     const { type, rotation = 0, count = 1, fill = false, shape = 'circle' } = item;
@@ -61,173 +61,163 @@ const MatrixCell = ({ item, className = "" }: { item: any, className?: string })
 };
 
 // --- GENERATORS ---
+const createGradeAppropriateMatrix = (grade: number, index: number) => {
+    // Grade 1-2: Shapes, Counting (Basic)
+    // Grade 3-4: Rotation, Direction (Intermediate)
+    // Grade 5-6: Grid Logic, Abstraction (Advanced)
+    
+    const difficultyLevel = grade <= 2 ? 0 : (grade <= 4 ? 1 : 2);
+    // Mix types slightly for variety
+    let type = 'shape';
+    if (difficultyLevel === 1) type = index % 2 === 0 ? 'arrow' : 'shape';
+    if (difficultyLevel === 2) type = index % 2 === 0 ? 'grid' : 'arrow';
+    
+    if (type === 'shape') {
+        const shapes = ['circle', 'square', 'triangle'];
+        const base = shapes[getRandomInt(0, 2)];
+        const other = shapes.find(s => s !== base) || 'triangle';
+        const fill = Math.random() > 0.5;
+        // Logic: A, A, B -> ? (B)
+        return {
+            grid: [
+                { type: 'shape', shape: base, count: 1, fill },
+                { type: 'shape', shape: base, count: 2, fill },
+                { type: 'shape', shape: other, count: 1, fill }
+            ],
+            target: { type: 'shape', shape: other, count: 2, fill },
+            distractors: [
+                { type: 'shape', shape: base, count: 2, fill },
+                { type: 'shape', shape: other, count: 1, fill: !fill }
+            ]
+        };
+    }
+    
+    if (type === 'arrow') {
+        const startRot = getRandomInt(0, 3) * 90;
+        const step = difficultyLevel === 0 ? 90 : 45;
+        return {
+            grid: [0, 1, 2].map(i => ({ type: 'arrow', rotation: (startRot + i * step) % 360 })),
+            target: { type: 'arrow', rotation: (startRot + 3 * step) % 360 },
+            distractors: [
+                { type: 'arrow', rotation: (startRot + 2 * step + 180) % 360 },
+                { type: 'arrow', rotation: (startRot + 180) % 360 }
+            ]
+        };
+    }
+
+    // 'grid' logic
+    const startPos = getRandomInt(1, 2);
+    return {
+        grid: [0, 1, 2].map(i => ({ type: 'grid', count: ((startPos + i - 1) % 4) + 1 })),
+        target: { type: 'grid', count: ((startPos + 3 - 1) % 4) + 1 },
+        distractors: [
+            { type: 'grid', count: ((startPos + 1 - 1) % 4) + 1 },
+            { type: 'grid', count: ((startPos + 2 - 1) % 4) + 1 }
+        ]
+    };
+};
+
 const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
     const grade = parseInt(gradeStr.split('.')[0]) || 1;
     
     if (category === 'reading') {
         const items = [];
         
-        // PART 1: Lexical Decision (Word Recognition)
-        // Adjust word complexity by grade
-        const lexicalItems = [];
+        // 1. Lexical Decision (Kelime Tanıma)
+        // Measures: Decoding speed and orthographic lexicon
+        let realWords: string[] = [], fakeWords: string[] = [];
         if (grade <= 2) {
-            const real = ['Anne', 'Baba', 'Okul', 'Kapı', 'Kedi', 'Top', 'Su', 'Elma'];
-            const fake = ['Nane', 'Buba', 'Ukul', 'Kipı', 'Deki', 'Pot', 'Us', 'Alma'];
-            for(let i=0; i<6; i++) {
-                const isReal = Math.random() > 0.5;
-                lexicalItems.push({
-                    subtype: 'lexical',
-                    q: isReal ? real[i] : fake[i],
-                    isReal: isReal,
-                    id: `lex-${i}`
-                });
-            }
+            realWords = ['Elma', 'Kapı', 'Masa', 'Oyun', 'Baba', 'Anne', 'Okul', 'Kedi'];
+            fakeWords = ['Elmu', 'Kapi', 'Maso', 'Oyon', 'Bubu', 'Anni', 'Ukul', 'Kidi'];
+        } else if (grade <= 4) {
+            realWords = ['Sandalye', 'Pencere', 'Öğretmen', 'Kardeş', 'Telefon', 'Bahçe', 'Yastık', 'Gömlek'];
+            fakeWords = ['Sandelye', 'Pencire', 'Öğretman', 'Kardaş', 'Telofon', 'Bahça', 'Yastik', 'Gömle'];
         } else {
-            const real = ['Televizyon', 'Cumhuriyet', 'Sandalye', 'Öğretmen', 'Hastane', 'Bilgisayar', 'Arkadaşlık', 'Kütüphane'];
-            const fake = ['Telizyon', 'Cuhmuriyet', 'Saldanye', 'Ötğermen', 'Hatsane', 'Gilbisayar', 'Arkadaş', 'Kütüp'];
-            for(let i=0; i<6; i++) {
-                const isReal = Math.random() > 0.5;
-                lexicalItems.push({
-                    subtype: 'lexical',
-                    q: isReal ? real[i] : fake[i],
-                    isReal: isReal,
-                    id: `lex-${i}`
-                });
-            }
+            realWords = ['Cumhuriyet', 'Sorumluluk', 'Teknoloji', 'Mühendis', 'Biyoloji', 'Edebiyat', 'Medeniyet', 'Özgürlük'];
+            fakeWords = ['Cumhuriye', 'Sorumlulu', 'Tekneloji', 'Mühindis', 'Biyoliji', 'Edebiyta', 'Medeniye', 'Özgürlü'];
         }
-        items.push(...shuffle(lexicalItems));
+        
+        for(let i=0; i<6; i++) {
+            const isReal = Math.random() > 0.5;
+            items.push({ subtype: 'lexical', q: isReal ? realWords[i] : fakeWords[i], isReal, id: `lex-${i}` });
+        }
 
-        // PART 2: Sentence Comprehension (Cloze Test)
-        const sentenceItems = [];
+        // 2. Sentence Comprehension (Cümle Anlama)
+        // Measures: Syntactic processing and semantic understanding
+        let sentences: {q: string, opts: string[], a: string}[] = [];
         if (grade <= 2) {
-            const sentences = [
+            sentences = [
                 { q: "Ali topu ___.", opts: ["attı", "yedi", "uyudu"], a: "attı" },
                 { q: "Ayşe okula ___.", opts: ["gitti", "uçtu", "yüzdü"], a: "gitti" },
                 { q: "Kedi süt ___.", opts: ["içti", "giydi", "yazdı"], a: "içti" },
                 { q: "Gökyüzü ___ renktir.", opts: ["mavi", "kare", "ekşi"], a: "mavi" }
             ];
-            sentenceItems.push(...shuffle(sentences).slice(0, 4));
         } else if (grade <= 4) {
-            const sentences = [
-                { q: "Hava çok soğuk olduğu için ___ giydim.", opts: ["mont", "mayo", "terlik"], a: "mont" },
-                { q: "Kitap okumayı çok ___.", opts: ["seviyorum", "koşuyorum", "yüzüyorum"], a: "seviyorum" },
-                { q: "Dişlerimizi fırçalamak sağlığımız için ___.", opts: ["önemlidir", "zararlıdır", "gereksizdir"], a: "önemlidir" },
+            sentences = [
+                { q: "Hava soğuk olduğu için ___ giydim.", opts: ["mont", "mayo", "terlik"], a: "mont" },
+                { q: "Dişlerimizi fırçalamak ___ için önemlidir.", opts: ["sağlık", "uyku", "oyun"], a: "sağlık" },
                 { q: "Trafik ışığı kırmızı yanınca ___.", opts: ["durmalıyız", "geçmeliyiz", "koşmalıyız"], a: "durmalıyız" },
-                { q: "Yaz tatilinde denize girip ___.", opts: ["yüzdük", "kaydık", "üşüdük"], a: "yüzdük" }
+                { q: "Kitap okumak kelime hazinemizi ___.", opts: ["geliştirir", "azaltır", "yorar"], a: "geliştirir" }
             ];
-            sentenceItems.push(...shuffle(sentences).slice(0, 5));
         } else {
-            const sentences = [
-                { q: "Başarılı olmak için planlı ve düzenli ___ gerekir.", opts: ["çalışmak", "uyumak", "oynamak"], a: "çalışmak" },
-                { q: "Bilim insanları laboratuvarda yeni ___ yapıyorlar.", opts: ["deneyler", "yemekler", "resimler"], a: "deneyler" },
-                { q: "Küresel ısınma nedeniyle buzullar ___.", opts: ["eriyor", "donuyor", "büyüyor"], a: "eriyor" },
-                { q: "Empati kurmak, başkalarının duygularını ___ demektir.", opts: ["anlamak", "yargılamak", "görmezden gelmek"], a: "anlamak" },
-                { q: "Teknolojinin gelişmesiyle iletişim ___.", opts: ["hızlandı", "zorlaştı", "imkansızlaştı"], a: "hızlandı" }
+            sentences = [
+                { q: "Başarılı olmak için disiplinli ___ gerekir.", opts: ["çalışmak", "uyumak", "gezmek"], a: "çalışmak" },
+                { q: "Empati, başkalarının duygularını ___ demektir.", opts: ["anlamak", "yargılamak", "yok saymak"], a: "anlamak" },
+                { q: "Erozyonu önlemek için ___ dikmeliyiz.", opts: ["ağaç", "bina", "direk"], a: "ağaç" },
+                { q: "Bilimsel deneyler ___ ortamında yapılır.", opts: ["laboratuvar", "kütüphane", "spor salonu"], a: "laboratuvar" }
             ];
-            sentenceItems.push(...shuffle(sentences).slice(0, 5));
         }
-
-        items.push(...sentenceItems.map((s, i) => ({
-            subtype: 'sentence',
-            q: s.q,
-            opts: s.opts,
-            a: s.a,
-            id: `sent-${i}`
-        })));
-
-        return items; // Mix of Lexical and Sentence items (ordered: Lexical first, then Sentence)
+        items.push(...shuffle(sentences).map((s, i) => ({ subtype: 'sentence', q: s.q, opts: s.opts, a: s.a, id: `sent-${i}` })));
+        
+        return items;
     }
     
     if (category === 'math') {
         const items = [];
         for(let i=0; i<8; i++) {
-            let n1, n2, op, ans, opts;
-            if (grade <= 2) { 
-                n1 = getRandomInt(1, 20);
-                n2 = getRandomInt(1, 10);
-                op = Math.random() > 0.5 ? '+' : '-';
+            let n1=0, n2=0, op='', ans=0;
+            
+            if (grade === 1) {
+                // Simple Addition/Subtraction (0-20)
+                n1 = getRandomInt(1, 10); n2 = getRandomInt(1, 10); op = Math.random() > 0.5 ? '+' : '-';
                 if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
                 ans = op === '+' ? n1 + n2 : n1 - n2;
-            } else {
-                if (Math.random() > 0.5) {
-                    n1 = getRandomInt(2, 10);
-                    n2 = getRandomInt(2, 10);
-                    op = 'x';
-                    ans = n1 * n2;
-                } else {
-                    n1 = getRandomInt(20, 100);
-                    n2 = getRandomInt(10, 50);
-                    op = Math.random() > 0.5 ? '+' : '-';
-                    if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
-                    ans = op === '+' ? n1 + n2 : n1 - n2;
-                }
+            } else if (grade === 2) {
+                // Up to 100
+                n1 = getRandomInt(10, 50); n2 = getRandomInt(1, 20); op = Math.random() > 0.5 ? '+' : '-';
+                if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
+                ans = op === '+' ? n1 + n2 : n1 - n2;
+            } else if (grade === 3) {
+                // Intro to Multiplication
+                op = Math.random() > 0.3 ? (Math.random() > 0.5 ? '+' : '-') : 'x';
+                if (op === 'x') { n1 = getRandomInt(1, 9); n2 = getRandomInt(1, 9); ans = n1 * n2; }
+                else { n1 = getRandomInt(20, 100); n2 = getRandomInt(10, 50); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
+            } else if (grade === 4) {
+                // Mixed Operations
+                op = ['+', '-', 'x', '/'][getRandomInt(0,3)];
+                if (op === 'x') { n1 = getRandomInt(5, 12); n2 = getRandomInt(2, 9); ans = n1 * n2; }
+                else if (op === '/') { n2 = getRandomInt(2, 9); ans = getRandomInt(2, 12); n1 = n2 * ans; }
+                else { n1 = getRandomInt(50, 200); n2 = getRandomInt(20, 100); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
+            } else { // 5-6
+                // Advanced
+                op = ['+', '-', 'x', '/'][getRandomInt(0,3)];
+                if (op === 'x') { n1 = getRandomInt(10, 25); n2 = getRandomInt(2, 9); ans = n1 * n2; }
+                else if (op === '/') { n2 = getRandomInt(3, 12); ans = getRandomInt(5, 20); n1 = n2 * ans; }
+                else { n1 = getRandomInt(100, 999); n2 = getRandomInt(50, 500); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
             }
+            
             const dist1 = ans + getRandomInt(1, 5);
-            const dist2 = ans - getRandomInt(1, 5);
-            opts = shuffle([ans, dist1, dist2]);
-            items.push({ q: `${n1} ${op} ${n2} = ?`, opts, a: ans, id: i });
+            const dist2 = Math.max(0, ans - getRandomInt(1, 5));
+            const opts = shuffle([ans, dist1, dist2]);
+            items.push({ q: `${n1} ${op.replace('x', '×').replace('/', '÷')} ${n2} = ?`, opts, a: ans, id: i });
         }
         return items;
     }
 
     if (category === 'visual') {
         const items = [];
-        
-        // Logic: Rotation, Shape Progression, Grid Movement
-        // (Logic kept same as previous iteration for brevity, but ensures professional rendering)
-        const createRotationMatrix = () => {
-            const type = Math.random() > 0.5 ? 'line' : 'arrow';
-            const startRot = getRandomInt(0, 3) * 90;
-            const step = 45;
-            const seq = [0, 1, 2].map(i => ({ type, rotation: (startRot + i * step) % 360 }));
-            const target = { type, rotation: (startRot + 3 * step) % 360 };
-            const distractors = [
-                { type, rotation: (startRot + 180) % 360 },
-                { type, rotation: (startRot - 45 + 360) % 360 }
-            ];
-            return { grid: seq, target, distractors };
-        };
-
-        const createShapeMatrix = () => {
-            const shapes = ['circle', 'square', 'triangle'];
-            const base = shapes[getRandomInt(0, 2)];
-            const otherShape = shapes.find(s => s !== base) || 'triangle';
-            const fill = Math.random() > 0.5;
-            const seq = [
-                { type: 'shape', shape: base, count: 1, fill },
-                { type: 'shape', shape: base, count: 2, fill },
-                { type: 'shape', shape: otherShape, count: 1, fill }
-            ];
-            const target = { type: 'shape', shape: otherShape, count: 2, fill };
-            const distractors = [
-                { type: 'shape', shape: otherShape, count: 1, fill },
-                { type: 'shape', shape: base, count: 2, fill }
-            ];
-            return { grid: seq, target, distractors };
-        };
-
-        const createGridMatrix = () => {
-            const startPos = getRandomInt(1, 4);
-            const nextPos = (pos: number) => pos >= 4 ? 1 : pos + 1;
-            const seq = [
-                { type: 'grid', count: startPos },
-                { type: 'grid', count: nextPos(startPos) },
-                { type: 'grid', count: nextPos(nextPos(startPos)) }
-            ];
-            const target = { type: 'grid', count: nextPos(nextPos(nextPos(startPos))) };
-            const distractors = [
-                { type: 'grid', count: startPos },
-                { type: 'grid', count: nextPos(startPos) }
-            ];
-            return { grid: seq, target, distractors };
-        };
-
         for(let i=0; i<6; i++) {
-            let matrix;
-            if (i < 2) matrix = createRotationMatrix();
-            else if (i < 4) matrix = createShapeMatrix();
-            else matrix = createGridMatrix();
-
+            const matrix = createGradeAppropriateMatrix(grade, i);
             items.push({
                 type: 'matrix',
                 grid: matrix.grid,
@@ -239,12 +229,33 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
         return items;
     }
 
+    if (category === 'attention') {
+        let targets = ['b'], distractors = ['d'];
+        let totalItems = 30;
+        
+        if (grade <= 2) {
+            targets = ['O']; distractors = ['Q', 'C']; totalItems = 24;
+        } else if (grade <= 4) {
+            targets = ['b']; distractors = ['d']; totalItems = 36;
+        } else {
+            targets = ['b']; distractors = ['d', 'p', 'q', 'h']; totalItems = 48;
+        }
+
+        const gridItems = Array.from({ length: totalItems }).map(() => {
+            const isTarget = Math.random() < 0.25;
+            const char = isTarget ? targets[0] : distractors[getRandomInt(0, distractors.length-1)];
+            return { char, isSelected: false, isCorrectTarget: isTarget };
+        });
+        return gridItems;
+    }
+
     if (category === 'cognitive') {
         const items = [];
-        const icons = ['apple-whole', 'car', 'dog', 'cat', 'sun', 'moon', 'tree', 'fish']; 
+        // Working Memory Sequence
+        const len = grade <= 2 ? 3 : (grade <= 4 ? 4 : 5);
+        const icons = ['apple-whole', 'car', 'dog', 'cat', 'sun', 'moon', 'tree', 'fish', 'star', 'heart']; 
         
         for(let i=0; i<5; i++) {
-            const len = grade <= 2 ? 3 : 4;
             const seq = [];
             const pool = [...icons];
             for(let k=0; k<len; k++) {
@@ -396,7 +407,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
     const [testState, setTestState] = useState({
         score: 0, total: 0, startTime: 0, items: [] as any[], currentIndex: 0,
-        attentionState: [] as { char: string; isSelected: boolean; isCorrectTarget: boolean }[] 
+        attentionState: [] as { char: string; isSelected: boolean; isCorrectTarget: boolean }[],
+        answers: [] as {id: any, correct: boolean, subtype?: string}[]
     });
 
     // --- LOGIC ---
@@ -407,12 +419,12 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         if (isAttention) {
             setTestState({ 
                 score: 0, total: 1, startTime: Date.now(), items: [], currentIndex: 0,
-                attentionState: items 
+                attentionState: items, answers: [] 
             });
         } else {
             setTestState({ 
                 score: 0, total: items.length, startTime: Date.now(), items, currentIndex: 0,
-                attentionState: [] 
+                attentionState: [], answers: [] 
             });
             // If it's cognitive, trigger memorize immediately for the first item
             if (items.length > 0 && items[0]?.type === 'sequence') {
@@ -438,9 +450,11 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         // 2. Wait 1s then move
         setTimeout(() => {
             const nextScore = isCorrect ? testState.score + 1 : testState.score;
-            
+            const currentItem = testState.items[testState.currentIndex];
+            const newAnswers = [...testState.answers, { id: currentItem.id, correct: isCorrect, subtype: currentItem.subtype }];
+
             if (testState.items && testState.currentIndex < testState.items.length - 1) {
-                setTestState(prev => ({ ...prev, score: nextScore, currentIndex: prev.currentIndex + 1 }));
+                setTestState(prev => ({ ...prev, score: nextScore, currentIndex: prev.currentIndex + 1, answers: newAnswers }));
                 
                 // If next item is cognitive, trigger memory phase
                 const nextItem = testState.items[testState.currentIndex + 1];
@@ -450,7 +464,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 
                 setFeedbackState('none');
             } else {
-                finishTest(nextScore, category, testName);
+                finishTest(nextScore, category, testName, newAnswers);
             }
         }, 1000); 
     };
@@ -481,9 +495,28 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         saveResult('attention', 'Dikkat Testi (d-b Ayrımı)', score, totalTargets, accuracy, duration);
     };
 
-    const finishTest = (finalScore: number, category: TestCategory, testName: string) => {
+    const finishTest = (finalScore: number, category: TestCategory, testName: string, answers: any[]) => {
         const duration = Math.round((Date.now() - testState.startTime) / 1000);
         const accuracy = testState.total > 0 ? (finalScore / testState.total) * 100 : 0;
+        
+        // Detailed tracking for Reading
+        if (category === 'reading') {
+            const lexicalCorrect = answers.filter(a => a.subtype === 'lexical' && a.correct).length;
+            const lexicalTotal = answers.filter(a => a.subtype === 'lexical').length;
+            const sentenceCorrect = answers.filter(a => a.subtype === 'sentence' && a.correct).length;
+            const sentenceTotal = answers.filter(a => a.subtype === 'sentence').length;
+            
+            // Inject details into observations specifically for the AI prompt
+            setProfile(prev => ({
+                ...prev,
+                observations: [
+                    ...prev.observations,
+                    `Lexical Reading Score: ${lexicalCorrect}/${lexicalTotal}`,
+                    `Sentence Comprehension Score: ${sentenceCorrect}/${sentenceTotal}`
+                ]
+            }));
+        }
+
         saveResult(category, testName, finalScore, testState.total, accuracy, duration);
     };
 
@@ -511,7 +544,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const triggerTransition = (msg: string, nextStepIndex: number) => {
         setIsTransitioning(true);
         setTransitionMessage(msg);
-        setTestState(prev => ({ ...prev, items: [], attentionState: [], currentIndex: 0 }));
+        setTestState(prev => ({ ...prev, items: [], attentionState: [], currentIndex: 0, answers: [] }));
 
         setTimeout(() => {
             setCurrentStep(nextStepIndex);
@@ -527,14 +560,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         } else if (currentStep === 3 && testState.items.length === 0) { // Math
             startTestPhase(generateDynamicTest('math', profile.grade));
         } else if (currentStep === 4 && testState.attentionState.length === 0) { // Attention
-            const targets = ['b'];
-            const distractors = ['d', 'p', 'q', 'h'];
-            const gridItems = Array.from({ length: 36 }).map(() => {
-                const isTarget = Math.random() < 0.3;
-                const char = isTarget ? targets[0] : distractors[getRandomInt(0, distractors.length-1)];
-                return { char, isSelected: false, isCorrectTarget: isTarget };
-            });
-            startTestPhase(gridItems, true);
+            startTestPhase(generateDynamicTest('attention', profile.grade), true);
         } else if (currentStep === 5 && testState.items.length === 0) { // Visual (Matrix)
             startTestPhase(generateDynamicTest('visual', profile.grade));
         } else if (currentStep === 6 && testState.items.length === 0) { // Cognitive (Memory)
@@ -567,7 +593,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const isTestReady = (isAttention = false) => {
         if (isTransitioning) return false;
         if (isAttention) return testState.attentionState && testState.attentionState.length > 0;
-        return testState.items && testState.items.length > 0 && !!testState.items[testState.currentIndex];
+        return testState.items && testState.items.length > 0 && !!testState.items?.[testState.currentIndex];
     };
 
     const currentItem = testState.items?.[testState.currentIndex];
@@ -728,7 +754,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                 <div className="pt-6 px-6 flex justify-between items-center border-b pb-4 border-zinc-100 dark:border-zinc-700">
                                     <div>
                                         <h3 className="font-bold text-lg">Dikkat Testi</h3>
-                                        <p className="text-xs text-zinc-500">Sadece "b" harflerini bul ve işaretle.</p>
+                                        <p className="text-xs text-zinc-500">Sadece "{testState.attentionState.find(i=>i.isCorrectTarget)?.char}" harflerini bul ve işaretle.</p>
                                     </div>
                                     <button onClick={finishAttentionTest} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-full shadow-md transition-colors">
                                         Tamamla

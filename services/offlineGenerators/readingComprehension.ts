@@ -235,9 +235,10 @@ export const generateOfflineProverbFillInTheBlank = async (options: GeneratorOpt
 export const generateOfflineProverbSayingSort = async (options: GeneratorOptions): Promise<ProverbSayingSortData[]> => {
     const { itemCount, worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => {
+        const countPerType = Math.ceil((itemCount || 8) / 2);
         const items = shuffle([
-            ...getRandomItems(PROVERBS, 4).map(t => ({text: t, type: 'atasözü' as const})),
-            ...getRandomItems(SAYINGS, 4).map(t => ({text: t, type: 'özdeyiş' as const}))
+            ...getRandomItems(PROVERBS, countPerType).map(t => ({text: t, type: 'atasözü' as const})),
+            ...getRandomItems(SAYINGS, countPerType).map(t => ({text: t, type: 'özdeyiş' as const}))
         ]);
         return {
             title: 'Atasözü mü Özdeyiş mi?',

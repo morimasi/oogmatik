@@ -1,3 +1,4 @@
+
 import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, WordMemoryItem } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
@@ -5,7 +6,8 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
     const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
     const results: WordMemoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
+        const count = itemCount || 12;
+        const memorizeCount = Math.floor(count * ((memorizeRatio || 50) / 100));
         
         let finalPool: string[] = [];
         if (difficulty === 'Zor' || difficulty === 'Uzman') {
@@ -19,11 +21,11 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
         }
 
         // Ensure we have enough items
-        if (finalPool.length < itemCount) {
+        if (finalPool.length < count) {
             finalPool = [...finalPool, ...getWordsForDifficulty(difficulty, 'Rastgele')];
         }
         
-        const allWords = getRandomItems(finalPool, itemCount);
+        const allWords = getRandomItems(finalPool, count);
         
         results.push({
             title: 'Kelime Hafıza (Hızlı Mod)',
@@ -31,9 +33,7 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
             pedagogicalNote: "Kısa süreli işitsel-sözel bellek kapasitesini ölçer.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
-            // FIX: Convert string[] to WordMemoryItem[]
             wordsToMemorize: allWords.slice(0, memorizeCount).map(word => ({ text: word })),
-            // FIX: Convert string[] to WordMemoryItem[]
             testWords: shuffle(allWords).map(word => ({ text: word }))
         });
     }
@@ -45,8 +45,9 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
     const { itemCount, worksheetCount, memorizeRatio } = options;
     const results: VisualMemoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
-        const allEmojis = getRandomItems(Object.keys(EMOJI_MAP), itemCount);
+        const count = itemCount || 12;
+        const memorizeCount = Math.floor(count * ((memorizeRatio || 50) / 100));
+        const allEmojis = getRandomItems(Object.keys(EMOJI_MAP), count);
         const allItems = allEmojis.map(emoji => ({
             description: `${EMOJI_MAP[emoji]} ${emoji}`
         }));
@@ -70,13 +71,15 @@ export const generateOfflineNumberSearch = async (options: GeneratorOptions): Pr
     const results: NumberSearchData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         let range = { start: 1, end: 20 };
+        const count = itemCount || 50;
         
-        if (difficulty === 'Orta') range = { start: 1, end: (itemCount || 50) };
-        if (difficulty === 'Zor') range = { start: 100, end: 100 + (itemCount || 50) };
-        if (difficulty === 'Uzman') range = { start: 1000, end: 1000 + (itemCount || 50) };
+        if (difficulty === 'Orta') range = { start: 1, end: count };
+        if (difficulty === 'Zor') range = { start: 100, end: 100 + count };
+        if (difficulty === 'Uzman') range = { start: 1000, end: 1000 + count };
 
         const numbersToFind = Array.from({ length: range.end - range.start + 1 }, (_, k) => k + range.start);
         
+        // Create enough distractors based on grid size approx
         const distractors = Array.from({ length: 150 - numbersToFind.length }, () => {
              const base = getRandomInt(range.start, range.end);
              if (difficulty === 'Zor' || difficulty === 'Uzman') {
@@ -107,7 +110,7 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
     const cols = options.cols || (difficulty === 'Başlangıç' ? 8 : difficulty === 'Orta' ? 12 : 15);
 
     for (let i = 0; i < worksheetCount; i++) {
-        const rows = Array.from({ length: itemCount }, () => {
+        const rows = Array.from({ length: itemCount || 10 }, () => {
             let pool: string[] = [];
             
             if (difficulty === 'Zor' || difficulty === 'Uzman') {
@@ -206,7 +209,7 @@ export const generateOfflineBurdonTest = async (options: GeneratorOptions): Prom
 
 
 export const generateOfflineFindLetterPair = async (options: GeneratorOptions): Promise<FindLetterPairData[]> => {
-    const { gridSize, difficulty, worksheetCount, targetPair } = options;
+    const { gridSize, difficulty, worksheetCount, targetPair, itemCount } = options;
     const results: FindLetterPairData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 15;
@@ -214,10 +217,11 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
         
         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
         
-        const pairCount = 5 + getRandomInt(0, 3);
+        const pairCount = itemCount || (5 + getRandomInt(0, 3));
         for (let k = 0; k < pairCount; k++) {
             const r = getRandomInt(0, size - 1);
             const c = getRandomInt(0, size - 2);
+            // Ensure we don't overwrite
             grid[r][c] = pair[0];
             grid[r][c + 1] = pair[1];
         }
@@ -235,7 +239,7 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
 
 
 export const generateOfflineTargetSearch = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
-    const { gridSize, difficulty, worksheetCount, targetChar, distractorChar } = options;
+    const { gridSize, difficulty, worksheetCount, targetChar, distractorChar, itemCount } = options;
     const results: TargetSearchData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 20;
@@ -243,10 +247,12 @@ export const generateOfflineTargetSearch = async (options: GeneratorOptions): Pr
         const distractor = distractorChar || (difficulty === 'Başlangıç' ? 'O' : 'b');
         
         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => distractor));
-        const targetCount = getRandomInt(15, 25);
+        const targetCount = itemCount || getRandomInt(15, 25);
         
         for (let k = 0; k < targetCount; k++) {
-            grid[getRandomInt(0, size - 1)][getRandomInt(0, size - 1)] = target;
+            const r = getRandomInt(0, size - 1);
+            const c = getRandomInt(0, size - 1);
+            grid[r][c] = target;
         }
         results.push({ 
             title: 'Dikkatli Göz', 
@@ -264,7 +270,8 @@ export const generateOfflineColorWheelMemory = async (options: GeneratorOptions)
     const {itemCount, worksheetCount} = options;
     const results: ColorWheelMemoryData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const emojis = getRandomItems(Object.keys(EMOJI_MAP), itemCount);
+        const count = itemCount || 8;
+        const emojis = getRandomItems(Object.keys(EMOJI_MAP), count);
         const items = emojis.map((emoji, index) => ({
             name: `${EMOJI_MAP[emoji]} ${emoji}`,
             color: COLORS[index % COLORS.length].css
@@ -321,8 +328,9 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     const adjectives = ['Mutlu', 'Üzgün', 'Hızlı', 'Yavaş', 'Büyük', 'Küçük', 'Renkli', 'Komik', 'Kızgın', 'Şaşkın'];
     const results: CharacterMemoryData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const memorizeCount = Math.floor(itemCount * ((memorizeRatio || 50) / 100));
-        const allEmojis = getRandomItems(Object.keys(EMOJI_MAP), itemCount);
+        const count = itemCount || 12;
+        const memorizeCount = Math.floor(count * ((memorizeRatio || 50) / 100));
+        const allEmojis = getRandomItems(Object.keys(EMOJI_MAP), count);
         const allItems = allEmojis.map(emoji => ({
             description: `${getRandomItems(adjectives, 1)[0]} ${EMOJI_MAP[emoji]} ${emoji}`
         }));
@@ -346,7 +354,7 @@ export const generateOfflineStroopTest = async (options: GeneratorOptions): Prom
     const colors = COLORS.filter(c => c.css !== '#f0f0f0' && c.css !== 'silver' && c.css !== 'beige');
 
     for (let i = 0; i < worksheetCount; i++) {
-        const items = Array.from({ length: itemCount }).map(() => {
+        const items = Array.from({ length: itemCount || 20 }).map(() => {
             const textObj = getRandomItems(colors, 1)[0];
             const conflictColors = colors.filter(c => c.name !== textObj.name);
             const colorObj = getRandomItems(conflictColors, 1)[0];

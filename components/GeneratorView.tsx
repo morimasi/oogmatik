@@ -61,7 +61,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.SYLLABLE_WORD_SEARCH:
                 return [
                     ...commonFields,
-                    itemCountField(10, 5, 20, 'Kelime Sayısı'),
+                    itemCountField(10, 5, 25, 'Kelime Sayısı'),
                     gridSizeField(12, 8, 20),
                     { key: 'case', label: 'Harf', type: 'select', defaultValue: 'upper', width: 'half', options: [{label: 'BÜYÜK', value: 'upper'}, {label: 'küçük', value: 'lower'}] },
                     { key: 'directions', label: 'Yönler', type: 'select', defaultValue: 'simple', width: 'half', options: [{label: 'Basit', value: 'simple'}, {label: 'Çapraz', value: 'diagonal'}, {label: 'Tümü', value: 'all'}] }
@@ -72,7 +72,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.POSITIONAL_ANAGRAM:
                 return [
                     ...commonFields,
-                    itemCountField(8, 4, 15, 'Kelime'),
+                    itemCountField(8, 4, 16, 'Kelime'),
                     { key: 'showImages', label: 'Görsel İpucu', type: 'checkbox', defaultValue: true, width: 'half' }
                 ];
             case ActivityType.CROSSWORD:
@@ -81,14 +81,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                  return [
                     ...commonFields,
                     gridSizeField(10, 8, 15),
-                    itemCountField(8, 5, 12, 'Kelime'),
+                    itemCountField(8, 5, 15, 'Kelime'),
                     { key: 'passwordLength', label: 'Şifre Uz.', type: 'number', defaultValue: 5, min: 3, max: 10, width: 'half' },
                     { key: 'clueType', label: 'İpucu', type: 'select', defaultValue: 'def', width: 'half', options: [{label: 'Tanım', value: 'def'}, {label: 'Eş Anlam', value: 'syn'}, {label: 'Zıt Anlam', value: 'ant'}] }
                 ];
             case ActivityType.WORD_LADDER:
                 return [
                      { key: 'steps', label: 'Basamak', type: 'number', defaultValue: 4, min: 3, max: 6, width: 'half' },
-                     itemCountField(2, 1, 4, 'Adet')
+                     itemCountField(2, 1, 6, 'Adet')
                 ];
             case ActivityType.SPELLING_CHECK:
             case ActivityType.REVERSE_WORD:
@@ -102,14 +102,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [ ...commonFields, itemCountField(8, 4, 20) ];
             case ActivityType.WORD_GROUPING:
                  return [
-                     itemCountField(12, 6, 20, 'Toplam'),
+                     itemCountField(12, 6, 24, 'Toplam'),
                      { key: 'categoryCount', label: 'Kategori', type: 'number', defaultValue: 3, min: 2, max: 4, width: 'half'},
                  ];
             case ActivityType.WORD_WEB:
             case ActivityType.WORD_WEB_WITH_PASSWORD:
             case ActivityType.WORD_PLACEMENT_PUZZLE:
             case ActivityType.WORD_GRID_PUZZLE:
-                return [ ...commonFields, itemCountField(10, 6, 15, 'Kelime'), gridSizeField(15, 10, 20) ];
+                return [ ...commonFields, itemCountField(10, 6, 20, 'Kelime'), gridSizeField(15, 10, 20) ];
 
             // Math
             case ActivityType.MATH_PUZZLE:
@@ -122,24 +122,27 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [
                     { key: 'operations', label: 'İşlemler', type: 'select', defaultValue: 'addsub', width: 'full', options: [{label: 'Toplama (+)', value: 'add'}, {label: 'Topla & Çıkar', value: 'addsub'}, {label: 'Çarpma (+ - x)', value: 'mult'}, {label: 'Dört İşlem', value: 'all'}]},
                     { key: 'numberRange', label: 'Aralık', type: 'select', defaultValue: '1-20', width: 'half', options: ['1-10', '1-20', '1-50', '1-100', '100-1000'] },
-                    itemCountField(6, 4, 12)
+                    itemCountField(6, 4, 20)
                 ];
             case ActivityType.NUMBER_PATTERN:
             case ActivityType.SHAPE_NUMBER_PATTERN:
             case ActivityType.VISUAL_NUMBER_PATTERN:
                  return [
                     { key: 'patternType', label: 'Örüntü', type: 'select', defaultValue: 'arithmetic', width: 'full', options: [{label: 'Aritmetik', value: 'arithmetic'}, {label: 'Geometrik', value: 'geometric'}, {label: 'Karmaşık', value: 'complex'}]},
-                    itemCountField(8, 4, 12)
+                    itemCountField(8, 4, 20)
                  ];
             case ActivityType.SUDOKU_6X6_SHADED:
             case ActivityType.SHAPE_SUDOKU:
             case ActivityType.ODD_EVEN_SUDOKU:
             case ActivityType.FUTOSHIKI:
+            case ActivityType.FUTOSHIKI_LENGTH:
             case ActivityType.NUMBER_PYRAMID:
             case ActivityType.DIVISION_PYRAMID:
             case ActivityType.MULTIPLICATION_PYRAMID:
             case ActivityType.LOGIC_GRID_PUZZLE:
-                return [ itemCountField(2, 1, 4, 'Adet') ];
+            case ActivityType.ROMAN_NUMERAL_STAR_HUNT:
+                // Increased limits for math/logic games as requested
+                return [ itemCountField(2, 1, 20, 'Bulmaca Sayısı') ];
 
             // Reading
             case ActivityType.STORY_COMPREHENSION:
@@ -171,7 +174,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.VISUAL_ODD_ONE_OUT_THEMED:
                  return [
                     ...commonFields,
-                    itemCountField(8, 5, 15),
+                    itemCountField(8, 5, 20),
                     { key: 'similarity', label: 'Benzerlik', type: 'select', defaultValue: 'high', width: 'half', options: [{label: 'Düşük', value: 'low'}, {label: 'Yüksek', value: 'high'}]}
                  ];
             case ActivityType.LETTER_GRID_TEST:
@@ -184,7 +187,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                  return [
                     gridSizeField(20, 10, 30),
                     { key: 'targetChar', label: 'Hedef', type: 'text', defaultValue: 'd', width: 'half'},
-                    { key: 'distractorChar', label: 'Çeldirici', type: 'text', defaultValue: 'b', width: 'half'}
+                    { key: 'distractorChar', label: 'Çeldirici', type: 'text', defaultValue: 'b', width: 'half'},
+                    itemCountField(20, 10, 50, 'Hedef Sayısı')
+                 ];
+            case ActivityType.FIND_LETTER_PAIR:
+                 return [
+                    gridSizeField(15, 10, 25),
+                    { key: 'targetPair', label: 'İkili (örn: bd)', type: 'text', defaultValue: 'bd', width: 'half'},
+                    itemCountField(8, 4, 20, 'Gizli Çift')
                  ];
             case ActivityType.FIND_THE_DUPLICATE_IN_ROW:
                  return [
@@ -193,14 +203,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                  ]
             case ActivityType.STROOP_TEST:
             case ActivityType.CHAOTIC_NUMBER_SEARCH:
-                 return [itemCountField(20, 10, 40)];
+                 return [itemCountField(20, 10, 50)];
 
             // Visual
             case ActivityType.GRID_DRAWING:
             case ActivityType.SYMMETRY_DRAWING:
             case ActivityType.MATCHSTICK_SYMMETRY:
                 return [
-                    itemCountField(2, 1, 4, 'Adet'),
+                    itemCountField(2, 1, 6, 'Adet'),
                     gridSizeField(8, 5, 12),
                 ];
             case ActivityType.SHAPE_MATCHING:
@@ -214,11 +224,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.LENGTH_CONNECT:
             case ActivityType.STAR_HUNT:
                 return [
-                    itemCountField(8, 4, 12),
+                    itemCountField(8, 4, 20),
                     gridSizeField(10, 6, 15)
                 ];
             case ActivityType.PUNCTUATION_COLORING:
             case ActivityType.SYNONYM_ANTONYM_COLORING:
+                return [ ...commonFields, itemCountField(4, 2, 20, 'Soru Sayısı') ];
             case ActivityType.DOT_PAINTING:
             case ActivityType.SYLLABLE_TRAIN:
                 return [ ...commonFields ];
@@ -227,6 +238,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [{ key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' }];
             case ActivityType.RAPID_NAMING:
                 return [{ key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] }];
+
+            case ActivityType.PROVERB_SAYING_SORT:
+                return [ ...commonFields, itemCountField(8, 4, 20) ];
 
             default:
                 return [ ...commonFields, itemCountField(10, 5, 20) ];
