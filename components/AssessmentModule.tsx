@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AssessmentProfile, AssessmentReport, ActivityType, TestCategory } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
@@ -110,9 +110,10 @@ const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
 
     return (
         <svg width={size} height={size} className="mx-auto drop-shadow-xl">
-            {[20, 40, 60, 80, 100].map((level, idx) => {
+            <circle cx={center} cy={center} r={radius} fill="none" stroke="#e5e7eb" strokeWidth="1" />
+            {[20, 40, 60, 80].map((level, idx) => {
                 const pts = data.map((_, i) => getCoords(level, i)).map(p => `${p.x},${p.y}`).join(' ');
-                return <polygon key={idx} points={pts} fill={idx % 2 === 0 ? "#f3f4f6" : "#fff"} stroke="#e5e7eb" strokeWidth="1" />;
+                return <polygon key={idx} points={pts} fill="none" stroke="#f3f4f6" strokeWidth="1" strokeDasharray="4 4" />;
             })}
             {data.map((_, i) => {
                 const p = getCoords(100, i);
@@ -121,7 +122,7 @@ const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
             <polygon points={points} fill="rgba(99, 102, 241, 0.4)" stroke="#4f46e5" strokeWidth="3" />
             {data.map((d, i) => {
                 const p = getCoords(d.value, i);
-                const labelP = getCoords(120, i);
+                const labelP = getCoords(125, i);
                 return (
                     <g key={i}>
                         <circle cx={p.x} cy={p.y} r="5" fill="#4f46e5" stroke="white" strokeWidth="2" />
@@ -181,6 +182,13 @@ const ObservationList = ({ observations, setProfile }: { observations: string[],
     );
 };
 
+const LoadingSpinner = () => (
+    <div className="flex flex-col items-center justify-center h-full p-12">
+        <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+        <p className="text-zinc-500 font-medium animate-pulse">Yükleniyor...</p>
+    </div>
+);
+
 // --- MAIN COMPONENT ---
 
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity }) => {
@@ -217,16 +225,17 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         // Visual Feedback
         setFeedbackState(isCorrect ? 'correct' : 'wrong');
         
-        // Small delay before moving to next question
+        // 1s delay before moving to next question or finishing
         setTimeout(() => {
             const nextScore = isCorrect ? testState.score + 1 : testState.score;
+            
             if (testState.currentIndex < testState.items.length - 1) {
                 setTestState(prev => ({ ...prev, score: nextScore, currentIndex: prev.currentIndex + 1 }));
                 setFeedbackState('none');
             } else {
                 finishTest(nextScore, category, testName);
             }
-        }, 600); // 600ms delay
+        }, 1000); 
     };
 
     const handleAttentionClick = (index: number) => {
@@ -247,7 +256,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         });
         score = Math.max(0, score); // Negatif skor engelleme
         
-        // Calculate accuracy based on precision and recall logic roughly
         const accuracy = totalTargets > 0 ? Math.min(100, (score / totalTargets) * 100) : 0;
         const duration = Math.round((Date.now() - testState.startTime) / 1000);
         
@@ -256,7 +264,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
     const finishTest = (finalScore: number, category: TestCategory, testName: string) => {
         const duration = Math.round((Date.now() - testState.startTime) / 1000);
-        const accuracy = (finalScore / testState.total) * 100;
+        const accuracy = testState.total > 0 ? (finalScore / testState.total) * 100 : 0;
         saveResult(category, testName, finalScore, testState.total, accuracy, duration);
     };
 
@@ -268,42 +276,47 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 [id]: { id, name, score, total, accuracy, duration, timestamp: Date.now() }
             }
         }));
-        setCurrentStep(prev => prev + 1);
+        
         setFeedbackState('none');
+        // Explicitly clear items so next test can show loading state instead of stale data
+        setTestState(prev => ({ ...prev, items: [], attentionState: [], currentIndex: 0 }));
+        setCurrentStep(prev => prev + 1);
     };
 
     // --- STEP EFFECTS ---
     useEffect(() => {
-        if (currentStep === 2) { 
-            const questions = generateDynamicTest('reading', profile.grade);
-            startTestPhase(questions);
-        } else if (currentStep === 3) { 
-            const questions = generateDynamicTest('math', profile.grade);
-            startTestPhase(questions);
-        } else if (currentStep === 4) { 
-            // Professional Grid: 36 items (6x6)
-            // Targets: 'b', Distractors: 'd', 'p', 'q'
-            const targets = ['b'];
-            const distractors = ['d', 'p', 'q', 'h'];
-            const gridItems = Array.from({ length: 36 }).map(() => {
-                const isTarget = Math.random() < 0.3; // 30% Target density
-                const char = isTarget ? targets[0] : distractors[getRandomInt(0, distractors.length-1)];
-                return { char, isSelected: false, isCorrectTarget: isTarget };
-            });
-            startTestPhase(gridItems, true);
-        } else if (currentStep === 5) { 
-            const questions = generateDynamicTest('visual', profile.grade);
-            startTestPhase(questions);
-        } else if (currentStep === 7) { 
-            handleReportGeneration();
-        }
+        // Use a timeout to break the render cycle and allow UI update
+        const timer = setTimeout(() => {
+            if (currentStep === 2) { // Reading
+                const questions = generateDynamicTest('reading', profile.grade);
+                startTestPhase(questions);
+            } else if (currentStep === 3) { // Math
+                const questions = generateDynamicTest('math', profile.grade);
+                startTestPhase(questions);
+            } else if (currentStep === 4) { // Attention
+                const targets = ['b'];
+                const distractors = ['d', 'p', 'q', 'h'];
+                const gridItems = Array.from({ length: 36 }).map(() => {
+                    const isTarget = Math.random() < 0.3;
+                    const char = isTarget ? targets[0] : distractors[getRandomInt(0, distractors.length-1)];
+                    return { char, isSelected: false, isCorrectTarget: isTarget };
+                });
+                startTestPhase(gridItems, true);
+            } else if (currentStep === 5) { // Visual
+                const questions = generateDynamicTest('visual', profile.grade);
+                startTestPhase(questions);
+            } else if (currentStep === 7) { // Generate Report
+                handleReportGeneration();
+            }
+        }, 50); // Small delay to ensure state reset propagates
+
+        return () => clearTimeout(timer);
     }, [currentStep, startTestPhase, profile.grade]);
 
     const handleReportGeneration = async () => {
         setIsLoading(true);
         try {
-            // Artificial delay for UX to show "Thinking" animation
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 1500)); // "Thinking" delay
             const result = await generateAssessmentReport(profile);
             setReport(result);
             setIsLoading(false);
@@ -311,9 +324,16 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         } catch (error) {
             console.error(error);
             setIsLoading(false);
-            setCurrentStep(6);
-            alert("Rapor oluşturulurken bir hata oluştu.");
+            alert("Rapor oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
+            setCurrentStep(6); // Go back
         }
+    };
+
+    // Safe check to prevent rendering before data is ready
+    const isTestReady = (isAttention = false) => {
+        if (isAttention) return testState.attentionState && testState.attentionState.length > 0;
+        // Check if items exist AND if currentIndex is valid
+        return testState.items && testState.items.length > 0 && testState.items[testState.currentIndex];
     };
 
     // --- RENDER ---
@@ -337,7 +357,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         )
                     })}
                 </div>
-                <div className="w-16"></div> {/* Spacer */}
+                <div className="w-16"></div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start md:items-center">
@@ -398,109 +418,123 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
                     {/* --- 2: READING (LEXICAL) --- */}
                     {currentStep === 2 && (
-                        <div className="flex flex-col h-full relative">
-                            {feedbackState !== 'none' && (
-                                <div className={`absolute inset-0 z-10 flex items-center justify-center bg-opacity-20 backdrop-blur-sm transition-all duration-300 ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                    <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-9xl text-white drop-shadow-lg animate-bounce`}></i>
-                                </div>
-                            )}
-                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest">Bu kelime gerçek mi?</h3>
-                                <div className="text-5xl md:text-7xl font-black mb-12 p-10 bg-white dark:bg-zinc-700 border-4 border-zinc-100 dark:border-zinc-600 rounded-3xl w-full max-w-md shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic">
-                                    {testState.items[testState.currentIndex]?.q}
-                                </div>
-                                <div className="flex gap-6 w-full max-w-md">
-                                    <button onClick={() => handleAnswer(testState.items[testState.currentIndex]?.isReal === false, 'reading', 'Okuma')} className="flex-1 p-5 bg-rose-50 text-rose-600 font-black rounded-2xl border-b-4 border-rose-200 hover:bg-rose-100 transition-all text-xl shadow-sm">
-                                        HAYIR
-                                    </button>
-                                    <button onClick={() => handleAnswer(testState.items[testState.currentIndex]?.isReal === true, 'reading', 'Okuma')} className="flex-1 p-5 bg-emerald-50 text-emerald-600 font-black rounded-2xl border-b-4 border-emerald-200 hover:bg-emerald-100 transition-all text-xl shadow-sm">
-                                        EVET
-                                    </button>
+                        isTestReady() ? (
+                            <div className="flex flex-col h-full relative">
+                                {feedbackState !== 'none' && (
+                                    <div className={`absolute inset-0 z-10 flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in`}>
+                                        <div className={`w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transform scale-110 transition-transform ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                            <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-7xl text-white`}></i>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
+                                <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
+                                    <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest">Bu kelime gerçek mi?</h3>
+                                    <div className="text-5xl md:text-7xl font-black mb-12 p-10 bg-white dark:bg-zinc-700 border-4 border-zinc-100 dark:border-zinc-600 rounded-3xl w-full max-w-md shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic select-none">
+                                        {testState.items[testState.currentIndex].q}
+                                    </div>
+                                    <div className="flex gap-6 w-full max-w-md">
+                                        <button onClick={() => handleAnswer(testState.items[testState.currentIndex].isReal === false, 'reading', 'Okuma')} className="flex-1 p-5 bg-rose-50 text-rose-600 font-black rounded-2xl border-b-4 border-rose-200 hover:bg-rose-100 transition-all text-xl shadow-sm active:scale-95">
+                                            HAYIR
+                                        </button>
+                                        <button onClick={() => handleAnswer(testState.items[testState.currentIndex].isReal === true, 'reading', 'Okuma')} className="flex-1 p-5 bg-emerald-50 text-emerald-600 font-black rounded-2xl border-b-4 border-emerald-200 hover:bg-emerald-100 transition-all text-xl shadow-sm active:scale-95">
+                                            EVET
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ) : <LoadingSpinner />
                     )}
 
                     {/* --- 3: MATH --- */}
                     {currentStep === 3 && (
-                        <div className="flex flex-col h-full relative">
-                             {feedbackState !== 'none' && (
-                                <div className={`absolute inset-0 z-10 flex items-center justify-center bg-opacity-20 backdrop-blur-sm ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                    <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-9xl text-white drop-shadow-lg`}></i>
-                                </div>
-                            )}
-                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" /></div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <div className="text-4xl md:text-6xl font-bold mb-10 text-indigo-900 dark:text-indigo-200 font-mono bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 w-full max-w-lg">
-                                    {testState.items[testState.currentIndex]?.q}
-                                </div>
-                                <div className="grid grid-cols-3 gap-4 w-full max-w-lg">
-                                    {testState.items[testState.currentIndex]?.opts.map((opt: number, i:number) => (
-                                        <button key={i} onClick={() => handleAnswer(opt === testState.items[testState.currentIndex].a, 'math', 'Matematik')} className="p-6 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 text-3xl font-bold rounded-2xl hover:border-indigo-500 hover:text-indigo-600 hover:shadow-md transition-all">
-                                            {opt}
-                                        </button>
-                                    ))}
+                        isTestReady() ? (
+                            <div className="flex flex-col h-full relative">
+                                {feedbackState !== 'none' && (
+                                    <div className={`absolute inset-0 z-10 flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in`}>
+                                        <div className={`w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transform scale-110 transition-transform ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                            <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-7xl text-white`}></i>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" /></div>
+                                <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
+                                    <div className="text-4xl md:text-6xl font-bold mb-10 text-indigo-900 dark:text-indigo-200 font-mono bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 w-full max-w-lg select-none">
+                                        {testState.items[testState.currentIndex].q}
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-4 w-full max-w-lg">
+                                        {testState.items[testState.currentIndex].opts.map((opt: number, i:number) => (
+                                            <button key={i} onClick={() => handleAnswer(opt === testState.items[testState.currentIndex].a, 'math', 'Matematik')} className="p-6 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 text-3xl font-bold rounded-2xl hover:border-indigo-500 hover:text-indigo-600 hover:shadow-md transition-all active:scale-95">
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ) : <LoadingSpinner />
                     )}
 
                     {/* --- 4: ATTENTION (GRID) --- */}
                     {currentStep === 4 && (
-                        <div className="flex flex-col h-full">
-                            <div className="pt-6 px-6 flex justify-between items-center border-b pb-4 border-zinc-100 dark:border-zinc-700">
-                                <div>
-                                    <h3 className="font-bold text-lg">Dikkat Testi</h3>
-                                    <p className="text-xs text-zinc-500">Sadece "b" harflerini bul.</p>
+                        isTestReady(true) ? (
+                            <div className="flex flex-col h-full">
+                                <div className="pt-6 px-6 flex justify-between items-center border-b pb-4 border-zinc-100 dark:border-zinc-700">
+                                    <div>
+                                        <h3 className="font-bold text-lg">Dikkat Testi</h3>
+                                        <p className="text-xs text-zinc-500">Sadece "b" harflerini bul ve işaretle.</p>
+                                    </div>
+                                    <button onClick={finishAttentionTest} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-full shadow-md transition-colors">
+                                        Tamamla
+                                    </button>
                                 </div>
-                                <button onClick={finishAttentionTest} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-full shadow-md transition-colors">
-                                    Tamamla
-                                </button>
-                            </div>
-                            <div className="p-4 md:p-8 flex-1 flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/30">
-                                <div className="grid grid-cols-6 gap-2 md:gap-4">
-                                    {testState.attentionState.map((item, i) => (
-                                        <button 
-                                            key={i} 
-                                            onClick={() => handleAttentionClick(i)} 
-                                            className={`w-10 h-10 md:w-14 md:h-14 rounded-lg text-2xl md:text-3xl font-bold flex items-center justify-center transition-all font-dyslexic shadow-sm border ${
-                                                item.isSelected 
-                                                    ? 'bg-indigo-600 text-white border-indigo-600 transform scale-110' 
-                                                    : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-600 text-zinc-400 hover:border-indigo-300'
-                                            }`}
-                                        >
-                                            {item.char}
-                                        </button>
-                                    ))}
+                                <div className="p-4 md:p-8 flex-1 flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/30">
+                                    <div className="grid grid-cols-6 gap-2 md:gap-4">
+                                        {testState.attentionState.map((item, i) => (
+                                            <button 
+                                                key={i} 
+                                                onClick={() => handleAttentionClick(i)} 
+                                                className={`w-10 h-10 md:w-14 md:h-14 rounded-lg text-2xl md:text-3xl font-bold flex items-center justify-center transition-all font-dyslexic shadow-sm border select-none ${
+                                                    item.isSelected 
+                                                        ? 'bg-indigo-600 text-white border-indigo-600 transform scale-110' 
+                                                        : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-600 text-zinc-400 hover:border-indigo-300 hover:text-indigo-300'
+                                                }`}
+                                            >
+                                                {item.char}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ) : <LoadingSpinner />
                     )}
 
                     {/* --- 5: VISUAL --- */}
                     {currentStep === 5 && (
-                        <div className="flex flex-col h-full relative">
-                             {feedbackState !== 'none' && (
-                                <div className={`absolute inset-0 z-10 flex items-center justify-center bg-opacity-20 backdrop-blur-sm ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                    <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-9xl text-white drop-shadow-lg`}></i>
-                                </div>
-                            )}
-                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Algı" /></div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <h3 className="text-zinc-400 font-bold uppercase tracking-widest mb-8">Aynısını Bul</h3>
-                                <div className="mb-12 p-8 border-4 border-zinc-100 dark:border-zinc-600 rounded-full bg-white dark:bg-zinc-700 shadow-xl w-40 h-40 flex items-center justify-center">
-                                    <i className={`fa-solid fa-${testState.items[testState.currentIndex]?.q} text-7xl text-indigo-600 dark:text-indigo-400`}></i>
-                                </div>
-                                <div className="flex gap-4 md:gap-8 justify-center w-full max-w-2xl">
-                                    {testState.items[testState.currentIndex]?.opts.map((opt: string, i:number) => (
-                                        <button key={i} onClick={() => handleAnswer(opt === testState.items[testState.currentIndex].a, 'visual', 'Görsel Algı')} className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-400 hover:scale-105 transition-all shadow-sm bg-white dark:bg-zinc-800">
-                                            <i className={`fa-solid fa-${opt} text-4xl md:text-5xl text-zinc-600 dark:text-zinc-300`}></i>
-                                        </button>
-                                    ))}
+                        isTestReady() ? (
+                            <div className="flex flex-col h-full relative">
+                                {feedbackState !== 'none' && (
+                                    <div className={`absolute inset-0 z-10 flex items-center justify-center bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in`}>
+                                        <div className={`w-40 h-40 rounded-full flex items-center justify-center shadow-2xl transform scale-110 transition-transform ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                            <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-7xl text-white`}></i>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Algı" /></div>
+                                <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
+                                    <h3 className="text-zinc-400 font-bold uppercase tracking-widest mb-8">Aynısını Bul</h3>
+                                    <div className="mb-12 p-8 border-4 border-zinc-100 dark:border-zinc-600 rounded-full bg-white dark:bg-zinc-700 shadow-xl w-40 h-40 flex items-center justify-center">
+                                        <i className={`fa-solid fa-${testState.items[testState.currentIndex].q} text-7xl text-indigo-600 dark:text-indigo-400`}></i>
+                                    </div>
+                                    <div className="flex gap-4 md:gap-8 justify-center w-full max-w-2xl">
+                                        {testState.items[testState.currentIndex].opts.map((opt: string, i:number) => (
+                                            <button key={i} onClick={() => handleAnswer(opt === testState.items[testState.currentIndex].a, 'visual', 'Görsel Algı')} className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-400 hover:scale-105 transition-all shadow-sm bg-white dark:bg-zinc-800 active:scale-95">
+                                                <i className={`fa-solid fa-${opt} text-4xl md:text-5xl text-zinc-600 dark:text-zinc-300`}></i>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ) : <LoadingSpinner />
                     )}
 
                     {/* --- 6: OBSERVATIONS --- */}
@@ -530,7 +564,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                 </div>
                             </div>
                             <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Veriler Analiz Ediliyor</h3>
-                            <p className="text-zinc-500 max-w-xs mx-auto">Google Gemini AI, test sonuçlarını ve gözlemleri işleyerek pedagojik rapor hazırlıyor...</p>
+                            <p className="text-zinc-500 max-w-xs mx-auto">Yapay zeka, test sonuçlarını ve gözlemleri işleyerek pedagojik rapor hazırlıyor...</p>
                         </div>
                     )}
 
