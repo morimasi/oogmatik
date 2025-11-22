@@ -211,7 +211,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             <div className="page-grid print:block print:w-full" style={containerStyles}>
             {data.map((singleData, index) => (
                 <div key={index} className={pageClasses} style={{padding: `var(--worksheet-margin)`, overflow: 'hidden'}}>
-                     <div className="zoom-wrapper" style={{
+                     
+                     {/* BACKGROUND WATERMARK */}
+                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.04] print:opacity-[0.08] select-none overflow-hidden">
+                        <div className="transform -rotate-45 flex flex-col items-center justify-center">
+                             <i className="fa-solid fa-brain text-9xl mb-4 text-zinc-900 dark:text-zinc-100"></i>
+                             <div className="text-zinc-900 dark:text-zinc-100 text-6xl md:text-8xl font-black whitespace-nowrap tracking-widest uppercase border-y-8 border-zinc-900 dark:border-zinc-100 py-4">
+                                BURSA DİSLEKSİ
+                             </div>
+                        </div>
+                     </div>
+
+                     <div className="zoom-wrapper relative z-10" style={{
                         transform: `scale(${scale})`,
                         transformOrigin: 'top left',
                         width: `${100 * inverseScale}%`,
@@ -222,10 +233,29 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                             {renderContent(singleData, index)}
                         </div>
                     </div>
-                    {/* Pagination & Watermark */}
-                    <div className="absolute bottom-2 left-0 right-0 flex justify-between px-8 text-xs text-zinc-400 print:flex hidden pointer-events-none">
-                        <span className="font-bold">Bursa Disleksi Ai</span>
-                        <span className="font-mono">Sayfa {index + 1} / {data.length}</span>
+                    
+                    {/* PROFESSIONAL PRINT FOOTER */}
+                    <div className="absolute bottom-0 left-0 right-0 h-20 px-8 pb-6 flex justify-between items-end text-xs text-zinc-400 print:flex hidden pointer-events-none z-20">
+                        {/* Left: Branding */}
+                        <div className="flex items-center gap-3 opacity-70">
+                            <div className="w-10 h-10 border-2 border-zinc-300 rounded-lg flex items-center justify-center bg-white">
+                                <i className="fa-solid fa-brain text-zinc-400 text-lg"></i>
+                            </div>
+                            <div className="flex flex-col justify-center h-10">
+                                <span className="font-bold text-zinc-600 uppercase tracking-wider text-[10px] leading-tight">Bursa Disleksi Ai</span>
+                                <span className="text-[9px] leading-tight">Özel Eğitim Materyali</span>
+                                <span className="text-[8px] text-zinc-300 mt-0.5">bursadisleksi.com</span>
+                            </div>
+                        </div>
+
+                        {/* Right: Pagination & Date */}
+                        <div className="flex flex-col items-end opacity-70 h-10 justify-center">
+                             <span className="font-mono font-bold text-xl leading-none text-zinc-500">{index + 1} <span className="text-sm font-normal text-zinc-300">/ {data.length}</span></span>
+                             <span className="text-[8px] uppercase tracking-widest mt-1">{new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        
+                        {/* Bottom Decorative Bar */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-400/30 via-purple-400/30 to-pink-400/30 print:from-zinc-300 print:to-zinc-300"></div>
                     </div>
                 </div>
             ))}
