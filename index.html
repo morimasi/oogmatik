@@ -56,17 +56,6 @@
       gap: var(--worksheet-gap, 1rem) !important;
   }
 
-  /* Prevent items from splitting across columns when column-count is active */
-  .worksheet-page > div > div,
-  .worksheet-page .rounded-xl,
-  .worksheet-page .border,
-  .worksheet-page .shadow-sm,
-  .worksheet-page li,
-  .worksheet-page .table {
-      break-inside: avoid;
-      page-break-inside: avoid;
-  }
-
   /* --- ANIMATIONS --- */
   @keyframes mixedFlip {
     0% { transform: rotateY(0deg); }
@@ -89,7 +78,7 @@
   @media print {
     @page {
       size: A4 portrait;
-      margin: 10mm; /* Safe margin for printers, maximizing space */
+      margin: 10mm; /* Safe margin for printers, maximizing space but safe for cutting */
     }
     
     html, body {
@@ -139,15 +128,13 @@
       position: relative !important;
       width: 100% !important;
       max-width: 100% !important;
-      min-height: auto !important; /* Don't force full height if content is small */
+      min-height: auto !important; /* Don't force full height */
       height: auto !important;
       margin: 0 !important; /* Remove margins to use @page margin */
       padding: 0 !important; /* Override inline React padding */
       
       page-break-after: always !important;
       break-after: page !important;
-      page-break-inside: auto !important;
-      break-inside: auto !important;
       
       border: none !important;
       box-shadow: none !important;
@@ -174,18 +161,43 @@
     }
 
     /* --- COMPACT SPACING FOR PRINT --- */
-    /* Reduce gaps to fit more on page */
-    .worksheet-page .gap-4 { gap: 0.75rem !important; }
-    .worksheet-page .gap-6 { gap: 1rem !important; }
-    .worksheet-page .gap-8 { gap: 1.5rem !important; }
-    .worksheet-page .space-y-4 > * + * { margin-top: 0.75rem !important; }
-    .worksheet-page .space-y-6 > * + * { margin-top: 1rem !important; }
-    .worksheet-page .p-6, .worksheet-page .p-8 { padding: 1rem !important; }
+    /* Significantly reduce padding and gaps to fit more content */
+    .worksheet-page .p-4, .worksheet-page .p-5, .worksheet-page .p-6, .worksheet-page .p-8 {
+        padding: 0.5rem !important;
+    }
     
-    /* Headers and Titles */
-    .pedagogical-header { margin-bottom: 1rem !important; }
+    .worksheet-page .gap-4, .worksheet-page .gap-6, .worksheet-page .gap-8 { 
+        gap: 0.5rem !important; 
+    }
+    
+    .worksheet-page .space-y-4 > * + *,
+    .worksheet-page .space-y-6 > * + *,
+    .worksheet-page .space-y-8 > * + * { 
+        margin-top: 0.5rem !important; 
+    }
+    
+    /* Headers and Titles - Compact */
+    .pedagogical-header { margin-bottom: 0.5rem !important; }
     h3 { font-size: 1.25rem !important; margin-bottom: 0.25rem !important; }
-    p { font-size: 1rem !important; }
+    p { font-size: 1rem !important; margin-bottom: 0.25rem !important; }
+
+    /* --- PAGE BREAK CONTROL --- */
+    /* Allow breaking inside large containers (like story boxes) */
+    .worksheet-page .rounded-xl,
+    .worksheet-page .border,
+    .worksheet-page .shadow-sm,
+    .worksheet-page > div > div {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    /* Prevent breaking only for atomic items (like individual questions or list items) */
+    .worksheet-page li,
+    .worksheet-page tr,
+    .break-inside-avoid {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
   }
 
   /* --- DARK THEME (Sweet Night / Tatlı Gece) --- */
