@@ -16,7 +16,7 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {data.operations.map((op, index) => (
-                <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-3xl font-mono font-bold">
+                <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-3xl font-mono font-bold break-inside-avoid">
                     <div className="tracking-widest">{op.num1}</div>
                     <div className="flex items-center w-full justify-end gap-2">
                         <span className="text-2xl">{op.operator}</span>
@@ -552,53 +552,57 @@ export const ThematicOddOneOutSheet: React.FC<{ data: ThematicOddOneOutData }> =
                 </div>
             ))}
         </div>
-        <div className="mt-8 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600">
-            <p className="font-bold mb-2">{data.sentencePrompt}</p>
-            <div className="h-24 border-b border-zinc-300 dark:border-zinc-600"></div>
-        </div>
     </div>
 );
 
 export const ThematicOddOneOutSentenceSheet: React.FC<{ data: ThematicOddOneOutSentenceData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-6">
             {data.rows.map((row, index) => (
                 <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-600">
-                    <div className="flex flex-wrap gap-4 mb-4 justify-center">
+                    <div className="flex flex-wrap justify-around gap-4 mb-4">
                         {row.words.map((word, wIndex) => (
-                            <span key={wIndex} className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded font-medium">{word}</span>
+                            <div key={wIndex} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg font-medium cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors">
+                                {word}
+                            </div>
                         ))}
                     </div>
-                    <div className="border-t border-zinc-200 dark:border-zinc-600 pt-2">
-                        <p className="text-sm text-zinc-500 mb-1">Cümle:</p>
-                        <div className="h-8 border-b border-dotted border-zinc-400"></div>
+                    <div className="w-full border-t border-dashed border-zinc-300 pt-2">
+                        <p className="text-xs text-zinc-400 mb-1">Cümle:</p>
+                        <div className="h-8 bg-zinc-50 dark:bg-zinc-900/50 rounded border-b border-zinc-300 dark:border-zinc-600"></div>
                     </div>
                 </div>
             ))}
+        </div>
+        <div className="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-center text-indigo-800 dark:text-indigo-200 font-medium">
+            {data.sentencePrompt}
         </div>
     </div>
 );
 
 export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSentenceData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {data.columns.map((col, index) => (
-                <div key={index} className="flex flex-col gap-2 p-3 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 dark:border-zinc-600">
+                <div key={index} className="flex flex-col gap-3 p-4 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 dark:border-zinc-600">
                     {col.words.map((word, wIndex) => (
-                        <div key={wIndex} className="p-2 bg-zinc-50 dark:bg-zinc-800 rounded text-center text-sm font-medium cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors">
+                        <div key={wIndex} className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded text-center font-medium cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors">
                             {word}
                         </div>
                     ))}
                 </div>
             ))}
         </div>
-        <div className="mt-4">
-            <p className="font-bold mb-2">{data.sentencePrompt}</p>
+        <div className="p-4 border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 dark:bg-zinc-800/30">
+            <p className="text-center text-zinc-500 mb-4">{data.sentencePrompt}</p>
             <div className="space-y-4">
-                {data.columns.map((_, i) => (
-                    <div key={i} className="h-8 border-b border-zinc-300 dark:border-zinc-600 w-full"></div>
+                {Array.from({length: data.columns.length}).map((_, i) => (
+                    <div key={i} className="flex gap-2 items-center">
+                        <span className="w-6 h-6 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold">{i+1}</span>
+                        <div className="flex-1 h-8 border-b border-zinc-400"></div>
+                    </div>
                 ))}
             </div>
         </div>
@@ -607,13 +611,17 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
 
 export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
-        <div className="mb-4 text-center font-bold text-xl">Hedef İşaret: <span className="text-indigo-600">{data.punctuationMark}</span></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex justify-center mb-6">
+            <div className="px-6 py-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-full text-indigo-800 dark:text-indigo-200 font-bold text-xl">
+                Hedef İşaret: <span className="text-3xl ml-2">{data.punctuationMark}</span>
+            </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {data.rules.map((rule, index) => (
-                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 flex items-center gap-3 cursor-pointer hover:border-indigo-400 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-bold text-zinc-500">{index + 1}</div>
-                    <p className="text-sm font-medium">{rule.text}</p>
+                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 hover:border-indigo-400 cursor-pointer transition-all relative overflow-hidden group">
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-zinc-300 group-hover:border-indigo-500"></div>
+                    <p className="font-medium text-zinc-700 dark:text-zinc-200 pr-6">{rule.text}</p>
                 </div>
             ))}
         </div>
@@ -622,48 +630,62 @@ export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ 
 
 export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumberData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
-        <div className="space-y-4 mb-8">
-            {data.clues.map((clue, index) => (
-                <div key={index} className="p-3 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm flex gap-3 items-start">
-                    <i className="fa-solid fa-magnifying-glass text-indigo-500 mt-1"></i>
-                    <p className="text-zinc-700 dark:text-zinc-200">{clue.text}</p>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="flex-1 w-full space-y-4">
+                {data.clues.map((clue, index) => (
+                    <div key={index} className="flex items-center gap-4 p-3 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-600">
+                        <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-bold text-zinc-500">{clue.id}</div>
+                        <p className="text-zinc-700 dark:text-zinc-200">{clue.text}</p>
+                    </div>
+                ))}
+            </div>
+            <div className="w-full md:w-1/3 bg-zinc-800 p-6 rounded-3xl shadow-xl text-center">
+                <div className="bg-white w-full h-16 mb-6 rounded-lg flex items-center justify-center text-3xl font-mono tracking-widest border-4 border-zinc-300">
+                    {/* Placeholder for digits */}
+                    _______
                 </div>
-            ))}
-        </div>
-        <div className="flex justify-center gap-2">
-            {data.solution.map((item, index) => (
-                <div key={index} className="w-12 h-16 border-b-4 border-zinc-400 bg-zinc-50 dark:bg-zinc-800 rounded-t-lg flex items-center justify-center text-2xl font-bold">
-                    {/* Empty for user to fill, or hidden */}
+                <div className="grid grid-cols-3 gap-4">
+                    {[1,2,3,4,5,6,7,8,9].map(n => (
+                        <div key={n} className="w-14 h-14 rounded-full bg-zinc-700 text-white flex items-center justify-center text-2xl font-bold shadow-lg mx-auto">
+                            {n}
+                        </div>
+                    ))}
+                    <div className="w-14 h-14 rounded-full bg-zinc-700 text-white flex items-center justify-center text-2xl font-bold shadow-lg mx-auto col-start-2">
+                        0
+                    </div>
                 </div>
-            ))}
+            </div>
         </div>
     </div>
 );
 
 export const ShapeNumberPatternSheet: React.FC<{ data: ShapeNumberPatternData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-8">
             {data.patterns.map((pattern, pIndex) => (
-                <div key={pIndex} className="flex flex-wrap justify-center gap-8 p-6 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 dark:border-zinc-600">
-                    {pattern.shapes.map((shape, sIndex) => (
-                        <div key={sIndex} className="relative w-32 h-32">
-                            {/* Simplified Triangle for now */}
-                            <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-                                <polygon points="50,10 90,90 10,90" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-800 dark:text-zinc-200" />
-                                {/* Numbers at corners */}
-                                <circle cx="50" cy="10" r="12" fill="white" stroke="currentColor" className="text-zinc-800" />
-                                <text x="50" y="14" textAnchor="middle" fontSize="12" fontWeight="bold">{shape.numbers[2]}</text>
-                                
-                                <circle cx="10" cy="90" r="12" fill="white" stroke="currentColor" className="text-zinc-800" />
-                                <text x="10" y="94" textAnchor="middle" fontSize="12" fontWeight="bold">{shape.numbers[0]}</text>
-                                
-                                <circle cx="90" cy="90" r="12" fill="white" stroke="currentColor" className="text-zinc-800" />
-                                <text x="90" y="94" textAnchor="middle" fontSize="12" fontWeight="bold">{shape.numbers[1]}</text>
-                            </svg>
-                        </div>
-                    ))}
+                <div key={pIndex} className="flex flex-wrap justify-center gap-8 md:gap-16 p-6 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-600">
+                    {pattern.shapes.map((shape, sIndex) => {
+                        if (shape.type === 'triangle') {
+                            return (
+                                <div key={sIndex} className="relative w-32 h-28">
+                                    <svg viewBox="0 0 100 86" className="w-full h-full overflow-visible">
+                                        <polygon points="50,0 100,86 0,86" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-800 dark:text-zinc-200" />
+                                        <circle cx="15" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                        <text x="15" y="86" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{shape.numbers[0]}</text>
+                                        
+                                        <circle cx="85" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                        <text x="85" y="86" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{shape.numbers[1]}</text>
+                                        
+                                        <circle cx="50" cy="10" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                        <text x="50" y="10" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{shape.numbers[2]}</text>
+                                    </svg>
+                                </div>
+                            )
+                        }
+                        return null;
+                    })}
                 </div>
             ))}
         </div>
@@ -672,19 +694,19 @@ export const ShapeNumberPatternSheet: React.FC<{ data: ShapeNumberPatternData }>
 
 export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
-        <div className="space-y-12">
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex flex-col items-center gap-8">
             {data.figures.map((fig, index) => (
-                <div key={index} className="flex flex-col items-center">
-                    <div className="relative w-64 h-64 mb-4 border-2 border-zinc-300 bg-white">
-                        <svg viewBox="0 0 100 100" className="w-full h-full">
-                            {fig.svgPaths.map((path, pIndex) => (
-                                <path key={pIndex} d={path.d} fill={path.fill} stroke="black" strokeWidth="0.5" />
-                            ))}
-                        </svg>
+                <div key={index} className="p-6 bg-white rounded-xl shadow-sm border-2 border-zinc-200 flex flex-col items-center">
+                    <svg viewBox="0 0 100 100" className="w-64 h-64 mb-6">
+                        {fig.svgPaths.map((path, pIndex) => (
+                            <path key={pIndex} d={path.d} fill={path.fill} stroke={path.stroke || 'black'} strokeWidth="1" />
+                        ))}
+                    </svg>
+                    <div className="flex items-center gap-4 p-4 bg-zinc-50 rounded-lg w-full">
+                        <span className="font-bold text-zinc-600">Toplam {fig.targetShape === 'triangle' ? 'Üçgen' : 'Şekil'} Sayısı:</span>
+                        <div className="w-16 h-8 border-b-2 border-zinc-400"></div>
                     </div>
-                    <p className="text-lg font-bold">Kaç tane {fig.targetShape === 'triangle' ? 'üçgen' : fig.targetShape} var?</p>
-                    <div className="w-24 h-10 border-b-2 border-zinc-400 mt-2"></div>
                 </div>
             ))}
         </div>
@@ -693,33 +715,48 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
 
 export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1 bg-indigo-50 dark:bg-indigo-900/30 p-5 rounded-xl border border-indigo-200 dark:border-indigo-800">
-                <h4 className="font-bold text-indigo-800 dark:text-indigo-200 mb-4 border-b border-indigo-300 pb-2">İpuçları</h4>
-                <ul className="space-y-3 text-sm">
-                    {data.clues.map((clue, i) => (
-                        <li key={i} className="flex gap-2">
-                            <span className="font-bold bg-white w-5 h-5 flex items-center justify-center rounded-full text-xs shrink-0">{i+1}</span>
-                            <span>{clue}</span>
-                        </li>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-1 space-y-6">
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-5 rounded-xl border-l-4 border-amber-400">
+                    <h4 className="font-bold text-amber-800 dark:text-amber-200 mb-3 uppercase text-sm tracking-wider">İpuçları</h4>
+                    <ul className="space-y-2 text-sm">
+                        {data.clues.map((clue, i) => (
+                            <li key={i} className="flex gap-2">
+                                <span className="font-bold text-amber-600">{i+1}.</span>
+                                <span className="text-zinc-700 dark:text-zinc-300">{clue}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                
+                <div className="space-y-4">
+                    {data.categories.map((cat, i) => (
+                        <div key={i}>
+                            <h5 className="font-bold text-xs uppercase text-zinc-400 mb-2">{cat.title}</h5>
+                            <div className="flex gap-2 flex-wrap">
+                                {cat.items.map((item, j) => (
+                                    <div key={j} className="flex items-center gap-1 bg-white dark:bg-zinc-800 px-2 py-1 rounded border shadow-sm text-xs">
+                                        {item.imagePrompt && <div className="w-4 h-4 bg-zinc-200 rounded-full overflow-hidden"><ImageDisplay base64={item.imageBase64} className="w-full h-full object-cover" /></div>}
+                                        <span>{item.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ))}
-                </ul>
+                </div>
             </div>
-            
+
             <div className="lg:col-span-2 overflow-x-auto">
-                <table className="border-collapse border border-zinc-400 text-center text-sm w-full bg-white dark:bg-zinc-800">
+                <table className="border-collapse w-full bg-white dark:bg-zinc-800 text-sm">
                     <thead>
                         <tr>
-                            <th className="border border-zinc-400 p-2 bg-zinc-200 dark:bg-zinc-700"></th>
-                            {data.categories.map(cat => 
-                                cat.items.map((item, idx) => (
-                                    <th key={`${cat.title}-${idx}`} className="border border-zinc-400 p-2 font-normal rotate-0 whitespace-nowrap bg-zinc-100 dark:bg-zinc-700/50">
-                                        <div className="flex flex-col items-center gap-1">
-                                            {item.imagePrompt && <ImageDisplay base64={(item as any).imageBase64} description={item.name} className="w-8 h-8 object-contain" />}
-                                            <span>{item.name}</span>
-                                        </div>
+                            <th className="border p-2 bg-zinc-100 dark:bg-zinc-900"></th>
+                            {data.categories.map((cat, i) => 
+                                cat.items.map((item, j) => (
+                                    <th key={`${i}-${j}`} className="border p-2 bg-zinc-50 dark:bg-zinc-900 min-w-[30px] writing-vertical text-xs rotate-180 h-24">
+                                        <span className="block transform rotate-90 whitespace-nowrap">{item.name}</span>
                                     </th>
                                 ))
                             )}
@@ -728,10 +765,10 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
                     <tbody>
                         {data.people.map((person, pIdx) => (
                             <tr key={pIdx}>
-                                <td className="border border-zinc-400 p-2 font-bold bg-zinc-100 dark:bg-zinc-700/50">{person}</td>
-                                {data.categories.map(cat => 
-                                    cat.items.map((_, iIdx) => (
-                                        <td key={`${pIdx}-${cat.title}-${iIdx}`} className="border border-zinc-400 w-10 h-10"></td>
+                                <td className="border p-2 font-bold bg-zinc-50 dark:bg-zinc-900">{person}</td>
+                                {data.categories.map((cat, i) => 
+                                    cat.items.map((item, j) => (
+                                        <td key={`${i}-${j}`} className="border p-2 text-center hover:bg-zinc-100 cursor-pointer w-10 h-10"></td>
                                     ))
                                 )}
                             </tr>
