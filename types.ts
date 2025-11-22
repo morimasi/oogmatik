@@ -123,7 +123,10 @@ export enum ActivityType {
   MIRROR_LETTERS = 'MIRROR_LETTERS',
   SYLLABLE_TRAIN = 'SYLLABLE_TRAIN',
   VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES',
-  BACKWARD_SPELLING = 'BACKWARD_SPELLING'
+  BACKWARD_SPELLING = 'BACKWARD_SPELLING',
+  // NEW MATH MODULES
+  BASIC_OPERATIONS = 'BASIC_OPERATIONS',
+  REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS'
 }
 
 export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia';
@@ -579,6 +582,29 @@ export interface PunctuationMazeData extends BaseActivityData { prompt: string; 
 export interface PunctuationPhoneNumberData extends BaseActivityData { prompt: string; instruction: string; clues: { id: number; text: string; }[]; solution: { punctuationMark: string; number: number; }[]; }
 export interface ShapeNumberPatternData extends BaseActivityData { patterns: { shapes: { type: 'triangle'; numbers: (number | string)[]; }[]; }[]; }
 
+// --- NEW MATH MODULES ---
+export interface BasicOperationsData extends BaseActivityData {
+    operations: {
+        num1: number;
+        num2: number;
+        num3?: number; // Optional 3rd number
+        operator: '+' | '-' | 'x' | '÷';
+        answer: number;
+        remainder?: number; // For division
+    }[];
+    isVertical: boolean;
+}
+
+export interface RealLifeProblemData extends BaseActivityData {
+    problems: {
+        text: string;
+        imagePrompt?: string;
+        imageBase64?: string;
+        solution?: string;
+        operationHint?: string; // e.g. "Toplama İşlemi"
+    }[];
+}
+
 
 // Other Exports
 export interface WordSearchData extends BaseActivityData { grid: string[][]; words: string[]; hiddenMessage?: string; followUpQuestion?: string; writingPrompt?: string; }
@@ -773,7 +799,9 @@ export type SingleWorksheetData =
   | MirrorLettersData
   | SyllableTrainData
   | VisualTrackingLineData
-  | BackwardSpellingData;
+  | BackwardSpellingData
+  | BasicOperationsData
+  | RealLifeProblemData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

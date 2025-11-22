@@ -5,7 +5,8 @@ import { GeneratorOptions } from '../../types';
 import {
     FutoshikiData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData,
     RomanNumeralMultiplicationData, Sudoku6x6ShadedData, KendokuData, DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData,
-    OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, OperationSquareMultDivData, ShapeSudokuData, FutoshikiLengthData, ShapeType
+    OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, OperationSquareMultDivData, ShapeSudokuData, FutoshikiLengthData, ShapeType,
+    BasicOperationsData, RealLifeProblemData
 } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
@@ -29,6 +30,106 @@ const baseMathSchema = (itemProp: string, itemType: any) => ({
     },
     required: ["title", "prompt", "instruction", "pedagogicalNote", "imagePrompt", itemProp]
 });
+
+export const generateBasicOperationsFromAI = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
+    const { operationType, digitCount, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
+    
+    const prompt = `
+    "Dört İşlem Alıştırması" hazırla.
+    İşlem Türü: ${operationType}.
+    Basamak Sayısı: ${digitCount} (Büyük sayı için).
+    ${operationType === 'addition' ? `Eldeli: ${allowCarry ? 'Evet' : 'Hayır'}. ${useThirdNumber ? '3 sayı toplanacak.' : '2 sayı toplanacak.'}` : ''}
+    ${operationType === 'subtraction' ? `Onluk Bozmalı: ${allowBorrow ? 'Evet' : 'Hayır'}.` : ''}
+    ${operationType === 'division' ? `Kalanlı: ${allowRemainder ? 'Evet' : 'Hayır'}.` : ''}
+    
+    Çıktı verisi:
+    - operations dizisi içinde: num1 (üstteki/bölünen), num2 (alttaki/bölen), num3 (varsa), operator (+, -, x, ÷), answer (sonuç), remainder (varsa).
+    - ${itemCount || 12} adet işlem.
+    - isVertical: true (Dikey işlem formatı).
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                imagePrompt: { type: Type.STRING },
+                isVertical: { type: Type.BOOLEAN },
+                operations: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            num1: { type: Type.INTEGER },
+                            num2: { type: Type.INTEGER },
+                            num3: { type: Type.INTEGER }, // Optional handled by schema leniency or explicit mapping
+                            operator: { type: Type.STRING, enum: ['+', '-', 'x', '÷'] },
+                            answer: { type: Type.INTEGER },
+                            remainder: { type: Type.INTEGER }
+                        },
+                        required: ['num1', 'num2', 'operator', 'answer']
+                    }
+                }
+            },
+            required: ['title', 'instruction', 'operations', 'pedagogicalNote', 'imagePrompt', 'isVertical']
+        }
+    };
+
+    return generateWithSchema(prompt, schema) as Promise<BasicOperationsData[]>;
+};
+
+export const generateRealLifeMathProblemsFromAI = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
+    const { difficulty, topic, operationType, worksheetCount, itemCount } = options;
+    
+    const prompt = `
+    "${difficulty}" seviyesinde "Gerçek Hayat Matematik Problemleri".
+    Konu: ${topic || 'Günlük Yaşam'}.
+    Odak İşlem: ${operationType === 'mixed' ? 'Dört İşlem Karışık' : operationType}.
+    
+    Hikayeleştirilmiş, öğrencinin ilgisini çekecek ${itemCount || 4} adet problem yaz.
+    Her problem için:
+    - text: Sorunun metni.
+    - solution: Çözüm adımları ve cevap.
+    - operationHint: Hangi işlemin yapılması gerektiği ipucu (örn: Toplama).
+    - imagePrompt: Soruyu betimleyen sevimli görsel.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                imagePrompt: { type: Type.STRING }, // Cover image for the sheet
+                problems: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            text: { type: Type.STRING },
+                            solution: { type: Type.STRING },
+                            operationHint: { type: Type.STRING },
+                            imagePrompt: { type: Type.STRING } // Specific image for the problem
+                        },
+                        required: ['text', 'solution', 'operationHint', 'imagePrompt']
+                    }
+                }
+            },
+            required: ['title', 'instruction', 'problems', 'pedagogicalNote', 'imagePrompt']
+        }
+    };
+
+    return generateWithSchema(prompt, schema) as Promise<RealLifeProblemData[]>;
+};
 
 export const generateDivisionPyramidFromAI = async(options: GeneratorOptions): Promise<DivisionPyramidData[]> => {
     const { difficulty, worksheetCount } = options;

@@ -770,6 +770,19 @@ export const ACTIVITIES: Activity[] = [
     title: 'Ters Kelime Avcısı',
     description: 'Tersten yazılmış kelimeleri doğru şekilde yazın.',
     icon: 'fa-solid fa-backward',
+  },
+  // NEW MATH MODULES
+  {
+    id: ActivityType.BASIC_OPERATIONS,
+    title: 'Dört İşlem Alıştırmaları',
+    description: 'Toplama, çıkarma, çarpma ve bölme işlemleri.',
+    icon: 'fa-solid fa-plus-minus',
+  },
+  {
+    id: ActivityType.REAL_LIFE_MATH_PROBLEMS,
+    title: 'Gerçek Hayat Problemleri',
+    description: 'Hikayeleştirilmiş matematik problemleri çözün.',
+    icon: 'fa-solid fa-basket-shopping',
   }
 ];
 
@@ -880,6 +893,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     description: 'Sayısal düşünme ve mantık yürütme becerileri',
     icon: 'fa-solid fa-dice',
     activities: [
+      ActivityType.BASIC_OPERATIONS,
+      ActivityType.REAL_LIFE_MATH_PROBLEMS,
       ActivityType.MATH_PUZZLE,
       ActivityType.NUMBER_PATTERN,
       ActivityType.ODD_ONE_OUT,

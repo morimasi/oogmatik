@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData } from '../../types';
+import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData, BasicOperationsData, RealLifeProblemData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES, ITEM_CATEGORIES, generateSmartConnectGrid, CONNECT_COLORS, generateMaze, getDifficultySettings } from './helpers';
 
 // --- ROMAN NUMERAL HELPERS ---
@@ -14,6 +14,164 @@ const toRoman = (num: number): string => {
         }
     }
     return result;
+};
+
+// --- NEW MATH GENERATORS ---
+
+export const generateOfflineBasicOperations = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
+    const { operationType, digitCount, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
+    
+    const count = itemCount || 12;
+    const results: BasicOperationsData[] = [];
+
+    for(let i=0; i<worksheetCount; i++) {
+        const ops: BasicOperationsData['operations'] = [];
+        const opPool = operationType === 'mixed' ? ['addition', 'subtraction', 'multiplication', 'division'] : [operationType];
+
+        for(let j=0; j<count; j++) {
+            const currentOp = getRandomItems(opPool, 1)[0];
+            const maxVal = Math.pow(10, digitCount) - 1;
+            const minVal = Math.pow(10, digitCount - 1);
+            
+            let num1 = 0, num2 = 0, num3 = 0, answer = 0, remainder = 0;
+            let operator: any = '+';
+
+            if (currentOp === 'addition') {
+                operator = '+';
+                const hasThird = useThirdNumber && Math.random() > 0.5;
+                
+                if (allowCarry) {
+                    num1 = getRandomInt(minVal, maxVal);
+                    num2 = getRandomInt(minVal, maxVal);
+                    if(hasThird) num3 = getRandomInt(minVal, maxVal);
+                } else {
+                    // No Carry Logic
+                    const generateNoCarry = () => {
+                        let n1_str = "", n2_str = "";
+                        for(let k=0; k<digitCount; k++) {
+                            const d1 = getRandomInt(1, 8);
+                            const d2 = getRandomInt(0, 9 - d1);
+                            n1_str += d1; n2_str += d2;
+                        }
+                        return [parseInt(n1_str), parseInt(n2_str)];
+                    };
+                    [num1, num2] = generateNoCarry();
+                    if (hasThird) {
+                        // Simple third number that won't likely cause carry with result
+                        num3 = getRandomInt(1, 5); 
+                    }
+                }
+                answer = num1 + num2 + (hasThird ? num3 : 0);
+            } 
+            else if (currentOp === 'subtraction') {
+                operator = '-';
+                if (allowBorrow) {
+                    num1 = getRandomInt(minVal * 2, maxVal);
+                    num2 = getRandomInt(minVal, num1 - 1);
+                } else {
+                    // No Borrow Logic
+                    let n1_str = "", n2_str = "";
+                    for(let k=0; k<digitCount; k++) {
+                        const d1 = getRandomInt(1, 9);
+                        const d2 = getRandomInt(0, d1);
+                        n1_str += d1; n2_str += d2;
+                    }
+                    num1 = parseInt(n1_str);
+                    num2 = parseInt(n2_str);
+                }
+                answer = num1 - num2;
+            }
+            else if (currentOp === 'multiplication') {
+                operator = 'x';
+                num1 = getRandomInt(minVal, maxVal);
+                // Usually multiplier is smaller for lower digits
+                const d2 = digitCount === 1 ? 1 : (digitCount === 4 ? 2 : 1);
+                const max2 = Math.pow(10, d2) - 1;
+                num2 = getRandomInt(2, max2);
+                answer = num1 * num2;
+            }
+            else if (currentOp === 'division') {
+                operator = '÷';
+                const divisorMax = Math.pow(10, Math.ceil(digitCount/2)) - 1;
+                num2 = getRandomInt(2, Math.max(9, divisorMax)); // Divisor
+                
+                if (allowRemainder) {
+                    num1 = getRandomInt(num2 * 5, maxVal); // Dividend
+                    answer = Math.floor(num1 / num2);
+                    remainder = num1 % num2;
+                } else {
+                    const quotient = getRandomInt(2, Math.floor(maxVal/num2));
+                    num1 = quotient * num2;
+                    answer = quotient;
+                }
+            }
+
+            ops.push({ num1, num2, num3: num3 || undefined, operator, answer, remainder: remainder || undefined });
+        }
+
+        results.push({
+            title: 'Dört İşlem Alıştırmaları (Hızlı Mod)',
+            instruction: 'Aşağıdaki işlemleri yapın.',
+            pedagogicalNote: 'İşlem akıcılığı ve mekanik matematik becerisi.',
+            isVertical: true,
+            operations: ops
+        });
+    }
+    return results;
+};
+
+export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
+    const { worksheetCount, itemCount, operationType } = options;
+    const results: RealLifeProblemData[] = [];
+    
+    // Simple templates for offline fallback
+    const templates = [
+        { t: "Ali'nin {n1} elması vardı. {n2} tane daha aldı. Toplam kaç elması oldu?", op: '+', hint: "Toplama" },
+        { t: "Ayşe'nin {n1} lirası vardı. {n2} lirasını harcadı. Geriye ne kadar kaldı?", op: '-', hint: "Çıkarma" },
+        { t: "Bir sınıfta {n1} sıra var. Her sırada {n2} öğrenci oturuyor. Sınıfta toplam kaç öğrenci var?", op: 'x', hint: "Çarpma" },
+        { t: "{n1} ceviz {n2} çocuğa eşit paylaştırılırsa, her çocuğa kaç ceviz düşer?", op: '÷', hint: "Bölme" }
+    ];
+
+    for(let i=0; i<worksheetCount; i++) {
+        const problems: RealLifeProblemData['problems'][0][] = [];
+        for(let j=0; j<(itemCount || 4); j++) {
+            let selectedTemplate = templates[0];
+            if (operationType === 'mixed') selectedTemplate = getRandomItems(templates, 1)[0];
+            else if (operationType === 'addition') selectedTemplate = templates[0];
+            else if (operationType === 'subtraction') selectedTemplate = templates[1];
+            else if (operationType === 'multiplication') selectedTemplate = templates[2];
+            else if (operationType === 'division') selectedTemplate = templates[3];
+
+            const n1 = getRandomInt(10, 50);
+            const n2 = getRandomInt(2, 9);
+            let text = selectedTemplate.t.replace('{n1}', n1.toString()).replace('{n2}', n2.toString());
+            let ans = 0;
+            
+            if (selectedTemplate.op === '+') ans = n1 + n2;
+            if (selectedTemplate.op === '-') ans = n1 - n2;
+            if (selectedTemplate.op === 'x') ans = n1 * n2;
+            if (selectedTemplate.op === '÷') { 
+                const dividend = n1 * n2; // Make div clean
+                text = selectedTemplate.t.replace('{n1}', dividend.toString()).replace('{n2}', n2.toString());
+                ans = n1; 
+            }
+
+            problems.push({
+                text,
+                solution: `Cevap: ${ans}`,
+                operationHint: selectedTemplate.hint,
+                imagePrompt: '' // No image in fast mode
+            });
+        }
+
+        results.push({
+            title: 'Matematik Problemleri (Hızlı Mod)',
+            instruction: 'Problemleri dikkatlice oku ve çöz.',
+            pedagogicalNote: 'Okuduğunu anlama ve matematiksel modelleme.',
+            problems
+        });
+    }
+    return results;
 };
 
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {

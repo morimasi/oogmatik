@@ -82,11 +82,17 @@
   }
 
   /* Neutralize dark mode utilities inside worksheet to keep it clean */
+  /* Force writing areas to be white and clean */
+  .worksheet-page input, 
+  .worksheet-page textarea,
   .worksheet-page .dark\:bg-zinc-800,
   .worksheet-page .dark\:bg-zinc-700,
   .worksheet-page .dark\:bg-zinc-900,
   .worksheet-page .dark\:bg-zinc-700\/50,
-  .worksheet-page .dark\:bg-zinc-700\/30 {
+  .worksheet-page .dark\:bg-zinc-700\/30,
+  .worksheet-page .bg-zinc-50,
+  .worksheet-page .bg-zinc-100,
+  .worksheet-page .dark\:bg-zinc-800\/50 {
       background-color: #ffffff !important; /* Force white background for containers */
       border-color: #d4d4d8 !important; /* Light border */
       color: #18181b !important;
@@ -112,16 +118,17 @@
   .worksheet-page .dark\:bg-amber-900\/20 { background-color: #fef3c7 !important; color: #92400e !important; }
   .worksheet-page .dark\:text-amber-200 { color: #92400e !important; }
 
-  /* --- PROFESSIONAL PRINT CSS (A4 PIXEL PERFECT) --- */
+  /* --- PROFESSIONAL PRINT CSS (A4 PIXEL PERFECT & FLOWING CONTENT) --- */
   @media print {
     @page {
       size: A4 portrait;
-      margin: 0; /* Remove browser margins, control via body/padding */
+      margin: 0.5cm; /* Minimal browser margin */
     }
     
     html, body {
       width: 100%;
       height: auto !important;
+      min-height: 0 !important;
       margin: 0 !important;
       padding: 0 !important;
       background-color: white !important;
@@ -134,6 +141,7 @@
     /* Reset Layout Containers */
     #root, .h-screen, .flex, .flex-col, .flex-1, .overflow-hidden, .overflow-y-auto, main {
         height: auto !important;
+        min-height: 0 !important;
         overflow: visible !important;
         display: block !important;
         position: static !important;
@@ -161,18 +169,19 @@
       height: auto !important;
     }
 
-    /* Compact Worksheet Page for Print */
+    /* Worksheet Page for Print - ALLOW FLOW */
     .worksheet-page {
       position: relative !important;
       width: 100% !important;
       max-width: 100% !important;
-      min-height: auto !important; /* Don't force full height */
-      height: auto !important;
+      height: auto !important; /* Allow height to grow */
+      min-height: 0 !important;
       margin: 0 !important; 
-      padding: 10mm !important; /* Safe internal margin */
+      padding: 0 !important;
       
-      page-break-after: always !important;
-      break-after: page !important;
+      /* Flow control */
+      page-break-after: auto !important;
+      break-after: auto !important;
       
       border: none !important;
       box-shadow: none !important;
@@ -182,16 +191,20 @@
       display: block !important;
     }
     
-    .worksheet-page:last-child {
-        page-break-after: auto !important;
-        break-after: auto !important;
+    /* Force breaks between separate worksheet generations if multiple */
+    .worksheet-page + .worksheet-page {
+        page-break-before: always !important;
+        break-before: page !important;
+        margin-top: 20px !important;
     }
 
+    /* Zoom Wrapper Reset */
     .zoom-wrapper {
       transform: none !important;
       width: 100% !important;
       height: auto !important;
       overflow: visible !important;
+      position: static !important;
     }
     
     .zoom-wrapper > div {
@@ -199,7 +212,6 @@
     }
 
     /* --- COMPACT SPACING FOR PRINT (Gereksiz boşlukları kaldır) --- */
-    /* Significantly reduce padding and gaps to fit more content */
     .worksheet-page .p-4, .worksheet-page .p-5, .worksheet-page .p-6, .worksheet-page .p-8 {
         padding: 0.5rem !important;
     }
@@ -207,19 +219,11 @@
     .worksheet-page .gap-4 { gap: 0.5rem !important; }
     .worksheet-page .gap-6 { gap: 0.75rem !important; }
     .worksheet-page .gap-8 { gap: 1rem !important; }
-    
-    .worksheet-page .space-y-4 > * + *,
-    .worksheet-page .space-y-6 > * + *,
-    .worksheet-page .space-y-8 > * + * { 
-        margin-top: 0.5rem !important; 
-    }
-    
     .worksheet-page .mb-4, .worksheet-page .mb-6, .worksheet-page .mb-8 {
         margin-bottom: 0.5rem !important;
     }
 
     /* CLEAN WRITING AREAS IN PRINT */
-    /* Ensure inputs and boxes are stark white for writing */
     .worksheet-page input, 
     .worksheet-page textarea, 
     .worksheet-page .bg-zinc-50, 
@@ -227,35 +231,44 @@
     .worksheet-page div[class*="bg-zinc-"] {
         background-color: #ffffff !important;
         border-color: #d4d4d8 !important; /* Light gray border for visibility */
+        border-width: 1px !important;
         color: black !important;
+        box-shadow: none !important;
     }
     
+    /* Ensure text inputs have visible lines/borders for writing */
+    .worksheet-page input[type="text"], .worksheet-page textarea {
+        border-bottom: 1px solid #999 !important;
+    }
+
     /* Headers and Titles - Compact */
     .pedagogical-header { margin-bottom: 0.5rem !important; }
-    h3 { font-size: 1.25rem !important; margin-bottom: 0.25rem !important; }
+    h3 { font-size: 1.4rem !important; margin-bottom: 0.25rem !important; }
     p { font-size: 1rem !important; margin-bottom: 0.25rem !important; }
 
     /* --- PAGE BREAK CONTROL --- */
-    /* Allow breaking inside large containers (like story boxes) */
+    /* Allow breaking inside large containers */
     .worksheet-page .rounded-xl,
     .worksheet-page .border,
     .worksheet-page .shadow-sm,
-    .worksheet-page > div > div {
+    .worksheet-page > div > div,
+    .worksheet-page .grid {
         break-inside: auto !important;
         page-break-inside: auto !important;
     }
 
-    /* Prevent breaking only for atomic items (like individual questions or list items) */
+    /* Prevent breaking only for atomic items (like individual questions) */
     .worksheet-page li,
     .worksheet-page tr,
-    .break-inside-avoid {
+    .worksheet-page .flex-col > div, /* Child items in a flex list */
+    .worksheet-page .grid > div /* Grid items */
+    {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
     }
   }
 
-  /* --- DARK THEME (Sweet Night / Tatlı Gece) --- */
-  /* Global App Dark Theme (Sidebar, Toolbar, etc.) */
+  /* --- DARK THEME --- */
   html.dark body {
     background-color: #13111C; 
     color: #E2E8F0; 
@@ -269,11 +282,7 @@
     border-color: #2D2B3B !important;
   }
   
-  html.dark .bg-zinc-50 {
-     background-color: #252234 !important;
-  }
-
-  /* EXCEPTION: The Worksheet Page itself handles its own "Paper" look via the overrides above */
+  /* EXCEPTIONS FOR WORKSHEET PAGE are handled at the top of the file */
 
   html.dark aside,
   html.dark header,
@@ -295,9 +304,10 @@
     border-color: #2D2B3B !important;
   }
 
-  html.dark input, 
-  html.dark select, 
-  html.dark textarea {
+  /* Standard Inputs (Sidebar etc) */
+  html.dark input:not(.worksheet-page input), 
+  html.dark select:not(.worksheet-page select), 
+  html.dark textarea:not(.worksheet-page textarea) {
     background-color: #252333 !important;
     border-color: #3E3B50 !important;
     color: #F3E8FF !important;

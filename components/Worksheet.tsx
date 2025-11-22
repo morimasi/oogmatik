@@ -12,7 +12,7 @@ import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 
 import {
     WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData, SynonymWordSearchData, SynonymSearchAndStoryData, StoryData, StroopTestData, NumberPatternData, SpellingCheckData, LetterGridTestData, NumberSearchData, WordMemoryData, StoryCreationPromptData, FindTheDifferenceData, WordComparisonData, WordsInStoryData, OddOneOutData, ShapeMatchingData, SymbolCipherData, ProverbFillData, LetterBridgeData, FindDuplicateData, FindLetterPairData, WordLadderData, WordFormationData, ReverseWordData, WordGroupingData, VisualMemoryData, StoryAnalysisData, CoordinateCipherData, TargetSearchData, ShapeNumberPatternData, GridDrawingData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StorySequencingData, ChaoticNumberSearchData, BlockPaintingData, MiniWordGridData, VisualOddOneOutData, ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, PasswordFinderData, SyllableCompletionData, WordConnectData, SpiralPuzzleData, CrosswordData, JumbledWordStoryData, HomonymSentenceData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, ThematicOddOneOutData, SynonymAntonymGridData, PunctuationColoringData, TargetNumberData, OperationSquareMultDivData, FutoshikiData, ShapeSudokuData, WeightConnectData, PunctuationMazeData, AntonymResfebeData, ThematicOddOneOutSentenceData, ProverbSentenceFinderData, ColumnOddOneOutSentenceData, SynonymAntonymColoringData, PunctuationPhoneNumberData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData, RomanNumeralMultiplicationData, ArithmeticConnectData, RomanArabicMatchConnectData, Sudoku6x6ShadedData, KendokuData, DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData, OperationSquareFillInData, MultiplicationWheelData, ResfebeData, FutoshikiLengthData, MatchstickSymmetryData, WordWebData, StarHuntData, LengthConnectData, VisualNumberPatternData, MissingPartsData, ProfessionConnectData, VisualOddOneOutThemedData, LogicGridPuzzleData, ImageAnagramSortData, AnagramImageMatchData, SyllableWordSearchData, WordWebWithPasswordData, WordPlacementPuzzleData, PositionalAnagramData, MathPuzzleData, FindIdenticalWordData,
-    ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData
+    ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, BasicOperationsData, RealLifeProblemData
 } from '../types';
 
 
@@ -38,7 +38,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         width: '100%',
     };
 
-    const pageClasses = `page worksheet-page bg-white text-zinc-900 shadow-lg relative print:shadow-none print:m-0 print:border-none overflow-hidden print:overflow-visible`;
+    // Remove overflow-hidden to allow print flow
+    const pageClasses = `page worksheet-page bg-white text-zinc-900 shadow-lg relative print:shadow-none print:m-0 print:border-none`;
 
     const renderContent = (singleData: SingleWorksheetData, index: number) => {
         switch (activityType) {
@@ -149,6 +150,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             case ActivityType.VISUAL_NUMBER_PATTERN: return <MathLogicSheets.VisualNumberPatternSheet data={singleData as VisualNumberPatternData} />;
             case ActivityType.LOGIC_GRID_PUZZLE: return <MathLogicSheets.LogicGridPuzzleSheet data={singleData as LogicGridPuzzleData} />;
             case ActivityType.MULTIPLICATION_WHEEL: return <MathLogicSheets.MultiplicationWheelSheet data={singleData as MultiplicationWheelData} />;
+            // NEW
+            case ActivityType.BASIC_OPERATIONS: return <MathLogicSheets.BasicOperationsSheet data={singleData as BasicOperationsData} />;
+            case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <MathLogicSheets.RealLifeMathProblemsSheet data={singleData as RealLifeProblemData} />;
 
 
             // Visual Perception
@@ -220,6 +224,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         </div>
                      </div>
 
+                     {/* Zoom Wrapper - Reset in print via CSS */}
                      <div className="zoom-wrapper relative z-10 print:h-auto print:w-full print:transform-none" style={{
                         transform: `scale(${scale})`,
                         transformOrigin: 'top left',
@@ -231,7 +236,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         </div>
                     </div>
                     
-                    {/* PROFESSIONAL PRINT FOOTER */}
+                    {/* PROFESSIONAL PRINT FOOTER - Hidden in print via CSS now to prevent overlay issues, handled by margins */}
                     <div className="absolute bottom-0 left-0 right-0 h-20 px-8 pb-6 flex justify-between items-end text-xs text-zinc-400 print:hidden pointer-events-none z-20">
                         <div className="flex items-center gap-3 opacity-70">
                             <div className="w-10 h-10 border-2 border-zinc-300 rounded-lg flex items-center justify-center bg-white">
@@ -249,7 +254,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                              <span className="text-[8px] uppercase tracking-widest mt-1">{new Date().toLocaleDateString('tr-TR')}</span>
                         </div>
                         
-                        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-400/30 via-purple-400/30 to-pink-400/30 print:from-zinc-300 print:to-zinc-300"></div>
+                        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-400/30 via-purple-400/30 to-pink-400/30 print:hidden"></div>
                     </div>
                 </div>
             ))}

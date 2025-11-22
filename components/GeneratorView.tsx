@@ -124,6 +124,35 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'numberRange', label: 'Aralık', type: 'select', defaultValue: '1-20', width: 'half', options: ['1-10', '1-20', '1-50', '1-100', '100-1000'] },
                     itemCountField(6, 4, 20)
                 ];
+            case ActivityType.BASIC_OPERATIONS:
+                return [
+                    { key: 'operationType', label: 'İşlem Türü', type: 'select', defaultValue: 'addition', width: 'full', options: [
+                        {label: 'Toplama (+)', value: 'addition'}, 
+                        {label: 'Çıkarma (-)', value: 'subtraction'}, 
+                        {label: 'Çarpma (x)', value: 'multiplication'}, 
+                        {label: 'Bölme (÷)', value: 'division'},
+                        {label: 'Karışık', value: 'mixed'}
+                    ]},
+                    { key: 'digitCount', label: 'Basamak Sayısı', type: 'range', defaultValue: 2, min: 1, max: 4, width: 'full' },
+                    itemCountField(12, 4, 24, 'İşlem Sayısı'),
+                    // Conditional Fields
+                    { key: 'allowCarry', label: 'Eldeli Olsun', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.operationType === 'addition' || vals.operationType === 'mixed' },
+                    { key: 'allowBorrow', label: 'Onluk Bozmalı', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.operationType === 'subtraction' || vals.operationType === 'mixed' },
+                    { key: 'allowRemainder', label: 'Kalanlı Bölme', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.operationType === 'division' || vals.operationType === 'mixed' },
+                    { key: 'useThirdNumber', label: '3. Sayı Ekle', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.operationType === 'addition' || vals.operationType === 'multiplication' }
+                ];
+            case ActivityType.REAL_LIFE_MATH_PROBLEMS:
+                return [
+                    ...commonFields,
+                    { key: 'operationType', label: 'Odak İşlem', type: 'select', defaultValue: 'mixed', width: 'half', options: [
+                        {label: 'Toplama', value: 'addition'}, 
+                        {label: 'Çıkarma', value: 'subtraction'}, 
+                        {label: 'Çarpma', value: 'multiplication'}, 
+                        {label: 'Bölme', value: 'division'},
+                        {label: 'Karışık', value: 'mixed'}
+                    ]},
+                    itemCountField(4, 2, 8, 'Problem Sayısı')
+                ];
             case ActivityType.NUMBER_PATTERN:
             case ActivityType.SHAPE_NUMBER_PATTERN:
             case ActivityType.VISUAL_NUMBER_PATTERN:
@@ -348,7 +377,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             onChange={(e) => handleOptionChange(field.key, e.target.checked)}
                             className="w-4 h-4 text-indigo-600 rounded border-zinc-300 focus:ring-indigo-500"
                         />
-                        <span className="ml-2 text-sm text-zinc-700 dark:text-zinc-300">{field.description || 'Aktif'}</span>
+                        <span className="ml-2 text-sm text-zinc-700 dark:text-zinc-300">{field.description || 'Evet'}</span>
                     </div>
                 )}
 
@@ -363,7 +392,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             onChange={(e) => handleOptionChange(field.key, Number(e.target.value))}
                             className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         />
-                        <span className="text-xs font-mono w-6 text-right">{specificOptions[field.key]}%</span>
+                        <span className="text-xs font-mono w-6 text-right">{specificOptions[field.key]}</span>
                     </div>
                 )}
             </div>
