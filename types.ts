@@ -573,7 +573,7 @@ export interface LengthConnectDataPoint { label: string; pairId: number; x: numb
 export interface LengthConnectData extends BaseActivityData { prompt: string; gridDim: number; points: LengthConnectDataPoint[]; }
 export interface VisualNumberPatternData extends BaseActivityData { prompt: string; puzzles: { items: { number: number; color: string; size: number; }[]; rule: string; answer: number; }[]; }
 export interface MissingPartsData extends BaseActivityData { prompt: string; leftParts: { id: number; text: string }[]; rightParts: { id: number; text: string }[]; givenParts: { word: string; parts: string[] }[]; }
-export interface LogicGridPuzzleData extends BaseActivityData { prompt: string; clues: string[]; people: string[]; categories: { title: string; items: { name: string; imageDescription: string; imageBase64?: string; }[]; }[]; }
+export interface LogicGridPuzzleData extends BaseActivityData { prompt: string; clues: string[]; people: string[]; categories: { title: string; items: { name: string; imageDescription: string; imagePrompt?: string; imageBase64?: string; }[]; }[]; }
 export interface ThematicOddOneOutWord { text: string; imagePrompt?: string; imageBase64?: string; }
 export interface ThematicOddOneOutData extends BaseActivityData { prompt: string; theme: string; rows: { words: ThematicOddOneOutWord[]; oddWord: string; }[]; sentencePrompt: string; }
 export interface ThematicOddOneOutSentenceData extends BaseActivityData { prompt: string; rows: { words: string[]; oddWord: string; }[]; sentencePrompt: string; }
