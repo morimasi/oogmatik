@@ -69,7 +69,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
              <CompactSlider 
                 icon="fa-table-columns" 
                 title="Sütun Sayısı" 
-                min={1} max={3} 
+                min={1} max={6} 
                 value={settings.columns} 
                 onChange={(v: number) => onSettingsChange({...settings, columns: v})}
              />

@@ -30,11 +30,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-margin': `${settings.margin}px`,
         '--worksheet-gap': `${settings.gap}px`,
+        '--dynamic-cols': settings.columns, // Pass dynamic columns setting to CSS
     } as React.CSSProperties;
 
     const contentWrapperStyles: CSSProperties = {
-        columnCount: settings.columns > 1 ? settings.columns : 'auto',
-        columnGap: '2rem',
+        // We no longer use columnCount here as it's better handled via CSS Grid in index.html
         width: '100%',
     };
 

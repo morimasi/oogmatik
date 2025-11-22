@@ -56,6 +56,12 @@
       gap: var(--worksheet-gap, 1rem) !important;
   }
 
+  /* --- DYNAMIC COLUMN OVERRIDE (For User Selected 1-6 Columns) --- */
+  /* Only override grids that have explicit grid-cols classes, as these usually contain the main items */
+  .worksheet-page .grid[class*="grid-cols-"] {
+      grid-template-columns: repeat(var(--dynamic-cols, 1), minmax(0, 1fr)) !important;
+  }
+
   /* --- ANIMATIONS --- */
   @keyframes mixedFlip {
     0% { transform: rotateY(0deg); }
@@ -179,13 +185,12 @@
       color: black !important;
       overflow: visible !important;
       display: block !important;
+      page-break-after: always; /* Ensure each generated sheet starts on new page if multiple */
     }
     
-    /* Separate generated worksheets with a page break */
-    .worksheet-page + .worksheet-page {
-        page-break-before: always !important;
-        break-before: page !important;
-        margin-top: 0 !important;
+    /* Avoid break after last child */
+    .worksheet-page:last-child {
+        page-break-after: auto;
     }
 
     /* --- COMPACT SPACING OVERRIDES (SIKIŞTIRMA) --- */
@@ -262,16 +267,15 @@
         display: block !important; /* Often necessary for break-inside to work in some browsers */
     }
     
-    /* Re-apply grid display only where structure absolutely demands it, 
-       but allow rows to break */
-    .worksheet-page .grid.grid-cols-1,
-    .worksheet-page .grid.grid-cols-2,
-    .worksheet-page .grid.grid-cols-3,
-    .worksheet-page .grid.grid-cols-4 {
+    /* Force grid logic even in print if we want columns */
+    .worksheet-page .grid[class*="grid-cols-"] {
         display: grid !important;
+        /* grid-template-columns is already handled by the variable rule above */
     }
 
     /* Prevent breaking inside atomic items (single questions/cards) */
+    /* Crucial: Target the direct children of the grid to avoid splitting a card in half */
+    .worksheet-page .grid > *,
     .worksheet-page li,
     .worksheet-page tr,
     .worksheet-page .break-inside-avoid,
