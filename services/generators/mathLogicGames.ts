@@ -35,19 +35,29 @@ export const generateBasicOperationsFromAI = async (options: GeneratorOptions): 
     const { operationType, digitCount, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
     
     const prompt = `
-    "Dört İşlem Alıştırması" hazırla.
-    İşlem Türü: ${operationType}.
-    Basamak Sayısı: ${digitCount} (Büyük sayı için).
-    ${operationType === 'addition' ? `Eldeli: ${allowCarry ? 'Evet' : 'Hayır'}. ${useThirdNumber ? '3 sayı toplanacak.' : '2 sayı toplanacak.'}` : ''}
-    ${operationType === 'subtraction' ? `Onluk Bozmalı: ${allowBorrow ? 'Evet' : 'Hayır'}.` : ''}
-    ${operationType === 'division' ? `Kalanlı: ${allowRemainder ? 'Evet' : 'Hayır'}.` : ''}
+    "Dört İşlem Alıştırması" hazırlıyorsun. Hedef kitle: İlkokul.
     
-    Çıktı verisi:
-    - operations dizisi içinde: num1 (üstteki/bölünen), num2 (alttaki/bölen), num3 (varsa), operator (+, -, x, ÷), answer (sonuç), remainder (varsa).
-    - ${itemCount || 12} adet işlem.
-    - isVertical: true (Dikey işlem formatı).
+    AYARLAR:
+    - İşlem Türü: ${operationType === 'mixed' ? 'Toplama, Çıkarma, Çarpma, Bölme (Karışık)' : operationType}.
+    - Basamak Sayısı: ${digitCount} (Sayılar bu basamakta olmalı).
+    - İŞLEM SAYISI: ${itemCount || 12} adet.
+    
+    ÖZEL KURALLAR (Uygulamak Zorunlu):
+    - Toplama ise: ${allowCarry ? 'Eldeli olabilir.' : 'KESİNLİKLE ELDESİZ OLMALI.'} ${useThirdNumber ? '3 adet sayı alt alta toplanmalı.' : '2 sayı toplanmalı.'}
+    - Çıkarma ise: ${allowBorrow ? 'Onluk bozmalı olabilir.' : 'KESİNLİKLE ONLUK BOZMA GEREKTİRMEMELİ.'} (Üstteki sayı alttakinden büyük olmalı).
+    - Bölme ise: ${allowRemainder ? 'Kalanlı bölme olabilir.' : 'KESİNLİKLE KALANSIZ OLMALI.'}
+    
+    ÇIKTI FORMATI (JSON):
+    - operations dizisi içinde objeler:
+      - num1: İlk sayı (Üstteki/Bölünen)
+      - num2: İkinci sayı (Alttaki/Bölen/Çarpan)
+      - num3: Varsa üçüncü sayı (sadece toplama için)
+      - operator: İşlem işareti (+, -, x, ÷)
+      - answer: İşlemin doğru sonucu
+      - remainder: Bölme ise kalan (yoksa 0)
+    
     ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
+    ${worksheetCount} adet çalışma sayfası üret.
     `;
 
     const schema = {
@@ -67,7 +77,7 @@ export const generateBasicOperationsFromAI = async (options: GeneratorOptions): 
                         properties: {
                             num1: { type: Type.INTEGER },
                             num2: { type: Type.INTEGER },
-                            num3: { type: Type.INTEGER }, // Optional handled by schema leniency or explicit mapping
+                            num3: { type: Type.INTEGER },
                             operator: { type: Type.STRING, enum: ['+', '-', 'x', '÷'] },
                             answer: { type: Type.INTEGER },
                             remainder: { type: Type.INTEGER }
@@ -87,18 +97,18 @@ export const generateRealLifeMathProblemsFromAI = async (options: GeneratorOptio
     const { difficulty, topic, operationType, worksheetCount, itemCount } = options;
     
     const prompt = `
-    "${difficulty}" seviyesinde "Gerçek Hayat Matematik Problemleri".
-    Konu: ${topic || 'Günlük Yaşam'}.
+    "${difficulty}" seviyesinde "Gerçek Hayat Matematik Problemleri" oluştur.
+    Konu: ${topic || 'Günlük Yaşam (Market, Okul, Oyun)'}.
     Odak İşlem: ${operationType === 'mixed' ? 'Dört İşlem Karışık' : operationType}.
+    Problem Sayısı: ${itemCount || 4} adet.
     
-    Hikayeleştirilmiş, öğrencinin ilgisini çekecek ${itemCount || 4} adet problem yaz.
-    Her problem için:
-    - text: Sorunun metni.
-    - solution: Çözüm adımları ve cevap.
-    - operationHint: Hangi işlemin yapılması gerektiği ipucu (örn: Toplama).
-    - imagePrompt: Soruyu betimleyen sevimli görsel.
+    İÇERİK:
+    - Problemler hikayeleştirilmiş ve çocukların ilgisini çekecek türden olmalı.
+    - Her problem için çözüm adımları net olmalı.
+    - Her problem için o soruyu betimleyen basit bir görsel prompt (imagePrompt) yaz.
+    
     ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
+    ${worksheetCount} adet çalışma sayfası üret.
     `;
 
     const schema = {

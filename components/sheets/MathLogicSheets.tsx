@@ -14,25 +14,35 @@ import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, Pedagog
 export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mt-8">
             {data.operations.map((op, index) => (
-                <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-3xl font-mono font-bold break-inside-avoid">
-                    <div className="tracking-widest">{op.num1}</div>
-                    <div className="flex items-center w-full justify-end gap-2">
-                        <span className="text-2xl">{op.operator}</span>
+                <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-300 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-4xl font-mono font-bold break-inside-avoid relative overflow-hidden">
+                    {/* Dikey İşlem Formatı */}
+                    <div className="tracking-widest mr-2">{op.num1}</div>
+                    
+                    <div className="flex items-center w-full justify-end gap-3 mr-2">
+                        <span className="text-3xl absolute left-4 text-zinc-400">{op.operator}</span>
                         <div className="tracking-widest">{op.num2}</div>
                     </div>
+                    
                     {op.num3 !== undefined && (
-                        <div className="flex items-center w-full justify-end gap-2">
-                            <span className="text-2xl">{op.operator}</span>
+                        <div className="flex items-center w-full justify-end gap-3 mr-2">
                             <div className="tracking-widest">{op.num3}</div>
                         </div>
                     )}
-                    <div className="w-full border-b-4 border-zinc-800 dark:border-zinc-200 my-2"></div>
-                    <div className="h-10 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded border border-dashed border-zinc-300"></div>
                     
+                    {/* İşlem Çizgisi */}
+                    <div className="w-full border-b-4 border-zinc-800 dark:border-zinc-200 my-2"></div>
+                    
+                    {/* Sonuç Alanı */}
+                    <div className="h-14 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded border border-dashed border-zinc-300"></div>
+                    
+                    {/* Kalanlı Bölme Alanı */}
                     {op.remainder !== undefined && (
-                        <div className="mt-2 text-sm text-zinc-500 font-sans font-normal self-start">Kalan: ____</div>
+                        <div className="mt-3 w-full flex justify-between items-center text-sm text-zinc-500 font-sans font-normal border-t pt-2">
+                            <span>Kalan:</span>
+                            <div className="w-12 h-8 border-b border-zinc-400"></div>
+                        </div>
                     )}
                 </div>
             ))}
@@ -43,33 +53,57 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
 export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <div className="space-y-8 max-w-4xl mx-auto">
+        <div className="space-y-8 max-w-5xl mx-auto">
             {data.problems.map((problem, index) => (
-                <div key={index} className="flex flex-col md:flex-row gap-6 p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-l-8 border-indigo-500 shadow-sm break-inside-avoid">
+                <div key={index} className="flex flex-col md:flex-row gap-6 p-6 bg-white dark:bg-zinc-700/50 rounded-2xl border-2 border-indigo-100 dark:border-zinc-600 shadow-sm break-inside-avoid">
+                    
+                    {/* Soru Alanı */}
                     <div className="flex-1">
-                        <div className="flex items-start gap-3 mb-3">
-                            <span className="flex-shrink-0 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">{index + 1}</span>
-                            <p className="text-lg font-medium leading-relaxed">{problem.text}</p>
+                        <div className="flex items-start gap-4 mb-4">
+                            <span className="flex-shrink-0 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-md">{index + 1}</span>
+                            <p className="text-xl font-medium leading-relaxed text-zinc-800 dark:text-zinc-100">{problem.text}</p>
                         </div>
-                        {problem.imagePrompt && (
-                            <div className="ml-11 mb-4 w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-600 overflow-hidden">
-                                {/* Placeholder for problem specific image if AI generates individual ones */}
-                                <div className="w-full h-full flex items-center justify-center text-zinc-300">
-                                    {problem.imageBase64 ? <ImageDisplay base64={problem.imageBase64} description={problem.text} className="w-full h-full object-cover" /> : <i className="fa-solid fa-image"></i>}
+                        
+                        {/* Varsa Resim */}
+                        <div className="pl-14">
+                            {problem.imagePrompt && (
+                                <div className="inline-block w-32 h-32 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-600 overflow-hidden shadow-sm">
+                                    {problem.imageBase64 ? (
+                                        <ImageDisplay base64={problem.imageBase64} description={problem.text} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                                            <i className="fa-solid fa-calculator text-3xl"></i>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        )}
+                            )}
+                            {/* İşlem İpucu */}
+                            {problem.operationHint && (
+                                <div className="mt-2 inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">
+                                    İpucu: {problem.operationHint}
+                                </div>
+                            )}
+                        </div>
                     </div>
                     
-                    <div className="w-full md:w-1/3 bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 flex flex-col">
-                        <span className="text-xs font-bold text-zinc-400 uppercase mb-2">Çözüm Alanı</span>
-                        <div className="flex-1 grid grid-cols-10 grid-rows-4 gap-1 opacity-20 mb-4">
-                            {/* Grid lines for writing */}
-                            {Array.from({length: 40}).map((_, i) => <div key={i} className="border border-zinc-400"></div>)}
+                    {/* Çözüm Alanı (Kareli Defter Görünümü) */}
+                    <div className="w-full md:w-[400px] bg-white border-2 border-zinc-300 dark:border-zinc-500 rounded-xl overflow-hidden flex flex-col shadow-inner">
+                        <div className="bg-zinc-100 dark:bg-zinc-800 px-4 py-2 border-b border-zinc-300 dark:border-zinc-600 flex justify-between items-center">
+                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Çözüm Alanı</span>
+                            <i className="fa-solid fa-pencil text-zinc-400"></i>
                         </div>
-                        <div className="flex items-center justify-between border-t border-zinc-300 pt-2 mt-auto">
-                            <span className="text-sm font-bold">Cevap:</span>
-                            <div className="w-20 h-8 border-b-2 border-zinc-800 dark:border-zinc-200"></div>
+                        
+                        {/* CSS Grid Pattern for "Notebook" look */}
+                        <div className="flex-1 p-4 relative min-h-[150px]" 
+                             style={{
+                                 backgroundImage: 'linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)',
+                                 backgroundSize: '20px 20px'
+                             }}>
+                        </div>
+                        
+                        <div className="flex items-center justify-between p-3 border-t-2 border-zinc-300 dark:border-zinc-500 bg-zinc-50 dark:bg-zinc-800">
+                            <span className="font-bold text-lg">Cevap:</span>
+                            <div className="w-32 h-10 border-b-2 border-dotted border-zinc-800 dark:border-zinc-200"></div>
                         </div>
                     </div>
                 </div>
@@ -77,12 +111,12 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
         </div>
         
         {/* Answer Key (Upside down at bottom) */}
-        <div className="mt-12 pt-6 border-t border-zinc-200 dark:border-zinc-700">
-            <p className="text-xs font-bold text-zinc-400 uppercase mb-2 text-center">Cevap Anahtarı (Ters)</p>
-            <div className="flex justify-center gap-4 flex-wrap transform rotate-180 opacity-50 hover:opacity-100 transition-opacity">
+        <div className="mt-16 pt-6 border-t-2 border-zinc-200 dark:border-zinc-700 print:block hidden">
+            <p className="text-xs font-bold text-zinc-400 uppercase mb-2 text-center">Cevap Anahtarı</p>
+            <div className="flex justify-center gap-6 flex-wrap transform rotate-180 opacity-60">
                 {data.problems.map((p, i) => (
-                    <div key={i} className="text-xs border px-2 py-1 rounded">
-                        {i+1}. {p.solution}
+                    <div key={i} className="text-xs border border-zinc-300 px-3 py-1 rounded bg-zinc-50">
+                        <strong>{i+1}.</strong> {p.solution}
                     </div>
                 ))}
             </div>
