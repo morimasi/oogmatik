@@ -118,11 +118,11 @@
   .worksheet-page .dark\:bg-amber-900\/20 { background-color: #fef3c7 !important; color: #92400e !important; }
   .worksheet-page .dark\:text-amber-200 { color: #92400e !important; }
 
-  /* --- PROFESSIONAL PRINT CSS (A4 PIXEL PERFECT & FLOWING CONTENT) --- */
+  /* --- PROFESSIONAL PRINT CSS (A4 COMPACT & FLOWING) --- */
   @media print {
     @page {
       size: A4 portrait;
-      margin: 0.5cm; /* Minimal browser margin */
+      margin: 5mm; /* Extremely minimal margin for max content */
     }
     
     html, body {
@@ -134,55 +134,45 @@
       background-color: white !important;
       color: black !important;
       overflow: visible !important;
+      font-size: 12pt; /* Standard print size */
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
 
-    /* Reset Layout Containers */
+    /* Reset Layout Containers to allow flow */
     #root, .h-screen, .flex, .flex-col, .flex-1, .overflow-hidden, .overflow-y-auto, main {
         height: auto !important;
         min-height: 0 !important;
+        width: 100% !important;
         overflow: visible !important;
         display: block !important;
         position: static !important;
     }
 
     /* Hide UI Elements */
-    header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar {
+    header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar, .reading-ruler {
       display: none !important;
     }
     
-    /* Printable Area */
+    /* Printable Area Wrapper */
     .printable-area {
       position: static !important;
       width: 100% !important;
-      height: auto !important;
       margin: 0 !important;
       padding: 0 !important;
       overflow: visible !important;
       display: block !important;
     }
 
-    .page-grid {
-      display: block !important;
-      width: 100% !important;
-      height: auto !important;
-    }
-
-    /* Worksheet Page for Print - ALLOW FLOW */
+    /* Worksheet Page - Remove constraints to allow A4 flow */
     .worksheet-page {
       position: relative !important;
       width: 100% !important;
-      max-width: 100% !important;
-      height: auto !important; /* Allow height to grow */
+      max-width: none !important; /* Remove fixed width */
+      height: auto !important; /* Allow unlimited height for flow */
       min-height: 0 !important;
-      margin: 0 !important; 
+      margin: 0 !important;
       padding: 0 !important;
-      
-      /* Flow control */
-      page-break-after: auto !important;
-      break-after: auto !important;
-      
       border: none !important;
       box-shadow: none !important;
       background-color: white !important;
@@ -191,80 +181,111 @@
       display: block !important;
     }
     
-    /* Force breaks between separate worksheet generations if multiple */
+    /* Separate generated worksheets with a page break */
     .worksheet-page + .worksheet-page {
         page-break-before: always !important;
         break-before: page !important;
-        margin-top: 20px !important;
+        margin-top: 0 !important;
     }
 
-    /* Zoom Wrapper Reset */
-    .zoom-wrapper {
-      transform: none !important;
-      width: 100% !important;
-      height: auto !important;
-      overflow: visible !important;
-      position: static !important;
+    /* --- COMPACT SPACING OVERRIDES (SIKIŞTIRMA) --- */
+    /* Reduce standard Tailwind padding/margins drastically for print */
+    .worksheet-page .p-4, .worksheet-page .p-5, .worksheet-page .p-6, .worksheet-page .p-8, .worksheet-page .p-10 {
+        padding: 2mm !important;
     }
     
-    .zoom-wrapper > div {
-        height: auto !important;
-    }
-
-    /* --- COMPACT SPACING FOR PRINT (Gereksiz boşlukları kaldır) --- */
-    .worksheet-page .p-4, .worksheet-page .p-5, .worksheet-page .p-6, .worksheet-page .p-8 {
-        padding: 0.5rem !important;
+    .worksheet-page .py-4, .worksheet-page .py-6, .worksheet-page .py-8 {
+        padding-top: 1mm !important;
+        padding-bottom: 1mm !important;
     }
     
-    .worksheet-page .gap-4 { gap: 0.5rem !important; }
-    .worksheet-page .gap-6 { gap: 0.75rem !important; }
-    .worksheet-page .gap-8 { gap: 1rem !important; }
-    .worksheet-page .mb-4, .worksheet-page .mb-6, .worksheet-page .mb-8 {
-        margin-bottom: 0.5rem !important;
+    .worksheet-page .px-4, .worksheet-page .px-6, .worksheet-page .px-8 {
+        padding-left: 1mm !important;
+        padding-right: 1mm !important;
     }
 
-    /* CLEAN WRITING AREAS IN PRINT */
+    /* Minimize Gaps */
+    .worksheet-page .gap-4, .worksheet-page .gap-6, .worksheet-page .gap-8, .worksheet-page .gap-12 {
+        gap: 2mm !important; 
+    }
+    
+    .worksheet-page .space-y-4 > * + *, 
+    .worksheet-page .space-y-6 > * + *, 
+    .worksheet-page .space-y-8 > * + * {
+        margin-top: 2mm !important;
+    }
+
+    /* Minimize Margins */
+    .worksheet-page .mb-4, .worksheet-page .mb-6, .worksheet-page .mb-8, .worksheet-page .mb-10, .worksheet-page .mb-12 {
+        margin-bottom: 2mm !important;
+    }
+    
+    .worksheet-page .mt-4, .worksheet-page .mt-6, .worksheet-page .mt-8 {
+        margin-top: 2mm !important;
+    }
+
+    /* Header Compactness */
+    .pedagogical-header { margin-bottom: 3mm !important; }
+    .pedagogical-header h3 { font-size: 1.4rem !important; margin-bottom: 1mm !important; line-height: 1.1 !important; }
+    .pedagogical-header p { font-size: 1rem !important; margin-bottom: 1mm !important; line-height: 1.1 !important; }
+    .pedagogical-note { margin-top: 1mm !important; padding-top: 1mm !important; }
+
+    /* CLEAN WRITING AREAS */
     .worksheet-page input, 
     .worksheet-page textarea, 
     .worksheet-page .bg-zinc-50, 
     .worksheet-page .bg-zinc-100,
     .worksheet-page div[class*="bg-zinc-"] {
         background-color: #ffffff !important;
-        border-color: #d4d4d8 !important; /* Light gray border for visibility */
+        border-color: #ccc !important;
         border-width: 1px !important;
         color: black !important;
         box-shadow: none !important;
     }
     
-    /* Ensure text inputs have visible lines/borders for writing */
-    .worksheet-page input[type="text"], .worksheet-page textarea {
-        border-bottom: 1px solid #999 !important;
+    /* Ensure borders are visible but thin */
+    .border, .border-2, .border-4 {
+        border-width: 1px !important;
+        border-color: #999 !important;
     }
 
-    /* Headers and Titles - Compact */
-    .pedagogical-header { margin-bottom: 0.5rem !important; }
-    h3 { font-size: 1.4rem !important; margin-bottom: 0.25rem !important; }
-    p { font-size: 1rem !important; margin-bottom: 0.25rem !important; }
-
-    /* --- PAGE BREAK CONTROL --- */
-    /* Allow breaking inside large containers */
+    /* --- PAGINATION CONTROL (SAYFALAMA) --- */
+    /* Allow big containers to break across pages */
     .worksheet-page .rounded-xl,
     .worksheet-page .border,
     .worksheet-page .shadow-sm,
-    .worksheet-page > div > div,
+    .worksheet-page > div,
     .worksheet-page .grid {
         break-inside: auto !important;
         page-break-inside: auto !important;
+        height: auto !important;
+        display: block !important; /* Often necessary for break-inside to work in some browsers */
+    }
+    
+    /* Re-apply grid display only where structure absolutely demands it, 
+       but allow rows to break */
+    .worksheet-page .grid.grid-cols-1,
+    .worksheet-page .grid.grid-cols-2,
+    .worksheet-page .grid.grid-cols-3,
+    .worksheet-page .grid.grid-cols-4 {
+        display: grid !important;
     }
 
-    /* Prevent breaking only for atomic items (like individual questions) */
+    /* Prevent breaking inside atomic items (single questions/cards) */
     .worksheet-page li,
     .worksheet-page tr,
-    .worksheet-page .flex-col > div, /* Child items in a flex list */
-    .worksheet-page .grid > div /* Grid items */
+    .worksheet-page .break-inside-avoid,
+    .worksheet-page .p-4.border /* Typical question card */
     {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
+    }
+    
+    /* Reduce images to save space */
+    img {
+        max-height: 150px !important;
+        width: auto !important;
+        object-fit: contain !important;
     }
   }
 
