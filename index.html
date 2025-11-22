@@ -74,11 +74,49 @@
     display: inline-block;
   }
 
+  /* --- PAPER SIMULATION (FORCE LIGHT MODE FOR WORKSHEET) --- */
+  /* This ensures the worksheet looks like paper even in dark mode app */
+  .worksheet-page {
+      background-color: white !important;
+      color: #18181b !important; /* zinc-950 */
+  }
+
+  /* Neutralize dark mode utilities inside worksheet to keep it clean */
+  .worksheet-page .dark\:bg-zinc-800,
+  .worksheet-page .dark\:bg-zinc-700,
+  .worksheet-page .dark\:bg-zinc-900,
+  .worksheet-page .dark\:bg-zinc-700\/50,
+  .worksheet-page .dark\:bg-zinc-700\/30 {
+      background-color: #ffffff !important; /* Force white background for containers */
+      border-color: #d4d4d8 !important; /* Light border */
+      color: #18181b !important;
+  }
+  
+  /* Ensure text is always dark on the worksheet */
+  .worksheet-page .dark\:text-zinc-100,
+  .worksheet-page .dark\:text-zinc-200,
+  .worksheet-page .dark\:text-zinc-300,
+  .worksheet-page .dark\:text-white {
+      color: #18181b !important; 
+  }
+
+  /* Fix borders in dark mode components */
+  .worksheet-page .dark\:border-zinc-600,
+  .worksheet-page .dark\:border-zinc-700 {
+      border-color: #d4d4d8 !important;
+  }
+
+  /* Maintain semantic colors but ensure they are readable on white */
+  .worksheet-page .dark\:bg-indigo-900\/30 { background-color: #e0e7ff !important; color: #3730a3 !important; } 
+  .worksheet-page .dark\:text-indigo-400 { color: #4338ca !important; }
+  .worksheet-page .dark\:bg-amber-900\/20 { background-color: #fef3c7 !important; color: #92400e !important; }
+  .worksheet-page .dark\:text-amber-200 { color: #92400e !important; }
+
   /* --- PROFESSIONAL PRINT CSS (A4 PIXEL PERFECT) --- */
   @media print {
     @page {
       size: A4 portrait;
-      margin: 10mm; /* Safe margin for printers, maximizing space but safe for cutting */
+      margin: 0; /* Remove browser margins, control via body/padding */
     }
     
     html, body {
@@ -130,8 +168,8 @@
       max-width: 100% !important;
       min-height: auto !important; /* Don't force full height */
       height: auto !important;
-      margin: 0 !important; /* Remove margins to use @page margin */
-      padding: 0 !important; /* Override inline React padding */
+      margin: 0 !important; 
+      padding: 10mm !important; /* Safe internal margin */
       
       page-break-after: always !important;
       break-after: page !important;
@@ -160,20 +198,36 @@
         height: auto !important;
     }
 
-    /* --- COMPACT SPACING FOR PRINT --- */
+    /* --- COMPACT SPACING FOR PRINT (Gereksiz boşlukları kaldır) --- */
     /* Significantly reduce padding and gaps to fit more content */
     .worksheet-page .p-4, .worksheet-page .p-5, .worksheet-page .p-6, .worksheet-page .p-8 {
         padding: 0.5rem !important;
     }
     
-    .worksheet-page .gap-4, .worksheet-page .gap-6, .worksheet-page .gap-8 { 
-        gap: 0.5rem !important; 
-    }
+    .worksheet-page .gap-4 { gap: 0.5rem !important; }
+    .worksheet-page .gap-6 { gap: 0.75rem !important; }
+    .worksheet-page .gap-8 { gap: 1rem !important; }
     
     .worksheet-page .space-y-4 > * + *,
     .worksheet-page .space-y-6 > * + *,
     .worksheet-page .space-y-8 > * + * { 
         margin-top: 0.5rem !important; 
+    }
+    
+    .worksheet-page .mb-4, .worksheet-page .mb-6, .worksheet-page .mb-8 {
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* CLEAN WRITING AREAS IN PRINT */
+    /* Ensure inputs and boxes are stark white for writing */
+    .worksheet-page input, 
+    .worksheet-page textarea, 
+    .worksheet-page .bg-zinc-50, 
+    .worksheet-page .bg-zinc-100,
+    .worksheet-page div[class*="bg-zinc-"] {
+        background-color: #ffffff !important;
+        border-color: #d4d4d8 !important; /* Light gray border for visibility */
+        color: black !important;
     }
     
     /* Headers and Titles - Compact */
@@ -201,6 +255,7 @@
   }
 
   /* --- DARK THEME (Sweet Night / Tatlı Gece) --- */
+  /* Global App Dark Theme (Sidebar, Toolbar, etc.) */
   html.dark body {
     background-color: #13111C; 
     color: #E2E8F0; 
@@ -218,21 +273,7 @@
      background-color: #252234 !important;
   }
 
-  html.dark .page {
-    background-color: #FDF4FF; 
-    color: #4A044E; 
-  }
-  html.dark .page .bg-white {
-      background-color: #FFFFFF !important; 
-      color: #000000;
-      border-color: #e5e7eb !important;
-  }
-  html.dark .page .text-zinc-800 {
-      color: #1f2937 !important;
-  }
-  html.dark .page .text-zinc-500 {
-      color: #6b7280 !important;
-  }
+  /* EXCEPTION: The Worksheet Page itself handles its own "Paper" look via the overrides above */
 
   html.dark aside,
   html.dark header,

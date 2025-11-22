@@ -11,7 +11,7 @@ import * as VisualSheets from './sheets/VisualPerceptionSheets';
 import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 
 import {
-    WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData, SynonymWordSearchData, SynonymSearchAndStoryData, StoryData, StroopTestData, NumberPatternData, SpellingCheckData, LetterGridTestData, NumberSearchData, WordMemoryData, StoryCreationPromptData, FindTheDifferenceData, WordComparisonData, WordsInStoryData, OddOneOutData, ShapeMatchingData, SymbolCipherData, ProverbFillData, LetterBridgeData, FindDuplicateData, FindLetterPairData, WordLadderData, FindIdenticalWordData, WordFormationData, ReverseWordData, WordGroupingData, VisualMemoryData, StoryAnalysisData, CoordinateCipherData, TargetSearchData, ShapeNumberPatternData, GridDrawingData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StorySequencingData, ChaoticNumberSearchData, BlockPaintingData, MiniWordGridData, VisualOddOneOutData, ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, PasswordFinderData, SyllableCompletionData, WordConnectData, SpiralPuzzleData, CrosswordData, JumbledWordStoryData, HomonymSentenceData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, ThematicOddOneOutData, SynonymAntonymGridData, PunctuationColoringData, TargetNumberData, OperationSquareMultDivData, FutoshikiData, ShapeSudokuData, WeightConnectData, PunctuationMazeData, AntonymResfebeData, ThematicOddOneOutSentenceData, ProverbSentenceFinderData, ColumnOddOneOutSentenceData, SynonymAntonymColoringData, PunctuationPhoneNumberData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData, RomanNumeralMultiplicationData, ArithmeticConnectData, RomanArabicMatchConnectData, Sudoku6x6ShadedData, KendokuData, DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData, OperationSquareFillInData, MultiplicationWheelData, ResfebeData, FutoshikiLengthData, MatchstickSymmetryData, WordWebData, StarHuntData, LengthConnectData, VisualNumberPatternData, MissingPartsData, ProfessionConnectData, VisualOddOneOutThemedData, LogicGridPuzzleData, ImageAnagramSortData, AnagramImageMatchData, SyllableWordSearchData, WordWebWithPasswordData, WordPlacementPuzzleData, PositionalAnagramData, MathPuzzleData,
+    WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData, SynonymWordSearchData, SynonymSearchAndStoryData, StoryData, StroopTestData, NumberPatternData, SpellingCheckData, LetterGridTestData, NumberSearchData, WordMemoryData, StoryCreationPromptData, FindTheDifferenceData, WordComparisonData, WordsInStoryData, OddOneOutData, ShapeMatchingData, SymbolCipherData, ProverbFillData, LetterBridgeData, FindDuplicateData, FindLetterPairData, WordLadderData, WordFormationData, ReverseWordData, WordGroupingData, VisualMemoryData, StoryAnalysisData, CoordinateCipherData, TargetSearchData, ShapeNumberPatternData, GridDrawingData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StorySequencingData, ChaoticNumberSearchData, BlockPaintingData, MiniWordGridData, VisualOddOneOutData, ShapeCountingData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, PasswordFinderData, SyllableCompletionData, WordConnectData, SpiralPuzzleData, CrosswordData, JumbledWordStoryData, HomonymSentenceData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, ProverbWordChainData, ThematicOddOneOutData, SynonymAntonymGridData, PunctuationColoringData, TargetNumberData, OperationSquareMultDivData, FutoshikiData, ShapeSudokuData, WeightConnectData, PunctuationMazeData, AntonymResfebeData, ThematicOddOneOutSentenceData, ProverbSentenceFinderData, ColumnOddOneOutSentenceData, SynonymAntonymColoringData, PunctuationPhoneNumberData, PunctuationSpiralPuzzleData, ThematicJumbledWordStoryData, SynonymMatchingPatternData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData, RomanNumeralMultiplicationData, ArithmeticConnectData, RomanArabicMatchConnectData, Sudoku6x6ShadedData, KendokuData, DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData, OperationSquareFillInData, MultiplicationWheelData, ResfebeData, FutoshikiLengthData, MatchstickSymmetryData, WordWebData, StarHuntData, LengthConnectData, VisualNumberPatternData, MissingPartsData, ProfessionConnectData, VisualOddOneOutThemedData, LogicGridPuzzleData, ImageAnagramSortData, AnagramImageMatchData, SyllableWordSearchData, WordWebWithPasswordData, WordPlacementPuzzleData, PositionalAnagramData, MathPuzzleData, FindIdenticalWordData,
     ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData
 } from '../types';
 
@@ -29,18 +29,16 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--worksheet-border-color': settings.borderColor,
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-margin': `${settings.margin}px`,
-        '--worksheet-gap': `${settings.gap}px`, // Inject dynamic gap for all flex/grid items in content
+        '--worksheet-gap': `${settings.gap}px`,
     } as React.CSSProperties;
 
-    // Content column styles: splits text/questions into columns like a newspaper
     const contentWrapperStyles: CSSProperties = {
         columnCount: settings.columns > 1 ? settings.columns : 'auto',
-        columnGap: '2rem', // Standard gap between columns
+        columnGap: '2rem',
         width: '100%',
     };
 
-    // Print: overflow visible to allow multi-page, padding 0 handled by CSS important override in index.html
-    const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0 print:border-none overflow-hidden print:overflow-visible`;
+    const pageClasses = `page worksheet-page bg-white text-zinc-900 shadow-lg relative print:shadow-none print:m-0 print:border-none overflow-hidden print:overflow-visible`;
 
     const renderContent = (singleData: SingleWorksheetData, index: number) => {
         switch (activityType) {
@@ -85,6 +83,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             case ActivityType.POSITIONAL_ANAGRAM: return <WordGameSheets.PositionalAnagramSheet data={singleData as PositionalAnagramData} />;
             case ActivityType.IMAGE_ANAGRAM_SORT: return <WordGameSheets.ImageAnagramSortSheet data={singleData as ImageAnagramSortData} />;
             case ActivityType.ANAGRAM_IMAGE_MATCH: return <WordGameSheets.AnagramImageMatchSheet data={singleData as AnagramImageMatchData} />;
+            case ActivityType.RESFEBE: return <WordGameSheets.ResfebeSheet data={singleData as ResfebeData} />;
             
             // Reading Comprehension
             case ActivityType.STORY_COMPREHENSION: return <ReadingSheets.StoryComprehensionSheet data={singleData as StoryData} />;
@@ -149,7 +148,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             case ActivityType.SHAPE_SUDOKU: return <MathLogicSheets.ShapeSudokuSheet data={singleData as ShapeSudokuData} />;
             case ActivityType.VISUAL_NUMBER_PATTERN: return <MathLogicSheets.VisualNumberPatternSheet data={singleData as VisualNumberPatternData} />;
             case ActivityType.LOGIC_GRID_PUZZLE: return <MathLogicSheets.LogicGridPuzzleSheet data={singleData as LogicGridPuzzleData} />;
-            case ActivityType.RESFEBE: return <WordGameSheets.ResfebeSheet data={singleData as ResfebeData} />;
             case ActivityType.MULTIPLICATION_WHEEL: return <MathLogicSheets.MultiplicationWheelSheet data={singleData as MultiplicationWheelData} />;
 
 
@@ -215,8 +213,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                      {/* BACKGROUND WATERMARK */}
                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.04] print:opacity-[0.08] select-none overflow-hidden">
                         <div className="transform -rotate-45 flex flex-col items-center justify-center">
-                             <i className="fa-solid fa-brain text-9xl mb-4 text-zinc-900 dark:text-zinc-100"></i>
-                             <div className="text-zinc-900 dark:text-zinc-100 text-6xl md:text-8xl font-black whitespace-nowrap tracking-widest uppercase border-y-8 border-zinc-900 dark:border-zinc-100 py-4">
+                             <i className="fa-solid fa-brain text-9xl mb-4 text-zinc-900"></i>
+                             <div className="text-zinc-900 text-6xl md:text-8xl font-black whitespace-nowrap tracking-widest uppercase border-y-8 border-zinc-900 py-4">
                                 BURSA DİSLEKSİ
                              </div>
                         </div>
@@ -228,15 +226,13 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         width: `${100 * inverseScale}%`,
                         height: `${100 * inverseScale}%`,
                     }}>
-                        {/* Wrapper for internal content, height auto for print to flow */}
                         <div style={contentWrapperStyles} className="h-full print:h-auto">
                             {renderContent(singleData, index)}
                         </div>
                     </div>
                     
-                    {/* PROFESSIONAL PRINT FOOTER - HIDDEN IN PRINT TO SAVE SPACE */}
+                    {/* PROFESSIONAL PRINT FOOTER */}
                     <div className="absolute bottom-0 left-0 right-0 h-20 px-8 pb-6 flex justify-between items-end text-xs text-zinc-400 print:hidden pointer-events-none z-20">
-                        {/* Left: Branding */}
                         <div className="flex items-center gap-3 opacity-70">
                             <div className="w-10 h-10 border-2 border-zinc-300 rounded-lg flex items-center justify-center bg-white">
                                 <i className="fa-solid fa-brain text-zinc-400 text-lg"></i>
@@ -248,13 +244,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                             </div>
                         </div>
 
-                        {/* Right: Pagination & Date */}
                         <div className="flex flex-col items-end opacity-70 h-10 justify-center">
                              <span className="font-mono font-bold text-xl leading-none text-zinc-500">{index + 1} <span className="text-sm font-normal text-zinc-300">/ {data.length}</span></span>
                              <span className="text-[8px] uppercase tracking-widest mt-1">{new Date().toLocaleDateString('tr-TR')}</span>
                         </div>
                         
-                        {/* Bottom Decorative Bar */}
                         <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-400/30 via-purple-400/30 to-pink-400/30 print:from-zinc-300 print:to-zinc-300"></div>
                     </div>
                 </div>

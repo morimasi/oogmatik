@@ -5,7 +5,7 @@ import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
-import { statsService } from '../services/statsService'; // Import stats service
+import { statsService } from '../services/statsService';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -24,7 +24,6 @@ const getActivityById = (id: ActivityType | null): Activity | undefined => {
     return ACTIVITIES.find(a => a.id === id);
 }
 
-// Helper to convert CONSTANT_CASE to PascalCase (e.g. WORD_SEARCH -> WordSearch)
 const toPascalCase = (str: string): string => {
     return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 };
@@ -56,7 +55,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     try {
         let result: WorksheetData;
         
-        // Hızlı Mod Fonksiyonunu Hazırla
         const runOfflineGenerator = async () => {
              const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
              if (offlineGenerator) {
@@ -72,12 +70,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                 try {
                     result = await onlineGenerator(options);
                 } catch (err: any) {
-                    // 429 (Kota) veya 503 (Servis Yok) hatalarında otomatik olarak Hızlı Mod'a geç
                     if (err.message && (err.message.includes('429') || err.message.includes('503') || err.message.includes('quota') || err.message.includes('kotası') || err.message.includes('fetch'))) {
                          console.warn("AI Quota exceeded or Network Error. Switching to Fast Mode automatically.");
                          try {
                              result = await runOfflineGenerator();
-                             // Hata yerine kullanıcıya bilgi ver
                              setError("Bilgi: Yapay zeka servisi şu an çok yoğun olduğu için etkinlik 'Hızlı Mod' ile oluşturuldu.");
                              setTimeout(() => setError(null), 5000);
                          } catch (offlineErr: any) {
@@ -88,26 +84,22 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }
                 }
             } else {
-                // AI jeneratörü yoksa direkt Hızlı Mod dene
                 console.warn("AI generator not found, trying offline.");
                 result = await runOfflineGenerator();
             }
         } else { 
-            // Kullanıcı zaten Hızlı Mod seçtiyse
             result = await runOfflineGenerator();
         }
         
         if (result) {
             setWorksheetData(result);
-            // Add to history automatically
             onAddToHistory(selectedActivity, result);
-            // Track usage stats
             statsService.incrementUsage(selectedActivity);
         }
 
     } catch (e: any) {
         console.error("Etkinlik oluşturulurken hata:", e);
-        if (e.message.includes('429') || e.message.includes('quota')) {
+        if (e.message && (e.message.includes('429') || e.message.includes('quota'))) {
             setError("API kotası aşıldı. Lütfen 'Hızlı Mod'u kullanın.");
         } else {
             setError(e.message || "Beklenmeyen bir hata oluştu.");
