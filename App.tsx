@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity, HistoryItem, User } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity, HistoryItem, User, StyleSettings, View } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -18,16 +18,6 @@ import { SharedWorksheetsView } from './components/SharedWorksheetsView';
 import { SavedWorksheetsView } from './components/SavedWorksheetsView';
 import { AssessmentModule } from './components/AssessmentModule';
 
-export interface StyleSettings {
-  fontSize: number;
-  borderColor: string;
-  borderWidth: number;
-  margin: number;
-  columns: number;
-  gap: number;
-  showPedagogicalNote: boolean;
-}
-
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
     borderColor: '#d4d4d8',
@@ -38,7 +28,6 @@ const initialStyleSettings: StyleSettings = {
     showPedagogicalNote: true,
 };
 
-export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment';
 type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings';
 
 // Modal Component (reused)

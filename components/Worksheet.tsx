@@ -1,7 +1,6 @@
 
 import React, { CSSProperties } from 'react';
-import { ActivityType, SingleWorksheetData, AnagramsData } from '../types';
-import { StyleSettings } from '../App';
+import { ActivityType, SingleWorksheetData, AnagramsData, StyleSettings } from '../types';
 
 import * as WordGameSheets from './sheets/WordGameSheets';
 import * as ReadingSheets from './sheets/ReadingComprehensionSheets';

@@ -32,25 +32,37 @@ const baseMathSchema = (itemProp: string, itemType: any) => ({
 });
 
 export const generateBasicOperationsFromAI = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
-    const { operationType, digitCount, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
+    const { selectedOperations, num1Digits, num2Digits, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
     
+    // Prepare operations description
+    const ops = selectedOperations && selectedOperations.length > 0 
+        ? selectedOperations.map((op: string) => {
+            if(op==='addition') return 'Toplama';
+            if(op==='subtraction') return 'Çıkarma';
+            if(op==='multiplication') return 'Çarpma';
+            if(op==='division') return 'Bölme';
+            return op;
+        }).join(', ') 
+        : 'Karışık (Toplama, Çıkarma, Çarpma, Bölme)';
+
     const prompt = `
     "Dört İşlem Alıştırması" hazırlıyorsun. Hedef kitle: İlkokul.
     
     AYARLAR:
-    - İşlem Türü: ${operationType === 'mixed' ? 'Toplama, Çıkarma, Çarpma, Bölme (Karışık)' : operationType}.
-    - Basamak Sayısı: ${digitCount} (Sayılar bu basamakta olmalı).
+    - İŞLEM TÜRLERİ: ${ops}. (Seçilen türlerden eşit sayıda soru üret).
+    - SAYI 1 (Üstteki/Bölünen) BASAMAK SAYISI: ${num1Digits || 2}.
+    - SAYI 2 (Alttaki/Bölen/Çarpan) BASAMAK SAYISI: ${num2Digits || 1}.
     - İŞLEM SAYISI: ${itemCount || 12} adet.
     
     ÖZEL KURALLAR (Uygulamak Zorunlu):
-    - Toplama ise: ${allowCarry ? 'Eldeli olabilir.' : 'KESİNLİKLE ELDESİZ OLMALI.'} ${useThirdNumber ? '3 adet sayı alt alta toplanmalı.' : '2 sayı toplanmalı.'}
+    - Toplama ise: ${allowCarry ? 'Eldeli olabilir.' : 'KESİNLİKLE ELDESİZ OLMALI.'} ${useThirdNumber ? '3 adet sayı alt alta toplanmalı (3. sayının basamağı 2. sayı ile uyumlu olsun).' : '2 sayı toplanmalı.'}
     - Çıkarma ise: ${allowBorrow ? 'Onluk bozmalı olabilir.' : 'KESİNLİKLE ONLUK BOZMA GEREKTİRMEMELİ.'} (Üstteki sayı alttakinden büyük olmalı).
     - Bölme ise: ${allowRemainder ? 'Kalanlı bölme olabilir.' : 'KESİNLİKLE KALANSIZ OLMALI.'}
     
     ÇIKTI FORMATI (JSON):
     - operations dizisi içinde objeler:
-      - num1: İlk sayı (Üstteki/Bölünen)
-      - num2: İkinci sayı (Alttaki/Bölen/Çarpan)
+      - num1: İlk sayı
+      - num2: İkinci sayı
       - num3: Varsa üçüncü sayı (sadece toplama için)
       - operator: İşlem işareti (+, -, x, ÷)
       - answer: İşlemin doğru sonucu
@@ -359,7 +371,7 @@ export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } }, required: ["row", "col"] } },
+                            cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER }, required: ["row", "col"] } },
                             operation: { type: Type.STRING },
                             target: { type: Type.INTEGER }
                         },

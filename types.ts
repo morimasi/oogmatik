@@ -115,7 +115,6 @@ export enum ActivityType {
   LETTER_GRID_WORD_FIND = 'LETTER_GRID_WORD_FIND',
   WORD_PLACEMENT_PUZZLE = 'WORD_PLACEMENT_PUZZLE',
   POSITIONAL_ANAGRAM = 'POSITIONAL_ANAGRAM',
-  // DYSLEXIA SUPPORT MODULES
   READING_FLOW = 'READING_FLOW',
   LETTER_DISCRIMINATION = 'LETTER_DISCRIMINATION',
   RAPID_NAMING = 'RAPID_NAMING',
@@ -124,12 +123,23 @@ export enum ActivityType {
   SYLLABLE_TRAIN = 'SYLLABLE_TRAIN',
   VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES',
   BACKWARD_SPELLING = 'BACKWARD_SPELLING',
-  // NEW MATH MODULES
   BASIC_OPERATIONS = 'BASIC_OPERATIONS',
   REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS'
 }
 
 export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia';
+
+export interface StyleSettings {
+  fontSize: number;
+  borderColor: string;
+  borderWidth: number;
+  margin: number;
+  columns: number;
+  gap: number;
+  showPedagogicalNote: boolean;
+}
+
+export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment';
 
 export interface GeneratorOptions {
     mode: 'ai' | 'fast';
@@ -154,16 +164,14 @@ export interface ActivityCategory {
   activities: ActivityType[];
 }
 
-// --- ANALYTICS TYPES ---
 export interface ActivityStats {
     activityId: ActivityType;
     title: string;
     generationCount: number;
     lastGenerated: string;
-    avgCompletionTime: number; // Simulated/Mocked in minutes
+    avgCompletionTime: number;
 }
 
-// --- USER & AUTH TYPES ---
 export type UserRole = 'user' | 'admin';
 export type UserStatus = 'active' | 'suspended' | 'pending';
 export type SubscriptionPlan = 'free' | 'pro' | 'enterprise';
@@ -176,16 +184,16 @@ export interface User {
     avatar?: string;
     createdAt: string;
     lastLogin: string;
-    worksheetCount: number; // Stats
+    worksheetCount: number;
     status: UserStatus;
     subscriptionPlan: SubscriptionPlan;
 }
 
 export interface FeedbackItem {
     id: string;
-    userId?: string; // Optional if anonymous
+    userId?: string;
     userName?: string;
-    userEmail?: string; // For non-logged in or fallback
+    userEmail?: string;
     activityType: string | null;
     activityTitle?: string;
     rating: number;
@@ -197,16 +205,15 @@ export interface FeedbackItem {
 
 export interface Message {
     id: string;
-    senderId: string; // 'admin' or userId
-    receiverId: string; // userId or 'admin'
+    senderId: string;
+    receiverId: string;
     senderName: string;
     content: string;
     timestamp: string;
     isRead: boolean;
-    relatedFeedbackId?: string; // If this message is a reply to a feedback
+    relatedFeedbackId?: string;
 }
 
-// --- ASSESSMENT MODULE TYPES ---
 export type TestCategory = 'reading' | 'math' | 'attention' | 'visual' | 'cognitive';
 
 export interface TestResult {
@@ -214,8 +221,8 @@ export interface TestResult {
     name: string;
     score: number;
     total: number;
-    accuracy: number; // 0-100
-    duration: number; // seconds
+    accuracy: number;
+    duration: number;
     timestamp: number;
 }
 
@@ -229,11 +236,11 @@ export interface AssessmentProfile {
 export interface AssessmentReport {
     overallSummary: string;
     scores: {
-        reading: number; // 0-100
-        writing: number; // 0-100
-        math: number; // 0-100
-        attention: number; // 0-100
-        cognitive: number; // 0-100 (Working Memory / Processing)
+        reading: number;
+        writing: number;
+        math: number;
+        attention: number;
+        cognitive: number;
     };
     chartData?: { label: string; value: number; fullMark: number }[];
     analysis: {
@@ -241,13 +248,12 @@ export interface AssessmentReport {
         weaknesses: string[];
     };
     roadmap: {
-        activityId: string; // string to match ActivityType loosely
+        activityId: string;
         reason: string;
         frequency: string;
     }[];
 }
 
-// --- BASE INTERFACES ---
 export interface BaseActivityData {
     title: string;
     instruction?: string;
@@ -271,7 +277,7 @@ export interface ReadingFlowData extends BaseActivityData {
 
 export interface LetterDiscriminationData extends BaseActivityData {
     prompt: string;
-    targetLetters: string[]; // e.g. ['b', 'd']
+    targetLetters: string[];
     rows: {
         letters: string[];
         targetCount: number;
@@ -294,7 +300,7 @@ export interface PhonologicalAwarenessData extends BaseActivityData {
         word: string;
         imagePrompt?: string;
         imageBase64?: string;
-        options: number[] | string[]; // numbers for counting, strings for rhyming
+        options: number[] | string[];
         answer: number | string;
     }[];
 }
@@ -319,10 +325,10 @@ export interface VisualTrackingLineData extends BaseActivityData {
     paths: {
         id: number;
         color: string;
-        d: string; // SVG path data
+        d: string;
         startLabel: string;
         endLabel: string;
-        startImage?: string; // imageBase64 or icon
+        startImage?: string;
         endImage?: string;
     }[];
     width: number;
@@ -338,7 +344,6 @@ export interface BackwardSpellingData extends BaseActivityData {
     }[];
 }
 
-// ... (Existing interfaces remain the same, omitted for brevity but they are implicitly here) ...
 // --- 1. Find The Difference & Word Comparison ---
 export interface FindTheDifferenceData extends BaseActivityData {
   rows: {
@@ -537,6 +542,11 @@ export interface SynonymAntonymColoringData extends BaseActivityData {
     }[];
 }
 
+export interface StoryAnalysisData extends BaseActivityData { story: string; imageBase64?: string; analysisQuestions: { type: 'tema' | 'karakter' | 'sebep-sonuç' | 'çıkarım'; question: string; }[]; }
+export interface ProverbSearchData extends BaseActivityData { grid: string[][]; proverb: string; meaning: string; }
+export interface TargetSearchData extends BaseActivityData { grid: string[][]; target: string; distractor: string; }
+export interface ShapeNumberPatternData extends BaseActivityData { patterns: { shapes: { type: 'triangle'; numbers: (number | string)[]; }[]; }[]; }
+
 // --- MATH & LOGIC GAMES ---
 export interface MathPuzzleObject { name: string; imagePrompt?: string; imageBase64?: string; }
 export interface MathPuzzleItem { problem: string; question: string; answer: string; objects?: MathPuzzleObject[]; }
@@ -580,17 +590,16 @@ export interface ThematicOddOneOutSentenceData extends BaseActivityData { prompt
 export interface ColumnOddOneOutSentenceData extends BaseActivityData { prompt: string; columns: { words: string[]; oddWord: string; }[]; sentencePrompt: string; }
 export interface PunctuationMazeData extends BaseActivityData { prompt: string; punctuationMark: string; rules: { id: number; text: string; isCorrect: boolean; }[]; }
 export interface PunctuationPhoneNumberData extends BaseActivityData { prompt: string; instruction: string; clues: { id: number; text: string; }[]; solution: { punctuationMark: string; number: number; }[]; }
-export interface ShapeNumberPatternData extends BaseActivityData { patterns: { shapes: { type: 'triangle'; numbers: (number | string)[]; }[]; }[]; }
 
 // --- NEW MATH MODULES ---
 export interface BasicOperationsData extends BaseActivityData {
     operations: {
         num1: number;
         num2: number;
-        num3?: number; // Optional 3rd number
+        num3?: number; 
         operator: '+' | '-' | 'x' | '÷';
         answer: number;
-        remainder?: number; // For division
+        remainder?: number; 
     }[];
     isVertical: boolean;
 }
@@ -601,10 +610,9 @@ export interface RealLifeProblemData extends BaseActivityData {
         imagePrompt?: string;
         imageBase64?: string;
         solution?: string;
-        operationHint?: string; // e.g. "Toplama İşlemi"
+        operationHint?: string; 
     }[];
 }
-
 
 // Other Exports
 export interface WordSearchData extends BaseActivityData { grid: string[][]; words: string[]; hiddenMessage?: string; followUpQuestion?: string; writingPrompt?: string; }
@@ -634,9 +642,6 @@ export interface WordGroupItem { text: string; imagePrompt?: string; imageBase64
 export interface WordGroupingData extends BaseActivityData { words: WordGroupItem[]; categoryNames: string[]; }
 export interface VisualMemoryItem { description: string; imagePrompt?: string; imageBase64?: string; }
 export interface VisualMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; itemsToMemorize: VisualMemoryItem[]; testItems: VisualMemoryItem[]; }
-export interface StoryAnalysisData extends BaseActivityData { story: string; imageBase64?: string; analysisQuestions: { type: 'tema' | 'karakter' | 'sebep-sonuç' | 'çıkarım'; question: string; }[]; }
-export interface ProverbSearchData extends BaseActivityData { grid: string[][]; proverb: string; meaning: string; }
-export interface TargetSearchData extends BaseActivityData { grid: string[][]; target: string; distractor: string; }
 export interface ColorWheelObject { name: string; color: string; imagePrompt?: string; imageBase64?: string; }
 export interface ColorWheelMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; items: ColorWheelObject[]; }
 export interface ImageComprehensionData extends BaseActivityData { memorizeTitle: string; testTitle: string; sceneDescription: string; imageBase64?: string; questions: string[]; }
@@ -648,7 +653,6 @@ export interface MiniWordGridData extends BaseActivityData { prompt: string; puz
 export interface PasswordFinderData extends BaseActivityData { prompt: string; words: { word: string; passwordLetter: string; isProperNoun: boolean; }[]; passwordLength: number; }
 export interface SyllableCompletionData extends BaseActivityData { prompt: string; theme: string; wordParts: { first: string; second: string; }[]; syllables: string[]; storyTemplate?: string; storyPrompt: string; }
 export interface SynonymWordSearchData extends BaseActivityData { prompt: string; wordsToMatch: { word: string; synonym: string; }[]; grid: string[][]; }
-export interface WordConnectData extends BaseActivityData { gridDim: number; points: { word: string; pairId: number; x: number; y: number; color?: string; }[]; }
 export interface SpiralPuzzleData extends BaseActivityData { prompt: string; theme: string; clues: string[]; grid: string[][]; wordStarts: { id: number; row: number; col: number; }[]; passwordPrompt: string; }
 export interface CrosswordClue { id: number; direction: 'across' | 'down'; text: string; start: { row: number; col: number }; word: string; imageBase64?: string; }
 export interface CrosswordData extends BaseActivityData { prompt: string; theme: string; grid: (string | null)[][]; clues: CrosswordClue[]; passwordCells: { row: number; col: number; }[]; passwordLength: number; passwordPrompt: string; }
@@ -807,7 +811,7 @@ export type WorksheetData = SingleWorksheetData[] | null;
 
 export interface SavedWorksheet {
   id: string;
-  userId: string; // New field for user ownership
+  userId: string;
   name: string;
   activityType: ActivityType;
   worksheetData: SingleWorksheetData[];
@@ -817,15 +821,14 @@ export interface SavedWorksheet {
     id: string;
     title: string;
   };
-  // Added for sharing
-  sharedBy?: string; // User ID of who shared it
-  sharedByName?: string; // Name of who shared it
-  sharedWith?: string; // User ID of who it is shared with
+  sharedBy?: string;
+  sharedByName?: string;
+  sharedWith?: string;
 }
 
 export interface HistoryItem {
   id: string;
-  userId: string; // New field
+  userId: string;
   activityType: ActivityType;
   data: SingleWorksheetData[];
   timestamp: string;

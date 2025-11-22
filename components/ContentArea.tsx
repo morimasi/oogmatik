@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData } from '../types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
-import { StyleSettings, View } from '../App';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { SharedWorksheetsView } from './SharedWorksheetsView';
 import { useAuth } from '../context/AuthContext';
+import { ACTIVITIES } from '../constants';
 
 interface ContentAreaProps {
   currentView: View;
@@ -43,11 +43,29 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 }) => {
     const { user } = useAuth();
 
-    const handleSave = (name: string) => {
+    const generateAutoName = () => {
+        if (!activityType) return 'Kaydedilmiş Etkinlik';
+        const activity = ACTIVITIES.find(a => a.id === activityType);
+        const title = activity ? activity.title : activityType;
+        
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hour = String(now.getHours()).padStart(2, '0');
+        const minute = String(now.getMinutes()).padStart(2, '0');
+        
+        return `${title} - ${day}.${month}.${year} ${hour}:${minute}`;
+    };
+
+    const handleSave = () => {
         if (activityType && worksheetData) {
+            const name = generateAutoName();
             onSave(name, activityType, worksheetData);
+            alert(`Etkinlik "${name}" adıyla kaydedildi.`);
         } else {
-            alert("Kaydedilecek bir çalışma sayfası bulunmuyor.");
+            // Only alert if user explicitly tries to save empty data, though button should be disabled/hidden usually.
+            // But Toolbar is visible when worksheetData is present.
         }
     }
 
@@ -60,13 +78,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         }
         if (!activityType || !worksheetData) return;
 
-        // In a real scenario, this would open a modal to select users.
-        // For now, we prompt to save first if it's a generated sheet.
-        const name = prompt('Etkinliği paylaşmadan önce kaydetmelisiniz. Etkinlik adı:', 'Paylaşılacak Etkinlik');
-        if (name) {
-            onSave(name, activityType, worksheetData);
-            alert("Etkinlik başarıyla kaydedildi! Şimdi 'Arşiv' menüsüne giderek 'Paylaş' butonuna tıklayabilir ve arkadaşlarınızı seçebilirsiniz.");
-        }
+        const name = generateAutoName();
+        onSave(name, activityType, worksheetData);
+        alert(`Etkinlik "${name}" olarak kaydedildi. Şimdi 'Arşiv' menüsüne giderek 'Paylaş' butonuna tıklayabilir ve arkadaşlarınızı seçebilirsiniz.`);
     };
 
     const handleDownloadPDF = () => {

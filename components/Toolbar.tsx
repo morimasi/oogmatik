@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { StyleSettings } from '../App';
+import { StyleSettings } from '../types';
 
 interface ToolbarProps {
   settings: StyleSettings;
   onSettingsChange: (newSettings: StyleSettings) => void;
-  onSave: (name: string) => void;
+  onSave: () => void;
   onFeedback?: () => void;
   onShare?: () => void;
   onDownloadPDF?: () => void;
@@ -16,13 +16,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
     window.print();
   };
 
-  const handleSave = () => {
-    const name = prompt('Çalışma sayfasına bir ad verin:', 'Kaydedilmiş Etkinlik');
-    if (name) {
-      onSave(name);
-    }
-  };
-  
   // Compact Slider Component Helper
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
       <div className="flex items-center gap-1.5 group" title={title}>
@@ -108,7 +101,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
                 <i className="fa-solid fa-share-nodes text-sm"></i>
             </button>
 
-            <button onClick={handleSave} className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors" title="Kaydet">
+            <button onClick={onSave} className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors" title="Kaydet">
                 <i className="fa-solid fa-save text-sm"></i>
             </button>
             

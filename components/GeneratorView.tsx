@@ -126,20 +126,29 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 ];
             case ActivityType.BASIC_OPERATIONS:
                 return [
-                    { key: 'operationType', label: 'İşlem Türü', type: 'select', defaultValue: 'addition', width: 'full', options: [
-                        {label: 'Toplama (+)', value: 'addition'}, 
-                        {label: 'Çıkarma (-)', value: 'subtraction'}, 
-                        {label: 'Çarpma (x)', value: 'multiplication'}, 
-                        {label: 'Bölme (÷)', value: 'division'},
-                        {label: 'Karışık', value: 'mixed'}
-                    ]},
-                    { key: 'digitCount', label: 'Basamak Sayısı', type: 'range', defaultValue: 2, min: 1, max: 4, width: 'full' },
+                    { 
+                        key: 'selectedOperations', 
+                        label: 'İşlem Türleri', 
+                        type: 'multiselect', 
+                        defaultValue: ['addition'], 
+                        width: 'full', 
+                        options: [
+                            {label: 'Toplama (+)', value: 'addition'}, 
+                            {label: 'Çıkarma (-)', value: 'subtraction'}, 
+                            {label: 'Çarpma (x)', value: 'multiplication'}, 
+                            {label: 'Bölme (÷)', value: 'division'}
+                        ]
+                    },
+                    { key: 'num1Digits', label: '1. Sayı Basamak', type: 'range', defaultValue: 2, min: 1, max: 6, width: 'half' },
+                    { key: 'num2Digits', label: '2. Sayı Basamak', type: 'range', defaultValue: 1, min: 1, max: 6, width: 'half' },
+                    
                     itemCountField(12, 4, 24, 'İşlem Sayısı'),
-                    // Conditional Fields
-                    { key: 'allowCarry', label: 'Eldeli Olsun', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.operationType === 'addition' || vals.operationType === 'mixed' },
-                    { key: 'allowBorrow', label: 'Onluk Bozmalı', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.operationType === 'subtraction' || vals.operationType === 'mixed' },
-                    { key: 'allowRemainder', label: 'Kalanlı Bölme', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.operationType === 'division' || vals.operationType === 'mixed' },
-                    { key: 'useThirdNumber', label: '3. Sayı Ekle', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.operationType === 'addition' || vals.operationType === 'multiplication' }
+                    
+                    // Conditional Fields - Updated logic for multi-select
+                    { key: 'allowCarry', label: 'Eldeli Olsun', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.selectedOperations?.includes('addition') },
+                    { key: 'allowBorrow', label: 'Onluk Bozmalı', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.selectedOperations?.includes('subtraction') },
+                    { key: 'allowRemainder', label: 'Kalanlı Bölme', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.selectedOperations?.includes('division') },
+                    { key: 'useThirdNumber', label: '3. Sayı Ekle', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.selectedOperations?.includes('addition') }
                 ];
             case ActivityType.REAL_LIFE_MATH_PROBLEMS:
                 return [
@@ -366,6 +375,34 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             return <option key={idx} value={val}>{lbl}</option>
                         })}
                     </select>
+                )}
+
+                {field.type === 'multiselect' && (
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                        {field.options?.map((opt: any, idx: number) => {
+                            const val = typeof opt === 'object' ? opt.value : opt;
+                            const lbl = typeof opt === 'object' ? opt.label : opt;
+                            const isSelected = (specificOptions[field.key] || []).includes(val);
+                            
+                            return (
+                                <button
+                                    type="button"
+                                    key={idx}
+                                    onClick={() => {
+                                        const current = specificOptions[field.key] || [];
+                                        const updated = isSelected 
+                                            ? current.filter((i: any) => i !== val) 
+                                            : [...current, val];
+                                        handleOptionChange(field.key, updated);
+                                    }}
+                                    className={`text-xs py-1.5 px-2 rounded border transition-colors ${isSelected ? 'bg-indigo-100 border-indigo-500 text-indigo-700 font-bold' : 'bg-white border-zinc-300 text-zinc-600 hover:bg-zinc-50'}`}
+                                >
+                                    {isSelected && <i className="fa-solid fa-check mr-1 text-[10px]"></i>}
+                                    {lbl}
+                                </button>
+                            );
+                        })}
+                    </div>
                 )}
 
                 {field.type === 'checkbox' && (

@@ -44,24 +44,35 @@ const hasBorrow = (n1: number, n2: number): boolean => {
 };
 
 export const generateOfflineBasicOperations = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
-    const { operationType, digitCount, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
+    const { selectedOperations, num1Digits, num2Digits, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
     
     const count = itemCount || 12;
     const results: BasicOperationsData[] = [];
-    const digits = Math.max(1, digitCount || 2);
+    
+    // Defaults
+    const d1 = num1Digits || 2;
+    const d2 = num2Digits || 1;
+    
+    // Determine available operations
+    const ops = (selectedOperations && selectedOperations.length > 0) ? selectedOperations : ['addition'];
 
     for(let i=0; i<worksheetCount; i++) {
         const operationsList: BasicOperationsData['operations'] = [];
-        const opPool = (operationType === 'mixed' || !operationType) ? ['addition', 'subtraction', 'multiplication', 'division'] : [operationType];
-
+        
         let attempts = 0;
+        // Cycle through selected operations evenly
+        let opIndex = 0;
+
         while(operationsList.length < count && attempts < 2000) {
             attempts++;
-            const currentOp = getRandomItems(opPool, 1)[0];
+            const currentOp = ops[opIndex % ops.length];
             
-            // Range calculation based on digits
-            const minVal = Math.pow(10, digits - 1);
-            const maxVal = Math.pow(10, digits) - 1;
+            // Digit ranges
+            const min1 = Math.pow(10, d1 - 1);
+            const max1 = Math.pow(10, d1) - 1;
+            
+            const min2 = Math.pow(10, d2 - 1);
+            const max2 = Math.pow(10, d2) - 1;
             
             let num1 = 0, num2 = 0, num3 = 0, answer = 0, remainder = 0;
             let operator: any = '+';
@@ -69,22 +80,23 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
 
             if (currentOp === 'addition') {
                 operator = '+';
-                const hasThird = useThirdNumber && digits < 4; // 3rd number usually for smaller digits
+                const hasThird = useThirdNumber && d1 < 4; 
                 
-                // Generate numbers
-                num1 = getRandomInt(minVal, maxVal);
-                num2 = getRandomInt(minVal, maxVal);
-                if (hasThird) num3 = getRandomInt(Math.pow(10, Math.max(1, digits-1)), maxVal);
+                num1 = getRandomInt(min1, max1);
+                num2 = getRandomInt(min2, max2);
+                
+                if (hasThird) {
+                    // Use d2 for the third number generally
+                    const min3 = Math.pow(10, Math.max(1, d2 - 1));
+                    const max3 = Math.pow(10, d2) - 1;
+                    num3 = getRandomInt(min3, max3);
+                }
 
                 const isCarry = hasCarry(num1, num2) || (hasThird && (hasCarry(num1+num2, num3)));
                 
-                // Check constraints
                 if (allowCarry) {
-                    // If allowCarry is true, we accept ANY operation (carry or no carry), 
-                    // BUT ideally we prefer carry. Let's loosely enforce it.
                     valid = true; 
                 } else {
-                    // If allowCarry is false, we MUST NOT have carry
                     valid = !isCarry;
                 }
 
@@ -92,48 +104,70 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
             } 
             else if (currentOp === 'subtraction') {
                 operator = '-';
-                num1 = getRandomInt(minVal, maxVal);
-                // Ensure num2 is smaller and has appropriate digits
-                num2 = getRandomInt(Math.pow(10, Math.max(1, digits-1)), num1 - 1);
+                num1 = getRandomInt(min1, max1);
+                num2 = getRandomInt(min2, max2);
+                
+                // Ensure num1 is greater
+                if (num2 >= num1) {
+                    // If digits are equal, swap or regenerate
+                    if (d1 === d2) {
+                        // Just ensure num1 > num2, if not swap, but swapping might violate digit rules if bounds differ slightly?
+                        // Actually if d1=d2, ranges are same. Swap is safe.
+                        if(num2 > num1) [num1, num2] = [num2, num1];
+                        else if(num1 === num2) num1 += 1; // Hack to make it greater
+                    } else {
+                        // Regenerate num2 to be smaller
+                        num2 = getRandomInt(min2, Math.min(max2, num1 - 1));
+                    }
+                }
                 
                 const isBorrow = hasBorrow(num1, num2);
                 
                 if (allowBorrow) {
-                    valid = true; // Accept anything, borrowing included
+                    valid = true; 
                 } else {
-                    valid = !isBorrow; // Must not borrow
+                    valid = !isBorrow; 
                 }
                 
                 if (valid) answer = num1 - num2;
             }
             else if (currentOp === 'multiplication') {
                 operator = 'x';
-                num1 = getRandomInt(minVal, maxVal);
-                // For multiplication, the second number usually has fewer digits to keep it solvable manually
-                const d2 = digits > 2 ? 2 : 1;
-                num2 = getRandomInt(2, Math.pow(10, d2) - 1);
-                
+                num1 = getRandomInt(min1, max1);
+                num2 = getRandomInt(min2, max2);
                 answer = num1 * num2;
-                valid = true; // Multiplication logic is simpler for now
+                valid = true; 
             }
             else if (currentOp === 'division') {
                 operator = '÷';
-                // Divisor usually 1 digit or small 2 digits
-                const divisorMax = digits > 2 ? 12 : 9;
-                num2 = getRandomInt(2, divisorMax); 
+                // Standard Logic: user defines dividend (num1) digits and divisor (num2) digits.
+                // We need to find num1 (d1 digits) and num2 (d2 digits).
                 
+                num2 = getRandomInt(min2, max2);
+                if (num2 === 0) num2 = 1; // Safety
+
                 if (allowRemainder) {
-                    // Generate random dividend
-                    num1 = getRandomInt(num2 * 2, maxVal);
+                    // Generate num1 directly in range
+                    num1 = getRandomInt(min1, max1);
                     answer = Math.floor(num1 / num2);
                     remainder = num1 % num2;
+                    // Valid if remainder exists (as requested) OR if we just allow it
                     valid = remainder > 0;
                 } else {
-                    // Generate dividend from multiplication to ensure no remainder
-                    answer = getRandomInt(2, Math.floor(maxVal / num2));
-                    num1 = answer * num2;
-                    remainder = 0;
-                    valid = num1 >= minVal && num1 <= maxVal;
+                    // No remainder required
+                    // Find a multiplier X such that num2 * X has d1 digits.
+                    const minQuotient = Math.ceil(min1 / num2);
+                    const maxQuotient = Math.floor(max1 / num2);
+                    
+                    if (maxQuotient >= minQuotient) {
+                        answer = getRandomInt(minQuotient, maxQuotient);
+                        num1 = answer * num2;
+                        remainder = 0;
+                        valid = true;
+                    } else {
+                        // Impossible constraints (e.g. 2 digit divided by 3 digit)
+                        valid = false; 
+                    }
                 }
             }
 
@@ -146,6 +180,7 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
                     answer, 
                     remainder: remainder > 0 ? remainder : undefined 
                 });
+                opIndex++; // Move to next operation type for balanced distribution
             }
         }
 
