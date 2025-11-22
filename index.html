@@ -106,36 +106,28 @@
     }
 
     /* Reset Layout Containers to prevent clipping */
-    #root, .h-screen, .flex, .flex-col, .flex-1, .overflow-hidden, .overflow-y-auto {
+    #root, .h-screen, .flex, .flex-col, .flex-1, .overflow-hidden, .overflow-y-auto, main {
         height: auto !important;
         overflow: visible !important;
         display: block !important;
         position: static !important;
     }
 
-    /* Hide UI Element Trees */
-    body * {
-      visibility: hidden;
+    /* Hide UI Elements Explicitly */
+    header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar {
+      display: none !important;
     }
     
-    /* Show only the Printable Area and its descendants */
-    .printable-area, .printable-area * {
-      visibility: visible;
-    }
-
-    /* Position the Printable Area at the top */
+    /* Printable Area */
     .printable-area {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 210mm !important;
+      position: static !important;
+      width: 100% !important;
       height: auto !important;
       margin: 0 !important;
       padding: 0 !important;
       overflow: visible !important;
       display: block !important;
       background-color: white !important;
-      z-index: 9999;
     }
 
     /* Reset Grid/Flex inside Page Container to allow flow */
@@ -149,22 +141,24 @@
     /* Explicit Worksheet Page Sizing & Breaking */
     .worksheet-page {
       position: relative !important;
-      width: 210mm !important;
-      height: 296mm !important; /* 1mm less than A4 (297mm) to prevent overflow blank pages */
-      margin: 0 !important;
-      /* Padding is handled by inline style from component */
+      width: 100% !important;
+      max-width: 210mm !important;
+      min-height: 296mm !important; /* Ensure minimal A4 height */
+      height: auto !important; /* Allow expansion for long content */
+      margin: 0 auto !important;
       page-break-after: always !important;
-      break-after: always !important;
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
+      break-after: page !important;
+      page-break-inside: auto !important; /* Allow breaking inside long pages */
+      break-inside: auto !important;
       border: none !important;
       box-shadow: none !important;
       background-color: white !important;
       color: black !important;
-      overflow: hidden !important; /* Keep content inside the A4 boundaries */
+      overflow: visible !important; /* Show overflow content */
       display: block !important;
       left: 0 !important;
       top: 0 !important;
+      padding: 0 !important;
     }
     
     /* Ensure the last page doesn't force an extra blank page if possible */
@@ -177,13 +171,14 @@
     .zoom-wrapper {
       transform: none !important;
       width: 100% !important;
-      height: 100% !important;
-      overflow: hidden !important;
+      height: auto !important; /* Allow wrapper to grow */
+      overflow: visible !important;
+      position: static !important;
     }
-
-    /* Hide designated non-print elements */
-    .no-print, header, aside, .tour-overlay, button, .tour-highlight {
-      display: none !important;
+    
+    /* Reset internal content wrapper height to prevent cutting */
+    .zoom-wrapper > div {
+        height: auto !important;
     }
   }
 

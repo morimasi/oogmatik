@@ -37,7 +37,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         columnCount: settings.columns > 1 ? settings.columns : 'auto',
         columnGap: '2rem', // Standard gap between columns
         width: '100%',
-        height: '100%',
     };
 
     const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0 print:border-none`;
@@ -210,7 +209,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             )}
             <div className="page-grid print:block print:w-full" style={containerStyles}>
             {data.map((singleData, index) => (
-                <div key={index} className={pageClasses} style={{padding: `var(--worksheet-margin)`, overflow: 'hidden'}}>
+                <div key={index} className={`${pageClasses} overflow-hidden print:overflow-visible`} style={{padding: `var(--worksheet-margin)`}}>
                      
                      {/* BACKGROUND WATERMARK */}
                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.04] print:opacity-[0.08] select-none overflow-hidden">
@@ -228,8 +227,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         width: `${100 * inverseScale}%`,
                         height: `${100 * inverseScale}%`,
                     }}>
-                        {/* Wrapper for internal column layout */}
-                        <div style={contentWrapperStyles}>
+                        {/* Wrapper for internal content, height auto for print to flow */}
+                        <div style={contentWrapperStyles} className="h-full print:h-auto">
                             {renderContent(singleData, index)}
                         </div>
                     </div>
