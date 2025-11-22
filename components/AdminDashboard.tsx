@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
-import { User, FeedbackItem, Message } from '../types';
+import { User, FeedbackItem, Message, ActivityStats } from '../types';
 import { authService } from '../services/authService';
 import { messagingService } from '../services/messagingService';
+import { statsService } from '../services/statsService';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminDashboardProps {
@@ -10,10 +12,11 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'users' | 'feedbacks' | 'messages'>('users');
+    const [activeTab, setActiveTab] = useState<'users' | 'feedbacks' | 'messages' | 'stats'>('users');
     const [users, setUsers] = useState<User[]>([]);
     const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
+    const [stats, setStats] = useState<ActivityStats[]>([]);
     
     // Message Tab States
     const [selectedConversationUserId, setSelectedConversationUserId] = useState<string | null>(null);
@@ -22,6 +25,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     // Feedback Reply States
     const [replyingFeedbackId, setReplyingFeedbackId] = useState<string | null>(null);
     const [feedbackReplyMessage, setFeedbackReplyMessage] = useState('');
+
+    // Stats Tab States
+    const [sortConfig, setSortConfig] = useState<{ key: keyof ActivityStats; direction: 'asc' | 'desc' }>({ key: 'generationCount', direction: 'desc' });
 
     useEffect(() => {
         loadData();
@@ -32,6 +38,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const loadData = () => {
         setUsers(authService.getAllUsers());
         setFeedbacks(messagingService.getAllFeedbacks());
+        setStats(statsService.getAllStats());
         if (user) {
             setMessages(messagingService.getMessagesForUser(user.id)); 
         }
@@ -79,6 +86,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             loadData();
         } catch (e) { console.error(e); }
     };
+
+    // --- STATS SORTING ---
+    const handleSort = (key: keyof ActivityStats) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedStats = React.useMemo(() => {
+        let sortableItems = [...stats];
+        if (sortConfig !== null) {
+            sortableItems.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [stats, sortConfig]);
+
+    const totalGenerations = stats.reduce((acc, curr) => acc + curr.generationCount, 0);
+    const mostPopular = stats.length > 0 ? stats.reduce((prev, current) => (prev.generationCount > current.generationCount) ? prev : current) : null;
+    const top5 = [...stats].sort((a, b) => b.generationCount - a.generationCount).slice(0, 5);
 
     // Group messages logic
     interface ConversationGroup {
@@ -132,10 +168,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                     <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800"><i className="fa-solid fa-arrow-left"></i></button>
                     <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Yönetici Paneli</h2>
                 </div>
-                <div className="flex gap-2">
-                    <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'users' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Kullanıcılar</button>
-                    <button onClick={() => setActiveTab('feedbacks')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'feedbacks' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Geri Bildirimler</button>
-                    <button onClick={() => setActiveTab('messages')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'messages' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Mesajlar</button>
+                <div className="flex gap-2 overflow-x-auto">
+                    <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${activeTab === 'users' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Kullanıcılar</button>
+                    <button onClick={() => setActiveTab('feedbacks')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${activeTab === 'feedbacks' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Geri Bildirimler</button>
+                    <button onClick={() => setActiveTab('messages')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${activeTab === 'messages' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Mesajlar</button>
+                    <button onClick={() => setActiveTab('stats')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${activeTab === 'stats' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>İstatistikler</button>
                 </div>
             </header>
 
@@ -326,6 +363,104 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                     <p>Bir sohbet seçin.</p>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                )}
+
+                {/* STATS TAB */}
+                {activeTab === 'stats' && (
+                    <div className="flex flex-col h-full gap-6 overflow-y-auto pb-20">
+                        {/* Top Summary Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl">
+                                    <i className="fa-solid fa-bolt"></i>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">Toplam Üretim</p>
+                                    <p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">{totalGenerations}</p>
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl">
+                                    <i className="fa-solid fa-trophy"></i>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">En Popüler</p>
+                                    <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100 line-clamp-1" title={mostPopular?.title || '-'}>{mostPopular?.title || '-'}</p>
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-2xl">
+                                    <i className="fa-solid fa-clock"></i>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">Ort. Tamamlama</p>
+                                    <p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">
+                                        {Math.round(stats.reduce((a,b) => a + b.avgCompletionTime, 0) / (stats.length || 1))} dk
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Bar Chart: Top Activities */}
+                            <div className="lg:col-span-1 bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                                <h3 className="text-lg font-bold mb-6 text-zinc-800 dark:text-zinc-100">En Çok Kullanılan 5 Etkinlik</h3>
+                                <div className="flex flex-col justify-end h-64 gap-3">
+                                    {top5.map((item, index) => {
+                                        const maxVal = top5[0].generationCount;
+                                        const widthPercent = (item.generationCount / maxVal) * 100;
+                                        return (
+                                            <div key={item.activityId} className="w-full">
+                                                <div className="flex justify-between text-xs mb-1">
+                                                    <span className="font-medium truncate w-3/4" title={item.title}>{item.title}</span>
+                                                    <span className="font-bold">{item.generationCount}</span>
+                                                </div>
+                                                <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-3 overflow-hidden">
+                                                    <div 
+                                                        className="h-full rounded-full bg-indigo-500" 
+                                                        style={{ width: `${widthPercent}%`, opacity: 1 - (index * 0.15) }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Detailed Stats Table */}
+                            <div className="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col">
+                                <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-center">
+                                    <h3 className="font-bold text-zinc-800 dark:text-zinc-100">Tüm Etkinlik Detayları</h3>
+                                </div>
+                                <div className="overflow-x-auto flex-1">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 uppercase font-bold text-xs sticky top-0">
+                                            <tr>
+                                                <th className="p-4 cursor-pointer hover:text-indigo-600" onClick={() => handleSort('title')}>Etkinlik Adı <i className="fa-solid fa-sort ml-1"></i></th>
+                                                <th className="p-4 text-center cursor-pointer hover:text-indigo-600" onClick={() => handleSort('generationCount')}>Üretim <i className="fa-solid fa-sort ml-1"></i></th>
+                                                <th className="p-4 text-center cursor-pointer hover:text-indigo-600" onClick={() => handleSort('avgCompletionTime')}>Ort. Süre (dk) <i className="fa-solid fa-sort ml-1"></i></th>
+                                                <th className="p-4 text-right cursor-pointer hover:text-indigo-600" onClick={() => handleSort('lastGenerated')}>Son İşlem <i className="fa-solid fa-sort ml-1"></i></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
+                                            {sortedStats.map((item) => (
+                                                <tr key={item.activityId} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors">
+                                                    <td className="p-4 font-medium text-zinc-800 dark:text-zinc-200">{item.title}</td>
+                                                    <td className="p-4 text-center">
+                                                        <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded font-bold text-xs">{item.generationCount}</span>
+                                                    </td>
+                                                    <td className="p-4 text-center text-zinc-600 dark:text-zinc-400">{item.avgCompletionTime}</td>
+                                                    <td className="p-4 text-right text-zinc-500 text-xs">
+                                                        {new Date(item.lastGenerated).toLocaleDateString('tr-TR')}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}

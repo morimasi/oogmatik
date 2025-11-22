@@ -20,6 +20,7 @@ const shuffle = <T,>(array: T[]): T[] => {
 const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 // --- VISUAL ASSETS ---
+// Professional SVG Matrix Renderer
 const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, className = "" }) => {
     if (!item) return <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-600`}></div>;
 

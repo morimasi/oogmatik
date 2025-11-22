@@ -5,6 +5,7 @@ import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
+import { statsService } from '../services/statsService'; // Import stats service
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -100,6 +101,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             setWorksheetData(result);
             // Add to history automatically
             onAddToHistory(selectedActivity, result);
+            // Track usage stats
+            statsService.incrementUsage(selectedActivity);
         }
 
     } catch (e: any) {

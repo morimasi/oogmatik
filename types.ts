@@ -151,6 +151,15 @@ export interface ActivityCategory {
   activities: ActivityType[];
 }
 
+// --- ANALYTICS TYPES ---
+export interface ActivityStats {
+    activityId: ActivityType;
+    title: string;
+    generationCount: number;
+    lastGenerated: string;
+    avgCompletionTime: number; // Simulated/Mocked in minutes
+}
+
 // --- USER & AUTH TYPES ---
 export type UserRole = 'user' | 'admin';
 export type UserStatus = 'active' | 'suspended' | 'pending';
