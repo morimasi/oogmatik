@@ -89,23 +89,22 @@
   @media print {
     @page {
       size: A4 portrait;
-      margin: 0; /* Minimal margin, content handles padding */
+      margin: 10mm; /* Safe margin for printers, maximizing space */
     }
     
     html, body {
-      width: 210mm;
-      height: auto !important; /* Allow height to grow */
-      min-height: 100%;
+      width: 100%;
+      height: auto !important;
       margin: 0 !important;
       padding: 0 !important;
       background-color: white !important;
       color: black !important;
-      overflow: visible !important; /* Enable overflow for multi-page */
+      overflow: visible !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
 
-    /* Reset Layout Containers to prevent clipping */
+    /* Reset Layout Containers */
     #root, .h-screen, .flex, .flex-col, .flex-1, .overflow-hidden, .overflow-y-auto, main {
         height: auto !important;
         overflow: visible !important;
@@ -113,7 +112,7 @@
         position: static !important;
     }
 
-    /* Hide UI Elements Explicitly */
+    /* Hide UI Elements */
     header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar {
       display: none !important;
     }
@@ -127,32 +126,26 @@
       padding: 0 !important;
       overflow: visible !important;
       display: block !important;
-      background-color: white !important;
     }
 
-    /* Reset Grid/Flex inside Page Container to allow flow */
     .page-grid {
       display: block !important;
       width: 100% !important;
       height: auto !important;
-      overflow: visible !important;
     }
 
-    /* Explicit Worksheet Page Sizing & Breaking */
+    /* Compact Worksheet Page for Print */
     .worksheet-page {
       position: relative !important;
       width: 100% !important;
-      max-width: 210mm !important;
-      /* Instead of fixed height, allow min-height but let it grow */
-      min-height: 296mm !important; 
-      height: auto !important; 
-      margin: 0 auto !important;
+      max-width: 100% !important;
+      min-height: auto !important; /* Don't force full height if content is small */
+      height: auto !important;
+      margin: 0 !important; /* Remove margins to use @page margin */
+      padding: 0 !important; /* Override inline React padding */
       
-      /* Ensure separate activities start on new pages */
       page-break-after: always !important;
       break-after: page !important;
-      
-      /* Allow content splitting inside the page if it's long */
       page-break-inside: auto !important;
       break-inside: auto !important;
       
@@ -160,46 +153,51 @@
       box-shadow: none !important;
       background-color: white !important;
       color: black !important;
-      overflow: visible !important; /* Crucial for spill-over */
+      overflow: visible !important;
       display: block !important;
-      left: 0 !important;
-      top: 0 !important;
-      padding: 0 !important; /* Padding handled by inner wrapper if needed */
     }
     
-    /* Ensure the last page doesn't force an extra blank page if possible */
     .worksheet-page:last-child {
         page-break-after: auto !important;
         break-after: auto !important;
     }
 
-    /* Reset Zoom/Scale Transforms for Print Clarity */
     .zoom-wrapper {
       transform: none !important;
       width: 100% !important;
-      height: auto !important; /* Allow wrapper to grow */
+      height: auto !important;
       overflow: visible !important;
-      position: static !important;
     }
     
-    /* Reset internal content wrapper height to prevent cutting */
     .zoom-wrapper > div {
         height: auto !important;
     }
+
+    /* --- COMPACT SPACING FOR PRINT --- */
+    /* Reduce gaps to fit more on page */
+    .worksheet-page .gap-4 { gap: 0.75rem !important; }
+    .worksheet-page .gap-6 { gap: 1rem !important; }
+    .worksheet-page .gap-8 { gap: 1.5rem !important; }
+    .worksheet-page .space-y-4 > * + * { margin-top: 0.75rem !important; }
+    .worksheet-page .space-y-6 > * + * { margin-top: 1rem !important; }
+    .worksheet-page .p-6, .worksheet-page .p-8 { padding: 1rem !important; }
+    
+    /* Headers and Titles */
+    .pedagogical-header { margin-bottom: 1rem !important; }
+    h3 { font-size: 1.25rem !important; margin-bottom: 0.25rem !important; }
+    p { font-size: 1rem !important; }
   }
 
   /* --- DARK THEME (Sweet Night / Tatlı Gece) --- */
-  /* Ana Arka Plan: Derin Mor/Lacivert */
   html.dark body {
     background-color: #13111C; 
-    color: #E2E8F0; /* Yumuşak Beyaz */
+    color: #E2E8F0; 
   }
 
-  /* Kartlar ve Paneller */
   html.dark .bg-white,
   html.dark .bg-zinc-50,
   html.dark .bg-zinc-100 {
-    background-color: #1F1D2B; /* Kart Arka Planı */
+    background-color: #1F1D2B; 
     color: #E2E8F0;
     border-color: #2D2B3B !important;
   }
@@ -208,13 +206,12 @@
      background-color: #252234 !important;
   }
 
-  /* Çalışma Sayfası (Göz yormaması için çok açık lila/pembe zemin, koyu mor yazı) */
   html.dark .page {
-    background-color: #FDF4FF; /* Çok açık pembe/beyaz */
-    color: #4A044E; /* Koyu mürdüm */
+    background-color: #FDF4FF; 
+    color: #4A044E; 
   }
   html.dark .page .bg-white {
-      background-color: #FFFFFF !important; /* Kağıt üzerindeki beyaz alanlar beyaz kalsın */
+      background-color: #FFFFFF !important; 
       color: #000000;
       border-color: #e5e7eb !important;
   }
@@ -225,7 +222,6 @@
       color: #6b7280 !important;
   }
 
-  /* Kenar Çubuğu ve Header */
   html.dark aside,
   html.dark header,
   html.dark .bg-zinc-800\/50 {
@@ -239,7 +235,6 @@
      border-color: #2D2B3B !important;
   }
 
-  /* Kenarlıklar */
   html.dark .border,
   html.dark .border-zinc-200,
   html.dark .border-zinc-700,
@@ -247,7 +242,6 @@
     border-color: #2D2B3B !important;
   }
 
-  /* Input ve Select Alanları */
   html.dark input, 
   html.dark select, 
   html.dark textarea {
@@ -256,199 +250,74 @@
     color: #F3E8FF !important;
   }
 
-  /* Metin Renkleri - Genel Arayüz */
   html.dark .text-zinc-900, html.dark .text-zinc-800, html.dark .text-zinc-700 { color: #E2E8F0 !important; }
   html.dark .text-zinc-600, html.dark .text-zinc-500, html.dark .text-zinc-400 { color: #94A3B8 !important; }
   html.dark .fill-zinc-900 { fill: #E2E8F0; }
   
-  /* --- TATLI VURGULAR (Pembe/Lila/Mor) --- */
-  
-  /* Indigo -> Pembe/Gül Dönüşümü */
-  html.dark .text-indigo-600, html.dark .text-indigo-500, html.dark .text-indigo-400 { color: #F472B6 !important; } /* Soft Pink */
+  html.dark .text-indigo-600, html.dark .text-indigo-500, html.dark .text-indigo-400 { color: #F472B6 !important; } 
   html.dark .hover\:text-indigo-500:hover { color: #FBCFE8 !important; }
   
-  /* Buttons */
-  html.dark .bg-indigo-600 { background-color: #DB2777 !important; border-color: #BE185D !important; color: white !important; } /* Dark Pink Button */
+  html.dark .bg-indigo-600 { background-color: #DB2777 !important; border-color: #BE185D !important; color: white !important; } 
   html.dark .bg-indigo-600:hover { background-color: #BE185D !important; }
   
   html.dark .bg-indigo-50 { background-color: rgba(219, 39, 119, 0.1) !important; border-color: rgba(219, 39, 119, 0.2) !important; }
   html.dark .focus-visible\:ring-indigo-500:focus-visible { --tw-ring-color: #F472B6 !important; }
 
-  /* Emerald -> Nane Yeşili (Soft Mint) */
   html.dark .text-emerald-600, html.dark .text-emerald-500 { color: #6EE7B7 !important; }
   html.dark .bg-emerald-500 { background-color: #10B981 !important; }
   
-  /* Amber -> Soft Şeftali/Turuncu */
   html.dark .text-amber-800, html.dark .text-amber-700 { color: #FDBA74 !important; }
   html.dark .bg-amber-100, html.dark .bg-amber-50 { background-color: rgba(251, 146, 60, 0.1) !important; border-color: rgba(251, 146, 60, 0.2) !important; }
 
-  /* Aktif Menü Öğesi */
   html.dark .sidebar-activity-item-active {
-    background-color: rgba(244, 114, 182, 0.15) !important; /* Pembe transparan */
-    color: #F472B6 !important; /* Pembe yazı */
+    background-color: rgba(244, 114, 182, 0.15) !important; 
+    color: #F472B6 !important; 
   }
   html.dark .sidebar-activity-item-active::before {
     background-color: #F472B6 !important;
   }
 
-  /* --- PASTEL THEME (Dyslexia Friendly) --- */
-  html.theme-pastel body {
-    background-color: #fdf6e3;
-    color: #2c3e50;
-  }
-  html.theme-pastel .bg-white, 
-  html.theme-pastel .bg-zinc-50, 
-  html.theme-pastel .bg-zinc-100 {
-    background-color: #fffdf5;
-    color: #2c3e50;
-  }
-  html.theme-pastel .bg-zinc-200,
-  html.theme-pastel .bg-zinc-300 {
-    background-color: #eee8d5;
-  }
-  html.theme-pastel .text-zinc-500,
-  html.theme-pastel .text-zinc-600 {
-    color: #657b83;
-  }
-  html.theme-pastel .border-zinc-200,
-  html.theme-pastel .border-zinc-300 {
-    border-color: #d3cbb8;
-  }
+  /* --- PASTEL THEME --- */
+  html.theme-pastel body { background-color: #fdf6e3; color: #2c3e50; }
+  html.theme-pastel .bg-white, html.theme-pastel .bg-zinc-50, html.theme-pastel .bg-zinc-100 { background-color: #fffdf5; color: #2c3e50; }
+  html.theme-pastel .bg-zinc-200, html.theme-pastel .bg-zinc-300 { background-color: #eee8d5; }
+  html.theme-pastel .text-zinc-500, html.theme-pastel .text-zinc-600 { color: #657b83; }
+  html.theme-pastel .border-zinc-200, html.theme-pastel .border-zinc-300 { border-color: #d3cbb8; }
 
   /* --- SEPIA THEME --- */
-  html.theme-sepia body {
-    background-color: #f4ecd8; /* Sepia Arka Plan */
-    color: #59452c; /* Koyu Kahve Metin */
-  }
-  html.theme-sepia .bg-white, 
-  html.theme-sepia .bg-zinc-50, 
-  html.theme-sepia .page {
-    background-color: #faf6eb; /* Daha Açık Krem */
-  }
-  html.theme-sepia aside,
-  html.theme-sepia header,
-  html.theme-sepia .bg-zinc-100 {
-    background-color: #e9dec7;
-  }
-   html.theme-sepia .bg-white\/80 {
-     background-color: rgba(233, 222, 199, 0.8) !important;
-  }
-  html.theme-sepia .border-zinc-200,
-  html.theme-sepia .border-zinc-700,
-  html.theme-sepia .border-zinc-800 {
-    border-color: #dcd0b8;
-  }
+  html.theme-sepia body { background-color: #f4ecd8; color: #59452c; }
+  html.theme-sepia .bg-white, html.theme-sepia .bg-zinc-50, html.theme-sepia .page { background-color: #faf6eb; }
+  html.theme-sepia aside, html.theme-sepia header, html.theme-sepia .bg-zinc-100 { background-color: #e9dec7; }
+  html.theme-sepia .bg-white\/80 { background-color: rgba(233, 222, 199, 0.8) !important; }
+  html.theme-sepia .border-zinc-200, html.theme-sepia .border-zinc-700, html.theme-sepia .border-zinc-800 { border-color: #dcd0b8; }
   html.theme-sepia .text-zinc-500, html.theme-sepia .text-zinc-400 { color: #856f51; }
   html.theme-sepia .fill-zinc-900 { fill: #59452c; }
-  html.theme-sepia .sidebar-activity-item-active {
-    background-color: #F8F5EE !important;
-    color: #8c6d46 !important;
-  }
-  html.theme-sepia .sidebar-activity-item-active::before {
-    background-color: #a98962 !important;
-  }
+  html.theme-sepia .sidebar-activity-item-active { background-color: #F8F5EE !important; color: #8c6d46 !important; }
+  html.theme-sepia .sidebar-activity-item-active::before { background-color: #a98962 !important; }
   html.theme-sepia .text-indigo-600 { color: #8c6d46 !important; }
 
-
   /* --- HIGH CONTRAST THEME --- */
-  html.theme-contrast body {
-    background-color: #000000;
-    color: #FFFF00;
-  }
-  html.theme-contrast .bg-white,
-  html.theme-contrast .bg-zinc-50,
-  html.theme-contrast .bg-zinc-100,
-  html.theme-contrast .bg-zinc-200,
-  html.theme-contrast aside,
-  html.theme-contrast header,
-  html.theme-contrast .bg-white\/80 {
-    background-color: #000000 !important;
-    color: #FFFF00 !important;
-    border-color: #FFFFFF !important;
-  }
-  html.theme-contrast .text-zinc-900,
-  html.theme-contrast .text-zinc-800,
-  html.theme-contrast .text-zinc-700,
-  html.theme-contrast .text-zinc-600,
-  html.theme-contrast .text-zinc-500 {
-    color: #FFFF00 !important;
-  }
-  html.theme-contrast button {
-    border: 2px solid #FFFFFF;
-  }
-  html.theme-contrast .border-zinc-200,
-  html.theme-contrast .border-zinc-300,
-  html.theme-contrast .border,
-  html.theme-contrast input,
-  html.theme-contrast select {
-    border-color: #FFFFFF !important;
-    color: #FFFF00 !important;
-    background-color: #000000 !important;
-  }
-  html.theme-contrast .bg-indigo-50 {
-    background-color: #000000 !important;
-    border: 1px solid #FFFF00 !important;
-  }
-  html.theme-contrast .text-indigo-600, 
-  html.theme-contrast .text-indigo-700 {
-    color: #00FFFF !important; /* Cyan for links/highlights */
-  }
-  html.theme-contrast .bg-indigo-600 {
-     background-color: #000000 !important;
-     border: 2px solid #00FFFF !important;
-     color: #00FFFF !important;
-  }
+  html.theme-contrast body { background-color: #000000; color: #FFFF00; }
+  html.theme-contrast .bg-white, html.theme-contrast .bg-zinc-50, html.theme-contrast .bg-zinc-100, html.theme-contrast .bg-zinc-200, html.theme-contrast aside, html.theme-contrast header, html.theme-contrast .bg-white\/80 { background-color: #000000 !important; color: #FFFF00 !important; border-color: #FFFFFF !important; }
+  html.theme-contrast .text-zinc-900, html.theme-contrast .text-zinc-800, html.theme-contrast .text-zinc-700, html.theme-contrast .text-zinc-600, html.theme-contrast .text-zinc-500 { color: #FFFF00 !important; }
+  html.theme-contrast button { border: 2px solid #FFFFFF; }
+  html.theme-contrast .border-zinc-200, html.theme-contrast .border-zinc-300, html.theme-contrast .border, html.theme-contrast input, html.theme-contrast select { border-color: #FFFFFF !important; color: #FFFF00 !important; background-color: #000000 !important; }
+  html.theme-contrast .bg-indigo-50 { background-color: #000000 !important; border: 1px solid #FFFF00 !important; }
+  html.theme-contrast .text-indigo-600, html.theme-contrast .text-indigo-700 { color: #00FFFF !important; }
+  html.theme-contrast .bg-indigo-600 { background-color: #000000 !important; border: 2px solid #00FFFF !important; color: #00FFFF !important; }
   
   /* --- GENERAL UI ENHANCEMENTS & ANIMATIONS --- */
-  button, a {
-    transition: all 0.2s ease-in-out;
-  }
-  button:not(:disabled):hover, a:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.05);
-  }
-  button:focus-visible, a:focus-visible {
-    outline: 2px solid #6366F1;
-    outline-offset: 2px;
-    border-radius: 6px;
-  }
-  button:not(:disabled):active {
-    transform: translateY(0px) scale(0.98);
-  }
+  button, a { transition: all 0.2s ease-in-out; }
+  button:not(:disabled):hover, a:hover { transform: translateY(-1px); filter: brightness(1.05); }
+  button:focus-visible, a:focus-visible { outline: 2px solid #6366F1; outline-offset: 2px; border-radius: 6px; }
+  button:not(:disabled):active { transform: translateY(0px) scale(0.98); }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes float {
-    0% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
-    50% { transform: translateY(-20px) rotate(5deg); opacity: 0.5; }
-    100% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
-  }
-
-  .fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes float { 0% { transform: translateY(0px) rotate(0deg); opacity: 0.2; } 50% { transform: translateY(-20px) rotate(5deg); opacity: 0.5; } 100% { transform: translateY(0px) rotate(0deg); opacity: 0.2; } }
+  .fade-in { animation: fadeIn 0.5s ease-out forwards; }
   
-  /* --- SIDEBAR ACTIVE ITEM --- */
-  .sidebar-activity-item-active {
-      background-color: #EEF2FF !important; /* indigo-50 */
-      color: #4338CA !important; /* indigo-700 */
-      font-weight: 600;
-      position: relative;
-      overflow: hidden;
-  }
-  .sidebar-activity-item-active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 10%;
-      bottom: 10%;
-      width: 4px;
-      border-radius: 0 4px 4px 0;
-      background-color: #6366F1; /* indigo-500 */
-  }
+  .sidebar-activity-item-active { background-color: #EEF2FF !important; color: #4338CA !important; font-weight: 600; position: relative; overflow: hidden; }
+  .sidebar-activity-item-active::before { content: ''; position: absolute; left: 0; top: 10%; bottom: 10%; width: 4px; border-radius: 0 4px 4px 0; background-color: #6366F1; }
 </style>
 <script type="importmap">
 {

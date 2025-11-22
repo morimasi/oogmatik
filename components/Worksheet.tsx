@@ -39,7 +39,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         width: '100%',
     };
 
-    // REMOVED overflow-hidden for print mode to allow content to flow to next pages
+    // Print: overflow visible to allow multi-page, padding 0 handled by CSS important override in index.html
     const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0 print:border-none overflow-hidden print:overflow-visible`;
 
     const renderContent = (singleData: SingleWorksheetData, index: number) => {
@@ -234,8 +234,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         </div>
                     </div>
                     
-                    {/* PROFESSIONAL PRINT FOOTER */}
-                    <div className="absolute bottom-0 left-0 right-0 h-20 px-8 pb-6 flex justify-between items-end text-xs text-zinc-400 print:flex hidden pointer-events-none z-20">
+                    {/* PROFESSIONAL PRINT FOOTER - HIDDEN IN PRINT TO SAVE SPACE */}
+                    <div className="absolute bottom-0 left-0 right-0 h-20 px-8 pb-6 flex justify-between items-end text-xs text-zinc-400 print:hidden pointer-events-none z-20">
                         {/* Left: Branding */}
                         <div className="flex items-center gap-3 opacity-70">
                             <div className="w-10 h-10 border-2 border-zinc-300 rounded-lg flex items-center justify-center bg-white">
