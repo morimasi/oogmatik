@@ -39,7 +39,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         width: '100%',
     };
 
-    const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0 print:border-none`;
+    // REMOVED overflow-hidden for print mode to allow content to flow to next pages
+    const pageClasses = `page worksheet-page bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg relative print:shadow-none print:m-0 print:border-none overflow-hidden print:overflow-visible`;
 
     const renderContent = (singleData: SingleWorksheetData, index: number) => {
         switch (activityType) {
@@ -209,7 +210,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             )}
             <div className="page-grid print:block print:w-full" style={containerStyles}>
             {data.map((singleData, index) => (
-                <div key={index} className={`${pageClasses} overflow-hidden print:overflow-visible`} style={{padding: `var(--worksheet-margin)`}}>
+                <div key={index} className={`${pageClasses}`} style={{padding: `var(--worksheet-margin)`}}>
                      
                      {/* BACKGROUND WATERMARK */}
                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.04] print:opacity-[0.08] select-none overflow-hidden">
@@ -221,7 +222,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         </div>
                      </div>
 
-                     <div className="zoom-wrapper relative z-10" style={{
+                     <div className="zoom-wrapper relative z-10 print:h-auto print:w-full print:transform-none" style={{
                         transform: `scale(${scale})`,
                         transformOrigin: 'top left',
                         width: `${100 * inverseScale}%`,
