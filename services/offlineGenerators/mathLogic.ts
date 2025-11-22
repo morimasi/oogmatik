@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, Sudoku6x6ShadedData, DivisionPyramidData, MultiplicationPyramidData, KendokuData, OperationSquareFillInData, OperationSquareMultDivData, OperationSquareSubtractionData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, FutoshikiLengthData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData, BasicOperationsData, RealLifeProblemData } from '../../types';
+import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData, BasicOperationsData, RealLifeProblemData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES, ITEM_CATEGORIES, generateSmartConnectGrid, CONNECT_COLORS, generateMaze, getDifficultySettings } from './helpers';
 
 // --- ROMAN NUMERAL HELPERS ---
@@ -308,7 +308,6 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
     return results;
 };
 
-// ... (Rest of the file remains unchanged with existing exports)
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty, operations, numberRange } = options;
     const settings = getDifficultySettings(difficulty);
@@ -317,7 +316,6 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
     let valueMin = settings.numberRange.min;
     let valueMax = settings.numberRange.max;
     
-    // Custom override if user provided specific range manually
     if (numberRange) {
         const parts = numberRange.split('-');
         if (parts.length === 2) {
@@ -327,7 +325,6 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
     }
 
     let ops = settings.operations;
-    // Override if manually selected
     if (operations === 'add') ops = ['+'];
     else if (operations === 'addsub') ops = ['+', '-'];
     else if (operations === 'mult') ops = ['+', '-', '*'];
@@ -406,9 +403,10 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
 };
 
 export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promise<FutoshikiData[]> => {
-    const { difficulty, worksheetCount, itemCount } = options;
+    const { difficulty, worksheetCount, itemCount, contentType } = options;
     const settings = getDifficultySettings(difficulty);
     const size = Math.min(6, Math.max(4, settings.sudokuSize - 2)); 
+    const isLength = contentType === 'length';
     
     const results: FutoshikiData[] = [];
 
@@ -436,13 +434,21 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
 
             const revealRate = difficulty === 'Başlangıç' ? 0.5 : (difficulty === 'Orta' ? 0.3 : 0.2);
             const maskedGrid: (number | null)[][] = latinSquare.map(row => row.map(n => Math.random() < revealRate ? n : null));
-            return { size, numbers: maskedGrid, constraints };
+            
+            // If Length mode, populate units
+            let units: (string | null)[][] | undefined = undefined;
+            if (isLength) {
+                const unitMap: Record<number, string> = { 1: '10cm', 2: '25cm', 3: '50cm', 4: '1m', 5: '2m', 6: '5m', 7: '10m', 8: '20m', 9: '50m' };
+                units = maskedGrid.map(row => row.map(num => num === null ? null : unitMap[num] || `${num}m`));
+            }
+
+            return { size, numbers: maskedGrid, constraints, units };
         });
 
         results.push({ 
             title: `Futoşiki (${difficulty})`, 
-            prompt: 'Büyüktür/küçüktür sembollerine göre sayıları yerleştirin.', 
-            instruction: "Her satır ve sütunda rakamlar bir kez bulunmalı. > ve < işaretlerine dikkat et.",
+            prompt: isLength ? 'Uzunlukları büyüktür/küçüktür sembollerine göre sıralayın.' : 'Büyüktür/küçüktür sembollerine göre sayıları yerleştirin.', 
+            instruction: "Her satır ve sütunda öğeler bir kez bulunmalı. > ve < işaretlerine dikkat et.",
             pedagogicalNote: "Mantıksal çıkarım ve sayısal ilişki analizi.",
             imagePrompt: '',
             puzzles 
@@ -452,23 +458,25 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
 }
 
 export const generateOfflineNumberPyramid = async (options: GeneratorOptions): Promise<NumberPyramidData[]> => {
-    const { itemCount, worksheetCount, difficulty } = options;
+    const { itemCount, worksheetCount, difficulty, pyramidType } = options;
     const settings = getDifficultySettings(difficulty);
     const results: NumberPyramidData[] = [];
+    const op = pyramidType || 'addition';
     
     for (let i = 0; i < worksheetCount; i++) {
         const pyramids = Array.from({ length: itemCount || 2 }).map(() => {
             const rowsCount = settings.pyramidRows || 3;
 
             const fullPyramid: number[][] = [];
-            const baseRow = Array.from({ length: rowsCount }, () => getRandomInt(1, 10));
+            const baseRow = Array.from({ length: rowsCount }, () => getRandomInt(1, op === 'multiplication' ? 5 : 10));
             fullPyramid.push(baseRow);
             
             for (let r = 1; r < rowsCount; r++) {
                 const prevRow = fullPyramid[r - 1];
                 const newRow: number[] = [];
                 for (let c = 0; c < prevRow.length - 1; c++) {
-                    newRow.push(prevRow[c] + prevRow[c + 1]);
+                    if (op === 'multiplication') newRow.push(prevRow[c] * prevRow[c + 1]);
+                    else newRow.push(prevRow[c] + prevRow[c + 1]);
                 }
                 fullPyramid.push(newRow);
             }
@@ -487,7 +495,12 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
 
             return { title: `Piramit`, rows: puzzlePyramid };
         });
-        results.push({ title: `Sihirli Piramit (${difficulty})`, prompt: 'Her sayı, altındaki iki sayının toplamıdır.', instruction: "Piramidin tepesine doğru toplama yaparak boşlukları doldur.", pedagogicalNote: "İşlem akıcılığı ve parça-bütün ilişkisi.", imagePrompt: '', pyramids });
+        
+        let instr = "Piramidin tepesine doğru toplama yaparak boşlukları doldur.";
+        if (op === 'multiplication') instr = "Altındaki iki sayıyı çarpıp üstteki kutuya yaz.";
+        if (op === 'division') instr = "Üstteki sayı, alttaki iki sayının çarpımıdır (veya bölme ilişkisi kur).";
+
+        results.push({ title: `İşlem Piramidi (${difficulty})`, prompt: 'İşlemleri tamamla.', instruction: instr, pedagogicalNote: "İşlem akıcılığı ve parça-bütün ilişkisi.", imagePrompt: '', pyramids });
     }
     return results;
 }
@@ -514,8 +527,7 @@ export const generateOfflineNumberCapsule = async (options: GeneratorOptions): P
 }
 
 export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
-    const {itemCount, worksheetCount, difficulty} = options;
-    const settings = getDifficultySettings(difficulty);
+    const {itemCount, worksheetCount, difficulty, variant} = options;
     const size = 6; 
     
     const results: OddEvenSudokuData[] = [];
@@ -523,28 +535,27 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
         const puzzles = Array.from({length: itemCount || 2}).map(() => {
             const grid = generateSudokuGrid(size, difficulty);
             const constrainedCells = [];
+            const shadedCells = [];
+            
             for(let r=0; r<size; r++) for(let c=0; c<size; c++){
-                if(grid[r][c] === null && Math.random() > 0.5) constrainedCells.push({row:r, col: c});
+                if(grid[r][c] === null && Math.random() > 0.5) {
+                    if (variant === 'shaded') shadedCells.push({row:r, col: c});
+                    else constrainedCells.push({row:r, col: c});
+                }
             }
             return {
                 title: 'Bulmaca',
                 numbersToUse: '1-6',
                 grid,
-                constrainedCells
+                constrainedCells: variant === 'shaded' ? undefined : constrainedCells,
+                shadedCells: variant === 'shaded' ? shadedCells : undefined
             }
         });
-        results.push({title: 'Tek-Çift Sudoku (Hızlı Mod)', prompt: 'Gri kutulara çift sayı gelmelidir.', instruction: "Sudoku kurallarına ek olarak, gri kutulara sadece çift sayı yazabilirsin.", pedagogicalNote: "Kategorizasyon ve mantıksal kısıtlama yönetimi.", imagePrompt: '', puzzles});
+        
+        const instr = variant === 'shaded' ? "Gölgeli alanlara sadece çift sayı yazabilirsin." : "Gri kutulara çift sayı gelmelidir.";
+        results.push({title: 'Sudoku Varyasyonu (Hızlı Mod)', prompt: 'Kurallara uygun doldur.', instruction: instr, pedagogicalNote: "Kategorizasyon ve mantıksal kısıtlama yönetimi.", imagePrompt: '', puzzles});
     }
     return results;
-}
-
-export const generateOfflineSudoku6x6Shaded = async (options: GeneratorOptions): Promise<Sudoku6x6ShadedData[]> => {
-    const res = await generateOfflineOddEvenSudoku(options);
-    return res.map(r => ({
-        ...r, 
-        title: '6x6 Gölgeli Sudoku (Hızlı Mod)', 
-        puzzles: r.puzzles.map(p => ({grid: p.grid, shadedCells: p.constrainedCells}))
-    }));
 }
 
 export const generateOfflineRomanNumeralStarHunt = async (options: GeneratorOptions): Promise<RomanNumeralStarHuntData[]> => {
@@ -706,38 +717,37 @@ export const generateOfflineShapeSudoku = async (options: GeneratorOptions): Pro
     });
 }
 
-export const generateOfflineFutoshikiLength = async (options: GeneratorOptions): Promise<FutoshikiLengthData[]> => {
-    const res = await generateOfflineFutoshiki(options);
-    const unitMap: Record<number, string> = { 1: '10cm', 2: '25cm', 3: '50cm', 4: '1m', 5: '2m', 6: '5m', 7: '10m', 8: '20m', 9: '50m' };
-    const transformedPuzzles = res[0].puzzles.map(p => ({
-        ...p,
-        units: p.numbers.map(row => row.map(num => num === null ? null : unitMap[num] || `${num}m`))
-    }));
-    return [{ ...res[0], title: 'Futoşiki (Uzunluk) (Hızlı Mod)', prompt: 'Uzunlukları büyüktür/küçüktür işaretlerine göre sırala.', instruction: 'Her satır ve sütunda her uzunluk bir kez kullanılmalı.', puzzles: transformedPuzzles }];
-}
-
-// ... (Keep other exports)
-export const generateOfflineDivisionPyramid = async (options: GeneratorOptions) => generateOfflineNumberPyramid(options) as any; 
-export const generateOfflineMultiplicationPyramid = async (options: GeneratorOptions) => generateOfflineNumberPyramid(options) as any;
-export const generateOfflineOperationSquareSubtraction = async (options: GeneratorOptions) => generateOfflineOperationSquareFillIn(options) as any;
 export const generateOfflineOperationSquareFillIn = async (options: GeneratorOptions): Promise<OperationSquareFillInData[]> => {
-     const { worksheetCount, itemCount } = options;
+     const { worksheetCount, itemCount, operationType } = options;
      const results: OperationSquareFillInData[] = [];
+     
      for(let i=0; i<worksheetCount; i++) {
          const puzzles = Array.from({length: itemCount || 4}).map(() => {
              const nums = shuffle([1,2,3,4,5,6,7,8,9]);
              const n1=nums[0], n2=nums[1], n3=nums[2], n4=nums[3];
-             const cleanGrid: (string|null)[][] = [
-                 [null, '+', null, '=', (n1+n2).toString()],
-                 ['+', null, '+', null, null],
-                 [null, '+', null, '=', (n3+n4).toString()],
-                 ['=', null, '=', null, null],
-                 [(n1+n3).toString(), null, (n2+n4).toString(), null, null]
-             ];
-             return {grid: cleanGrid, numbersToUse: [n1, n2, n3, n4], results: []};
+             let grid: (string|null)[][] = [];
+             
+             if (operationType === 'multdiv') {
+                 grid = [
+                     [null, '×', null, '=', (n1*n2).toString()],
+                     ['÷', null, '÷', null, null],
+                     [null, '×', null, '=', (n3*n4).toString()],
+                     ['=', null, '=', null, null],
+                     [Math.round(n1/n3).toString(), null, Math.round(n2/n4).toString(), null, null]
+                 ];
+             } else {
+                 grid = [
+                     [null, '+', null, '=', (n1+n2).toString()],
+                     ['+', null, '+', null, null],
+                     [null, '+', null, '=', (n3+n4).toString()],
+                     ['=', null, '=', null, null],
+                     [(n1+n3).toString(), null, (n2+n4).toString(), null, null]
+                 ];
+             }
+             return {grid, numbersToUse: [n1, n2, n3, n4], results: []};
          });
          results.push({
-             title: 'İşlem Karesi (Yerleştirme) (Hızlı Mod)',
+             title: 'İşlem Karesi (Hızlı Mod)',
              prompt: 'Verilen sayıları yerleştir.',
              instruction: "Sonuçları tutturmak için kutulara uygun sayıları yaz.",
              pedagogicalNote: "Denklem çözme ve aritmetik akıl yürütme.",
@@ -747,6 +757,7 @@ export const generateOfflineOperationSquareFillIn = async (options: GeneratorOpt
      }
      return results;
 }
+
 export const generateOfflineMultiplicationWheel = async (options: GeneratorOptions): Promise<MultiplicationWheelData[]> => {
      const { itemCount, worksheetCount } = options;
      const results: MultiplicationWheelData[] = [];
@@ -778,28 +789,7 @@ export const generateOfflineTargetNumber = async (options: GeneratorOptions): Pr
          }) 
     }));
 }
-export const generateOfflineOperationSquareMultDiv = async (options: GeneratorOptions): Promise<OperationSquareMultDivData[]> => {
-    const { worksheetCount, itemCount } = options;
-    const results: OperationSquareMultDivData[] = [];
-    for(let i=0; i<worksheetCount; i++) {
-        const puzzles = Array.from({length: itemCount || 4}).map(() => {
-            const n1 = getRandomInt(2, 5);
-            const n2 = getRandomInt(2, 5);
-            const n3 = getRandomInt(2, 5);
-            const n4 = getRandomInt(2, 5);
-            const grid: (string|null)[][] = [
-                [null, '×', n2.toString(), '=', (n1*n2).toString()],
-                ['÷', null, '÷', null, null],
-                [n3.toString(), '×', null, '=', (n3*n4).toString()],
-                ['=', null, '=', null, null],
-                [(n1/n3 * 100).toFixed(0), null, (n2/n4 * 100).toFixed(0), null, null]
-            ];
-            return { grid };
-        });
-        results.push({ title: 'İşlem Karesi (Çarpma/Bölme) (Hızlı Mod)', prompt: 'İşlemleri yaparak boşlukları doldurun.', instruction: '', pedagogicalNote: '', imagePrompt: '', puzzles });
-    }
-    return results;
-}
+
 export const generateOfflineVisualNumberPattern = async (options: GeneratorOptions): Promise<VisualNumberPatternData[]> => {
     const {itemCount, worksheetCount} = options;
     const results: VisualNumberPatternData[] = [];

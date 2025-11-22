@@ -67,13 +67,11 @@ export enum ActivityType {
   ANTONYM_RESFEBE = 'ANTONYM_RESFEBE',
   THEMATIC_WORD_SEARCH_COLOR = 'THEMATIC_WORD_SEARCH_COLOR',
   THEMATIC_ODD_ONE_OUT_SENTENCE = 'THEMATIC_ODD_ONE_OUT_SENTENCE',
-  PROVERB_SENTENCE_FINDER = 'PROVERB_SENTENCE_FINDER',
   SYNONYM_SEARCH_STORY = 'SYNONYM_SEARCH_STORY',
   COLUMN_ODD_ONE_OUT_SENTENCE = 'COLUMN_ODD_ONE_OUT_SENTENCE',
   SYNONYM_ANTONYM_COLORING = 'SYNONYM_ANTONYM_COLORING',
   PUNCTUATION_PHONE_NUMBER = 'PUNCTUATION_PHONE_NUMBER',
   PUNCTUATION_SPIRAL_PUZZLE = 'PUNCTUATION_SPIRAL_PUZZLE',
-  THEMATIC_JUMBLED_WORD_STORY = 'THEMATIC_JUMBLED_WORD_STORY',
   SYNONYM_MATCHING_PATTERN = 'SYNONYM_MATCHING_PATTERN',
   FUTOSHIKI = 'FUTOSHIKI',
   NUMBER_PYRAMID = 'NUMBER_PYRAMID',
@@ -85,19 +83,13 @@ export enum ActivityType {
   ROMAN_NUMERAL_MULTIPLICATION = 'ROMAN_NUMERAL_MULTIPLICATION',
   ARITHMETIC_CONNECT = 'ARITHMETIC_CONNECT',
   ROMAN_ARABIC_MATCH_CONNECT = 'ROMAN_ARABIC_MATCH_CONNECT',
-  SUDOKU_6X6_SHADED = 'SUDOKU_6X6_SHADED',
   KENDOKU = 'KENDOKU',
-  DIVISION_PYRAMID = 'DIVISION_PYRAMID',
-  MULTIPLICATION_PYRAMID = 'MULTIPLICATION_PYRAMID',
-  OPERATION_SQUARE_SUBTRACTION = 'OPERATION_SQUARE_SUBTRACTION',
   OPERATION_SQUARE_FILL_IN = 'OPERATION_SQUARE_FILL_IN',
   MULTIPLICATION_WHEEL = 'MULTIPLICATION_WHEEL',
   TARGET_NUMBER = 'TARGET_NUMBER',
-  OPERATION_SQUARE_MULT_DIV = 'OPERATION_SQUARE_MULT_DIV',
   SHAPE_SUDOKU = 'SHAPE_SUDOKU',
   WEIGHT_CONNECT = 'WEIGHT_CONNECT',
   RESFEBE = 'RESFEBE',
-  FUTOSHIKI_LENGTH = 'FUTOSHIKI_LENGTH',
   MATCHSTICK_SYMMETRY = 'MATCHSTICK_SYMMETRY',
   WORD_WEB = 'WORD_WEB',
   STAR_HUNT = 'STAR_HUNT',
@@ -127,7 +119,7 @@ export enum ActivityType {
   REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS'
 }
 
-export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia';
+export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia' | 'purple' | 'orange' | 'maroon';
 
 export interface StyleSettings {
   fontSize: number;
@@ -553,31 +545,25 @@ export interface MathPuzzleItem { problem: string; question: string; answer: str
 export interface MathPuzzleData extends BaseActivityData { puzzles: MathPuzzleItem[]; }
 export interface NumberPatternData extends BaseActivityData { patterns: { sequence: string; answer: string; }[]; }
 export interface OddOneOutData extends BaseActivityData { groups: { words: string[]; }[]; }
-export interface FutoshikiData extends BaseActivityData { prompt: string; puzzles: { size: number; numbers: (number | null)[][]; constraints: { row1: number; col1: number; row2: number; col2: number; symbol: '>' | '<'; }[]; }[]; }
+export interface FutoshikiData extends BaseActivityData { prompt: string; puzzles: { size: number; numbers: (number | null)[][]; units?: (string | null)[][]; constraints: { row1: number; col1: number; row2: number; col2: number; symbol: '>' | '<'; }[]; }[]; }
 export interface NumberPyramidData extends BaseActivityData { prompt: string; pyramids: { title: string; rows: (number | null)[][]; }[]; }
 export interface NumberCapsuleData extends BaseActivityData { prompt: string; puzzles: { title: string; numbersToUse: string; grid: (number | null)[][]; capsules: { cells: { row: number; col: number }[]; sum: number; }[]; }[]; }
-export interface OddEvenSudokuData extends BaseActivityData { prompt: string; puzzles: { title: string; numbersToUse: string; grid: (number | null)[][]; constrainedCells: { row: number; col: number }[]; }[]; }
+export interface OddEvenSudokuData extends BaseActivityData { prompt: string; puzzles: { title: string; numbersToUse: string; grid: (number | null)[][]; constrainedCells?: { row: number; col: number }[]; shadedCells?: { row: number; col: number }[]; }[]; }
 export interface RomanNumeralConnectData extends BaseActivityData { prompt: string; puzzles: { title: string; gridDim: number; points: { label: string; x: number; y: number; }[]; }[]; }
 export interface RomanNumeralStarHuntData extends BaseActivityData { prompt: string; grid: (string | null)[][]; starCount: number; }
 export interface RoundingConnectData extends BaseActivityData { prompt: string; example: string; numbers: { value: number; group: number; x: number; y: number; }[]; }
 export interface RomanNumeralMultiplicationData extends BaseActivityData { prompt: string; puzzles: { row1: (string | number | null); row2: (string | number | null); col1: (string | number | null); col2: (string | number | null); results: { r1c1: (string | number | null); r1c2: (string | number | null); r2c1: (string | number | null); r2c2: (string | number | null); } }[]; }
 export interface ArithmeticConnectData extends BaseActivityData { prompt: string; example: string; expressions: { text: string; value: number; group: number; x: number; y: number; }[]; }
 export interface RomanArabicMatchConnectData extends BaseActivityData { prompt: string; gridDim: number; points: { label: string; pairId: number; x: number; y: number; }[]; }
-export interface Sudoku6x6ShadedData extends BaseActivityData { prompt: string; puzzles: { grid: (number | null)[][]; shadedCells: { row: number; col: number }[]; }[]; }
 export interface KendokuData extends BaseActivityData { prompt: string; puzzles: { size: number; grid: (number | null)[][]; cages: { cells: { row: number; col: number }[]; operation: '+' | '−' | '×' | '÷'; target: number; }[]; }[]; }
-export interface DivisionPyramidData extends BaseActivityData { prompt: string; pyramids: { rows: (number | null)[][]; }[]; }
-export interface MultiplicationPyramidData extends BaseActivityData { prompt: string; pyramids: { rows: (number | null)[][]; }[]; }
-export interface OperationSquareSubtractionData extends BaseActivityData { prompt: string; puzzles: { grid: (string | null)[][]; }[]; }
-export interface OperationSquareFillInData extends BaseActivityData { prompt: string; puzzles: { grid: (string | null)[][]; numbersToUse: number[]; results: (number | null)[]; }[]; }
+export interface OperationSquareFillInData extends BaseActivityData { prompt: string; puzzles: { grid: (string | null)[][]; numbersToUse?: number[]; results?: (number | null)[]; }[]; }
 export interface MultiplicationWheelData extends BaseActivityData { prompt: string; puzzles: { outerNumbers: (number | null)[]; innerResult: number; }[]; }
 export interface TargetNumberData extends BaseActivityData { prompt: string; puzzles: { target: number; givenNumbers: number[]; }[]; }
-export interface OperationSquareMultDivData extends BaseActivityData { prompt: string; puzzles: { grid: (string | null)[][]; }[]; }
 export interface ShapeSudokuData extends BaseActivityData { prompt: string; puzzles: { grid: (ShapeType | null)[][]; shapesToUse: { shape: ShapeType; label: string; }[]; }[]; }
 export interface WeightConnectDataPoint { label: string; pairId: number; x: number; y: number; imagePrompt?: string; imageBase64?: string; }
 export interface WeightConnectData extends BaseActivityData { prompt: string; gridDim: number; points: WeightConnectDataPoint[]; }
 export interface ResfebeClue { type: 'text' | 'image'; value: string; imageBase64?: string; }
 export interface ResfebeData extends BaseActivityData { prompt: string; puzzles: { clues: ResfebeClue[]; answer: string; }[]; }
-export interface FutoshikiLengthData extends BaseActivityData { prompt: string; puzzles: { size: number; units: (string | null)[][]; constraints: { row1: number; col1: number; row2: number; col2: number; symbol: '>' | '<'; }[]; }[]; }
 export interface WordWebData extends BaseActivityData { prompt: string; wordsToFind: string[]; grid: (string | null)[][]; keyWordPrompt: string; }
 export interface LengthConnectDataPoint { label: string; pairId: number; x: number; y: number; imagePrompt?: string; imageBase64?: string; }
 export interface LengthConnectData extends BaseActivityData { prompt: string; gridDim: number; points: LengthConnectDataPoint[]; }
@@ -670,7 +656,6 @@ export interface ThematicWordSearchColorData extends BaseActivityData { prompt: 
 export interface ProverbSentenceFinderData extends BaseActivityData { prompt: string; wordCloud: { word: string; color: string; }[]; solutions: string[]; }
 export interface SynonymSearchAndStoryData extends BaseActivityData { prompt: string; wordTable: { word: string; synonym: string; }[]; grid: string[][]; storyPrompt: string; }
 export interface PunctuationSpiralPuzzleData extends BaseActivityData { prompt: string; theme: string; clues: string[]; grid: string[][]; wordStarts: { id: number; row: number; col: number; }[]; passwordPrompt: string; }
-export interface ThematicJumbledWordStoryData extends BaseActivityData { prompt: string; theme: string; puzzles: { jumbled: string[]; word: string; }[]; storyPrompt: string; }
 export interface SynonymMatchingPatternData extends BaseActivityData { prompt: string; theme: string; pairs: { word: string; synonym: string; }[]; }
 export interface ImageAnagramSortData extends BaseActivityData { prompt: string; cards: { imageDescription: string; imageBase64?: string; scrambledWord: string; correctWord: string; }[]; }
 export interface AnagramImageMatchData extends BaseActivityData { prompt: string; wordBank: string[]; puzzles: { imageDescription: string; imageBase64?: string; partialAnswer: string; correctWord: string; }[]; }
@@ -758,7 +743,6 @@ export type SingleWorksheetData =
   | ColumnOddOneOutSentenceData
   | PunctuationPhoneNumberData
   | PunctuationSpiralPuzzleData
-  | ThematicJumbledWordStoryData
   | SynonymMatchingPatternData
   | FutoshikiData
   | NumberPyramidData
@@ -770,19 +754,13 @@ export type SingleWorksheetData =
   | RomanNumeralMultiplicationData
   | ArithmeticConnectData
   | RomanArabicMatchConnectData
-  | Sudoku6x6ShadedData
   | KendokuData
-  | DivisionPyramidData
-  | MultiplicationPyramidData
-  | OperationSquareSubtractionData
   | OperationSquareFillInData
   | MultiplicationWheelData
   | TargetNumberData
-  | OperationSquareMultDivData
   | ShapeSudokuData
   | WeightConnectData
   | ResfebeData
-  | FutoshikiLengthData
   | WordWebData
   | LengthConnectData
   | VisualNumberPatternData

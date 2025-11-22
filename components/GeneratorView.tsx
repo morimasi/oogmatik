@@ -111,13 +111,32 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.WORD_GRID_PUZZLE:
                 return [ ...commonFields, itemCountField(10, 6, 20, 'Kelime'), gridSizeField(15, 10, 20) ];
 
+            // Math & Logic Consolidated
+            case ActivityType.NUMBER_PYRAMID:
+                return [
+                    { key: 'pyramidType', label: 'İşlem Türü', type: 'select', defaultValue: 'addition', width: 'full', options: [{label: 'Toplama (+)', value: 'addition'}, {label: 'Çarpma (x)', value: 'multiplication'}, {label: 'Bölme (÷)', value: 'division'}] },
+                    itemCountField(2, 1, 10, 'Piramit Sayısı')
+                ];
+            case ActivityType.OPERATION_SQUARE_FILL_IN:
+                return [
+                    { key: 'operationType', label: 'İşlem Grubu', type: 'select', defaultValue: 'mixed', width: 'full', options: [{label: 'Karışık (+, -, x)', value: 'mixed'}, {label: 'Toplama/Çıkarma', value: 'addsub'}, {label: 'Çarpma/Bölme', value: 'multdiv'}] },
+                    itemCountField(2, 1, 10, 'Kare Sayısı')
+                ];
+            case ActivityType.ODD_EVEN_SUDOKU:
+                return [
+                    { key: 'variant', label: 'Varyasyon', type: 'select', defaultValue: 'odd_even', width: 'full', options: [{label: 'Tek-Çift Kuralı', value: 'odd_even'}, {label: 'Gölgeli Alan Kuralı', value: 'shaded'}] },
+                    itemCountField(1, 1, 6, 'Sudoku Sayısı')
+                ];
+            case ActivityType.FUTOSHIKI:
+                return [
+                    { key: 'contentType', label: 'İçerik', type: 'select', defaultValue: 'numbers', width: 'full', options: [{label: 'Sayılar', value: 'numbers'}, {label: 'Uzunluklar (cm, m)', value: 'length'}] },
+                    itemCountField(2, 1, 10, 'Bulmaca Sayısı')
+                ];
+
             // Math
             case ActivityType.MATH_PUZZLE:
             case ActivityType.TARGET_NUMBER:
             case ActivityType.KENDOKU:
-            case ActivityType.OPERATION_SQUARE_FILL_IN:
-            case ActivityType.OPERATION_SQUARE_SUBTRACTION:
-            case ActivityType.OPERATION_SQUARE_MULT_DIV:
             case ActivityType.MULTIPLICATION_WHEEL:
                 return [
                     { key: 'operations', label: 'İşlemler', type: 'select', defaultValue: 'addsub', width: 'full', options: [{label: 'Toplama (+)', value: 'add'}, {label: 'Topla & Çıkar', value: 'addsub'}, {label: 'Çarpma (+ - x)', value: 'mult'}, {label: 'Dört İşlem', value: 'all'}]},
@@ -169,14 +188,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'patternType', label: 'Örüntü', type: 'select', defaultValue: 'arithmetic', width: 'full', options: [{label: 'Aritmetik', value: 'arithmetic'}, {label: 'Geometrik', value: 'geometric'}, {label: 'Karmaşık', value: 'complex'}]},
                     itemCountField(8, 4, 20)
                  ];
-            case ActivityType.SUDOKU_6X6_SHADED:
             case ActivityType.SHAPE_SUDOKU:
-            case ActivityType.ODD_EVEN_SUDOKU:
-            case ActivityType.FUTOSHIKI:
-            case ActivityType.FUTOSHIKI_LENGTH:
-            case ActivityType.NUMBER_PYRAMID:
-            case ActivityType.DIVISION_PYRAMID:
-            case ActivityType.MULTIPLICATION_PYRAMID:
             case ActivityType.LOGIC_GRID_PUZZLE:
             case ActivityType.ROMAN_NUMERAL_STAR_HUNT:
                 return [ itemCountField(2, 1, 20, 'Adet') ];

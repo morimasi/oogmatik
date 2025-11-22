@@ -101,7 +101,7 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
       const root = document.documentElement;
-      root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia');
+      root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon');
       if (theme === 'dark') root.classList.add('dark');
       else if (theme !== 'light') root.classList.add(`theme-${theme}`);
       localStorage.setItem('app-theme', theme);
@@ -348,12 +348,39 @@ const AppContent: React.FC = () => {
       <Modal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} title="Görünüm Ayarları">
           <div className="space-y-4">
               <h3 className="font-bold text-zinc-800 dark:text-zinc-200">Tema</h3>
-              <div className="grid grid-cols-3 gap-3">
-                  {['light', 'dark', 'pastel', 'sepia', 'contrast'].map((t) => (
-                      <button key={t} onClick={() => setTheme(t as AppTheme)} className={`p-3 border rounded capitalize ${theme === t ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700' : 'border-zinc-200'}`}>
-                          {t}
-                      </button>
-                  ))}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <button onClick={() => setTheme('light')} className={`p-3 border rounded capitalize flex flex-col items-center gap-2 ${theme === 'light' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-zinc-200'}`}>
+                      <div className="w-6 h-6 rounded-full bg-white border border-zinc-300"></div>
+                      <span className="text-xs font-bold">Açık</span>
+                  </button>
+                  <button onClick={() => setTheme('dark')} className={`p-3 border rounded capitalize flex flex-col items-center gap-2 ${theme === 'dark' ? 'border-indigo-500 bg-indigo-900/20 text-indigo-300' : 'border-zinc-200'}`}>
+                      <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-700"></div>
+                      <span className="text-xs font-bold">Koyu</span>
+                  </button>
+                  <button onClick={() => setTheme('pastel')} className={`p-3 border rounded capitalize flex flex-col items-center gap-2 ${theme === 'pastel' ? 'border-indigo-500 bg-amber-50 text-amber-700' : 'border-zinc-200'}`}>
+                      <div className="w-6 h-6 rounded-full bg-[#fdf6e3] border border-[#eaddcf]"></div>
+                      <span className="text-xs font-bold">Pastel</span>
+                  </button>
+                  <button onClick={() => setTheme('sepia')} className={`p-3 border rounded capitalize flex flex-col items-center gap-2 ${theme === 'sepia' ? 'border-indigo-500 bg-orange-50 text-orange-700' : 'border-zinc-200'}`}>
+                      <div className="w-6 h-6 rounded-full bg-[#f4ecd8] border border-[#dcd0b8]"></div>
+                      <span className="text-xs font-bold">Sepya</span>
+                  </button>
+                  <button onClick={() => setTheme('purple')} className={`p-3 border rounded capitalize flex flex-col items-center gap-2 ${theme === 'purple' ? 'border-indigo-500 bg-purple-50 text-purple-700' : 'border-zinc-200'}`}>
+                      <div className="w-6 h-6 rounded-full bg-[#f3e8ff] border border-[#d8b4fe]"></div>
+                      <span className="text-xs font-bold">Mor</span>
+                  </button>
+                  <button onClick={() => setTheme('orange')} className={`p-3 border rounded capitalize flex flex-col items-center gap-2 ${theme === 'orange' ? 'border-indigo-500 bg-orange-50 text-orange-700' : 'border-zinc-200'}`}>
+                      <div className="w-6 h-6 rounded-full bg-[#fff7ed] border border-[#fed7aa]"></div>
+                      <span className="text-xs font-bold">Turuncu</span>
+                  </button>
+                  <button onClick={() => setTheme('maroon')} className={`p-3 border rounded capitalize flex flex-col items-center gap-2 ${theme === 'maroon' ? 'border-indigo-500 bg-rose-50 text-rose-700' : 'border-zinc-200'}`}>
+                      <div className="w-6 h-6 rounded-full bg-[#fff1f2] border border-[#fecdd3]"></div>
+                      <span className="text-xs font-bold">Bordo</span>
+                  </button>
+                  <button onClick={() => setTheme('contrast')} className={`p-3 border rounded capitalize flex flex-col items-center gap-2 ${theme === 'contrast' ? 'border-yellow-400 bg-black text-yellow-400' : 'border-zinc-200'}`}>
+                      <div className="w-6 h-6 rounded-full bg-black border-2 border-yellow-400"></div>
+                      <span className="text-xs font-bold">Yüksek Zıtlık</span>
+                  </button>
               </div>
           </div>
       </Modal>

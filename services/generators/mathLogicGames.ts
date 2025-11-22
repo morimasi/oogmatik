@@ -4,8 +4,7 @@ import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
 import {
     FutoshikiData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData, RomanNumeralConnectData, RomanNumeralStarHuntData, RoundingConnectData,
-    RomanNumeralMultiplicationData, Sudoku6x6ShadedData, KendokuData, DivisionPyramidData, MultiplicationPyramidData, OperationSquareSubtractionData,
-    OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, OperationSquareMultDivData, ShapeSudokuData, FutoshikiLengthData, ShapeType,
+    RomanNumeralMultiplicationData, KendokuData, OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, ShapeType,
     BasicOperationsData, RealLifeProblemData
 } from '../../types';
 
@@ -153,28 +152,13 @@ export const generateRealLifeMathProblemsFromAI = async (options: GeneratorOptio
     return generateWithSchema(prompt, schema) as Promise<RealLifeProblemData[]>;
 };
 
-export const generateDivisionPyramidFromAI = async(options: GeneratorOptions): Promise<DivisionPyramidData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Bölme Piramidi. Üstteki sayı, alttaki iki sayının çarpımıdır (veya üstteki alttakine bölünür). ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const schema = { type: Type.ARRAY, items: baseMathSchema('pyramids', {type: Type.OBJECT, properties: {rows: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.INTEGER}}}}, required: ["rows"]}) };
-    return generateWithSchema(prompt, schema) as Promise<DivisionPyramidData[]>;
-}
-
-export const generateMultiplicationPyramidFromAI = async(options: GeneratorOptions): Promise<MultiplicationPyramidData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Çarpma Piramidi. Alttaki iki sayının çarpımı üstteki kutuya yazılır. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const schema = { type: Type.ARRAY, items: baseMathSchema('pyramids', {type: Type.OBJECT, properties: {rows: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.INTEGER}}}}, required: ["rows"]}) };
-    return generateWithSchema(prompt, schema) as Promise<MultiplicationPyramidData[]>;
-}
-
-export const generateOperationSquareSubtractionFromAI = async(options: GeneratorOptions): Promise<OperationSquareSubtractionData[]> => {
-     const prompt = `Çıkarma İşlem Karesi (3x3 veya 4x4). Satır ve sütun işlemleri tutarlı olmalı. ${PEDAGOGICAL_PROMPT}`;
-     const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}}, required: ["grid"]}) };
-     return generateWithSchema(prompt, schema) as Promise<OperationSquareSubtractionData[]>;
-}
-
 export const generateOperationSquareFillInFromAI = async(options: GeneratorOptions): Promise<OperationSquareFillInData[]> => {
-    const prompt = `Sayı Yerleştirmece (İşlem Karesi). Verilen sayıları boşluklara yerleştirerek eşitlikleri sağla. ${PEDAGOGICAL_PROMPT}`;
+    const { operationType, difficulty, worksheetCount } = options;
+    let typeDesc = "Dört İşlem";
+    if (operationType === 'addsub') typeDesc = "Toplama ve Çıkarma";
+    if (operationType === 'multdiv') typeDesc = "Çarpma ve Bölme";
+
+    const prompt = `"${difficulty}" seviyesinde ${typeDesc} içeren Sayı Yerleştirmece (İşlem Karesi). Verilen sayıları boşluklara yerleştirerek eşitlikleri sağla. ${PEDAGOGICAL_PROMPT}`;
     const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, numbersToUse: {type: Type.ARRAY, items: {type: Type.INTEGER}}, results: {type: Type.ARRAY, items: {type: Type.INTEGER}}}, required: ["grid"]}) };
     return generateWithSchema(prompt, schema) as Promise<OperationSquareFillInData[]>;
 }
@@ -191,12 +175,6 @@ export const generateTargetNumberFromAI = async (options: GeneratorOptions): Pro
     return generateWithSchema(prompt, schema) as Promise<TargetNumberData[]>;
 };
 
-export const generateOperationSquareMultDivFromAI = async(options: GeneratorOptions): Promise<OperationSquareMultDivData[]> => {
-    const prompt = `Çarpma/Bölme İşlem Karesi. ${PEDAGOGICAL_PROMPT}`;
-    const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}}, required: ["grid"]}) };
-    return generateWithSchema(prompt, schema) as Promise<OperationSquareMultDivData[]>;
-}
-
 export const generateShapeSudokuFromAI = async(options: GeneratorOptions): Promise<ShapeSudokuData[]> => {
     const prompt = `Şekilli Sudoku (4x4). Rakam yerine şekil kullan. ${PEDAGOGICAL_PROMPT}`;
     const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {type: Type.OBJECT, properties: {grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, shapesToUse: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {shape: {type: Type.STRING}, label: {type: Type.STRING}}, required: ["shape", "label"]}}}, required: ["grid", "shapesToUse"]}) };
@@ -204,13 +182,17 @@ export const generateShapeSudokuFromAI = async(options: GeneratorOptions): Promi
 }
 
 export const generateFutoshikiFromAI = async (options: GeneratorOptions): Promise<FutoshikiData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Futoşiki bulmacası. ${PEDAGOGICAL_PROMPT}`;
+    const { difficulty, worksheetCount, contentType } = options;
+    const isLength = contentType === 'length';
+    const prompt = `"${difficulty}" seviyesinde Futoşiki bulmacası. ${isLength ? 'Hücrelerde uzunluk ölçü birimleri (cm, m) kullan ve bunları büyüktür/küçüktür ilişkisine göre sırala.' : 'Sayıları kullan.'} ${PEDAGOGICAL_PROMPT}`;
+    
     const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {
         type: Type.OBJECT,
         properties: {
             size: { type: Type.INTEGER },
             numbers: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
+            // Optional units for length variant
+            units: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             constraints: {
                 type: Type.ARRAY,
                 items: {
@@ -220,14 +202,18 @@ export const generateFutoshikiFromAI = async (options: GeneratorOptions): Promis
                 }
             }
         },
-        required: ["size", "numbers", "constraints"]
+        required: ["size", "constraints"] // numbers is optional if units is present technically, but schema usually strict
     }) };
     return generateWithSchema(prompt, schema) as Promise<FutoshikiData[]>;
 };
 
 export const generateNumberPyramidFromAI = async (options: GeneratorOptions): Promise<NumberPyramidData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Toplama Piramidi. ${PEDAGOGICAL_PROMPT}`;
+    const { difficulty, worksheetCount, pyramidType } = options;
+    let typeDesc = "Toplama";
+    if (pyramidType === 'multiplication') typeDesc = "Çarpma";
+    if (pyramidType === 'division') typeDesc = "Bölme";
+
+    const prompt = `"${difficulty}" seviyesinde ${typeDesc} Piramidi. ${PEDAGOGICAL_PROMPT}`;
     const schema = { type: Type.ARRAY, items: baseMathSchema('pyramids', {
         type: Type.OBJECT,
         properties: {
@@ -265,16 +251,18 @@ export const generateNumberCapsuleFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateOddEvenSudokuFromAI = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
-    const prompt = `Tek-Çift Sudoku (6x6). Gölgeli alan kuralı ekle. ${PEDAGOGICAL_PROMPT}`;
+    const { variant } = options;
+    const prompt = `Sudoku (6x6). ${variant === 'shaded' ? 'Gölgeli alan kuralı ekle.' : 'Tek-Çift kuralı ekle.'} ${PEDAGOGICAL_PROMPT}`;
     const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             numbersToUse: { type: Type.STRING },
             grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
-            constrainedCells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } } } }
+            constrainedCells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } } } },
+            shadedCells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } } } }
         },
-        required: ["grid", "constrainedCells"]
+        required: ["grid"]
     }) };
     return generateWithSchema(prompt, schema) as Promise<OddEvenSudokuData[]>;
 };
@@ -384,27 +372,3 @@ export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<
     };
     return generateWithSchema(prompt, schema) as Promise<KendokuData[]>;
 };
-
-export const generateFutoshikiLengthFromAI = async(options: GeneratorOptions): Promise<FutoshikiLengthData[]> => {
-     const res = await generateFutoshikiFromAI(options);
-     // @ts-ignore
-     return res.map(r => ({
-         ...r, 
-         title: 'Uzunluk Karşılaştırma (Futoşiki)', 
-         instruction: 'Nesnelerin uzunluklarını (cm, m) büyüktür/küçüktür işaretlerine göre sırala.',
-         pedagogicalNote: 'Ölçme birimleri ve sıralama mantığı.',
-         imagePrompt: "Illustration of various measuring tools like ruler, tape measure."
-    }));
-}
-
-export const generateSudoku6x6ShadedFromAI = async(options: GeneratorOptions): Promise<Sudoku6x6ShadedData[]> => {
-     const res = await generateOddEvenSudokuFromAI(options);
-     // @ts-ignore
-     return res.map(r => ({
-         ...r, 
-         title: '6x6 Gölgeli Sudoku', 
-         instruction: "Gölgeli alanlara sadece ÇİFT sayılar gelebilir.",
-         pedagogicalNote: "Görsel kısıtlamalı mantık yürütme.",
-         imagePrompt: "Abstract geometric sudoku grid with shaded areas."
-    }));
-}
