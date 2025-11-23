@@ -8,27 +8,27 @@ const findEmojiForDescription = (desc: string): string | null => {
     if (!desc) return null;
     const lowerDesc = desc.toLocaleLowerCase('tr');
     
-    // 1. Check direct mapping in EMOJI_MAP values (Values are Turkish names)
+    // 1. Check direct mapping in EMOJI_MAP keys or values
+    if (EMOJI_MAP[desc]) return EMOJI_MAP[desc]; // Check if desc is an emoji key directly (rare)
+    
     for (const [emoji, name] of Object.entries(EMOJI_MAP)) {
-        if (lowerDesc.includes(name.toLocaleLowerCase('tr'))) return emoji;
+        if (lowerDesc.includes(name.toLocaleLowerCase('tr')) || name.toLocaleLowerCase('tr').includes(lowerDesc)) {
+            return emoji;
+        }
     }
     
     // 2. Basic Heuristics for common terms not in map
-    if (lowerDesc.includes('elma')) return '🍎';
-    if (lowerDesc.includes('kedi')) return '🐱';
-    if (lowerDesc.includes('köpek')) return '🐶';
-    if (lowerDesc.includes('araba')) return '🚗';
-    if (lowerDesc.includes('yıldız')) return '⭐';
-    if (lowerDesc.includes('kalem')) return '✏️';
-    if (lowerDesc.includes('kitap')) return '📚';
-    if (lowerDesc.includes('top')) return '⚽';
-    if (lowerDesc.includes('balık')) return '🐟';
-    if (lowerDesc.includes('kuş')) return '🐦';
-    if (lowerDesc.includes('çiçek')) return '🌸';
-    if (lowerDesc.includes('ev')) return '🏠';
-    if (lowerDesc.includes('güneş')) return '☀️';
-    if (lowerDesc.includes('ay')) return '🌙';
-    if (lowerDesc.includes('saat')) return '⏰';
+    const commonMap: Record<string, string> = {
+        'elma': '🍎', 'kedi': '🐱', 'köpek': '🐶', 'araba': '🚗', 'yıldız': '⭐',
+        'kalem': '✏️', 'kitap': '📚', 'top': '⚽', 'balık': '🐟', 'kuş': '🐦',
+        'çiçek': '🌸', 'ev': '🏠', 'güneş': '☀️', 'ay': '🌙', 'saat': '⏰',
+        'ağaç': '🌳', 'kalp': '❤️', 'bulut': '☁️', 'kar': '❄️', 'ateş': '🔥',
+        'su': '💧', 'muz': '🍌', 'çilek': '🍓', 'portakal': '🍊', 'üzüm': '🍇'
+    };
+
+    for (const [key, emoji] of Object.entries(commonMap)) {
+        if (lowerDesc.includes(key)) return emoji;
+    }
     
     return null;
 };
@@ -40,12 +40,12 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
         <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
         
         {/* Main Activity Image if available */}
-        {(data?.imageBase64 || data?.imagePrompt) && (
+        {(data?.imageBase64 || (data?.imagePrompt && findEmojiForDescription(data.imagePrompt))) && (
             <div className="my-4 mx-auto max-w-md rounded-xl overflow-hidden shadow-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
                 <ImageDisplay 
-                    base64={data.imageBase64} 
-                    description={data.imagePrompt || title} 
-                    className="w-full h-48 object-contain p-2" 
+                    base64={data?.imageBase64} 
+                    description={data?.imagePrompt || title} 
+                    className="w-full h-48 object-contain p-4" 
                 />
             </div>
         )}
@@ -102,10 +102,10 @@ export const ReadingRuler: React.FC = () => {
 
 // Memoized Shape Component with improved visibility
 export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: ShapeType; className?: string }) => {
-    // Force colors to be visible
+    // Force colors to be visible in both light/dark/print modes
     const strokeColor = "currentColor"; 
     const strokeWidth = "4";
-    const fillColor = "none"; // Can be changed to "rgba(0,0,0,0.05)" for light fill
+    const fillColor = "transparent"; 
     
     switch (name) {
         case 'circle':
@@ -133,15 +133,15 @@ export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: Shap
         case 'cone':
             return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M50 10 L10 90 H90 Z"/><ellipse cx="50" cy="90" rx="40" ry="10"/></svg>;
         default:
-            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="20" stroke="gray" strokeWidth="2" fill="none" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="20" stroke={strokeColor} strokeWidth="2" fill="none" /></svg>;
     }
 });
 
 // Memoized Image Display with Smart Fallback
 export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string; className?: string }) => {
     
-    // 1. Try rendering Base64 Image
-    if (base64 && base64.length > 100) { 
+    // 1. Try rendering Base64 Image (Must check if it's a valid non-empty string)
+    if (base64 && typeof base64 === 'string' && base64.length > 100) { 
         return <img src={`data:image/png;base64,${base64}`} alt={description || 'Görsel'} className={`${className} object-contain rounded-md bg-white dark:bg-zinc-800 shadow-sm`} loading="lazy" />;
     }
     
@@ -150,9 +150,9 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
     
     // 3. Fallback UI (Card with Icon/Emoji + Text)
     return (
-        <div className={`bg-indigo-50 dark:bg-zinc-800/80 rounded-lg border-2 border-dashed border-indigo-200 dark:border-zinc-600 flex flex-col items-center justify-center text-center p-2 overflow-hidden ${className}`}>
+        <div className={`bg-indigo-50 dark:bg-zinc-800/80 rounded-lg border-2 border-dashed border-indigo-200 dark:border-zinc-600 flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none ${className}`}>
             {emojiIcon ? (
-                <div className="text-5xl sm:text-6xl mb-1 filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default select-none animate-in fade-in zoom-in" role="img" aria-label={description}>
+                <div className="text-5xl sm:text-6xl mb-1 filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300" role="img" aria-label={description}>
                     {emojiIcon}
                 </div>
             ) : (

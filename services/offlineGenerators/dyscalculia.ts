@@ -30,7 +30,7 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
             title: 'Sayı Hissi Alıştırmaları (Hızlı Mod)',
             instruction: 'Eksik sayıları tamamla veya çok olanı işaretle.',
             pedagogicalNote: 'Temel sayı kavramı ve sıralama becerisi.',
-            imagePrompt: '',
+            imagePrompt: 'Renkli sayı blokları ve sayı doğrusu',
             layout: 'visual',
             exercises
         };
@@ -60,7 +60,7 @@ export const generateOfflineArithmeticFluency = async (options: GeneratorOptions
                 operator: op as '+' | '-' | 'x' | '÷',
                 answer: op === '+' ? n1 + n2 : n1 - n2,
                 visualType: 'dots' as const, 
-                imagePrompt: ''
+                imagePrompt: 'Yıldız'
             };
         });
 
@@ -68,7 +68,7 @@ export const generateOfflineArithmeticFluency = async (options: GeneratorOptions
             title: 'Görsel Aritmetik (Hızlı Mod)',
             instruction: 'İşlemleri görsellerden yararlanarak yap.',
             pedagogicalNote: 'Somutlaştırma yoluyla işlem becerisi.',
-            imagePrompt: '',
+            imagePrompt: 'Matematik sembolleri',
             layout: 'visual',
             problems
         };
@@ -91,7 +91,7 @@ export const generateOfflineNumberGrouping = async (options: GeneratorOptions): 
                 operator: 'group' as const,
                 answer: groups,
                 visualType: 'objects' as const,
-                imagePrompt: ''
+                imagePrompt: 'Elma'
             };
         });
 
@@ -99,7 +99,7 @@ export const generateOfflineNumberGrouping = async (options: GeneratorOptions): 
             title: 'Sayı Gruplama (Hızlı Mod)',
             instruction: `${size}'li gruplar oluştur ve kaç grup olduğunu yaz.`,
             pedagogicalNote: 'Basamak değeri ve çarpma temeli.',
-            imagePrompt: '',
+            imagePrompt: 'Gruplanmış nesneler',
             layout: 'visual',
             problems
         };
@@ -139,7 +139,7 @@ export const generateOfflineSpatialReasoning = async (options: GeneratorOptions)
             title: 'Uzamsal Algı (Hızlı Mod)',
             instruction: 'Yönergeleri takip et.',
             pedagogicalNote: 'Yön ve konum farkındalığı.',
-            imagePrompt: '',
+            imagePrompt: 'Labirent ve yön okları',
             layout: 'grid',
             gridSize: size,
             tasks
@@ -156,7 +156,7 @@ export const generateOfflineMathLanguage = async (options: GeneratorOptions): Pr
         title: 'Matematik Dili (Hızlı Mod)',
         instruction: 'Sembolleri anlamlarıyla eşleştir.',
         pedagogicalNote: 'Sembol tanıma.',
-        imagePrompt: '',
+        imagePrompt: 'Matematik sembolleri (+ - =)',
         layout: 'list',
         pairs: [
             { item1: '+', item2: 'Topla', type: 'symbol', imagePrompt1: '' },
@@ -173,7 +173,7 @@ export const generateOfflineTimeMeasurementGeometry = async (options: GeneratorO
         title: 'Zaman ve Şekiller (Hızlı Mod)',
         instruction: 'Saatleri okunuşlarıyla eşleştir.',
         pedagogicalNote: 'Zaman kavramı.',
-        imagePrompt: '',
+        imagePrompt: 'Saatler',
         layout: 'visual',
         pairs: [
             { item1: '3:00', item2: 'Saat Üç', type: 'time', imagePrompt1: 'Saat' },
@@ -188,7 +188,7 @@ export const generateOfflineFractionsDecimals = async (options: GeneratorOptions
         title: 'Kesirler (Hızlı Mod)',
         instruction: 'Şeklin boyalı kısmını kesirle eşleştir.',
         pedagogicalNote: 'Parça-bütün ilişkisi.',
-        imagePrompt: '',
+        imagePrompt: 'Pasta grafiği',
         layout: 'visual',
         pairs: [
             { item1: '1/2', item2: 'Yarım', type: 'fraction', imagePrompt1: 'pie-1-2' },
@@ -203,7 +203,7 @@ export const generateOfflineEstimationSkills = async (options: GeneratorOptions)
         title: 'Tahmin Et (Hızlı Mod)',
         instruction: 'Saymadan tahmin et.',
         pedagogicalNote: 'Yaklaşık değer algısı.',
-        imagePrompt: '',
+        imagePrompt: 'Kavanozda şekerler',
         layout: 'visual',
         items: [
             { count: 12, visualType: 'dots', options: [5, 12, 30], imagePrompt: '' },

@@ -23,7 +23,7 @@ const VisualCounter: React.FC<{ count: number; type: string; className?: string;
     }
 
     // Objects: Try to use ImageDisplay for specific items or fallback to a generic star/apple
-    // Note: Ideally 'imagePrompt' comes from the generator. If it's "Apple", ImageDisplay handles emoji conversion.
+    // Note: imagePrompt from generator triggers smart emoji lookup in ImageDisplay
     return (
         <div className={`flex flex-wrap gap-1 justify-center ${className}`}>
             {items.map((_, i) => (
@@ -73,7 +73,7 @@ const NumberLine: React.FC<{ start: number, end: number, target?: number, missin
 
 export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         <div className="space-y-8">
             {data.exercises.map((ex, i) => (
                 <div key={i} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm">
@@ -111,7 +111,7 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
 
 export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {data.problems.map((prob, i) => (
                 <div key={i} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 shadow-sm flex flex-col items-center">
@@ -138,7 +138,7 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
 
 export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {data.tasks.map((task, i) => (
                 <div key={i} className="flex flex-col items-center">
@@ -163,13 +163,13 @@ export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) 
 
 export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         <div className="space-y-6 max-w-2xl mx-auto">
             {data.pairs.map((pair, i) => (
                 <div key={i} className="flex justify-between items-center p-4 bg-white border rounded-xl shadow-sm">
                     <div className="w-1/3 flex justify-center items-center">
                         {pair.type === 'fraction' ? <PieChart fraction={pair.item1 as string} /> : 
-                         pair.type === 'time' && pair.imagePrompt1 ? <ImageDisplay base64={undefined} description={pair.imagePrompt1 || 'Saat'} className="w-24 h-24" /> :
+                         pair.type === 'time' ? <ImageDisplay base64={undefined} description={pair.imagePrompt1 || 'Saat'} className="w-24 h-24" /> :
                          <span className="text-4xl font-bold">{pair.item1}</span>}
                     </div>
                     <div className="flex-1 border-b-2 border-dashed border-zinc-300 mx-4"></div>
@@ -184,7 +184,7 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
 
 export const EstimationSheet: React.FC<{ data: EstimationData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {data.items.map((item, i) => (
                 <div key={i} className="flex flex-col items-center p-6 bg-white rounded-xl shadow-md border">

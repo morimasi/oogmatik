@@ -1,10 +1,10 @@
 
 import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, EMOJI_MAP, COLORS, simpleSyllabify, CONNECT_COLORS } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, EMOJI_MAP, COLORS, simpleSyllabify, CONNECT_COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS } from './helpers';
 
 // --- 1. Reading Flow (Heceli/Renkli Okuma) ---
 export const generateOfflineReadingFlow = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
-    const { worksheetCount, difficulty, topic, itemCount } = options;
+    const { worksheetCount, difficulty, topic, itemCount, syllableColorMode } = options;
     
     const texts = [
         "Ali okula gitti. Yolda küçük bir kedi gördü. Kedi çok sevimliydi. Ali kediyi sevdi.",
@@ -14,14 +14,23 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
         "Kitap okumayı çok severim. Her kitap yeni bir macera demektir. Bilgiler öğrenir, hayaller kurarım. Kitaplar en iyi dosttur."
     ];
 
+    // Color Schemes
+    const getColors = (mode: string) => {
+        switch(mode) {
+            case 'black-red': return ['#000', '#dc2626'];
+            case 'gray-black': return ['#6b7280', '#000'];
+            case 'rainbow': return ['#dc2626', '#d97706', '#16a34a', '#2563eb', '#7c3aed'];
+            default: return ['#000', '#2563eb']; // black-blue
+        }
+    };
+    const colors = getColors(syllableColorMode || 'black-blue');
+
     return Array.from({ length: worksheetCount }, () => {
         const baseText = getRandomItems(texts, 1)[0];
-        // Simulate sentence count control by repeating or slicing sentences from a longer text
         let sentences = baseText.split(/(?<=[.!?])\s+/);
         const count = itemCount || 5;
         
         if (sentences.length < count) {
-             // Repeat to meet count if needed for demo
              while(sentences.length < count) {
                  sentences = [...sentences, ...sentences];
              }
@@ -31,22 +40,20 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
         const processedParagraph = sentences.map(sentence => {
             const words = sentence.split(' ');
             const syllables = words.flatMap(word => {
-                // Basic syllable approximation or word chunking
                 const parts = simpleSyllabify(word);
-                // Assign colors: alternating black/blue or red/blue for distinction
                 return parts.map((part, idx) => ({
                     text: part,
-                    color: idx % 2 === 0 ? '#000' : '#3B82F6' // Black / Blue pattern
+                    color: colors[idx % colors.length]
                 }));
             });
             return { syllables };
         });
 
         return {
-            title: 'Heceli Okuma Çalışması',
+            title: 'Akıcı Okuma Çalışması',
             prompt: 'Renklendirilmiş heceleri takip ederek metni okuyun.',
-            instruction: 'Metni akıcı bir şekilde okumaya çalış.',
-            pedagogicalNote: 'Görsel takibi kolaylaştırarak okuma akıcılığını (fluency) artırır.',
+            instruction: 'Metni hecelere dikkat ederek, akıcı bir şekilde okumaya çalış.',
+            pedagogicalNote: `Görsel takibi kolaylaştıran ${syllableColorMode} renk şeması ile okuma akıcılığını destekler.`,
             text: { paragraphs: [{ sentences: processedParagraph }] }
         };
     });
@@ -54,33 +61,32 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
 
 // --- 2. Letter Discrimination (Harf Ayrımı) ---
 export const generateOfflineLetterDiscrimination = async (options: GeneratorOptions): Promise<LetterDiscriminationData[]> => {
-    const { worksheetCount, difficulty, itemCount, targetLetters } = options;
+    const { worksheetCount, difficulty, itemCount, targetLetters, distractionLevel } = options;
     
     return Array.from({ length: worksheetCount }, () => {
         let targetLetter = 'b';
         let distractor = 'd';
 
         if (targetLetters) {
-            const parts = targetLetters.split(/[\s,]+/).filter(s => s.length === 1);
+            const parts = targetLetters.split(/[\s,-]+/).filter(s => s.length === 1);
             if (parts.length >= 2) {
-                targetLetter = parts[0].toLowerCase();
-                distractor = parts[1].toLowerCase();
-            } else if (parts.length === 1) {
-                targetLetter = parts[0].toLowerCase();
-                distractor = targetLetter === 'b' ? 'd' : 'b';
+                targetLetter = parts[0];
+                distractor = parts[1];
+            } else {
+                // Fallback map
+                const map: any = {'b': 'd', 'd': 'b', 'p': 'q', 'q': 'p', 'm': 'n', 'n': 'u', 'u': 'n'};
+                targetLetter = parts[0] || 'b';
+                distractor = map[targetLetter] || 'd';
             }
-        } else {
-            const pairs = [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n']];
-            const targetPair = getRandomItems(pairs, 1)[0];
-            targetLetter = targetPair[0];
-            distractor = targetPair[1];
         }
 
-        const rowCount = itemCount || 6;
+        const rowCount = itemCount || 8;
+        // Distraction level controls ratio (20-90 -> 0.2 - 0.9)
+        const ratio = (distractionLevel || 50) / 100; 
         
         const rows = Array.from({ length: rowCount }, () => {
-            const rowLen = 10;
-            const letters = Array.from({ length: rowLen }, () => Math.random() > 0.5 ? targetLetter : distractor);
+            const rowLen = 12; // Standard width
+            const letters = Array.from({ length: rowLen }, () => Math.random() > ratio ? targetLetter : distractor);
             const count = letters.filter(l => l === targetLetter).length;
             return { letters, targetCount: count };
         });
@@ -88,7 +94,7 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
         return {
             title: `Harf Karışıklığı: ${targetLetter} - ${distractor}`,
             prompt: `Sadece "${targetLetter}" harflerini bul ve daire içine al.`,
-            instruction: `${targetLetter} ve ${distractor} harflerini ayırt et.`,
+            instruction: `${targetLetter} ve ${distractor} harflerini ayırt etmeye çalış.`,
             pedagogicalNote: 'Görsel ayrım (discrimination) ve yön algısını güçlendirir.',
             targetLetters: [targetLetter, distractor],
             rows
@@ -98,10 +104,10 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
 
 // --- 3. Rapid Naming (RAN) ---
 export const generateOfflineRapidNaming = async (options: GeneratorOptions): Promise<RapidNamingData[]> => {
-    const { worksheetCount, difficulty, itemCount, type: optionType, targetLetters } = options;
+    const { worksheetCount, itemCount, type: optionType, targetLetters, gridConfig } = options;
     
     return Array.from({ length: worksheetCount }, () => {
-        const type = (optionType || getRandomItems(['color', 'object', 'number'], 1)[0]) as 'color' | 'object' | 'number' | 'letter';
+        const type = (optionType || 'object') as 'color' | 'object' | 'number' | 'letter';
         let pool: any[] = [];
         
         if (type === 'color') {
@@ -112,60 +118,87 @@ export const generateOfflineRapidNaming = async (options: GeneratorOptions): Pro
             let lettersToUse: string[] = [];
             if (targetLetters) {
                 lettersToUse = targetLetters.split(/[\s,]+/).map(s => s.trim().toLowerCase()).filter(s => s.length === 1);
-                // If not enough unique letters provided, pad with random ones
                 if (lettersToUse.length < 5) {
                     const others = turkishAlphabet.split('').filter(l => !lettersToUse.includes(l));
                     lettersToUse = [...lettersToUse, ...getRandomItems(others, 5 - lettersToUse.length)];
                 }
-                lettersToUse = lettersToUse.slice(0, 5); // Limit pool size
+                lettersToUse = lettersToUse.slice(0, 5);
             } else {
-                // Default problematic letters
                 lettersToUse = ['b', 'd', 'p', 'q', 'm'];
             }
             pool = lettersToUse.map(l => ({ type: 'letter', value: l, label: l }));
         } else {
-            pool = getRandomItems(EMOJIS, 5).map(e => ({ type: 'icon', value: e, label: EMOJI_MAP[e] }));
+            // Objects: Use simple, distinct emojis
+            pool = getRandomItems(['🍎','🚗','🏠','⭐','🐶','⚽'], 5).map(e => ({ type: 'icon', value: e, label: EMOJI_MAP[e] || 'Nesne' }));
         }
 
-        const count = itemCount || 20;
+        // Grid Config parsing (e.g. "5x4")
+        const [colsStr, rowsStr] = (gridConfig || '5x4').split('x');
+        const cols = parseInt(colsStr) || 5;
+        const rows = parseInt(rowsStr) || 4;
+        const count = cols * rows;
+
         const gridItems = Array.from({ length: count }, () => getRandomItems(pool, 1)[0]);
 
         return {
-            title: 'Hızlı İsimlendirme (RAN)',
+            title: `Hızlı İsimlendirme (RAN): ${type === 'color' ? 'Renkler' : type === 'number' ? 'Sayılar' : type === 'letter' ? 'Harfler' : 'Nesneler'}`,
             prompt: 'Soldan sağa doğru, duraksamadan isimlendir.',
-            instruction: 'Mümkün olduğunca hızlı ve hatasız söyle.',
-            pedagogicalNote: 'İşlemleme hızı ve geri çağırma (retrieval) becerisi.',
+            instruction: 'Mümkün olduğunca hızlı ve hatasız söylemeye çalış.',
+            pedagogicalNote: 'İşlemleme hızı ve fonolojik geri çağırma (retrieval) becerisi.',
             grid: { items: gridItems },
-            type: type as any // Cast for extended type support if needed
+            type: type as any
         };
     });
 };
 
 // --- 4. Phonological Awareness ---
 export const generateOfflinePhonologicalAwareness = async (options: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => {
-    const { worksheetCount, difficulty, itemCount } = options;
+    const { worksheetCount, difficulty, itemCount, skillType } = options;
     
     return Array.from({ length: worksheetCount }, () => {
         const count = itemCount || 4;
         const exercises = Array.from({ length: count }, () => {
-            const word = getRandomItems(getWordsForDifficulty(difficulty), 1)[0];
-            const syllables = simpleSyllabify(word);
             
-            return {
-                type: 'syllable-counting' as const,
-                question: 'Bu kelime kaç hecelidir?',
-                word: word,
-                // Simple image logic not implemented in offline fully, just text focus
-                options: [1, 2, 3, 4],
-                answer: syllables.length
-            };
+            if (skillType === 'rhyme') {
+                const pair = getRandomItems(TR_VOCAB.synonyms, 1)[0]; // Placeholder logic, better to have rhyming dict
+                // Simulating rhyme with simple ending match for offline demo
+                const word = getRandomItems(['masa', 'kasa', 'tasa', 'yasa'], 1)[0];
+                return {
+                    type: 'rhyming' as const,
+                    question: `"${word}" ile kafiyeli olan kelime hangisidir?`,
+                    word: word,
+                    options: ['kasa', 'elma', 'top'], // Mock options
+                    answer: 'kasa'
+                };
+            } else if (skillType === 'initial-sound') {
+                const word = getRandomItems(getWordsForDifficulty(difficulty), 1)[0];
+                const initial = word.charAt(0).toUpperCase();
+                return {
+                    type: 'syllable-counting' as const, // Reusing type for simplicity in types.ts unless extended
+                    question: `"${word}" kelimesi hangi sesle başlar?`,
+                    word: word,
+                    options: [initial, 'Z', 'K'],
+                    answer: initial
+                };
+            } else {
+                // Default: Syllable Counting
+                const word = getRandomItems(getWordsForDifficulty(difficulty), 1)[0];
+                const syllables = simpleSyllabify(word);
+                return {
+                    type: 'syllable-counting' as const,
+                    question: 'Bu kelime kaç hecelidir?',
+                    word: word,
+                    options: [1, 2, 3, 4],
+                    answer: syllables.length
+                };
+            }
         });
 
         return {
-            title: 'Fonolojik Farkındalık',
-            prompt: 'Kelimelerin hece sayılarını bul.',
-            instruction: 'Her kelimeyi sesli söyle ve hecelerini say.',
-            pedagogicalNote: 'Ses farkındalığı ve heceleme becerisi.',
+            title: skillType === 'rhyme' ? 'Kafiye Bulma' : skillType === 'initial-sound' ? 'İlk Ses Farkındalığı' : 'Hece Sayma',
+            prompt: 'Soruları cevapla.',
+            instruction: 'Sesleri dinle ve doğru cevabı bul.',
+            pedagogicalNote: 'Fonolojik farkındalık ve ses bilgisi.',
             exercises
         };
     });
@@ -173,31 +206,44 @@ export const generateOfflinePhonologicalAwareness = async (options: GeneratorOpt
 
 // --- 5. Mirror Letters (Ayna Harfler) ---
 export const generateOfflineMirrorLetters = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
-    const { worksheetCount, difficulty, itemCount, targetPair } = options;
+    const { worksheetCount, difficulty, itemCount, targetPair, rotationMode } = options;
     
     let selectedPair = ['b', 'd'];
     if (targetPair) {
-        const parts = targetPair.split(/[\s,/]+/).filter(s => s.length === 1);
-        if (parts.length >= 2) {
-            selectedPair = [parts[0].toLowerCase(), parts[1].toLowerCase()];
-        }
-    } else {
-        const pairs = [['b', 'd'], ['p', 'q']];
-        selectedPair = getRandomItems(pairs, 1)[0];
+        const parts = targetPair.split(/[\s,-]+/).filter(s => s.length === 1);
+        if (parts.length >= 2) selectedPair = [parts[0], parts[1]];
     }
     
+    const isComplex = rotationMode === 'complex';
+
     return Array.from({ length: worksheetCount }, () => {
-        const rowCount = itemCount || 5;
+        const rowCount = itemCount || 6;
         const rows = Array.from({ length: rowCount }, () => {
             const rowItems = Array.from({ length: 8 }, () => {
-                const isCorrect = Math.random() > 0.5;
-                const letter = isCorrect ? selectedPair[0] : selectedPair[1];
-                // In fast mode, we rely on actual letter substitution for mirroring effect since we can't easily rotate text in plain text mode
-                // But for UI rendering, we will pass rotation flags
+                const isCorrect = Math.random() > 0.6; // Bias towards correct a bit
+                const letter = selectedPair[0]; // Target is always the first one to find
+                
+                let rotation = 0;
+                let isMirrored = false;
+
+                if (!isCorrect) {
+                    if (isComplex) {
+                        // Random rotation or mirror
+                        const type = getRandomInt(0, 3);
+                        if (type === 0) isMirrored = true;
+                        else if (type === 1) rotation = 90;
+                        else if (type === 2) rotation = 180;
+                        else rotation = 270;
+                    } else {
+                        // Simple mirror (flip X)
+                        isMirrored = true;
+                    }
+                }
+
                 return {
-                    letter: selectedPair[0], // Always show the target letter base
-                    isMirrored: !isCorrect, // If not correct, it should be mirrored
-                    rotation: !isCorrect ? 180 : 0 // Visual rotation
+                    letter: letter, 
+                    isMirrored: isMirrored,
+                    rotation: rotation
                 };
             });
             return { items: rowItems };
@@ -215,21 +261,29 @@ export const generateOfflineMirrorLetters = async (options: GeneratorOptions): P
 
 // --- 6. Syllable Train (Hece Treni) ---
 export const generateOfflineSyllableTrain = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
-    const { worksheetCount, difficulty, topic, itemCount } = options;
+    const { worksheetCount, difficulty, topic, itemCount, wordLength } = options;
+    
+    let pool = getWordsForDifficulty(difficulty, topic);
+    if (wordLength && wordLength !== 'mixed') {
+        const len = parseInt(wordLength);
+        pool = pool.filter(w => simpleSyllabify(w).length === len);
+        if (pool.length < 5) pool = getWordsForDifficulty(difficulty, 'Rastgele'); // Fallback
+    }
+
     const count = itemCount || 5;
-    const words = getRandomItems(getWordsForDifficulty(difficulty, topic), count);
+    const words = getRandomItems(pool, count);
 
     return Array.from({ length: worksheetCount }, () => {
         const trains = words.map(word => ({
             word: word,
             syllables: simpleSyllabify(word),
-            imagePrompt: '' // fast mode fallback
+            imagePrompt: '' 
         }));
 
         return {
             title: 'Hece Treni',
-            instruction: 'Kelimelerin hecelerini vagonlara yerleştir ve oku.',
-            pedagogicalNote: 'Kelime analizi ve parçadan bütüne gitme.',
+            instruction: 'Kelimelerin hecelerini vagonlara yerleştir.',
+            pedagogicalNote: 'Kelime analizi ve hece farkındalığı.',
             trains
         };
     });
@@ -237,30 +291,41 @@ export const generateOfflineSyllableTrain = async (options: GeneratorOptions): P
 
 // --- 7. Visual Tracking Lines (Görsel Takip) ---
 export const generateOfflineVisualTrackingLines = async (options: GeneratorOptions): Promise<VisualTrackingLineData[]> => {
-    const { worksheetCount, difficulty, itemCount } = options;
+    const { worksheetCount, difficulty, itemCount, pathComplexity } = options;
     const width = 600;
     const height = 400;
-    const pathCount = itemCount || (difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 4 : 5));
+    const pathCount = itemCount || 5;
 
     return Array.from({ length: worksheetCount }, () => {
         const paths = [];
         const startYStep = height / (pathCount + 1);
         const endYStep = height / (pathCount + 1);
         const colors = getRandomItems(CONNECT_COLORS, pathCount);
-        
-        // Generate shuffled end indices to create crossing lines
         const endIndices = shuffle(Array.from({length: pathCount}, (_, i) => i));
 
         for (let i = 0; i < pathCount; i++) {
             const startY = startYStep * (i + 1);
             const endY = endYStep * (endIndices[i] + 1);
             
-            // Bezier curve generation logic for "tangled" look
-            // Control points pull the line up/down/left/right
-            const cp1x = width * 0.33;
-            const cp1y = startY + getRandomInt(-50, 50);
-            const cp2x = width * 0.66;
-            const cp2y = endY + getRandomInt(-50, 50);
+            // Complex Bezier Logic
+            const cp1x = width * 0.25;
+            const cp2x = width * 0.75;
+            
+            let cp1y, cp2y;
+            
+            if (pathComplexity === 'hard') {
+                // Spaghetti: Control points go wildly up/down
+                cp1y = getRandomInt(0, height);
+                cp2y = getRandomInt(0, height);
+            } else if (pathComplexity === 'medium') {
+                // Tangled: Control points deviate significantly
+                cp1y = startY + getRandomInt(-100, 100);
+                cp2y = endY + getRandomInt(-100, 100);
+            } else {
+                // Simple: Smooth flow
+                cp1y = startY;
+                cp2y = endY;
+            }
 
             const pathData = `M 50 ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${width-50} ${endY}`;
 
@@ -269,13 +334,15 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
                 color: colors[i],
                 d: pathData,
                 startLabel: (i + 1).toString(),
-                endLabel: String.fromCharCode(65 + endIndices[i]) // A, B, C... matching the shuffled end
+                endLabel: String.fromCharCode(65 + endIndices[i]),
+                startImage: '',
+                endImage: ''
             });
         }
 
         return {
             title: 'Görsel Takip Yolları',
-            instruction: 'Soldaki numaradan başlayıp çizgiyi gözünle takip et ve hangi harfe ulaştığını bul.',
+            instruction: 'Soldaki numaradan başlayıp çizgiyi gözünle takip et ve hedefe ulaş.',
             pedagogicalNote: 'Göz takibi (Eye tracking) ve şekil-zemin ayrımı.',
             width,
             height,
@@ -294,13 +361,13 @@ export const generateOfflineBackwardSpelling = async (options: GeneratorOptions)
         const items = words.map(word => ({
             reversed: word.split('').reverse().join(''),
             correct: word,
-            imagePrompt: '' // No images in offline mode by default
+            imagePrompt: ''
         }));
 
         return {
             title: 'Ters Kelime Avcısı',
-            instruction: 'Tersten yazılmış kelimeleri oku ve doğrusunu yanına yaz.',
-            pedagogicalNote: 'Ortografik işlemleme ve görsel dikkat becerisi.',
+            instruction: 'Tersten yazılmış kelimeleri oku ve doğrusunu yaz.',
+            pedagogicalNote: 'Ortografik işlemleme ve görsel dikkat.',
             items
         };
     });

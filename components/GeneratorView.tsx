@@ -53,6 +53,85 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         });
 
         switch (actId) {
+            // --- Dyslexia Support (PROFESSIONAL UPDATE) ---
+            case ActivityType.READING_FLOW:
+                return [
+                    { key: 'topic', label: 'Metin Konusu', type: 'text', defaultValue: 'Doğa ve Hayvanlar', width: 'full' },
+                    { key: 'syllableColorMode', label: 'Hece Renklendirme', type: 'select', defaultValue: 'black-blue', width: 'full', options: [
+                        {label: 'Siyah / Mavi (Standart)', value: 'black-blue'}, 
+                        {label: 'Siyah / Kırmızı (Vurgulu)', value: 'black-red'},
+                        {label: 'Gri / Siyah (İnce)', value: 'gray-black'},
+                        {label: 'Gökkuşağı (Her hece farklı)', value: 'rainbow'}
+                    ]},
+                    { key: 'fontStyle', label: 'Yazı Tipi', type: 'select', defaultValue: 'dyslexic', width: 'half', options: [{label: 'OpenDyslexic', value: 'dyslexic'}, {label: 'Sans-Serif (Arial)', value: 'sans'}]},
+                    itemCountField(5, 3, 15, 'Cümle/Paragraf')
+                ];
+
+            case ActivityType.LETTER_DISCRIMINATION:
+                return [
+                    { key: 'targetLetters', label: 'Karışan Harfler', type: 'select', defaultValue: 'b-d', width: 'full', options: [
+                        {label: 'b - d (En yaygın)', value: 'b-d'},
+                        {label: 'p - q', value: 'p-q'},
+                        {label: 'm - n', value: 'm-n'},
+                        {label: 'u - n', value: 'u-n'},
+                        {label: 'E - F', value: 'E-F'}
+                    ]},
+                    { key: 'distractionLevel', label: 'Çeldirici Yoğunluğu', type: 'range', defaultValue: 50, min: 20, max: 90, width: 'full', description: 'Hedef harf oranı' },
+                    itemCountField(8, 4, 16, 'Satır Sayısı')
+                ];
+
+            case ActivityType.RAPID_NAMING:
+                return [
+                    { key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [
+                        {label: 'Nesneler (Resim)', value: 'object'}, 
+                        {label: 'Renkler', value: 'color'}, 
+                        {label: 'Rakamlar', value: 'number'}, 
+                        {label: 'Harfler', value: 'letter'}
+                    ]},
+                    { key: 'gridConfig', label: 'Dizilim', type: 'select', defaultValue: '5x4', width: 'half', options: [{label: '5x4 (20 öğe)', value: '5x4'}, {label: '5x6 (30 öğe)', value: '5x6'}, {label: '8x5 (40 öğe)', value: '8x5'}]},
+                    { key: 'targetLetters', label: 'Özel Harfler', type: 'text', defaultValue: 'a,e,o,u,i', width: 'full', description: 'Virgülle ayırın (Sadece Harf türü için)', condition: (vals) => vals.type === 'letter' }
+                ];
+
+            case ActivityType.PHONOLOGICAL_AWARENESS:
+                return [
+                    { key: 'skillType', label: 'Beceri Alanı', type: 'select', defaultValue: 'syllable', width: 'full', options: [
+                        {label: 'Hece Sayma', value: 'syllable'},
+                        {label: 'Kafiye Bulma', value: 'rhyme'},
+                        {label: 'İlk Ses Farkındalığı', value: 'initial-sound'}
+                    ]},
+                    itemCountField(6, 4, 12, 'Soru Sayısı')
+                ];
+
+            case ActivityType.MIRROR_LETTERS:
+                return [
+                    { key: 'targetPair', label: 'Hedef Çift', type: 'select', defaultValue: 'b-d', width: 'half', options: [{label: 'b-d', value: 'b-d'}, {label: 'p-q', value: 'p-q'}, {label: 'S-2', value: 'S-2'}, {label: 'E-3', value: 'E-3'}] },
+                    { key: 'rotationMode', label: 'Döndürme', type: 'select', defaultValue: 'simple', width: 'half', options: [{label: 'Sadece Ters', value: 'simple'}, {label: 'Karışık Açılar', value: 'complex'}]},
+                    itemCountField(5, 3, 10, 'Satır Sayısı')
+                ];
+
+            case ActivityType.VISUAL_TRACKING_LINES:
+                return [
+                    { key: 'pathComplexity', label: 'Yol Karmaşıklığı', type: 'select', defaultValue: 'medium', width: 'full', options: [
+                        {label: 'Basit (Düz/Hafif Eğri)', value: 'simple'},
+                        {label: 'Orta (Düğümlü)', value: 'medium'},
+                        {label: 'Zor (Spagetti)', value: 'hard'}
+                    ]},
+                    { key: 'lineStyle', label: 'Çizgi Stili', type: 'select', defaultValue: 'solid', width: 'half', options: [{label: 'Düz Çizgi', value: 'solid'}, {label: 'Kesik Çizgi', value: 'dashed'}]},
+                    itemCountField(5, 3, 10, 'Yol Sayısı')
+                ];
+
+            case ActivityType.SYLLABLE_TRAIN:
+                return [
+                    { key: 'wordLength', label: 'Kelime Uzunluğu', type: 'select', defaultValue: 'mixed', width: 'full', options: [{label: '2 Heceli', value: '2'}, {label: '3 Heceli', value: '3'}, {label: '4 Heceli', value: '4'}, {label: 'Karışık', value: 'mixed'}]},
+                    itemCountField(5, 3, 10, 'Vagon Sayısı')
+                ];
+
+            case ActivityType.BACKWARD_SPELLING:
+                return [
+                    { key: 'showVisual', label: 'Görsel İpucu', type: 'checkbox', defaultValue: true, width: 'full' },
+                    itemCountField(8, 4, 16, 'Kelime Sayısı')
+                ];
+
             // --- Dyscalculia ---
             case ActivityType.NUMBER_SENSE:
                 return [
@@ -163,7 +242,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.HOMONYM_SENTENCE_WRITING:
             case ActivityType.MISSING_PARTS:
             case ActivityType.SYLLABLE_COMPLETION:
-            case ActivityType.BACKWARD_SPELLING:
             case ActivityType.PROVERB_FILL_IN_THE_BLANK:
             case ActivityType.PROVERB_SAYING_SORT:
             case ActivityType.PROVERB_WORD_CHAIN:
@@ -363,32 +441,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [ ...commonFields, itemCountField(4, 2, 10, 'Cümle/Öğe') ];
             case ActivityType.DOT_PAINTING:
                 return [ ...commonFields, itemCountField(1, 1, 1, 'Resim Sayısı') ];
-            case ActivityType.SYLLABLE_TRAIN:
-                return [ ...commonFields, itemCountField(5, 3, 10, 'Kelime Sayısı') ];
             
-            // Dyslexia Support & Others
-            case ActivityType.READING_FLOW:
-                return [{ key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' }, itemCountField(5, 3, 15, 'Cümle Sayısı')];
-            case ActivityType.RAPID_NAMING:
-                return [
-                    { key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}, {label: 'Harfler', value: 'letter'}] },
-                    { key: 'targetLetters', label: 'Hedef Harfler', type: 'text', defaultValue: 'a,e,o,u', width: 'full', description: 'Virgülle ayırın (Sadece Harf türü için)', condition: (vals) => vals.type === 'letter' },
-                    itemCountField(20, 10, 50, 'Sembol Sayısı')
-                ];
-            case ActivityType.LETTER_DISCRIMINATION:
-                return [ 
-                    { key: 'targetLetters', label: 'Karışan Harfler', type: 'text', defaultValue: 'b,d', width: 'full', description: 'Örn: b,d veya m,n' },
-                    itemCountField(6, 4, 12, 'Satır Sayısı') 
-                ];
-            case ActivityType.MIRROR_LETTERS:
-                return [ 
-                    { key: 'targetPair', label: 'Hedef Çift', type: 'text', defaultValue: 'b,d', width: 'full', description: 'Örn: b,d veya p,q' },
-                    itemCountField(5, 3, 10, 'Satır Sayısı') 
-                ];
-            case ActivityType.PHONOLOGICAL_AWARENESS:
-                return [ itemCountField(4, 4, 12, 'Soru Sayısı') ];
-            case ActivityType.VISUAL_TRACKING_LINES:
-                return [ itemCountField(4, 3, 8, 'Yol Sayısı') ];
             case ActivityType.PUNCTUATION_MAZE:
             case ActivityType.PUNCTUATION_PHONE_NUMBER:
                 return [ ...commonFields, itemCountField(1, 1, 5, 'Adet') ];
@@ -531,12 +584,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             onChange={(e) => handleOptionChange(field.key, e.target.checked)}
                             className="w-4 h-4 text-indigo-600 rounded border-zinc-300 focus:ring-indigo-500"
                         />
-                        <span className="ml-2 text-sm text-zinc-700 dark:text-zinc-300">{field.description || 'Evet'}</span>
+                        <span className="ml-2 text-sm text-zinc-700 dark:text-zinc-300">{field.label}</span>
                     </div>
                 )}
 
                  {field.type === 'range' && (
-                    <div className="flex items-center gap-2 pt-1">
+                    <div className="flex flex-col gap-1 pt-1">
                         <input
                             type="range"
                             id={field.key}
@@ -546,7 +599,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             onChange={(e) => handleOptionChange(field.key, Number(e.target.value))}
                             className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         />
-                        <span className="text-xs font-mono w-6 text-right">{specificOptions[field.key]}</span>
+                        <span className="text-xs font-mono text-center text-zinc-500">{specificOptions[field.key]}</span>
                     </div>
                 )}
             </div>

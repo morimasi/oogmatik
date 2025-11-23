@@ -6,18 +6,23 @@ import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamin
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
 1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Bu etkinlik hangi disleksi alt tipine (fonolojik, görsel, hızlı isimlendirme) hitap ediyor açıkla.
-3. "instruction": Öğrenciye yönelik net, cesaretlendirici yönerge.
-4. "imagePrompt": Çocuk dostu, dikkat dağıtmayan, net görsel betimlemesi (İngilizce).
+2. "pedagogicalNote": Etkinliğin hedeflediği disleksi alt tipi (fonolojik, ortografik) ve kazanımı.
+3. "instruction": Öğrenciye yönelik motive edici, kısa ve net yönerge.
+4. "imagePrompt": Çocuk dostu, yüksek kontrastlı, dikkati odaklayan net bir görsel betimlemesi (İngilizce).
 `;
 
 export const generateReadingFlowFromAI = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
-    const { topic, worksheetCount, difficulty } = options;
+    const { topic, worksheetCount, difficulty, syllableColorMode, fontStyle } = options;
     const prompt = `
-    '${topic}' konulu, "${difficulty}" seviyesinde Akıcı Okuma (Reading Flow) metni.
-    Metni hecelere böl ve her heceye farklı renk (siyah/mavi) ata.
-    Okuma hızını artıracak şekilde kısa ve ritmik cümleler kullan.
-    Özellikle "Satır sonu heceleme" kurallarına dikkat et.
+    '${topic}' konulu, "${difficulty}" seviyesinde Akıcı Okuma metni.
+    Yazı Tipi Stili: ${fontStyle || 'dyslexic'}.
+    Renk Şeması: ${syllableColorMode || 'black-blue'}.
+    
+    KURALLAR:
+    - Metin, hecelere bölünmüş ve her hece belirlenen renk şemasına göre renklendirilmiş olmalı (örn: black-blue için siyah-mavi-siyah...).
+    - Cümleler kısa, ritmik ve okuma hızını artırıcı nitelikte olsun.
+    - Satır sonlarında kelime bölünmemesine dikkat et.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -69,11 +74,18 @@ export const generateReadingFlowFromAI = async (options: GeneratorOptions): Prom
 };
 
 export const generateLetterDiscriminationFromAI = async (options: GeneratorOptions): Promise<LetterDiscriminationData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, targetLetters, distractionLevel, itemCount } = options;
     const prompt = `
-    Harf Karışıklığı (b-d, p-q, m-n) egzersizi.
-    Görsel olarak birbirine benzeyen harflerden oluşan satırlar üret.
-    Hedef harfi belirle. Örneğin "b" harfini "d" lerin arasından bulma.
+    Harf Karışıklığı ve Görsel Ayırt Etme Egzersizi.
+    Hedef Harfler: ${targetLetters || 'b-d'}.
+    Çeldirici Yoğunluğu: %${distractionLevel || 50}.
+    Satır Sayısı: ${itemCount || 8}.
+    
+    KURALLAR:
+    - Görsel olarak birbirine çok benzeyen (ayna hayali olan) harfleri karıştır.
+    - Hedef harfi (örn: 'b') çeldiricilerin (örn: 'd', 'p', 'q') arasına gizle.
+    - Rastgele dağılım yerine, görsel yorgunluğu ölçecek desenler kullan.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -105,15 +117,19 @@ export const generateLetterDiscriminationFromAI = async (options: GeneratorOptio
 };
 
 export const generateRapidNamingFromAI = async (options: GeneratorOptions): Promise<RapidNamingData[]> => {
-    const { type, worksheetCount, targetLetters } = options;
+    const { type, worksheetCount, targetLetters, gridConfig } = options;
     const lettersPrompt = type === 'letter' && targetLetters ? `Kullanılacak harfler: ${targetLetters}.` : '';
     
     const prompt = `
-    Hızlı İsimlendirme (RAN) testi. Tip: ${type || 'object'}. ${lettersPrompt}
-    Izgara şeklinde sıralanmış öğeler (renk, sayı, nesne veya harf).
-    Nesneler için **İngilizce** 'imagePrompt' gereklidir.
-    Renkler için hex kodu (value) ve renk ismi (label) ver.
-    Harf için (type='letter'), value olarak harfi ver.
+    Hızlı İsimlendirme (RAN) Testi. Tip: ${type || 'object'}. ${lettersPrompt}
+    Izgara Düzeni: ${gridConfig || '5x4'}.
+    
+    KURALLAR:
+    - Seçilen öğeler (renk, sayı, harf, nesne) sık tekrarlanmalı.
+    - Nesneler için: Basit, tek heceli kelimelere karşılık gelen görseller seç (örn: el, at, top).
+    - Harfler için: Görsel olarak karışanları seç.
+    - 'imagePrompt' sadece kapak görseli için değil, nesne türünde her öğe için ikon tanımı olarak kullanılacak.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -153,12 +169,16 @@ export const generateRapidNamingFromAI = async (options: GeneratorOptions): Prom
 };
 
 export const generatePhonologicalAwarenessFromAI = async (options: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, skillType } = options;
     const prompt = `
-    Fonolojik Farkındalık etkinliği.
-    Hece sayma veya kafiye bulma soruları.
-    Her soru için görsel (imagePrompt) oluştur.
-    Zorluk seviyesi: ${difficulty}.
+    Fonolojik Farkındalık Etkinliği. Odak Beceri: ${skillType || 'syllable'} (hece, kafiye, ilk ses).
+    Zorluk: ${difficulty}.
+    
+    KURALLAR:
+    - Eğer Beceri 'rhyme' ise: Kafiyeli kelime çiftlerini bulma soruları.
+    - Eğer Beceri 'initial-sound' ise: "Hangi kelime 'A' ile başlar?" gibi sorular.
+    - Her soru için net bir görsel (imagePrompt) tanımla.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -193,14 +213,17 @@ export const generatePhonologicalAwarenessFromAI = async (options: GeneratorOpti
 };
 
 export const generateMirrorLettersFromAI = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, targetPair, rotationMode } = options;
     const prompt = `
     Ayna Harf Savaşçısı (Mirror Letters).
-    b/d, p/q gibi harflerin karışık olduğu bir ızgara oluştur.
-    Bazı harfler normal, bazıları ters (ayna) dönmüş olsun.
-    Kullanıcı sadece doğru yönlü olanları bulmalı.
-    'isMirrored' true ise harf ters çevrilmiş demektir.
-    Zorluk: ${difficulty}.
+    Hedef Çift: ${targetPair || 'b-d'}.
+    Döndürme Modu: ${rotationMode || 'simple'} (simple: sadece ayna, complex: farklı açılar).
+    
+    KURALLAR:
+    - Karışıklık yaratan harfleri (b, d, p, q) farklı yönlerde (döndürülmüş, ters çevrilmiş) sun.
+    - Kullanıcı sadece "doğru" duran hedefi bulmalı.
+    - 'rotation' değerini (0, 90, 180, 270) ve 'isMirrored' (true/false) durumunu çeşitlendir.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -241,13 +264,16 @@ export const generateMirrorLettersFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateSyllableTrainFromAI = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
-    const { worksheetCount, difficulty, topic } = options;
+    const { worksheetCount, difficulty, topic, wordLength } = options;
     const prompt = `
     Hece Treni (Syllable Train). Konu: ${topic}.
-    Kelimeleri hecelerine ayır (vagonlar).
-    Her kelime için bir tren oluştur.
-    Görsel (imagePrompt) kelimeyi betimlesin.
-    Zorluk: ${difficulty}.
+    Kelime Uzunluğu: ${wordLength || 'Karışık'}.
+    
+    KURALLAR:
+    - Kelimeleri doğru hecelerine ayır.
+    - Her vagon bir heceyi temsil etsin.
+    - Görsel (imagePrompt) kelimenin anlamını yansıtsın.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -278,14 +304,16 @@ export const generateSyllableTrainFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateVisualTrackingLinesFromAI = async (options: GeneratorOptions): Promise<VisualTrackingLineData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, pathComplexity } = options;
     const prompt = `
-    Görsel Takip Yolları (Visual Tracking / Tangle Maze).
-    Soldaki nesneleri sağdaki hedeflerle birleştiren karmaşık yollar oluştur.
-    Yollar birbirine dolanmalı (spaghetti lines).
-    SVG path verisi üret (M x y C ... formatında).
-    Başlangıç ve bitiş noktalarını etiketle.
-    Zorluk: ${difficulty}.
+    Görsel Takip Yolları (Tangle Maze).
+    Karmaşıklık: ${pathComplexity || 'medium'} (spagetti çizgiler).
+    
+    KURALLAR:
+    - Sol taraftan başlayıp sağ taraftaki hedefe giden, birbirine dolanmış çizgiler oluştur.
+    - Çizgiler için SVG path verisi ('d' attribute) üret.
+    - Her çizginin rengi farklı olsun.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -322,12 +350,18 @@ export const generateVisualTrackingLinesFromAI = async (options: GeneratorOption
 };
 
 export const generateBackwardSpellingFromAI = async (options: GeneratorOptions): Promise<BackwardSpellingData[]> => {
-    const { worksheetCount, difficulty, topic, itemCount } = options;
+    const { worksheetCount, difficulty, topic, itemCount, showVisual } = options;
+    const visualPrompt = showVisual ? "Her kelime için görsel (imagePrompt) ekle." : "Sadece metin odaklı.";
+    
     const prompt = `
     Ters Kelime Avcısı (Backward Spelling). Konu: ${topic}.
     Seviye: ${difficulty}. ${itemCount} adet kelime.
-    Kelimeleri seç, ters çevrilmiş hallerini (reversed) ve doğrularını (correct) ver.
-    Her kelime için İngilizce görsel prompt (imagePrompt).
+    ${visualPrompt}
+    
+    KURALLAR:
+    - Kelimeleri ters çevir (örn: ELMA -> AMLE).
+    - Öğrenci doğrusunu bulmalı.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;

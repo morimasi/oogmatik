@@ -28,13 +28,11 @@ export const authService = {
 
         if (authError) {
             console.error("Auth Error:", authError);
-            // Supabase 400 Bad Request genellikle "Invalid login credentials" döner
+            
             if (authError.status === 400 || authError.message.includes("Invalid login credentials")) {
                 throw new Error("Giriş yapılamadı: E-posta adresi veya şifre hatalı.");
             }
-            if (authError.message.includes("Email not confirmed")) {
-                throw new Error("E-posta adresi doğrulanmamış. Lütfen gelen kutunuzu kontrol edin.");
-            }
+
             throw new Error("Giriş hatası: " + (authError.message || "Bilinmeyen bir hata oluştu."));
         }
 
@@ -48,11 +46,11 @@ export const authService = {
             .from('users')
             .select('*')
             .eq('id', authData.user.id)
-            .maybeSingle(); // Use maybeSingle to avoid error if profile doesn't exist yet
+            .maybeSingle(); 
 
         if (profileError) {
             console.error("Profile Load Error:", profileError);
-            // Fallback if profile fails to load but auth succeeded (rare edge case)
+            // Fallback if profile fails to load but auth succeeded
             return {
                 id: authData.user.id,
                 email: authData.user.email || '',
@@ -72,7 +70,7 @@ export const authService = {
             throw new Error('Hesabınız askıya alınmıştır. Lütfen yönetici ile iletişime geçin.');
         }
 
-        // If profile doesn't exist yet (e.g. manual auth entry), return basic user
+        // If profile doesn't exist yet
         if (!profile) {
              return {
                 id: authData.user.id,
@@ -185,7 +183,7 @@ export const authService = {
             .select('*')
             .neq('id', currentUserId)
             .eq('status', 'active')
-            .limit(50); // Limit for performance
+            .limit(50); 
 
         if (error) return [];
         return data.map(mapDbUserToAppUser);
