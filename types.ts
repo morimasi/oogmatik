@@ -116,7 +116,25 @@ export enum ActivityType {
   VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES',
   BACKWARD_SPELLING = 'BACKWARD_SPELLING',
   BASIC_OPERATIONS = 'BASIC_OPERATIONS',
-  REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS'
+  REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS',
+  
+  // --- DYSCALCULIA ACTIVITIES ---
+  NUMBER_SENSE = 'NUMBER_SENSE',
+  ARITHMETIC_FLUENCY = 'ARITHMETIC_FLUENCY',
+  NUMBER_GROUPING = 'NUMBER_GROUPING',
+  PROBLEM_SOLVING_STRATEGIES = 'PROBLEM_SOLVING_STRATEGIES',
+  MATH_LANGUAGE = 'MATH_LANGUAGE',
+  TIME_MEASUREMENT_GEOMETRY = 'TIME_MEASUREMENT_GEOMETRY',
+  SPATIAL_REASONING = 'SPATIAL_REASONING',
+  ESTIMATION_SKILLS = 'ESTIMATION_SKILLS',
+  FRACTIONS_DECIMALS = 'FRACTIONS_DECIMALS',
+  VISUAL_NUMBER_REPRESENTATION = 'VISUAL_NUMBER_REPRESENTATION',
+  VISUAL_ARITHMETIC = 'VISUAL_ARITHMETIC',
+  APPLIED_MATH_STORY = 'APPLIED_MATH_STORY',
+  SPATIAL_AWARENESS_DISCOVERY = 'SPATIAL_AWARENESS_DISCOVERY',
+  POSITIONAL_CONCEPTS = 'POSITIONAL_CONCEPTS',
+  DIRECTIONAL_CONCEPTS = 'DIRECTIONAL_CONCEPTS',
+  VISUAL_DISCRIMINATION_MATH = 'VISUAL_DISCRIMINATION_MATH'
 }
 
 export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia' | 'purple' | 'orange' | 'maroon';
@@ -344,6 +362,66 @@ export interface BackwardSpellingData extends BaseActivityData {
     items: {
         reversed: string;
         correct: string;
+        imagePrompt?: string;
+        imageBase64?: string;
+    }[];
+}
+
+// --- DYSCALCULIA SUPPORT TYPES (Consolidated) ---
+export type VisualMathType = 'dots' | 'objects' | 'fingers' | 'shapes' | 'number-line' | 'mixed';
+
+export interface DyscalculiaCommonData extends BaseActivityData {
+    layout: 'grid' | 'list' | 'visual';
+}
+
+export interface NumberSenseData extends DyscalculiaCommonData {
+    exercises: {
+        type: 'number-line' | 'comparison' | 'ordering' | 'missing';
+        values: number[];
+        target?: number;
+        visualType?: VisualMathType;
+    }[];
+}
+
+export interface VisualArithmeticData extends DyscalculiaCommonData {
+    problems: {
+        num1: number;
+        num2: number;
+        operator: '+' | '-' | 'x' | '÷' | 'group';
+        answer: number;
+        visualType: VisualMathType;
+        imagePrompt?: string;
+        imageBase64?: string;
+    }[];
+}
+
+export interface SpatialGridData extends DyscalculiaCommonData {
+    gridSize: number;
+    tasks: {
+        type: 'position' | 'direction' | 'copy' | 'path';
+        grid: (string | null)[][];
+        instruction: string;
+        target?: {r: number, c: number};
+    }[];
+}
+
+export interface ConceptMatchData extends DyscalculiaCommonData {
+    pairs: {
+        item1: string | number; // e.g. "Topla", "+" or "3/4", [pie_chart]
+        item2: string | number;
+        type: 'symbol' | 'time' | 'fraction' | 'measurement';
+        imagePrompt1?: string;
+        imageBase64_1?: string;
+        imagePrompt2?: string;
+        imageBase64_2?: string;
+    }[];
+}
+
+export interface EstimationData extends DyscalculiaCommonData {
+    items: {
+        count: number;
+        visualType: VisualMathType;
+        options: number[]; // e.g. [10, 20, 50]
         imagePrompt?: string;
         imageBase64?: string;
     }[];
@@ -796,7 +874,12 @@ export type SingleWorksheetData =
   | VisualTrackingLineData
   | BackwardSpellingData
   | BasicOperationsData
-  | RealLifeProblemData;
+  | RealLifeProblemData
+  | NumberSenseData
+  | VisualArithmeticData
+  | SpatialGridData
+  | ConceptMatchData
+  | EstimationData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

@@ -1,3 +1,4 @@
+
 import { supabase } from './supabaseClient';
 import { User } from '../types';
 
@@ -18,15 +19,25 @@ const mapDbUserToAppUser = (dbUser: any): User => ({
 
 export const authService = {
     login: async (email: string, pass: string): Promise<User> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
+        if (!supabase) throw new Error("Veritabanı bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edin.");
 
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email,
             password: pass
         });
 
-        if (authError) throw new Error(authError.message);
-        if (!authData.user) throw new Error("Kullanıcı bulunamadı.");
+        if (authError) {
+            console.error("Auth Error:", authError);
+            if (authError.status === 400 || authError.message.includes("Invalid login credentials")) {
+                throw new Error("Giriş yapılamadı: E-posta adresi veya şifre hatalı.");
+            }
+            if (authError.message.includes("Email not confirmed")) {
+                throw new Error("E-posta adresi doğrulanmamış. Lütfen gelen kutunuzu kontrol edin.");
+            }
+            throw new Error("Giriş hatası: " + (authError.message || "Bilinmeyen bir hata oluştu."));
+        }
+
+        if (!authData.user) throw new Error("Kullanıcı bilgileri alınamadı.");
 
         // Update last login
         await supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id);
@@ -36,13 +47,44 @@ export const authService = {
             .from('users')
             .select('*')
             .eq('id', authData.user.id)
-            .single();
+            .maybeSingle(); // Use maybeSingle to avoid error if profile doesn't exist yet
 
-        if (profileError) throw new Error("Kullanıcı profili yüklenemedi.");
+        if (profileError) {
+            console.error("Profile Load Error:", profileError);
+            // Fallback if profile fails to load but auth succeeded (rare edge case)
+            return {
+                id: authData.user.id,
+                email: authData.user.email || '',
+                name: authData.user.user_metadata?.full_name || email.split('@')[0],
+                role: 'user',
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                worksheetCount: 0,
+                status: 'active',
+                subscriptionPlan: 'free'
+            };
+        }
         
-        if (profile.status === 'suspended') {
+        if (profile && profile.status === 'suspended') {
             await supabase.auth.signOut();
-            throw new Error('Hesabınız askıya alınmıştır.');
+            throw new Error('Hesabınız askıya alınmıştır. Lütfen yönetici ile iletişime geçin.');
+        }
+
+        // If profile doesn't exist yet (e.g. manual auth entry), return basic user
+        if (!profile) {
+             return {
+                id: authData.user.id,
+                email: authData.user.email || '',
+                name: email.split('@')[0],
+                role: 'user',
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                worksheetCount: 0,
+                status: 'active',
+                subscriptionPlan: 'free'
+            };
         }
 
         return mapDbUserToAppUser(profile);
@@ -59,10 +101,16 @@ export const authService = {
             }
         });
 
-        if (authError) throw new Error(authError.message);
+        if (authError) {
+            if (authError.message.includes("already registered")) {
+                throw new Error("Bu e-posta adresi zaten kayıtlı.");
+            }
+            throw new Error("Kayıt hatası: " + authError.message);
+        }
+        
         if (!authData.user) throw new Error("Kayıt oluşturulamadı.");
 
-        // Create public user profile manually (if trigger fails or adds latency)
+        // Create public user profile manually
         const newUserProfile = {
             id: authData.user.id,
             email: email,
@@ -76,7 +124,6 @@ export const authService = {
             worksheet_count: 0
         };
 
-        // Upsert to handle potential trigger race conditions
         const { data: profile, error: dbError } = await supabase
             .from('users')
             .upsert(newUserProfile)
@@ -99,7 +146,6 @@ export const authService = {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) return null;
 
-        // Use maybeSingle to avoid 406 error if profile is missing
         const { data: profile } = await supabase
             .from('users')
             .select('*')
@@ -154,9 +200,6 @@ export const authService = {
 
     deleteUser: async (userId: string): Promise<void> => {
         if (!supabase) return;
-        // Note: In Supabase, deleting from auth.users requires service role key usually.
-        // Here we perform a soft delete or delete from public.users if RLS allows.
-        // For this demo, we delete from public table. Real app should use Edge Function for full delete.
         await supabase.from('users').delete().eq('id', userId);
     },
 

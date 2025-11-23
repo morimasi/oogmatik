@@ -53,6 +53,71 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         });
 
         switch (actId) {
+            // --- Dyscalculia ---
+            case ActivityType.NUMBER_SENSE:
+                return [
+                    { key: 'range', label: 'Sayı Aralığı', type: 'select', defaultValue: '1-10', width: 'full', options: [{label: '1-10', value: '1-10'}, {label: '1-20', value: '1-20'}, {label: '1-100', value: '1-100'}] },
+                    { key: 'visualType', label: 'Görsel Destek', type: 'select', defaultValue: 'objects', width: 'half', options: [{label: 'Nesneler', value: 'objects'}, {label: 'Noktalar', value: 'dots'}, {label: 'Parmaklar', value: 'fingers'}] },
+                    itemCountField(5, 3, 10, 'Soru Sayısı')
+                ];
+            case ActivityType.ARITHMETIC_FLUENCY:
+            case ActivityType.VISUAL_ARITHMETIC:
+                return [
+                    { key: 'operation', label: 'İşlem', type: 'select', defaultValue: 'addition', width: 'half', options: [{label: 'Toplama', value: 'addition'}, {label: 'Çıkarma', value: 'subtraction'}, {label: 'Karışık', value: 'mixed'}] },
+                    { key: 'maxSum', label: 'Max Toplam', type: 'number', defaultValue: 10, min: 5, max: 20, width: 'half' },
+                    itemCountField(6, 4, 12, 'İşlem Sayısı')
+                ];
+            case ActivityType.NUMBER_GROUPING:
+                return [
+                    { key: 'groupSize', label: 'Grup Boyutu', type: 'select', defaultValue: '10', width: 'half', options: [{label: '5\'li', value: '5'}, {label: '10\'lu', value: '10'}] },
+                    itemCountField(4, 2, 8, 'Grup Sayısı')
+                ];
+            case ActivityType.FRACTIONS_DECIMALS:
+                return [
+                    { key: 'visualStyle', label: 'Görsel Stil', type: 'select', defaultValue: 'pie', width: 'full', options: [{label: 'Pasta Dilimi', value: 'pie'}, {label: 'Çubuk', value: 'bar'}] },
+                    itemCountField(6, 4, 12)
+                ];
+            case ActivityType.SPATIAL_REASONING:
+            case ActivityType.SPATIAL_AWARENESS_DISCOVERY:
+            case ActivityType.POSITIONAL_CONCEPTS:
+            case ActivityType.DIRECTIONAL_CONCEPTS:
+                return [
+                    gridSizeField(4, 3, 6),
+                    { key: 'concept', label: 'Kavram', type: 'select', defaultValue: 'position', width: 'full', options: [{label: 'Konum (Alt/Üst)', value: 'position'}, {label: 'Yön (Sağ/Sol)', value: 'direction'}, {label: 'Yol Takibi', value: 'path'}] },
+                    itemCountField(4, 2, 8)
+                ];
+            case ActivityType.ESTIMATION_SKILLS:
+                return [
+                    { key: 'range', label: 'Tahmin Aralığı', type: 'select', defaultValue: '10-50', width: 'full', options: [{label: '10-50', value: '10-50'}, {label: '50-100', value: '50-100'}] },
+                    itemCountField(4, 2, 8)
+                ];
+            case ActivityType.MATH_LANGUAGE:
+                return [
+                    itemCountField(8, 4, 12, 'Sembol Sayısı')
+                ];
+            case ActivityType.TIME_MEASUREMENT_GEOMETRY:
+                return [
+                    { key: 'subType', label: 'Alt Tür', type: 'select', defaultValue: 'clock', width: 'full', options: [{label: 'Saat Okuma', value: 'clock'}, {label: 'Geometrik Şekiller', value: 'geometry'}, {label: 'Ölçü Birimleri', value: 'measurement'}] },
+                    itemCountField(6, 4, 12)
+                ];
+            case ActivityType.VISUAL_DISCRIMINATION_MATH:
+                return [
+                    { key: 'targetType', label: 'Hedef', type: 'select', defaultValue: 'number', width: 'full', options: [{label: 'Sayılar (6 vs 9)', value: 'number'}, {label: 'Şekiller', value: 'shape'}] },
+                    itemCountField(5, 3, 10, 'Satır Sayısı')
+                ];
+            case ActivityType.PROBLEM_SOLVING_STRATEGIES:
+            case ActivityType.APPLIED_MATH_STORY:
+                return [
+                    { key: 'storyTheme', label: 'Hikaye Teması', type: 'text', defaultValue: 'Uzay Macerası', width: 'full' },
+                    itemCountField(3, 1, 5, 'Problem Sayısı')
+                ];
+            case ActivityType.VISUAL_NUMBER_REPRESENTATION:
+                return [
+                    { key: 'maxNumber', label: 'Maksimum Sayı', type: 'number', defaultValue: 10, min: 5, max: 20, width: 'half' },
+                    itemCountField(6, 4, 12)
+                ];
+
+            // --- Existing Activities ---
             case ActivityType.WORD_SEARCH:
             case ActivityType.THEMATIC_WORD_SEARCH_COLOR:
             case ActivityType.WORD_SEARCH_WITH_PASSWORD:

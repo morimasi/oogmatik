@@ -1,6 +1,4 @@
 
-
-
 import React from 'react';
 import { 
     WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData,
@@ -13,8 +11,7 @@ import {
 } from '../../types';
 import { GridComponent, ImageDisplay, PedagogicalHeader, ShapeDisplay } from './common';
 
-// ... (Existing components WordSearchSheet through AntonymFlowerPuzzleSheet remain same, replacing subsequent ones)
-
+// --- 1. Word Search Family ---
 export const WordSearchSheet: React.FC<{ data: WordSearchData | WordSearchWithPasswordData | ProverbSearchData | LetterGridWordFindData | ThematicWordSearchColorData }> = ({ data }) => {
     const isWithPassword = 'passwordCells' in data && !!data.passwordCells;
     const gridData = (data as any).grid as string[][];
@@ -61,55 +58,51 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData | WordSearchWithPa
     )
 };
 
-export const SynonymSearchAndStorySheet: React.FC<{ data: SynonymSearchAndStoryData }> = ({ data }) => {
-    return (
-        <div>
-            <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-2 bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
-                    <GridComponent grid={data.grid} />
-                </div>
-                <div>
-                    <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Eşleşmeler:</h4>
-                    <ul className="space-y-2">
-                    {(data.wordTable || []).map((pair, index) => (
-                        <li key={index} className="text-sm border-b border-zinc-100 dark:border-zinc-700 pb-1">
-                            <strong>{pair.word}</strong> <i className="fa-solid fa-arrow-right text-xs text-zinc-400 mx-1"></i> {pair.synonym}
-                        </li>
-                    ))}
-                    </ul>
-                </div>
+export const SynonymSearchAndStorySheet: React.FC<{ data: SynonymSearchAndStoryData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
+                <GridComponent grid={data.grid} />
             </div>
-            <div className="mt-8">
-                <h4 className="font-semibold text-center mb-2">{data.storyPrompt}</h4>
-                <div className="h-40 border-2 border-dashed rounded-lg p-2 bg-zinc-50 dark:bg-zinc-800/20" style={{borderColor: 'var(--worksheet-border-color)'}}></div>
+            <div>
+                <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Eşleşmeler:</h4>
+                <ul className="space-y-2">
+                {(data.wordTable || []).map((pair, index) => (
+                    <li key={index} className="text-sm border-b border-zinc-100 dark:border-zinc-700 pb-1">
+                        <strong>{pair.word}</strong> <i className="fa-solid fa-arrow-right text-xs text-zinc-400 mx-1"></i> {pair.synonym}
+                    </li>
+                ))}
+                </ul>
             </div>
         </div>
-    );
-};
+        <div className="mt-8">
+            <h4 className="font-semibold text-center mb-2">{data.storyPrompt}</h4>
+            <div className="h-40 border-2 border-dashed rounded-lg p-2 bg-zinc-50 dark:bg-zinc-800/20" style={{borderColor: 'var(--worksheet-border-color)'}}></div>
+        </div>
+    </div>
+);
 
-export const SynonymWordSearchSheet: React.FC<{ data: SynonymWordSearchData }> = ({ data }) => {
-    return (
-        <div>
-            <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-2 bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
-                    <GridComponent grid={data.grid} />
-                </div>
-                <div>
-                    <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler:</h4>
-                    <ul className="space-y-2 text-sm">
-                    {(data.wordsToMatch || []).map((pair, index) => (
-                        <li key={index} className="p-2 bg-zinc-50 dark:bg-zinc-800/50 rounded border border-zinc-200 dark:border-zinc-700">
-                            <strong>{pair.word}</strong> kelimesinin eş anlamlısını bulun.
-                        </li>
-                    ))}
-                    </ul>
-                </div>
+export const SynonymWordSearchSheet: React.FC<{ data: SynonymWordSearchData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
+                <GridComponent grid={data.grid} />
+            </div>
+            <div>
+                <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler:</h4>
+                <ul className="space-y-2 text-sm">
+                {(data.wordsToMatch || []).map((pair, index) => (
+                    <li key={index} className="p-2 bg-zinc-50 dark:bg-zinc-800/50 rounded border border-zinc-200 dark:border-zinc-700">
+                        <strong>{pair.word}</strong> kelimesinin eş anlamlısını bulun.
+                    </li>
+                ))}
+                </ul>
             </div>
         </div>
-    );
-};
+    </div>
+);
 
 export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
     <div>
@@ -692,8 +685,6 @@ export const WordGridPuzzleSheet: React.FC<{ data: WordGridPuzzleData }> = ({ da
     </div>
 );
 
-// === NEWLY IMPLEMENTED SHEETS FOR WORD GAMES ===
-
 export const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
@@ -789,7 +780,6 @@ export const SynonymMatchingPatternSheet: React.FC<{ data: SynonymMatchingPatter
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 gap-y-8 gap-x-12 max-w-3xl mx-auto relative">
-            {/* Dotted connector lines visual */}
             <div className="absolute inset-0 pointer-events-none flex justify-center">
                 <div className="w-0 border-r-2 border-dashed border-zinc-200"></div>
             </div>
@@ -1009,3 +999,7 @@ export const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> =
 );
 
 export const AntonymResfebeSheet: React.FC<{ data: AntonymResfebeData }> = (props) => <ResfebeSheet {...props} />;
+
+// Aliases for sheets that reuse existing components
+export const WordSearchWithPasswordSheet = WordSearchSheet;
+export const LetterGridWordFindSheet = WordSearchSheet;

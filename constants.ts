@@ -3,6 +3,102 @@ import { Activity, ActivityType, ActivityCategory } from './types';
 
 export const ACTIVITIES: Activity[] = [
   {
+    id: ActivityType.NUMBER_SENSE,
+    title: 'Sayı Hissi ve Miktar Kavramı',
+    description: 'Sayıların büyüklüklerini sezgisel olarak anlama, karşılaştırma ve sayı doğrusu etkinlikleri.',
+    icon: 'fa-solid fa-arrow-down-1-9',
+  },
+  {
+    id: ActivityType.ARITHMETIC_FLUENCY,
+    title: 'Temel Aritmetik Akıcılığı',
+    description: 'Dört işlemde doğruluk ve hız kazanmaya yönelik stratejik alıştırmalar.',
+    icon: 'fa-solid fa-calculator',
+  },
+  {
+    id: ActivityType.NUMBER_GROUPING,
+    title: 'Sayı Gruplama Alıştırması',
+    description: 'Sayıları gruplara ayırarak toplama ve çıkarma işlemlerini kolaylaştırma.',
+    icon: 'fa-solid fa-cubes',
+  },
+  {
+    id: ActivityType.PROBLEM_SOLVING_STRATEGIES,
+    title: 'Problem Çözme Stratejileri',
+    description: 'Matematiksel problemleri analiz etme ve çözüm adımlarını uygulama.',
+    icon: 'fa-solid fa-puzzle-piece',
+  },
+  {
+    id: ActivityType.MATH_LANGUAGE,
+    title: 'Matematiksel Dil ve Semboller',
+    description: 'İşlem sembollerinin (+, -, x, ÷) anlamlarını ve doğru kullanımını pekiştirme.',
+    icon: 'fa-solid fa-icons',
+  },
+  {
+    id: ActivityType.TIME_MEASUREMENT_GEOMETRY,
+    title: 'Zaman, Ölçme ve Geometri',
+    description: 'Saat, para, ölçü birimleri ve geometrik kavramlar üzerine günlük yaşam becerileri.',
+    icon: 'fa-solid fa-clock',
+  },
+  {
+    id: ActivityType.SPATIAL_REASONING,
+    title: 'Uzamsal Akıl Yürütme',
+    description: 'Nesneleri zihinde canlandırma ve görsel desenleri analiz etme.',
+    icon: 'fa-solid fa-shapes',
+  },
+  {
+    id: ActivityType.ESTIMATION_SKILLS,
+    title: 'Tahmin Becerileri',
+    description: 'İşlem sonuçlarını veya miktarları mantıklı bir şekilde kestirme.',
+    icon: 'fa-solid fa-scale-balanced',
+  },
+  {
+    id: ActivityType.FRACTIONS_DECIMALS,
+    title: 'Kesirler ve Ondalık Sayılar',
+    description: 'Bütünün parçalarını görselleştirme ve ondalık ilişkiyi kurma.',
+    icon: 'fa-solid fa-chart-pie',
+  },
+  {
+    id: ActivityType.VISUAL_NUMBER_REPRESENTATION,
+    title: 'Sayıların Görsel Temsili',
+    description: 'Sayıları nesne grupları ve görsel materyallerle eşleştirme.',
+    icon: 'fa-solid fa-table-cells',
+  },
+  {
+    id: ActivityType.VISUAL_ARITHMETIC,
+    title: 'Görsel Aritmetik',
+    description: 'İşlemleri somut nesnelerle (resimler, emojiler) modelleme.',
+    icon: 'fa-solid fa-apple-whole',
+  },
+  {
+    id: ActivityType.APPLIED_MATH_STORY,
+    title: 'Uygulamalı Hikaye Macerası',
+    description: 'Matematiksel kararlar vererek ilerlenen hikaye kurgusu.',
+    icon: 'fa-solid fa-book-journal-whills',
+  },
+  {
+    id: ActivityType.SPATIAL_AWARENESS_DISCOVERY,
+    title: 'Mekânsal Farkındalık Keşfi',
+    description: 'Nesnelerin yerlerini ve yönlerini keşfetme.',
+    icon: 'fa-solid fa-map-location-dot',
+  },
+  {
+    id: ActivityType.POSITIONAL_CONCEPTS,
+    title: 'Konumsal Kavramlar',
+    description: 'Üstünde, altında, yanında gibi pozisyonları öğrenme.',
+    icon: 'fa-solid fa-arrows-up-down-left-right',
+  },
+  {
+    id: ActivityType.DIRECTIONAL_CONCEPTS,
+    title: 'Yön Kavramları',
+    description: 'Sağ, sol, yukarı, aşağı gibi yönleri ayırt etme.',
+    icon: 'fa-solid fa-compass',
+  },
+  {
+    id: ActivityType.VISUAL_DISCRIMINATION_MATH,
+    title: 'Görsel Ayırt Etme',
+    description: 'Nesneleri ve matematiksel şekilleri detaylı tanıma.',
+    icon: 'fa-solid fa-eye',
+  },
+  {
     id: ActivityType.BASIC_OPERATIONS,
     title: 'Dört İşlem',
     description: 'Toplama, çıkarma, çarpma ve bölme alıştırmaları.',
@@ -690,10 +786,34 @@ export const ACTIVITIES: Activity[] = [
 
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
   {
+    id: 'diskalkuli',
+    title: 'Diskalkuli (Matematik Güçlüğü)',
+    description: 'Sayı hissi, aritmetik ve uzamsal becerileri destekleyen özel materyaller.',
+    icon: 'fa-solid fa-calculator',
+    activities: [
+      ActivityType.NUMBER_SENSE,
+      ActivityType.ARITHMETIC_FLUENCY,
+      ActivityType.NUMBER_GROUPING,
+      ActivityType.PROBLEM_SOLVING_STRATEGIES,
+      ActivityType.MATH_LANGUAGE,
+      ActivityType.TIME_MEASUREMENT_GEOMETRY,
+      ActivityType.SPATIAL_REASONING,
+      ActivityType.ESTIMATION_SKILLS,
+      ActivityType.FRACTIONS_DECIMALS,
+      ActivityType.VISUAL_NUMBER_REPRESENTATION,
+      ActivityType.VISUAL_ARITHMETIC,
+      ActivityType.APPLIED_MATH_STORY,
+      ActivityType.SPATIAL_AWARENESS_DISCOVERY,
+      ActivityType.POSITIONAL_CONCEPTS,
+      ActivityType.DIRECTIONAL_CONCEPTS,
+      ActivityType.VISUAL_DISCRIMINATION_MATH
+    ]
+  },
+  {
     id: 'math-logic',
     title: 'Matematik & Mantık',
     description: 'Sayısal düşünme ve problem çözme becerilerini artıran oyunlar.',
-    icon: 'fa-solid fa-calculator',
+    icon: 'fa-solid fa-square-root-variable',
     activities: [
       ActivityType.BASIC_OPERATIONS,
       ActivityType.REAL_LIFE_MATH_PROBLEMS,
@@ -722,7 +842,6 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.PUNCTUATION_PHONE_NUMBER
     ]
   },
-  // ... other categories remain same ...
   {
     id: 'word-games',
     title: 'Kelime Oyunları',
