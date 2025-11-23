@@ -60,6 +60,15 @@
     font-family: 'OpenDyslexic', sans-serif !important;
   }
 
+  /* --- ACCESSIBILITY: HIGH CONTRAST FOCUS RINGS --- */
+  *:focus-visible {
+    outline: 3px solid #4f46e5 !important;
+    outline-offset: 2px !important;
+  }
+  html.dark *:focus-visible {
+    outline-color: #818cf8 !important;
+  }
+
   /* --- CUSTOM SCROLLBARS --- */
   ::-webkit-scrollbar {
     width: 8px;

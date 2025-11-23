@@ -6,7 +6,8 @@ import Toolbar from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { SharedWorksheetsView } from './SharedWorksheetsView';
 import { useAuth } from '../context/AuthContext';
-import { ACTIVITIES } from '../constants';
+import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
+import { SkeletonLoader } from './SkeletonLoader';
 
 interface ContentAreaProps {
   currentView: View;
@@ -63,9 +64,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             const name = generateAutoName();
             onSave(name, activityType, worksheetData);
             alert(`Etkinlik "${name}" adıyla kaydedildi.`);
-        } else {
-            // Only alert if user explicitly tries to save empty data, though button should be disabled/hidden usually.
-            // But Toolbar is visible when worksheetData is present.
         }
     }
 
@@ -90,6 +88,20 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         window.print();
         document.title = originalTitle;
     };
+
+    // --- BREADCRUMBS LOGIC ---
+    const getBreadcrumbs = () => {
+        if (currentView === 'savedList') return ['Ana Sayfa', 'Arşivim'];
+        if (currentView === 'shared') return ['Ana Sayfa', 'Paylaşılanlar'];
+        if (currentView === 'generator' && activityType) {
+            const act = ACTIVITIES.find(a => a.id === activityType);
+            const cat = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType || '' as ActivityType));
+            return ['Ana Sayfa', cat?.title || 'Kategori', act?.title || 'Etkinlik'];
+        }
+        return ['Ana Sayfa'];
+    };
+
+    const breadcrumbs = getBreadcrumbs();
 
     const LandingText = () => {
         const text = "Her şey tersti sen farkında olana kadar...";
@@ -118,6 +130,21 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
   return (
     <main id="tour-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent">
+      
+      {/* Breadcrumbs */}
+      <nav className="mb-4 flex items-center text-sm text-zinc-500 dark:text-zinc-400 print:hidden" aria-label="Breadcrumb">
+        <ol className="flex items-center space-x-2">
+            {breadcrumbs.map((crumb, idx) => (
+                <li key={idx} className="flex items-center">
+                    {idx > 0 && <i className="fa-solid fa-chevron-right text-[10px] mx-2 opacity-50"></i>}
+                    <span className={idx === breadcrumbs.length - 1 ? "font-bold text-indigo-600 dark:text-indigo-400" : ""}>
+                        {crumb}
+                    </span>
+                </li>
+            ))}
+        </ol>
+      </nav>
+
       {currentView === 'generator' ? (
         <>
             {activityType && worksheetData && (
@@ -140,15 +167,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
             
             {isLoading && (
-                <div className="flex justify-center items-center h-full">
-                    <div className="text-center">
-                        <svg className="animate-spin mx-auto h-12 w-12 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p className="mt-4 text-lg font-semibold">Yapay zeka çalışıyor...</p>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-400">Etkinliğiniz hazırlanıyor, lütfen bekleyin.</p>
+                <div className="flex flex-col h-full">
+                    <div className="text-center mb-8">
+                        <p className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 animate-pulse">
+                            <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>
+                            Yapay zeka etkinliğinizi hazırlıyor...
+                        </p>
                     </div>
+                    <SkeletonLoader />
                 </div>
             )}
 
@@ -187,19 +213,29 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
 
             {!isLoading && !error && !worksheetData && (
-                 <div className="flex justify-center items-center h-full relative">
+                 <div className="flex flex-col justify-center items-center h-full relative min-h-[500px]">
                     <div className="absolute inset-0 overflow-hidden -z-10">
+                        {/* Decorative Icons */}
                         <i className="fa-solid fa-lightbulb text-zinc-200/50 dark:text-zinc-700/50 absolute text-8xl" style={{ top: '15%', left: '10%', animation: 'float 8s ease-in-out infinite' }}></i>
                         <i className="fa-solid fa-book-open text-zinc-200/50 dark:text-zinc-700/50 absolute text-7xl" style={{ top: '60%', left: '5%', animation: 'float 12s ease-in-out infinite 2s' }}></i>
                         <i className="fa-solid fa-puzzle-piece text-zinc-200/50 dark:text-zinc-700/50 absolute text-9xl" style={{ top: '20%', right: '8%', animation: 'float 10s ease-in-out infinite 1s' }}></i>
-                        <i className="fa-solid fa-atom text-zinc-200/50 dark:text-zinc-700/50 absolute text-6xl" style={{ bottom: '10%', right: '20%', animation: 'float 9s ease-in-out infinite 3s' }}></i>
-                         <i className="fa-solid fa-shapes text-zinc-200/50 dark:text-zinc-700/50 absolute text-7xl" style={{ bottom: '15%', left: '30%', animation: 'float 11s ease-in-out infinite 0.5s' }}></i>
                     </div>
-                     <div className="text-center p-8 z-10">
-                        <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-indigo-100/50 dark:ring-indigo-900/20">
+                     <div className="text-center p-8 z-10 max-w-2xl">
+                        <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-indigo-100/50 dark:ring-indigo-900/20 shadow-xl">
                             <i className="fa-solid fa-wand-magic-sparkles text-5xl text-indigo-500 dark:text-indigo-400"></i>
                         </div>
                         <LandingText />
+                        <p className="mt-6 text-zinc-500 dark:text-zinc-400 text-lg">
+                            Sol menüden bir kategori seçerek hemen etkinlik üretmeye başlayın.
+                        </p>
+                        <div className="mt-8 flex gap-4 justify-center">
+                            <button onClick={onOpenAuth} className="px-6 py-3 bg-white dark:bg-zinc-800 text-indigo-600 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-sm hover:shadow-md transition-all font-bold flex items-center gap-2">
+                                <i className="fa-solid fa-user"></i> Profilim
+                            </button>
+                            <button onClick={() => document.getElementById('tour-search')?.click()} className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 transition-all font-bold flex items-center gap-2">
+                                <i className="fa-solid fa-search"></i> Keşfet
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

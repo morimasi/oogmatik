@@ -33,28 +33,79 @@ const findEmojiForDescription = (desc: string): string | null => {
     return null;
 };
 
-// Updated PedagogicalHeader to accept full data or at least imageBase64
-export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => (
-    <div className="mb-6 text-center print:mb-4 break-inside-avoid">
-        <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100 font-dyslexic">{title}</h3>
-        <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
-        
-        {/* Main Activity Image if available */}
-        {(data?.imageBase64 || (data?.imagePrompt && findEmojiForDescription(data.imagePrompt))) && (
-            <div className="my-4 mx-auto max-w-md rounded-xl overflow-hidden shadow-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
-                <ImageDisplay 
-                    base64={data?.imageBase64} 
-                    description={data?.imagePrompt || title} 
-                    className="w-full h-48 object-contain p-4" 
-                />
-            </div>
-        )}
+// --- TTS HELPER ---
+const useTTS = () => {
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const synth = window.speechSynthesis;
 
-        {note && <div className="pedagogical-note inline-block px-4 py-1 mt-2 border-t border-zinc-200 dark:border-zinc-700">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-graduation-cap mr-1"></i>Eğitmen Notu: {note}</p>
-        </div>}
-    </div>
-));
+    const speak = (text: string) => {
+        if (synth.speaking) {
+            synth.cancel();
+            setIsSpeaking(false);
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'tr-TR';
+        utterance.rate = 0.9; // Slightly slower for better comprehension
+        utterance.onend = () => setIsSpeaking(false);
+        
+        setIsSpeaking(true);
+        synth.speak(utterance);
+    };
+
+    const cancel = () => {
+        if (synth.speaking) {
+            synth.cancel();
+            setIsSpeaking(false);
+        }
+    };
+
+    useEffect(() => {
+        // Cleanup on unmount
+        return () => cancel();
+    }, []);
+
+    return { speak, cancel, isSpeaking };
+};
+
+// Updated PedagogicalHeader with TTS
+export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => {
+    const { speak, isSpeaking } = useTTS();
+
+    return (
+        <div className="mb-6 text-center print:mb-4 break-inside-avoid relative group">
+            <div className="flex items-center justify-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 font-dyslexic">{title}</h3>
+                <button 
+                    onClick={() => speak(`${title}. Yönerge: ${instruction}`)}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all print:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${isSpeaking ? 'bg-indigo-100 text-indigo-600 animate-pulse' : 'bg-zinc-100 text-zinc-400 hover:bg-indigo-50 hover:text-indigo-500 dark:bg-zinc-800'}`}
+                    title="Sesli Oku"
+                    aria-label="Başlığı ve yönergeyi sesli oku"
+                >
+                    <i className={`fa-solid ${isSpeaking ? 'fa-volume-high' : 'fa-volume-low'}`}></i>
+                </button>
+            </div>
+            
+            <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
+            
+            {/* Main Activity Image if available */}
+            {(data?.imageBase64 || (data?.imagePrompt && findEmojiForDescription(data.imagePrompt))) && (
+                <div className="my-4 mx-auto max-w-md rounded-xl overflow-hidden shadow-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                    <ImageDisplay 
+                        base64={data?.imageBase64} 
+                        description={data?.imagePrompt || title} 
+                        className="w-full h-48 object-contain p-4" 
+                    />
+                </div>
+            )}
+
+            {note && <div className="pedagogical-note inline-block px-4 py-1 mt-2 border-t border-zinc-200 dark:border-zinc-700">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-graduation-cap mr-1"></i>Eğitmen Notu: {note}</p>
+            </div>}
+        </div>
+    );
+});
 
 export const ReadingRuler: React.FC = () => {
     const [position, setPosition] = useState(0);
@@ -84,7 +135,7 @@ export const ReadingRuler: React.FC = () => {
             <div className="absolute top-2 right-2 z-20">
                 <button 
                     onClick={() => setIsActive(!isActive)}
-                    className={`text-xs px-3 py-1 rounded-full shadow-sm transition-colors ${isActive ? 'bg-indigo-600 text-white' : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300'}`}
+                    className={`text-xs px-3 py-1 rounded-full shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${isActive ? 'bg-indigo-600 text-white' : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300'}`}
                     title="Okuma Cetveli"
                 >
                     <i className="fa-solid fa-ruler-horizontal mr-1"></i> Cetvel {isActive ? 'Açık' : 'Kapalı'}
