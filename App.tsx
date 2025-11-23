@@ -275,7 +275,8 @@ const AppContent: React.FC = () => {
                 <GlobalSearch onSelectActivity={handleSelectActivity} />
              </div>
              
-             <div className="hidden md:flex items-center gap-1 border-r border-zinc-300 dark:border-zinc-700 pr-2 mx-1">
+             {/* UPDATED: Removed 'hidden md:flex' to make visible on mobile */}
+             <div className="flex items-center gap-1 border-r border-zinc-300 dark:border-zinc-700 pr-2 mx-1">
                 <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Nasıl Kullanılır?">
                     <i className="fa-solid fa-circle-question fa-lg"></i>
                 </button>

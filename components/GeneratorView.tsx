@@ -31,6 +31,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     const [difficulty, setDifficulty] = useState<'Başlangıç' | 'Orta' | 'Zor' | 'Uzman'>('Orta');
     const [worksheetCount, setWorksheetCount] = useState(1);
     const [specificOptions, setSpecificOptions] = useState<Record<string, any>>({});
+    const [showAdvanced, setShowAdvanced] = useState(false);
 
     // Difficulty Colors for minimalist dot
     const difficultyColor = {
@@ -49,7 +50,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             key: 'itemCount', label, type: 'number', defaultValue, min, max, width: 'half'
         });
         const gridSizeField = (defaultValue = 12, min = 8, max = 20): ConfigField => ({
-            key: 'gridSize', label: 'Tablo', type: 'number', defaultValue, min, max, width: 'half'
+            key: 'gridSize', label: 'Tablo Boyutu', type: 'number', defaultValue, min, max, width: 'half'
         });
 
         switch (actId) {
@@ -207,7 +208,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     ...commonFields,
                     itemCountField(10, 5, 25, 'Kelime Sayısı'),
                     gridSizeField(12, 8, 20),
-                    { key: 'case', label: 'Harf', type: 'select', defaultValue: 'upper', width: 'half', options: [{label: 'BÜYÜK', value: 'upper'}, {label: 'küçük', value: 'lower'}] },
+                    { key: 'case', label: 'Harf Durumu', type: 'select', defaultValue: 'upper', width: 'half', options: [{label: 'BÜYÜK', value: 'upper'}, {label: 'küçük', value: 'lower'}] },
                     { key: 'directions', label: 'Yönler', type: 'select', defaultValue: 'simple', width: 'half', options: [{label: 'Basit', value: 'simple'}, {label: 'Çapraz', value: 'diagonal'}, {label: 'Tümü', value: 'all'}] }
                 ];
             case ActivityType.ANAGRAM:
@@ -463,21 +464,28 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     }, [activity.id]);
 
     useEffect(() => {
-        let newGridSize = 12;
-        let newItemCount = 10;
-        let newDirections = 'diagonal';
+        // Safe state update to avoid infinite loops
+        setSpecificOptions(prev => {
+            let newGridSize = 12;
+            let newItemCount = 10;
+            let newDirections = 'diagonal';
 
-        if (difficulty === 'Başlangıç') { newGridSize = 8; newItemCount = 6; newDirections = 'simple'; } 
-        else if (difficulty === 'Orta') { newGridSize = 12; newItemCount = 10; newDirections = 'diagonal'; } 
-        else if (difficulty === 'Zor') { newGridSize = 15; newItemCount = 12; newDirections = 'all'; } 
-        else if (difficulty === 'Uzman') { newGridSize = 18; newItemCount = 15; newDirections = 'all'; }
+            if (difficulty === 'Başlangıç') { newGridSize = 8; newItemCount = 6; newDirections = 'simple'; } 
+            else if (difficulty === 'Orta') { newGridSize = 12; newItemCount = 10; newDirections = 'diagonal'; } 
+            else if (difficulty === 'Zor') { newGridSize = 15; newItemCount = 12; newDirections = 'all'; } 
+            else if (difficulty === 'Uzman') { newGridSize = 18; newItemCount = 15; newDirections = 'all'; }
 
-        setSpecificOptions(prev => ({
-            ...prev,
-            gridSize: prev.hasOwnProperty('gridSize') ? newGridSize : prev.gridSize,
-            itemCount: prev.hasOwnProperty('itemCount') ? newItemCount : prev.itemCount,
-            directions: prev.hasOwnProperty('directions') ? newDirections : prev.directions
-        }));
+            // Only update if values are actually different to prevent unnecessary renders
+            const updates: any = {};
+            if (prev.hasOwnProperty('gridSize') && prev.gridSize !== newGridSize) updates.gridSize = newGridSize;
+            if (prev.hasOwnProperty('itemCount') && prev.itemCount !== newItemCount) updates.itemCount = newItemCount;
+            if (prev.hasOwnProperty('directions') && prev.directions !== newDirections) updates.directions = newDirections;
+
+            if (Object.keys(updates).length > 0) {
+                return { ...prev, ...updates };
+            }
+            return prev;
+        });
     }, [difficulty]);
 
     const handleOptionChange = (key: string, value: any) => {
@@ -514,7 +522,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         id={field.key}
                         value={specificOptions[field.key] || ''}
                         onChange={(e) => handleOptionChange(field.key, e.target.value)}
-                        className="w-full py-1.5 px-2 text-sm border border-zinc-300 rounded bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-zinc-700 dark:border-zinc-600"
+                        className="w-full py-2 px-3 text-sm border border-zinc-300 rounded-lg bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none dark:bg-zinc-700 dark:border-zinc-600 transition-all"
                         placeholder={field.description}
                     />
                 )}
@@ -528,23 +536,28 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         step={field.step}
                         value={specificOptions[field.key] || 0}
                         onChange={(e) => handleOptionChange(field.key, Number(e.target.value))}
-                        className="w-full py-1.5 px-2 text-sm border border-zinc-300 rounded bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-zinc-700 dark:border-zinc-600"
+                        className="w-full py-2 px-3 text-sm border border-zinc-300 rounded-lg bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none dark:bg-zinc-700 dark:border-zinc-600 transition-all"
                     />
                 )}
 
                 {field.type === 'select' && (
-                    <select
-                        id={field.key}
-                        value={specificOptions[field.key] || ''}
-                        onChange={(e) => handleOptionChange(field.key, e.target.value)}
-                        className="w-full py-1.5 px-2 text-sm border border-zinc-300 rounded bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-zinc-700 dark:border-zinc-600"
-                    >
-                        {field.options?.map((opt: any, idx: number) => {
-                            const val = typeof opt === 'object' ? opt.value : opt;
-                            const lbl = typeof opt === 'object' ? opt.label : opt;
-                            return <option key={idx} value={val}>{lbl}</option>
-                        })}
-                    </select>
+                    <div className="relative">
+                        <select
+                            id={field.key}
+                            value={specificOptions[field.key] || ''}
+                            onChange={(e) => handleOptionChange(field.key, e.target.value)}
+                            className="w-full py-2 pl-3 pr-8 text-sm border border-zinc-300 rounded-lg bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none appearance-none dark:bg-zinc-700 dark:border-zinc-600 transition-all cursor-pointer"
+                        >
+                            {field.options?.map((opt: any, idx: number) => {
+                                const val = typeof opt === 'object' ? opt.value : opt;
+                                const lbl = typeof opt === 'object' ? opt.label : opt;
+                                return <option key={idx} value={val}>{lbl}</option>
+                            })}
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                            <i className="fa-solid fa-chevron-down text-xs text-zinc-400"></i>
+                        </div>
+                    </div>
                 )}
 
                 {field.type === 'multiselect' && (
@@ -565,9 +578,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                             : [...current, val];
                                         handleOptionChange(field.key, updated);
                                     }}
-                                    className={`text-xs py-1.5 px-2 rounded border transition-colors ${isSelected ? 'bg-indigo-100 border-indigo-500 text-indigo-700 font-bold' : 'bg-white border-zinc-300 text-zinc-600 hover:bg-zinc-50'}`}
+                                    className={`text-xs py-2 px-2 rounded-lg border transition-all flex items-center justify-center gap-1 ${isSelected ? 'bg-indigo-100 border-indigo-500 text-indigo-700 font-bold shadow-sm' : 'bg-white border-zinc-300 text-zinc-600 hover:bg-zinc-50'}`}
                                 >
-                                    {isSelected && <i className="fa-solid fa-check mr-1 text-[10px]"></i>}
+                                    {isSelected && <i className="fa-solid fa-check text-[10px]"></i>}
                                     {lbl}
                                 </button>
                             );
@@ -576,20 +589,20 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 )}
 
                 {field.type === 'checkbox' && (
-                    <div className="flex items-center h-full pt-1">
+                    <div className="flex items-center h-full pt-2 p-2 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800/50">
                         <input
                             type="checkbox"
                             id={field.key}
                             checked={!!specificOptions[field.key]}
                             onChange={(e) => handleOptionChange(field.key, e.target.checked)}
-                            className="w-4 h-4 text-indigo-600 rounded border-zinc-300 focus:ring-indigo-500"
+                            className="w-4 h-4 text-indigo-600 rounded border-zinc-300 focus:ring-indigo-500 cursor-pointer"
                         />
-                        <span className="ml-2 text-sm text-zinc-700 dark:text-zinc-300">{field.label}</span>
+                        <span className="ml-2 text-sm text-zinc-700 dark:text-zinc-300 font-medium select-none cursor-pointer" onClick={() => handleOptionChange(field.key, !specificOptions[field.key])}>{field.label}</span>
                     </div>
                 )}
 
                  {field.type === 'range' && (
-                    <div className="flex flex-col gap-1 pt-1">
+                    <div className="flex flex-col gap-1 pt-1 p-2 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800/50">
                         <input
                             type="range"
                             id={field.key}
@@ -597,9 +610,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             max={field.max}
                             value={specificOptions[field.key] || field.min}
                             onChange={(e) => handleOptionChange(field.key, Number(e.target.value))}
-                            className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                            className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         />
-                        <span className="text-xs font-mono text-center text-zinc-500">{specificOptions[field.key]}</span>
+                        <div className="flex justify-between items-center">
+                            <span className="text-[10px] text-zinc-400">{field.min}</span>
+                            <span className="text-xs font-bold font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/50 px-2 rounded">{specificOptions[field.key]}</span>
+                            <span className="text-[10px] text-zinc-400">{field.max}</span>
+                        </div>
                     </div>
                 )}
             </div>
@@ -608,86 +625,110 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
     return (
         <div className="flex flex-col h-full bg-zinc-50 dark:bg-zinc-900">
-            <div className="px-4 py-3 border-b bg-white dark:bg-zinc-800 dark:border-zinc-700 shadow-sm z-10">
-                <button onClick={onBack} className="text-xs font-semibold text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 flex items-center gap-1 mb-1">
-                    <i className="fa-solid fa-chevron-left"></i> Listeye Dön
+            <div className="px-4 py-3 border-b bg-white dark:bg-zinc-800 dark:border-zinc-700 shadow-sm z-10 flex items-center gap-3">
+                <button onClick={onBack} className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">
+                    <i className="fa-solid fa-arrow-left"></i>
                 </button>
-                <h3 className="font-bold text-base text-zinc-800 dark:text-zinc-100 truncate">{activity.title}</h3>
+                <div className="flex-1 overflow-hidden">
+                    <h3 className="font-bold text-base text-zinc-800 dark:text-zinc-100 truncate">{activity.title}</h3>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">Etkinlik Ayarları</p>
+                </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-3 custom-scrollbar">
-                <div className="space-y-3">
-                    
-                    {/* COMPACT GENERAL SETTINGS CARD */}
-                    <div className="bg-white dark:bg-zinc-800 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                        <div className="grid grid-cols-2 gap-3">
-                            {/* Mode Selection */}
-                            <div className="col-span-2 bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-md flex">
-                                <button type="button" onClick={() => setMode('ai')} className={`flex-1 py-1 text-xs font-bold rounded transition-all flex items-center justify-center gap-1 ${mode === 'ai' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-500'}`}>
-                                    <i className="fa-solid fa-wand-magic-sparkles"></i> AI
-                                </button>
-                                <button type="button" onClick={() => setMode('fast')} className={`flex-1 py-1 text-xs font-bold rounded transition-all flex items-center justify-center gap-1 ${mode === 'fast' ? 'bg-white dark:bg-zinc-600 text-emerald-600 shadow-sm' : 'text-zinc-500'}`}>
-                                    <i className="fa-solid fa-bolt"></i> Hızlı
-                                </button>
-                            </div>
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
+                
+                {/* MODE SELECTION CARD */}
+                <div className="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                    <label className="block text-[10px] font-bold uppercase text-zinc-400 mb-2 tracking-wider">Üretim Modu</label>
+                    <div className="flex bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-lg">
+                        <button type="button" onClick={() => setMode('ai')} className={`flex-1 py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${mode === 'ai' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm ring-1 ring-zinc-200 dark:ring-zinc-500' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                            <i className="fa-solid fa-wand-magic-sparkles"></i> AI (Yapay Zeka)
+                        </button>
+                        <button type="button" onClick={() => setMode('fast')} className={`flex-1 py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${mode === 'fast' ? 'bg-white dark:bg-zinc-600 text-emerald-600 shadow-sm ring-1 ring-zinc-200 dark:ring-zinc-500' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                            <i className="fa-solid fa-bolt"></i> Hızlı (Çevrimdışı)
+                        </button>
+                    </div>
+                    {mode === 'ai' && <p className="mt-2 text-[10px] text-indigo-500 flex items-center gap-1"><i className="fa-solid fa-circle-info"></i> İnternet bağlantısı gerektirir. Daha yaratıcıdır.</p>}
+                    {mode === 'fast' && <p className="mt-2 text-[10px] text-emerald-500 flex items-center gap-1"><i className="fa-solid fa-circle-info"></i> Anında sonuç verir. Şablon tabanlıdır.</p>}
+                </div>
 
-                            {/* Difficulty */}
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-zinc-500 mb-1 tracking-wider">Zorluk</label>
-                                <div className="relative">
-                                    <select 
-                                        value={difficulty} 
-                                        onChange={e => setDifficulty(e.target.value as any)} 
-                                        className="w-full py-1.5 pl-2 pr-6 text-sm border border-zinc-300 rounded bg-white appearance-none outline-none focus:border-indigo-500 dark:bg-zinc-700 dark:border-zinc-600"
-                                    >
-                                        <option value="Başlangıç">Başlangıç</option>
-                                        <option value="Orta">Orta</option>
-                                        <option value="Zor">Zor</option>
-                                        <option value="Uzman">Uzman</option>
-                                    </select>
-                                    <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${difficultyColor[difficulty]}`}></div>
-                                </div>
-                            </div>
+                {/* GENERAL SETTINGS CARD */}
+                <div className="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-700/50 pb-2 mb-2">
+                        <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Genel Ayarlar</h4>
+                        <i className="fa-solid fa-sliders text-zinc-300"></i>
+                    </div>
 
-                            {/* Page Count */}
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase text-zinc-500 mb-1 tracking-wider">Sayfa: <span className="text-zinc-800 dark:text-zinc-200">{worksheetCount}</span></label>
-                                <input 
-                                    type="range" min="1" max="5" step="1"
-                                    value={worksheetCount} 
-                                    onChange={e => setWorksheetCount(Number(e.target.value))} 
-                                    className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2" 
-                                />
-                            </div>
+                    <div>
+                        <label className="block text-[10px] font-bold uppercase text-zinc-500 mb-1 tracking-wider">Zorluk Seviyesi</label>
+                        <div className="grid grid-cols-4 gap-2">
+                            {['Başlangıç', 'Orta', 'Zor', 'Uzman'].map((level) => (
+                                <button
+                                    key={level}
+                                    type="button"
+                                    onClick={() => setDifficulty(level as any)}
+                                    className={`py-2 px-1 rounded-lg text-[10px] font-bold border transition-all ${difficulty === level ? `${difficultyColor[level as keyof typeof difficultyColor]} text-white border-transparent shadow-md transform scale-105` : 'bg-white dark:bg-zinc-700 border-zinc-200 dark:border-zinc-600 text-zinc-500 hover:bg-zinc-50'}`}
+                                >
+                                    {level}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    {/* DYNAMIC SPECIFIC SETTINGS */}
-                    <div className="bg-white dark:bg-zinc-800 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                        <h4 className="text-xs font-bold text-zinc-400 uppercase mb-3 border-b border-zinc-100 pb-1">Etkinlik Ayarları</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                            {configFields.length > 0 ? configFields.map(renderField) : (
-                                <p className="col-span-2 text-xs text-zinc-400 italic text-center py-2">Özel ayar yok.</p>
-                            )}
+                    <div>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="block text-[10px] font-bold uppercase text-zinc-500 tracking-wider">Sayfa Sayısı</label>
+                            <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2 py-0.5 rounded">{worksheetCount}</span>
+                        </div>
+                        <input 
+                            type="range" min="1" max="5" step="1"
+                            value={worksheetCount} 
+                            onChange={e => setWorksheetCount(Number(e.target.value))} 
+                            className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                        />
+                        <div className="flex justify-between text-[10px] text-zinc-400 mt-1 px-1">
+                            <span>1</span><span>5</span>
                         </div>
                     </div>
                 </div>
+
+                {/* SPECIFIC SETTINGS CARD */}
+                <div className="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                    <div 
+                        className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-700/50 pb-2 mb-4 cursor-pointer"
+                        onClick={() => setShowAdvanced(!showAdvanced)}
+                    >
+                        <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Etkinlik Detayları</h4>
+                        <i className={`fa-solid fa-chevron-down text-zinc-300 transition-transform ${showAdvanced ? 'rotate-180' : ''}`}></i>
+                    </div>
+                    
+                    <div className={`grid grid-cols-2 gap-4 ${showAdvanced ? '' : 'hidden md:grid'}`}>
+                        {configFields.length > 0 ? configFields.map(renderField) : (
+                            <p className="col-span-2 text-xs text-zinc-400 italic text-center py-2 bg-zinc-50 rounded-lg border border-dashed border-zinc-200">Bu etkinlik için özel ayar bulunmuyor.</p>
+                        )}
+                    </div>
+                    {!showAdvanced && (
+                        <button type="button" onClick={() => setShowAdvanced(true)} className="w-full text-center text-xs text-indigo-500 font-medium mt-2 md:hidden">
+                            Ayarları Göster
+                        </button>
+                    )}
+                </div>
             </form>
 
-            <div className="p-3 bg-white dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700">
+            <div className="p-4 bg-white dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <button
                     type="submit"
                     onClick={handleSubmit}
                     disabled={isLoading}
-                    className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed`}
+                    className={`w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-3 text-sm disabled:opacity-70 disabled:cursor-not-allowed transform active:scale-95`}
                 >
                     {isLoading ? (
                         <>
-                            <i className="fa-solid fa-spinner fa-spin"></i> Hazırlanıyor...
+                            <i className="fa-solid fa-circle-notch fa-spin"></i> Hazırlanıyor...
                         </>
                     ) : (
                         <>
-                            <i className="fa-solid fa-play"></i> Oluştur
+                            <i className="fa-solid fa-wand-magic-sparkles"></i> Etkinliği Oluştur
                         </>
                     )}
                 </button>
