@@ -37,12 +37,17 @@ export const statsService = {
             const activity = ACTIVITIES.find(a => a.id === activityId);
             const title = activity ? activity.title : activityId;
             
-            // Mevcut veriyi çek
-            const { data: existing } = await supabase
+            // Mevcut veriyi çek - maybeSingle kullanarak 0 satır hatasını (406) önle
+            const { data: existing, error } = await supabase
                 .from('activity_stats')
                 .select('*')
                 .eq('activity_id', activityId)
-                .single();
+                .maybeSingle();
+            
+            if (error) {
+                // Bağlantı veya yetki hatası varsa dur, ancak console'a basıp akışı bozma
+                return; 
+            }
             
             let newCount = 1;
             let newAvg = 10;
@@ -67,6 +72,7 @@ export const statsService = {
             
         } catch (e) {
             // İstatistik hatası akışı bozmamalı
+            console.warn("Stats increment warning:", e);
         }
     },
 

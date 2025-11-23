@@ -1,4 +1,3 @@
-
 import { supabase } from './supabaseClient';
 import { User } from '../types';
 
@@ -100,11 +99,12 @@ export const authService = {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) return null;
 
+        // Use maybeSingle to avoid 406 error if profile is missing
         const { data: profile } = await supabase
             .from('users')
             .select('*')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
 
         if (!profile) return null;
         return mapDbUserToAppUser(profile);
