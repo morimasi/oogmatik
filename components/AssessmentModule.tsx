@@ -708,7 +708,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         ) : <TransitionScreen message="Okuma Testi Hazırlanıyor..." />
                     )}
 
-                    {/* Steps 3, 4, 5, 6 are identical to previous version */}
                     {currentStep === 3 && (
                         isTestReady() ? (
                             <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
@@ -787,4 +786,151 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <TransitionScreen message="
+                        ) : <TransitionScreen message="Görsel Test Hazırlanıyor..." />
+                    )}
+
+                    {currentStep === 6 && (
+                        isTestReady() ? (
+                            <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
+                                <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Sıralı Bellek" /></div>
+                                <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
+                                    {isMemorizing ? (
+                                        <div className="animate-in zoom-in duration-500">
+                                            <h3 className="text-2xl font-bold mb-8 text-zinc-800 dark:text-zinc-100">Sırayı Aklında Tut!</h3>
+                                            <div className="flex gap-4 bg-white dark:bg-zinc-700 p-6 rounded-2xl shadow-lg border-2 border-indigo-100 dark:border-indigo-900">
+                                                {currentItem?.seq?.map((icon: string, i: number) => (
+                                                    <i key={i} className={`fa-solid fa-${icon} text-4xl md:text-6xl text-indigo-600 dark:text-indigo-400 animate-bounce`} style={{ animationDelay: `${i * 100}ms` }}></i>
+                                                ))}
+                                            </div>
+                                            <div className="mt-8 h-2 w-full bg-zinc-200 rounded-full overflow-hidden">
+                                                <div className="h-full bg-indigo-500 w-full animate-[shrink_3.5s_linear_forwards]"></div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="animate-in fade-in slide-in-from-bottom-8 duration-500 w-full max-w-2xl">
+                                            <h3 className="text-xl font-bold mb-8 text-zinc-600 dark:text-zinc-300">Hangi sıradaydı?</h3>
+                                            <div className="grid grid-cols-1 gap-4">
+                                                {currentItem?.opts?.map((opt: string[], i: number) => (
+                                                    <button key={i} onClick={() => handleAnswer(JSON.stringify(opt) === JSON.stringify(currentItem?.a), 'cognitive', 'İşleyen Bellek')} className="p-6 bg-white dark:bg-zinc-700/50 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group flex justify-center gap-6">
+                                                        {opt.map((icon, j) => (
+                                                            <i key={j} className={`fa-solid fa-${icon} text-2xl md:text-3xl text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors`}></i>
+                                                        ))}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : <TransitionScreen message="Bellek Testi Hazırlanıyor..." />
+                    )}
+
+                    {currentStep === 7 && (
+                        <div className="p-8 flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
+                            <h3 className="text-2xl font-bold mb-2 text-center">Eğitmen Gözlemleri</h3>
+                            <p className="text-center text-zinc-500 mb-6">Lütfen öğrenciyle ilgili gözlemlediğiniz durumları işaretleyin.</p>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar px-2">
+                                <ObservationList observations={profile.observations} setProfile={setProfile} />
+                            </div>
+                            <button 
+                                onClick={() => handleReportGeneration()} 
+                                className="mt-6 w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2"
+                            >
+                                {isLoading ? <><i className="fa-solid fa-spinner fa-spin"></i> Analiz Ediliyor...</> : 'Raporu Oluştur'}
+                            </button>
+                        </div>
+                    )}
+
+                    {currentStep === 9 && report && (
+                        <div className="flex flex-col h-full animate-in zoom-in duration-500">
+                            <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
+                                <div>
+                                    <h3 className="text-2xl font-bold">{profile.studentName}</h3>
+                                    <p className="text-indigo-200 text-sm">Bilişsel Değerlendirme Raporu</p>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-3xl font-black">{report.scores.reading < 30 && report.scores.math < 30 ? 'A+' : 'B'}</div>
+                                    <div className="text-xs opacity-75">Genel Durum</div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                                {/* Summary */}
+                                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800 text-indigo-900 dark:text-indigo-100 text-sm leading-relaxed">
+                                    <i className="fa-solid fa-quote-left text-2xl text-indigo-200 mr-2 float-left"></i>
+                                    {report.overallSummary}
+                                </div>
+
+                                {/* Charts & Scores */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-600 flex flex-col items-center justify-center min-h-[250px]">
+                                        <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Risk Analizi Grafiği</h4>
+                                        {report.chartData && <RadarChart data={report.chartData} />}
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        {Object.entries(report.scores).map(([key, value]) => {
+                                            const score = value as number;
+                                            return (
+                                            <div key={key} className="bg-white dark:bg-zinc-700/30 p-3 rounded-lg border border-zinc-100 dark:border-zinc-600 flex items-center justify-between">
+                                                <span className="capitalize font-bold text-zinc-700 dark:text-zinc-300">
+                                                    {key === 'reading' ? 'Okuma' : key === 'math' ? 'Matematik' : key === 'attention' ? 'Dikkat' : key === 'cognitive' ? 'Bellek' : 'Yazma'}
+                                                </span>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-24 h-2 bg-zinc-200 dark:bg-zinc-600 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className={`h-full rounded-full ${score > 70 ? 'bg-red-500' : score > 40 ? 'bg-yellow-500' : 'bg-green-500'}`} 
+                                                            style={{ width: `${score}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className={`font-bold w-8 text-right ${score > 70 ? 'text-red-500' : score > 40 ? 'text-yellow-500' : 'text-green-500'}`}>{score}</span>
+                                                </div>
+                                            </div>
+                                        )})}
+                                    </div>
+                                </div>
+
+                                {/* Strengths & Weaknesses */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                                        <h4 className="font-bold text-green-700 dark:text-green-400 mb-3 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
+                                        <ul className="list-disc list-inside text-sm text-zinc-700 dark:text-zinc-300 space-y-1">
+                                            {report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800">
+                                        <h4 className="font-bold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
+                                        <ul className="list-disc list-inside text-sm text-zinc-700 dark:text-zinc-300 space-y-1">
+                                            {report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Roadmap */}
+                                <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg">
+                                    <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-route text-indigo-400"></i> Kişiselleştirilmiş Yol Haritası</h4>
+                                    <div className="space-y-4">
+                                        {report.roadmap.map((item, idx) => (
+                                            <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-zinc-700 transition-colors group cursor-pointer" onClick={() => onSelectActivity(item.activityId as ActivityType)}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold">{idx + 1}</div>
+                                                    <div>
+                                                        <h5 className="font-bold text-indigo-300 group-hover:text-white transition-colors">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
+                                                        <p className="text-xs text-zinc-400">{item.reason}</p>
+                                                    </div>
+                                                </div>
+                                                <span className="text-xs font-bold bg-zinc-900 px-3 py-1 rounded-full text-zinc-400 border border-zinc-600 whitespace-nowrap">{item.frequency}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                {saving && <p className="text-xs text-center text-zinc-400 mt-2"><i className="fa-solid fa-cloud-arrow-up animate-bounce mr-1"></i>Sonuçlar profilinize kaydediliyor...</p>}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};

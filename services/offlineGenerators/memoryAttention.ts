@@ -149,8 +149,10 @@ export const generateOfflineLetterGridTest = async (options: GeneratorOptions): 
     const { gridSize, difficulty, worksheetCount, targetLetters } = options;
     let targets: string[] = [];
     if (targetLetters) {
-        targets = targetLetters.split(',').map(l => l.trim().toLowerCase());
-    } else {
+        targets = targetLetters.split(/[\s,]+/).map(l => l.trim().toLowerCase()).filter(l => l.length === 1);
+    } 
+    
+    if (targets.length === 0) {
         if (difficulty === 'Başlangıç') targets = ['a', 'e', 'o'];
         else if (difficulty === 'Orta') targets = ['m', 'n', 's', 'ş'];
         else targets = ['b', 'd', 'p', 'q'];
@@ -214,7 +216,8 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
     const results: FindLetterPairData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 15;
-        const pair = (targetPair as string) || ((difficulty === 'Zor' || difficulty === 'Uzman') ? 'bd' : 'ak');
+        const pairInput = (targetPair as string)?.replace(/[\s,]/g, '');
+        const pair = (pairInput && pairInput.length >= 2) ? pairInput.substring(0, 2) : ((difficulty === 'Zor' || difficulty === 'Uzman') ? 'bd' : 'ak');
         
         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
         

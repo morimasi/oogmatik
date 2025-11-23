@@ -54,13 +54,28 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
 
 // --- 2. Letter Discrimination (Harf Ayrımı) ---
 export const generateOfflineLetterDiscrimination = async (options: GeneratorOptions): Promise<LetterDiscriminationData[]> => {
-    const { worksheetCount, difficulty, itemCount } = options;
+    const { worksheetCount, difficulty, itemCount, targetLetters } = options;
     
     return Array.from({ length: worksheetCount }, () => {
-        const pairs = [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n']];
-        const targetPair = getRandomItems(pairs, 1)[0];
-        const targetLetter = targetPair[0];
-        const distractor = targetPair[1];
+        let targetLetter = 'b';
+        let distractor = 'd';
+
+        if (targetLetters) {
+            const parts = targetLetters.split(/[\s,]+/).filter(s => s.length === 1);
+            if (parts.length >= 2) {
+                targetLetter = parts[0].toLowerCase();
+                distractor = parts[1].toLowerCase();
+            } else if (parts.length === 1) {
+                targetLetter = parts[0].toLowerCase();
+                distractor = targetLetter === 'b' ? 'd' : 'b';
+            }
+        } else {
+            const pairs = [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n']];
+            const targetPair = getRandomItems(pairs, 1)[0];
+            targetLetter = targetPair[0];
+            distractor = targetPair[1];
+        }
+
         const rowCount = itemCount || 6;
         
         const rows = Array.from({ length: rowCount }, () => {
@@ -143,9 +158,18 @@ export const generateOfflinePhonologicalAwareness = async (options: GeneratorOpt
 
 // --- 5. Mirror Letters (Ayna Harfler) ---
 export const generateOfflineMirrorLetters = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
-    const { worksheetCount, difficulty, itemCount } = options;
-    const pairs = [['b', 'd'], ['p', 'q']];
-    const selectedPair = getRandomItems(pairs, 1)[0];
+    const { worksheetCount, difficulty, itemCount, targetPair } = options;
+    
+    let selectedPair = ['b', 'd'];
+    if (targetPair) {
+        const parts = targetPair.split(/[\s,/]+/).filter(s => s.length === 1);
+        if (parts.length >= 2) {
+            selectedPair = [parts[0].toLowerCase(), parts[1].toLowerCase()];
+        }
+    } else {
+        const pairs = [['b', 'd'], ['p', 'q']];
+        selectedPair = getRandomItems(pairs, 1)[0];
+    }
     
     return Array.from({ length: worksheetCount }, () => {
         const rowCount = itemCount || 5;

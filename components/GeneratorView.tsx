@@ -238,19 +238,19 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.BURDON_TEST:
                 return [
                     gridSizeField(15, 10, 25),
-                    { key: 'targetLetters', label: 'Hedefler', type: 'text', defaultValue: 'b,d,p', width: 'half' }
+                    { key: 'targetLetters', label: 'Hedef Harfler', type: 'text', defaultValue: 'b,d,p', width: 'full', description: 'Örn: b,d veya m,n (Virgülle ayırın)' }
                 ];
             case ActivityType.TARGET_SEARCH:
                  return [
                     gridSizeField(20, 10, 30),
-                    { key: 'targetChar', label: 'Hedef', type: 'text', defaultValue: 'd', width: 'half'},
-                    { key: 'distractorChar', label: 'Çeldirici', type: 'text', defaultValue: 'b', width: 'half'},
+                    { key: 'targetChar', label: 'Hedef', type: 'text', defaultValue: 'd', width: 'half', description: 'Aranan harf'},
+                    { key: 'distractorChar', label: 'Çeldirici', type: 'text', defaultValue: 'b', width: 'half', description: 'Karıştıran harf'},
                     itemCountField(20, 10, 50, 'Hedef Sayısı')
                  ];
             case ActivityType.FIND_LETTER_PAIR:
                  return [
                     gridSizeField(15, 10, 25),
-                    { key: 'targetPair', label: 'İkili (örn: bd)', type: 'text', defaultValue: 'bd', width: 'half'},
+                    { key: 'targetPair', label: 'Hedef İkili', type: 'text', defaultValue: 'bd', width: 'full', description: 'Örn: bd, mn, ft'},
                     itemCountField(8, 4, 20, 'Gizli Çift')
                  ];
             case ActivityType.FIND_THE_DUPLICATE_IN_ROW:
@@ -305,9 +305,15 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     itemCountField(20, 10, 50, 'Sembol Sayısı')
                 ];
             case ActivityType.LETTER_DISCRIMINATION:
-                return [ itemCountField(6, 4, 12, 'Satır Sayısı') ];
+                return [ 
+                    { key: 'targetLetters', label: 'Karışan Harfler', type: 'text', defaultValue: 'b,d', width: 'full', description: 'Örn: b,d veya m,n' },
+                    itemCountField(6, 4, 12, 'Satır Sayısı') 
+                ];
             case ActivityType.MIRROR_LETTERS:
-                return [ itemCountField(5, 3, 10, 'Satır Sayısı') ];
+                return [ 
+                    { key: 'targetPair', label: 'Hedef Çift', type: 'text', defaultValue: 'b,d', width: 'full', description: 'Örn: b,d veya p,q' },
+                    itemCountField(5, 3, 10, 'Satır Sayısı') 
+                ];
             case ActivityType.PHONOLOGICAL_AWARENESS:
                 return [ itemCountField(4, 4, 12, 'Soru Sayısı') ];
             case ActivityType.VISUAL_TRACKING_LINES:
