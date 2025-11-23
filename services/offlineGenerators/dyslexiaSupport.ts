@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, EMOJI_MAP, COLORS, simpleSyllabify, CONNECT_COLORS } from './helpers';
 
 // --- 1. Reading Flow (Heceli/Renkli Okuma) ---
@@ -98,18 +98,36 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
 
 // --- 3. Rapid Naming (RAN) ---
 export const generateOfflineRapidNaming = async (options: GeneratorOptions): Promise<RapidNamingData[]> => {
-    const { worksheetCount, difficulty, itemCount } = options;
+    const { worksheetCount, difficulty, itemCount, type, targetLetters } = options;
+    const selectedType = (type as 'color' | 'object' | 'number' | 'letter') || 'object';
     
     return Array.from({ length: worksheetCount }, () => {
-        const type = getRandomItems(['color', 'object', 'number'], 1)[0] as 'color' | 'object' | 'number';
         let pool: any[] = [];
         
-        if (type === 'color') {
+        if (selectedType === 'color') {
             pool = getRandomItems(COLORS, 5).map(c => ({ type: 'color', value: c.css, label: c.name }));
-        } else if (type === 'number') {
+        } else if (selectedType === 'number') {
             pool = getRandomItems(['1', '2', '3', '4', '5', '6', '7', '8', '9'], 5).map(n => ({ type: 'number', value: n, label: n }));
+        } else if (selectedType === 'letter') {
+            let letters: string[] = [];
+            if (targetLetters) {
+                letters = targetLetters.split(/[\s,]+/).map(s => s.trim()).filter(s => s.length > 0);
+            }
+            if (letters.length === 0) {
+                letters = getRandomItems(turkishAlphabet.split(''), 5);
+            }
+            // Ensure we have enough variety if user provided very few
+            if (letters.length < 5 && !targetLetters) {
+                 letters = [...letters, ...getRandomItems(turkishAlphabet.split(''), 5 - letters.length)];
+            }
+            pool = letters.map(l => ({ type: 'letter', value: l, label: l }));
         } else {
             pool = getRandomItems(EMOJIS, 5).map(e => ({ type: 'icon', value: e, label: EMOJI_MAP[e] }));
+        }
+
+        // Ensure we have items in pool
+        if (pool.length === 0) {
+             pool = getRandomItems(EMOJIS, 5).map(e => ({ type: 'icon', value: e, label: EMOJI_MAP[e] }));
         }
 
         const count = itemCount || 20;
@@ -121,7 +139,7 @@ export const generateOfflineRapidNaming = async (options: GeneratorOptions): Pro
             instruction: 'Mümkün olduğunca hızlı ve hatasız söyle.',
             pedagogicalNote: 'İşlemleme hızı ve geri çağırma (retrieval) becerisi.',
             grid: { items: gridItems },
-            type
+            type: selectedType
         };
     });
 };
@@ -265,28 +283,6 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
             width,
             height,
             paths
-        };
-    });
-};
-
-// --- 8. Backward Spelling (Ters Kelime Avcısı) ---
-export const generateOfflineBackwardSpelling = async (options: GeneratorOptions): Promise<BackwardSpellingData[]> => {
-    const { worksheetCount, difficulty, topic, itemCount } = options;
-    const count = itemCount || 8;
-    const words = getRandomItems(getWordsForDifficulty(difficulty, topic), count);
-
-    return Array.from({ length: worksheetCount }, () => {
-        const items = words.map(word => ({
-            reversed: word.split('').reverse().join(''),
-            correct: word,
-            imagePrompt: '' // No images in offline mode by default
-        }));
-
-        return {
-            title: 'Ters Kelime Avcısı',
-            instruction: 'Tersten yazılmış kelimeleri oku ve doğrusunu yanına yaz.',
-            pedagogicalNote: 'Ortografik işlemleme ve görsel dikkat becerisi.',
-            items
         };
     });
 };

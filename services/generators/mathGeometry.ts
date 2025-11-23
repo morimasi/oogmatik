@@ -1,9 +1,8 @@
 
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
-import { MathPuzzleData, ShapeCountingData } from '../../types';
+import { MathPuzzleData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -63,49 +62,4 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
   return generateWithSchema(prompt, schema) as Promise<MathPuzzleData[]>;
-};
-
-export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `
-    "${difficulty}" seviyesinde "Şekil Sayma" (Örn: Kaç üçgen var?).
-    Karmaşık, iç içe geçmiş şekillerden oluşan SVG path verileri üret.
-    SVG pathleri 'd' attribute olarak ve renkleri 'fill' olarak ver.
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
-    `;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
-            figures: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        svgPaths: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    d: { type: Type.STRING },
-                                    fill: { type: Type.STRING }
-                                },
-                                required: ["d", "fill"]
-                            }
-                        },
-                        targetShape: { type: Type.STRING },
-                        correctCount: { type: Type.INTEGER }
-                    },
-                    required: ["svgPaths", "targetShape", "correctCount"]
-                }
-            }
-        },
-        required: ["title", "instruction", "figures", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<ShapeCountingData[]>;
 };

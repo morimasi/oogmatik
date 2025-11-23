@@ -1,13 +1,10 @@
 
-
 import React from 'react';
 import { 
-    StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData,
-    ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData,
-    MultipleChoiceStoryQuestion, OpenEndedStoryQuestion, ProverbSearchData
+    StoryData, StoryAnalysisData, StoryCreationPromptData, StorySequencingData,
+    MultipleChoiceStoryQuestion, OpenEndedStoryQuestion
 } from '../../types';
 import { ImageDisplay, PedagogicalHeader, ReadingRuler } from './common';
-import { WordSearchSheet } from './WordGameSheets';
 
 export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data }) => (
   <div className="relative">
@@ -144,41 +141,6 @@ export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData 
     </div>
 );
 
-export const WordsInStorySheet: React.FC<{ data: WordsInStoryData }> = ({ data }) => (
-    <div className="relative">
-        <ReadingRuler />
-        <PedagogicalHeader title={data.title} instruction="Hikayeyi oku ve altı çizili kelimelere dikkat et." note={data.pedagogicalNote} />
-        
-        {data.imageBase64 && (
-             <div className="float-right w-1/3 ml-6 mb-4">
-                <ImageDisplay base64={data.imageBase64} description="Hikaye görseli" className="w-full h-auto object-cover rounded-lg shadow-md" />
-            </div>
-        )}
-
-        <div className="bg-white dark:bg-zinc-700/30 p-8 rounded-xl shadow-inner border border-zinc-100 dark:border-zinc-700 mb-8 clear-right">
-            <p className="text-lg md:text-xl leading-loose tracking-wide whitespace-pre-line font-medium">
-                {data.story}
-            </p>
-        </div>
-        
-        <h4 className="text-xl font-bold mb-6 text-center text-zinc-800 dark:text-zinc-200 border-b-2 border-zinc-200 dark:border-zinc-700 pb-2">
-            <i className="fa-solid fa-pen-nib mr-2 text-emerald-500"></i>Kelime Çalışması
-        </h4>
-        
-        <div className="grid grid-cols-1 gap-6">
-            {(data.questions || []).map((item, index) => (
-                 <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-l-8 border-emerald-400 shadow-sm">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-3">
-                        <span className="px-4 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 rounded-full font-bold text-lg">{item.word}</span>
-                        <p className="text-zinc-600 dark:text-zinc-300 font-medium">{item.question}</p>
-                    </div>
-                    <div className="w-full h-16 mt-2 border-b-2 border-dotted border-zinc-300 dark:border-zinc-600 bg-zinc-50/50 dark:bg-zinc-800/20 rounded-t-lg"></div>
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
 export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data }) => (
     <div className="relative">
         <ReadingRuler />
@@ -214,43 +176,6 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
                     </div>
                 )
             })}
-        </div>
-    </div>
-);
-
-export const ProverbFillSheet: React.FC<{ data: ProverbFillData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction="Atasözlerindeki eksik kelimeleri tamamla." note={data.pedagogicalNote} />
-        
-        {data.imageBase64 && <div className="max-w-md mx-auto mb-8"><ImageDisplay base64={data.imageBase64} description={data.meaning} className="w-full h-auto rounded-xl shadow-md"/></div>}
-
-        <div className="bg-white dark:bg-zinc-700/30 p-6 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 mb-8 max-w-3xl mx-auto">
-            <div className="space-y-6">
-                {(data.proverbs || []).map((proverb, index) => (
-                    <div key={index} className="flex flex-wrap items-end text-xl font-medium leading-loose gap-2">
-                        <span className="text-indigo-500 font-bold w-6">{index + 1}.</span>
-                        <span>{proverb.start}</span>
-                        <div className="min-w-[120px] border-b-2 border-indigo-500 border-dashed px-2 text-center text-indigo-600 dark:text-indigo-400"></div>
-                        <span>{proverb.end}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 bg-blue-50 dark:bg-blue-900/30 rounded-xl border-l-4 border-blue-500">
-                <h4 className="font-bold text-lg text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
-                    <i className="fa-solid fa-info-circle"></i> Bilgi Notu
-                </h4>
-                <p className="text-zinc-700 dark:text-zinc-300 italic">{data.meaning}</p>
-            </div>
-            <div className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
-                <h4 className="font-bold text-lg mb-2 flex items-center gap-2">
-                    <i className="fa-solid fa-pen-fancy text-zinc-400"></i> Yazma Zamanı
-                </h4>
-                <p className="text-sm mb-3 text-zinc-600 dark:text-zinc-400">{data.usagePrompt}</p>
-                <div className="w-full h-24 border-2 border-dotted border-zinc-300 dark:border-zinc-600 rounded-lg"></div>
-            </div>
         </div>
     </div>
 );
@@ -297,99 +222,5 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
           ))}
         </div>
       </div>
-    </div>
-);
-
-export const ProverbSayingSortSheet: React.FC<{ data: ProverbSayingSortData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
-        
-        <div className="p-6 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800/50 rounded-2xl mb-8 text-center shadow-sm">
-            <div className="flex flex-wrap justify-center gap-3">
-            {(data.items || []).map((item, index) => (
-                <div key={index} className="px-4 py-2 bg-white dark:bg-zinc-800 rounded-lg border border-amber-100 dark:border-zinc-700 shadow-sm text-zinc-800 dark:text-zinc-200">
-                    <span className="font-bold text-amber-500 mr-2">{index+1}.</span>
-                    {item.text}
-                </div>
-            ))}
-            </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-8">
-            <div className="p-6 border-4 border-sky-200 dark:border-sky-900 rounded-2xl bg-sky-50 dark:bg-sky-900/10">
-                <h4 className="font-bold text-center text-xl text-sky-700 dark:text-sky-300 mb-4 uppercase tracking-widest border-b-2 border-sky-200 pb-2">
-                    <i className="fa-solid fa-quote-left mr-2"></i>Atasözleri
-                </h4>
-                <div className="space-y-3">
-                    {Array.from({length: 5}).map((_, i) => (
-                         <div key={i} className="h-10 border-b-2 border-sky-300/50 dark:border-sky-700/50"></div>
-                    ))}
-                </div>
-            </div>
-            <div className="p-6 border-4 border-rose-200 dark:border-rose-900 rounded-2xl bg-rose-50 dark:bg-rose-900/10">
-                <h4 className="font-bold text-center text-xl text-rose-700 dark:text-rose-300 mb-4 uppercase tracking-widest border-b-2 border-rose-200 pb-2">
-                    <i className="fa-solid fa-comment-dots mr-2"></i>Özdeyişler
-                </h4>
-                <div className="space-y-3">
-                    {Array.from({length: 5}).map((_, i) => (
-                         <div key={i} className="h-10 border-b-2 border-rose-300/50 dark:border-rose-700/50"></div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    </div>
-);
-
-export const ProverbWordChainSheet: React.FC<{ data: ProverbWordChainData | ProverbSentenceFinderData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
-        
-        <div className="p-8 mb-8 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-3xl bg-zinc-50 dark:bg-zinc-900/50 text-center">
-            <div className="flex justify-center flex-wrap gap-4">
-                {(data.wordCloud || []).map((item, index) => (
-                    <span 
-                        key={index} 
-                        className="px-4 py-2 rounded-full text-lg font-bold shadow-sm transform hover:scale-110 transition-transform cursor-grab active:cursor-grabbing" 
-                        style={{backgroundColor: item.color, color: '#fff', textShadow: '1px 1px 2px rgba(0,0,0,0.3)'}}
-                    >
-                        {item.word}
-                    </span>
-                ))}
-            </div>
-        </div>
-
-        <div className="space-y-6">
-             <h4 className="font-bold text-center text-zinc-500 uppercase text-sm tracking-widest">Oluşturulacak Cümleler</h4>
-             {(data.solutions || []).map((_, index) => (
-                <div key={index} className="flex items-center gap-4">
-                    <div className="w-8 h-8 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center font-bold text-zinc-500">{index + 1}</div>
-                    <div className="flex-1 h-12 bg-white dark:bg-zinc-800 border-b-2 border-zinc-300 dark:border-zinc-600 rounded-t-lg shadow-sm"></div>
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
-export const ProverbSearchSheet: React.FC<{ data: ProverbSearchData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction="Gizli atasözünü bul ve anlamını öğren." note={data.pedagogicalNote} />
-        <div className="flex flex-col md:flex-row gap-8 items-start">
-            <div className="flex-1 w-full">
-                <WordSearchSheet data={{...data, words: [], title: '', prompt: ''} as any} />
-            </div>
-            <div className="w-full md:w-1/3 p-6 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl border-l-8 border-indigo-500 shadow-lg">
-                <h4 className="font-bold text-lg uppercase tracking-wider text-indigo-800 dark:text-indigo-200 mb-4 border-b border-indigo-200 pb-2">
-                    <i className="fa-solid fa-book-open mr-2"></i>Sözlük
-                </h4>
-                <div className="mb-4">
-                    <span className="text-xs font-bold text-indigo-400 uppercase">Atasözü:</span>
-                    <p className="text-lg font-bold text-indigo-900 dark:text-indigo-100">{data.proverb}</p>
-                </div>
-                <div>
-                    <span className="text-xs font-bold text-indigo-400 uppercase">Anlamı:</span>
-                    <p className="text-sm text-zinc-700 dark:text-zinc-300 italic leading-relaxed">{data.meaning}</p>
-                </div>
-            </div>
-        </div>
     </div>
 );

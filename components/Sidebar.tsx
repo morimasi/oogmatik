@@ -84,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }
                 }
             } else {
-                console.warn("AI generator not found, trying offline.");
+                console.info("AI generator not found, trying offline.");
                 result = await runOfflineGenerator();
             }
         } else { 

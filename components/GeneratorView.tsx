@@ -54,11 +54,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
         switch (actId) {
             case ActivityType.WORD_SEARCH:
-            case ActivityType.THEMATIC_WORD_SEARCH_COLOR:
-            case ActivityType.WORD_SEARCH_WITH_PASSWORD:
-            case ActivityType.SYNONYM_WORD_SEARCH:
-            case ActivityType.LETTER_GRID_WORD_FIND:
-            case ActivityType.SYLLABLE_WORD_SEARCH:
                 return [
                     ...commonFields,
                     itemCountField(10, 5, 25, 'Kelime Sayısı'),
@@ -67,17 +62,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'directions', label: 'Yönler', type: 'select', defaultValue: 'simple', width: 'half', options: [{label: 'Basit', value: 'simple'}, {label: 'Çapraz', value: 'diagonal'}, {label: 'Tümü', value: 'all'}] }
                 ];
             case ActivityType.ANAGRAM:
-            case ActivityType.IMAGE_ANAGRAM_SORT:
-            case ActivityType.ANAGRAM_IMAGE_MATCH:
-            case ActivityType.POSITIONAL_ANAGRAM:
                 return [
                     ...commonFields,
                     itemCountField(8, 4, 16, 'Kelime'),
                     { key: 'showImages', label: 'Görsel İpucu', type: 'checkbox', defaultValue: true, width: 'half' }
                 ];
             case ActivityType.CROSSWORD:
-            case ActivityType.SPIRAL_PUZZLE:
-            case ActivityType.PUNCTUATION_SPIRAL_PUZZLE:
                  return [
                     ...commonFields,
                     gridSizeField(10, 8, 15),
@@ -85,63 +75,21 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'passwordLength', label: 'Şifre Uz.', type: 'number', defaultValue: 5, min: 3, max: 10, width: 'half' },
                     { key: 'clueType', label: 'İpucu', type: 'select', defaultValue: 'def', width: 'half', options: [{label: 'Tanım', value: 'def'}, {label: 'Eş Anlam', value: 'syn'}, {label: 'Zıt Anlam', value: 'ant'}] }
                 ];
-            case ActivityType.WORD_LADDER:
-                return [
-                     { key: 'steps', label: 'Basamak', type: 'number', defaultValue: 4, min: 3, max: 6, width: 'half' },
-                     itemCountField(2, 1, 6, 'Adet')
-                ];
             case ActivityType.SPELLING_CHECK:
-            case ActivityType.REVERSE_WORD:
-            case ActivityType.LETTER_BRIDGE:
-            case ActivityType.WORD_FORMATION:
-            case ActivityType.JUMBLED_WORD_STORY:
-            case ActivityType.HOMONYM_SENTENCE_WRITING:
-            case ActivityType.MISSING_PARTS:
-            case ActivityType.SYLLABLE_COMPLETION:
-            case ActivityType.BACKWARD_SPELLING:
-            case ActivityType.PROVERB_FILL_IN_THE_BLANK:
-            case ActivityType.PROVERB_SAYING_SORT:
-            case ActivityType.PROVERB_WORD_CHAIN:
                 return [ ...commonFields, itemCountField(8, 4, 20) ];
-            case ActivityType.WORD_GROUPING:
-                 return [
-                     itemCountField(12, 6, 24, 'Toplam Kelime'),
-                     { key: 'categoryCount', label: 'Kategori', type: 'number', defaultValue: 3, min: 2, max: 4, width: 'half'},
-                 ];
-            case ActivityType.WORD_WEB:
-            case ActivityType.WORD_WEB_WITH_PASSWORD:
-            case ActivityType.WORD_PLACEMENT_PUZZLE:
-            case ActivityType.WORD_GRID_PUZZLE:
-                return [ ...commonFields, itemCountField(10, 6, 20, 'Kelime'), gridSizeField(15, 10, 20) ];
 
-            // Math & Logic Consolidated
+            // Math & Logic
             case ActivityType.NUMBER_PYRAMID:
                 return [
                     { key: 'pyramidType', label: 'İşlem Türü', type: 'select', defaultValue: 'addition', width: 'full', options: [{label: 'Toplama (+)', value: 'addition'}, {label: 'Çarpma (x)', value: 'multiplication'}, {label: 'Bölme (÷)', value: 'division'}] },
                     itemCountField(2, 1, 10, 'Piramit Sayısı')
-                ];
-            case ActivityType.OPERATION_SQUARE_FILL_IN:
-                return [
-                    { key: 'operationType', label: 'İşlem Grubu', type: 'select', defaultValue: 'mixed', width: 'full', options: [{label: 'Karışık (+, -, x)', value: 'mixed'}, {label: 'Toplama/Çıkarma', value: 'addsub'}, {label: 'Çarpma/Bölme', value: 'multdiv'}] },
-                    itemCountField(2, 1, 10, 'Kare Sayısı')
-                ];
-            case ActivityType.ODD_EVEN_SUDOKU:
-                return [
-                    { key: 'variant', label: 'Varyasyon', type: 'select', defaultValue: 'odd_even', width: 'full', options: [{label: 'Tek-Çift Kuralı', value: 'odd_even'}, {label: 'Gölgeli Alan Kuralı', value: 'shaded'}] },
-                    itemCountField(1, 1, 6, 'Sudoku Sayısı')
                 ];
             case ActivityType.FUTOSHIKI:
                 return [
                     { key: 'contentType', label: 'İçerik', type: 'select', defaultValue: 'numbers', width: 'full', options: [{label: 'Sayılar', value: 'numbers'}, {label: 'Uzunluklar (cm, m)', value: 'length'}] },
                     itemCountField(2, 1, 10, 'Bulmaca Sayısı')
                 ];
-
-            // Math
             case ActivityType.MATH_PUZZLE:
-            case ActivityType.TARGET_NUMBER:
-            case ActivityType.KENDOKU:
-            case ActivityType.MULTIPLICATION_WHEEL:
-            case ActivityType.ROMAN_NUMERAL_MULTIPLICATION:
                 return [
                     { key: 'operations', label: 'İşlemler', type: 'select', defaultValue: 'addsub', width: 'full', options: [{label: 'Toplama (+)', value: 'add'}, {label: 'Topla & Çıkar', value: 'addsub'}, {label: 'Çarpma (+ - x)', value: 'mult'}, {label: 'Dört İşlem', value: 'all'}]},
                     { key: 'numberRange', label: 'Aralık', type: 'select', defaultValue: '1-20', width: 'half', options: ['1-10', '1-20', '1-50', '1-100', '100-1000'] },
@@ -164,10 +112,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     },
                     { key: 'num1Digits', label: '1. Sayı Basamak', type: 'range', defaultValue: 2, min: 1, max: 6, width: 'half' },
                     { key: 'num2Digits', label: '2. Sayı Basamak', type: 'range', defaultValue: 1, min: 1, max: 6, width: 'half' },
-                    
                     itemCountField(12, 4, 24, 'İşlem Sayısı'),
-                    
-                    // Conditional Fields - Updated logic for multi-select
                     { key: 'allowCarry', label: 'Eldeli Olsun', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.selectedOperations?.includes('addition') },
                     { key: 'allowBorrow', label: 'Onluk Bozmalı', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.selectedOperations?.includes('subtraction') },
                     { key: 'allowRemainder', label: 'Kalanlı Bölme', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.selectedOperations?.includes('division') },
@@ -186,122 +131,77 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     itemCountField(4, 2, 8, 'Problem Sayısı')
                 ];
             case ActivityType.NUMBER_PATTERN:
-            case ActivityType.SHAPE_NUMBER_PATTERN:
-            case ActivityType.VISUAL_NUMBER_PATTERN:
                  return [
                     { key: 'patternType', label: 'Örüntü', type: 'select', defaultValue: 'arithmetic', width: 'full', options: [{label: 'Aritmetik', value: 'arithmetic'}, {label: 'Geometrik', value: 'geometric'}, {label: 'Karmaşık', value: 'complex'}]},
                     itemCountField(8, 4, 20)
                  ];
             case ActivityType.SHAPE_SUDOKU:
             case ActivityType.LOGIC_GRID_PUZZLE:
-            case ActivityType.ROMAN_NUMERAL_STAR_HUNT:
-            case ActivityType.NUMBER_CAPSULE:
                 return [ itemCountField(2, 1, 20, 'Adet') ];
 
             // Reading
             case ActivityType.STORY_COMPREHENSION:
             case ActivityType.STORY_ANALYSIS:
             case ActivityType.STORY_SEQUENCING:
-            case ActivityType.WORDS_IN_STORY:
                 return [
                     { key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' },
                     { key: 'characterName', label: 'Karakter', type: 'text', defaultValue: '', width: 'full', description: 'İsteğe bağlı' },
                     { key: 'storyLength', label: 'Uzunluk', type: 'select', defaultValue: 'medium', width: 'half', options: [{label: 'Kısa', value: 'short'}, {label: 'Orta', value: 'medium'}, {label: 'Uzun', value: 'long'}]},
                     { key: 'genre', label: 'Tür', type: 'select', defaultValue: 'adventure', width: 'half', options: [{label: 'Macera', value: 'adventure'}, {label: 'Komik', value: 'funny'}, {label: 'Öğretici', value: 'educational'}]}
                 ];
+            case ActivityType.STORY_CREATION_PROMPT:
+                return [ ...commonFields, itemCountField(5, 3, 10, 'Anahtar Kelime') ];
             
             // Memory & Attention
-            case ActivityType.WORD_MEMORY:
             case ActivityType.VISUAL_MEMORY:
-            case ActivityType.CHARACTER_MEMORY:
-            case ActivityType.COLOR_WHEEL_MEMORY:
                 return [
                     ...commonFields,
                     itemCountField(12, 6, 24),
                     { key: 'memorizeRatio', label: 'Ezber %', type: 'range', defaultValue: 50, min: 20, max: 80, width: 'full' }
                 ];
             case ActivityType.FIND_THE_DIFFERENCE:
-            case ActivityType.FIND_DIFFERENT_STRING:
-            case ActivityType.FIND_IDENTICAL_WORD:
-            case ActivityType.ODD_ONE_OUT:
             case ActivityType.VISUAL_ODD_ONE_OUT:
-            case ActivityType.VISUAL_ODD_ONE_OUT_THEMED:
-            case ActivityType.THEMATIC_ODD_ONE_OUT:
-            case ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE:
-            case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE:
                  return [
                     ...commonFields,
                     itemCountField(8, 5, 20),
                     { key: 'similarity', label: 'Benzerlik', type: 'select', defaultValue: 'high', width: 'half', options: [{label: 'Düşük', value: 'low'}, {label: 'Yüksek', value: 'high'}]}
                  ];
-            case ActivityType.LETTER_GRID_TEST:
             case ActivityType.BURDON_TEST:
                 return [
                     gridSizeField(15, 10, 25),
                     { key: 'targetLetters', label: 'Hedef Harfler', type: 'text', defaultValue: 'b,d,p', width: 'full', description: 'Örn: b,d veya m,n (Virgülle ayırın)' }
                 ];
-            case ActivityType.TARGET_SEARCH:
-                 return [
-                    gridSizeField(20, 10, 30),
-                    { key: 'targetChar', label: 'Hedef', type: 'text', defaultValue: 'd', width: 'half', description: 'Aranan harf'},
-                    { key: 'distractorChar', label: 'Çeldirici', type: 'text', defaultValue: 'b', width: 'half', description: 'Karıştıran harf'},
-                    itemCountField(20, 10, 50, 'Hedef Sayısı')
-                 ];
-            case ActivityType.FIND_LETTER_PAIR:
-                 return [
-                    gridSizeField(15, 10, 25),
-                    { key: 'targetPair', label: 'Hedef İkili', type: 'text', defaultValue: 'bd', width: 'full', description: 'Örn: bd, mn, ft'},
-                    itemCountField(8, 4, 20, 'Gizli Çift')
-                 ];
-            case ActivityType.FIND_THE_DUPLICATE_IN_ROW:
-                 return [
-                    itemCountField(10, 5, 20, 'Satır'),
-                    { key: 'cols', label: 'Sütun', type: 'number', defaultValue: 15, min: 10, max: 25, width: 'half'}
-                 ]
             case ActivityType.STROOP_TEST:
-            case ActivityType.CHAOTIC_NUMBER_SEARCH:
                  return [itemCountField(20, 10, 50)];
 
             // Visual
             case ActivityType.GRID_DRAWING:
             case ActivityType.SYMMETRY_DRAWING:
-            case ActivityType.MATCHSTICK_SYMMETRY:
             case ActivityType.SHAPE_COUNTING:
                 return [
                     itemCountField(2, 1, 6, 'Adet'),
                     gridSizeField(8, 5, 12),
                 ];
             case ActivityType.SHAPE_MATCHING:
-            case ActivityType.SYMBOL_CIPHER:
-            case ActivityType.COORDINATE_CIPHER:
+                return [
+                    itemCountField(8, 4, 20)
+                ];
             case ActivityType.ABC_CONNECT:
-            case ActivityType.WORD_CONNECT:
-            case ActivityType.ROMAN_NUMERAL_CONNECT:
-            case ActivityType.ROMAN_ARABIC_MATCH_CONNECT:
-            case ActivityType.WEIGHT_CONNECT:
-            case ActivityType.LENGTH_CONNECT:
-            case ActivityType.STAR_HUNT:
-            case ActivityType.ROUNDING_CONNECT:
-            case ActivityType.ARITHMETIC_CONNECT:
-            case ActivityType.PROFESSION_CONNECT:
                 return [
                     itemCountField(8, 4, 20),
-                    gridSizeField(10, 6, 15)
+                    gridSizeField(10, 6, 15),
+                    { key: 'customLetters', label: 'Özel Harfler', type: 'text', defaultValue: '', width: 'full', description: 'A,B,C... (Boş bırakılırsa otomatik)' }
                 ];
-            case ActivityType.PUNCTUATION_COLORING:
-            case ActivityType.SYNONYM_ANTONYM_COLORING:
-                return [ ...commonFields, itemCountField(4, 2, 10, 'Cümle/Öğe') ];
-            case ActivityType.DOT_PAINTING:
-                return [ ...commonFields, itemCountField(1, 1, 1, 'Resim Sayısı') ];
-            case ActivityType.SYLLABLE_TRAIN:
-                return [ ...commonFields, itemCountField(5, 3, 10, 'Kelime Sayısı') ];
+            case ActivityType.BLOCK_PAINTING:
+                return [ itemCountField(1, 1, 1, 'Adet') ];
             
             // Dyslexia Support & Others
             case ActivityType.READING_FLOW:
                 return [{ key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' }, itemCountField(5, 3, 15, 'Cümle Sayısı')];
             case ActivityType.RAPID_NAMING:
                 return [
-                    { key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] },
+                    { key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}, {label: 'Harfler', value: 'letter'}] },
+                    { key: 'targetLetters', label: 'Kullanılacak Harfler', type: 'text', defaultValue: 'a,b,c,d,e', width: 'full', description: 'Virgülle ayırın. (Sadece Harf türü için)', condition: (vals) => vals.type === 'letter' },
                     itemCountField(20, 10, 50, 'Sembol Sayısı')
                 ];
             case ActivityType.LETTER_DISCRIMINATION:
@@ -318,9 +218,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [ itemCountField(4, 4, 12, 'Soru Sayısı') ];
             case ActivityType.VISUAL_TRACKING_LINES:
                 return [ itemCountField(4, 3, 8, 'Yol Sayısı') ];
-            case ActivityType.PUNCTUATION_MAZE:
-            case ActivityType.PUNCTUATION_PHONE_NUMBER:
-                return [ ...commonFields, itemCountField(1, 1, 5, 'Adet') ];
+            case ActivityType.SYLLABLE_TRAIN:
+                return [ ...commonFields, itemCountField(5, 3, 10, 'Kelime Sayısı') ];
 
             default:
                 return [ ...commonFields, itemCountField(10, 5, 20) ];
@@ -493,11 +392,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-3 custom-scrollbar">
                 <div className="space-y-3">
-                    
                     {/* COMPACT GENERAL SETTINGS CARD */}
                     <div className="bg-white dark:bg-zinc-800 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
                         <div className="grid grid-cols-2 gap-3">
-                            {/* Mode Selection */}
                             <div className="col-span-2 bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-md flex">
                                 <button type="button" onClick={() => setMode('ai')} className={`flex-1 py-1 text-xs font-bold rounded transition-all flex items-center justify-center gap-1 ${mode === 'ai' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-500'}`}>
                                     <i className="fa-solid fa-wand-magic-sparkles"></i> AI
@@ -506,8 +403,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                     <i className="fa-solid fa-bolt"></i> Hızlı
                                 </button>
                             </div>
-
-                            {/* Difficulty */}
                             <div>
                                 <label className="block text-[10px] font-bold uppercase text-zinc-500 mb-1 tracking-wider">Zorluk</label>
                                 <div className="relative">
@@ -524,8 +419,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                     <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${difficultyColor[difficulty]}`}></div>
                                 </div>
                             </div>
-
-                            {/* Page Count */}
                             <div>
                                 <label className="block text-[10px] font-bold uppercase text-zinc-500 mb-1 tracking-wider">Sayfa: <span className="text-zinc-800 dark:text-zinc-200">{worksheetCount}</span></label>
                                 <input 

@@ -1,22 +1,10 @@
 
-
-
 import React from 'react';
 import { 
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
-    GeneratorOptions
+    FindTheDifferenceData, ShapeMatchingData, GridDrawingData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, AbcConnectData
 } from '../../types';
-import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay } from './common';
+import { ShapeDisplay, SegmentDisplay, ImageDisplay, PedagogicalHeader } from './common';
 import { CONNECT_COLORS } from '../../services/offlineGenerators/helpers';
-
-// Helper for pedagogical note display
-const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string }> = ({ title, instruction, note }) => (
-    <div className="mb-6 text-center">
-        <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100">{title}</h3>
-        <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
-        {note && <p className="text-xs text-zinc-500 dark:text-zinc-400 italic border-t border-zinc-200 dark:border-zinc-700 pt-2 mt-2 inline-block px-4">Eğitmen Notu: {note}</p>}
-    </div>
-);
 
 export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => (
     <div>
@@ -126,63 +114,6 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
     );
 };
 
-export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 gap-6">
-            {(data.groups || []).map((group, index) => (
-                <div key={index} className="bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm flex items-center justify-between">
-                    <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded text-xl font-bold tracking-wider min-w-[100px] text-center">
-                        {group.words[0]}
-                    </div>
-                    <div className="flex-1 flex justify-around px-8">
-                        {/* Shuffle distractors and the correct answer for display */}
-                        {[...group.distractors, group.words[1]].sort().map((option, optIndex) => (
-                            <div key={optIndex} className="flex items-center gap-2 cursor-pointer">
-                                <div className="w-6 h-6 border-2 border-zinc-300 rounded-full"></div>
-                                <span className="text-lg font-mono">{option}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
-export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }) => (
-    <div>
-         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-         
-         {/* Key Table */}
-         <div className="mb-8 p-6 bg-zinc-100 dark:bg-zinc-800 rounded-xl border-2 border-zinc-200">
-            <h4 className="text-center font-bold mb-4 uppercase tracking-widest text-zinc-500">Şifre Anahtarı</h4>
-            <div className="flex flex-wrap justify-center gap-4">
-                {(data.cipherKey || []).map((item, i) => (
-                    <div key={i} className="flex flex-col items-center bg-white dark:bg-zinc-700 p-2 rounded shadow-sm w-16">
-                        <div className="mb-2 transform scale-75"><ShapeDisplay shapes={[item.shape]} /></div>
-                        <span className="font-bold text-xl border-t w-full text-center pt-1">{item.letter.toUpperCase()}</span>
-                    </div>
-                ))}
-            </div>
-         </div>
-
-         {/* Puzzles */}
-         <div className="space-y-6">
-             {(data.wordsToSolve || []).map((puzzle, index) => (
-                 <div key={index} className="flex flex-wrap justify-center gap-2 p-4 border-b border-dashed border-zinc-300">
-                     {puzzle.shapeSequence.map((shape, sIdx) => (
-                         <div key={sIdx} className="flex flex-col items-center gap-2">
-                             <div className="p-2 bg-white border rounded"><ShapeDisplay shapes={[shape]} /></div>
-                             <div className="w-12 h-12 border-2 border-zinc-400 rounded bg-zinc-50 dark:bg-zinc-900/50"></div>
-                         </div>
-                     ))}
-                 </div>
-             ))}
-         </div>
-    </div>
-);
-
 export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data }) => {
     const { grid: { rows, cols }, shapes } = data;
     return (
@@ -219,26 +150,6 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
         </div>
     )
 };
-
-export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 gap-8">
-             <div className="border-2 border-zinc-800 p-4 rounded">
-                 <h4 className="font-bold text-center mb-4 border-b pb-2">{data.box1Title}</h4>
-                 <ul className="columns-2 gap-4 text-sm">
-                     {data.wordList1.map(w => <li key={w}>{w}</li>)}
-                 </ul>
-             </div>
-             <div className="border-2 border-zinc-800 p-4 rounded">
-                 <h4 className="font-bold text-center mb-4 border-b pb-2">{data.box2Title}</h4>
-                 <ul className="columns-2 gap-4 text-sm">
-                     {data.wordList2.map(w => <li key={w}>{w}</li>)}
-                 </ul>
-             </div>
-        </div>
-    </div>
-);
 
 export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ data }) => (
     <div>
@@ -282,48 +193,8 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
     </div>
 );
 
-export const FindDifferentStringSheet: React.FC<{ data: FindDifferentStringData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-4 font-mono text-lg">
-            {data.rows.map((row, i) => (
-                <div key={i} className="flex justify-between p-3 bg-zinc-50 rounded border">
-                    {row.items.map((item, j) => (
-                        <span key={j} className="cursor-pointer hover:text-indigo-600 hover:font-bold transition-all">{item}</span>
-                    ))}
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
-export const DotPaintingSheet: React.FC<{ data: DotPaintingData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex justify-center">
-            <svg viewBox="0 0 100 100" className="w-full max-w-lg border bg-white">
-                {/* Grid dots */}
-                {Array.from({length: 100}).map((_, i) => {
-                    const x = (i % 10) * 10 + 5;
-                    const y = Math.floor(i / 10) * 10 + 5;
-                    return <circle key={i} cx={x} cy={y} r="0.5" fill="#ccc" />
-                })}
-                {/* Target Dots */}
-                {data.dots.map((dot, i) => (
-                    <circle key={i} cx={dot.cx} cy={dot.cy} r="1.5" fill={dot.color} />
-                ))}
-            </svg>
-        </div>
-        <div className="mt-4 p-4 border rounded text-center">
-            <h4 className="font-bold">{data.prompt1}</h4>
-            <p>{data.prompt2}</p>
-        </div>
-    </div>
-);
-
-export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConnectData | RomanArabicMatchConnectData | WeightConnectData | LengthConnectData }> = ({ data }) => {
-    // Only process the first puzzle for display in single sheet mode, or map all. Usually just 1.
-    const puzzles = 'puzzles' in data ? data.puzzles : (data as any).numbers ? [{gridDim: 10, points: (data as any).numbers}] : (data as any).expressions ? [{gridDim: 10, points: (data as any).expressions}] : [{ id: 1, gridDim: (data as any).gridDim || 6, points: (data as any).points || [] }];
+export const AbcConnectSheet: React.FC<{ data: AbcConnectData }> = ({ data }) => {
+    const puzzles = data.puzzles;
     
     return (
     <div>
@@ -346,8 +217,7 @@ export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConn
                          {/* Points */}
                          {puzzle.points.map((p: any, k: number) => {
                              // Dynamic Color Assignment if not present
-                             const color = p.color || (p.group !== undefined ? CONNECT_COLORS[p.group % CONNECT_COLORS.length] : CONNECT_COLORS[p.pairId % CONNECT_COLORS.length]) || '#3B82F6';
-                             const isImage = p.imagePrompt && p.imagePrompt.length > 0;
+                             const color = p.color || CONNECT_COLORS[p.pairId % CONNECT_COLORS.length] || '#3B82F6';
                              
                              return (
                                 <g key={k} transform={`translate(${p.x * 50 + 25}, ${p.y * 50 + 25})`}>
@@ -355,31 +225,17 @@ export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConn
                                     <circle r="22" fill={color} opacity="0.2" />
                                     <circle r="18" fill="white" stroke={color} strokeWidth="2.5" />
                                     
-                                    {/* Content */}
-                                    {isImage ? (
-                                        // Centered Text/Emoji for Image Prompts (Offline Mode mostly uses emoji text)
-                                        <text 
-                                            y="2" 
-                                            textAnchor="middle" 
-                                            dominantBaseline="middle" 
-                                            fontSize="18"
-                                            fill="#333"
-                                        >
-                                            {p.imagePrompt} 
-                                        </text>
-                                    ) : (
-                                        <text 
-                                            y="1" 
-                                            textAnchor="middle" 
-                                            dominantBaseline="middle" 
-                                            fontSize={String(p.label || p.text || p.value).length > 2 ? "10" : "16"} 
-                                            fontWeight="bold" 
-                                            fill="#333"
-                                            fontFamily="monospace"
-                                        >
-                                            {p.label || p.text || p.value}
-                                        </text>
-                                    )}
+                                    <text 
+                                        y="1" 
+                                        textAnchor="middle" 
+                                        dominantBaseline="middle" 
+                                        fontSize="16"
+                                        fontWeight="bold" 
+                                        fill="#333"
+                                        fontFamily="monospace"
+                                    >
+                                        {p.label}
+                                    </text>
                                 </g>
                              );
                          })}
@@ -390,118 +246,3 @@ export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConn
     </div>
     );
 };
-
-// Fallbacks for others to ensure no broken imports, enhanced with header
-const createSimpleSheet = (compName: string) => ({ data }: { data: any }) => (
-  <div>
-      <PedagogicalHeader title={data.title || compName} instruction={data.instruction || data.prompt || ""} note={data.pedagogicalNote} />
-      <div className="p-4 text-center text-zinc-500 italic">Görsel içerik oluşturuldu.</div>
-  </div>
-);
-
-export const WordConnectSheet = createSimpleSheet('Kelime Bağlama');
-export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex justify-center">
-            <table className="border-collapse border border-zinc-400 bg-white">
-                <tbody>
-                    {data.grid.map((row, i) => (
-                        <tr key={i}>
-                            <td className="border border-zinc-300 p-2 font-bold bg-zinc-100 text-xs text-center">{String.fromCharCode(65+i)}</td>
-                            {row.map((cell, j) => (
-                                <td key={j} className="border border-zinc-300 w-10 h-10 text-center font-mono text-lg">{cell}</td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td></td>
-                        {data.grid[0].map((_, j) => <td key={j} className="text-center text-xs font-bold p-1">{j+1}</td>)}
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <div className="mt-8 flex flex-wrap gap-2 justify-center">
-            {data.cipherCoordinates.map((coord, i) => (
-                <div key={i} className="flex flex-col items-center">
-                    <div className="w-10 h-10 border-b-2 border-black mb-1"></div>
-                    <span className="text-sm font-bold text-zinc-500">{coord}</span>
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
-export const ProfessionConnectSheet: React.FC<{ data: ProfessionConnectData }> = ({ data }) => (
-     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 gap-12 max-w-2xl mx-auto relative">
-            {/* Left side */}
-            <div className="space-y-8">
-                {data.points.filter(p => p.x === 0).map((p, i) => (
-                    <div key={i} className="flex items-center gap-4 p-3 border rounded bg-white relative">
-                        <span>{p.label}</span>
-                        <div className="w-3 h-3 bg-black rounded-full absolute -right-1.5"></div>
-                    </div>
-                ))}
-            </div>
-            {/* Right side */}
-            <div className="space-y-8">
-                 {data.points.filter(p => p.x > 0).map((p, i) => (
-                    <div key={i} className="flex items-center gap-4 p-3 border rounded bg-white relative justify-end">
-                        <div className="w-3 h-3 bg-black rounded-full absolute -left-1.5"></div>
-                        <span>{p.imageDescription}</span> 
-                        {/* In a real scenario, imageBase64 would be used here */}
-                    </div>
-                ))}
-            </div>
-        </div>
-    </div>
-);
-
-export const MatchstickSymmetrySheet: React.FC<{ data: MatchstickSymmetryData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex justify-center">
-            <svg width="300" height="300" className="border bg-zinc-50">
-                <line x1="150" y1="0" x2="150" y2="300" stroke="red" strokeDasharray="5,5" />
-                {data.puzzles[0].lines.map((l, i) => (
-                    <line key={i} x1={l.x1 * 50} y1={l.y1 * 50} x2={l.x2 * 50} y2={l.y2 * 50} stroke={l.color || "black"} strokeWidth="4" strokeLinecap="round" />
-                ))}
-            </svg>
-        </div>
-    </div>
-);
-
-export const VisualOddOneOutThemedSheet: React.FC<{ data: VisualOddOneOutThemedData }> = ({ data }) => (
-    <div>
-         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-         <div className="space-y-6">
-             {data.rows.map((row, i) => (
-                 <div key={i} className="border p-4 rounded bg-white">
-                     <h4 className="text-sm text-zinc-400 mb-2">{row.theme}</h4>
-                     <div className="flex justify-around">
-                         {row.items.map((item, j) => (
-                             <div key={j} className="w-24 h-24 border-2 border-dashed flex items-center justify-center text-center text-xs p-2">
-                                 {item.imageBase64 ? <ImageDisplay base64={item.imageBase64} className="w-full h-full" /> : item.description}
-                             </div>
-                         ))}
-                     </div>
-                 </div>
-             ))}
-         </div>
-    </div>
-);
-export const PunctuationColoringSheet = createSimpleSheet('Noktalama Boyama');
-export const SynonymAntonymColoringSheet = createSimpleSheet('Eş/Zıt Anlam Boyama');
-export const StarHuntSheet: React.FC<{ data: StarHuntData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex justify-center">
-            <GridComponent grid={data.grid} cellClassName="w-12 h-12" />
-        </div>
-        <p className="text-center mt-4">Toplam Yıldız Hedefi: {data.targetCount}</p>
-    </div>
-);

@@ -2,7 +2,7 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
-import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData, StoryQuestion, ProverbSearchData } from '../../types';
+import { StoryData, StoryAnalysisData, StoryCreationPromptData, StorySequencingData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -14,7 +14,7 @@ EĞİTİMSEL İÇERİK KURALLARI:
 `;
 
 export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
-    const { topic, difficulty, worksheetCount, characterName, storyLength } = options;
+    const { topic, difficulty, worksheetCount } = options;
     const prompt = `
     '${topic}' konulu, "${difficulty}" seviyesinde hikaye.
     **İngilizce** 'imagePrompt' oluştur. Stil: "Colorful storybook illustration".
@@ -107,29 +107,6 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
   return generateWithSchema(prompt, schema) as Promise<StoryCreationPromptData[]>;
 };
 
-export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
-  const { topic, worksheetCount } = options;
-  const prompt = `
-    '${topic}' konulu Metindeki Kelimeler.
-    **İngilizce** 'imagePrompt'.
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
-  `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      story: { type: Type.STRING },
-      pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING },
-      questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, question: { type: Type.STRING } }, required: ['word', 'question'] } }
-    },
-    required: ['title', 'story', 'questions', 'pedagogicalNote', 'imagePrompt']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<WordsInStoryData[]>;
-};
-
 export const generateStorySequencingFromAI = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
     const { topic, worksheetCount } = options;
     const prompt = `
@@ -151,90 +128,4 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<StorySequencingData[]>;
-};
-
-export const generateProverbSayingSortFromAI = async(options: GeneratorOptions): Promise<ProverbSayingSortData[]> => {
-    const { worksheetCount } = options;
-    const prompt = `Atasözü/Özdeyiş Ayırma. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: { type: Type.STRING }, type: { type: Type.STRING, enum: ['atasözü', 'özdeyiş'] } }, required: ["text", "type"] } }
-        },
-        required: ["title", "prompt", "items", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<ProverbSayingSortData[]>;
-}
-
-export const generateProverbWordChainFromAI = async(options: GeneratorOptions): Promise<ProverbWordChainData[]> => {
-    const { worksheetCount } = options;
-    const prompt = `Atasözü Zinciri. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            wordCloud: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, color: { type: Type.STRING } }, required: ["word", "color"] } },
-            solutions: { type: Type.ARRAY, items: { type: Type.STRING } }
-        },
-        required: ["title", "prompt", "wordCloud", "solutions", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<ProverbWordChainData[]>;
-}
-
-export const generateProverbFillInTheBlankFromAI = async (options: GeneratorOptions): Promise<ProverbFillData[]> => {
-  const { worksheetCount } = options;
-  const prompt = `
-    Atasözü Tamamlama.
-    **İngilizce** 'imagePrompt'.
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
-  `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING },
-      proverbs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { start: { type: Type.STRING }, end: { type: Type.STRING }, full: { type: Type.STRING } }, required: ['start', 'end', 'full'] } },
-      meaning: { type: Type.STRING },
-      usagePrompt: { type: Type.STRING }
-    },
-    required: ['title', 'proverbs', 'meaning', 'usagePrompt', 'pedagogicalNote', 'imagePrompt']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<ProverbFillData[]>;
-};
-
-export const generateProverbSearchFromAI = async (options: GeneratorOptions): Promise<ProverbSearchData[]> => {
-  const { worksheetCount } = options;
-  const prompt = `Atasözü Avı. ${PEDAGOGICAL_PROMPT}`;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING },
-      grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-      proverb: { type: Type.STRING },
-      meaning: { type: Type.STRING }
-    },
-    required: ['title', 'grid', 'proverb', 'meaning', 'pedagogicalNote', 'imagePrompt']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<ProverbSearchData[]>;
-};
-
-export const generateProverbSentenceFinderFromAI = async (options: GeneratorOptions) => {
-    const data = await generateProverbWordChainFromAI(options);
-    // Safe cast since structures are identical and title is updated
-    return data.map(d => ({...d, title: 'Cümle Bulmaca (Atasözü)'})) as unknown as ProverbSentenceFinderData[];
 };
