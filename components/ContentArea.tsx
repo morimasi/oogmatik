@@ -235,16 +235,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             Eğitimi kişiselleştirmek hiç bu kadar kolay olmamıştı.<br/>
                             <strong>Disleksi</strong>, <strong>Diskalkuli</strong> ve <strong>Dikkat Eksikliği</strong> için özel olarak tasarlanmış materyaller üretin.
                         </p>
-                        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-                            <button onClick={() => document.getElementById('tour-search')?.click()} className="px-8 py-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-105 transition-all font-bold flex items-center justify-center gap-3 text-lg">
-                                <i className="fa-solid fa-magnifying-glass"></i>
-                                <span>Hemen Başla</span>
-                            </button>
-                            <button onClick={onOpenAuth} className="px-8 py-4 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all font-bold flex items-center justify-center gap-3 text-lg">
-                                <i className="fa-solid fa-user-circle"></i>
-                                <span>Profilim</span>
-                            </button>
-                        </div>
+                        {/* Buttons removed as requested */}
                     </div>
                 </div>
             )}
