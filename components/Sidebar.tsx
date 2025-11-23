@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       id="tour-sidebar"
-      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm shadow-lg transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
+      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md shadow-xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
       aria-label="Etkinlik Menüsü"
@@ -130,9 +130,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                 />
             ) : (
                 <>
-                    <div className="border-b p-4 dark:border-zinc-700 flex justify-between items-center">
+                    <div className="border-b p-4 dark:border-zinc-700 flex justify-between items-center bg-inherit">
                         <div>
-                            <h2 className="text-lg font-bold">Etkinlikler</h2>
+                            <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">Etkinlikler</h2>
                             <p className="text-xs text-zinc-500 dark:text-zinc-400">Bir kategori ve etkinlik seçin</p>
                         </div>
                          <button
@@ -148,14 +148,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <div key={category.id} className="py-1">
                                 <button
                                     onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
-                                    className="w-full flex items-center justify-between p-3 text-left font-semibold text-zinc-700 dark:text-zinc-200 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                    className="w-full flex items-center justify-between p-3 text-left font-semibold text-zinc-700 dark:text-zinc-200 rounded-lg hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                                     aria-expanded={openCategoryId === category.id}
                                 >
                                     <span>{category.title}</span>
                                     <i className={`fa-solid fa-chevron-down text-sm text-zinc-400 transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (
-                                    <ul className="mt-1 space-y-1 dark:bg-zinc-800 rounded-lg p-2 mx-2 shadow-sm border border-zinc-200/50 dark:border-zinc-700/50">
+                                    <ul className="mt-1 space-y-1 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg p-2 mx-2 shadow-inner border border-zinc-100 dark:border-zinc-700/50">
                                         {ACTIVITIES.filter(act => category.activities.includes(act.id)).map(activity => (
                                             <li key={`${activity.id}-${activity.title}`}>
                                                 <button
