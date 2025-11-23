@@ -3,6 +3,18 @@ import { Activity, ActivityType, ActivityCategory } from './types';
 
 export const ACTIVITIES: Activity[] = [
   {
+    id: ActivityType.BASIC_OPERATIONS,
+    title: 'Dört İşlem',
+    description: 'Toplama, çıkarma, çarpma ve bölme alıştırmaları.',
+    icon: 'fa-solid fa-calculator',
+  },
+  {
+    id: ActivityType.REAL_LIFE_MATH_PROBLEMS,
+    title: 'Matematik Problemleri',
+    description: 'Günlük yaşamdan hikayeleştirilmiş matematik problemleri.',
+    icon: 'fa-solid fa-bag-shopping',
+  },
+  {
     id: ActivityType.WORD_SEARCH,
     title: 'Kelime Bulmaca',
     description: 'Verilen kelimeleri harf tablosunda bulun.',
@@ -674,9 +686,43 @@ export const ACTIVITIES: Activity[] = [
     description: 'Ters dönmüş harfleri bul ve düzelt.',
     icon: 'fa-solid fa-retweet',
   },
-].filter(a => a.id); // Filter out any potential undefined
+].filter(a => a.id); 
 
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
+  {
+    id: 'math-logic',
+    title: 'Matematik & Mantık',
+    description: 'Sayısal düşünme ve problem çözme becerilerini artıran oyunlar.',
+    icon: 'fa-solid fa-calculator',
+    activities: [
+      ActivityType.BASIC_OPERATIONS,
+      ActivityType.REAL_LIFE_MATH_PROBLEMS,
+      ActivityType.MATH_PUZZLE,
+      ActivityType.NUMBER_PATTERN,
+      ActivityType.FUTOSHIKI,
+      ActivityType.NUMBER_PYRAMID,
+      ActivityType.NUMBER_CAPSULE,
+      ActivityType.ODD_EVEN_SUDOKU,
+      ActivityType.KENDOKU,
+      ActivityType.OPERATION_SQUARE_FILL_IN,
+      ActivityType.MULTIPLICATION_WHEEL,
+      ActivityType.TARGET_NUMBER,
+      ActivityType.SHAPE_SUDOKU,
+      ActivityType.LOGIC_GRID_PUZZLE,
+      ActivityType.ROMAN_NUMERAL_CONNECT,
+      ActivityType.ROMAN_NUMERAL_STAR_HUNT,
+      ActivityType.ROUNDING_CONNECT,
+      ActivityType.ROMAN_NUMERAL_MULTIPLICATION,
+      ActivityType.ARITHMETIC_CONNECT,
+      ActivityType.ROMAN_ARABIC_MATCH_CONNECT,
+      ActivityType.SHAPE_NUMBER_PATTERN,
+      ActivityType.VISUAL_NUMBER_PATTERN,
+      ActivityType.ODD_ONE_OUT,
+      ActivityType.PUNCTUATION_MAZE,
+      ActivityType.PUNCTUATION_PHONE_NUMBER
+    ]
+  },
+  // ... other categories remain same ...
   {
     id: 'word-games',
     title: 'Kelime Oyunları',
@@ -726,39 +772,6 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.PASSWORD_FINDER,
       ActivityType.SYLLABLE_COMPLETION,
       ActivityType.SPELLING_CHECK
-    ]
-  },
-  {
-    id: 'math-logic',
-    title: 'Matematik & Mantık',
-    description: 'Sayısal düşünme ve problem çözme becerilerini artıran oyunlar.',
-    icon: 'fa-solid fa-calculator',
-    activities: [
-      ActivityType.BASIC_OPERATIONS,
-      ActivityType.REAL_LIFE_MATH_PROBLEMS,
-      ActivityType.MATH_PUZZLE,
-      ActivityType.NUMBER_PATTERN,
-      ActivityType.FUTOSHIKI,
-      ActivityType.NUMBER_PYRAMID,
-      ActivityType.NUMBER_CAPSULE,
-      ActivityType.ODD_EVEN_SUDOKU,
-      ActivityType.KENDOKU,
-      ActivityType.OPERATION_SQUARE_FILL_IN,
-      ActivityType.MULTIPLICATION_WHEEL,
-      ActivityType.TARGET_NUMBER,
-      ActivityType.SHAPE_SUDOKU,
-      ActivityType.LOGIC_GRID_PUZZLE,
-      ActivityType.ROMAN_NUMERAL_CONNECT,
-      ActivityType.ROMAN_NUMERAL_STAR_HUNT,
-      ActivityType.ROUNDING_CONNECT,
-      ActivityType.ROMAN_NUMERAL_MULTIPLICATION,
-      ActivityType.ARITHMETIC_CONNECT,
-      ActivityType.ROMAN_ARABIC_MATCH_CONNECT,
-      ActivityType.SHAPE_NUMBER_PATTERN,
-      ActivityType.VISUAL_NUMBER_PATTERN,
-      ActivityType.ODD_ONE_OUT,
-      ActivityType.PUNCTUATION_MAZE,
-      ActivityType.PUNCTUATION_PHONE_NUMBER
     ]
   },
   {

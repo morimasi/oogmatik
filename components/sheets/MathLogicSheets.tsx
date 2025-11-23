@@ -1,6 +1,4 @@
 
-
-
 import React from 'react';
 import { 
     MathPuzzleData, NumberPatternData, OddOneOutData, FutoshikiData, NumberPyramidData,
@@ -10,8 +8,6 @@ import {
     BasicOperationsData, RealLifeProblemData
 } from '../../types';
 import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, PedagogicalHeader } from './common';
-
-// ... (Keep existing components)
 
 export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
     <div>
