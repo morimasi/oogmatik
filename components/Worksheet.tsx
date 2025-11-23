@@ -1,3 +1,4 @@
+
 import React, { CSSProperties } from 'react';
 import { ActivityType, SingleWorksheetData, AnagramsData, StyleSettings } from '../types';
 

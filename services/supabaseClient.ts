@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 const getEnv = (key: string): string | undefined => {
     try {
         // @ts-ignore
-        if (import.meta && import.meta.env) {
+        if (typeof import.meta !== 'undefined' && import.meta.env) {
             // @ts-ignore
             return import.meta.env[key];
         }
