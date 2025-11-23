@@ -3,6 +3,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AssessmentProfile, AssessmentReport, ActivityType, TestCategory } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
+import { RadarChart } from './RadarChart';
+import { useAuth } from '../context/AuthContext';
+import { assessmentService } from '../services/assessmentService';
 
 interface AssessmentModuleProps {
     onBack: () => void;
@@ -63,11 +66,6 @@ const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, classNa
 
 // --- GENERATORS ---
 const createGradeAppropriateMatrix = (grade: number, index: number) => {
-    // Matrix Logic Adaptation based on Grade
-    // 1-2: Shapes, Counting (Basic)
-    // 3-4: Rotation, Direction (Intermediate)
-    // 5-6: Grid Logic, Abstraction (Advanced)
-    
     const difficultyLevel = grade <= 2 ? 0 : (grade <= 4 ? 1 : 2);
     const type = index < 2 ? (difficultyLevel === 0 ? 'shape' : 'arrow') : (index < 4 ? (difficultyLevel === 1 ? 'arrow' : 'grid') : 'grid');
     
@@ -76,7 +74,6 @@ const createGradeAppropriateMatrix = (grade: number, index: number) => {
         const base = shapes[getRandomInt(0, 2)];
         const other = shapes.find(s => s !== base) || 'triangle';
         const fill = Math.random() > 0.5;
-        // Sequence: A, A, B -> ? (B)
         return {
             grid: [
                 { type: 'shape', shape: base, count: 1, fill },
@@ -104,7 +101,6 @@ const createGradeAppropriateMatrix = (grade: number, index: number) => {
         };
     }
 
-    // 'grid' logic
     const startPos = getRandomInt(1, 2);
     return {
         grid: [0, 1, 2].map(i => ({ type: 'grid', count: ((startPos + i - 1) % 4) + 1 })),
@@ -121,8 +117,6 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
     
     if (category === 'reading') {
         const items = [];
-        
-        // 1. Lexical Decision (Kelime Tanıma) - Decoding
         let realWords: string[] = [], fakeWords: string[] = [];
         if (grade <= 2) {
             realWords = ['Elma', 'Kapı', 'Masa', 'Oyun', 'Baba', 'Anne', 'Okul', 'Kedi'];
@@ -140,7 +134,6 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
             items.push({ subtype: 'lexical', q: isReal ? realWords[i] : fakeWords[i], isReal, id: `lex-${i}` });
         }
 
-        // 2. Sentence Comprehension (Cümle Anlama) - Meaning
         let sentences: {q: string, opts: string[], a: string}[] = [];
         if (grade <= 2) {
             sentences = [
@@ -173,7 +166,6 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
         const items = [];
         for(let i=0; i<8; i++) {
             let n1=0, n2=0, op='', ans=0;
-            
             if (grade === 1) {
                 n1 = getRandomInt(1, 10); n2 = getRandomInt(1, 10); op = Math.random() > 0.5 ? '+' : '-';
                 if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
@@ -191,13 +183,12 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
                 if (op === 'x') { n1 = getRandomInt(5, 12); n2 = getRandomInt(2, 9); ans = n1 * n2; }
                 else if (op === '/') { n2 = getRandomInt(2, 9); ans = getRandomInt(2, 12); n1 = n2 * ans; }
                 else { n1 = getRandomInt(50, 200); n2 = getRandomInt(20, 100); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
-            } else { // 5-6
+            } else {
                 op = ['+', '-', 'x', '/'][getRandomInt(0,3)];
                 if (op === 'x') { n1 = getRandomInt(10, 25); n2 = getRandomInt(2, 9); ans = n1 * n2; }
                 else if (op === '/') { n2 = getRandomInt(3, 12); ans = getRandomInt(5, 20); n1 = n2 * ans; }
                 else { n1 = getRandomInt(100, 999); n2 = getRandomInt(50, 500); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
             }
-            
             const dist1 = ans + getRandomInt(1, 5);
             const dist2 = Math.max(0, ans - getRandomInt(1, 5));
             const opts = shuffle([ans, dist1, dist2]);
@@ -224,14 +215,9 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
     if (category === 'attention') {
         let targets = ['b'], distractors = ['d'];
         let totalItems = 30;
-        
-        if (grade <= 2) {
-            targets = ['O']; distractors = ['Q', 'C']; totalItems = 24;
-        } else if (grade <= 4) {
-            targets = ['b']; distractors = ['d']; totalItems = 36;
-        } else {
-            targets = ['b']; distractors = ['d', 'p', 'q', 'h']; totalItems = 48;
-        }
+        if (grade <= 2) { targets = ['O']; distractors = ['Q', 'C']; totalItems = 24; } 
+        else if (grade <= 4) { targets = ['b']; distractors = ['d']; totalItems = 36; } 
+        else { targets = ['b']; distractors = ['d', 'p', 'q', 'h']; totalItems = 48; }
 
         const gridItems = Array.from({ length: totalItems }).map(() => {
             const isTarget = Math.random() < 0.25;
@@ -245,7 +231,6 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
         const items = [];
         const len = grade <= 2 ? 3 : (grade <= 4 ? 4 : 5);
         const icons = ['apple-whole', 'car', 'dog', 'cat', 'sun', 'moon', 'tree', 'fish', 'star', 'heart']; 
-        
         for(let i=0; i<5; i++) {
             const seq = [];
             const pool = [...icons];
@@ -254,82 +239,20 @@ const generateDynamicTest = (category: TestCategory, gradeStr: string) => {
                 seq.push(pool[idx]);
                 pool.splice(idx, 1);
             }
-            
             const correctOpt = [...seq];
             const dist1 = [...seq]; [dist1[0], dist1[1]] = [dist1[1], dist1[0]];
             const dist2 = [...seq]; [dist2[len-1], dist2[len-2]] = [dist2[len-2], dist2[len-1]];
-            
-            items.push({
-                type: 'sequence',
-                seq: seq,
-                opts: shuffle([correctOpt, dist1, dist2]),
-                a: correctOpt, 
-                id: i
-            });
+            items.push({ type: 'sequence', seq: seq, opts: shuffle([correctOpt, dist1, dist2]), a: correctOpt, id: i });
         }
         return items;
     }
-    
     return [];
 };
 
 // --- COMPONENTS ---
-
-const RadarChart = ({ data }: { data: { label: string; value: number }[] }) => {
-    if (!data || data.length === 0) return <p className="text-center text-zinc-400">Veri yok</p>;
-    
-    const size = 300;
-    const center = size / 2;
-    const radius = 100;
-    const angleStep = (Math.PI * 2) / data.length;
-
-    const getCoords = (value: number, index: number) => {
-        const angle = index * angleStep - Math.PI / 2;
-        const r = (value / 100) * radius;
-        return { x: center + r * Math.cos(angle), y: center + r * Math.sin(angle) };
-    };
-
-    const points = data.map((d, i) => {
-        const c = getCoords(d.value, i);
-        return `${c.x},${c.y}`;
-    }).join(' ');
-
-    return (
-        <svg width={size} height={size} className="mx-auto drop-shadow-xl">
-            <circle cx={center} cy={center} r={radius} fill="none" stroke="#e5e7eb" strokeWidth="1" />
-            {[25, 50, 75, 100].map((level, idx) => {
-                const pts = data.map((_, i) => {
-                    const c = getCoords(level, i);
-                    return `${c.x},${c.y}`;
-                }).join(' ');
-                return <polygon key={idx} points={pts} fill="none" stroke="#f3f4f6" strokeWidth="1" strokeDasharray="4 4" />;
-            })}
-            {data.map((_, i) => {
-                const p = getCoords(100, i);
-                return <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="#d1d5db" strokeWidth="1" />;
-            })}
-            <polygon points={points} fill="rgba(99, 102, 241, 0.4)" stroke="#4f46e5" strokeWidth="3" />
-            {data.map((d, i) => {
-                const p = getCoords(d.value, i);
-                const labelP = getCoords(125, i); 
-                return (
-                    <g key={i}>
-                        <circle cx={p.x} cy={p.y} r="5" fill="#4f46e5" stroke="white" strokeWidth="2" />
-                        <text x={labelP.x} y={labelP.y} textAnchor="middle" dominantBaseline="middle" className="text-xs font-bold fill-zinc-600 dark:fill-zinc-300 uppercase tracking-wider">
-                            {d.label}
-                        </text>
-                        <text x={labelP.x} y={labelP.y + 15} textAnchor="middle" className="text-[10px] fill-indigo-500 font-bold">%{d.value}</text>
-                    </g>
-                );
-            })}
-        </svg>
-    );
-};
-
 const TestProgress = ({ current, total, label }: { current: number; total: number; label: string }) => {
     const isSinglePage = total <= 1; 
     const progress = isSinglePage ? 100 : Math.min(100, Math.max(0, ((current + 1) / total) * 100));
-    
     return (
         <div className="w-full mb-6 px-4">
             <div className="flex justify-between text-xs font-bold uppercase text-zinc-400 mb-2 tracking-widest">
@@ -384,14 +307,21 @@ const TransitionScreen = ({ message, icon = "fa-spinner" }: { message: string, i
 // --- MAIN COMPONENT ---
 
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity }) => {
+    const { user } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [transitionMessage, setTransitionMessage] = useState('Yükleniyor...');
     const [isMemorizing, setIsMemorizing] = useState(false);
+    const [saving, setSaving] = useState(false);
     
     const [profile, setProfile] = useState<AssessmentProfile>({
-        age: 7, grade: '1. Sınıf', observations: [], testResults: {}
+        studentName: '',
+        gender: 'Erkek',
+        age: 7, 
+        grade: '1. Sınıf', 
+        observations: [], 
+        testResults: {}
     });
     const [report, setReport] = useState<AssessmentReport | null>(null);
     const [feedbackState, setFeedbackState] = useState<'none' | 'correct' | 'wrong'>('none');
@@ -399,7 +329,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const [testState, setTestState] = useState({
         score: 0, total: 0, startTime: 0, items: [] as any[], currentIndex: 0,
         attentionState: [] as { char: string; isSelected: boolean; isCorrectTarget: boolean }[],
-        answers: [] as boolean[] // Track individual correct/wrong answers
+        answers: [] as boolean[]
     });
 
     // --- LOGIC ---
@@ -417,38 +347,31 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 score: 0, total: items.length, startTime: Date.now(), items, currentIndex: 0,
                 attentionState: [], answers: [] 
             });
-            // If it's cognitive, trigger memorize immediately for the first item
             if (items.length > 0 && items[0]?.type === 'sequence') {
                 setIsMemorizing(true);
             }
         }
     }, []);
 
-    // Watch for memory phase timing
     useEffect(() => {
         if (isMemorizing) {
             const timer = setTimeout(() => {
                 setIsMemorizing(false);
-            }, 3500); // Show sequence for 3.5 seconds
+            }, 3500);
             return () => clearTimeout(timer);
         }
     }, [isMemorizing]);
 
     const handleAnswer = (isCorrect: boolean, category: TestCategory, testName: string) => {
-        // 1. Show Feedback
         setFeedbackState(isCorrect ? 'correct' : 'wrong');
         
-        // 2. Update state and move after delay
         setTimeout(() => {
             setTestState(prev => {
                 const nextScore = isCorrect ? prev.score + 1 : prev.score;
                 const nextAnswers = [...prev.answers, isCorrect];
                 
                 if (prev.items && prev.currentIndex < prev.items.length - 1) {
-                    // Move to next item
                     const nextIndex = prev.currentIndex + 1;
-                    
-                    // If next item is cognitive, trigger memory phase
                     const nextItem = prev.items[nextIndex];
                     if (category === 'cognitive' && nextItem?.type === 'sequence') {
                         setIsMemorizing(true);
@@ -456,9 +379,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     setFeedbackState('none');
                     return { ...prev, score: nextScore, currentIndex: nextIndex, answers: nextAnswers };
                 } else {
-                    // Finish Test - Need to pass final values since state update is async/batched
                     finishTestWithValues(nextScore, nextAnswers, prev.items, prev.total, prev.startTime, category, testName);
-                    return prev; // Return current state, effect will handle transition
+                    return prev;
                 }
             });
         }, 1000); 
@@ -479,10 +401,10 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         let totalTargets = 0;
         testState.attentionState.forEach(item => {
             if (item.isCorrectTarget) totalTargets++;
-            if (item.isSelected && item.isCorrectTarget) score++; // Doğru tespit
-            if (item.isSelected && !item.isCorrectTarget) score -= 0.5; // Yanlış alarm cezası
+            if (item.isSelected && item.isCorrectTarget) score++;
+            if (item.isSelected && !item.isCorrectTarget) score -= 0.5;
         });
-        score = Math.max(0, score); // Negatif skor engelleme
+        score = Math.max(0, score);
         
         const accuracy = totalTargets > 0 ? Math.min(100, (score / totalTargets) * 100) : 0;
         const duration = Math.round((Date.now() - testState.startTime) / 1000);
@@ -490,12 +412,10 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         saveResult('attention', 'Dikkat Testi (d-b Ayrımı)', score, totalTargets, accuracy, duration);
     };
 
-    // Helper to finish test with latest values
     const finishTestWithValues = (finalScore: number, finalAnswers: boolean[], items: any[], total: number, startTime: number, category: TestCategory, testName: string) => {
         const duration = Math.round((Date.now() - startTime) / 1000);
         const accuracy = total > 0 ? (finalScore / total) * 100 : 0;
         
-        // Special sub-score calculation for Reading
         if (category === 'reading') {
              let lexCorrect = 0, lexTotal = 0;
              let sentCorrect = 0, sentTotal = 0;
@@ -513,7 +433,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
              const lexScore = lexTotal > 0 ? Math.round((lexCorrect/lexTotal)*100) : 0;
              const sentScore = sentTotal > 0 ? Math.round((sentCorrect/sentTotal)*100) : 0;
              
-             // Update profile observations directly here
              setProfile(prev => ({
                  ...prev,
                  observations: [
@@ -561,17 +480,17 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     useEffect(() => {
         if (isTransitioning) return;
 
-        if (currentStep === 2 && testState.items.length === 0) { // Reading
+        if (currentStep === 2 && testState.items.length === 0) {
             startTestPhase(generateDynamicTest('reading', profile.grade));
-        } else if (currentStep === 3 && testState.items.length === 0) { // Math
+        } else if (currentStep === 3 && testState.items.length === 0) {
             startTestPhase(generateDynamicTest('math', profile.grade));
-        } else if (currentStep === 4 && testState.attentionState.length === 0) { // Attention
+        } else if (currentStep === 4 && testState.attentionState.length === 0) {
             startTestPhase(generateDynamicTest('attention', profile.grade), true);
-        } else if (currentStep === 5 && testState.items.length === 0) { // Visual (Matrix)
+        } else if (currentStep === 5 && testState.items.length === 0) {
             startTestPhase(generateDynamicTest('visual', profile.grade));
-        } else if (currentStep === 6 && testState.items.length === 0) { // Cognitive (Memory)
+        } else if (currentStep === 6 && testState.items.length === 0) {
             startTestPhase(generateDynamicTest('cognitive', profile.grade));
-        } else if (currentStep === 8 && !report && !isLoading) { // Generate Report
+        } else if (currentStep === 8 && !report && !isLoading) {
             handleReportGeneration();
         }
     }, [currentStep, isTransitioning, profile.grade, testState.items.length, testState.attentionState.length, startTestPhase, report, isLoading]);
@@ -583,6 +502,24 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             const result = await generateAssessmentReport(profile);
             if (result) {
                 setReport(result);
+                // Automatically save if user is logged in
+                if (user) {
+                    setSaving(true);
+                    try {
+                        await assessmentService.saveAssessment(
+                            user.id, 
+                            profile.studentName || 'İsimsiz Öğrenci',
+                            profile.gender,
+                            profile.age,
+                            profile.grade,
+                            result
+                        );
+                    } catch (saveError) {
+                        console.error("Otomatik kaydetme hatası:", saveError);
+                    } finally {
+                        setSaving(false);
+                    }
+                }
                 setCurrentStep(9);
             } else {
                 throw new Error("Rapor boş döndü");
@@ -662,6 +599,35 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         <div className="p-8 md:p-12 flex flex-col flex-1 justify-center max-w-lg mx-auto w-full">
                             <h3 className="text-2xl font-bold mb-8 text-center text-zinc-800 dark:text-zinc-100">Öğrenci Profili</h3>
                             <div className="space-y-6">
+                                <div>
+                                    <label className="block font-bold mb-2 text-zinc-700 dark:text-zinc-300">Adı Soyadı</label>
+                                    <input 
+                                        type="text" 
+                                        value={profile.studentName}
+                                        onChange={e => setProfile({...profile, studentName: e.target.value})}
+                                        className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-transparent focus:border-indigo-500 outline-none"
+                                        placeholder="Öğrenci Adı"
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="block font-bold mb-2 text-zinc-700 dark:text-zinc-300">Cinsiyet</label>
+                                    <div className="flex gap-4">
+                                        <button 
+                                            onClick={() => setProfile({...profile, gender: 'Erkek'})}
+                                            className={`flex-1 p-3 border-2 rounded-xl font-bold transition-all ${profile.gender === 'Erkek' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-zinc-200 hover:border-blue-300'}`}
+                                        >
+                                            Erkek
+                                        </button>
+                                        <button 
+                                            onClick={() => setProfile({...profile, gender: 'Kız'})}
+                                            className={`flex-1 p-3 border-2 rounded-xl font-bold transition-all ${profile.gender === 'Kız' ? 'border-pink-500 bg-pink-50 text-pink-700' : 'border-zinc-200 hover:border-pink-300'}`}
+                                        >
+                                            Kız
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <div className="bg-zinc-50 dark:bg-zinc-700/30 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-600">
                                     <div className="flex justify-between items-center mb-4">
                                         <label className="font-bold text-lg"><i className="fa-solid fa-cake-candles text-pink-500 mr-2"></i>Yaş</label>
@@ -689,7 +655,15 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => triggerTransition('Okuma Testine Hazırlanılıyor...', 2)} className="mt-10 py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity">Devam Et</button>
+                            <button 
+                                onClick={() => {
+                                    if(!profile.studentName) { alert('Lütfen öğrenci adını giriniz.'); return; }
+                                    triggerTransition('Okuma Testine Hazırlanılıyor...', 2);
+                                }} 
+                                className="mt-10 py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity"
+                            >
+                                Devam Et
+                            </button>
                         </div>
                     )}
 
@@ -734,6 +708,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         ) : <TransitionScreen message="Okuma Testi Hazırlanıyor..." />
                     )}
 
+                    {/* Steps 3, 4, 5, 6 are identical to previous version */}
                     {currentStep === 3 && (
                         isTestReady() ? (
                             <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
@@ -812,145 +787,4 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <TransitionScreen message="Matrisler Oluşturuluyor..." />
-                    )}
-
-                    {currentStep === 6 && (
-                        isTestReady() ? (
-                            <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
-                                <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Sıralı Bellek" /></div>
-                                
-                                <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                    {isMemorizing ? (
-                                        <div className="animate-pulse">
-                                            <h3 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-8">Sırayı Aklında Tut!</h3>
-                                            <div className="flex gap-6 p-8 bg-zinc-100 dark:bg-zinc-900 rounded-2xl shadow-inner border border-zinc-200 dark:border-zinc-700">
-                                                {currentItem?.seq?.map((icon: string, i: number) => (
-                                                    <div key={i} className="w-20 h-20 bg-white dark:bg-zinc-800 rounded-xl flex items-center justify-center shadow-sm border-b-4 border-zinc-200 dark:border-zinc-700">
-                                                        <i className={`fa-solid fa-${icon} text-4xl text-zinc-700 dark:text-zinc-200`}></i>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            <div className="mt-8 w-full bg-zinc-200 rounded-full h-1.5 dark:bg-zinc-700 overflow-hidden">
-                                                <div className="bg-indigo-500 h-1.5 rounded-full animate-[width_3.5s_linear] w-full origin-left"></div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <h3 className="text-xl font-bold text-zinc-500 mb-8">Hangisi Doğru Sıraydı?</h3>
-                                            <div className="flex flex-col gap-4">
-                                                {currentItem?.opts?.map((opt: string[], i: number) => (
-                                                    <button 
-                                                        key={i} 
-                                                        onClick={() => handleAnswer(opt === currentItem?.a, 'cognitive', 'Sıralı Bellek')}
-                                                        className="flex gap-4 p-4 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl hover:border-indigo-400 hover:shadow-md transition-all active:scale-95 justify-center items-center"
-                                                    >
-                                                        {opt.map((icon, k) => (
-                                                            <div key={k} className="text-2xl text-zinc-600 dark:text-zinc-300">
-                                                                <i className={`fa-solid fa-${icon}`}></i>
-                                                            </div>
-                                                        ))}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ) : <TransitionScreen message="Bellek Testi Hazırlanıyor..." />
-                    )}
-
-                    {currentStep === 7 && (
-                        <div className="p-8 flex flex-col flex-1 h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <h3 className="text-2xl font-bold mb-2 text-center">Eğitmen Gözlemi</h3>
-                            <p className="text-center text-zinc-500 mb-8 text-sm">Test sırasında veya genel olarak gözlemlediğiniz durumlar.</p>
-                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 -mr-2">
-                                <ObservationList observations={profile.observations} setProfile={setProfile} />
-                            </div>
-                            <div className="mt-6 pt-4">
-                                <button onClick={() => setCurrentStep(8)} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2">
-                                    <i className="fa-solid fa-wand-magic-sparkles"></i> Analizi Başlat
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {currentStep === 8 && (
-                        <div className="p-8 text-center flex-1 flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900">
-                            <div className="relative w-32 h-32 mb-8">
-                                <div className="absolute inset-0 border-8 border-zinc-200 dark:border-zinc-700 rounded-full"></div>
-                                <div className="absolute inset-0 border-8 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <i className="fa-solid fa-brain text-4xl text-indigo-600 dark:text-indigo-400 animate-pulse"></i>
-                                </div>
-                            </div>
-                            <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Veriler Analiz Ediliyor</h3>
-                            <p className="text-zinc-500 max-w-xs mx-auto">Yapay zeka, test sonuçlarını ve gözlemleri işleyerek pedagojik rapor hazırlıyor...</p>
-                        </div>
-                    )}
-
-                    {currentStep === 9 && report && (
-                        <div className="flex flex-col h-full animate-in zoom-in-95 duration-500">
-                            <div className="p-8 bg-indigo-700 text-white text-center relative overflow-hidden shrink-0">
-                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                                <div className="relative z-10">
-                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold mb-4 border border-white/30">
-                                        <i className="fa-solid fa-file-medical-alt"></i> Bilişsel Değerlendirme Raporu
-                                    </div>
-                                    <h2 className="text-3xl font-bold mb-2">Sonuçlar Hazır</h2>
-                                    <p className="opacity-90 text-sm max-w-2xl mx-auto">{report.overallSummary}</p>
-                                </div>
-                            </div>
-                            
-                            <div className="p-6 overflow-y-auto flex-1 bg-zinc-50 dark:bg-zinc-900/50 custom-scrollbar">
-                                <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="md:col-span-1 bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center">
-                                        <h4 className="font-bold text-zinc-500 mb-4 text-xs uppercase tracking-wider">Risk Analizi Grafiği</h4>
-                                        {report.chartData ? <RadarChart data={report.chartData} /> : <p>Veri yok.</p>}
-                                    </div>
-
-                                    <div className="md:col-span-2 space-y-6">
-                                        <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700">
-                                            <h4 className="font-bold text-lg mb-4 border-b pb-2 dark:border-zinc-700">Güçlü Yönler & İhtiyaçlar</h4>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                <div>
-                                                    <h5 className="text-green-600 font-bold text-sm mb-2 flex items-center"><i className="fa-solid fa-thumbs-up mr-2"></i>Güçlü Yönler</h5>
-                                                    <ul className="text-sm space-y-1 text-zinc-600 dark:text-zinc-300">
-                                                        {report.analysis.strengths.map((s, i) => <li key={i}>• {s}</li>)}
-                                                    </ul>
-                                                </div>
-                                                <div>
-                                                    <h5 className="text-rose-600 font-bold text-sm mb-2 flex items-center"><i className="fa-solid fa-triangle-exclamation mr-2"></i>Destek Alanları</h5>
-                                                    <ul className="text-sm space-y-1 text-zinc-600 dark:text-zinc-300">
-                                                        {report.analysis.weaknesses.map((s, i) => <li key={i}>• {s}</li>)}
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-zinc-800 dark:to-zinc-800/50 p-6 rounded-2xl border border-indigo-100 dark:border-zinc-700">
-                                            <h4 className="font-bold text-lg mb-4 text-indigo-900 dark:text-indigo-200 flex items-center"><i className="fa-solid fa-route mr-2"></i>Önerilen Yol Haritası</h4>
-                                            <div className="space-y-3">
-                                                {report.roadmap.map((item, idx) => (
-                                                    <div key={idx} className="bg-white dark:bg-zinc-700 p-4 rounded-xl shadow-sm flex justify-between items-center group hover:shadow-md transition-all">
-                                                        <div>
-                                                            <div className="font-bold text-indigo-600 dark:text-indigo-300">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</div>
-                                                            <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{item.reason} • <span className="font-semibold">{item.frequency}</span></div>
-                                                        </div>
-                                                        <button onClick={() => onSelectActivity(item.activityId as ActivityType)} className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                                            <i className="fa-solid fa-plus"></i>
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-};
+                        ) : <TransitionScreen message="

@@ -219,6 +219,8 @@ export interface TestResult {
 }
 
 export interface AssessmentProfile {
+    studentName: string;
+    gender: 'Kız' | 'Erkek';
     age: number;
     grade: string;
     observations: string[];
@@ -244,6 +246,17 @@ export interface AssessmentReport {
         reason: string;
         frequency: string;
     }[];
+}
+
+export interface SavedAssessment {
+    id: string;
+    userId: string;
+    studentName: string;
+    gender: 'Kız' | 'Erkek';
+    age: number;
+    grade: string;
+    createdAt: string;
+    report: AssessmentReport;
 }
 
 export interface BaseActivityData {

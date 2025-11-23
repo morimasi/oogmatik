@@ -1,7 +1,10 @@
 
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { SavedAssessment } from '../types';
+import { assessmentService } from '../services/assessmentService';
+import { RadarChart } from './RadarChart';
+import { ACTIVITIES } from '../constants';
 
 const StatCard: React.FC<{ icon: string; label: string; value: string | number; color: string }> = ({ icon, label, value, color }) => (
     <div className="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
@@ -29,7 +32,21 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [name, setName] = useState(user?.name || '');
     const [isEditing, setIsEditing] = useState(false);
     const [isChangingAvatar, setIsChangingAvatar] = useState(false);
-    const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'settings' | 'evaluations'>('overview');
+    const [assessments, setAssessments] = useState<SavedAssessment[]>([]);
+    const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
+
+    useEffect(() => {
+        if (user && activeTab === 'evaluations') {
+            loadAssessments();
+        }
+    }, [user, activeTab]);
+
+    const loadAssessments = async () => {
+        if (!user) return;
+        const data = await assessmentService.getUserAssessments(user.id);
+        setAssessments(data);
+    };
 
     if (!user) return null;
 
@@ -127,9 +144,10 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         </div>
 
                         {/* Tabs */}
-                        <div className="flex gap-6 border-b border-zinc-200 dark:border-zinc-700">
+                        <div className="flex gap-6 border-b border-zinc-200 dark:border-zinc-700 overflow-x-auto">
                             <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} label="Genel Bakış" icon="fa-solid fa-chart-pie" />
                             <TabButton active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} label="İstatistikler" icon="fa-solid fa-chart-line" />
+                            <TabButton active={activeTab === 'evaluations'} onClick={() => setActiveTab('evaluations')} label="Değerlendirmeler" icon="fa-solid fa-file-medical-alt" />
                             <TabButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} label="Ayarlar" icon="fa-solid fa-gear" />
                         </div>
                     </div>
@@ -153,6 +171,52 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 </div>
                                 <p className="text-xs text-zinc-500 mt-2">Yeni etkinlikler oluşturarak seviye atlayabilirsin!</p>
                             </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'evaluations' && (
+                        <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden fade-in">
+                            {assessments.length === 0 ? (
+                                <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">
+                                    <i className="fa-solid fa-clipboard-list text-4xl mb-3 opacity-20"></i>
+                                    <p>Henüz yapılmış bir değerlendirme bulunmuyor.</p>
+                                </div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 uppercase font-bold text-xs">
+                                            <tr>
+                                                <th className="p-4">Öğrenci</th>
+                                                <th className="p-4">Sınıf/Yaş</th>
+                                                <th className="p-4">Tarih</th>
+                                                <th className="p-4 text-right">İşlem</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
+                                            {assessments.map(assess => (
+                                                <tr key={assess.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors">
+                                                    <td className="p-4 font-medium text-zinc-800 dark:text-zinc-100">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`w-2 h-2 rounded-full ${assess.gender === 'Kız' ? 'bg-pink-400' : 'bg-blue-400'}`}></span>
+                                                            {assess.studentName}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 text-zinc-600 dark:text-zinc-400">{assess.grade} ({assess.age})</td>
+                                                    <td className="p-4 text-zinc-500">{new Date(assess.createdAt).toLocaleDateString('tr-TR')}</td>
+                                                    <td className="p-4 text-right">
+                                                        <button 
+                                                            onClick={() => setSelectedAssessment(assess)}
+                                                            className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 font-bold text-xs bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-md transition-colors"
+                                                        >
+                                                            İncele
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -238,6 +302,65 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     )}
                 </div>
             </div>
+
+            {/* Assessment Detail Modal */}
+            {selectedAssessment && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setSelectedAssessment(null)}>
+                    <div className="bg-white dark:bg-zinc-800 w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900">
+                            <div>
+                                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{selectedAssessment.studentName} - Değerlendirme Raporu</h3>
+                                <p className="text-sm text-zinc-500">{new Date(selectedAssessment.createdAt).toLocaleString()}</p>
+                            </div>
+                            <button onClick={() => setSelectedAssessment(null)} className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center hover:bg-zinc-300 dark:hover:bg-zinc-600">
+                                <i className="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div className="p-6 overflow-y-auto custom-scrollbar">
+                            <div className="mb-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                                <h4 className="font-bold text-indigo-800 dark:text-indigo-300 mb-2">Genel Özet</h4>
+                                <p className="text-zinc-700 dark:text-zinc-300 text-sm">{selectedAssessment.report.overallSummary}</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                <div className="md:col-span-1 flex flex-col items-center justify-center bg-white dark:bg-zinc-700/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-600">
+                                    <h4 className="font-bold text-zinc-500 text-xs uppercase mb-4">Risk Analizi</h4>
+                                    {selectedAssessment.report.chartData && <RadarChart data={selectedAssessment.report.chartData} />}
+                                </div>
+                                <div className="md:col-span-2 space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                                            <h5 className="text-green-700 dark:text-green-400 font-bold text-sm mb-2">Güçlü Yönler</h5>
+                                            <ul className="text-sm list-disc list-inside text-zinc-600 dark:text-zinc-400">
+                                                {selectedAssessment.report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                                            </ul>
+                                        </div>
+                                        <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800">
+                                            <h5 className="text-rose-700 dark:text-rose-400 font-bold text-sm mb-2">Gelişim Alanları</h5>
+                                            <ul className="text-sm list-disc list-inside text-zinc-600 dark:text-zinc-400">
+                                                {selectedAssessment.report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="p-4 bg-zinc-50 dark:bg-zinc-700/30 rounded-xl border border-zinc-200 dark:border-zinc-600">
+                                        <h5 className="font-bold text-zinc-700 dark:text-zinc-300 text-sm mb-3">Önerilen Yol Haritası</h5>
+                                        <div className="space-y-2">
+                                            {selectedAssessment.report.roadmap.map((item, idx) => (
+                                                <div key={idx} className="flex justify-between items-center bg-white dark:bg-zinc-800 p-2 rounded shadow-sm text-sm">
+                                                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</span>
+                                                    <span className="text-zinc-500 text-xs">{item.frequency}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

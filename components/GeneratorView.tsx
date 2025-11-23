@@ -45,7 +45,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         const commonFields: ConfigField[] = [
              { key: 'topic', label: 'Konu / Tema', type: 'text', defaultValue: 'Rastgele', width: 'full', description: 'Örn: Uzay' }
         ];
-         const itemCountField = (defaultValue = 10, min = 4, max = 20, label = "Soru Sayısı"): ConfigField => ({
+         const itemCountField = (defaultValue = 10, min = 4, max = 50, label = "Soru Sayısı"): ConfigField => ({
             key: 'itemCount', label, type: 'number', defaultValue, min, max, width: 'half'
         });
         const gridSizeField = (defaultValue = 12, min = 8, max = 20): ConfigField => ({
@@ -99,6 +99,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.MISSING_PARTS:
             case ActivityType.SYLLABLE_COMPLETION:
             case ActivityType.BACKWARD_SPELLING:
+            case ActivityType.PROVERB_FILL_IN_THE_BLANK:
+            case ActivityType.PROVERB_SAYING_SORT:
+            case ActivityType.PROVERB_WORD_CHAIN:
                 return [ ...commonFields, itemCountField(8, 4, 20) ];
             case ActivityType.WORD_GROUPING:
                  return [
@@ -138,6 +141,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.TARGET_NUMBER:
             case ActivityType.KENDOKU:
             case ActivityType.MULTIPLICATION_WHEEL:
+            case ActivityType.ROMAN_NUMERAL_MULTIPLICATION:
                 return [
                     { key: 'operations', label: 'İşlemler', type: 'select', defaultValue: 'addsub', width: 'full', options: [{label: 'Toplama (+)', value: 'add'}, {label: 'Topla & Çıkar', value: 'addsub'}, {label: 'Çarpma (+ - x)', value: 'mult'}, {label: 'Dört İşlem', value: 'all'}]},
                     { key: 'numberRange', label: 'Aralık', type: 'select', defaultValue: '1-20', width: 'half', options: ['1-10', '1-20', '1-50', '1-100', '100-1000'] },
@@ -191,6 +195,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.SHAPE_SUDOKU:
             case ActivityType.LOGIC_GRID_PUZZLE:
             case ActivityType.ROMAN_NUMERAL_STAR_HUNT:
+            case ActivityType.NUMBER_CAPSULE:
                 return [ itemCountField(2, 1, 20, 'Adet') ];
 
             // Reading
@@ -221,6 +226,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.ODD_ONE_OUT:
             case ActivityType.VISUAL_ODD_ONE_OUT:
             case ActivityType.VISUAL_ODD_ONE_OUT_THEMED:
+            case ActivityType.THEMATIC_ODD_ONE_OUT:
+            case ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE:
+            case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE:
                  return [
                     ...commonFields,
                     itemCountField(8, 5, 20),
@@ -258,6 +266,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.GRID_DRAWING:
             case ActivityType.SYMMETRY_DRAWING:
             case ActivityType.MATCHSTICK_SYMMETRY:
+            case ActivityType.SHAPE_COUNTING:
                 return [
                     itemCountField(2, 1, 6, 'Adet'),
                     gridSizeField(8, 5, 12),
@@ -272,6 +281,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.WEIGHT_CONNECT:
             case ActivityType.LENGTH_CONNECT:
             case ActivityType.STAR_HUNT:
+            case ActivityType.ROUNDING_CONNECT:
+            case ActivityType.ARITHMETIC_CONNECT:
+            case ActivityType.PROFESSION_CONNECT:
                 return [
                     itemCountField(8, 4, 20),
                     gridSizeField(10, 6, 15)
@@ -300,6 +312,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [ itemCountField(4, 4, 12, 'Soru Sayısı') ];
             case ActivityType.VISUAL_TRACKING_LINES:
                 return [ itemCountField(4, 3, 8, 'Yol Sayısı') ];
+            case ActivityType.PUNCTUATION_MAZE:
+            case ActivityType.PUNCTUATION_PHONE_NUMBER:
+                return [ ...commonFields, itemCountField(1, 1, 5, 'Adet') ];
 
             default:
                 return [ ...commonFields, itemCountField(10, 5, 20) ];
@@ -329,9 +344,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
         setSpecificOptions(prev => ({
             ...prev,
-            gridSize: prev.hasOwnProperty('gridSize') ? newGridSize : undefined,
-            itemCount: prev.hasOwnProperty('itemCount') ? newItemCount : undefined,
-            directions: prev.hasOwnProperty('directions') ? newDirections : undefined
+            gridSize: prev.hasOwnProperty('gridSize') ? newGridSize : prev.gridSize,
+            itemCount: prev.hasOwnProperty('itemCount') ? newItemCount : prev.itemCount,
+            directions: prev.hasOwnProperty('directions') ? newDirections : prev.directions
         }));
     }, [difficulty]);
 

@@ -17,7 +17,6 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
     return Array.from({ length: worksheetCount }, () => {
         const baseText = getRandomItems(texts, 1)[0];
         // Simulate sentence count control by repeating or slicing sentences from a longer text
-        // In a real scenario, we would generate 'itemCount' number of sentences
         let sentences = baseText.split(/(?<=[.!?])\s+/);
         const count = itemCount || 5;
         
