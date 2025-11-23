@@ -275,6 +275,18 @@ const AppContent: React.FC = () => {
                 <GlobalSearch onSelectActivity={handleSelectActivity} />
              </div>
              
+             <div className="hidden md:flex items-center gap-1 border-r border-zinc-300 dark:border-zinc-700 pr-2 mx-1">
+                <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Nasıl Kullanılır?">
+                    <i className="fa-solid fa-circle-question fa-lg"></i>
+                </button>
+                <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Hakkımızda">
+                    <i className="fa-solid fa-circle-info fa-lg"></i>
+                </button>
+                <button onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="İletişim / Hata Bildir">
+                    <i className="fa-solid fa-headset fa-lg"></i>
+                </button>
+             </div>
+             
              <button 
                 onClick={() => setCurrentView('assessment')}
                 className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all"
@@ -419,7 +431,7 @@ const AppContent: React.FC = () => {
                           <div className="flex items-center gap-3">
                                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                                    <i className="fa-solid fa-file-pen"></i>
-                               </div>
+                                </div>
                                <div>
                                   <p className="font-bold text-sm text-zinc-800 dark:text-zinc-200">{item.title}</p>
                                   <div className="flex items-center gap-2 text-xs text-zinc-500">

@@ -93,6 +93,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const getBreadcrumbs = () => {
         if (currentView === 'savedList') return ['Ana Sayfa', 'Arşivim'];
         if (currentView === 'shared') return ['Ana Sayfa', 'Paylaşılanlar'];
+        if (currentView === 'assessment') return ['Ana Sayfa', 'Değerlendirme'];
         if (currentView === 'generator' && activityType) {
             const act = ACTIVITIES.find(a => a.id === activityType);
             const cat = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType || '' as ActivityType));
@@ -137,7 +138,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             {breadcrumbs.map((crumb, idx) => (
                 <li key={idx} className="flex items-center">
                     {idx > 0 && <i className="fa-solid fa-chevron-right text-[10px] mx-2 opacity-50"></i>}
-                    <span className={idx === breadcrumbs.length - 1 ? "font-bold text-indigo-600 dark:text-indigo-400" : ""}>
+                    <span className={`${idx === breadcrumbs.length - 1 ? "font-bold text-indigo-600 dark:text-indigo-400" : "hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer"}`}>
                         {crumb}
                     </span>
                 </li>
@@ -213,27 +214,30 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
 
             {!isLoading && !error && !worksheetData && (
-                 <div className="flex flex-col justify-center items-center h-full relative min-h-[500px]">
+                 <div className="flex flex-col justify-center items-center h-full relative min-h-[500px] animate-in fade-in duration-500">
                     <div className="absolute inset-0 overflow-hidden -z-10">
                         {/* Decorative Icons */}
                         <i className="fa-solid fa-lightbulb text-zinc-200/50 dark:text-zinc-700/50 absolute text-8xl" style={{ top: '15%', left: '10%', animation: 'float 8s ease-in-out infinite' }}></i>
                         <i className="fa-solid fa-book-open text-zinc-200/50 dark:text-zinc-700/50 absolute text-7xl" style={{ top: '60%', left: '5%', animation: 'float 12s ease-in-out infinite 2s' }}></i>
                         <i className="fa-solid fa-puzzle-piece text-zinc-200/50 dark:text-zinc-700/50 absolute text-9xl" style={{ top: '20%', right: '8%', animation: 'float 10s ease-in-out infinite 1s' }}></i>
                     </div>
-                     <div className="text-center p-8 z-10 max-w-2xl">
-                        <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-indigo-100/50 dark:ring-indigo-900/20 shadow-xl">
-                            <i className="fa-solid fa-wand-magic-sparkles text-5xl text-indigo-500 dark:text-indigo-400"></i>
+                     <div className="text-center p-8 z-10 max-w-2xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-2xl">
+                        <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-indigo-100/50 dark:ring-indigo-900/20 shadow-xl transform hover:scale-110 transition-transform">
+                            <i className="fa-solid fa-wand-magic-sparkles text-5xl text-indigo-600 dark:text-indigo-400"></i>
                         </div>
                         <LandingText />
-                        <p className="mt-6 text-zinc-500 dark:text-zinc-400 text-lg">
-                            Sol menüden bir kategori seçerek hemen etkinlik üretmeye başlayın.
+                        <p className="mt-6 text-zinc-500 dark:text-zinc-400 text-lg leading-relaxed">
+                            Eğitimi kişiselleştirmek hiç bu kadar kolay olmamıştı.<br/>
+                            <strong>Disleksi</strong>, <strong>Diskalkuli</strong> ve <strong>Dikkat Eksikliği</strong> için özel olarak tasarlanmış materyaller üretin.
                         </p>
-                        <div className="mt-8 flex gap-4 justify-center">
-                            <button onClick={onOpenAuth} className="px-6 py-3 bg-white dark:bg-zinc-800 text-indigo-600 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-sm hover:shadow-md transition-all font-bold flex items-center gap-2">
-                                <i className="fa-solid fa-user"></i> Profilim
+                        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onClick={() => document.getElementById('tour-search')?.click()} className="px-8 py-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-105 transition-all font-bold flex items-center justify-center gap-3 text-lg">
+                                <i className="fa-solid fa-magnifying-glass"></i>
+                                <span>Hemen Başla</span>
                             </button>
-                            <button onClick={() => document.getElementById('tour-search')?.click()} className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 transition-all font-bold flex items-center gap-2">
-                                <i className="fa-solid fa-search"></i> Keşfet
+                            <button onClick={onOpenAuth} className="px-8 py-4 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all font-bold flex items-center justify-center gap-3 text-lg">
+                                <i className="fa-solid fa-user-circle"></i>
+                                <span>Profilim</span>
                             </button>
                         </div>
                     </div>
