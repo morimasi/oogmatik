@@ -31,16 +31,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
 
     useEffect(() => {
         loadData();
-        const interval = setInterval(loadData, 5000); // Auto refresh
+        const interval = setInterval(loadData, 10000); // Auto refresh (10s to reduce DB load)
         return () => clearInterval(interval);
     }, []);
 
     const loadData = async () => {
-        setUsers(await authService.getAllUsers());
-        setFeedbacks(await messagingService.getAllFeedbacks());
-        setStats(statsService.getAllStats());
-        if (user) {
-            setMessages(await messagingService.getMessagesForUser(user.id)); 
+        try {
+            const [usersData, feedbacksData, statsData] = await Promise.all([
+                authService.getAllUsers(),
+                messagingService.getAllFeedbacks(),
+                statsService.getAllStats()
+            ]);
+            
+            setUsers(usersData);
+            setFeedbacks(feedbacksData);
+            setStats(statsData);
+
+            if (user) {
+                const messagesData = await messagingService.getMessagesForUser(user.id);
+                setMessages(messagesData);
+            }
+        } catch (error) {
+            console.error("Admin data load error:", error);
         }
     };
 
@@ -112,9 +124,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         return sortableItems;
     }, [stats, sortConfig]);
 
-    const totalGenerations = stats.reduce((acc, curr) => acc + curr.generationCount, 0);
-    const mostPopular = stats.length > 0 ? stats.reduce((prev, current) => (prev.generationCount > current.generationCount) ? prev : current) : null;
-    const top5 = [...stats].sort((a, b) => b.generationCount - a.generationCount).slice(0, 5);
+    // Safely calculate aggregate stats
+    const totalGenerations = stats.reduce((acc, curr) => acc + (curr.generationCount || 0), 0);
+    const mostPopular = stats.length > 0 ? stats.reduce((prev, current) => ((prev.generationCount || 0) > (current.generationCount || 0)) ? prev : current) : null;
+    const top5 = [...stats].sort((a, b) => (b.generationCount || 0) - (a.generationCount || 0)).slice(0, 5);
+    const avgTime = stats.length > 0 ? Math.round(stats.reduce((a,b) => a + (b.avgCompletionTime || 0), 0) / stats.length) : 0;
 
     // Group messages logic
     interface ConversationGroup {
@@ -295,7 +309,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                 {/* MESSAGES TAB */}
                 {activeTab === 'messages' && (
                     <div className="flex h-full bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden">
-                        {/* Conversation List */}
                         <div className="w-1/3 border-r border-zinc-200 dark:border-zinc-700 overflow-y-auto">
                             {sortedConversations.map(group => (
                                 <button
@@ -320,7 +333,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                             {sortedConversations.length === 0 && <div className="p-8 text-center text-zinc-400 text-sm">Mesaj kutusu boş.</div>}
                         </div>
 
-                        {/* Chat Area */}
                         <div className="flex-1 flex flex-col">
                             {selectedConversationUserId ? (
                                 <>
@@ -370,7 +382,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                 {/* STATS TAB */}
                 {activeTab === 'stats' && (
                     <div className="flex flex-col h-full gap-6 overflow-y-auto pb-20">
-                        {/* Top Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl">
@@ -397,20 +408,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                 <div>
                                     <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">Ort. Tamamlama</p>
                                     <p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">
-                                        {Math.round(stats.reduce((a,b) => a + b.avgCompletionTime, 0) / (stats.length || 1))} dk
+                                        {avgTime} dk
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Bar Chart: Top Activities */}
                             <div className="lg:col-span-1 bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
                                 <h3 className="text-lg font-bold mb-6 text-zinc-800 dark:text-zinc-100">En Çok Kullanılan 5 Etkinlik</h3>
                                 <div className="flex flex-col justify-end h-64 gap-3">
                                     {top5.map((item, index) => {
-                                        const maxVal = top5[0].generationCount;
-                                        const widthPercent = (item.generationCount / maxVal) * 100;
+                                        const maxVal = top5[0].generationCount || 1;
+                                        const widthPercent = ((item.generationCount || 0) / maxVal) * 100;
                                         return (
                                             <div key={item.activityId} className="w-full">
                                                 <div className="flex justify-between text-xs mb-1">
@@ -429,7 +439,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                 </div>
                             </div>
 
-                            {/* Detailed Stats Table */}
                             <div className="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col">
                                 <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-center">
                                     <h3 className="font-bold text-zinc-800 dark:text-zinc-100">Tüm Etkinlik Detayları</h3>

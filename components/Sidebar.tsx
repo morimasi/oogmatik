@@ -94,7 +94,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         if (result) {
             setWorksheetData(result);
             onAddToHistory(selectedActivity, result);
-            statsService.incrementUsage(selectedActivity);
+            // Fire and forget stats increment to not block UI
+            statsService.incrementUsage(selectedActivity).catch(console.error);
         }
 
     } catch (e: any) {
