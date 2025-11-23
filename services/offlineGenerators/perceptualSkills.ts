@@ -329,7 +329,7 @@ export const generateOfflineFindDifferentString = async (options: GeneratorOptio
 };
 
 export const generateOfflineDotPainting = async (options: GeneratorOptions): Promise<DotPaintingData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, itemCount } = options; // itemCount unused visually but could mean more complex dots
     const results: DotPaintingData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const shapeKey = getRandomItems(Object.keys(dotArtShapes), 1)[0];

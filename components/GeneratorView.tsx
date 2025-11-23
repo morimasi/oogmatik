@@ -102,7 +102,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [ ...commonFields, itemCountField(8, 4, 20) ];
             case ActivityType.WORD_GROUPING:
                  return [
-                     itemCountField(12, 6, 24, 'Toplam'),
+                     itemCountField(12, 6, 24, 'Toplam Kelime'),
                      { key: 'categoryCount', label: 'Kategori', type: 'number', defaultValue: 3, min: 2, max: 4, width: 'half'},
                  ];
             case ActivityType.WORD_WEB:
@@ -280,13 +280,26 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             case ActivityType.SYNONYM_ANTONYM_COLORING:
                 return [ ...commonFields, itemCountField(4, 2, 10, 'Cümle/Öğe') ];
             case ActivityType.DOT_PAINTING:
+                return [ ...commonFields, itemCountField(1, 1, 1, 'Resim Sayısı') ];
             case ActivityType.SYLLABLE_TRAIN:
-                return [ ...commonFields ];
+                return [ ...commonFields, itemCountField(5, 3, 10, 'Kelime Sayısı') ];
             
+            // Dyslexia Support & Others
             case ActivityType.READING_FLOW:
-                return [{ key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' }];
+                return [{ key: 'topic', label: 'Konu', type: 'text', defaultValue: 'Rastgele', width: 'full' }, itemCountField(5, 3, 15, 'Cümle Sayısı')];
             case ActivityType.RAPID_NAMING:
-                return [{ key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] }];
+                return [
+                    { key: 'type', label: 'RAN Türü', type: 'select', defaultValue: 'object', width: 'full', options: [{label: 'Nesneler', value: 'object'}, {label: 'Renkler', value: 'color'}, {label: 'Sayılar', value: 'number'}] },
+                    itemCountField(20, 10, 50, 'Sembol Sayısı')
+                ];
+            case ActivityType.LETTER_DISCRIMINATION:
+                return [ itemCountField(6, 4, 12, 'Satır Sayısı') ];
+            case ActivityType.MIRROR_LETTERS:
+                return [ itemCountField(5, 3, 10, 'Satır Sayısı') ];
+            case ActivityType.PHONOLOGICAL_AWARENESS:
+                return [ itemCountField(4, 4, 12, 'Soru Sayısı') ];
+            case ActivityType.VISUAL_TRACKING_LINES:
+                return [ itemCountField(4, 3, 8, 'Yol Sayısı') ];
 
             default:
                 return [ ...commonFields, itemCountField(10, 5, 20) ];

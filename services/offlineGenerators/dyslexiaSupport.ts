@@ -4,7 +4,7 @@ import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAl
 
 // --- 1. Reading Flow (Heceli/Renkli Okuma) ---
 export const generateOfflineReadingFlow = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
-    const { worksheetCount, difficulty, topic } = options;
+    const { worksheetCount, difficulty, topic, itemCount } = options;
     
     const texts = [
         "Ali okula gitti. Yolda küçük bir kedi gördü. Kedi çok sevimliydi. Ali kediyi sevdi.",
@@ -15,8 +15,19 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
     ];
 
     return Array.from({ length: worksheetCount }, () => {
-        const text = getRandomItems(texts, 1)[0];
-        const sentences = text.split(/(?<=[.!?])\s+/);
+        const baseText = getRandomItems(texts, 1)[0];
+        // Simulate sentence count control by repeating or slicing sentences from a longer text
+        // In a real scenario, we would generate 'itemCount' number of sentences
+        let sentences = baseText.split(/(?<=[.!?])\s+/);
+        const count = itemCount || 5;
+        
+        if (sentences.length < count) {
+             // Repeat to meet count if needed for demo
+             while(sentences.length < count) {
+                 sentences = [...sentences, ...sentences];
+             }
+        }
+        sentences = sentences.slice(0, count);
         
         const processedParagraph = sentences.map(sentence => {
             const words = sentence.split(' ');
@@ -44,15 +55,16 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
 
 // --- 2. Letter Discrimination (Harf Ayrımı) ---
 export const generateOfflineLetterDiscrimination = async (options: GeneratorOptions): Promise<LetterDiscriminationData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, itemCount } = options;
     
     return Array.from({ length: worksheetCount }, () => {
         const pairs = [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n']];
         const targetPair = getRandomItems(pairs, 1)[0];
         const targetLetter = targetPair[0];
         const distractor = targetPair[1];
+        const rowCount = itemCount || 6;
         
-        const rows = Array.from({ length: 6 }, () => {
+        const rows = Array.from({ length: rowCount }, () => {
             const rowLen = 10;
             const letters = Array.from({ length: rowLen }, () => Math.random() > 0.5 ? targetLetter : distractor);
             const count = letters.filter(l => l === targetLetter).length;
@@ -72,7 +84,7 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
 
 // --- 3. Rapid Naming (RAN) ---
 export const generateOfflineRapidNaming = async (options: GeneratorOptions): Promise<RapidNamingData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, itemCount } = options;
     
     return Array.from({ length: worksheetCount }, () => {
         const type = getRandomItems(['color', 'object', 'number'], 1)[0] as 'color' | 'object' | 'number';
@@ -86,7 +98,8 @@ export const generateOfflineRapidNaming = async (options: GeneratorOptions): Pro
             pool = getRandomItems(EMOJIS, 5).map(e => ({ type: 'icon', value: e, label: EMOJI_MAP[e] }));
         }
 
-        const gridItems = Array.from({ length: 20 }, () => getRandomItems(pool, 1)[0]);
+        const count = itemCount || 20;
+        const gridItems = Array.from({ length: count }, () => getRandomItems(pool, 1)[0]);
 
         return {
             title: 'Hızlı İsimlendirme (RAN)',
@@ -101,10 +114,11 @@ export const generateOfflineRapidNaming = async (options: GeneratorOptions): Pro
 
 // --- 4. Phonological Awareness ---
 export const generateOfflinePhonologicalAwareness = async (options: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, itemCount } = options;
     
     return Array.from({ length: worksheetCount }, () => {
-        const exercises = Array.from({ length: 4 }, () => {
+        const count = itemCount || 4;
+        const exercises = Array.from({ length: count }, () => {
             const word = getRandomItems(getWordsForDifficulty(difficulty), 1)[0];
             const syllables = simpleSyllabify(word);
             
@@ -130,12 +144,13 @@ export const generateOfflinePhonologicalAwareness = async (options: GeneratorOpt
 
 // --- 5. Mirror Letters (Ayna Harfler) ---
 export const generateOfflineMirrorLetters = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, itemCount } = options;
     const pairs = [['b', 'd'], ['p', 'q']];
     const selectedPair = getRandomItems(pairs, 1)[0];
     
     return Array.from({ length: worksheetCount }, () => {
-        const rows = Array.from({ length: 5 }, () => {
+        const rowCount = itemCount || 5;
+        const rows = Array.from({ length: rowCount }, () => {
             const rowItems = Array.from({ length: 8 }, () => {
                 const isCorrect = Math.random() > 0.5;
                 const letter = isCorrect ? selectedPair[0] : selectedPair[1];
@@ -162,8 +177,9 @@ export const generateOfflineMirrorLetters = async (options: GeneratorOptions): P
 
 // --- 6. Syllable Train (Hece Treni) ---
 export const generateOfflineSyllableTrain = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
-    const { worksheetCount, difficulty, topic } = options;
-    const words = getRandomItems(getWordsForDifficulty(difficulty, topic), 5);
+    const { worksheetCount, difficulty, topic, itemCount } = options;
+    const count = itemCount || 5;
+    const words = getRandomItems(getWordsForDifficulty(difficulty, topic), count);
 
     return Array.from({ length: worksheetCount }, () => {
         const trains = words.map(word => ({
@@ -183,10 +199,10 @@ export const generateOfflineSyllableTrain = async (options: GeneratorOptions): P
 
 // --- 7. Visual Tracking Lines (Görsel Takip) ---
 export const generateOfflineVisualTrackingLines = async (options: GeneratorOptions): Promise<VisualTrackingLineData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, itemCount } = options;
     const width = 600;
     const height = 400;
-    const pathCount = difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 4 : 5);
+    const pathCount = itemCount || (difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 4 : 5));
 
     return Array.from({ length: worksheetCount }, () => {
         const paths = [];
@@ -233,7 +249,8 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
 // --- 8. Backward Spelling (Ters Kelime Avcısı) ---
 export const generateOfflineBackwardSpelling = async (options: GeneratorOptions): Promise<BackwardSpellingData[]> => {
     const { worksheetCount, difficulty, topic, itemCount } = options;
-    const words = getRandomItems(getWordsForDifficulty(difficulty, topic), itemCount || 8);
+    const count = itemCount || 8;
+    const words = getRandomItems(getWordsForDifficulty(difficulty, topic), count);
 
     return Array.from({ length: worksheetCount }, () => {
         const items = words.map(word => ({
