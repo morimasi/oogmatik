@@ -10,16 +10,28 @@ interface GlobalSearchProps {
 const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState(''); // Debounce state
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Debounce logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300); // 300ms delay
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [query]);
+
   const searchResults = useMemo(() => {
-    if (query.length < 2) {
+    if (debouncedQuery.length < 2) {
       return [];
     }
-    const lowerCaseQuery = query.toLocaleLowerCase('tr');
+    const lowerCaseQuery = debouncedQuery.toLocaleLowerCase('tr');
     
-    // Using a map to ensure unique activities are returned, as some have multiple titles for the same ID
+    // Using a map to ensure unique activities are returned
     const uniqueResults = new Map<ActivityType, Activity>();
 
     ACTIVITIES.forEach(activity => {
@@ -32,14 +44,14 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
     });
 
     return Array.from(uniqueResults.values());
-  }, [query]);
+  }, [debouncedQuery]);
 
   // Handle click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        setQuery('');
+        setQuery(''); // Reset immediate query
       }
     };
     document.addEventListener('mousedown', handleClickOutside);

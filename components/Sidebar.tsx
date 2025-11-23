@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
@@ -112,6 +112,14 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const currentActivity = getActivityById(selectedActivity);
 
+  // Optimization: Memoize categorization to avoid recalculation on every render
+  const categorizedActivities = useMemo(() => {
+      return ACTIVITY_CATEGORIES.map(category => ({
+          ...category,
+          items: ACTIVITIES.filter(act => category.activities.includes(act.id))
+      }));
+  }, []);
+
   return (
     <aside
       id="tour-sidebar"
@@ -144,7 +152,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         </button>
                     </div>
                     <nav className="flex-1 overflow-y-auto p-2">
-                        {ACTIVITY_CATEGORIES.map((category) => (
+                        {categorizedActivities.map((category) => (
                             <div key={category.id} className="py-1">
                                 <button
                                     onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
@@ -156,7 +164,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </button>
                                 {openCategoryId === category.id && (
                                     <ul className="mt-1 space-y-1 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg p-2 mx-2 shadow-inner border border-zinc-100 dark:border-zinc-700/50">
-                                        {ACTIVITIES.filter(act => category.activities.includes(act.id)).map(activity => (
+                                        {category.items.map(activity => (
                                             <li key={`${activity.id}-${activity.title}`}>
                                                 <button
                                                     onClick={() => {

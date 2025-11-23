@@ -16,45 +16,6 @@ interface WorksheetProps {
   settings: StyleSettings;
 }
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
-    if (!data || !Array.isArray(data) || data.length === 0) return null;
-
-    const pageStyle: CSSProperties = {
-        padding: `${settings.margin}px`,
-        border: `${settings.borderWidth}px solid ${settings.borderColor}`,
-        fontSize: `${settings.fontSize}px`,
-        '--worksheet-gap': `${settings.gap}px`,
-        '--worksheet-border-width': `${settings.borderWidth}px`,
-        '--worksheet-border-color': settings.borderColor,
-    } as CSSProperties;
-
-    const containerStyle: CSSProperties = {
-        display: 'grid',
-        gridTemplateColumns: `repeat(${settings.columns}, 1fr)`,
-        gap: `${settings.gap}px`,
-    };
-
-    return (
-        <div className="flex flex-col gap-8 items-center w-full max-w-[210mm] mx-auto">
-            {data.map((sheetData, index) => (
-                <div 
-                    key={index} 
-                    className="worksheet-page bg-white shadow-lg print:shadow-none print:break-after-page w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden"
-                    style={pageStyle}
-                >
-                    <div style={containerStyle}>
-                        {renderSheet(activityType, sheetData)}
-                    </div>
-
-                    <div className="absolute bottom-4 right-6 text-[10px] text-zinc-400 font-bold uppercase tracking-widest print:block hidden opacity-50">
-                        Bursa Disleksi AI
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
-
 const renderSheet = (type: ActivityType | null, data: any) => {
     try {
         switch (type) {
@@ -79,7 +40,6 @@ const renderSheet = (type: ActivityType | null, data: any) => {
                 return <DyscalculiaSheets.NumberSenseSheet data={data} />; // Reuse logic
             case ActivityType.PROBLEM_SOLVING_STRATEGIES:
             case ActivityType.APPLIED_MATH_STORY:
-                // Ensure MathLogicSheets exports RealLifeMathProblemsSheet, otherwise fallback
                 return MathLogicSheets.RealLifeMathProblemsSheet ? <MathLogicSheets.RealLifeMathProblemsSheet data={data} /> : <div>Component Not Found</div>;
             case ActivityType.VISUAL_DISCRIMINATION_MATH:
                 return <VisualSheets.VisualOddOneOutSheet data={data} />;
@@ -233,4 +193,48 @@ const renderSheet = (type: ActivityType | null, data: any) => {
     }
 };
 
-export default Worksheet;
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
+    if (!data || !Array.isArray(data) || data.length === 0) return null;
+
+    const pageStyle: CSSProperties = {
+        padding: `${settings.margin}px`,
+        border: `${settings.borderWidth}px solid ${settings.borderColor}`,
+        fontSize: `${settings.fontSize}px`,
+        '--worksheet-gap': `${settings.gap}px`,
+        '--worksheet-border-width': `${settings.borderWidth}px`,
+        '--worksheet-border-color': settings.borderColor,
+    } as CSSProperties;
+
+    const containerStyle: CSSProperties = {
+        display: 'grid',
+        gridTemplateColumns: `repeat(${settings.columns}, 1fr)`,
+        gap: `${settings.gap}px`,
+    };
+
+    return (
+        <div className="flex flex-col gap-8 items-center w-full max-w-[210mm] mx-auto">
+            {data.map((sheetData, index) => (
+                <div 
+                    key={index} 
+                    className="worksheet-page bg-white shadow-lg print:shadow-none print:break-after-page w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden"
+                    style={pageStyle}
+                >
+                    <div style={containerStyle}>
+                        {renderSheet(activityType, sheetData)}
+                    </div>
+
+                    <div className="absolute bottom-4 right-6 text-[10px] text-zinc-400 font-bold uppercase tracking-widest print:block hidden opacity-50">
+                        Bursa Disleksi AI
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+// Prevent re-renders unless data or settings strictly change
+export default React.memo(Worksheet, (prevProps, nextProps) => {
+    return prevProps.activityType === nextProps.activityType && 
+           prevProps.data === nextProps.data && 
+           JSON.stringify(prevProps.settings) === JSON.stringify(nextProps.settings);
+});

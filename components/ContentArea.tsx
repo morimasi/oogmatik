@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
@@ -8,6 +8,7 @@ import { SharedWorksheetsView } from './SharedWorksheetsView';
 import { useAuth } from '../context/AuthContext';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { SkeletonLoader } from './SkeletonLoader';
+import { AssessmentModule } from './AssessmentModule';
 
 interface ContentAreaProps {
   currentView: View;
@@ -25,6 +26,32 @@ interface ContentAreaProps {
   onFeedback: () => void;
   onOpenAuth: () => void; 
 }
+
+// Extracted component to prevent re-definition on every render
+const LandingText = memo(() => {
+    const text = "Her şey tersti sen farkında olana kadar...";
+    return (
+        <h2 className="text-3xl font-bold mb-2 text-zinc-800 dark:text-zinc-200 leading-normal text-center max-w-2xl mx-auto">
+            {text.split('').map((char, i) => {
+                if (char === ' ') return <span key={i}> </span>;
+                // Apply animation to 'e', 'a', 'o', 'b', 'd', 'p'
+                const isAnimated = ['e', 'a', 'ı', 'i', 'o', 'ö', 'u', 'ü', 'b', 'd', 'p'].includes(char.toLowerCase()) && Math.random() > 0.3;
+                const delay = Math.random() * -5;
+                const duration = 4 + Math.random() * 4;
+                
+                return (
+                    <span 
+                        key={i} 
+                        className={`inline-block ${isAnimated ? 'dyslexia-flip text-indigo-600 dark:text-indigo-400' : ''}`}
+                        style={isAnimated ? { animationDelay: `${delay}s`, animationDuration: `${duration}s` } : {}}
+                    >
+                        {char}
+                    </span>
+                );
+            })}
+        </h2>
+    );
+});
 
 const ContentArea: React.FC<ContentAreaProps> = ({
   currentView,
@@ -104,31 +131,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     const breadcrumbs = getBreadcrumbs();
 
-    const LandingText = () => {
-        const text = "Her şey tersti sen farkında olana kadar...";
-        return (
-            <h2 className="text-3xl font-bold mb-2 text-zinc-800 dark:text-zinc-200 leading-normal text-center max-w-2xl mx-auto">
-                {text.split('').map((char, i) => {
-                    if (char === ' ') return <span key={i}> </span>;
-                    // Apply animation to 'e', 'a', 'o', 'b', 'd', 'p'
-                    const isAnimated = ['e', 'a', 'ı', 'i', 'o', 'ö', 'u', 'ü', 'b', 'd', 'p'].includes(char.toLowerCase()) && Math.random() > 0.3;
-                    const delay = Math.random() * -5;
-                    const duration = 4 + Math.random() * 4;
-                    
-                    return (
-                        <span 
-                            key={i} 
-                            className={`inline-block ${isAnimated ? 'dyslexia-flip text-indigo-600 dark:text-indigo-400' : ''}`}
-                            style={isAnimated ? { animationDelay: `${delay}s`, animationDuration: `${duration}s` } : {}}
-                        >
-                            {char}
-                        </span>
-                    );
-                })}
-            </h2>
-        );
-    };
-
   return (
     <main id="tour-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent">
       
@@ -138,7 +140,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             {breadcrumbs.map((crumb, idx) => (
                 <li key={idx} className="flex items-center">
                     {idx > 0 && <i className="fa-solid fa-chevron-right text-[10px] mx-2 opacity-50"></i>}
-                    <span className={`${idx === breadcrumbs.length - 1 ? "font-bold text-indigo-600 dark:text-indigo-400" : "hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer"}`}>
+                    <span 
+                        onClick={() => { if(idx === 0) onBackToGenerator(); }}
+                        className={`${idx === breadcrumbs.length - 1 ? "font-bold text-indigo-600 dark:text-indigo-400" : "hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer"}`}
+                    >
                         {crumb}
                     </span>
                 </li>
@@ -267,4 +272,4 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   );
 };
 
-export default ContentArea;
+export default React.memo(ContentArea);
