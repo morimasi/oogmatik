@@ -7,7 +7,8 @@ const mapDbUserToAppUser = (dbUser: any): User => ({
     id: dbUser.id,
     email: dbUser.email,
     name: dbUser.name || dbUser.email.split('@')[0],
-    role: dbUser.role || 'user',
+    // 'morimasi@gmail.com' hesabına otomatik admin yetkisi ver
+    role: dbUser.email === 'morimasi@gmail.com' ? 'admin' : (dbUser.role || 'user'),
     avatar: dbUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${dbUser.email}`,
     createdAt: dbUser.created_at,
     lastLogin: dbUser.last_login,
