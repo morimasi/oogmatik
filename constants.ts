@@ -17,7 +17,7 @@ export const ACTIVITIES: Activity[] = [
    {
     id: ActivityType.FIND_THE_DIFFERENCE,
     title: 'Farklı Olanı Bul (Görsel)',
-    description: 'Gruplar içinde farklı olan kelimeyi bulun.',
+    description: 'Gruplar içinde farklı olan kelimeler bulun.',
     icon: 'fa-solid fa-not-equal',
   },
   {
@@ -674,14 +674,6 @@ export const ACTIVITIES: Activity[] = [
     description: 'Ters dönmüş harfleri bul ve düzelt.',
     icon: 'fa-solid fa-retweet',
   },
-  // New consolidated activity
-  {
-    id: ActivityType.ACTIVITY_CATEGORIES, 
-    // Note: This key seems wrong based on how ACTIVITY_CATEGORIES is used. 
-    // Actually ACTIVITY_CATEGORIES is a constant array, not an enum member. 
-    // The enum ActivityType is correct.
-    // I will just use the existing consolidated types.
-  } as any
 ].filter(a => a.id); // Filter out any potential undefined
 
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [

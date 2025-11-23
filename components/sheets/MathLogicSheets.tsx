@@ -1,9 +1,11 @@
 
+
+
 import React from 'react';
 import { 
-    MathPuzzleData, NumberPatternData, OddOneOutData, FutoshikiData, FutoshikiLengthData, NumberPyramidData, DivisionPyramidData, MultiplicationPyramidData,
-    NumberCapsuleData, OddEvenSudokuData, Sudoku6x6ShadedData, RomanNumeralStarHuntData, RoundingConnectData, ArithmeticConnectData, RomanNumeralMultiplicationData,
-    KendokuData, OperationSquareSubtractionData, OperationSquareFillInData, OperationSquareMultDivData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
+    MathPuzzleData, NumberPatternData, OddOneOutData, FutoshikiData, NumberPyramidData,
+    NumberCapsuleData, OddEvenSudokuData, RomanNumeralStarHuntData, RoundingConnectData, ArithmeticConnectData, RomanNumeralMultiplicationData,
+    KendokuData, OperationSquareFillInData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
     LogicGridPuzzleData, MultiplicationWheelData, ShapeNumberPatternData, ShapeCountingData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData,
     BasicOperationsData, RealLifeProblemData
 } from '../../types';
@@ -166,7 +168,7 @@ export const NumberPatternSheet: React.FC<{ data: NumberPatternData }> = ({ data
     </div>
 );
 
-export const FutoshikiSheet: React.FC<{ data: FutoshikiData | FutoshikiLengthData }> = ({ data }) => {
+export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
     const renderFutoshiki = (puzzle: any) => {
         const size = puzzle.size;
         const cellSize = 50;
@@ -233,7 +235,7 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData | FutoshikiLengthDat
     );
 };
 
-export const NumberPyramidSheet: React.FC<{ data: NumberPyramidData | DivisionPyramidData | MultiplicationPyramidData }> = ({ data }) => {
+export const NumberPyramidSheet: React.FC<{ data: NumberPyramidData }> = ({ data }) => {
     return (
         <div>
              <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
@@ -274,7 +276,7 @@ export const KendokuSheet: React.FC<{ data: KendokuData }> = ({ data }) => {
     );
 };
 
-export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData | Sudoku6x6ShadedData }> = ({ data }) => {
+export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData }> = ({ data }) => {
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
@@ -304,7 +306,7 @@ export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData | Sudoku6x6S
     );
 };
 
-export const OperationSquareSheet: React.FC<{ data: OperationSquareSubtractionData | OperationSquareFillInData | OperationSquareMultDivData }> = ({ data }) => (
+export const OperationSquareSheet: React.FC<{ data: OperationSquareFillInData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="flex flex-col gap-8 items-center">

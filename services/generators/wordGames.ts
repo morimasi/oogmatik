@@ -1,5 +1,6 @@
 
 
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -7,7 +8,7 @@ import {
     WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData,
     SynonymWordSearchData, SynonymSearchAndStoryData, AnagramsData, SpellingCheckData, LetterBridgeData, WordLadderData,
     WordFormationData, ReverseWordData, WordGroupingData, MiniWordGridData, PasswordFinderData, SyllableCompletionData,
-    SpiralPuzzleData, PunctuationSpiralPuzzleData, CrosswordData, JumbledWordStoryData, ThematicJumbledWordStoryData, HomonymSentenceData,
+    SpiralPuzzleData, PunctuationSpiralPuzzleData, CrosswordData, JumbledWordStoryData, HomonymSentenceData,
     WordGridPuzzleData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, AntonymResfebeData,
     SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordWebWithPasswordData,
     WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData
@@ -300,7 +301,7 @@ export const generateResfebeFromAI = async (options: GeneratorOptions): Promise<
 // Aliases with safe casting
 export const generateThematicWordSearchColorFromAI = async (options: GeneratorOptions) => generateWordSearchFromAI(options) as any as Promise<ThematicWordSearchColorData[]>;
 export const generatePunctuationSpiralPuzzleFromAI = async (options: GeneratorOptions) => generateSpiralPuzzleFromAI(options) as any as Promise<PunctuationSpiralPuzzleData[]>;
-export const generateThematicJumbledWordStoryFromAI = async (options: GeneratorOptions) => generateJumbledWordStoryFromAI(options) as any as Promise<ThematicJumbledWordStoryData[]>;
+export const generateThematicJumbledWordStoryFromAI = async (options: GeneratorOptions) => generateJumbledWordStoryFromAI(options) as Promise<JumbledWordStoryData[]>;
 export const generateAntonymResfebeFromAI = async (options: GeneratorOptions) => generateResfebeFromAI(options) as any as Promise<AntonymResfebeData[]>;
 export const generateSynonymSearchAndStoryFromAI = async (options: GeneratorOptions) => generateWordSearchFromAI(options) as any as Promise<SynonymSearchAndStoryData[]>;
 export const generateSynonymWordSearchFromAI = async (options: GeneratorOptions) => generateWordSearchFromAI(options) as any as Promise<SynonymWordSearchData[]>;
