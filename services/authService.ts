@@ -175,6 +175,12 @@ export const authService = {
         return mapDbUserToAppUser(data);
     },
 
+    updatePassword: async (newPassword: string): Promise<void> => {
+        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) throw new Error("Şifre güncellenirken hata oluştu: " + error.message);
+    },
+
     getContacts: async (currentUserId: string): Promise<User[]> => {
         if (!supabase) return [];
         
