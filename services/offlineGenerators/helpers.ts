@@ -1,6 +1,5 @@
 
 import { ShapeType } from '../../types';
-// import { TR_VOCAB, EMOJI_MAP } from '../../data/vocabulary'; // We define explicit map here to ensure consistency in offline
 
 export const EMOJI_MAP: Record<string, string> = {
     "🍎": "Elma", "🍐": "Armut", "🍊": "Portakal", "🍋": "Limon", "🍌": "Muz", "🍉": "Karpuz", "🍇": "Üzüm", "🍓": "Çilek", "🫐": "Yaban Mersini", "🍈": "Kavun", "🍒": "Kiraz", "🍑": "Şeftali", "🍍": "Ananas", "🥥": "Hindistan Cevizi", "🥝": "Kivi", "🍅": "Domates", "🍆": "Patlıcan", "🥑": "Avokado", "🥦": "Brokoli", "🥕": "Havuç", "🌽": "Mısır", "🌶️": "Biber", "🥒": "Salatalık", "🥬": "Marul",

@@ -176,8 +176,8 @@ export const generateOfflineTimeMeasurementGeometry = async (options: GeneratorO
         imagePrompt: '',
         layout: 'visual',
         pairs: [
-            { item1: '3:00', item2: 'Saat Üç', type: 'time', imagePrompt1: 'clock-3' },
-            { item1: '12:30', item2: 'On iki buçuk', type: 'time', imagePrompt1: 'clock-1230' }
+            { item1: '3:00', item2: 'Saat Üç', type: 'time', imagePrompt1: 'Saat' },
+            { item1: '12:30', item2: 'On iki buçuk', type: 'time', imagePrompt1: 'Saat' }
         ]
     }));
 };

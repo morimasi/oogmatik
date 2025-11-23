@@ -28,6 +28,7 @@ export const authService = {
 
         if (authError) {
             console.error("Auth Error:", authError);
+            // Supabase 400 Bad Request genellikle "Invalid login credentials" döner
             if (authError.status === 400 || authError.message.includes("Invalid login credentials")) {
                 throw new Error("Giriş yapılamadı: E-posta adresi veya şifre hatalı.");
             }

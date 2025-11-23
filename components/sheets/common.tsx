@@ -1,27 +1,34 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
-import { EMOJI_MAP, TR_VOCAB } from '../../data/vocabulary';
+import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
 
 // --- HELPER: SMART EMOJI FINDER ---
 const findEmojiForDescription = (desc: string): string | null => {
     if (!desc) return null;
-    const lowerDesc = desc.toLowerCase();
+    const lowerDesc = desc.toLocaleLowerCase('tr');
     
-    // 1. Check direct mapping
+    // 1. Check direct mapping in EMOJI_MAP values (Values are Turkish names)
     for (const [emoji, name] of Object.entries(EMOJI_MAP)) {
-        if (lowerDesc.includes(name.toLowerCase())) return emoji;
+        if (lowerDesc.includes(name.toLocaleLowerCase('tr'))) return emoji;
     }
     
-    // 2. Check vocabulary lists (Reverse lookup)
-    // This is a heuristic search through known categories
-    const categories = ['animals', 'fruits_veggies', 'vehicles', 'items_household', 'kitchen_food', 'sports', 'clothing', 'nature_space', 'technology', 'emotions'];
-    
-    // Pre-defined fallbacks for categories if exact match fails but category word exists
-    if (lowerDesc.includes('hayvan')) return '🐾';
-    if (lowerDesc.includes('meyve')) return '🍎';
-    if (lowerDesc.includes('araç') || lowerDesc.includes('taşıt')) return '🚗';
-    if (lowerDesc.includes('eşya')) return '🪑';
+    // 2. Basic Heuristics for common terms not in map
+    if (lowerDesc.includes('elma')) return '🍎';
+    if (lowerDesc.includes('kedi')) return '🐱';
+    if (lowerDesc.includes('köpek')) return '🐶';
+    if (lowerDesc.includes('araba')) return '🚗';
+    if (lowerDesc.includes('yıldız')) return '⭐';
+    if (lowerDesc.includes('kalem')) return '✏️';
+    if (lowerDesc.includes('kitap')) return '📚';
+    if (lowerDesc.includes('top')) return '⚽';
+    if (lowerDesc.includes('balık')) return '🐟';
+    if (lowerDesc.includes('kuş')) return '🐦';
+    if (lowerDesc.includes('çiçek')) return '🌸';
+    if (lowerDesc.includes('ev')) return '🏠';
+    if (lowerDesc.includes('güneş')) return '☀️';
+    if (lowerDesc.includes('ay')) return '🌙';
+    if (lowerDesc.includes('saat')) return '⏰';
     
     return null;
 };
@@ -93,29 +100,30 @@ export const ReadingRuler: React.FC = () => {
     );
 };
 
-// Memoized Shape Component
+// Memoized Shape Component with improved visibility
 export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: ShapeType; className?: string }) => {
-    // Use classes for sizing but inline styles for stroke/fill to ensure visibility
+    // Force colors to be visible
     const strokeColor = "currentColor"; 
-    const strokeWidth = "5";
+    const strokeWidth = "4";
+    const fillColor = "none"; // Can be changed to "rgba(0,0,0,0.05)" for light fill
     
     switch (name) {
         case 'circle':
-            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="40" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
         case 'square':
-            return <svg viewBox="0 0 100 100" className={className}><rect x="10" y="10" width="80" height="80" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><rect x="10" y="10" width="80" height="80" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
         case 'triangle':
-            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,10 90,90 10,90" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,10 90,90 10,90" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
         case 'hexagon':
-            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
         case 'star':
-            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 61,40 98,40 68,62 79,96 50,75 21,96 32,62 2,40 39,40" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 61,40 98,40 68,62 79,96 50,75 21,96 32,62 2,40 39,40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
         case 'diamond':
-            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,50 50,95 5,50" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,50 50,95 5,50" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
         case 'pentagon':
-             return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,40 78,95 22,95 5,40" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
+             return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,40 78,95 22,95 5,40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
         case 'octagon':
-            return <svg viewBox="0 0 100 100" className={className}><polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
         case 'cube':
             return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M25 35 V75 L50 90 L75 75 V35 L50 20 Z M25 35 L50 20 L75 35 M50 90 V55 L25 75 M75 75 L50 55"/></svg>;
         case 'sphere':
@@ -125,7 +133,7 @@ export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: Shap
         case 'cone':
             return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M50 10 L10 90 H90 Z"/><ellipse cx="50" cy="90" rx="40" ry="10"/></svg>;
         default:
-            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="20" fill="gray" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="20" stroke="gray" strokeWidth="2" fill="none" /></svg>;
     }
 });
 
@@ -133,32 +141,30 @@ export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: Shap
 export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string; className?: string }) => {
     
     // 1. Try rendering Base64 Image
-    if (base64 && base64.length > 100) { // Basic validity check
+    if (base64 && base64.length > 100) { 
         return <img src={`data:image/png;base64,${base64}`} alt={description || 'Görsel'} className={`${className} object-contain rounded-md bg-white dark:bg-zinc-800 shadow-sm`} loading="lazy" />;
     }
     
     // 2. Smart Emoji Fallback
-    let emojiIcon = findEmojiForDescription(description || '');
+    const emojiIcon = findEmojiForDescription(description || '');
     
     // 3. Fallback UI (Card with Icon/Emoji + Text)
     return (
         <div className={`bg-indigo-50 dark:bg-zinc-800/80 rounded-lg border-2 border-dashed border-indigo-200 dark:border-zinc-600 flex flex-col items-center justify-center text-center p-2 overflow-hidden ${className}`}>
             {emojiIcon ? (
-                <div className="text-5xl sm:text-6xl mb-1 filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default select-none" role="img" aria-label={description}>
+                <div className="text-5xl sm:text-6xl mb-1 filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default select-none animate-in fade-in zoom-in" role="img" aria-label={description}>
                     {emojiIcon}
                 </div>
             ) : (
-                <div className="w-10 h-10 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-1 text-indigo-400 dark:text-indigo-300 shadow-sm">
-                    <i className="fa-regular fa-image fa-lg"></i>
+                <div className="w-12 h-12 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-1 text-indigo-400 dark:text-indigo-300 shadow-sm">
+                    <i className="fa-regular fa-image fa-xl"></i>
                 </div>
             )}
             
-            {description ? (
-                <p className="text-[10px] sm:text-xs font-bold text-indigo-900 dark:text-indigo-200 px-1 leading-tight uppercase tracking-wide break-words w-full">
+            {description && (
+                <p className="text-[10px] sm:text-xs font-bold text-indigo-900 dark:text-indigo-200 px-1 leading-tight uppercase tracking-wide break-words w-full mt-1">
                     {description}
                 </p>
-            ) : (
-                <p className="text-[10px] text-zinc-400 italic">Görsel</p>
             )}
         </div>
     );
@@ -175,7 +181,7 @@ export const GridComponent = React.memo(({ grid, passwordCells, cellClassName = 
                     const isBlackCell = cell === null;
                     return (
                         <td key={cellIndex} className={`border text-center font-mono text-lg ${cellClassName} ${isPasswordCell ? 'bg-amber-200 dark:bg-amber-800' : ''} ${isBlackCell ? 'bg-zinc-800 dark:bg-zinc-900' : 'bg-white dark:bg-zinc-700/50'}`} style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                            {showLetters ? (typeof cell === 'string' ? cell.toUpperCase() : cell) : ''}
+                            {showLetters ? (typeof cell === 'string' ? cell.toLocaleUpperCase('tr') : cell) : ''}
                         </td>
                     )
                 })}
