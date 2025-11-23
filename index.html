@@ -72,21 +72,14 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    background-color: #d4d4d8; /* zinc-300 */
+    background-color: rgba(161, 161, 170, 0.5); /* Transparent zinc */
     border-radius: 4px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #a1a1aa; /* zinc-400 */
-  }
-
-  html.dark ::-webkit-scrollbar-thumb {
-    background-color: #3f3f46; /* zinc-700 */
-  }
-  html.dark ::-webkit-scrollbar-thumb:hover {
-    background-color: #52525b; /* zinc-600 */
+    background-color: rgba(113, 113, 122, 0.8);
   }
 
   /* --- WORKSHEET DYNAMICS --- */
@@ -123,50 +116,58 @@
     display: inline-block;
   }
 
-  /* --- PAPER SIMULATION --- */
+  /* --- PAPER SIMULATION (The Protected Area) --- */
+  /* Bu alan her zaman beyaz kağıt, siyah yazı olmalıdır. Tema ne olursa olsun. */
   .worksheet-page {
-      background-color: white !important;
-      color: #18181b !important;
+      background-color: #ffffff !important;
+      color: #000000 !important;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05) !important;
       transition: box-shadow 0.3s ease;
   }
+  
+  /* Worksheet içindeki tüm metin elemanlarını zorla siyaha çevir (kontrast teması vb. bozmasın) */
+  .worksheet-page h1, .worksheet-page h2, .worksheet-page h3, .worksheet-page h4, 
+  .worksheet-page h5, .worksheet-page h6, .worksheet-page p, .worksheet-page span, 
+  .worksheet-page li, .worksheet-page div {
+      color: inherit; /* Inherit from .worksheet-page which is black */
+  }
+
   @media screen {
       .worksheet-page:hover {
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0,0,0,0.05) !important;
       }
   }
 
-  /* Override Dark Mode Inside Worksheet */
+  /* Override Dark Mode & Themes Inside Worksheet to ensure Print Look */
   .worksheet-page input, 
   .worksheet-page textarea,
+  .worksheet-page .bg-white,
   .worksheet-page .dark\:bg-zinc-800,
   .worksheet-page .dark\:bg-zinc-700,
   .worksheet-page .dark\:bg-zinc-900,
   .worksheet-page .dark\:bg-zinc-700\/50,
-  .worksheet-page .dark\:bg-zinc-700\/30,
   .worksheet-page .bg-zinc-50,
-  .worksheet-page .bg-zinc-100,
-  .worksheet-page .dark\:bg-zinc-800\/50 {
+  .worksheet-page .bg-zinc-100 {
       background-color: #ffffff !important;
       border-color: #d4d4d8 !important;
       color: #18181b !important;
   }
+  
+  .worksheet-page .text-zinc-800,
   .worksheet-page .dark\:text-zinc-100,
   .worksheet-page .dark\:text-zinc-200,
   .worksheet-page .dark\:text-zinc-300,
   .worksheet-page .dark\:text-white {
       color: #18181b !important; 
   }
-  .worksheet-page .dark\:border-zinc-600,
-  .worksheet-page .dark\:border-zinc-700 {
-      border-color: #d4d4d8 !important;
-  }
-  /* Preserve Semantic Colors */
-  .worksheet-page .dark\:bg-indigo-900\/30 { background-color: #e0e7ff !important; color: #3730a3 !important; } 
-  .worksheet-page .dark\:text-indigo-400 { color: #4338ca !important; }
-  .worksheet-page .dark\:bg-amber-900\/20 { background-color: #fef3c7 !important; color: #92400e !important; }
-  .worksheet-page .dark\:text-amber-200 { color: #92400e !important; }
-
+  
+  /* Preserve Semantic Colors inside Worksheet (Don't force grayscale everywhere) */
+  .worksheet-page .text-indigo-600 { color: #4f46e5 !important; }
+  .worksheet-page .text-emerald-600 { color: #059669 !important; }
+  .worksheet-page .text-amber-600 { color: #d97706 !important; }
+  .worksheet-page .text-rose-600 { color: #e11d48 !important; }
+  .worksheet-page .bg-indigo-100 { background-color: #e0e7ff !important; }
+  
   /* --- PRINT STYLES --- */
   @media print {
     @page { size: A4 portrait; margin: 5mm; }
@@ -175,78 +176,126 @@
     header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar, .reading-ruler { display: none !important; }
     .worksheet-page { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; page-break-after: always; }
     .worksheet-page:last-child { page-break-after: auto; }
-    .worksheet-page .p-4, .worksheet-page .p-6, .worksheet-page .p-8 { padding: 2mm !important; }
-    .worksheet-page .gap-4, .worksheet-page .gap-6, .worksheet-page .gap-8 { gap: 2mm !important; }
-    .worksheet-page .mb-4, .worksheet-page .mb-6, .worksheet-page .mb-8 { margin-bottom: 2mm !important; }
-    .pedagogical-header h3 { font-size: 1.4rem !important; margin-bottom: 1mm !important; }
-    .pedagogical-header p { font-size: 1rem !important; }
-    .worksheet-page input, .worksheet-page textarea { border: 1px solid #999 !important; box-shadow: none !important; }
-    .border { border-color: #999 !important; }
-    .worksheet-page .grid > *, .worksheet-page li, .worksheet-page tr, .worksheet-page .p-4.border { break-inside: avoid !important; page-break-inside: avoid !important; }
     img { max-height: 150px !important; }
   }
 
-  /* --- THEMES --- */
-  
+  /* --- GLOBAL THEMES --- */
+  /* Default Light Theme */
+  body {
+      background-color: #fafafa; /* zinc-50 */
+      color: #18181b; /* zinc-900 */
+  }
+
   /* Dark Theme */
-  html.dark body { background-color: #13111C; color: #E2E8F0; }
-  html.dark .bg-white { background-color: #1F1D2B; color: #E2E8F0; border-color: #2D2B3B !important; }
-  html.dark aside, html.dark header { background-color: #171520; border-color: #2D2B3B !important; }
-  html.dark input:not(.worksheet-page input), html.dark select:not(.worksheet-page select), html.dark textarea:not(.worksheet-page textarea) { background-color: #252333 !important; border-color: #3E3B50 !important; color: #F3E8FF !important; }
-  html.dark .sidebar-activity-item-active { background-color: rgba(99, 102, 241, 0.15) !important; color: #818cf8 !important; }
-  html.dark .sidebar-activity-item-active::before { background-color: #6366f1 !important; }
+  html.dark body { 
+      background-color: #18181b; /* zinc-900 */
+      color: #f4f4f5; /* zinc-100 */
+  }
+  html.dark aside, html.dark header, html.dark .bg-white {
+      background-color: #27272a !important; /* zinc-800 for panels */
+      border-color: #3f3f46 !important; /* zinc-700 */
+      color: #f4f4f5;
+  }
+  html.dark .text-zinc-500 { color: #a1a1aa !important; }
+  html.dark .bg-zinc-50 { background-color: #27272a !important; }
 
   /* Pastel Theme */
-  html.theme-pastel body { background-color: #fdf6e3; color: #5d5d5d; }
-  html.theme-pastel .bg-white, html.theme-pastel .bg-zinc-50 { background-color: #fffdf5; border-color: #eaddcf !important; }
-  html.theme-pastel aside, html.theme-pastel header { background-color: #fdf6e3; border-color: #eaddcf !important; }
+  html.theme-pastel body { 
+      background-color: #fdf6e3; 
+      color: #5d5d5d; 
+  }
+  html.theme-pastel aside, html.theme-pastel header, html.theme-pastel .bg-white { 
+      background-color: #fffdf5 !important; 
+      border-color: #eaddcf !important; 
+      color: #5d5d5d !important;
+  }
+  html.theme-pastel .text-zinc-500 { color: #8b8b8b !important; }
   html.theme-pastel button.bg-indigo-600 { background-color: #93b5c6 !important; color: #fff !important; }
   html.theme-pastel .text-indigo-600 { color: #7a9eb1 !important; }
   
   /* Sepia Theme */
-  html.theme-sepia body { background-color: #f4ecd8; color: #433422; }
-  html.theme-sepia .bg-white { background-color: #fdfbf7; border-color: #dcd0b8 !important; }
-  html.theme-sepia aside, html.theme-sepia header { background-color: #efe6d0; border-color: #dcd0b8 !important; }
+  html.theme-sepia body { 
+      background-color: #f4ecd8; 
+      color: #433422; 
+  }
+  html.theme-sepia aside, html.theme-sepia header, html.theme-sepia .bg-white { 
+      background-color: #fdfbf7 !important; 
+      border-color: #dcd0b8 !important;
+      color: #433422 !important;
+  }
   html.theme-sepia .text-zinc-500 { color: #856f51 !important; }
   html.theme-sepia .bg-indigo-600 { background-color: #a98962 !important; border-color: #8c6d46 !important; }
   html.theme-sepia .text-indigo-600 { color: #8c6d46 !important; }
 
-  /* High Contrast */
-  html.theme-contrast body { background-color: #000000; color: #FFFF00; }
-  html.theme-contrast .bg-white, html.theme-contrast .bg-zinc-50, html.theme-contrast aside, html.theme-contrast header { background-color: #000000 !important; color: #FFFF00 !important; border-color: #FFFFFF !important; }
-  html.theme-contrast .text-zinc-500, html.theme-contrast .text-zinc-400 { color: #00FF00 !important; }
-  html.theme-contrast button, html.theme-contrast input, html.theme-contrast select { border: 2px solid #FFFFFF !important; background-color: #000 !important; color: #FFF !important; }
-  html.theme-contrast .bg-indigo-600 { border: 2px solid #00FFFF !important; color: #00FFFF !important; background: #000 !important; }
+  /* High Contrast Theme */
+  html.theme-contrast body { 
+      background-color: #000000; 
+      color: #FFFF00; 
+  }
+  html.theme-contrast aside, html.theme-contrast header, html.theme-contrast .bg-white, html.theme-contrast .bg-zinc-50 { 
+      background-color: #000000 !important; 
+      color: #FFFF00 !important; 
+      border-color: #FFFFFF !important; 
+  }
+  html.theme-contrast .text-zinc-500, html.theme-contrast .text-zinc-400, html.theme-contrast .text-zinc-600 { 
+      color: #00FF00 !important; 
+  }
+  html.theme-contrast button, html.theme-contrast input, html.theme-contrast select { 
+      border: 2px solid #FFFFFF !important; 
+      background-color: #000000 !important; 
+      color: #FFFFFF !important; 
+  }
+  html.theme-contrast .bg-indigo-600 { 
+      border: 2px solid #00FFFF !important; 
+      color: #00FFFF !important; 
+      background-color: #000000 !important; 
+  }
+  html.theme-contrast .text-indigo-600 { color: #00FFFF !important; }
 
   /* Purple Theme (Mor) */
-  html.theme-purple body { background-color: #f3e8ff; color: #3b0764; }
-  html.theme-purple .bg-white { background-color: #ffffff; border-color: #d8b4fe !important; }
-  html.theme-purple aside, html.theme-purple header { background-color: #f3e8ff; border-color: #d8b4fe !important; }
+  html.theme-purple body { 
+      background-color: #f3e8ff; /* purple-100 */
+      color: #3b0764; /* purple-950 */
+  }
+  html.theme-purple aside, html.theme-purple header, html.theme-purple .bg-white { 
+      background-color: #ffffff !important; 
+      border-color: #d8b4fe !important;
+      color: #4c1d95 !important;
+  }
   html.theme-purple .text-zinc-500 { color: #6b21a8 !important; }
   html.theme-purple .bg-indigo-600 { background-color: #9333ea !important; }
   html.theme-purple .text-indigo-600 { color: #7e22ce !important; }
   html.theme-purple .sidebar-activity-item-active { background-color: #e9d5ff !important; color: #6b21a8 !important; }
-  html.theme-purple .sidebar-activity-item-active::before { background-color: #9333ea !important; }
 
   /* Orange Theme (Turuncu) */
-  html.theme-orange body { background-color: #fff7ed; color: #431407; }
-  html.theme-orange .bg-white { background-color: #ffffff; border-color: #fed7aa !important; }
-  html.theme-orange aside, html.theme-orange header { background-color: #fff7ed; border-color: #fed7aa !important; }
+  html.theme-orange body { 
+      background-color: #fff7ed; /* orange-50 */
+      color: #431407; /* orange-950 */
+  }
+  html.theme-orange aside, html.theme-orange header, html.theme-orange .bg-white { 
+      background-color: #ffffff !important; 
+      border-color: #fed7aa !important;
+      color: #7c2d12 !important;
+  }
   html.theme-orange .text-zinc-500 { color: #9a3412 !important; }
   html.theme-orange .bg-indigo-600 { background-color: #ea580c !important; }
   html.theme-orange .text-indigo-600 { color: #c2410c !important; }
   html.theme-orange .sidebar-activity-item-active { background-color: #ffedd5 !important; color: #9a3412 !important; }
-  html.theme-orange .sidebar-activity-item-active::before { background-color: #ea580c !important; }
 
   /* Maroon Theme (Bordo) */
-  html.theme-maroon body { background-color: #fff1f2; color: #881337; }
-  html.theme-maroon .bg-white { background-color: #ffffff; border-color: #fecdd3 !important; }
-  html.theme-maroon aside, html.theme-maroon header { background-color: #fff1f2; border-color: #fecdd3 !important; }
+  html.theme-maroon body { 
+      background-color: #fff1f2; /* rose-50 */
+      color: #881337; /* rose-900 */
+  }
+  html.theme-maroon aside, html.theme-maroon header, html.theme-maroon .bg-white { 
+      background-color: #ffffff !important; 
+      border-color: #fecdd3 !important;
+      color: #881337 !important;
+  }
   html.theme-maroon .text-zinc-500 { color: #9f1239 !important; }
   html.theme-maroon .bg-indigo-600 { background-color: #be123c !important; }
   html.theme-maroon .text-indigo-600 { color: #9f1239 !important; }
   html.theme-maroon .sidebar-activity-item-active { background-color: #ffe4e6 !important; color: #881337 !important; }
-  html.theme-maroon .sidebar-activity-item-active::before { background-color: #be123c !important; }
 
   /* --- UI ENHANCEMENTS --- */
   button, a { transition: all 0.2s ease-in-out; }
@@ -254,15 +303,18 @@
   button:active { transform: translateY(0) scale(0.98); }
   
   .sidebar-activity-item-active { 
-      background-color: #e0e7ff !important; 
-      color: #4338ca !important; 
+      background-color: #e0e7ff; 
+      color: #4338ca; 
       font-weight: 600; 
       position: relative; 
       overflow: hidden; 
   }
+  html:not(.dark) .sidebar-activity-item-active {
+      background-color: rgba(99, 102, 241, 0.1);
+  }
   .sidebar-activity-item-active::before { 
       content: ''; position: absolute; left: 0; top: 10%; bottom: 10%; width: 4px; 
-      border-radius: 0 4px 4px 0; background-color: #6366f1; 
+      border-radius: 0 4px 4px 0; background-color: currentColor; 
   }
 
   .fade-in { animation: fadeIn 0.4s ease-out forwards; }
@@ -284,7 +336,7 @@
 }
 </script>
 </head>
-  <body class="bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 antialiased transition-colors duration-300 overflow-hidden">
+  <body class="antialiased transition-colors duration-300 overflow-hidden">
     <div id="root" class="h-screen flex flex-col"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

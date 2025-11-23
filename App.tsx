@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity, HistoryItem, User, StyleSettings, View } from './types';
 import Sidebar from './components/Sidebar';
@@ -81,8 +80,13 @@ const AppContent: React.FC = () => {
   const [isTourOpen, setIsTourOpen] = useState(false);
   
   const [theme, setTheme] = useState<AppTheme>(() => {
-      const storedTheme = localStorage.getItem('app-theme');
-      return (storedTheme as AppTheme) || 'light';
+      try {
+          const storedTheme = localStorage.getItem('app-theme');
+          return (storedTheme as AppTheme) || 'light';
+      } catch (e) {
+          console.warn("LocalStorage access failed", e);
+          return 'light';
+      }
   });
 
   const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
@@ -93,16 +97,20 @@ const AppContent: React.FC = () => {
   useEffect(() => {
       if (user) {
           loadUserWorksheets();
-          const checkMsgs = async () => setUnreadCount(await messagingService.getUnreadCount(user.id));
+          const checkMsgs = async () => {
+              try {
+                  const count = await messagingService.getUnreadCount(user.id);
+                  setUnreadCount(count);
+              } catch (e) { console.error(e); }
+          };
           checkMsgs();
-          const interval = setInterval(checkMsgs, 10000);
+          const interval = setInterval(checkMsgs, 30000); // Increase interval to reduce load
           return () => clearInterval(interval);
       } else {
           setSavedWorksheets([]);
       }
   }, [user]);
 
-  // Otomatik Yönlendirme: Kullanıcı çıkış yaptığında ve korumalı bir sayfadaysa ana sayfaya dön
   useEffect(() => {
       if (!user && ['profile', 'admin', 'messages', 'shared'].includes(currentView)) {
           setCurrentView('generator');
@@ -111,40 +119,56 @@ const AppContent: React.FC = () => {
 
   const loadUserWorksheets = async () => {
       if (user) {
-          const sheets = await worksheetService.getUserWorksheets(user.id);
-          setSavedWorksheets(sheets);
+          try {
+              const sheets = await worksheetService.getUserWorksheets(user.id);
+              setSavedWorksheets(sheets);
+          } catch (e) {
+              console.error("Worksheets load failed:", e);
+          }
       }
   };
 
   useEffect(() => {
-      const root = document.documentElement;
-      root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon');
-      if (theme === 'dark') root.classList.add('dark');
-      else if (theme !== 'light') root.classList.add(`theme-${theme}`);
-      localStorage.setItem('app-theme', theme);
+      try {
+          const root = document.documentElement;
+          root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon');
+          if (theme === 'dark') root.classList.add('dark');
+          else if (theme !== 'light') root.classList.add(`theme-${theme}`);
+          localStorage.setItem('app-theme', theme);
+      } catch (e) {
+          console.error("Theme application failed:", e);
+      }
   }, [theme]);
 
-  // First Launch Tour Check
   useEffect(() => {
-      const hasSeenTour = localStorage.getItem('has_seen_tour_v2');
-      if (!hasSeenTour) {
-          const timer = setTimeout(() => {
-              setIsTourOpen(true);
-          }, 1500);
-          return () => clearTimeout(timer);
-      }
+      try {
+          const hasSeenTour = localStorage.getItem('has_seen_tour_v2');
+          if (!hasSeenTour) {
+              const timer = setTimeout(() => {
+                  setIsTourOpen(true);
+              }, 1500);
+              return () => clearTimeout(timer);
+          }
+      } catch (e) { console.error("Tour check failed:", e); }
   }, []);
 
   const handleTourClose = () => {
       setIsTourOpen(false);
-      localStorage.setItem('has_seen_tour_v2', 'true');
+      try { localStorage.setItem('has_seen_tour_v2', 'true'); } catch (e) {}
   };
 
   useEffect(() => {
       try {
           const stored = sessionStorage.getItem('sessionHistory');
-          if (stored) setHistoryItems(JSON.parse(stored));
-      } catch (e) { console.error(e); }
+          if (stored) {
+              try {
+                  setHistoryItems(JSON.parse(stored));
+              } catch (parseError) {
+                  console.error("History parse error:", parseError);
+                  sessionStorage.removeItem('sessionHistory');
+              }
+          }
+      } catch (e) { console.error("SessionStorage access failed:", e); }
   }, []);
 
   const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
@@ -164,12 +188,12 @@ const AppContent: React.FC = () => {
 
       const updatedHistory = [newItem, ...historyItems].slice(0, 50);
       setHistoryItems(updatedHistory);
-      sessionStorage.setItem('sessionHistory', JSON.stringify(updatedHistory));
+      try { sessionStorage.setItem('sessionHistory', JSON.stringify(updatedHistory)); } catch (e) {}
   };
 
   const addSavedWorksheet = async (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
     if (!user) {
-        setIsAuthModalOpen(true); // Require login to save
+        setIsAuthModalOpen(true);
         return;
     }
     const activity = ACTIVITIES.find(a => a.id === activityType);
@@ -185,7 +209,7 @@ const AppContent: React.FC = () => {
             activity.icon,
             { id: category.id, title: category.title }
         );
-        loadUserWorksheets(); // Refresh list
+        loadUserWorksheets(); 
     } catch (e) {
         console.error("Save error:", e);
         alert("Kaydedilirken bir hata oluştu.");
@@ -211,7 +235,6 @@ const AppContent: React.FC = () => {
     if (isSidebarOpen) setIsSidebarOpen(false);
   };
 
-  // View Routing
   if (currentView === 'admin') {
       return <AdminDashboard onBack={() => setCurrentView('generator')} />;
   }
@@ -233,11 +256,11 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
+    <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
       <TourGuide steps={[]} isOpen={isTourOpen} onClose={handleTourClose} />
 
-      <header className="relative bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-10 print:hidden">
+      <header className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-700/50 shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-3 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
@@ -261,7 +284,6 @@ const AppContent: React.FC = () => {
 
              <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
 
-             {/* Authenticated User Actions */}
              <div className="flex items-center gap-2">
              {user ? (
                  <>
@@ -291,7 +313,6 @@ const AppContent: React.FC = () => {
                         <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
                     </button>
                     
-                    {/* Profile Dropdown Trigger */}
                     <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
                         <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
                     </button>
@@ -311,7 +332,6 @@ const AppContent: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
-        {/* Sidebar is always shown for remaining views (generator, savedList, shared) */}
         <Sidebar
             isSidebarOpen={isSidebarOpen}
             closeSidebar={() => setIsSidebarOpen(false)}
