@@ -1,4 +1,3 @@
-
 import { supabase } from './supabaseClient';
 import { User } from '../types';
 
@@ -29,8 +28,8 @@ export const authService = {
         if (authError) throw new Error(authError.message);
         if (!authData.user) throw new Error("Kullanıcı bulunamadı.");
 
-        // Update last login silently
-        supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id).then(() => {});
+        // Update last login
+        await supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id);
 
         // Fetch profile
         const { data: profile, error: profileError } = await supabase
@@ -63,7 +62,7 @@ export const authService = {
         if (authError) throw new Error(authError.message);
         if (!authData.user) throw new Error("Kayıt oluşturulamadı.");
 
-        // Create public user profile manually
+        // Create public user profile manually (if trigger fails or adds latency)
         const newUserProfile = {
             id: authData.user.id,
             email: email,
@@ -77,47 +76,44 @@ export const authService = {
             worksheet_count: 0
         };
 
+        // Upsert to handle potential trigger race conditions
         const { data: profile, error: dbError } = await supabase
             .from('users')
             .upsert(newUserProfile)
             .select()
             .single();
 
-        if (dbError) console.error("Profile creation warning:", dbError);
+        if (dbError) console.error("Profile creation error:", dbError);
 
         return mapDbUserToAppUser(profile || newUserProfile);
     },
 
     logout: async () => {
         if (!supabase) return;
-        await supabase.auth.signOut().catch(() => {});
+        await supabase.auth.signOut();
     },
 
     getCurrentUser: async (): Promise<User | null> => {
         if (!supabase) return null;
         
-        try {
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError || !session?.user) return null;
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return null;
 
-            // Use maybeSingle to avoid 406 error if profile is missing
-            const { data: profile, error: profileError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', session.user.id)
-                .maybeSingle();
+        // Use maybeSingle to avoid 406 error if profile is missing
+        const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
 
-            if (profileError || !profile) return null;
-            return mapDbUserToAppUser(profile);
-        } catch (e) {
-            // Suppress network errors
-            return null;
-        }
+        if (!profile) return null;
+        return mapDbUserToAppUser(profile);
     },
 
     updateProfile: async (userId: string, updates: Partial<User>): Promise<User> => {
         if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
 
+        // Convert camelCase to snake_case for DB
         const dbUpdates: any = {};
         if (updates.name) dbUpdates.name = updates.name;
         if (updates.avatar) dbUpdates.avatar = updates.avatar;
@@ -137,40 +133,36 @@ export const authService = {
     getContacts: async (currentUserId: string): Promise<User[]> => {
         if (!supabase) return [];
         
-        try {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .neq('id', currentUserId)
-                .eq('status', 'active')
-                .limit(50);
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .neq('id', currentUserId)
+            .eq('status', 'active')
+            .limit(50); // Limit for performance
 
-            if (error) return [];
-            return data.map(mapDbUserToAppUser);
-        } catch (e) { return []; }
+        if (error) return [];
+        return data.map(mapDbUserToAppUser);
     },
 
+    // --- ADMIN METHODS ---
     getAllUsers: async (): Promise<User[]> => {
         if (!supabase) return [];
-        try {
-            const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
-            if (error) return [];
-            return data.map(mapDbUserToAppUser);
-        } catch (e) { return []; }
+        const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+        if (error) return [];
+        return data.map(mapDbUserToAppUser);
     },
 
     deleteUser: async (userId: string): Promise<void> => {
         if (!supabase) return;
-        try {
-            await supabase.from('users').delete().eq('id', userId);
-        } catch (e) {}
+        // Note: In Supabase, deleting from auth.users requires service role key usually.
+        // Here we perform a soft delete or delete from public.users if RLS allows.
+        // For this demo, we delete from public table. Real app should use Edge Function for full delete.
+        await supabase.from('users').delete().eq('id', userId);
     },
 
     toggleUserStatus: async (userId: string, currentStatus: string) => {
         if (!supabase) return;
-        try {
-            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-            await supabase.from('users').update({ status: newStatus }).eq('id', userId);
-        } catch (e) {}
+        const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+        await supabase.from('users').update({ status: newStatus }).eq('id', userId);
     }
 };

@@ -1,7 +1,7 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData } from '../../types';
+import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -105,12 +105,15 @@ export const generateLetterDiscriminationFromAI = async (options: GeneratorOptio
 };
 
 export const generateRapidNamingFromAI = async (options: GeneratorOptions): Promise<RapidNamingData[]> => {
-    const { type, worksheetCount } = options;
+    const { type, worksheetCount, targetLetters } = options;
+    const lettersPrompt = type === 'letter' && targetLetters ? `Kullanılacak harfler: ${targetLetters}.` : '';
+    
     const prompt = `
-    Hızlı İsimlendirme (RAN) testi. Tip: ${type || 'object'}.
-    Izgara şeklinde sıralanmış öğeler (renk, sayı veya nesne).
+    Hızlı İsimlendirme (RAN) testi. Tip: ${type || 'object'}. ${lettersPrompt}
+    Izgara şeklinde sıralanmış öğeler (renk, sayı, nesne veya harf).
     Nesneler için **İngilizce** 'imagePrompt' gereklidir.
     Renkler için hex kodu (value) ve renk ismi (label) ver.
+    Harf için (type='letter'), value olarak harfi ver.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -316,4 +319,40 @@ export const generateVisualTrackingLinesFromAI = async (options: GeneratorOption
     };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<VisualTrackingLineData[]>;
+};
+
+export const generateBackwardSpellingFromAI = async (options: GeneratorOptions): Promise<BackwardSpellingData[]> => {
+    const { worksheetCount, difficulty, topic, itemCount } = options;
+    const prompt = `
+    Ters Kelime Avcısı (Backward Spelling). Konu: ${topic}.
+    Seviye: ${difficulty}. ${itemCount} adet kelime.
+    Kelimeleri seç, ters çevrilmiş hallerini (reversed) ve doğrularını (correct) ver.
+    Her kelime için İngilizce görsel prompt (imagePrompt).
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            items: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        reversed: { type: Type.STRING },
+                        correct: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING }
+                    },
+                    required: ['reversed', 'correct', 'imagePrompt']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'items', 'pedagogicalNote', 'imagePrompt']
+    };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<BackwardSpellingData[]>;
 };

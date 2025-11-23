@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Vite ortam değişkenlerine güvenli erişim sağlayan yardımcı fonksiyon
+// Bazı ortamlarda import.meta.env undefined olabilir, bu durumu yakalarız.
 const getEnv = (key: string): string | undefined => {
     try {
         // @ts-ignore
@@ -11,6 +12,7 @@ const getEnv = (key: string): string | undefined => {
         }
         return undefined;
     } catch (e) {
+        console.warn("Environment variable access error:", e);
         return undefined;
     }
 };
@@ -23,16 +25,10 @@ let supabaseInstance = null;
 
 try {
     if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http')) {
-        supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
-            auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true
-            }
-        });
+        supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
     }
 } catch (error) {
-    console.info("Supabase başlatılamadı (Çevrimdışı mod).");
+    console.error("Supabase initialization failed:", error);
 }
 
 export const supabase = supabaseInstance;
@@ -40,13 +36,18 @@ export const supabase = supabaseInstance;
 // Yardımcı fonksiyon: Bağlantı kontrolü
 export const checkDbConnection = async () => {
     if (!supabase) {
+        console.warn("Supabase istemcisi başlatılamadı. .env dosyasını kontrol edin.");
         return false;
     }
     try {
-        // Sessiz kontrol
         const { error } = await supabase.from('users').select('count', { count: 'exact', head: true });
-        return !error;
+        if (error) {
+            console.warn("DB Bağlantı uyarısı:", error.message);
+            return false;
+        }
+        return true;
     } catch (e) {
+        console.error("Veritabanı bağlantı hatası:", e);
         return false;
     }
 };

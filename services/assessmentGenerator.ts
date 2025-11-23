@@ -44,7 +44,7 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
     const roadmap = [];
     if (scores.reading > 30) roadmap.push({ activityId: ActivityType.READING_FLOW, reason: "Okuma akıcılığını artırmak için.", frequency: "Hergün 15 dk" });
     if (scores.attention > 30) roadmap.push({ activityId: ActivityType.BURDON_TEST, reason: "Dikkat süresini uzatmak için.", frequency: "Haftada 3 kez" });
-    if (scores.cognitive > 30) roadmap.push({ activityId: ActivityType.VISUAL_MEMORY, reason: "Bellek kapasitesini geliştirmek için.", frequency: "Günde 10 dk" });
+    if (scores.cognitive > 30) roadmap.push({ activityId: ActivityType.WORD_MEMORY, reason: "Bellek kapasitesini geliştirmek için.", frequency: "Günde 10 dk" });
     if (scores.math > 30) roadmap.push({ activityId: ActivityType.MATH_PUZZLE, reason: "Sayısal düşünmeyi pekiştirmek için.", frequency: "Haftada 2 kez" });
     
     // Fill up roadmap if empty

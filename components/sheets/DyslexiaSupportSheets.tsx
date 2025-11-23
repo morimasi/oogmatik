@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData } from '../../types';
+import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { ImageDisplay, PedagogicalHeader } from './common';
 
 export const ReadingFlowSheet: React.FC<{ data: ReadingFlowData }> = ({ data }) => (
@@ -193,6 +193,31 @@ export const VisualTrackingLinesSheet: React.FC<{ data: VisualTrackingLineData }
                     );
                 })}
             </div>
+        </div>
+    </div>
+);
+
+export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {data.items?.map((item, idx) => (
+                <div key={idx} className="flex items-center p-4 bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700">
+                    {item.imageBase64 && (
+                        <div className="mr-4 flex-shrink-0">
+                            <ImageDisplay base64={item.imageBase64} description={item.correct} className="w-16 h-16 rounded-lg object-cover" />
+                        </div>
+                    )}
+                    <div className="flex-1">
+                        <div className="bg-zinc-100 dark:bg-zinc-900 p-3 rounded-lg mb-3 text-center">
+                            <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 tracking-widest transform scale-x-[-1] inline-block" style={{ direction: 'rtl', unicodeBidi: 'bidi-override' }}>
+                                {item.reversed}
+                            </span>
+                        </div>
+                        <div className="border-b-2 border-dashed border-zinc-400 dark:border-zinc-600 h-8 w-full"></div>
+                    </div>
+                </div>
+            ))}
         </div>
     </div>
 );
