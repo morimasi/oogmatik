@@ -5,8 +5,7 @@ import { PedagogicalHeader, ImageDisplay } from './common';
 
 // --- VISUAL HELPERS ---
 
-const VisualCounter: React.FC<{ count: number; type: string; className?: string }> = ({ count, type, className }) => {
-    // type: 'dots', 'objects', 'fingers'
+const VisualCounter: React.FC<{ count: number; type: string; className?: string; imagePrompt?: string }> = ({ count, type, className, imagePrompt }) => {
     const items = Array.from({ length: count });
     
     if (type === 'dots') {
@@ -20,15 +19,18 @@ const VisualCounter: React.FC<{ count: number; type: string; className?: string 
     }
     
     if (type === 'fingers') {
-        // Simplify offline representation
         return <div className={`text-4xl ${className}`}>🖐️ x {count}</div>;
     }
 
-    // Default Objects (Apple, Star, etc.)
+    // Objects: Try to use ImageDisplay for specific items or fallback to a generic star/apple
+    // Note: Ideally 'imagePrompt' comes from the generator. If it's "Apple", ImageDisplay handles emoji conversion.
     return (
-        <div className={`flex flex-wrap gap-2 justify-center ${className}`}>
+        <div className={`flex flex-wrap gap-1 justify-center ${className}`}>
             {items.map((_, i) => (
-                <i key={i} className="fa-solid fa-star text-yellow-400 text-2xl drop-shadow-sm"></i>
+                <div key={i} className="w-8 h-8">
+                    {/* Pass the type (e.g., 'elma', 'star') as description to trigger smart emoji lookup */}
+                    <ImageDisplay base64={undefined} description={imagePrompt || 'Yıldız'} className="w-full h-full object-contain !bg-transparent !border-0 !p-0 !shadow-none" />
+                </div>
             ))}
         </div>
     );
@@ -39,7 +41,6 @@ const PieChart: React.FC<{ fraction: string }> = ({ fraction }) => {
     if (isNaN(num) || isNaN(den) || den === 0) return null;
     
     const percent = (num / den) * 100;
-    // Simple conic gradient for pie
     return (
         <div className="w-24 h-24 rounded-full bg-zinc-200 border-2 border-zinc-400 relative overflow-hidden" 
              style={{ background: `conic-gradient(#4f46e5 0% ${percent}%, #e4e4e7 ${percent}% 100%)` }}>
@@ -92,12 +93,12 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                     {ex.type === 'comparison' && (
                         <div className="flex justify-around items-center">
                             <div className="text-center">
-                                <VisualCounter count={ex.values[0]} type={ex.visualType || 'objects'} />
+                                <VisualCounter count={ex.values[0]} type={ex.visualType || 'objects'} imagePrompt="Elma" />
                                 <p className="text-2xl font-bold mt-2">{ex.values[0]}</p>
                             </div>
                             <div className="w-12 h-12 border-2 border-zinc-400 rounded-full flex items-center justify-center text-2xl font-bold bg-white">?</div>
                             <div className="text-center">
-                                <VisualCounter count={ex.values[1]} type={ex.visualType || 'objects'} />
+                                <VisualCounter count={ex.values[1]} type={ex.visualType || 'objects'} imagePrompt="Elma" />
                                 <p className="text-2xl font-bold mt-2">{ex.values[1]}</p>
                             </div>
                         </div>
@@ -116,12 +117,12 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
                 <div key={i} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 shadow-sm flex flex-col items-center">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="bg-zinc-50 p-2 rounded border">
-                            <VisualCounter count={prob.num1} type={prob.visualType} />
+                            <VisualCounter count={prob.num1} type={prob.visualType} imagePrompt={prob.imagePrompt || 'Yıldız'} />
                             <p className="text-center font-bold mt-1">{prob.num1}</p>
                         </div>
                         <span className="text-3xl font-bold text-indigo-500">{prob.operator === 'group' ? 'grup' : prob.operator}</span>
                         <div className="bg-zinc-50 p-2 rounded border">
-                            <VisualCounter count={prob.num2} type={prob.visualType} />
+                            <VisualCounter count={prob.num2} type={prob.visualType} imagePrompt={prob.imagePrompt || 'Yıldız'} />
                             <p className="text-center font-bold mt-1">{prob.num2}</p>
                         </div>
                     </div>
@@ -149,7 +150,7 @@ export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) 
                         {task.grid.map((row, r) => 
                             row.map((cell, c) => (
                                 <div key={`${r}-${c}`} className="w-[50px] h-[50px] bg-white flex items-center justify-center text-2xl font-bold border border-zinc-200">
-                                    {cell === 'start' ? <i className="fa-solid fa-location-dot text-red-500"></i> : cell}
+                                    {cell === 'start' ? <i className="fa-solid fa-location-dot text-red-500"></i> : (cell === 'X' ? '❌' : cell)}
                                 </div>
                             ))
                         )}
@@ -166,14 +167,14 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
         <div className="space-y-6 max-w-2xl mx-auto">
             {data.pairs.map((pair, i) => (
                 <div key={i} className="flex justify-between items-center p-4 bg-white border rounded-xl shadow-sm">
-                    <div className="w-1/3 flex justify-center">
+                    <div className="w-1/3 flex justify-center items-center">
                         {pair.type === 'fraction' ? <PieChart fraction={pair.item1 as string} /> : 
-                         pair.type === 'time' && pair.imagePrompt1 ? <ImageDisplay base64={pair.imageBase64_1} description={pair.item1 as string} className="w-24 h-24" /> :
+                         pair.type === 'time' && pair.imagePrompt1 ? <ImageDisplay base64={undefined} description={pair.imagePrompt1 || 'Saat'} className="w-24 h-24" /> :
                          <span className="text-4xl font-bold">{pair.item1}</span>}
                     </div>
                     <div className="flex-1 border-b-2 border-dashed border-zinc-300 mx-4"></div>
                     <div className="w-1/3 flex justify-center">
-                        <span className="text-xl font-medium">{pair.item2}</span>
+                        <span className="text-xl font-medium text-center">{pair.item2}</span>
                     </div>
                 </div>
             ))}

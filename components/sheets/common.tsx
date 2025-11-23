@@ -1,19 +1,45 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
-import { EMOJI_MAP } from '../../data/vocabulary';
+import { EMOJI_MAP, TR_VOCAB } from '../../data/vocabulary';
+
+// --- HELPER: SMART EMOJI FINDER ---
+const findEmojiForDescription = (desc: string): string | null => {
+    if (!desc) return null;
+    const lowerDesc = desc.toLowerCase();
+    
+    // 1. Check direct mapping
+    for (const [emoji, name] of Object.entries(EMOJI_MAP)) {
+        if (lowerDesc.includes(name.toLowerCase())) return emoji;
+    }
+    
+    // 2. Check vocabulary lists (Reverse lookup)
+    // This is a heuristic search through known categories
+    const categories = ['animals', 'fruits_veggies', 'vehicles', 'items_household', 'kitchen_food', 'sports', 'clothing', 'nature_space', 'technology', 'emotions'];
+    
+    // Pre-defined fallbacks for categories if exact match fails but category word exists
+    if (lowerDesc.includes('hayvan')) return '🐾';
+    if (lowerDesc.includes('meyve')) return '🍎';
+    if (lowerDesc.includes('araç') || lowerDesc.includes('taşıt')) return '🚗';
+    if (lowerDesc.includes('eşya')) return '🪑';
+    
+    return null;
+};
 
 // Updated PedagogicalHeader to accept full data or at least imageBase64
-// Memoized for performance
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => (
-    <div className="mb-6 text-center print:mb-4">
+    <div className="mb-6 text-center print:mb-4 break-inside-avoid">
         <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100 font-dyslexic">{title}</h3>
         <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
         
         {/* Main Activity Image if available */}
-        {data?.imageBase64 && (
-            <div className="my-4 mx-auto max-w-md rounded-xl overflow-hidden shadow-md border border-zinc-200 dark:border-zinc-700">
-                <ImageDisplay base64={data.imageBase64} description={data.imagePrompt || title} className="w-full h-48 object-cover" />
+        {(data?.imageBase64 || data?.imagePrompt) && (
+            <div className="my-4 mx-auto max-w-md rounded-xl overflow-hidden shadow-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                <ImageDisplay 
+                    base64={data.imageBase64} 
+                    description={data.imagePrompt || title} 
+                    className="w-full h-48 object-contain p-2" 
+                />
             </div>
         )}
 
@@ -69,69 +95,70 @@ export const ReadingRuler: React.FC = () => {
 
 // Memoized Shape Component
 export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: ShapeType; className?: string }) => {
+    // Use classes for sizing but inline styles for stroke/fill to ensure visibility
+    const strokeColor = "currentColor"; 
+    const strokeWidth = "5";
+    
     switch (name) {
         case 'circle':
-            return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><circle cx="50" cy="50" r="45" stroke="black" strokeWidth="5" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="40" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
         case 'square':
-            return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><rect x="5" y="5" width="90" height="90" stroke="black" strokeWidth="5" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><rect x="10" y="10" width="80" height="80" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
         case 'triangle':
-            return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><polygon points="50,5 95,95 5,95" stroke="black" strokeWidth="5" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,10 90,90 10,90" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
         case 'hexagon':
-            return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" stroke="black" strokeWidth="5" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
         case 'star':
-            return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><polygon points="50,5 61,40 98,40 68,62 79,96 50,75 21,96 32,62 2,40 39,40" stroke="black" strokeWidth="5" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 61,40 98,40 68,62 79,96 50,75 21,96 32,62 2,40 39,40" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
         case 'diamond':
-            return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><polygon points="50,5 95,50 50,95 5,50" stroke="black" strokeWidth="5" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,50 50,95 5,50" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
         case 'pentagon':
-             return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><polygon points="50,5 95,40 78,95 22,95 5,40" stroke="black" strokeWidth="5" /></svg>;
+             return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,40 78,95 22,95 5,40" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
         case 'octagon':
-            return <svg viewBox="0 0 100 100" className={className} fill="currentColor"><polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" stroke="black" strokeWidth="5" /></svg>;
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" stroke={strokeColor} strokeWidth={strokeWidth} fill="none" /></svg>;
         case 'cube':
-            return <svg viewBox="0 0 100 100" className={className} fill="none" stroke="currentColor" strokeWidth="5"><path d="M25 35 V75 L50 90 L75 75 V35 L50 20 Z M25 35 L50 20 L75 35 M50 90 V55 L25 75 M75 75 L50 55"/></svg>;
+            return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M25 35 V75 L50 90 L75 75 V35 L50 20 Z M25 35 L50 20 L75 35 M50 90 V55 L25 75 M75 75 L50 55"/></svg>;
         case 'sphere':
-             return <svg viewBox="0 0 100 100" className={className} fill="none" stroke="currentColor" strokeWidth="5"><circle cx="50" cy="50" r="40"/><ellipse cx="50" cy="50" rx="20" ry="40"/></svg>;
+             return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><circle cx="50" cy="50" r="40"/><ellipse cx="50" cy="50" rx="40" ry="10" strokeDasharray="5,5" /></svg>;
         case 'pyramid':
-            return <svg viewBox="0 0 100 100" className={className} fill="none" stroke="currentColor" strokeWidth="5"><path d="M50 10 L10 90 H90 Z M50 10 L50 90 M10 90 L50 50 L90 90"/></svg>;
+            return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M50 10 L10 90 H90 Z M50 10 L50 90 M10 90 L50 50 L90 90"/></svg>;
         case 'cone':
-            return <svg viewBox="0 0 100 100" className={className} fill="none" stroke="currentColor" strokeWidth="5"><path d="M50 10 L10 90 H90 Z"/><ellipse cx="50" cy="90" rx="40" ry="8"/></svg>;
+            return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M50 10 L10 90 H90 Z"/><ellipse cx="50" cy="90" rx="40" ry="10"/></svg>;
         default:
-            return null;
+            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="20" fill="gray" /></svg>;
     }
 });
 
-// Memoized Image Display
+// Memoized Image Display with Smart Fallback
 export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string; className?: string }) => {
-    if (base64) {
-        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Yapay zeka tarafından oluşturulan resim'} className={`${className} object-contain rounded-md bg-zinc-100 dark:bg-zinc-700 shadow-sm`} loading="lazy" />;
+    
+    // 1. Try rendering Base64 Image
+    if (base64 && base64.length > 100) { // Basic validity check
+        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Görsel'} className={`${className} object-contain rounded-md bg-white dark:bg-zinc-800 shadow-sm`} loading="lazy" />;
     }
     
-    // Smart Fallback with Emojis
-    let emojiIcon = null;
-    if (description) {
-        const lowerDesc = description.toLowerCase();
-        const foundKey = Object.keys(EMOJI_MAP).find(key => lowerDesc.includes(EMOJI_MAP[key].toLowerCase()));
-        if (foundKey) {
-            emojiIcon = foundKey;
-        }
-    }
-
-    // Fallback UI for missing images
+    // 2. Smart Emoji Fallback
+    let emojiIcon = findEmojiForDescription(description || '');
+    
+    // 3. Fallback UI (Card with Icon/Emoji + Text)
     return (
-        <div className={`bg-zinc-50 dark:bg-zinc-800/50 rounded-md border-2 border-dashed border-zinc-200 dark:border-zinc-700 flex flex-col items-center justify-center text-center p-3 ${className}`}>
+        <div className={`bg-indigo-50 dark:bg-zinc-800/80 rounded-lg border-2 border-dashed border-indigo-200 dark:border-zinc-600 flex flex-col items-center justify-center text-center p-2 overflow-hidden ${className}`}>
             {emojiIcon ? (
-                <div className="text-6xl mb-2 filter drop-shadow-md transform hover:scale-110 transition-transform cursor-default" role="img" aria-label={description}>
+                <div className="text-5xl sm:text-6xl mb-1 filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default select-none" role="img" aria-label={description}>
                     {emojiIcon}
                 </div>
             ) : (
-                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mb-2 text-indigo-400 dark:text-indigo-300">
-                    <i className="fa-solid fa-image fa-lg"></i>
+                <div className="w-10 h-10 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-1 text-indigo-400 dark:text-indigo-300 shadow-sm">
+                    <i className="fa-regular fa-image fa-lg"></i>
                 </div>
             )}
             
             {description ? (
-                <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 px-2 line-clamp-2">{description}</p>
+                <p className="text-[10px] sm:text-xs font-bold text-indigo-900 dark:text-indigo-200 px-1 leading-tight uppercase tracking-wide break-words w-full">
+                    {description}
+                </p>
             ) : (
-                <p className="text-xs text-zinc-400 italic">Görsel</p>
+                <p className="text-[10px] text-zinc-400 italic">Görsel</p>
             )}
         </div>
     );
@@ -197,7 +224,7 @@ export const CagedGridSvg = React.memo(({
 
     return (
         <div className="flex justify-center p-2">
-            <svg width={totalSize} height={totalSize} className="bg-white dark:bg-zinc-700/50">
+            <svg width={totalSize} height={totalSize} className="bg-white dark:bg-zinc-700/50 border border-zinc-300">
                 {/* Thin grid lines */}
                 {Array.from({ length: size + 1 }).map((_, i) => (
                     <g key={i}>
@@ -206,7 +233,7 @@ export const CagedGridSvg = React.memo(({
                     </g>
                 ))}
                 
-                {/* Thick cage lines and numbers */}
+                {/* Thick cage lines */}
                 {Array.from({ length: size * size }).map((_, i) => {
                     const r = Math.floor(i / size);
                     const c = i % size;
@@ -216,11 +243,6 @@ export const CagedGridSvg = React.memo(({
                             {isEdge(r, c, 'bottom') && <line x1={c * cellSize} y1={(r + 1) * cellSize} x2={(c + 1) * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
                             {isEdge(r, c, 'left') && <line x1={c * cellSize} y1={r * cellSize} x2={c * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
                             {isEdge(r, c, 'right') && <line x1={(c + 1) * cellSize} y1={r * cellSize} x2={(c + 1) * cellSize} y2={(r + 1) * cellSize} className="stroke-zinc-800 dark:stroke-zinc-200" strokeWidth="3" />}
-                            
-                            {gridData?.[r]?.[c] !== null && (
-                                <text x={c * cellSize + cellSize / 2} y={r * cellSize + cellSize / 2} textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-zinc-400 opacity-30">
-                                </text>
-                            )}
                         </g>
                     );
                 })}
