@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bursa Disleksi Ai</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Font Awesome 6.5.1 (Integrity removed for better compatibility) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- OpenDyslexic Font -->
     <link href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css" rel="stylesheet">
 <script>
@@ -57,8 +58,19 @@
 </script>
 <style>
   /* --- GLOBAL FONT & RESET --- */
-  * {
-    font-family: 'OpenDyslexic', sans-serif !important;
+  :root {
+    --font-primary: 'OpenDyslexic', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-primary);
+    background-color: #fafafa;
+    color: #18181b;
+  }
+
+  /* Ensure these elements inherit the font, but do NOT force it with !important globally to avoid breaking icons */
+  button, input, select, textarea {
+    font-family: var(--font-primary);
   }
 
   /* --- ACCESSIBILITY: HIGH CONTRAST FOCUS RINGS --- */
