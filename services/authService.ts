@@ -68,7 +68,7 @@ export const authService = {
             id: authData.user.id,
             email: email,
             name: name,
-            role: 'user',
+            role: email === 'morimasi@gmail.com' ? 'admin' : 'user',
             created_at: new Date().toISOString(),
             last_login: new Date().toISOString(),
             avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
