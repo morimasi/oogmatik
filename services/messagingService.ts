@@ -1,130 +1,126 @@
 
-import { FeedbackItem, Message, User, SavedWorksheet } from '../types';
-import { authService } from './authService';
+import { supabase } from './supabaseClient';
+import { FeedbackItem, Message, User } from '../types';
 
-const MESSAGES_KEY = 'app_messages';
-const FEEDBACKS_KEY = 'app_feedbacks';
-const SHARED_WORKSHEETS_KEY = 'app_shared_worksheets';
+// Mappers
+const mapDbFeedback = (db: any): FeedbackItem => ({
+    id: db.id,
+    userId: db.user_id,
+    userName: db.user_name,
+    userEmail: db.user_email,
+    activityType: db.activity_type,
+    activityTitle: db.activity_title,
+    rating: db.rating,
+    message: db.message,
+    timestamp: db.timestamp,
+    status: db.status,
+    adminReply: db.admin_reply
+});
 
-// Mock implementation using localStorage to simulate a backend service
+const mapDbMessage = (db: any): Message => ({
+    id: db.id,
+    senderId: db.sender_id,
+    receiverId: db.receiver_id,
+    senderName: db.sender_name,
+    content: db.content,
+    timestamp: db.timestamp,
+    isRead: db.is_read,
+    relatedFeedbackId: db.related_feedback_id
+});
+
 export const messagingService = {
     // --- FEEDBACK ---
-    submitFeedback: async (data: Omit<FeedbackItem, 'id' | 'timestamp' | 'status'>): Promise<FeedbackItem> => {
-        await new Promise(resolve => setTimeout(resolve, 500)); // Sim delay
+    submitFeedback: async (data: Omit<FeedbackItem, 'id' | 'timestamp' | 'status'>): Promise<void> => {
+        if (!supabase) return;
         
-        const feedbacks = JSON.parse(localStorage.getItem(FEEDBACKS_KEY) || '[]');
-        const newFeedback: FeedbackItem = {
-            ...data,
-            id: Date.now().toString(),
-            timestamp: new Date().toISOString(),
+        const payload = {
+            user_id: data.userId,
+            user_name: data.userName,
+            user_email: data.userEmail,
+            activity_type: data.activityType,
+            activity_title: data.activityTitle,
+            rating: data.rating,
+            message: data.message,
             status: 'new'
         };
-        
-        feedbacks.unshift(newFeedback); // Add to top
-        localStorage.setItem(FEEDBACKS_KEY, JSON.stringify(feedbacks));
-        return newFeedback;
+
+        const { error } = await supabase.from('feedbacks').insert(payload);
+        if (error) throw error;
     },
 
-    getAllFeedbacks: (): FeedbackItem[] => {
-        return JSON.parse(localStorage.getItem(FEEDBACKS_KEY) || '[]');
+    getAllFeedbacks: async (): Promise<FeedbackItem[]> => {
+        if (!supabase) return [];
+        const { data, error } = await supabase.from('feedbacks').select('*').order('timestamp', { ascending: false });
+        if (error) return [];
+        return data.map(mapDbFeedback);
     },
 
-    // Admin replies to feedback -> Marks as replied AND sends a message to user
     replyToFeedback: async (feedbackId: string, replyMessage: string, adminUser: User): Promise<void> => {
-        const feedbacks = messagingService.getAllFeedbacks();
-        const index = feedbacks.findIndex(f => f.id === feedbackId);
-        
-        if (index === -1) throw new Error("Feedback not found");
-        
-        // Update Feedback Status
-        feedbacks[index].status = 'replied';
-        feedbacks[index].adminReply = replyMessage;
-        localStorage.setItem(FEEDBACKS_KEY, JSON.stringify(feedbacks));
+        if (!supabase) return;
 
-        // Send Message to User
-        if (feedbacks[index].userId) {
+        // 1. Update Feedback
+        const { data: feedback, error: fbError } = await supabase
+            .from('feedbacks')
+            .update({ status: 'replied', admin_reply: replyMessage })
+            .eq('id', feedbackId)
+            .select()
+            .single();
+
+        if (fbError) throw fbError;
+
+        // 2. Send Message if user exists
+        if (feedback && feedback.user_id) {
             await messagingService.sendMessage({
                 senderId: adminUser.id,
                 senderName: adminUser.name,
-                receiverId: feedbacks[index].userId!,
-                content: `GERİ BİLDİRİM YANITI:\n"${feedbacks[index].message}"\n\nYANIT:\n${replyMessage}`,
+                receiverId: feedback.user_id,
+                content: `GERİ BİLDİRİM YANITI:\n"${feedback.message}"\n\nYANIT:\n${replyMessage}`,
                 relatedFeedbackId: feedbackId
             });
         }
     },
 
     // --- MESSAGING ---
-    sendMessage: async (msgData: Omit<Message, 'id' | 'timestamp' | 'isRead'>): Promise<Message> => {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        const messages = JSON.parse(localStorage.getItem(MESSAGES_KEY) || '[]');
-        const newMessage: Message = {
-            ...msgData,
-            id: Date.now().toString() + Math.random(),
-            timestamp: new Date().toISOString(),
-            isRead: false
-        };
-        
-        messages.push(newMessage);
-        localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
-        return newMessage;
-    },
+    sendMessage: async (msgData: Omit<Message, 'id' | 'timestamp' | 'isRead'>): Promise<void> => {
+        if (!supabase) return;
 
-    getMessagesForUser: (userId: string): Message[] => {
-        const allMessages = JSON.parse(localStorage.getItem(MESSAGES_KEY) || '[]') as Message[];
-        // Return messages where user is sender OR receiver
-        return allMessages.filter(m => m.senderId === userId || m.receiverId === userId)
-                          .sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    },
-
-    getUnreadCount: (userId: string): number => {
-        const allMessages = JSON.parse(localStorage.getItem(MESSAGES_KEY) || '[]') as Message[];
-        return allMessages.filter(m => m.receiverId === userId && !m.isRead).length;
-    },
-
-    markAsRead: (messageId: string) => {
-        const messages = JSON.parse(localStorage.getItem(MESSAGES_KEY) || '[]') as Message[];
-        const index = messages.findIndex(m => m.id === messageId);
-        if (index !== -1) {
-            messages[index].isRead = true;
-            localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
-        }
-    },
-
-    // --- SHARING WORKSHEETS ---
-    shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
-        const sharedWorksheets = JSON.parse(localStorage.getItem(SHARED_WORKSHEETS_KEY) || '[]');
-        
-        // Create a new copy of the worksheet for the recipient
-        const newSharedWorksheet: SavedWorksheet = {
-            ...worksheet,
-            id: `shared-${Date.now()}-${Math.random()}`, // New ID for the shared copy
-            sharedBy: senderId,
-            sharedByName: senderName,
-            sharedWith: receiverId,
-            createdAt: new Date().toISOString()
+        const payload = {
+            sender_id: msgData.senderId,
+            sender_name: msgData.senderName,
+            receiver_id: msgData.receiverId,
+            content: msgData.content,
+            related_feedback_id: msgData.relatedFeedbackId
         };
 
-        sharedWorksheets.push(newSharedWorksheet);
-        localStorage.setItem(SHARED_WORKSHEETS_KEY, JSON.stringify(sharedWorksheets));
-
-        // Also send a notification message
-        await messagingService.sendMessage({
-            senderId: senderId,
-            senderName: senderName,
-            receiverId: receiverId,
-            content: `Size "${worksheet.name}" adlı bir çalışma sayfası gönderdi.`
-        });
+        const { error } = await supabase.from('messages').insert(payload);
+        if (error) throw error;
     },
 
-    getSharedWorksheetsForUser: (userId: string): SavedWorksheet[] => {
-        const sharedWorksheets = JSON.parse(localStorage.getItem(SHARED_WORKSHEETS_KEY) || '[]') as SavedWorksheet[];
-        return sharedWorksheets.filter(ws => ws.sharedWith === userId);
+    getMessagesForUser: async (userId: string): Promise<Message[]> => {
+        if (!supabase) return [];
+
+        const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+            .order('timestamp', { ascending: true }); // Chat order
+
+        if (error) return [];
+        return data.map(mapDbMessage);
     },
 
-    deleteSharedWorksheet: (worksheetId: string) => {
-        const sharedWorksheets = JSON.parse(localStorage.getItem(SHARED_WORKSHEETS_KEY) || '[]') as SavedWorksheet[];
-        const updated = sharedWorksheets.filter(ws => ws.id !== worksheetId);
-        localStorage.setItem(SHARED_WORKSHEETS_KEY, JSON.stringify(updated));
+    getUnreadCount: async (userId: string): Promise<number> => {
+        if (!supabase) return 0;
+        const { count } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('receiver_id', userId)
+            .eq('is_read', false);
+        return count || 0;
+    },
+
+    markAsRead: async (messageId: string) => {
+        if (!supabase) return;
+        await supabase.from('messages').update({ is_read: true }).eq('id', messageId);
     }
 };

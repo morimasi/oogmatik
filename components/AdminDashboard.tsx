@@ -35,12 +35,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         return () => clearInterval(interval);
     }, []);
 
-    const loadData = () => {
-        setUsers(authService.getAllUsers());
-        setFeedbacks(messagingService.getAllFeedbacks());
+    const loadData = async () => {
+        setUsers(await authService.getAllUsers());
+        setFeedbacks(await messagingService.getAllFeedbacks());
         setStats(statsService.getAllStats());
         if (user) {
-            setMessages(messagingService.getMessagesForUser(user.id)); 
+            setMessages(await messagingService.getMessagesForUser(user.id)); 
         }
     };
 
@@ -52,8 +52,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         }
     };
 
-    const handleToggleStatus = (id: string) => {
-        authService.toggleUserStatus(id);
+    const handleToggleStatus = async (id: string, currentStatus: string) => {
+        await authService.toggleUserStatus(id, currentStatus);
         loadData();
     };
 
@@ -210,7 +210,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                             <td className="p-4 text-right space-x-2">
                                                 {u.id !== user.id && (
                                                     <>
-                                                        <button onClick={() => handleToggleStatus(u.id)} className="text-amber-600 hover:text-amber-800" title={u.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}>
+                                                        <button onClick={() => handleToggleStatus(u.id, u.status)} className="text-amber-600 hover:text-amber-800" title={u.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}>
                                                             <i className={`fa-solid ${u.status === 'active' ? 'fa-ban' : 'fa-check'}`}></i>
                                                         </button>
                                                         <button onClick={() => handleDeleteUser(u.id)} className="text-red-600 hover:text-red-800" title="Sil">

@@ -112,7 +112,13 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         <p className="text-zinc-500 dark:text-zinc-400 font-medium">{user.email}</p>
                                     </div>
                                     <div className="flex gap-3">
-                                        <button onClick={logout} className="px-4 py-2 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-lg font-bold text-sm hover:bg-red-100 transition-colors">
+                                        <button 
+                                            onClick={() => {
+                                                logout();
+                                                onBack();
+                                            }} 
+                                            className="px-4 py-2 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-lg font-bold text-sm hover:bg-red-100 transition-colors"
+                                        >
                                             <i className="fa-solid fa-sign-out-alt mr-2"></i> Çıkış Yap
                                         </button>
                                     </div>

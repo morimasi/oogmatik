@@ -1,198 +1,167 @@
 
-import { User, UserRole } from '../types';
+import { supabase } from './supabaseClient';
+import { User } from '../types';
 
-const USERS_KEY = 'app_users_db';
-const CURRENT_USER_KEY = 'app_current_user';
-
-// Default Admin
-const DEFAULT_ADMIN: User = {
-    id: 'admin-001',
-    email: 'admin@bursadisleksi.com',
-    name: 'Sistem Yöneticisi',
-    role: 'admin',
-    createdAt: new Date().toISOString(),
-    lastLogin: new Date().toISOString(),
-    worksheetCount: 12,
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
-    status: 'active',
-    subscriptionPlan: 'enterprise'
-};
-
-// Helper to generate mock users for admin dashboard visualization
-const generateMockUsers = (): User[] => {
-    const names = ["Ahmet Yılmaz", "Ayşe Demir", "Mehmet Öztürk", "Fatma Kaya", "Can Yıldız", "Elif Çelik", "Burak Şahin", "Ceren Arslan"];
-    return names.map((name, i) => ({
-        id: `user-${100 + i}`,
-        email: `user${100 + i}@ornek.com`,
-        name,
-        role: 'user',
-        createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-        lastLogin: new Date(Date.now() - Math.random() * 1000000000).toISOString(),
-        worksheetCount: Math.floor(Math.random() * 50),
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
-        status: Math.random() > 0.8 ? 'suspended' : 'active',
-        subscriptionPlan: Math.random() > 0.7 ? 'pro' : 'free'
-    }));
-};
-
-// Helper to get users DB
-const getUsersDB = (): User[] => {
-    const stored = localStorage.getItem(USERS_KEY);
-    if (!stored) {
-        // Initial seed with admin and mock users
-        const initialUsers = [DEFAULT_ADMIN, ...generateMockUsers()];
-        localStorage.setItem(USERS_KEY, JSON.stringify(initialUsers));
-        return initialUsers;
-    }
-    return JSON.parse(stored);
-};
-
-// Helper to save users DB
-const saveUsersDB = (users: User[]) => {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-};
+// Map DB columns to App User type
+const mapDbUserToAppUser = (dbUser: any): User => ({
+    id: dbUser.id,
+    email: dbUser.email,
+    name: dbUser.name || dbUser.email.split('@')[0],
+    role: dbUser.role || 'user',
+    avatar: dbUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${dbUser.email}`,
+    createdAt: dbUser.created_at,
+    lastLogin: dbUser.last_login,
+    worksheetCount: dbUser.worksheet_count || 0,
+    status: dbUser.status || 'active',
+    subscriptionPlan: dbUser.subscription_plan || 'free'
+});
 
 export const authService = {
-    login: async (email: string, password: string): Promise<User> => {
-        // Simulated delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const users = getUsersDB();
-        // Simplified password check (In real app, hash check)
-        // For demo: password is '123456' for users, 'admin123' for admin
-        
-        const user = users.find(u => u.email === email);
-        
-        if (!user) throw new Error('Kullanıcı bulunamadı.');
-        if (user.status === 'suspended') throw new Error('Hesabınız askıya alınmıştır. Yönetici ile iletişime geçin.');
-        
-        // Mock Password Validation
-        if (user.role === 'admin' && password !== 'admin123') throw new Error('Hatalı şifre.');
-        if (user.role === 'user' && password !== '123456') throw new Error('Hatalı şifre.');
+    login: async (email: string, pass: string): Promise<User> => {
+        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
+
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email,
+            password: pass
+        });
+
+        if (authError) throw new Error(authError.message);
+        if (!authData.user) throw new Error("Kullanıcı bulunamadı.");
 
         // Update last login
-        user.lastLogin = new Date().toISOString();
-        saveUsersDB(users);
+        await supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id);
 
-        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-        return user;
-    },
+        // Fetch profile
+        const { data: profile, error: profileError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', authData.user.id)
+            .single();
 
-    register: async (email: string, password: string, name: string): Promise<User> => {
-        await new Promise(resolve => setTimeout(resolve, 800));
+        if (profileError) throw new Error("Kullanıcı profili yüklenemedi.");
         
-        const users = getUsersDB();
-        if (users.find(u => u.email === email)) {
-            throw new Error('Bu e-posta adresi zaten kayıtlı.');
+        if (profile.status === 'suspended') {
+            await supabase.auth.signOut();
+            throw new Error('Hesabınız askıya alınmıştır.');
         }
 
-        const newUser: User = {
-            id: Date.now().toString(),
+        return mapDbUserToAppUser(profile);
+    },
+
+    register: async (email: string, pass: string, name: string): Promise<User> => {
+        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
+
+        const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
-            name,
+            password: pass,
+            options: {
+                data: { full_name: name }
+            }
+        });
+
+        if (authError) throw new Error(authError.message);
+        if (!authData.user) throw new Error("Kayıt oluşturulamadı.");
+
+        // Create public user profile manually (if trigger fails or adds latency)
+        const newUserProfile = {
+            id: authData.user.id,
+            email: email,
+            name: name,
             role: 'user',
-            createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            worksheetCount: 0,
+            created_at: new Date().toISOString(),
+            last_login: new Date().toISOString(),
             avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
             status: 'active',
-            subscriptionPlan: 'free'
+            subscription_plan: 'free',
+            worksheet_count: 0
         };
 
-        users.push(newUser);
-        saveUsersDB(users);
-        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
-        return newUser;
+        // Upsert to handle potential trigger race conditions
+        const { data: profile, error: dbError } = await supabase
+            .from('users')
+            .upsert(newUserProfile)
+            .select()
+            .single();
+
+        if (dbError) console.error("Profile creation error:", dbError);
+
+        return mapDbUserToAppUser(profile || newUserProfile);
     },
 
-    logout: () => {
-        localStorage.removeItem(CURRENT_USER_KEY);
+    logout: async () => {
+        if (!supabase) return;
+        await supabase.auth.signOut();
     },
 
-    getCurrentUser: (): User | null => {
-        const stored = localStorage.getItem(CURRENT_USER_KEY);
-        return stored ? JSON.parse(stored) : null;
+    getCurrentUser: async (): Promise<User | null> => {
+        if (!supabase) return null;
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return null;
+
+        const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+        if (!profile) return null;
+        return mapDbUserToAppUser(profile);
     },
 
     updateProfile: async (userId: string, updates: Partial<User>): Promise<User> => {
-        const users = getUsersDB();
-        const index = users.findIndex(u => u.id === userId);
-        if (index === -1) throw new Error('Kullanıcı bulunamadı');
+        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
 
-        const updatedUser = { ...users[index], ...updates };
-        users[index] = updatedUser;
-        saveUsersDB(users);
-        
-        // Update session if it's the current user
-        const currentUser = authService.getCurrentUser();
-        if (currentUser && currentUser.id === userId) {
-            localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser));
-        }
-        
-        return updatedUser;
+        // Convert camelCase to snake_case for DB
+        const dbUpdates: any = {};
+        if (updates.name) dbUpdates.name = updates.name;
+        if (updates.avatar) dbUpdates.avatar = updates.avatar;
+        if (updates.worksheetCount !== undefined) dbUpdates.worksheet_count = updates.worksheetCount;
+
+        const { data, error } = await supabase
+            .from('users')
+            .update(dbUpdates)
+            .eq('id', userId)
+            .select()
+            .single();
+
+        if (error) throw new Error(error.message);
+        return mapDbUserToAppUser(data);
     },
 
-    // Get available contacts for messaging (excluding current user)
-    getContacts: (currentUserId: string): User[] => {
-        const users = getUsersDB();
-        return users.filter(u => u.id !== currentUserId && u.status === 'active');
+    getContacts: async (currentUserId: string): Promise<User[]> => {
+        if (!supabase) return [];
+        
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .neq('id', currentUserId)
+            .eq('status', 'active')
+            .limit(50); // Limit for performance
+
+        if (error) return [];
+        return data.map(mapDbUserToAppUser);
     },
 
     // --- ADMIN METHODS ---
-    getAllUsers: (): User[] => {
-        return getUsersDB();
+    getAllUsers: async (): Promise<User[]> => {
+        if (!supabase) return [];
+        const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+        if (error) return [];
+        return data.map(mapDbUserToAppUser);
     },
 
-    // Admin can delete any user (except self usually, handled in UI)
     deleteUser: async (userId: string): Promise<void> => {
-        let users = getUsersDB();
-        users = users.filter(u => u.id !== userId);
-        saveUsersDB(users);
+        if (!supabase) return;
+        // Note: In Supabase, deleting from auth.users requires service role key usually.
+        // Here we perform a soft delete or delete from public.users if RLS allows.
+        // For this demo, we delete from public table. Real app should use Edge Function for full delete.
+        await supabase.from('users').delete().eq('id', userId);
     },
 
-    // Admin can edit any user properties
-    adminUpdateUser: async (userId: string, updates: Partial<User>): Promise<User> => {
-        const users = getUsersDB();
-        const index = users.findIndex(u => u.id === userId);
-        if (index === -1) throw new Error('Kullanıcı bulunamadı');
-
-        const updatedUser = { ...users[index], ...updates };
-        users[index] = updatedUser;
-        saveUsersDB(users);
-        return updatedUser;
-    },
-
-    // Admin create user without login
-    adminCreateUser: async (user: Partial<User>): Promise<User> => {
-        const users = getUsersDB();
-        if (users.find(u => u.email === user.email)) {
-            throw new Error('E-posta zaten kullanımda.');
-        }
-        
-        const newUser: User = {
-            id: Date.now().toString(),
-            email: user.email || '',
-            name: user.name || '',
-            role: user.role || 'user',
-            createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            worksheetCount: 0,
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`,
-            status: user.status || 'active',
-            subscriptionPlan: user.subscriptionPlan || 'free'
-        };
-        
-        users.push(newUser);
-        saveUsersDB(users);
-        return newUser;
-    },
-
-    toggleUserStatus: (userId: string) => {
-        const users = getUsersDB();
-        const index = users.findIndex(u => u.id === userId);
-        if (index !== -1) {
-            users[index].status = users[index].status === 'active' ? 'suspended' : 'active';
-            saveUsersDB(users);
-        }
+    toggleUserStatus: async (userId: string, currentStatus: string) => {
+        if (!supabase) return;
+        const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+        await supabase.from('users').update({ status: newStatus }).eq('id', userId);
     }
 };

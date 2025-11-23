@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { SavedWorksheet } from '../types';
 import { ACTIVITIES } from '../constants';
 import { useAuth } from '../context/AuthContext';
-import { messagingService } from '../services/messagingService';
+import { worksheetService } from '../services/worksheetService';
 
 interface SharedWorksheetsViewProps {
   onLoad: (worksheet: SavedWorksheet) => void;
@@ -17,17 +17,21 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
 
   useEffect(() => {
       if (user) {
-          const loaded = messagingService.getSharedWorksheetsForUser(user.id);
-          setSharedWorksheets(loaded);
+          loadShared();
       }
   }, [user]);
 
-  const handleDelete = (id: string) => {
+  const loadShared = async () => {
+      if (user) {
+          const loaded = await worksheetService.getSharedWithMe(user.id);
+          setSharedWorksheets(loaded);
+      }
+  }
+
+  const handleDelete = async (id: string) => {
       if (confirm('Bu paylaşılan etkinliği silmek istediğinizden emin misiniz?')) {
-          messagingService.deleteSharedWorksheet(id);
-          if (user) {
-              setSharedWorksheets(messagingService.getSharedWorksheetsForUser(user.id));
-          }
+          await worksheetService.deleteWorksheet(id);
+          loadShared();
       }
   };
 

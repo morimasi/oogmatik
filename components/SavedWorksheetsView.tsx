@@ -4,7 +4,7 @@ import { SavedWorksheet, User } from '../types';
 import { ACTIVITIES } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
-import { messagingService } from '../services/messagingService';
+import { worksheetService } from '../services/worksheetService';
 
 interface SavedWorksheetsViewProps {
   savedWorksheets: SavedWorksheet[];
@@ -23,7 +23,11 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
 
   useEffect(() => {
       if (user) {
-          setContacts(authService.getContacts(user.id));
+          const loadContacts = async () => {
+              const data = await authService.getContacts(user.id);
+              setContacts(data);
+          };
+          loadContacts();
       }
   }, [user]);
 
@@ -71,7 +75,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
   const handleShareSubmit = async (receiverId: string) => {
       if (!selectedWorksheetToShare || !user) return;
       try {
-          await messagingService.shareWorksheet(selectedWorksheetToShare, user.id, user.name, receiverId);
+          await worksheetService.shareWorksheet(selectedWorksheetToShare, user.id, user.name, receiverId);
           alert('Çalışma sayfası başarıyla paylaşıldı!');
           setIsShareModalOpen(false);
           setSelectedWorksheetToShare(null);

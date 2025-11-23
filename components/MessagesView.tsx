@@ -17,24 +17,28 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     useEffect(() => {
         if (user) {
-            // Load contacts
-            const allUsers = authService.getContacts(user.id);
-            // Sort: Admin first, then alphabetically
-            const sortedContacts = allUsers.sort((a, b) => {
-                if (a.role === 'admin' && b.role !== 'admin') return -1;
-                if (b.role === 'admin' && a.role !== 'admin') return 1;
-                return a.name.localeCompare(b.name);
-            });
-            setContacts(sortedContacts);
+            const initData = async () => {
+                // Load contacts
+                const allUsers = await authService.getContacts(user.id);
+                // Sort: Admin first, then alphabetically
+                const sortedContacts = allUsers.sort((a, b) => {
+                    if (a.role === 'admin' && b.role !== 'admin') return -1;
+                    if (b.role === 'admin' && a.role !== 'admin') return 1;
+                    return a.name.localeCompare(b.name);
+                });
+                setContacts(sortedContacts);
+                
+                // Initial Load
+                await loadMessages();
+                
+                // Default select admin if no contact selected and admin exists
+                const admin = sortedContacts.find(u => u.role === 'admin');
+                if (!selectedContact && admin) {
+                    setSelectedContact(admin);
+                }
+            };
             
-            // Initial Load
-            loadMessages();
-            
-            // Default select admin if no contact selected and admin exists
-            const admin = sortedContacts.find(u => u.role === 'admin');
-            if (!selectedContact && admin) {
-                setSelectedContact(admin);
-            }
+            initData();
 
             const interval = setInterval(loadMessages, 3000);
             return () => clearInterval(interval);
@@ -46,9 +50,9 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, selectedContact]);
 
-    const loadMessages = () => {
+    const loadMessages = async () => {
         if (user) {
-            const allMsgs = messagingService.getMessagesForUser(user.id);
+            const allMsgs = await messagingService.getMessagesForUser(user.id);
             setMessages(allMsgs);
         }
     };
@@ -74,7 +78,7 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 content: newMessage
             });
             setNewMessage('');
-            loadMessages();
+            await loadMessages();
         } catch (err) {
             console.error(err);
         } finally {

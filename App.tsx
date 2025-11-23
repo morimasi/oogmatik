@@ -13,6 +13,7 @@ import { ProfileView } from './components/ProfileView';
 import { AdminDashboard } from './components/AdminDashboard';
 import { MessagesView } from './components/MessagesView';
 import { messagingService } from './services/messagingService';
+import { worksheetService } from './services/worksheetService';
 import { TourGuide, TourStep } from './components/TourGuide';
 import { SharedWorksheetsView } from './components/SharedWorksheetsView';
 import { SavedWorksheetsView } from './components/SavedWorksheetsView';
@@ -88,16 +89,32 @@ const AppContent: React.FC = () => {
   const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
-  // Filtered data based on User ID
-  const userSavedWorksheets = useMemo(() => {
-      if (!user) return []; // Or local storage only items
-      return savedWorksheets.filter(ws => ws.userId === user.id || !ws.userId); // Show owned or legacy
-  }, [savedWorksheets, user]);
+  // Load user data when user changes
+  useEffect(() => {
+      if (user) {
+          loadUserWorksheets();
+          const checkMsgs = async () => setUnreadCount(await messagingService.getUnreadCount(user.id));
+          checkMsgs();
+          const interval = setInterval(checkMsgs, 10000);
+          return () => clearInterval(interval);
+      } else {
+          setSavedWorksheets([]);
+      }
+  }, [user]);
 
-  const userHistory = useMemo(() => {
-      if (!user) return historyItems.filter(h => !h.userId);
-      return historyItems.filter(h => h.userId === user.id);
-  }, [historyItems, user]);
+  // Otomatik Yönlendirme: Kullanıcı çıkış yaptığında ve korumalı bir sayfadaysa ana sayfaya dön
+  useEffect(() => {
+      if (!user && ['profile', 'admin', 'messages', 'shared'].includes(currentView)) {
+          setCurrentView('generator');
+      }
+  }, [user, currentView]);
+
+  const loadUserWorksheets = async () => {
+      if (user) {
+          const sheets = await worksheetService.getUserWorksheets(user.id);
+          setSavedWorksheets(sheets);
+      }
+  };
 
   useEffect(() => {
       const root = document.documentElement;
@@ -124,28 +141,11 @@ const AppContent: React.FC = () => {
   };
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('savedWorksheets');
-      if (stored) setSavedWorksheets(JSON.parse(stored));
-    } catch (e) { console.error(e); }
-  }, []);
-
-  useEffect(() => {
       try {
           const stored = sessionStorage.getItem('sessionHistory');
           if (stored) setHistoryItems(JSON.parse(stored));
       } catch (e) { console.error(e); }
   }, []);
-
-  // Check unread messages periodically
-  useEffect(() => {
-      if(user) {
-          const check = () => setUnreadCount(messagingService.getUnreadCount(user.id));
-          check();
-          const interval = setInterval(check, 5000);
-          return () => clearInterval(interval);
-      }
-  }, [user]);
 
   const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
       const activity = ACTIVITIES.find(a => a.id === activityType);
@@ -167,7 +167,7 @@ const AppContent: React.FC = () => {
       sessionStorage.setItem('sessionHistory', JSON.stringify(updatedHistory));
   };
 
-  const addSavedWorksheet = (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
+  const addSavedWorksheet = async (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
     if (!user) {
         setIsAuthModalOpen(true); // Require login to save
         return;
@@ -176,25 +176,25 @@ const AppContent: React.FC = () => {
     const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
     if (!activity || !category) return;
 
-    const newWorksheet: SavedWorksheet = {
-      id: new Date().toISOString() + Math.random(),
-      userId: user.id,
-      name,
-      activityType,
-      worksheetData: data,
-      createdAt: new Date().toISOString(),
-      icon: activity.icon,
-      category: { id: category.id, title: category.title },
-    };
-    const updated = [...savedWorksheets, newWorksheet];
-    setSavedWorksheets(updated);
-    localStorage.setItem('savedWorksheets', JSON.stringify(updated));
+    try {
+        await worksheetService.saveWorksheet(
+            user.id,
+            name,
+            activityType,
+            data,
+            activity.icon,
+            { id: category.id, title: category.title }
+        );
+        loadUserWorksheets(); // Refresh list
+    } catch (e) {
+        console.error("Save error:", e);
+        alert("Kaydedilirken bir hata oluştu.");
+    }
   };
 
-  const deleteSavedWorksheet = (id: string) => {
-    const updated = savedWorksheets.filter(ws => ws.id !== id);
-    setSavedWorksheets(updated);
-    localStorage.setItem('savedWorksheets', JSON.stringify(updated));
+  const deleteSavedWorksheet = async (id: string) => {
+    await worksheetService.deleteWorksheet(id);
+    loadUserWorksheets();
   };
 
   const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
@@ -334,7 +334,7 @@ const AppContent: React.FC = () => {
           styleSettings={styleSettings}
           onStyleChange={setStyleSettings}
           onSave={addSavedWorksheet}
-          savedWorksheets={userSavedWorksheets}
+          savedWorksheets={savedWorksheets}
           onLoadSaved={loadSavedWorksheet}
           onDeleteSaved={deleteSavedWorksheet}
           onFeedback={() => setIsFeedbackOpen(true)}
@@ -386,14 +386,14 @@ const AppContent: React.FC = () => {
       </Modal>
 
       <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi">
-          {userHistory.length === 0 ? (
+          {historyItems.length === 0 ? (
                <div className="text-center py-8 text-zinc-500">
                    <i className="fa-solid fa-clock-rotate-left text-4xl mb-3 opacity-20"></i>
                    <p>Henüz bir işlem geçmişiniz bulunmuyor.</p>
                </div>
           ) : (
               <div className="space-y-3">
-                  {userHistory.map((item) => (
+                  {historyItems.map((item) => (
                       <div key={item.id} className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                           <div className="flex items-center gap-3">
                                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
