@@ -24,74 +24,23 @@ export interface VocabData {
 export const TR_VOCAB = RAW_VOCAB as VocabData;
 
 // Genişletilmiş Emoji Haritası (Görsel kütüphane)
-// Hem Türkçe hem İngilizce anahtar kelimeleri kapsar
 export const EMOJI_MAP: Record<string, string> = {
-    // Fruits & Veggies
-    "elma": "🍎", "apple": "🍎", "armut": "🍐", "pear": "🍐", "portakal": "🍊", "orange": "🍊", 
-    "limon": "🍋", "lemon": "🍋", "muz": "🍌", "banana": "🍌", "karpuz": "🍉", "watermelon": "🍉", 
-    "üzüm": "🍇", "grape": "🍇", "çilek": "🍓", "strawberry": "🍓", "kiraz": "🍒", "cherry": "🍒", 
-    "şeftali": "🍑", "peach": "🍑", "ananas": "🍍", "pineapple": "🍍", "domates": "🍅", "tomato": "🍅", 
-    "patlıcan": "🍆", "eggplant": "🍆", "brokoli": "🥦", "broccoli": "🥦", "havuç": "🥕", "carrot": "🥕", 
-    "mısır": "🌽", "corn": "🌽", "biber": "🌶️", "pepper": "🌶️", "salatalık": "🥒", "cucumber": "🥒",
-    "patates": "🥔", "potato": "🥔", "mantar": "🍄", "mushroom": "🍄",
-
-    // Food
-    "ekmek": "🍞", "bread": "🍞", "peynir": "🧀", "cheese": "🧀", "yumurta": "🥚", "egg": "🥚", 
-    "hamburger": "🍔", "burger": "🍔", "patates kızartması": "🍟", "fries": "🍟", "pizza": "🍕", 
-    "sosisli": "🌭", "hotdog": "🌭", "sandviç": "🥪", "sandwich": "🥪", "dondurma": "🍦", "ice cream": "🍦", 
-    "çikolata": "🍫", "chocolate": "🍫", "şeker": "🍬", "candy": "🍬", "kurabiye": "🍪", "cookie": "🍪",
-    "pasta": "🍰", "cake": "🍰", "süt": "🥛", "milk": "🥛", "kahve": "☕", "coffee": "☕", "çay": "🍵", "tea": "🍵",
-
-    // Animals
-    "köpek": "🐶", "dog": "🐶", "kedi": "🐱", "cat": "🐱", "fare": "🐭", "mouse": "🐭", 
-    "tavşan": "🐰", "rabbit": "🐰", "tilki": "🦊", "fox": "🦊", "ayı": "🐻", "bear": "🐻", 
-    "panda": "🐼", "kaplan": "🐯", "tiger": "🐯", "aslan": "🦁", "lion": "🦁", "inek": "🐮", "cow": "🐮", 
-    "domuz": "🐷", "pig": "🐷", "kurbağa": "🐸", "frog": "🐸", "maymun": "🐵", "monkey": "🐵", 
-    "tavuk": "🐔", "chicken": "🐔", "civciv": "🐤", "chick": "🐤", "ördek": "🦆", "duck": "🦆", 
-    "kartal": "🦅", "eagle": "🦅", "baykuş": "🦉", "owl": "🦉", "ar": "🐝", "bee": "🐝", 
-    "kelebek": "🦋", "butterfly": "🦋", "salyangoz": "🐌", "snail": "🐌", "uğur böceği": "🐞", "ladybug": "🐞", 
-    "kaplumbağa": "🐢", "turtle": "🐢", "yılan": "🐍", "snake": "🐍", "ahtapot": "🐙", "octopus": "🐙", 
-    "balık": "🐟", "fish": "🐟", "yunus": "🐬", "dolphin": "🐬", "balina": "🐳", "whale": "🐳", 
-    "fil": "🐘", "elephant": "🐘", "at": "🐴", "horse": "🐴", "zürafa": "🦒", "giraffe": "🦒",
-
-    // Vehicles
-    "araba": "🚗", "car": "🚗", "taksi": "🚕", "taxi": "🚕", "otobüs": "🚌", "bus": "🚌", 
-    "polis": "🚓", "police": "🚓", "ambulans": "🚑", "ambulance": "🚑", "itfaiye": "🚒", "fire truck": "🚒", 
-    "kamyon": "🚚", "truck": "🚚", "traktör": "🚜", "tractor": "🚜", "bisiklet": "🚲", "bicycle": "🚲", 
-    "uçak": "✈️", "airplane": "✈️", "helikopter": "🚁", "helicopter": "🚁", "roket": "🚀", "rocket": "🚀", 
-    "gemi": "🚢", "ship": "🚢", "tekne": "🚤", "boat": "🚤", "tren": "🚂", "train": "🚂",
-
-    // Objects & Places
-    "ev": "🏠", "house": "🏠", "okul": "🏫", "school": "🏫", "hastane": "🏥", "hospital": "🏥", 
-    "saat": "⏰", "clock": "⏰", "telefon": "📱", "phone": "📱", "bilgisayar": "💻", "computer": "💻", 
-    "kamera": "📷", "camera": "📷", "kitap": "📚", "book": "📚", "kalem": "✏️", "pencil": "✏️", 
-    "fırça": "🖌️", "brush": "🖌️", "makas": "✂️", "scissors": "✂️", "anahtar": "🔑", "key": "🔑", 
-    "kilit": "🔒", "lock": "🔒", "çekiç": "🔨", "hammer": "🔨", "balta": "🪓", "axe": "🪓", 
-    "kutu": "📦", "box": "📦", "hediye": "🎁", "gift": "🎁", "balon": "🎈", "balloon": "🎈", 
-    "top": "⚽", "ball": "⚽", "gözlük": "👓", "glasses": "👓", "gömlek": "👕", "shirt": "👕", 
-    "pantolon": "👖", "pants": "👖", "elbise": "👗", "dress": "👗", "ayakkabı": "👟", "shoe": "👟", 
-    "şapka": "🧢", "hat": "🧢", "taç": "👑", "crown": "👑", "yüzük": "💍", "ring": "💍",
-
-    // Nature & Sky
-    "güneş": "☀️", "sun": "☀️", "ay": "🌙", "moon": "🌙", "yıldız": "⭐", "star": "⭐", 
-    "bulut": "☁️", "cloud": "☁️", "yağmur": "🌧️", "rain": "🌧️", "kar": "❄️", "snow": "❄️", 
-    "şimşek": "⚡", "lightning": "⚡", "ateş": "🔥", "fire": "🔥", "su": "💧", "water": "💧", 
-    "ağaç": "🌳", "tree": "🌳", "çiçek": "🌸", "flower": "🌸", "yaprak": "🍃", "leaf": "🍃",
-    "gökkuşağı": "🌈", "rainbow": "🌈", "dünya": "🌍", "earth": "🌍",
-
-    // Shapes & Colors (as icons)
-    "kalp": "❤️", "heart": "❤️", "kare": "🟥", "square": "🟥", "daire": "🔴", "circle": "🔴", 
-    "üçgen": "🔺", "triangle": "🔺", "elmas": "♦️", "diamond": "♦️", 
-    "mavi": "💙", "blue": "💙", "yeşil": "💚", "green": "💚", "sarı": "💛", "yellow": "💛", 
-    "mor": "💜", "purple": "💜", "siyah": "🖤", "black": "🖤", "beyaz": "🤍", "white": "🤍"
+    "🍎": "Elma", "🍐": "Armut", "🍊": "Portakal", "🍋": "Limon", "🍌": "Muz", "🍉": "Karpuz", "🍇": "Üzüm", "🍓": "Çilek", "🫐": "Yaban Mersini", "🍈": "Kavun", "🍒": "Kiraz", "🍑": "Şeftali", "🍍": "Ananas", "🥥": "Hindistan Cevizi", "🥝": "Kivi", "🍅": "Domates", "🍆": "Patlıcan", "🥑": "Avokado", "🥦": "Brokoli", "🥕": "Havuç", "🌽": "Mısır", "🌶️": "Biber", "🥒": "Salatalık", "🥬": "Marul", "🥔": "Patates", "🧄": "Sarımsak", "🧅": "Soğan", "🍄": "Mantar", "🥜": "Fıstık", "🌰": "Kestane", "🍞": "Ekmek", "🥐": "Kruvasan", "🥖": "Baget", "🥨": "Simit", "🥯": "Poğaça", "🥞": "Pankek", "🧇": "Waffle", "🧀": "Peynir", "🍖": "Et", "🍗": "Tavuk But", "🥩": "Biftek", "🥓": "Pastırma", "🍔": "Hamburger", "🍟": "Patates Kızartması", "🍕": "Pizza", "🌭": "Sosisli", "🥪": "Sandviç", "🌮": "Tako", "🌯": "Dürüm", "🥚": "Yumurta", "🍳": "Sahanda Yumurta", "🥘": "Yemek", "🍲": "Çorba", "🥗": "Salata", "🍿": "Patlamış Mısır", "🧈": "Tereyağı", "🧂": "Tuz", "🥫": "Konserve",
+    "🚗": "Araba", "🚕": "Taksi", "🚙": "Cip", "🚌": "Otobüs", "🚎": "Troleybüs", "🏎️": "Yarış Arabası", "🚓": "Polis Arabası", "🚑": "Ambulans", "🚒": "İtfaiye", "🚐": "Minibüs", "🚚": "Kamyon", "🚛": "Tır", "🚜": "Traktör", "🏍️": "Motosiklet", "🛵": "Scooter", "🚲": "Bisiklet", "🛴": "Trotinet", "✈️": "Uçak", "🚁": "Helikopter", "🚀": "Roket", "🛸": "UFO", "⛵": "Yelkenli", "🚤": "Sürat Teknesi", "🛳️": "Gemi", "⛴️": "Feribot", "🚂": "Tren", "🚅": "Hızlı Tren", "🚈": "Tramvay", "🚝": "Monoray", "🚠": "Teleferik", "🚡": "Teleferik",
+    "🐶": "Köpek", "🐱": "Kedi", "🐭": "Fare", "🐹": "Hamster", "🐰": "Tavşan", "🦊": "Tilki", "🐻": "Ayı", "🐼": "Panda", "🐨": "Koala", "🐯": "Kaplan", "🦁": "Aslan", "🐮": "İnek", "🐷": "Domuz", "🐸": "Kurbağa", "🐵": "Maymun", "🐔": "Tavuk", "🐧": "Penguen", "🐦": "Kuş", "🐤": "Civciv", "🦆": "Ördek", "🦅": "Kartal", "🦉": "Baykuş", "🦇": "Yarasa", "🐺": "Kurt", "🐗": "Yaban Domuzu", "🐴": "At", "🦄": "Tekboynuz", "🐝": "Arı", "🐛": "Tırtıl", "🦋": "Kelebek", "🐌": "Salyangoz", "🐞": "Uğur Böceği", "🐜": "Karınca", "🕷️": "Örümcek", "🐢": "Kaplumbağa", "🐍": "Yılan", "🦎": "Kertenkele", "🐙": "Ahtapot", "🦑": "Mürekkep Balığı", "🦐": "Karides", "🦞": "Istakoz", "🦀": "Yengeç", "🐡": "Balon Balığı", "🐠": "Balık", "🐟": "Balık", "🐬": "Yunus", "🐳": "Balina", "🦈": "Köpekbalığı", "🐊": "Timsah", "🐅": "Kaplan", "🐆": "Leopar", "🦓": "Zebra", "🦍": "Goril", "🦧": "Orangutan", "🦣": "Mamut", "🐘": "Fil", "🦛": "Suaygırı", "🦏": "Gergedan", "🐪": "Deve", "🐫": "Deve", "🦒": "Zürafa", "🦘": "Kanguru", "🦬": "Bizon", "🐂": "Öküz", "🐃": "Manda", "🐄": "İnek", "🐎": "At", "🐖": "Domuz", "🐏": "Koç", "🐑": "Koyun", "🐐": "Keçi", "🦌": "Geyik", "🐕": "Köpek", "🐩": "Kaniş", "🦮": "Rehber Köpek", "🐕‍🦺": "Hizmet Köpeği", "🐈": "Kedi", "🐓": "Horoz", "🦃": "Hindi", "🦚": "Tavuskuşu", "🦜": "Papağan", "🦢": "Kuğu", "🦩": "Flamingo",
+    "⚽": "Futbol", "🏀": "Basketbol", "🏈": "Amerikan Futbolu", "⚾": "Beyzbol", "🥎": "Softbol", "🎾": "Tenis", "🏐": "Voleybol", "🏉": "Ragbi", "🎱": "Bilardo", "🏓": "Masa Tenisi", "🏸": "Badminton", "🥅": "Kale", "🥊": "Boks", "🥋": "Karate", "🤸": "Jimnastik", "⛸️": "Paten", "🎿": "Kayak", "🛷": "Kızak", "🥌": "Körling", "🎯": "Dart", "🪀": "Yo-yo", "🪁": "Uçurtma", "🔫": "Su Tabancası", "🔮": "Kristal Küre", "🎮": "Oyun Kolu", "🎰": "Slot Makinesi", "🎲": "Zar", "🧩": "Yapboz", "🧸": "Oyuncak Ayı", "🪅": "Pinyata", "🪄": "Sihirli Değnek",
+    "🏠": "Ev", "🏡": "Bahçeli Ev", "🏢": "Bina", "🏣": "Postane", "🏥": "Hastane", "🏦": "Banka", "🏫": "Okul", "🏨": "Otel", "⛪": "Kilise", "🕌": "Cami", "🕍": "Tapınak", "🏰": "Kale", "🏭": "Fabrika", "🗼": "Kule", "🗽": "Özgürlük Heykeli", "🏟️": "Stadyum", "🏛️": "Müze", "🏗️": "İnşaat", "🏘️": "Evler", "⛺": "Çadır",
+    "⌚": "Kol Saati", "📱": "Telefon", "💻": "Bilgisayar", "⌨️": "Klavye", "🖥️": "Masaüstü", "🖨️": "Yazıcı", "🖱️": "Fare", "🕹️": "Joystick", "📷": "Kamera", "📹": "Video Kamera", "📼": "Kaset", "🔍": "Büyüteç", "🔎": "Büyüteç", "🕯️": "Mum", "💡": "Ampul", "🔦": "Fener", "🏮": "Fener", "📔": "Defter", "📕": "Kitap", "📖": "Açık Kitap", "📚": "Kitaplar", "💰": "Para", "💵": "Dolar", "💶": "Euro", "💷": "Sterlin", "💸": "Para", "💳": "Kredi Kartı", "🧾": "Fiş", "✉️": "Zarf", "📧": "E-posta", "📦": "Paket", "✏️": "Kurşun Kalem", "✒️": "Dolma Kalem", "🖊️": "Tükenmez Kalem", "🖌️": "Fırça", "🖍️": "Pastel Boya", "📝": "Not", "💼": "Çanta", "📁": "Dosya", "📂": "Açık Dosya", "📅": "Takvim", "📌": "Rabiye", "📍": "Konum", "📎": "Ataş", "📏": "Cetvel", "📐": "Gönye", "✂️": "Makas", "🔒": "Kilit", "🔓": "Açık Kilit", "🔑": "Anahtar", "🔨": "Çekiç", "🪓": "Balta", "⛏️": "Kazma", "⚒️": "Çekiç ve Kazma", "🛠️": "Çekiç ve İngiliz Anahtarı", "🗡️": "Hançer", "⚔️": "Kılıçlar", "🏹": "Yay ve Ok", "🛡️": "Kalkan", "🔧": "İngiliz Anahtarı", "🔩": "Somun ve Cıvata", "⚙️": "Dişli",
+    "🪑": "Sandalye", "🛋️": "Kanepe", "🛏️": "Yatak", "🚪": "Kapı", "🪞": "Ayna", "🪟": "Pencere", "🧼": "Sabun", "🧽": "Sünger", "🪣": "Kova", "🧹": "Süpürge", "🧺": "Sepet", "🧻": "Tuvalet Kağıdı", "🛁": "Küvet", "🚿": "Duş", "🚽": "Tuvalet",
+    "👑": "Taç", "👒": "Şapka", "🎩": "Sihirbaz Şapkası", "🧢": "Kep", "⛑️": "Kask", "👔": "Kravat", "👕": "Gömlek", "👖": "Kot", "👗": "Elbise", "👘": "Kimono", "👙": "Bikini", "🩳": "Şort", "🧦": "Çorap", "👞": "Ayakkabı", "👡": "Sandalet", "👢": "Bot", "👓": "Gözlük", "🕶️": "Güneş Gözlüğü", "🧣": "Atkı", "🧤": "Eldiven", "🧥": "Mont", "🥼": "Önlük", "🦺": "Yelek", "👛": "Cüzdan", "👜": "El Çantası", "🎒": "Sırt Çantası",
+    "😀": "Gülen Yüz", "😃": "Gülen Yüz", "😄": "Gülen Yüz", "😁": "Sırıtan Yüz", "😆": "Gözleri Kısık Gülen Yüz", "😅": "Terli Gülen Yüz", "🤣": "Gülmekten Kırılan Yüz", "😂": "Gözünden Yaş Gelen Yüz", "🙂": "Hafifçe Gülen Yüz", "🙃": "Ters Yüz", "😉": "Göz Kırpan Yüz", "😊": "Utangaç Gülen Yüz", "😇": "Melek Yüz", "🥰": "Kalpli Gülen Yüz", "😍": "Aşık Yüz", "🤩": "Yıldızlı Yüz", "😘": "Öpücük Atan Yüz", "😗": "Öpen Yüz", "☺️": "Gülen Yüz", "😙": "Öpen Yüz", "🥲": "Gözünden Yaş Gelen Gülen Yüz", "😋": "Lezzetli Yüz", "😛": "Dil Çıkaran Yüz", "😜": "Göz Kırpıp Dil Çıkaran Yüz", "🤪": "Çılgın Yüz", "😝": "Gözleri Kısık Dil Çıkaran Yüz", "🤑": "Paralı Yüz", "🤗": "Sarılma", "🤭": "Eliyle Ağzını Kapatan Yüz", "🤫": "Sus İşareti Yapan Yüz", "🤔": "Düşünen Yüz", "🤐": "Ağzı Fermuarlı Yüz", "🤨": "Kaşı Havada Yüz", "😐": "Nötr Yüz", "😑": "İfadesiz Yüz", "😶": "Ağzı Olmayan Yüz", "😏": "Sırıtan Yüz", "😒": "Memnuniyetsiz Yüz", "🙄": "Göz Deviren Yüz", "😬": "Yüzünü Ekşiten Yüz", "🤥": "Yalancı Yüz", "😌": "Rahatlamış Yüz", "😔": "Dalgın Yüz", "😪": "Uykulu Yüz", "🤤": "Salya Akıtan Yüz", "😴": "Uyuyan Yüz", "😷": "Maskeli Yüz", "🤒": "Ateşi Olan Yüz", "🤕": "Başı Sargılı Yüz", "🤢": "Midesi Bulanan Yüz", "🤮": "Kusan Yüz", "🤧": "Hapşıran Yüz", "🥵": "Terleyen Yüz", "🥶": "Üşüyen Yüz", "🥴": "Sersemlemiş Yüz", "😵": "Başı Dönen Yüz", "🤯": "Beyni Patlayan Yüz", "🤠": "Kovboy Şapkalı Yüz", "🥳": "Parti Yüzü", "😎": "Güneş Gözlüklü Yüz", "🤓": "İnek Öğrenci Yüzü", "🧐": "Monokllü Yüz", "😕": "Şaşkın Yüz", "😟": "Endişeli Yüz", "🙁": "Hafifçe Asık Suratlı Yüz", "☹️": "Asık Suratlı Yüz", "😮": "Ağzı Açık Yüz", "😯": "Sessiz Yüz", "😲": "Şaşırmış Yüz", "😳": "Kızarmış Yüz", "🥺": "Yalvaran Yüz", "😦": "Kaşları Çatık Yüz", "😧": "Acı Çeken Yüz", "😨": "Korkmuş Yüz", "😰": "Soğuk Terleyen Yüz", "😥": "Hayal Kırıklığına Uğramış Yüz", "😢": "Ağlayan Yüz", "😭": "Hüngür Hüngür Ağlayan Yüz", "😱": "Çığlık Atan Yüz", "😖": "Kafası Karışık Yüz", "😣": "Azimli Yüz", "😞": "Hayal Kırıklığına Uğramış Yüz", "😓": "Terleyen Yüz", "😩": "Yorgun Yüz", "😫": "Yorgun Yüz", "🥱": "Esneme Yüzü", "😤": "Zafer Yüzü", "😡": "Somurtan Yüz", "😠": "Kızgın Yüz", "🤬": "Küfreden Yüz", "😈": "Gülen Şeytan", "👿": "Şeytan", "💀": "Kafatası", "☠️": "Kuru Kafa ve Kemikler", "💩": "Dışkı", "🤡": "Palyaço Yüzü", "👹": "Dev", "👺": "Cin", "👻": "Hayalet", "👽": "Uzaylı", "👾": "Uzay İstilacısı", "🤖": "Robot",
+    "⭐": "Yıldız", "🌟": "Parlayan Yıldız", "✨": "Işıltı", "⚡": "Şimşek", "☄️": "Kuyruklu Yıldız", "🌠": "Kayan Yıldız", "🔥": "Ateş", "💧": "Su Damlası", "🌊": "Dalga", "🎄": "Noel Ağacı", "🎃": "Balkabağı", "🎆": "Havai Fişek", "🎇": "Maytap", "🎈": "Balon", "🎉": "Konfeti", "🎊": "Konfeti Topu", "🎋": "Tanabata Ağacı", "🎍": "Çam Süslemesi", "🎎": "Japon Bebekleri", "🎏": "Sazan Bayrağı", "🎐": "Rüzgar Çanı", "🎑": "Ay İzleme Töreni", "🧧": "Kırmızı Zarf", "🎀": "Kurdele", "🎁": "Hediye", "🎗️": "Hatırlatma Kurdelesi", "🎟️": "Bilet", "🎫": "Bilet",
+    "❤️": "Kalp", "🧡": "Turuncu Kalp", "💛": "Sarı Kalp", "💚": "Yeşil Kalp", "💙": "Mavi Kalp", "💜": "Mor Kalp", "🖤": "Siyah Kalp", "🤍": "Beyaz Kalp", "🤎": "Kahverengi Kalp", "💔": "Kırık Kalp", "❣️": "Ünlem Kalp", "💕": "İki Kalp", "💞": "Dönen Kalpler", "💓": "Atan Kalp", "💗": "Büyüyen Kalp", "💖": "Parlayan Kalp", "💘": " oklu Kalp", "💝": "Kurdeleli Kalp", "💟": "Kalp Dekoru",
 };
 
 export const turkishAlphabet = 'abcçdefgğhıijklmnoöprsştuüvyz';
 export const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon'];
-export const EMOJIS = Object.keys(EMOJI_MAP); // Note: This gets keys which are words now, not emojis. 
-// Fix for EMOJIS constant to return actual emoji values for random picking
-export const EMOJI_VALUES = Array.from(new Set(Object.values(EMOJI_MAP))); 
-
+export const EMOJIS = Object.keys(EMOJI_MAP);
 export const COLORS: { name: string; css: string }[] = TR_VOCAB.colors_detailed;
 export const HOMONYMS: string[] = TR_VOCAB.homonyms;
 export const ITEM_CATEGORIES = ['animals', 'fruits_veggies', 'jobs', 'school', 'items_household', 'vehicles'];
@@ -218,27 +167,27 @@ export const generateCrosswordLayout = (words: string[]) => {
     };
 };
 
-// Helper to find visual for rebus/resfebe
-const findEmojiForDescription = (desc: string): string | null => {
-    const lowerDesc = desc.toLocaleLowerCase('tr');
-    // Direct match
-    if (EMOJI_MAP[lowerDesc]) return EMOJI_MAP[lowerDesc];
-    // Contains match
-    for (const [key, emoji] of Object.entries(EMOJI_MAP)) {
-        if (lowerDesc.includes(key)) return emoji;
-    }
-    return null;
-};
-
 export const wordToRebus = (word: string) => {
     const sylls = simpleSyllabify(word);
     return sylls.map(s => {
         const visual = findEmojiForDescription(s);
         return visual 
-            ? { type: 'image' as const, value: s, imagePrompt: visual } // Use visual as imagePrompt
+            ? { type: 'image' as const, value: s, imagePrompt: visual }
             : { type: 'text' as const, value: s };
     });
 } 
+
+// Internal helper for rebus to avoid circular dependency
+const findEmojiForDescription = (desc: string): string | null => {
+    const lowerDesc = desc.toLocaleLowerCase('tr');
+    if (EMOJI_MAP[desc]) return EMOJI_MAP[desc];
+    for (const [emoji, name] of Object.entries(EMOJI_MAP)) {
+        if (lowerDesc.includes(name.toLocaleLowerCase('tr')) || name.toLocaleLowerCase('tr').includes(lowerDesc)) {
+            return emoji;
+        }
+    }
+    return null;
+};
 
 export const generateSmartConnectGrid = (dim: number, count: number) => {
     const res = [];

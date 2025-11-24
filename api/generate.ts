@@ -89,20 +89,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         findImagePrompts(data);
         
         if (imagePromptsToProcess.length > 0) {
-            // Kota dostu olması için maksimum 4 görsel üretelim (ana görsel + 3 detay gibi)
+            // Kota dostu olması için maksimum 3 görsel üretelim (ana görsel + 2 detay gibi)
             // Geri kalanlar frontend'deki akıllı emoji/ikon sistemine düşer.
-            const chunk = imagePromptsToProcess.slice(0, 4); 
+            const chunk = imagePromptsToProcess.slice(0, 3); 
             
             await Promise.all(chunk.map(async ({ obj, imagePrompt }) => {
                 try {
-                    // Prompt sadeleştirme: Karmaşık cümleler yerine anahtar kelimeler
-                    const simplePrompt = `A simple icon or illustration of: ${imagePrompt.split('.')[0]}`;
-
                     // 'gemini-2.5-flash-image' (Nano Banana) kullanımı
+                    // generateImages yerine generateContent kullanıyoruz.
                     const response = await ai.models.generateContent({
                         model: 'gemini-2.5-flash-image',
                         contents: {
-                            parts: [{ text: simplePrompt }]
+                            parts: [{ text: imagePrompt }]
+                        },
+                        config: {
+                            // Nano Banana modelleri için responseMimeType ayarlanmaz.
+                            // Aspect ratio varsayılan 1:1
                         }
                     });
 
@@ -116,8 +118,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         }
                     }
                     // Prompt'u temizle ki arayüzde metin olarak görünmesin
-                    // Ancak frontend fallback için imagePrompt'u tutuyoruz (common.tsx'de kullanılıyor)
-                    // delete obj['imagePrompt']; 
+                    delete obj['imagePrompt']; 
                 } catch (imgError) {
                     console.warn("Görsel oluşturulamadı, metin korunuyor:", imgError);
                     obj['imageBase64'] = '';
