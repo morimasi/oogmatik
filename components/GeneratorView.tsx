@@ -129,6 +129,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
             case ActivityType.BACKWARD_SPELLING:
                 return [
+                    ...commonFields,
                     { key: 'showVisual', label: 'Görsel İpucu', type: 'checkbox', defaultValue: true, width: 'full' },
                     itemCountField(8, 4, 16, 'Kelime Sayısı')
                 ];
