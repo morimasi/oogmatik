@@ -281,6 +281,9 @@ export interface SavedAssessment {
     grade: string;
     createdAt: string;
     report: AssessmentReport;
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
 }
 
 export interface BaseActivityData {

@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AssessmentProfile, AssessmentReport, ActivityType, TestCategory } from '../types';
+import { AssessmentProfile, AssessmentReport, ActivityType, TestCategory, User, SavedAssessment } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
 import { RadarChart } from './RadarChart';
 import { useAuth } from '../context/AuthContext';
 import { assessmentService } from '../services/assessmentService';
+import { authService } from '../services/authService';
 
 interface AssessmentModuleProps {
     onBack: () => void;
@@ -304,6 +305,63 @@ const TransitionScreen = ({ message, icon = "fa-spinner" }: { message: string, i
     </div>
 );
 
+// --- SHARE MODAL (Duplicated logic from SavedWorksheetsView for independence) ---
+const ShareModal: React.FC<{ isOpen: boolean; onClose: () => void; onShare: (receiverId: string) => void }> = ({ isOpen, onClose, onShare }) => {
+    const { user } = useAuth();
+    const [contacts, setContacts] = useState<User[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        if (user && isOpen) {
+            authService.getContacts(user.id).then(setContacts);
+        }
+    }, [user, isOpen]);
+
+    const filtered = contacts.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl w-full max-w-md flex flex-col border border-zinc-200 dark:border-zinc-700 overflow-hidden max-h-[80vh]">
+                <div className="bg-indigo-600 p-4 flex justify-between items-center">
+                    <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                        <i className="fa-solid fa-share-nodes"></i> Rapor Paylaş
+                    </h3>
+                    <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
+                        <i className="fa-solid fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
+                    <input 
+                        type="text" placeholder="Kişi ara..." value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
+                </div>
+                <div className="overflow-y-auto flex-1 p-2">
+                    {filtered.length === 0 ? (
+                        <p className="text-center text-zinc-500 p-4">Kişi bulunamadı.</p>
+                    ) : (
+                        <div className="space-y-2">
+                            {filtered.map(contact => (
+                                <button key={contact.id} onClick={() => onShare(contact.id)} className="w-full flex items-center gap-3 p-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors text-left">
+                                    <img src={contact.avatar} alt={contact.name} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-600" />
+                                    <div>
+                                        <p className="font-bold text-zinc-800 dark:text-zinc-100">{contact.name}</p>
+                                        <p className="text-xs text-zinc-500">{contact.email}</p>
+                                    </div>
+                                    <i className="fa-solid fa-paper-plane ml-auto text-indigo-500"></i>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- MAIN COMPONENT ---
 
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity }) => {
@@ -313,7 +371,11 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [transitionMessage, setTransitionMessage] = useState('Yükleniyor...');
     const [isMemorizing, setIsMemorizing] = useState(false);
+    
+    // Save/Share States
     const [saving, setSaving] = useState(false);
+    const [savedSuccess, setSavedSuccess] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     
     const [profile, setProfile] = useState<AssessmentProfile>({
         studentName: '',
@@ -502,23 +564,12 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             const result = await generateAssessmentReport(profile);
             if (result) {
                 setReport(result);
-                // Automatically save if user is logged in
+                // Auto-save logic removed to be triggered by button or kept silent if desired
+                // But user requested explicit Save button, so we rely on that for "Visual" confirmation.
+                // However, saving automatically is good UX for data safety. 
+                // Let's keep auto-save but silent, and buttons for explicit actions.
                 if (user) {
-                    setSaving(true);
-                    try {
-                        await assessmentService.saveAssessment(
-                            user.id, 
-                            profile.studentName || 'İsimsiz Öğrenci',
-                            profile.gender,
-                            profile.age,
-                            profile.grade,
-                            result
-                        );
-                    } catch (saveError) {
-                        console.error("Otomatik kaydetme hatası:", saveError);
-                    } finally {
-                        setSaving(false);
-                    }
+                    assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, result).catch(console.error);
                 }
                 setCurrentStep(9);
             } else {
@@ -533,6 +584,51 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         }
     };
 
+    const handleManualSave = async () => {
+        if (!user || !report) return;
+        setSaving(true);
+        try {
+            await assessmentService.saveAssessment(
+                user.id,
+                profile.studentName,
+                profile.gender,
+                profile.age,
+                profile.grade,
+                report
+            );
+            setSavedSuccess(true);
+            setTimeout(() => setSavedSuccess(false), 3000);
+        } catch (e) {
+            console.error(e);
+            alert('Kaydedilirken bir hata oluştu.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleManualShare = async (receiverId: string) => {
+        if (!user || !report) return;
+        try {
+            // Create a temporary SavedAssessment object to pass to share function
+            const assessmentObj: SavedAssessment = {
+                id: 'temp', // ID handled by DB
+                userId: user.id,
+                studentName: profile.studentName,
+                gender: profile.gender,
+                age: profile.age,
+                grade: profile.grade,
+                report: report,
+                createdAt: new Date().toISOString()
+            };
+            await assessmentService.shareAssessment(assessmentObj, user.id, user.name, receiverId);
+            alert('Rapor başarıyla paylaşıldı.');
+            setIsShareModalOpen(false);
+        } catch (e) {
+            console.error(e);
+            alert('Paylaşım sırasında bir hata oluştu.');
+        }
+    };
+
     const isTestReady = (isAttention = false) => {
         if (isTransitioning) return false;
         if (isAttention) return testState.attentionState && testState.attentionState.length > 0;
@@ -544,6 +640,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     // --- RENDER ---
     return (
         <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 font-sans">
+            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleManualShare} />
+            
             <div className="px-4 py-4 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-20 flex justify-between items-center sticky top-0">
                 <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 transition-colors font-bold text-sm flex items-center">
                     <i className="fa-solid fa-arrow-left mr-2"></i>Çıkış
@@ -580,6 +678,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         </div>
                     )}
 
+                    {/* ... (Step 0 to Step 7 same as before) ... */}
                     {currentStep === 0 && (
                         <div className="p-10 text-center flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white dark:from-zinc-800 dark:to-zinc-900">
                             <div className="w-28 h-28 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-8 shadow-xl animate-pulse">
@@ -667,11 +766,11 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         </div>
                     )}
 
+                    {/* Steps 2-6 (Tests) - kept same structure, just ensuring rendering */}
                     {currentStep === 2 && (
                         isTestReady() ? (
                             <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
-                                
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
                                     {currentItem?.subtype === 'lexical' ? (
                                         <>
@@ -767,7 +866,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Matris Mantığı" /></div>
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
                                     <h3 className="text-zinc-400 font-bold uppercase tracking-widest mb-8">Eksik Parçayı Bul</h3>
-                                    
                                     <div className="mb-8 grid grid-cols-2 gap-4 p-6 bg-zinc-100 dark:bg-zinc-900 rounded-2xl shadow-inner border-2 border-zinc-200 dark:border-zinc-700 max-w-md w-full">
                                         {currentItem?.grid?.map((item: any, i: number) => (
                                             <MatrixCell key={i} item={item} className="w-full aspect-square rounded-lg shadow-sm" />
@@ -776,7 +874,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                             <span className="text-4xl font-bold text-indigo-300">?</span>
                                         </div>
                                     </div>
-
                                     <div className="flex gap-4 justify-center w-full max-w-2xl">
                                         {currentItem?.opts?.map((opt: any, i:number) => (
                                             <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'visual', 'Görsel Algı')} className="w-20 h-20 md:w-24 md:h-24 hover:scale-105 transition-transform focus:outline-none">
@@ -848,13 +945,31 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     <h3 className="text-2xl font-bold">{profile.studentName}</h3>
                                     <p className="text-indigo-200 text-sm">Bilişsel Değerlendirme Raporu</p>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-3xl font-black">{report.scores.reading < 30 && report.scores.math < 30 ? 'A+' : 'B'}</div>
-                                    <div className="text-xs opacity-75">Genel Durum</div>
+                                <div className="flex items-center gap-3">
+                                    <div className="text-right mr-4">
+                                        <div className="text-3xl font-black">{report.scores.reading < 30 && report.scores.math < 30 ? 'A+' : 'B'}</div>
+                                        <div className="text-xs opacity-75">Genel Durum</div>
+                                    </div>
+                                    {user && (
+                                        <div className="flex gap-2">
+                                            <button onClick={handleManualSave} disabled={saving} className="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-colors text-white" title="Kaydet">
+                                                {saving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
+                                            </button>
+                                            <button onClick={() => setIsShareModalOpen(true)} className="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-colors text-white" title="Paylaş">
+                                                <i className="fa-solid fa-share-nodes"></i>
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             
                             <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                                {savedSuccess && (
+                                    <div className="p-3 bg-green-100 border border-green-300 text-green-800 rounded-lg text-center font-bold animate-in fade-in">
+                                        <i className="fa-solid fa-check-circle mr-2"></i> Rapor Başarıyla Kaydedildi!
+                                    </div>
+                                )}
+
                                 {/* Summary */}
                                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800 text-indigo-900 dark:text-indigo-100 text-sm leading-relaxed">
                                     <i className="fa-solid fa-quote-left text-2xl text-indigo-200 mr-2 float-left"></i>
@@ -924,8 +1039,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                         ))}
                                     </div>
                                 </div>
-                                
-                                {saving && <p className="text-xs text-center text-zinc-400 mt-2"><i className="fa-solid fa-cloud-arrow-up animate-bounce mr-1"></i>Sonuçlar profilinize kaydediliyor...</p>}
                             </div>
                         </div>
                     )}
