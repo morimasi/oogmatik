@@ -13,10 +13,24 @@ EĞİTİMSEL İÇERİK KURALLARI:
 5. İçerik özgün ve eğitici olmalı.
 `;
 
+// Helper for difficulty scaling in stories
+const getStoryConstraints = (diff: string) => {
+    switch(diff) {
+        case 'Başlangıç': return "HİKAYE KURALLARI: Maksimum 5 cümle. Sadece somut kelimeler. Olay örgüsü çok basit olsun.";
+        case 'Orta': return "HİKAYE KURALLARI: Yaklaşık 10 cümle. Diyalog içerebilir. Günlük olaylar.";
+        case 'Zor': return "HİKAYE KURALLARI: Yaklaşık 15 cümle. Karakter gelişimi ve sebep-sonuç ilişkisi olsun.";
+        case 'Uzman': return "HİKAYE KURALLARI: 20+ cümle. Metaforlar, yan cümleçikler ve karmaşık bir kurgu içermeli.";
+        default: return "";
+    }
+};
+
 export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { topic, difficulty, worksheetCount, characterName, storyLength } = options;
+    const constraints = getStoryConstraints(difficulty);
+    
     const prompt = `
-    '${topic}' konulu, "${difficulty}" seviyesinde hikaye.
+    '${topic}' konulu Hikaye Anlama etkinliği.
+    ${constraints}
     **İngilizce** 'imagePrompt' oluştur. Stil: "Colorful storybook illustration".
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
@@ -53,8 +67,10 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
 
 export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Promise<StoryAnalysisData[]> => {
   const { topic, difficulty, worksheetCount } = options;
+  const constraints = getStoryConstraints(difficulty);
   const prompt = `
     '${topic}' konulu Hikaye Analizi.
+    ${constraints}
     **İngilizce** 'imagePrompt'.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
@@ -85,9 +101,10 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateStoryCreationPromptFromAI = async (options: GeneratorOptions): Promise<StoryCreationPromptData[]> => {
-  const { topic, worksheetCount } = options;
+  const { topic, worksheetCount, difficulty } = options;
   const prompt = `
-    '${topic}' konulu Hikaye Oluşturma İstemi.
+    '${topic}' konulu Hikaye Oluşturma İstemi. Seviye: ${difficulty}.
+    Verilecek anahtar kelimeler seviyeye uygun zorlukta olsun.
     **İngilizce** 'imagePrompt'.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
@@ -108,9 +125,11 @@ export const generateStoryCreationPromptFromAI = async (options: GeneratorOption
 };
 
 export const generateWordsInStoryFromAI = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
-  const { topic, worksheetCount } = options;
+  const { topic, worksheetCount, difficulty } = options;
+  const constraints = getStoryConstraints(difficulty);
   const prompt = `
     '${topic}' konulu Metindeki Kelimeler.
+    ${constraints}
     **İngilizce** 'imagePrompt'.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.

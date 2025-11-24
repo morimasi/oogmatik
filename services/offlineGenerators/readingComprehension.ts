@@ -18,11 +18,15 @@ const buildDynamicStory = (difficulty: string, topic?: string, characterName?: s
     
     // 2. Calculate Middle Sentences Needed
     // Total - 1 (Intro) - 1 (Conclusion) = Body Actions
-    // For very long stories, we might chain multiple intros or split actions
-    let bodyCount = targetSentenceCount - 2;
-    if (bodyCount < 1) bodyCount = 1; // Safety
-
-    const actions = getRandomItems(DYNAMIC_STORY_MODULES.actions, bodyCount);
+    let bodyCount = Math.max(1, targetSentenceCount - 2);
+    
+    // Get actions, looping if we need more than available in one go
+    let actions: string[] = [];
+    while(actions.length < bodyCount) {
+        const needed = bodyCount - actions.length;
+        const batch = getRandomItems(DYNAMIC_STORY_MODULES.actions, Math.min(needed, DYNAMIC_STORY_MODULES.actions.length));
+        actions = [...actions, ...batch];
+    }
     
     // 3. Assemble Raw Text
     const storyTemplate = [intro, ...actions, conclusion].join(' ');

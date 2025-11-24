@@ -1,6 +1,4 @@
 
-
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -14,30 +12,29 @@ import {
     WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData
 } from '../../types';
 
-// Helper to define what "Difficulty" means for AI precisely
+// Helper to define what "Difficulty" means for AI precisely with the new 5x scaling logic
 const getDifficultyPrompt = (diff: string) => {
     switch(diff) {
         case 'Başlangıç': 
-            return `KOLAY SEVİYE KURALLARI:
-            - Sadece 3-5 harfli, somut ve sık kullanılan kelimeler seç (örn: elma, masa, koş).
-            - Cümleler en fazla 5 kelimeden oluşsun.
-            - Yanıltıcı veya çeldirici öğe kullanma.
-            - Görseller çok net ve basit olsun.`;
+            return `SEVİYE: BAŞLANGIÇ (Çok Kolay).
+            - Kelimeler: 2-4 harfli, 1-2 heceli, somut (örn: at, ev, top).
+            - Cümleler: Maksimum 4 kelime. Basit yapı (Özne-Yüklem).
+            - İçerik: Karmaşıklık yok, çeldirici yok. Net ve anlaşılır.`;
         case 'Orta': 
-            return `ORTA SEVİYE KURALLARI:
-            - 5-8 harfli, günlük hayattan kelimeler seç (örn: sandalye, telefon, yürümek).
-            - Ortalama uzunlukta cümleler kur.
-            - Birkaç basit çeldirici ekle.`;
+            return `SEVİYE: ORTA (Standart).
+            - Kelimeler: 5-7 harfli, 2-3 heceli, günlük kullanım (örn: kalem, okul, koşmak).
+            - Cümleler: 5-8 kelime. Bağlaç içerebilir.
+            - İçerik: Basit çeldiriciler olabilir.`;
         case 'Zor': 
-            return `ZOR SEVİYE KURALLARI:
-            - 8+ harfli, soyut veya az kullanılan kelimeler seç (örn: sorumluluk, medeniyet).
-            - Karmaşık cümle yapıları ve yan anlamlar kullan.
-            - Çeldiriciler doğru cevaba çok benzesin (örn: kelime vs kelam).`;
+            return `SEVİYE: ZOR (Gelişmiş).
+            - Kelimeler: 8-10 harfli, 3-4 heceli, soyut kavramlar (örn: özgürlük, düşünce).
+            - Cümleler: 10-15 kelime. Yan cümleçikler, deyimler.
+            - İçerik: Mantıksal çıkarım gerektirir.`;
         case 'Uzman': 
-            return `UZMAN SEVİYE KURALLARI:
-            - Akademik, teknik veya çok uzun kelimeler kullan (örn: muvaffakiyet, fotosentez).
-            - Üst düzey mantıksal çıkarım gerektiren ipuçları ver.
-            - Maksimum çeldiricilik: görsel ve işitsel olarak neredeyse aynı seçenekler sun.`;
+            return `SEVİYE: UZMAN (Akademik/Zorlu).
+            - Kelimeler: 12+ harfli, 4+ heceli, teknik/akademik terimler (örn: biyoçeşitlilik, sürdürülebilirlik).
+            - Cümleler: 15+ kelime. Devrik cümleler, karmaşık gramer, metaforlar.
+            - İçerik: Üst düzey bilişsel beceri gerektirir.`;
         default: return "";
     }
 };
@@ -58,7 +55,13 @@ export const generateWordSearchFromAI = async (options: GeneratorOptions): Promi
     Konu: ${topic}.
     Etkinlik: Kelime Bulmaca.
     ${diffPrompt}
-    Izgara boyutu ve kelime sayısı zorluk seviyesine uygun olsun (Kolay: 8x8/5 kelime, Uzman: 15x15/15 kelime).
+    
+    IZGARA KURALLARI:
+    - Başlangıç: 6x6 ızgara, 5 basit kelime.
+    - Orta: 10x10 ızgara, 8 standart kelime.
+    - Zor: 15x15 ızgara, 12 uzun kelime.
+    - Uzman: 20x20 ızgara, 15 çok uzun ve karmaşık kelime.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
   `;
@@ -81,9 +84,6 @@ export const generateWordSearchFromAI = async (options: GeneratorOptions): Promi
   return generateWithSchema(prompt, schema) as Promise<WordSearchData[]>;
 };
 
-// ... (Other AI generators follow the same pattern of injecting diffPrompt)
-// For brevity, I am updating the generic wrapper and specific complex ones.
-
 export const generateCrosswordFromAI = async (options: GeneratorOptions): Promise<CrosswordData[]> => {
     const { topic, difficulty, worksheetCount } = options;
     const diffPrompt = getDifficultyPrompt(difficulty);
@@ -91,10 +91,6 @@ export const generateCrosswordFromAI = async (options: GeneratorOptions): Promis
     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, theme: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, grid: {type: Type.ARRAY, items: {type: Type.ARRAY, items: {type: Type.STRING}}}, clues: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, direction: {type: Type.STRING}, text: {type: Type.STRING}, start: {type: Type.OBJECT, properties: {row: {type: Type.INTEGER}, col: {type: Type.INTEGER}}, required: ['row','col']}, word: {type: Type.STRING}}, required: ['id','direction','text','start','word']}}, passwordCells: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {row: {type: Type.INTEGER}, col: {type: Type.INTEGER}}, required: ['row','col']}}, passwordLength: {type: Type.INTEGER}, passwordPrompt: {type: Type.STRING} }, required: ['title', 'grid', 'clues', 'passwordPrompt', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<CrosswordData[]>;
 }
-
-// Re-export others without changes if they don't need specific prompt tuning, 
-// but ideally all should use `getDifficultyPrompt`.
-// I will apply it to a few key ones to demonstrate the pattern.
 
 export const generateSpiralPuzzleFromAI = async (options: GeneratorOptions): Promise<SpiralPuzzleData[]> => {
     const { difficulty, worksheetCount } = options;
@@ -120,7 +116,6 @@ export const generateSpiralPuzzleFromAI = async (options: GeneratorOptions): Pro
     return generateWithSchema(prompt, schema) as Promise<SpiralPuzzleData[]>;
 };
 
-// ... Keep existing exports ...
 export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
     const { theme, worksheetCount, difficulty } = options;
     const diffPrompt = getDifficultyPrompt(difficulty);

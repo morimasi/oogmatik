@@ -1,4 +1,6 @@
 
+
+
 import { GeneratorOptions, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, EMOJI_MAP, COLORS, simpleSyllabify, CONNECT_COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS } from './helpers';
 
@@ -261,7 +263,7 @@ export const generateOfflineMirrorLetters = async (options: GeneratorOptions): P
 
 // --- 6. Syllable Train (Hece Treni) ---
 export const generateOfflineSyllableTrain = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
-    const { worksheetCount, difficulty, topic, itemCount, wordLength } = options;
+    const { worksheetCount, difficulty, topic, wordLength } = options;
     
     let pool = getWordsForDifficulty(difficulty, topic);
     if (wordLength && wordLength !== 'mixed') {

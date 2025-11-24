@@ -354,7 +354,7 @@ export const generateOfflinePasswordFinder = async (options: GeneratorOptions): 
         });
     }
     return results;
-}
+};
 
 export const generateOfflineSyllableCompletion = async (options: GeneratorOptions): Promise<SyllableCompletionData[]> => {
     const {itemCount, worksheetCount, difficulty} = options;
