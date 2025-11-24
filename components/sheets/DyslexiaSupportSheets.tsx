@@ -210,9 +210,11 @@ export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {data.items?.map((item, idx) => (
                 <div key={idx} className="flex items-center p-4 bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700">
-                    {item.imageBase64 || item.correct ? (
+                    {/* Check specifically for imagePrompt or imageBase64 to decide on visuals */}
+                    {(item.imageBase64 || (item.imagePrompt && item.imagePrompt.length > 0)) ? (
                         <div className="mr-4 flex-shrink-0">
-                            <ImageDisplay base64={item.imageBase64} description={item.correct} className="w-20 h-20 rounded-lg object-cover border" />
+                            {/* Pass imagePrompt as description for emoji lookup */}
+                            <ImageDisplay base64={item.imageBase64} description={item.imagePrompt || item.correct} className="w-20 h-20 rounded-lg object-cover border" />
                         </div>
                     ) : (
                         <div className="mr-4 flex-shrink-0 w-20 h-20 bg-zinc-100 rounded-lg flex items-center justify-center text-zinc-400">
@@ -221,7 +223,6 @@ export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = (
                     )}
                     <div className="flex-1">
                         <div className="bg-zinc-100 dark:bg-zinc-900 p-3 rounded-lg mb-3 text-center border border-zinc-200">
-                            {/* Removed RTL override so the already reversed string (AMLE) is displayed as is */}
                             <span className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 tracking-[0.2em] inline-block font-mono uppercase">
                                 {item.reversed}
                             </span>

@@ -353,7 +353,7 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
 
 // --- 8. Backward Spelling (Ters Kelime Avcısı) ---
 export const generateOfflineBackwardSpelling = async (options: GeneratorOptions): Promise<BackwardSpellingData[]> => {
-    const { worksheetCount, difficulty, topic, itemCount } = options;
+    const { worksheetCount, difficulty, topic, itemCount, showVisual } = options;
     const count = itemCount || 8;
     const words = getRandomItems(getWordsForDifficulty(difficulty, topic), count);
 
@@ -361,7 +361,7 @@ export const generateOfflineBackwardSpelling = async (options: GeneratorOptions)
         const items = words.map(word => ({
             reversed: word.split('').reverse().join(''),
             correct: word,
-            imagePrompt: ''
+            imagePrompt: showVisual ? word : '' // Populate imagePrompt if visual requested
         }));
 
         return {
