@@ -72,7 +72,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
              <CompactSlider 
                 icon="fa-arrows-left-right-to-line" 
                 title="Öğe Aralığı (Gap)" 
-                min={8} max={48} step={4}
+                min={8} max={48} step={4} 
                 value={settings.gap} 
                 onChange={(v: number) => onSettingsChange({...settings, gap: v})}
              />
@@ -90,9 +90,14 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
         </div>
       
         {/* Actions Group */}
-        <div className="flex items-center gap-1 shrink-0 ml-auto">
-            <button onClick={onFeedback} className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors" title="Hata Bildir">
-                <i className="fa-solid fa-flag text-sm"></i>
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
+            <button 
+                onClick={onFeedback} 
+                className="px-3 py-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 dark:text-rose-400 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5" 
+                title="Geri Bildirim Ver"
+            >
+                <i className="fa-solid fa-comment-dots"></i>
+                <span className="hidden sm:inline">Geri Bildirim</span>
             </button>
             
             <div className="w-px h-4 bg-zinc-300 dark:bg-zinc-700 mx-1"></div>

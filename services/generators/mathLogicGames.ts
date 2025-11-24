@@ -170,7 +170,7 @@ export const generateMultiplicationWheelFromAI = async(options: GeneratorOptions
 }
 
 export const generateTargetNumberFromAI = async (options: GeneratorOptions): Promise<TargetNumberData[]> => {
-    const prompt = `Hedef Sayı Oyunu. Verilen sayıları ve dört işlemi kullanarak hedef sayıya ulaş. ${PEDAGICAL_PROMPT}`;
+    const prompt = `Hedef Sayı Oyunu. Verilen sayıları ve dört işlemi kullanarak hedef sayıya ulaş. ${PEDAGOGICAL_PROMPT}`;
     const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {type: Type.OBJECT, properties: {target: {type: Type.INTEGER}, givenNumbers: {type: Type.ARRAY, items: {type: Type.INTEGER}}}, required: ["target", "givenNumbers"]}) };
     return generateWithSchema(prompt, schema) as Promise<TargetNumberData[]>;
 };
