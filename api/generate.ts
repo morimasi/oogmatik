@@ -33,11 +33,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const ai = new GoogleGenAI({ apiKey });
-        // Retries reduced to 1 to fail fast on 429 and switch to offline mode quickly
         const maxRetries = 1; 
         
-        // Model Seçimi: İstemciden geleni kullan yoksa varsayılan olarak en hızlısını seç.
-        // Raporlama için 'gemini-3-pro-preview', oyunlar için 'gemini-2.5-flash'.
+        // Raporlama için daha zeki model, oyunlar için daha hızlı model
         const selectedModel = model || "gemini-2.5-flash";
 
         // Adım 1: Metin Üretimi
@@ -61,23 +59,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 data = JSON.parse(cleanedJsonText);
                 break;
             } catch (error: any) {
-                // 429 durumunda bekleme yapma, direkt hata fırlat ki client Hızlı Mod'a geçsin
-                if (error.status === 429) {
-                    throw error;
-                }
-                if (attempt < maxRetries - 1) {
-                     await sleep(1000);
-                } else {
-                    throw error;
-                }
+                if (error.status === 429) throw error;
+                if (attempt < maxRetries - 1) await sleep(1000);
+                else throw error;
             }
         }
 
         if (!data) return res.status(500).json({ error: "Yapay zeka yanıt vermedi." });
 
-        // Adım 2: Görsel Üretimi (Imagen 4.0) - Hata Toleranslı
-        // Görsel üretimi başarısız olsa bile metin verisi döndürülür (Sistem Çökmez).
+        // Adım 2: Görsel Üretimi (Gemini 2.5 Flash Image - Nano Banana)
+        // Hızlı ve entegre görsel üretimi için modeli güncelledik.
         const imagePromptsToProcess: { obj: any, imagePrompt: string }[] = [];
+        
         const findImagePrompts = (obj: any) => {
             if (!obj || typeof obj !== 'object') return;
             if (Array.isArray(obj)) {
@@ -96,36 +89,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         findImagePrompts(data);
         
         if (imagePromptsToProcess.length > 0) {
-            // KOTA DOSTU STRATEJİ: Sadece 1 görsel üret, diğerlerini atla.
-            // Bu sayede kota aşımı riski azalır ve yanıt süresi kısalır.
-            const chunk = imagePromptsToProcess.slice(0, 1); 
+            // Kota dostu olması için maksimum 3 görsel üretelim (ana görsel + 2 detay gibi)
+            // Geri kalanlar frontend'deki akıllı emoji/ikon sistemine düşer.
+            const chunk = imagePromptsToProcess.slice(0, 3); 
             
             await Promise.all(chunk.map(async ({ obj, imagePrompt }) => {
                 try {
-                    const imageResponse = await ai.models.generateImages({
-                        model: 'imagen-4.0-generate-001', // En yüksek kalite görsel modeli
-                        prompt: imagePrompt,
-                        config: {
-                            numberOfImages: 1,
-                            outputMimeType: 'image/jpeg',
-                            aspectRatio: '1:1',
+                    // 'gemini-2.5-flash-image' (Nano Banana) kullanımı
+                    // generateImages yerine generateContent kullanıyoruz.
+                    const response = await ai.models.generateContent({
+                        model: 'gemini-2.5-flash-image',
+                        contents: {
+                            parts: [{ text: imagePrompt }]
                         },
+                        config: {
+                            // Nano Banana modelleri için responseMimeType ayarlanmaz.
+                            // Aspect ratio varsayılan 1:1
+                        }
                     });
-                    const base64Data = imageResponse.generatedImages?.[0]?.image?.imageBytes;
-                    if (base64Data) obj['imageBase64'] = base64Data;
-                    delete obj['imagePrompt']; // Prompt'u temizle, artık veriye sahibiz
+
+                    // Yanıt parçalarını tara ve görseli bul
+                    if (response.candidates && response.candidates[0].content.parts) {
+                        for (const part of response.candidates[0].content.parts) {
+                            if (part.inlineData && part.inlineData.data) {
+                                obj['imageBase64'] = part.inlineData.data;
+                                break; // İlk görseli al ve çık
+                            }
+                        }
+                    }
+                    // Prompt'u temizle ki arayüzde metin olarak görünmesin
+                    delete obj['imagePrompt']; 
                 } catch (imgError) {
-                    console.warn("Görsel oluşturulamadı (Hata Toleransı Devrede). Metin içeriği korunuyor.");
-                    obj['imageBase64'] = ''; // Alanı boş bırak, arayüzde fallback gösterilir
-                    delete obj['imagePrompt'];
+                    console.warn("Görsel oluşturulamadı, metin korunuyor:", imgError);
+                    obj['imageBase64'] = '';
+                    // imagePrompt silinmez ki frontend fallback olarak kullanabilsin
                 }
             }));
-            
-            // İşlenmeyen diğer imagePrompt'ları temizle
-             imagePromptsToProcess.forEach(({obj}) => {
-                 if(obj.imagePrompt) delete obj.imagePrompt;
-                 if(!obj.imageBase64) obj.imageBase64 = '';
-             });
         }
         
         return res.status(200).json(data);
