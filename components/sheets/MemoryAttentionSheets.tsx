@@ -1,80 +1,144 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
     WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData
 } from '../../types';
 import { ImageDisplay, PedagogicalHeader } from './common';
 
-export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) => (
-    <div>
-        <div className="page relative">
-            <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
-                {(data.wordsToMemorize || []).map((word, index) => (
-                    <div key={index} className="p-6 bg-amber-100 dark:bg-amber-800/50 border-2 border-amber-300 rounded-xl text-center shadow-md">
-                        {/* FIX: word is an object, render its 'text' property */}
-                        <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{word.text}</p>
-                    </div>
-                ))}
-            </div>
-            <div className="absolute bottom-0 w-full text-center text-sm text-zinc-400 italic print:block hidden">
-                --- Katlama Çizgisi ---
-            </div>
-        </div>
+export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) => {
+    const [isHidden, setIsHidden] = useState(false);
 
-        <div className="page-break"></div>
+    return (
+        <div>
+            <div className="page relative">
+                <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
+                
+                <div className={`transition-all duration-300 ${isHidden ? 'blur-md opacity-20 select-none pointer-events-none' : ''} print:blur-none print:opacity-100`}>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
+                        {(data.wordsToMemorize || []).map((word, index) => (
+                            <div key={index} className="p-6 bg-amber-100 dark:bg-amber-800/50 border-2 border-amber-300 rounded-xl text-center shadow-md">
+                                <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{word.text}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-        <div className="page">
-            <h3 className="text-2xl font-bold mb-4 text-center mt-8">{data.testTitle}</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {(data.testWords || []).map((word, index) => (
-                    <div key={index} className="flex items-center bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm">
-                        <div className="w-6 h-6 border-2 border-zinc-400 rounded-md mr-3 shrink-0"></div>
-                        {/* FIX: word is an object, render its 'text' property */}
-                        <label className="text-lg">{word.text}</label>
-                    </div>
-                ))}
-            </div>
-        </div>
-    </div>
-);
+                {/* Interactive Overlay for Screen */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none print:hidden">
+                    {isHidden ? (
+                        <div className="bg-white/90 dark:bg-zinc-900/90 p-6 rounded-2xl shadow-xl border-2 border-indigo-100 dark:border-zinc-700 text-center pointer-events-auto animate-in fade-in zoom-in">
+                            <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i className="fa-solid fa-eye-slash text-2xl"></i>
+                            </div>
+                            <h4 className="font-bold text-lg text-zinc-800 dark:text-zinc-100 mb-1">Liste Gizlendi</h4>
+                            <p className="text-xs text-zinc-500 mb-4">Aşağıdaki test bölümüne geçin.</p>
+                            <button onClick={() => setIsHidden(false)} className="text-indigo-600 hover:text-indigo-800 text-sm font-bold">
+                                Tekrar Bak
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-auto">
+                            <button 
+                                onClick={() => setIsHidden(true)}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-2"
+                            >
+                                <i className="fa-solid fa-check-circle"></i>
+                                Ezberledim, Gizle
+                            </button>
+                        </div>
+                    )}
+                </div>
 
-export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }) => (
-    <div>
-        <div className="page relative">
-            <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-w-xl mx-auto">
-                {(data.itemsToMemorize || []).map((item, index) => (
-                    <div key={index} className="p-4 bg-white dark:bg-zinc-800 border-2 border-indigo-200 rounded-xl text-center flex flex-col items-center justify-center aspect-square shadow-md">
-                        {/* FIX: item is an object, use its 'description' property before splitting */}
-                        <p className="text-5xl mb-2">{item.description.split(' ').pop()}</p>
-                        {/* FIX: item is an object, use its 'description' property before splitting */}
-                        <p className="text-xs font-semibold text-zinc-500 uppercase">{item.description.split(' ').slice(0, -1).join(' ')}</p>
-                    </div>
-                ))}
+                <div className="absolute bottom-0 w-full text-center text-sm text-zinc-400 italic print:block hidden">
+                    --- Katlama Çizgisi ---
+                </div>
             </div>
-            <div className="absolute bottom-0 w-full text-center text-sm text-zinc-400 italic print:block hidden">
-                --- Katlama Çizgisi ---
-            </div>
-        </div>
-        <div className="page-break"></div>
-        <div className="page">
-            <h3 className="text-2xl font-bold mb-4 text-center mt-8">{data.testTitle}</h3>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                {(data.testItems || []).map((item, index) => (
-                    <div key={index} className="flex flex-col items-center justify-center text-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg border cursor-pointer hover:bg-zinc-50" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                        <div className="w-6 h-6 border-2 border-zinc-400 rounded-full mb-3 shrink-0"></div>
-                        {/* FIX: item is an object, use its 'description' property before splitting */}
-                        <p className="text-4xl">{item.description.split(' ').pop()}</p>
-                        {/* FIX: item is an object, use its 'description' property before splitting */}
-                        <label className="text-xs mt-1 font-medium">{item.description.split(' ').slice(0, -1).join(' ')}</label>
-                    </div>
-                ))}
+
+            <div className="page-break"></div>
+
+            <div className="page">
+                <h3 className="text-2xl font-bold mb-4 text-center mt-8">{data.testTitle}</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {(data.testWords || []).map((word, index) => (
+                        <div key={index} className="flex items-center bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors">
+                            <div className="w-6 h-6 border-2 border-zinc-400 rounded-md mr-3 shrink-0"></div>
+                            <label className="text-lg select-none cursor-pointer">{word.text}</label>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
+
+export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }) => {
+    const [isHidden, setIsHidden] = useState(false);
+
+    return (
+        <div>
+            <div className="page relative">
+                <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
+                
+                <div className={`transition-all duration-300 ${isHidden ? 'blur-md opacity-20 select-none pointer-events-none' : ''} print:blur-none print:opacity-100`}>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-w-xl mx-auto">
+                        {(data.itemsToMemorize || []).map((item, index) => (
+                            <div key={index} className="p-4 bg-white dark:bg-zinc-800 border-2 border-indigo-200 rounded-xl text-center flex flex-col items-center justify-center aspect-square shadow-md">
+                                <p className="text-5xl mb-2">{item.description.split(' ').pop()}</p>
+                                <p className="text-xs font-semibold text-zinc-500 uppercase">{item.description.split(' ').slice(0, -1).join(' ')}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Interactive Overlay for Screen */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none print:hidden">
+                    {isHidden ? (
+                        <div className="bg-white/90 dark:bg-zinc-900/90 p-6 rounded-2xl shadow-xl border-2 border-indigo-100 dark:border-zinc-700 text-center pointer-events-auto animate-in fade-in zoom-in">
+                            <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i className="fa-solid fa-eye-slash text-2xl"></i>
+                            </div>
+                            <h4 className="font-bold text-lg text-zinc-800 dark:text-zinc-100 mb-1">Görseller Gizlendi</h4>
+                            <p className="text-xs text-zinc-500 mb-4">Aşağıdaki test bölümüne geçin.</p>
+                            <button onClick={() => setIsHidden(false)} className="text-indigo-600 hover:text-indigo-800 text-sm font-bold">
+                                Tekrar Bak
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-auto">
+                            <button 
+                                onClick={() => setIsHidden(true)}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-2"
+                            >
+                                <i className="fa-solid fa-check-circle"></i>
+                                Ezberledim, Gizle
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                <div className="absolute bottom-0 w-full text-center text-sm text-zinc-400 italic print:block hidden">
+                    --- Katlama Çizgisi ---
+                </div>
+            </div>
+            
+            <div className="page-break"></div>
+            
+            <div className="page">
+                <h3 className="text-2xl font-bold mb-4 text-center mt-8">{data.testTitle}</h3>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                    {(data.testItems || []).map((item, index) => (
+                        <div key={index} className="flex flex-col items-center justify-center text-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg border cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors group" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
+                            <div className="w-6 h-6 border-2 border-zinc-400 rounded-full mb-3 shrink-0 group-hover:border-indigo-500 transition-colors"></div>
+                            <p className="text-4xl">{item.description.split(' ').pop()}</p>
+                            <label className="text-xs mt-1 font-medium select-none">{item.description.split(' ').slice(0, -1).join(' ')}</label>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }) => (
     <div>
@@ -99,7 +163,7 @@ export const FindDuplicateSheet: React.FC<{ data: FindDuplicateData }> = ({ data
                     <tr key={rowIndex} className="bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 transition-colors rounded-lg">
                         <td className="p-2 text-zinc-400 font-bold text-xs w-8">{rowIndex + 1}</td>
                         {(row || []).map((char, charIndex) => (
-                            <td key={charIndex} className="text-center font-mono text-2xl p-3 border-l border-zinc-200 first:border-l-0 first:rounded-l-lg last:rounded-r-lg">
+                            <td key={charIndex} className="text-center font-mono text-2xl p-3 border-l border-zinc-200 first:border-l-0 first:rounded-l-lg last:rounded-r-lg cursor-pointer hover:text-indigo-600">
                                 {char}
                             </td>
                         ))}
@@ -120,7 +184,7 @@ export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ da
                     {(data.grid || []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {(row || []).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-lg w-8 h-8 p-1 hover:bg-yellow-100 cursor-pointer">
+                                <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-lg w-8 h-8 p-1 hover:bg-yellow-100 cursor-pointer select-none">
                                     {cell}
                                 </td>
                             ))}
@@ -146,7 +210,7 @@ export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }
                         <tr key={rowIndex}>
                             <td className="text-xs text-zinc-400 w-4">{rowIndex+1}</td>
                             {(row || []).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="text-center font-serif text-lg w-6 h-8">
+                                <td key={cellIndex} className="text-center font-serif text-lg w-6 h-8 cursor-pointer hover:text-indigo-600">
                                     {cell}
                                 </td>
                             ))}
@@ -167,7 +231,7 @@ export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ da
                     {(data.grid || []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {(row || []).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-xl w-10 h-10" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
+                                <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-xl w-10 h-10 hover:bg-zinc-100 cursor-pointer select-none" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                                     {cell}
                                 </td>
                             ))}
@@ -188,7 +252,7 @@ export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }
                     {(data.grid || []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {(row || []).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="text-center font-mono text-xl p-1 hover:bg-zinc-200 cursor-pointer" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
+                                <td key={cellIndex} className="text-center font-mono text-xl p-1 hover:bg-zinc-200 cursor-pointer select-none" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
                                     {cell}
                                 </td>
                             ))}
@@ -197,9 +261,9 @@ export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }
                 </tbody>
             </table>
         </div>
-        <div className="mt-8 flex justify-center items-center gap-4 p-4 bg-zinc-100 rounded-lg">
-            <h4 className="font-bold text-xl">Toplam <span className="text-red-600 text-2xl mx-2">{data.target}</span> Sayısı:</h4>
-            <div className="w-16 h-12 border-b-2 border-zinc-800"></div>
+        <div className="mt-8 flex justify-center items-center gap-4 p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+            <h4 className="font-bold text-xl text-zinc-800 dark:text-zinc-200">Toplam <span className="text-red-600 dark:text-red-400 text-2xl mx-2">{data.target}</span> Sayısı:</h4>
+            <div className="w-16 h-12 border-b-2 border-zinc-800 dark:border-zinc-200"></div>
         </div>
     </div>
 );
@@ -258,7 +322,7 @@ export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data
                 <h3 className="text-2xl font-bold mb-6 text-center">{data.testTitle}</h3>
                 <div className="flex justify-center items-center gap-3 flex-wrap mb-12">
                     {(items || []).map((item, index) => (
-                        <div key={index} className="px-3 py-2 bg-white border-2 border-zinc-300 rounded-lg text-sm font-bold shadow-sm">
+                        <div key={index} className="px-3 py-2 bg-white border-2 border-zinc-300 rounded-lg text-sm font-bold shadow-sm select-none cursor-grab">
                             {item.name}
                         </div>
                     ))}
@@ -333,8 +397,8 @@ export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) =>
         <PedagogicalHeader title={data.title} instruction={data.instruction || "Rengi söyle!"} note={data.pedagogicalNote} />
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-8 text-center mt-8">
             {(data.items || []).map((item, index) => (
-                <div key={index} className="p-6 rounded-xl bg-white shadow-sm border border-zinc-100 flex items-center justify-center h-32">
-                    <p className="text-4xl sm:text-5xl font-black tracking-wide" style={{ color: item.color, textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>
+                <div key={index} className="p-6 rounded-xl bg-white shadow-sm border border-zinc-100 flex items-center justify-center h-32 cursor-pointer hover:scale-105 transition-transform">
+                    <p className="text-4xl sm:text-5xl font-black tracking-wide select-none" style={{ color: item.color, textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>
                         {item.text}
                     </p>
                 </div>
