@@ -70,13 +70,58 @@ const useTTS = () => {
     return { speak, cancel, isSpeaking };
 };
 
+// Enhanced ImageDisplay with robust Fallback
+export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string; className?: string }) => {
+    
+    // 1. Try rendering Base64 Image
+    if (base64 && typeof base64 === 'string' && base64.length > 100) { 
+        return (
+            <img 
+                src={`data:image/png;base64,${base64}`} 
+                alt={description || 'Görsel'} 
+                className={`${className} object-contain rounded-lg shadow-sm bg-white/50 dark:bg-zinc-800/50 transition-all duration-300 hover:scale-[1.02]`} 
+                loading="lazy" 
+            />
+        );
+    }
+    
+    // 2. Smart Emoji/Icon Fallback
+    const emojiIcon = findEmojiForDescription(description || '');
+    
+    // 3. Render
+    return (
+        <div className={`bg-indigo-50/50 dark:bg-zinc-800/50 rounded-xl border-2 border-dashed border-indigo-200 dark:border-zinc-600 flex flex-col items-center justify-center text-center p-4 overflow-hidden select-none ${className}`}>
+            {emojiIcon ? (
+                // Emoji High-Res Representation
+                <div className="text-6xl md:text-7xl lg:text-8xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={description}>
+                    {emojiIcon}
+                </div>
+            ) : (
+                // Generic Placeholder if nothing matches
+                <div className="flex flex-col items-center justify-center h-full opacity-40">
+                    <i className="fa-regular fa-image text-4xl text-indigo-300 dark:text-zinc-500 mb-2"></i>
+                    <span className="text-[10px] font-bold text-indigo-400 dark:text-zinc-500 uppercase">Görsel</span>
+                </div>
+            )}
+            
+            {/* Only show label if it's a placeholder or specific requirement */}
+            {description && !emojiIcon && (
+                <p className="text-[10px] sm:text-xs font-bold text-indigo-900 dark:text-indigo-200 px-1 leading-tight uppercase tracking-wide break-words w-full mt-1">
+                    {description}
+                </p>
+            )}
+        </div>
+    );
+});
+
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => {
     const { speak, isSpeaking } = useTTS();
 
     return (
-        <div className="mb-6 text-center print:mb-4 break-inside-avoid relative group">
-            <div className="flex items-center justify-center gap-3 mb-2">
-                <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 font-dyslexic">{title}</h3>
+        <div className="mb-8 text-center print:mb-6 break-inside-avoid relative group">
+            {/* Main Title Area */}
+            <div className="flex items-center justify-center gap-3 mb-3">
+                <h3 className="text-3xl font-black text-zinc-800 dark:text-zinc-100 font-dyslexic tracking-tight">{title}</h3>
                 <button 
                     onClick={() => speak(`${title}. Yönerge: ${instruction}`)}
                     className={`w-8 h-8 rounded-full flex items-center justify-center transition-all print:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${isSpeaking ? 'bg-indigo-100 text-indigo-600 animate-pulse' : 'bg-zinc-100 text-zinc-400 hover:bg-indigo-50 hover:text-indigo-500 dark:bg-zinc-800'}`}
@@ -86,21 +131,28 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 </button>
             </div>
             
-            <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
+            {/* Instruction Bubble */}
+            <div className="inline-block px-6 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-full border border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm">
+                <p className="text-lg font-medium text-indigo-700 dark:text-indigo-300">{instruction}</p>
+            </div>
             
-            {/* Main Activity Image */}
+            {/* Main Activity Image - Enhanced Display */}
             {(data?.imageBase64 || data?.imagePrompt) && (
-                <div className="my-4 mx-auto max-w-md rounded-xl overflow-hidden shadow-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                <div className="my-6 mx-auto max-w-2xl rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300">
                     <ImageDisplay 
                         base64={data?.imageBase64} 
                         description={data?.imagePrompt || title} 
-                        className="w-full h-48 object-contain p-4" 
+                        className="w-full h-64 object-contain bg-white dark:bg-zinc-900" 
                     />
+                    {/* Decorative Shine */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                 </div>
             )}
 
-            {note && <div className="pedagogical-note inline-block px-4 py-1 mt-2 border-t border-zinc-200 dark:border-zinc-700">
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-graduation-cap mr-1"></i>Eğitmen Notu: {note}</p>
+            {/* Pedagogical Note */}
+            {note && <div className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 italic mt-2">
+                <i className="fa-solid fa-graduation-cap text-zinc-400"></i>
+                <span>Eğitmen Notu: {note}</span>
             </div>}
         </div>
     );
@@ -130,18 +182,18 @@ export const ReadingRuler: React.FC = () => {
 
     return (
         <div className="relative w-full print:hidden group" ref={containerRef}>
-            <div className="absolute top-2 right-2 z-20">
+            <div className="absolute top-0 right-0 z-20">
                 <button 
                     onClick={() => setIsActive(!isActive)}
-                    className={`text-xs px-3 py-1 rounded-full shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${isActive ? 'bg-indigo-600 text-white' : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300'}`}
+                    className={`text-[10px] px-2 py-1 rounded-bl-lg shadow-sm transition-colors focus:outline-none ${isActive ? 'bg-indigo-600 text-white' : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300'}`}
                     title="Okuma Cetveli"
                 >
-                    <i className="fa-solid fa-ruler-horizontal mr-1"></i> Cetvel {isActive ? 'Açık' : 'Kapalı'}
+                    <i className="fa-solid fa-ruler-horizontal"></i>
                 </button>
             </div>
             {isActive && (
                 <div 
-                    className="absolute left-0 right-0 h-12 bg-yellow-200/30 border-y-2 border-indigo-400/50 pointer-events-none z-10 mix-blend-multiply dark:mix-blend-screen dark:bg-yellow-900/30"
+                    className="absolute left-0 right-0 h-12 bg-yellow-200/30 border-y-2 border-indigo-400/50 pointer-events-none z-10 mix-blend-multiply dark:mix-blend-screen dark:bg-yellow-900/30 transition-none"
                     style={{ top: position - 24 }} 
                 ></div>
             )}
@@ -169,43 +221,6 @@ export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: Shap
         case 'cone': return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M50 10 L10 90 H90 Z"/><ellipse cx="50" cy="90" rx="40" ry="10"/></svg>;
         default: return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="20" stroke={strokeColor} strokeWidth="2" fill="none" /></svg>;
     }
-});
-
-// Enhanced ImageDisplay with robust Fallback
-export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string; className?: string }) => {
-    
-    // 1. Try rendering Base64 Image
-    if (base64 && typeof base64 === 'string' && base64.length > 100) { 
-        return <img src={`data:image/png;base64,${base64}`} alt={description || 'Görsel'} className={`${className} object-contain rounded-md bg-white dark:bg-zinc-800 shadow-sm`} loading="lazy" />;
-    }
-    
-    // 2. Smart Emoji/Icon Fallback
-    const emojiIcon = findEmojiForDescription(description || '');
-    
-    // 3. Render
-    return (
-        <div className={`bg-indigo-50 dark:bg-zinc-800/80 rounded-lg border-2 border-dashed border-indigo-200 dark:border-zinc-600 flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none ${className}`}>
-            {emojiIcon ? (
-                // Emoji High-Res Representation
-                <div className="text-6xl md:text-7xl lg:text-8xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={description}>
-                    {emojiIcon}
-                </div>
-            ) : (
-                // Generic Placeholder if nothing matches
-                <div className="flex flex-col items-center justify-center h-full opacity-50">
-                    <i className="fa-regular fa-image text-4xl text-indigo-300 dark:text-zinc-500 mb-2"></i>
-                    <span className="text-[10px] font-bold text-indigo-400 dark:text-zinc-500 uppercase">Görsel</span>
-                </div>
-            )}
-            
-            {/* Only show label if it's a placeholder or specific requirement */}
-            {description && !emojiIcon && (
-                <p className="text-[10px] sm:text-xs font-bold text-indigo-900 dark:text-indigo-200 px-1 leading-tight uppercase tracking-wide break-words w-full mt-1">
-                    {description}
-                </p>
-            )}
-        </div>
-    );
 });
 
 export const GridComponent = React.memo(({ grid, passwordCells, cellClassName = 'w-10 h-10', passwordColumnIndex, showLetters = true }: { grid: (string | number | null)[][]; passwordCells?: {row: number; col: number}[]; cellClassName?: string, passwordColumnIndex?: number, showLetters?: boolean }) => (

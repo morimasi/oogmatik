@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { 
     StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData,
@@ -12,42 +11,36 @@ import { WordSearchSheet } from './WordGameSheets';
 export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data }) => (
   <div className="relative">
     <ReadingRuler />
-    <PedagogicalHeader title={data.title} instruction="Hikayeyi dikkatlice oku ve soruları yanıtla." note={data.pedagogicalNote} />
+    {/* Pass data to PedagogicalHeader to use its enhanced image display */}
+    <PedagogicalHeader title={data.title} instruction="Hikayeyi dikkatlice oku ve soruları yanıtla." note={data.pedagogicalNote} data={data} />
     
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-        {data.imageBase64 && (
-            <div className="md:col-span-2">
-                <ImageDisplay base64={data.imageBase64} description="Hikaye görseli" className="w-full h-full min-h-[200px] object-cover rounded-lg shadow-md" />
-            </div>
-        )}
-        <div className={`${data.imageBase64 ? 'md:col-span-3' : 'md:col-span-5'} bg-white dark:bg-zinc-700/30 p-8 rounded-xl shadow-inner border border-zinc-100 dark:border-zinc-700`}>
-            <div className="prose dark:prose-invert max-w-none">
-                <p className="text-lg md:text-xl leading-loose tracking-wide text-zinc-800 dark:text-zinc-200 font-medium text-left" style={{ wordSpacing: '0.1em' }}>
-                    {data.story}
-                </p>
-            </div>
+    <div className="bg-white dark:bg-zinc-700/30 p-8 rounded-3xl shadow-inner border border-zinc-100 dark:border-zinc-700 mb-8">
+        <div className="prose dark:prose-invert max-w-none">
+            <p className="text-lg md:text-xl leading-loose tracking-wide text-zinc-800 dark:text-zinc-200 font-medium text-left font-dyslexic" style={{ wordSpacing: '0.15em' }}>
+                {data.story}
+            </p>
         </div>
     </div>
 
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {data.mainIdea && (
-            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border-l-4 border-indigo-400 shadow-sm">
+            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl border-l-4 border-indigo-400 shadow-sm">
                 <h4 className="font-bold text-sm uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2"><i className="fa-solid fa-lightbulb mr-2"></i>Ana Fikir</h4>
                 <p className="text-sm text-zinc-700 dark:text-zinc-200">{data.mainIdea}</p>
             </div>
         )}
         {data.characters && data.characters.length > 0 && (
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg border-l-4 border-emerald-400 shadow-sm">
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl border-l-4 border-emerald-400 shadow-sm">
                 <h4 className="font-bold text-sm uppercase tracking-wider text-emerald-700 dark:text-emerald-300 mb-2"><i className="fa-solid fa-users mr-2"></i>Karakterler</h4>
                 <div className="flex flex-wrap gap-2">
                     {data.characters.map((char, i) => (
-                        <span key={i} className="bg-white dark:bg-emerald-900/50 px-2 py-1 rounded text-xs font-semibold">{char}</span>
+                        <span key={i} className="bg-white dark:bg-emerald-900/50 px-2 py-1 rounded text-xs font-semibold shadow-sm">{char}</span>
                     ))}
                 </div>
             </div>
         )}
         {data.setting && (
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border-l-4 border-amber-400 shadow-sm">
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 rounded-xl border-l-4 border-amber-400 shadow-sm">
                 <h4 className="font-bold text-sm uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-2"><i className="fa-solid fa-map-pin mr-2"></i>Mekan</h4>
                 <p className="text-sm text-zinc-700 dark:text-zinc-200">{data.setting}</p>
             </div>
@@ -103,7 +96,7 @@ export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data })
 export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData }> = ({ data }) => (
     <div className="relative">
         <ReadingRuler />
-        <PedagogicalHeader title={data.title} instruction="Kendi hikayeni oluştur!" note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Kendi hikayeni oluştur!" note={data.pedagogicalNote} data={data} />
         
         <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-xl mb-8 text-center border border-indigo-100 dark:border-indigo-900/50">
             <p className="text-xl font-medium text-indigo-900 dark:text-indigo-200">{data.prompt}</p>
@@ -123,13 +116,6 @@ export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData 
                         ))}
                     </div>
                 </div>
-                
-                {data.imageBase64 && (
-                    <div className="rounded-xl overflow-hidden border-4 border-zinc-100 dark:border-zinc-700 shadow-md">
-                        <ImageDisplay base64={data.imageBase64} description="Hikaye İlhamı" className="w-full h-auto object-cover" />
-                        <p className="text-center text-xs text-zinc-400 py-2 bg-zinc-50 dark:bg-zinc-800">Bu resim sana ne anlatıyor?</p>
-                    </div>
-                )}
             </div>
             
             <div className="bg-white dark:bg-zinc-700/30 p-6 rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-600 h-full min-h-[400px]">
@@ -147,16 +133,10 @@ export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData 
 export const WordsInStorySheet: React.FC<{ data: WordsInStoryData }> = ({ data }) => (
     <div className="relative">
         <ReadingRuler />
-        <PedagogicalHeader title={data.title} instruction="Hikayeyi oku ve altı çizili kelimelere dikkat et." note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Hikayeyi oku ve altı çizili kelimelere dikkat et." note={data.pedagogicalNote} data={data} />
         
-        {data.imageBase64 && (
-             <div className="float-right w-1/3 ml-6 mb-4">
-                <ImageDisplay base64={data.imageBase64} description="Hikaye görseli" className="w-full h-auto object-cover rounded-lg shadow-md" />
-            </div>
-        )}
-
-        <div className="bg-white dark:bg-zinc-700/30 p-8 rounded-xl shadow-inner border border-zinc-100 dark:border-zinc-700 mb-8 clear-right">
-            <p className="text-lg md:text-xl leading-loose tracking-wide whitespace-pre-line font-medium">
+        <div className="bg-white dark:bg-zinc-700/30 p-8 rounded-2xl shadow-inner border border-zinc-100 dark:border-zinc-700 mb-8 clear-right">
+            <p className="text-lg md:text-xl leading-loose tracking-wide whitespace-pre-line font-medium font-dyslexic">
                 {data.story}
             </p>
         </div>
@@ -182,17 +162,10 @@ export const WordsInStorySheet: React.FC<{ data: WordsInStoryData }> = ({ data }
 export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data }) => (
     <div className="relative">
         <ReadingRuler />
-        <PedagogicalHeader title={data.title} instruction="Hikayenin derinliklerine inelim." note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Hikayenin derinliklerine inelim." note={data.pedagogicalNote} data={data} />
         
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-            {data.imageBase64 && (
-                <div className="md:col-span-2">
-                    <ImageDisplay base64={data.imageBase64} description="Hikaye Görseli" className="w-full h-full min-h-[200px] object-cover rounded-xl shadow-md" />
-                </div>
-            )}
-            <div className={`${data.imageBase64 ? 'md:col-span-3' : 'md:col-span-5'} bg-white dark:bg-zinc-700/30 p-6 rounded-xl shadow-inner`}>
-                <p className="text-lg leading-relaxed tracking-wide">{data.story}</p>
-            </div>
+        <div className="bg-white dark:bg-zinc-700/30 p-6 rounded-2xl shadow-inner mb-8">
+            <p className="text-lg leading-relaxed tracking-wide font-dyslexic">{data.story}</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -220,17 +193,15 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
 
 export const ProverbFillSheet: React.FC<{ data: ProverbFillData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction="Atasözlerindeki eksik kelimeleri tamamla." note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Atasözlerindeki eksik kelimeleri tamamla." note={data.pedagogicalNote} data={data} />
         
-        {data.imageBase64 && <div className="max-w-md mx-auto mb-8"><ImageDisplay base64={data.imageBase64} description={data.meaning} className="w-full h-auto rounded-xl shadow-md"/></div>}
-
         <div className="bg-white dark:bg-zinc-700/30 p-6 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 mb-8 max-w-3xl mx-auto">
             <div className="space-y-6">
                 {(data.proverbs || []).map((proverb, index) => (
                     <div key={index} className="flex flex-wrap items-end text-xl font-medium leading-loose gap-2">
                         <span className="text-indigo-500 font-bold w-6">{index + 1}.</span>
                         <span>{proverb.start}</span>
-                        <div className="min-w-[120px] border-b-2 border-indigo-500 border-dashed px-2 text-center text-indigo-600 dark:text-indigo-400"></div>
+                        <div className="min-w-[120px] border-b-2 border-indigo-500 border-dashed px-2 text-center text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 rounded"></div>
                         <span>{proverb.end}</span>
                     </div>
                 ))}
@@ -302,7 +273,7 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
 
 export const ProverbSayingSortSheet: React.FC<{ data: ProverbSayingSortData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} data={data} />
         
         <div className="p-6 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800/50 rounded-2xl mb-8 text-center shadow-sm">
             <div className="flex flex-wrap justify-center gap-3">
@@ -342,7 +313,7 @@ export const ProverbSayingSortSheet: React.FC<{ data: ProverbSayingSortData }> =
 
 export const ProverbWordChainSheet: React.FC<{ data: ProverbWordChainData | ProverbSentenceFinderData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} data={data} />
         
         <div className="p-8 mb-8 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-3xl bg-zinc-50 dark:bg-zinc-900/50 text-center">
             <div className="flex justify-center flex-wrap gap-4">
@@ -372,7 +343,7 @@ export const ProverbWordChainSheet: React.FC<{ data: ProverbWordChainData | Prov
 
 export const ProverbSearchSheet: React.FC<{ data: ProverbSearchData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction="Gizli atasözünü bul ve anlamını öğren." note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Gizli atasözünü bul ve anlamını öğren." note={data.pedagogicalNote} data={data} />
         <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="flex-1 w-full">
                 <WordSearchSheet data={{...data, words: [], title: '', prompt: ''} as any} />

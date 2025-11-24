@@ -30,7 +30,7 @@ export const WordSearchSheet: React.FC<SheetProps<WordSearchData | WordSearchWit
     
     return (
         <div>
-            <PedagogicalHeader title={data.title} instruction={data.instruction || "Kelimeleri bul ve işaretle."} note={data.pedagogicalNote} />
+            <PedagogicalHeader title={data.title} instruction={data.instruction || "Kelimeleri bul ve işaretle."} note={data.pedagogicalNote} data={data} />
             <div className="flex flex-col gap-8">
                 <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner self-center w-full max-w-2xl">
                     <GridComponent grid={gridData} passwordCells={isWithPassword ? (data as WordSearchWithPasswordData).passwordCells : undefined} />
@@ -68,7 +68,7 @@ export const WordSearchSheet: React.FC<SheetProps<WordSearchData | WordSearchWit
 
 export const SynonymSearchAndStorySheet: React.FC<SheetProps<SynonymSearchAndStoryData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} data={data} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
                 <GridComponent grid={data.grid} />
@@ -93,7 +93,7 @@ export const SynonymSearchAndStorySheet: React.FC<SheetProps<SynonymSearchAndSto
 
 export const SynonymWordSearchSheet: React.FC<SheetProps<SynonymWordSearchData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} data={data} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
                 <GridComponent grid={data.grid} />
@@ -114,14 +114,16 @@ export const SynonymWordSearchSheet: React.FC<SheetProps<SynonymWordSearchData>>
 
 export const AnagramSheet: React.FC<SheetProps<AnagramsData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} data={data} />
         <div className="dynamic-grid">
             {(data.anagrams || []).map((item, index) => (
                 <div key={index} className="flex flex-col items-center bg-white dark:bg-zinc-700/50 p-6 rounded-xl shadow-sm border-2" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                    <ImageDisplay base64={item.imageBase64} description={item.word} className="w-24 h-24 mb-4 rounded-lg shadow-sm" />
+                    <div className="w-32 h-32 mb-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg overflow-hidden">
+                        <ImageDisplay base64={item.imageBase64} description={item.word} className="w-full h-full object-contain" />
+                    </div>
                     <div className="flex gap-1 mb-4 flex-wrap justify-center">
                         {item.scrambled.split('').map((char, i) => (
-                            <span key={i} className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-amber-100 dark:bg-amber-900/50 border-2 border-amber-300 dark:border-amber-700 rounded text-xl font-bold uppercase shadow-sm transform hover:-translate-y-1 transition-transform cursor-default">
+                            <span key={i} className="w-10 h-10 flex items-center justify-center bg-amber-100 dark:bg-amber-900/50 border-2 border-amber-300 dark:border-amber-700 rounded text-xl font-bold uppercase shadow-sm transform hover:-translate-y-1 transition-transform cursor-default">
                                 {char}
                             </span>
                         ))}
@@ -141,12 +143,12 @@ export const AnagramSheet: React.FC<SheetProps<AnagramsData>> = ({ data }) => (
 
 export const SpellingCheckSheet: React.FC<SheetProps<SpellingCheckData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || "Doğru yazılanı bul."} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || "Doğru yazılanı bul."} note={data.pedagogicalNote} data={data} />
         <div className="space-y-4 max-w-3xl mx-auto dynamic-grid">
             {(data.checks || []).map((check, index) => (
                 <div key={index} className="p-5 rounded-xl bg-white dark:bg-zinc-700/50 border border-zinc-200 dark:border-zinc-600 shadow-sm flex flex-col sm:flex-row gap-4 items-center">
-                    <div className="flex-shrink-0">
-                        <ImageDisplay base64={check.imageBase64} description={check.correct} className="w-24 h-24 rounded-lg" />
+                    <div className="flex-shrink-0 w-24 h-24 bg-zinc-50 dark:bg-zinc-800 rounded-lg overflow-hidden">
+                        <ImageDisplay base64={check.imageBase64} description={check.correct} className="w-full h-full object-contain" />
                     </div>
                     <div className="flex-1 w-full">
                         <p className="font-semibold mb-4 text-lg">
@@ -169,7 +171,7 @@ export const SpellingCheckSheet: React.FC<SheetProps<SpellingCheckData>> = ({ da
 
 export const LetterBridgeSheet: React.FC<SheetProps<LetterBridgeData>> = ({ data }) => (
      <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="space-y-6 max-w-lg mx-auto my-8 dynamic-grid">
             {(data.pairs || []).map((pair, index) => (
                 <div key={index} className="flex items-center justify-center p-4 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm">
@@ -192,7 +194,7 @@ export const LetterBridgeSheet: React.FC<SheetProps<LetterBridgeData>> = ({ data
 
 export const WordLadderSheet: React.FC<SheetProps<WordLadderData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         {data.theme && <div className="text-center mb-6 inline-block w-full"><span className="px-4 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-bold">{data.theme}</span></div>}
         
         <div className="dynamic-grid justify-items-center">
@@ -219,7 +221,7 @@ export const WordLadderSheet: React.FC<SheetProps<WordLadderData>> = ({ data }) 
 
 export const WordFormationSheet: React.FC<SheetProps<WordFormationData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="dynamic-grid">
             {(data.sets || []).map((set, index) => (
                 <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm relative overflow-hidden">
@@ -258,7 +260,7 @@ export const WordFormationSheet: React.FC<SheetProps<WordFormationData>> = ({ da
 
 export const ReverseWordSheet: React.FC<SheetProps<ReverseWordData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="dynamic-grid max-w-4xl mx-auto">
             {(data.words || []).map((word, index) => (
                 <div key={index} className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 dark:border-zinc-600 shadow-sm">
@@ -280,14 +282,16 @@ export const ReverseWordSheet: React.FC<SheetProps<ReverseWordData>> = ({ data }
 
 export const WordGroupingSheet: React.FC<SheetProps<WordGroupingData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-600">
             <div className="flex justify-center flex-wrap gap-4">
                 {(data.words || []).map((word, index) => (
-                    <div key={index} className="flex flex-col items-center p-2 bg-zinc-100 dark:bg-zinc-700 rounded-lg shadow-sm hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors cursor-grab w-24">
-                        <ImageDisplay base64={word.imageBase64} description={word.text} className="w-16 h-16 mb-1" />
-                        <span className="text-sm font-medium">{word.text}</span>
+                    <div key={index} className="flex flex-col items-center p-2 bg-zinc-100 dark:bg-zinc-700 rounded-lg shadow-sm hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors cursor-grab w-32">
+                        <div className="w-24 h-24 mb-2 bg-white rounded overflow-hidden">
+                            <ImageDisplay base64={word.imageBase64} description={word.text} className="w-full h-full object-contain" />
+                        </div>
+                        <span className="text-sm font-bold text-center">{word.text}</span>
                     </div>
                 ))}
             </div>
@@ -312,7 +316,7 @@ export const WordGroupingSheet: React.FC<SheetProps<WordGroupingData>> = ({ data
 
 export const MiniWordGridSheet: React.FC<SheetProps<MiniWordGridData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
                 <div key={index} className="p-2 bg-white dark:bg-zinc-700/50 rounded-lg shadow-md inline-block border-4 border-zinc-200 dark:border-zinc-600">
@@ -330,7 +334,7 @@ export const MiniWordGridSheet: React.FC<SheetProps<MiniWordGridData>> = ({ data
 
 export const PasswordFinderSheet: React.FC<SheetProps<PasswordFinderData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="dynamic-grid mb-10">
             {(data.words || []).map((item, index) => (
                 <div key={index} className="flex items-center p-3 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-600">
@@ -367,7 +371,7 @@ export const SyllableCompletionSheet: React.FC<SheetProps<SyllableCompletionData
     }
     return (
     <div>
-      <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+      <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
       
       <div className="mb-10 p-6 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-2xl text-center">
           <h4 className="font-bold mb-4 text-amber-800 dark:text-amber-200 uppercase tracking-wider">Hece Havuzu</h4>
@@ -400,7 +404,7 @@ export const SyllableCompletionSheet: React.FC<SheetProps<SyllableCompletionData
 
 export const SpiralPuzzleSheet: React.FC<SheetProps<SpiralPuzzleData | PunctuationSpiralPuzzleData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="flex flex-col lg:flex-row gap-12 items-start">
             <div className="flex-1 w-full bg-white dark:bg-zinc-700/30 p-4 rounded-2xl shadow-inner relative">
@@ -471,7 +475,7 @@ export const CrosswordSheet: React.FC<SheetProps<CrosswordData>> = ({ data }) =>
 
     return (
         <div>
-            <PedagogicalHeader title={title} instruction={instruction || prompt} note={pedagogicalNote} />
+            <PedagogicalHeader title={title} instruction={instruction || prompt} note={pedagogicalNote} data={data} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                 <div className="w-full max-w-md mx-auto lg:max-w-none">
@@ -548,14 +552,8 @@ export const CrosswordSheet: React.FC<SheetProps<CrosswordData>> = ({ data }) =>
 
 export const JumbledWordStorySheet: React.FC<SheetProps<JumbledWordStoryData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
-        {'imagePrompt' in data && (data as any).imageBase64 && (
-            <div className="mb-8 rounded-xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 transform -rotate-1">
-                 <ImageDisplay base64={(data as any).imageBase64} description={data.theme} className="w-full h-48 object-cover" />
-            </div>
-        )}
-
         <div className="space-y-6 mb-10 dynamic-grid">
              {(data.puzzles || []).map((puzzle, index) => (
                  <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm border border-zinc-200 flex items-center gap-4">
@@ -582,7 +580,7 @@ export const JumbledWordStorySheet: React.FC<SheetProps<JumbledWordStoryData>> =
 
 export const ResfebeSheet: React.FC<SheetProps<ResfebeData | AntonymResfebeData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} data={data} />
         
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
@@ -593,7 +591,7 @@ export const ResfebeSheet: React.FC<SheetProps<ResfebeData | AntonymResfebeData>
                                 {clue.type === 'image' ? (
                                     <div className="relative group">
                                          {/* FIX: Access imageBase64 from the clue object if it exists, otherwise fallback */}
-                                        <ImageDisplay base64={(clue as any).imageBase64} description={clue.value} className="w-20 h-20 object-cover rounded-lg shadow-sm border-2 border-white" />
+                                        <ImageDisplay base64={(clue as any).imageBase64} description={clue.value} className="w-24 h-24 object-contain rounded-lg shadow-sm border-2 border-white bg-white" />
                                         <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-black/70 text-white text-xs px-2 py-1 rounded transition-opacity whitespace-nowrap pointer-events-none">{clue.value}</span>
                                     </div>
                                 ) : (
@@ -620,7 +618,7 @@ export const ResfebeSheet: React.FC<SheetProps<ResfebeData | AntonymResfebeData>
 
 export const AntonymFlowerPuzzleSheet: React.FC<SheetProps<AntonymFlowerPuzzleData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
@@ -665,7 +663,7 @@ export const AntonymFlowerPuzzleSheet: React.FC<SheetProps<AntonymFlowerPuzzleDa
 
 export const WordGridPuzzleSheet: React.FC<SheetProps<WordGridPuzzleData>> = ({ data }) => (
      <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="flex-1 bg-zinc-800 p-1 rounded-lg shadow-xl">
@@ -695,7 +693,7 @@ export const WordGridPuzzleSheet: React.FC<SheetProps<WordGridPuzzleData>> = ({ 
 
 export const HomonymSentenceSheet: React.FC<SheetProps<HomonymSentenceData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="space-y-8 dynamic-grid">
             {(data.items || []).map((item, idx) => (
                 <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border-l-8 border-indigo-500">
@@ -706,7 +704,7 @@ export const HomonymSentenceSheet: React.FC<SheetProps<HomonymSentenceData>> = (
                                 <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-700">1</div>
                                 <span className="font-medium">{item.meaning1}</span>
                             </div>
-                            <ImageDisplay base64={item.imageBase64_1} description={item.meaning1} className="h-32 w-full object-cover rounded mb-2" />
+                            <ImageDisplay base64={item.imageBase64_1} description={item.meaning1} className="h-40 w-full object-contain rounded mb-2 border" />
                             <div className="border-b-2 border-dashed border-zinc-300 h-8 w-full mt-auto"></div>
                         </div>
                         <div className="flex flex-col">
@@ -714,7 +712,7 @@ export const HomonymSentenceSheet: React.FC<SheetProps<HomonymSentenceData>> = (
                                 <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center font-bold text-rose-700">2</div>
                                 <span className="font-medium">{item.meaning2}</span>
                             </div>
-                            <ImageDisplay base64={item.imageBase64_2} description={item.meaning2} className="h-32 w-full object-cover rounded mb-2" />
+                            <ImageDisplay base64={item.imageBase64_2} description={item.meaning2} className="h-40 w-full object-contain rounded mb-2 border" />
                             <div className="border-b-2 border-dashed border-zinc-300 h-8 w-full mt-auto"></div>
                         </div>
                     </div>
@@ -726,7 +724,7 @@ export const HomonymSentenceSheet: React.FC<SheetProps<HomonymSentenceData>> = (
 
 export const HomonymImageMatchSheet: React.FC<SheetProps<HomonymImageMatchData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex justify-between items-center mb-8 gap-8">
             <div className="flex-1 grid grid-cols-1 gap-4">
                 {data.leftImages.map((img, i) => (
@@ -761,7 +759,7 @@ export const HomonymImageMatchSheet: React.FC<SheetProps<HomonymImageMatchData>>
 
 export const SynonymAntonymGridSheet: React.FC<SheetProps<SynonymAntonymGridData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex flex-col md:flex-row gap-8">
             <div className="flex-1 bg-white p-4 rounded-lg border border-zinc-300">
                 <GridComponent grid={data.grid} />
@@ -786,7 +784,7 @@ export const SynonymAntonymGridSheet: React.FC<SheetProps<SynonymAntonymGridData
 
 export const SynonymMatchingPatternSheet: React.FC<SheetProps<SynonymMatchingPatternData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="grid grid-cols-2 gap-y-8 gap-x-12 max-w-3xl mx-auto relative">
             <div className="absolute inset-0 pointer-events-none flex justify-center">
                 <div className="w-0 border-r-2 border-dashed border-zinc-200"></div>
@@ -810,7 +808,7 @@ export const SynonymMatchingPatternSheet: React.FC<SheetProps<SynonymMatchingPat
 
 export const MissingPartsSheet: React.FC<SheetProps<MissingPartsData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex justify-between gap-8 max-w-4xl mx-auto">
             <div className="flex-1 flex flex-col gap-3">
                 <h4 className="text-center font-bold mb-2">Başlangıç</h4>
@@ -836,7 +834,7 @@ export const MissingPartsSheet: React.FC<SheetProps<MissingPartsData>> = ({ data
 
 export const WordWebSheet: React.FC<SheetProps<WordWebData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex flex-col items-center">
             <div className="mb-6 bg-white p-2 border rounded shadow-lg">
                 <GridComponent grid={data.grid} cellClassName="w-8 h-8 text-sm" />
@@ -858,7 +856,7 @@ export const WordWebSheet: React.FC<SheetProps<WordWebData>> = ({ data }) => (
 
 export const SyllableWordSearchSheet: React.FC<SheetProps<SyllableWordSearchData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="mb-8 p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
             <h4 className="font-bold text-purple-800 mb-3">Hece Havuzu</h4>
@@ -899,7 +897,7 @@ export const SyllableWordSearchSheet: React.FC<SheetProps<SyllableWordSearchData
 
 export const WordWebWithPasswordSheet: React.FC<SheetProps<WordWebWithPasswordData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex justify-center">
             <GridComponent grid={data.grid} passwordColumnIndex={data.passwordColumnIndex} />
         </div>
@@ -914,7 +912,7 @@ export const WordWebWithPasswordSheet: React.FC<SheetProps<WordWebWithPasswordDa
 
 export const WordPlacementPuzzleSheet: React.FC<SheetProps<WordPlacementPuzzleData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex flex-col md:flex-row gap-8">
             <div className="flex-1">
                 <GridComponent grid={data.grid} showLetters={false} cellClassName="w-8 h-8 bg-white" />
@@ -939,7 +937,7 @@ export const WordPlacementPuzzleSheet: React.FC<SheetProps<WordPlacementPuzzleDa
 
 export const PositionalAnagramSheet: React.FC<SheetProps<PositionalAnagramData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="space-y-6 max-w-2xl mx-auto">
             {data.puzzles.map((puzzle, i) => (
                 <div key={i} className="p-4 bg-white border rounded-xl shadow-sm">
@@ -965,7 +963,7 @@ export const PositionalAnagramSheet: React.FC<SheetProps<PositionalAnagramData>>
 
 export const ImageAnagramSortSheet: React.FC<SheetProps<ImageAnagramSortData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="dynamic-grid">
             {data.cards.map((card, i) => (
                 <div key={i} className="border-2 border-zinc-200 rounded-xl p-3 bg-white flex flex-col items-center text-center">
@@ -982,7 +980,7 @@ export const ImageAnagramSortSheet: React.FC<SheetProps<ImageAnagramSortData>> =
 
 export const AnagramImageMatchSheet: React.FC<SheetProps<AnagramImageMatchData>> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="mb-8 p-4 bg-zinc-100 rounded-lg text-center">
             <span className="font-bold mr-2">Kelime Bankası:</span>
