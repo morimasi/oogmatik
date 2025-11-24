@@ -16,162 +16,165 @@ interface WorksheetProps {
   settings: StyleSettings;
 }
 
-const renderSheet = (type: ActivityType | null, data: any) => {
+const renderSheet = (type: ActivityType | null, data: any, settings: StyleSettings) => {
     try {
+        // Pass settings to components that support layout customization (like columns)
+        const props = { data, settings };
+
         switch (type) {
             // --- Dyscalculia Support ---
-            case ActivityType.NUMBER_SENSE: return <DyscalculiaSheets.NumberSenseSheet data={data} />;
+            case ActivityType.NUMBER_SENSE: return <DyscalculiaSheets.NumberSenseSheet {...props} />;
             case ActivityType.ARITHMETIC_FLUENCY:
             case ActivityType.VISUAL_ARITHMETIC:
             case ActivityType.NUMBER_GROUPING:
-                return <DyscalculiaSheets.VisualArithmeticSheet data={data} />;
+                return <DyscalculiaSheets.VisualArithmeticSheet {...props} />;
             case ActivityType.SPATIAL_REASONING:
             case ActivityType.SPATIAL_AWARENESS_DISCOVERY:
             case ActivityType.POSITIONAL_CONCEPTS:
             case ActivityType.DIRECTIONAL_CONCEPTS:
-                return <DyscalculiaSheets.SpatialGridSheet data={data} />;
+                return <DyscalculiaSheets.SpatialGridSheet {...props} />;
             case ActivityType.MATH_LANGUAGE:
             case ActivityType.TIME_MEASUREMENT_GEOMETRY:
             case ActivityType.FRACTIONS_DECIMALS:
-                return <DyscalculiaSheets.ConceptMatchSheet data={data} />;
+                return <DyscalculiaSheets.ConceptMatchSheet {...props} />;
             case ActivityType.ESTIMATION_SKILLS:
-                return <DyscalculiaSheets.EstimationSheet data={data} />;
+                return <DyscalculiaSheets.EstimationSheet {...props} />;
             case ActivityType.VISUAL_NUMBER_REPRESENTATION:
-                return <DyscalculiaSheets.NumberSenseSheet data={data} />; // Reuse logic
+                return <DyscalculiaSheets.NumberSenseSheet {...props} />; // Reuse logic
             case ActivityType.PROBLEM_SOLVING_STRATEGIES:
             case ActivityType.APPLIED_MATH_STORY:
-                return MathLogicSheets.RealLifeMathProblemsSheet ? <MathLogicSheets.RealLifeMathProblemsSheet data={data} /> : <div>Component Not Found</div>;
+                return MathLogicSheets.RealLifeMathProblemsSheet ? <MathLogicSheets.RealLifeMathProblemsSheet {...props} /> : <div>Component Not Found</div>;
             case ActivityType.VISUAL_DISCRIMINATION_MATH:
-                return <VisualSheets.VisualOddOneOutSheet data={data} />;
+                return <VisualSheets.VisualOddOneOutSheet {...props} />;
 
             // --- Dyslexia Support ---
-            case ActivityType.READING_FLOW: return <DyslexiaSheets.ReadingFlowSheet data={data} />;
-            case ActivityType.LETTER_DISCRIMINATION: return <DyslexiaSheets.LetterDiscriminationSheet data={data} />;
-            case ActivityType.RAPID_NAMING: return <DyslexiaSheets.RapidNamingSheet data={data} />;
-            case ActivityType.PHONOLOGICAL_AWARENESS: return <DyslexiaSheets.PhonologicalAwarenessSheet data={data} />;
-            case ActivityType.MIRROR_LETTERS: return <DyslexiaSheets.MirrorLettersSheet data={data} />;
-            case ActivityType.SYLLABLE_TRAIN: return <DyslexiaSheets.SyllableTrainSheet data={data} />;
-            case ActivityType.VISUAL_TRACKING_LINES: return <DyslexiaSheets.VisualTrackingLinesSheet data={data} />;
-            case ActivityType.BACKWARD_SPELLING: return <DyslexiaSheets.BackwardSpellingSheet data={data} />;
+            case ActivityType.READING_FLOW: return <DyslexiaSheets.ReadingFlowSheet {...props} />;
+            case ActivityType.LETTER_DISCRIMINATION: return <DyslexiaSheets.LetterDiscriminationSheet {...props} />;
+            case ActivityType.RAPID_NAMING: return <DyslexiaSheets.RapidNamingSheet {...props} />;
+            case ActivityType.PHONOLOGICAL_AWARENESS: return <DyslexiaSheets.PhonologicalAwarenessSheet {...props} />;
+            case ActivityType.MIRROR_LETTERS: return <DyslexiaSheets.MirrorLettersSheet {...props} />;
+            case ActivityType.SYLLABLE_TRAIN: return <DyslexiaSheets.SyllableTrainSheet {...props} />;
+            case ActivityType.VISUAL_TRACKING_LINES: return <DyslexiaSheets.VisualTrackingLinesSheet {...props} />;
+            case ActivityType.BACKWARD_SPELLING: return <DyslexiaSheets.BackwardSpellingSheet {...props} />;
 
             // --- Word Games ---
-            case ActivityType.WORD_SEARCH: return <WordGameSheets.WordSearchSheet data={data} />;
-            case ActivityType.THEMATIC_WORD_SEARCH_COLOR: return <WordGameSheets.WordSearchSheet data={data} />;
-            case ActivityType.WORD_SEARCH_WITH_PASSWORD: return <WordGameSheets.WordSearchWithPasswordSheet data={data} />;
-            case ActivityType.SYNONYM_WORD_SEARCH: return <WordGameSheets.SynonymWordSearchSheet data={data} />;
-            case ActivityType.LETTER_GRID_WORD_FIND: return <WordGameSheets.LetterGridWordFindSheet data={data} />;
-            case ActivityType.SYLLABLE_WORD_SEARCH: return <WordGameSheets.SyllableWordSearchSheet data={data} />;
-            case ActivityType.ANAGRAM: return <WordGameSheets.AnagramSheet data={data} />;
-            case ActivityType.IMAGE_ANAGRAM_SORT: return <WordGameSheets.ImageAnagramSortSheet data={data} />;
-            case ActivityType.ANAGRAM_IMAGE_MATCH: return <WordGameSheets.AnagramImageMatchSheet data={data} />;
-            case ActivityType.POSITIONAL_ANAGRAM: return <WordGameSheets.PositionalAnagramSheet data={data} />;
-            case ActivityType.CROSSWORD: return <WordGameSheets.CrosswordSheet data={data} />;
-            case ActivityType.SPIRAL_PUZZLE: return <WordGameSheets.SpiralPuzzleSheet data={data} />;
-            case ActivityType.PUNCTUATION_SPIRAL_PUZZLE: return <WordGameSheets.SpiralPuzzleSheet data={data} />;
-            case ActivityType.WORD_LADDER: return <WordGameSheets.WordLadderSheet data={data} />;
-            case ActivityType.SPELLING_CHECK: return <WordGameSheets.SpellingCheckSheet data={data} />;
-            case ActivityType.REVERSE_WORD: return <WordGameSheets.ReverseWordSheet data={data} />;
-            case ActivityType.LETTER_BRIDGE: return <WordGameSheets.LetterBridgeSheet data={data} />;
-            case ActivityType.WORD_FORMATION: return <WordGameSheets.WordFormationSheet data={data} />;
-            case ActivityType.JUMBLED_WORD_STORY: return <WordGameSheets.JumbledWordStorySheet data={data} />;
-            case ActivityType.HOMONYM_SENTENCE_WRITING: return <WordGameSheets.HomonymSentenceSheet data={data} />;
-            case ActivityType.MISSING_PARTS: return <WordGameSheets.MissingPartsSheet data={data} />;
-            case ActivityType.SYLLABLE_COMPLETION: return <WordGameSheets.SyllableCompletionSheet data={data} />;
-            case ActivityType.WORD_GROUPING: return <WordGameSheets.WordGroupingSheet data={data} />;
-            case ActivityType.WORD_WEB: return <WordGameSheets.WordWebSheet data={data} />;
-            case ActivityType.WORD_WEB_WITH_PASSWORD: return <WordGameSheets.WordWebWithPasswordSheet data={data} />;
-            case ActivityType.WORD_PLACEMENT_PUZZLE: return <WordGameSheets.WordPlacementPuzzleSheet data={data} />;
-            case ActivityType.WORD_GRID_PUZZLE: return <WordGameSheets.WordGridPuzzleSheet data={data} />;
-            case ActivityType.MINI_WORD_GRID: return <WordGameSheets.MiniWordGridSheet data={data} />;
-            case ActivityType.PASSWORD_FINDER: return <WordGameSheets.PasswordFinderSheet data={data} />;
-            case ActivityType.HOMONYM_IMAGE_MATCH: return <WordGameSheets.HomonymImageMatchSheet data={data} />;
-            case ActivityType.ANTONYM_FLOWER_PUZZLE: return <WordGameSheets.AntonymFlowerPuzzleSheet data={data} />;
-            case ActivityType.SYNONYM_ANTONYM_GRID: return <WordGameSheets.SynonymAntonymGridSheet data={data} />;
-            case ActivityType.ANTONYM_RESFEBE: return <WordGameSheets.ResfebeSheet data={data} />;
-            case ActivityType.RESFEBE: return <WordGameSheets.ResfebeSheet data={data} />;
-            case ActivityType.SYNONYM_SEARCH_STORY: return <WordGameSheets.SynonymSearchAndStorySheet data={data} />;
-            case ActivityType.SYNONYM_MATCHING_PATTERN: return <WordGameSheets.SynonymMatchingPatternSheet data={data} />;
+            case ActivityType.WORD_SEARCH: return <WordGameSheets.WordSearchSheet {...props} />;
+            case ActivityType.THEMATIC_WORD_SEARCH_COLOR: return <WordGameSheets.WordSearchSheet {...props} />;
+            case ActivityType.WORD_SEARCH_WITH_PASSWORD: return <WordGameSheets.WordSearchWithPasswordSheet {...props} />;
+            case ActivityType.SYNONYM_WORD_SEARCH: return <WordGameSheets.SynonymWordSearchSheet {...props} />;
+            case ActivityType.LETTER_GRID_WORD_FIND: return <WordGameSheets.LetterGridWordFindSheet {...props} />;
+            case ActivityType.SYLLABLE_WORD_SEARCH: return <WordGameSheets.SyllableWordSearchSheet {...props} />;
+            case ActivityType.ANAGRAM: return <WordGameSheets.AnagramSheet {...props} />;
+            case ActivityType.IMAGE_ANAGRAM_SORT: return <WordGameSheets.ImageAnagramSortSheet {...props} />;
+            case ActivityType.ANAGRAM_IMAGE_MATCH: return <WordGameSheets.AnagramImageMatchSheet {...props} />;
+            case ActivityType.POSITIONAL_ANAGRAM: return <WordGameSheets.PositionalAnagramSheet {...props} />;
+            case ActivityType.CROSSWORD: return <WordGameSheets.CrosswordSheet {...props} />;
+            case ActivityType.SPIRAL_PUZZLE: return <WordGameSheets.SpiralPuzzleSheet {...props} />;
+            case ActivityType.PUNCTUATION_SPIRAL_PUZZLE: return <WordGameSheets.SpiralPuzzleSheet {...props} />;
+            case ActivityType.WORD_LADDER: return <WordGameSheets.WordLadderSheet {...props} />;
+            case ActivityType.SPELLING_CHECK: return <WordGameSheets.SpellingCheckSheet {...props} />;
+            case ActivityType.REVERSE_WORD: return <WordGameSheets.ReverseWordSheet {...props} />;
+            case ActivityType.LETTER_BRIDGE: return <WordGameSheets.LetterBridgeSheet {...props} />;
+            case ActivityType.WORD_FORMATION: return <WordGameSheets.WordFormationSheet {...props} />;
+            case ActivityType.JUMBLED_WORD_STORY: return <WordGameSheets.JumbledWordStorySheet {...props} />;
+            case ActivityType.HOMONYM_SENTENCE_WRITING: return <WordGameSheets.HomonymSentenceSheet {...props} />;
+            case ActivityType.MISSING_PARTS: return <WordGameSheets.MissingPartsSheet {...props} />;
+            case ActivityType.SYLLABLE_COMPLETION: return <WordGameSheets.SyllableCompletionSheet {...props} />;
+            case ActivityType.WORD_GROUPING: return <WordGameSheets.WordGroupingSheet {...props} />;
+            case ActivityType.WORD_WEB: return <WordGameSheets.WordWebSheet {...props} />;
+            case ActivityType.WORD_WEB_WITH_PASSWORD: return <WordGameSheets.WordWebWithPasswordSheet {...props} />;
+            case ActivityType.WORD_PLACEMENT_PUZZLE: return <WordGameSheets.WordPlacementPuzzleSheet {...props} />;
+            case ActivityType.WORD_GRID_PUZZLE: return <WordGameSheets.WordGridPuzzleSheet {...props} />;
+            case ActivityType.MINI_WORD_GRID: return <WordGameSheets.MiniWordGridSheet {...props} />;
+            case ActivityType.PASSWORD_FINDER: return <WordGameSheets.PasswordFinderSheet {...props} />;
+            case ActivityType.HOMONYM_IMAGE_MATCH: return <WordGameSheets.HomonymImageMatchSheet {...props} />;
+            case ActivityType.ANTONYM_FLOWER_PUZZLE: return <WordGameSheets.AntonymFlowerPuzzleSheet {...props} />;
+            case ActivityType.SYNONYM_ANTONYM_GRID: return <WordGameSheets.SynonymAntonymGridSheet {...props} />;
+            case ActivityType.ANTONYM_RESFEBE: return <WordGameSheets.ResfebeSheet {...props} />;
+            case ActivityType.RESFEBE: return <WordGameSheets.ResfebeSheet {...props} />;
+            case ActivityType.SYNONYM_SEARCH_STORY: return <WordGameSheets.SynonymSearchAndStorySheet {...props} />;
+            case ActivityType.SYNONYM_MATCHING_PATTERN: return <WordGameSheets.SynonymMatchingPatternSheet {...props} />;
 
             // --- Reading ---
-            case ActivityType.STORY_COMPREHENSION: return <ReadingSheets.StoryComprehensionSheet data={data} />;
-            case ActivityType.STORY_ANALYSIS: return <ReadingSheets.StoryAnalysisSheet data={data} />;
-            case ActivityType.STORY_SEQUENCING: return <ReadingSheets.StorySequencingSheet data={data} />;
-            case ActivityType.WORDS_IN_STORY: return <ReadingSheets.WordsInStorySheet data={data} />;
-            case ActivityType.STORY_CREATION_PROMPT: return <ReadingSheets.StoryCreationPromptSheet data={data} />;
-            case ActivityType.PROVERB_FILL_IN_THE_BLANK: return <ReadingSheets.ProverbFillSheet data={data} />;
-            case ActivityType.PROVERB_SAYING_SORT: return <ReadingSheets.ProverbSayingSortSheet data={data} />;
-            case ActivityType.PROVERB_WORD_CHAIN: return <ReadingSheets.ProverbWordChainSheet data={data} />;
-            case ActivityType.PROVERB_SEARCH: return <ReadingSheets.ProverbSearchSheet data={data} />;
+            case ActivityType.STORY_COMPREHENSION: return <ReadingSheets.StoryComprehensionSheet {...props} />;
+            case ActivityType.STORY_ANALYSIS: return <ReadingSheets.StoryAnalysisSheet {...props} />;
+            case ActivityType.STORY_SEQUENCING: return <ReadingSheets.StorySequencingSheet {...props} />;
+            case ActivityType.WORDS_IN_STORY: return <ReadingSheets.WordsInStorySheet {...props} />;
+            case ActivityType.STORY_CREATION_PROMPT: return <ReadingSheets.StoryCreationPromptSheet {...props} />;
+            case ActivityType.PROVERB_FILL_IN_THE_BLANK: return <ReadingSheets.ProverbFillSheet {...props} />;
+            case ActivityType.PROVERB_SAYING_SORT: return <ReadingSheets.ProverbSayingSortSheet {...props} />;
+            case ActivityType.PROVERB_WORD_CHAIN: return <ReadingSheets.ProverbWordChainSheet {...props} />;
+            case ActivityType.PROVERB_SEARCH: return <ReadingSheets.ProverbSearchSheet {...props} />;
 
             // --- Memory & Attention ---
-            case ActivityType.WORD_MEMORY: return <MemorySheets.WordMemorySheet data={data} />;
-            case ActivityType.VISUAL_MEMORY: return <MemorySheets.VisualMemorySheet data={data} />;
-            case ActivityType.NUMBER_SEARCH: return <MemorySheets.NumberSearchSheet data={data} />;
-            case ActivityType.FIND_THE_DUPLICATE_IN_ROW: return <MemorySheets.FindDuplicateSheet data={data} />;
-            case ActivityType.LETTER_GRID_TEST: return <MemorySheets.LetterGridTestSheet data={data} />;
-            case ActivityType.BURDON_TEST: return <MemorySheets.BurdonTestSheet data={data} />;
-            case ActivityType.FIND_LETTER_PAIR: return <MemorySheets.FindLetterPairSheet data={data} />;
-            case ActivityType.TARGET_SEARCH: return <MemorySheets.TargetSearchSheet data={data} />;
-            case ActivityType.COLOR_WHEEL_MEMORY: return <MemorySheets.ColorWheelSheet data={data} />;
-            case ActivityType.IMAGE_COMPREHENSION: return <MemorySheets.ImageComprehensionSheet data={data} />;
-            case ActivityType.CHARACTER_MEMORY: return <MemorySheets.CharacterMemorySheet data={data} />;
-            case ActivityType.STROOP_TEST: return <MemorySheets.StroopTestSheet data={data} />;
-            case ActivityType.CHAOTIC_NUMBER_SEARCH: return <MemorySheets.ChaoticNumberSearchSheet data={data} />;
+            case ActivityType.WORD_MEMORY: return <MemorySheets.WordMemorySheet {...props} />;
+            case ActivityType.VISUAL_MEMORY: return <MemorySheets.VisualMemorySheet {...props} />;
+            case ActivityType.NUMBER_SEARCH: return <MemorySheets.NumberSearchSheet {...props} />;
+            case ActivityType.FIND_THE_DUPLICATE_IN_ROW: return <MemorySheets.FindDuplicateSheet {...props} />;
+            case ActivityType.LETTER_GRID_TEST: return <MemorySheets.LetterGridTestSheet {...props} />;
+            case ActivityType.BURDON_TEST: return <MemorySheets.BurdonTestSheet {...props} />;
+            case ActivityType.FIND_LETTER_PAIR: return <MemorySheets.FindLetterPairSheet {...props} />;
+            case ActivityType.TARGET_SEARCH: return <MemorySheets.TargetSearchSheet {...props} />;
+            case ActivityType.COLOR_WHEEL_MEMORY: return <MemorySheets.ColorWheelSheet {...props} />;
+            case ActivityType.IMAGE_COMPREHENSION: return <MemorySheets.ImageComprehensionSheet {...props} />;
+            case ActivityType.CHARACTER_MEMORY: return <MemorySheets.CharacterMemorySheet {...props} />;
+            case ActivityType.STROOP_TEST: return <MemorySheets.StroopTestSheet {...props} />;
+            case ActivityType.CHAOTIC_NUMBER_SEARCH: return <MemorySheets.ChaoticNumberSearchSheet {...props} />;
 
             // --- Math & Logic ---
-            case ActivityType.BASIC_OPERATIONS: return <MathLogicSheets.BasicOperationsSheet data={data} />;
-            case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <MathLogicSheets.RealLifeMathProblemsSheet data={data} />;
-            case ActivityType.MATH_PUZZLE: return <MathLogicSheets.MathPuzzleSheet data={data} />;
-            case ActivityType.NUMBER_PATTERN: return <MathLogicSheets.NumberPatternSheet data={data} />;
-            case ActivityType.FUTOSHIKI: return <MathLogicSheets.FutoshikiSheet data={data} />;
-            case ActivityType.NUMBER_PYRAMID: return <MathLogicSheets.NumberPyramidSheet data={data} />;
-            case ActivityType.NUMBER_CAPSULE: return <MathLogicSheets.NumberCapsuleSheet data={data} />;
-            case ActivityType.ODD_EVEN_SUDOKU: return <MathLogicSheets.OddEvenSudokuSheet data={data} />;
-            case ActivityType.ROMAN_NUMERAL_STAR_HUNT: return <MathLogicSheets.RomanNumeralStarHuntSheet data={data} />;
-            case ActivityType.ROUNDING_CONNECT: return <MathLogicSheets.RoundingConnectSheet data={data} />;
-            case ActivityType.ARITHMETIC_CONNECT: return <MathLogicSheets.RoundingConnectSheet data={data} />;
-            case ActivityType.ROMAN_NUMERAL_MULTIPLICATION: return <MathLogicSheets.RomanNumeralMultiplicationSheet data={data} />;
-            case ActivityType.KENDOKU: return <MathLogicSheets.KendokuSheet data={data} />;
-            case ActivityType.OPERATION_SQUARE_FILL_IN: return <MathLogicSheets.OperationSquareSheet data={data} />;
-            case ActivityType.MULTIPLICATION_WHEEL: return <MathLogicSheets.MultiplicationWheelSheet data={data} />;
-            case ActivityType.TARGET_NUMBER: return <MathLogicSheets.TargetNumberSheet data={data} />;
-            case ActivityType.SHAPE_SUDOKU: return <MathLogicSheets.ShapeSudokuSheet data={data} />;
-            case ActivityType.VISUAL_NUMBER_PATTERN: return <MathLogicSheets.VisualNumberPatternSheet data={data} />;
-            case ActivityType.LOGIC_GRID_PUZZLE: return <MathLogicSheets.LogicGridPuzzleSheet data={data} />;
-            case ActivityType.ODD_ONE_OUT: return <MathLogicSheets.OddOneOutSheet data={data} />;
-            case ActivityType.THEMATIC_ODD_ONE_OUT: return <MathLogicSheets.ThematicOddOneOutSheet data={data} />;
-            case ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE: return <MathLogicSheets.ThematicOddOneOutSentenceSheet data={data} />;
-            case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE: return <MathLogicSheets.ColumnOddOneOutSentenceSheet data={data} />;
-            case ActivityType.PUNCTUATION_MAZE: return <MathLogicSheets.PunctuationMazeSheet data={data} />;
-            case ActivityType.PUNCTUATION_PHONE_NUMBER: return <MathLogicSheets.PunctuationPhoneNumberSheet data={data} />;
-            case ActivityType.SHAPE_NUMBER_PATTERN: return <MathLogicSheets.ShapeNumberPatternSheet data={data} />;
-            case ActivityType.SHAPE_COUNTING: return <MathLogicSheets.ShapeCountingSheet data={data} />;
-            case ActivityType.ROMAN_NUMERAL_CONNECT: return <VisualSheets.AbcConnectSheet data={data} />;
+            case ActivityType.BASIC_OPERATIONS: return <MathLogicSheets.BasicOperationsSheet {...props} />;
+            case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <MathLogicSheets.RealLifeMathProblemsSheet {...props} />;
+            case ActivityType.MATH_PUZZLE: return <MathLogicSheets.MathPuzzleSheet {...props} />;
+            case ActivityType.NUMBER_PATTERN: return <MathLogicSheets.NumberPatternSheet {...props} />;
+            case ActivityType.FUTOSHIKI: return <MathLogicSheets.FutoshikiSheet {...props} />;
+            case ActivityType.NUMBER_PYRAMID: return <MathLogicSheets.NumberPyramidSheet {...props} />;
+            case ActivityType.NUMBER_CAPSULE: return <MathLogicSheets.NumberCapsuleSheet {...props} />;
+            case ActivityType.ODD_EVEN_SUDOKU: return <MathLogicSheets.OddEvenSudokuSheet {...props} />;
+            case ActivityType.ROMAN_NUMERAL_STAR_HUNT: return <MathLogicSheets.RomanNumeralStarHuntSheet {...props} />;
+            case ActivityType.ROUNDING_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />;
+            case ActivityType.ARITHMETIC_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />;
+            case ActivityType.ROMAN_NUMERAL_MULTIPLICATION: return <MathLogicSheets.RomanNumeralMultiplicationSheet {...props} />;
+            case ActivityType.KENDOKU: return <MathLogicSheets.KendokuSheet {...props} />;
+            case ActivityType.OPERATION_SQUARE_FILL_IN: return <MathLogicSheets.OperationSquareSheet {...props} />;
+            case ActivityType.MULTIPLICATION_WHEEL: return <MathLogicSheets.MultiplicationWheelSheet {...props} />;
+            case ActivityType.TARGET_NUMBER: return <MathLogicSheets.TargetNumberSheet {...props} />;
+            case ActivityType.SHAPE_SUDOKU: return <MathLogicSheets.ShapeSudokuSheet {...props} />;
+            case ActivityType.VISUAL_NUMBER_PATTERN: return <MathLogicSheets.VisualNumberPatternSheet {...props} />;
+            case ActivityType.LOGIC_GRID_PUZZLE: return <MathLogicSheets.LogicGridPuzzleSheet {...props} />;
+            case ActivityType.ODD_ONE_OUT: return <MathLogicSheets.OddOneOutSheet {...props} />;
+            case ActivityType.THEMATIC_ODD_ONE_OUT: return <MathLogicSheets.ThematicOddOneOutSheet {...props} />;
+            case ActivityType.THEMATIC_ODD_ONE_OUT_SENTENCE: return <MathLogicSheets.ThematicOddOneOutSentenceSheet {...props} />;
+            case ActivityType.COLUMN_ODD_ONE_OUT_SENTENCE: return <MathLogicSheets.ColumnOddOneOutSentenceSheet {...props} />;
+            case ActivityType.PUNCTUATION_MAZE: return <MathLogicSheets.PunctuationMazeSheet {...props} />;
+            case ActivityType.PUNCTUATION_PHONE_NUMBER: return <MathLogicSheets.PunctuationPhoneNumberSheet {...props} />;
+            case ActivityType.SHAPE_NUMBER_PATTERN: return <MathLogicSheets.ShapeNumberPatternSheet {...props} />;
+            case ActivityType.SHAPE_COUNTING: return <MathLogicSheets.ShapeCountingSheet {...props} />;
+            case ActivityType.ROMAN_NUMERAL_CONNECT: return <VisualSheets.AbcConnectSheet {...props} />;
 
             // --- Visual Perception ---
-            case ActivityType.FIND_THE_DIFFERENCE: return <VisualSheets.FindTheDifferenceSheet data={data} />;
-            case ActivityType.SHAPE_MATCHING: return <VisualSheets.ShapeMatchingSheet data={data} />;
-            case ActivityType.FIND_IDENTICAL_WORD: return <VisualSheets.FindIdenticalWordSheet data={data} />;
-            case ActivityType.GRID_DRAWING: return <VisualSheets.GridDrawingSheet data={data} />;
-            case ActivityType.SYMBOL_CIPHER: return <VisualSheets.SymbolCipherSheet data={data} />;
-            case ActivityType.BLOCK_PAINTING: return <VisualSheets.BlockPaintingSheet data={data} />;
-            case ActivityType.VISUAL_ODD_ONE_OUT: return <VisualSheets.VisualOddOneOutSheet data={data} />;
-            case ActivityType.SYMMETRY_DRAWING: return <VisualSheets.SymmetryDrawingSheet data={data} />;
-            case ActivityType.FIND_DIFFERENT_STRING: return <VisualSheets.FindDifferentStringSheet data={data} />;
-            case ActivityType.DOT_PAINTING: return <VisualSheets.DotPaintingSheet data={data} />;
-            case ActivityType.ABC_CONNECT: return <VisualSheets.AbcConnectSheet data={data} />;
-            case ActivityType.COORDINATE_CIPHER: return <VisualSheets.CoordinateCipherSheet data={data} />;
-            case ActivityType.WORD_CONNECT: return <VisualSheets.WordConnectSheet data={data} />;
-            case ActivityType.PROFESSION_CONNECT: return <VisualSheets.ProfessionConnectSheet data={data} />;
-            case ActivityType.MATCHSTICK_SYMMETRY: return <VisualSheets.MatchstickSymmetrySheet data={data} />;
-            case ActivityType.VISUAL_ODD_ONE_OUT_THEMED: return <VisualSheets.VisualOddOneOutThemedSheet data={data} />;
-            case ActivityType.PUNCTUATION_COLORING: return <VisualSheets.PunctuationColoringSheet data={data} />;
-            case ActivityType.SYNONYM_ANTONYM_COLORING: return <VisualSheets.SynonymAntonymColoringSheet data={data} />;
-            case ActivityType.STAR_HUNT: return <VisualSheets.StarHuntSheet data={data} />;
-            case ActivityType.WORD_COMPARISON: return <VisualSheets.WordComparisonSheet data={data} />;
-            case ActivityType.ROMAN_ARABIC_MATCH_CONNECT: return <VisualSheets.AbcConnectSheet data={data} />;
-            case ActivityType.WEIGHT_CONNECT: return <VisualSheets.AbcConnectSheet data={data} />;
-            case ActivityType.LENGTH_CONNECT: return <VisualSheets.AbcConnectSheet data={data} />;
+            case ActivityType.FIND_THE_DIFFERENCE: return <VisualSheets.FindTheDifferenceSheet {...props} />;
+            case ActivityType.SHAPE_MATCHING: return <VisualSheets.ShapeMatchingSheet {...props} />;
+            case ActivityType.FIND_IDENTICAL_WORD: return <VisualSheets.FindIdenticalWordSheet {...props} />;
+            case ActivityType.GRID_DRAWING: return <VisualSheets.GridDrawingSheet {...props} />;
+            case ActivityType.SYMBOL_CIPHER: return <VisualSheets.SymbolCipherSheet {...props} />;
+            case ActivityType.BLOCK_PAINTING: return <VisualSheets.BlockPaintingSheet {...props} />;
+            case ActivityType.VISUAL_ODD_ONE_OUT: return <VisualSheets.VisualOddOneOutSheet {...props} />;
+            case ActivityType.SYMMETRY_DRAWING: return <VisualSheets.SymmetryDrawingSheet {...props} />;
+            case ActivityType.FIND_DIFFERENT_STRING: return <VisualSheets.FindDifferentStringSheet {...props} />;
+            case ActivityType.DOT_PAINTING: return <VisualSheets.DotPaintingSheet {...props} />;
+            case ActivityType.ABC_CONNECT: return <VisualSheets.AbcConnectSheet {...props} />;
+            case ActivityType.COORDINATE_CIPHER: return <VisualSheets.CoordinateCipherSheet {...props} />;
+            case ActivityType.WORD_CONNECT: return <VisualSheets.WordConnectSheet {...props} />;
+            case ActivityType.PROFESSION_CONNECT: return <VisualSheets.ProfessionConnectSheet {...props} />;
+            case ActivityType.MATCHSTICK_SYMMETRY: return <VisualSheets.MatchstickSymmetrySheet {...props} />;
+            case ActivityType.VISUAL_ODD_ONE_OUT_THEMED: return <VisualSheets.VisualOddOneOutThemedSheet {...props} />;
+            case ActivityType.PUNCTUATION_COLORING: return <VisualSheets.PunctuationColoringSheet {...props} />;
+            case ActivityType.SYNONYM_ANTONYM_COLORING: return <VisualSheets.SynonymAntonymColoringSheet {...props} />;
+            case ActivityType.STAR_HUNT: return <VisualSheets.StarHuntSheet {...props} />;
+            case ActivityType.WORD_COMPARISON: return <VisualSheets.WordComparisonSheet {...props} />;
+            case ActivityType.ROMAN_ARABIC_MATCH_CONNECT: return <VisualSheets.AbcConnectSheet {...props} />;
+            case ActivityType.WEIGHT_CONNECT: return <VisualSheets.AbcConnectSheet {...props} />;
+            case ActivityType.LENGTH_CONNECT: return <VisualSheets.AbcConnectSheet {...props} />;
 
             default: 
                 return (
@@ -203,13 +206,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--worksheet-gap': `${settings.gap}px`,
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-border-color': settings.borderColor,
+        '--dynamic-cols': settings.columns, // Pass column setting to CSS variable
     } as CSSProperties;
-
-    const containerStyle: CSSProperties = {
-        display: 'grid',
-        gridTemplateColumns: `repeat(${settings.columns}, 1fr)`,
-        gap: `${settings.gap}px`,
-    };
 
     return (
         <div className="flex flex-col gap-8 items-center w-full max-w-[210mm] mx-auto">
@@ -219,9 +217,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     className="worksheet-page bg-white shadow-lg print:shadow-none print:break-after-page w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden"
                     style={pageStyle}
                 >
-                    <div style={containerStyle}>
-                        {renderSheet(activityType, sheetData)}
-                    </div>
+                    {/* If renderSheet returns a single block, we need to rely on the internal components to use var(--dynamic-cols) */}
+                    {renderSheet(activityType, sheetData, settings)}
 
                     <div className="absolute bottom-4 right-6 text-[10px] text-zinc-400 font-bold uppercase tracking-widest print:block hidden opacity-50">
                         Bursa Disleksi AI

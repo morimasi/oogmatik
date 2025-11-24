@@ -10,9 +10,15 @@ import {
     WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, ResfebeData, ResfebeClue
 } from '../../types';
 import { GridComponent, ImageDisplay, PedagogicalHeader, ShapeDisplay } from './common';
+import { StyleSettings } from '../../types';
+
+interface SheetProps<T> {
+    data: T;
+    settings?: StyleSettings;
+}
 
 // --- 1. Word Search Family ---
-export const WordSearchSheet: React.FC<{ data: WordSearchData | WordSearchWithPasswordData | ProverbSearchData | LetterGridWordFindData | ThematicWordSearchColorData }> = ({ data }) => {
+export const WordSearchSheet: React.FC<SheetProps<WordSearchData | WordSearchWithPasswordData | ProverbSearchData | LetterGridWordFindData | ThematicWordSearchColorData>> = ({ data, settings }) => {
     const isWithPassword = 'passwordCells' in data && !!data.passwordCells;
     const gridData = (data as any).grid as string[][];
     let wordsData: string[] = [];
@@ -25,22 +31,24 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData | WordSearchWithPa
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "Kelimeleri bul ve işaretle."} note={data.pedagogicalNote} />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-2 bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
-                <GridComponent grid={gridData} passwordCells={isWithPassword ? (data as WordSearchWithPasswordData).passwordCells : undefined} />
-            </div>
-            <div>
-                <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-200 dark:border-indigo-800 pb-1">Kelime Listesi:</h4>
-                <ul className="grid grid-cols-2 md:grid-cols-1 gap-2">
-                {(wordsData || []).map((word, index) => (
-                    <li key={index} className="capitalize flex items-center">
-                        <div className="w-4 h-4 border border-zinc-400 rounded mr-2"></div>
-                        {word}
-                    </li>
-                ))}
-                </ul>
-                {'writingPrompt' in data && <div className="mt-6 p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded border border-indigo-100 dark:border-indigo-800"><p className="text-sm italic">{data.writingPrompt}</p></div>}
-            </div>
+            <div className="flex flex-col gap-8">
+                <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner self-center w-full max-w-2xl">
+                    <GridComponent grid={gridData} passwordCells={isWithPassword ? (data as WordSearchWithPasswordData).passwordCells : undefined} />
+                </div>
+                
+                <div>
+                    <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-200 dark:border-indigo-800 pb-1">Kelime Listesi:</h4>
+                    {/* Use dynamic-grid class which responds to --dynamic-cols var set in Worksheet wrapper */}
+                    <ul className="dynamic-grid">
+                        {(wordsData || []).map((word, index) => (
+                            <li key={index} className="capitalize flex items-center">
+                                <div className="w-4 h-4 border border-zinc-400 rounded mr-2 shrink-0"></div>
+                                {word}
+                            </li>
+                        ))}
+                    </ul>
+                    {'writingPrompt' in data && <div className="mt-6 p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded border border-indigo-100 dark:border-indigo-800"><p className="text-sm italic">{data.writingPrompt}</p></div>}
+                </div>
             </div>
             {'followUpQuestion' in data && data.followUpQuestion && (
                 <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border-l-4 border-amber-400">
@@ -58,7 +66,7 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData | WordSearchWithPa
     )
 };
 
-export const SynonymSearchAndStorySheet: React.FC<{ data: SynonymSearchAndStoryData }> = ({ data }) => (
+export const SynonymSearchAndStorySheet: React.FC<SheetProps<SynonymSearchAndStoryData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -67,7 +75,7 @@ export const SynonymSearchAndStorySheet: React.FC<{ data: SynonymSearchAndStoryD
             </div>
             <div>
                 <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Eşleşmeler:</h4>
-                <ul className="space-y-2">
+                <ul className="space-y-2 dynamic-grid">
                 {(data.wordTable || []).map((pair, index) => (
                     <li key={index} className="text-sm border-b border-zinc-100 dark:border-zinc-700 pb-1">
                         <strong>{pair.word}</strong> <i className="fa-solid fa-arrow-right text-xs text-zinc-400 mx-1"></i> {pair.synonym}
@@ -83,7 +91,7 @@ export const SynonymSearchAndStorySheet: React.FC<{ data: SynonymSearchAndStoryD
     </div>
 );
 
-export const SynonymWordSearchSheet: React.FC<{ data: SynonymWordSearchData }> = ({ data }) => (
+export const SynonymWordSearchSheet: React.FC<SheetProps<SynonymWordSearchData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -92,7 +100,7 @@ export const SynonymWordSearchSheet: React.FC<{ data: SynonymWordSearchData }> =
             </div>
             <div>
                 <h4 className="font-bold mb-2 text-indigo-600 dark:text-indigo-400">Kelimeler:</h4>
-                <ul className="space-y-2 text-sm">
+                <ul className="space-y-2 text-sm dynamic-grid">
                 {(data.wordsToMatch || []).map((pair, index) => (
                     <li key={index} className="p-2 bg-zinc-50 dark:bg-zinc-800/50 rounded border border-zinc-200 dark:border-zinc-700">
                         <strong>{pair.word}</strong> kelimesinin eş anlamlısını bulun.
@@ -104,10 +112,10 @@ export const SynonymWordSearchSheet: React.FC<{ data: SynonymWordSearchData }> =
     </div>
 );
 
-export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
+export const AnagramSheet: React.FC<SheetProps<AnagramsData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="dynamic-grid">
             {(data.anagrams || []).map((item, index) => (
                 <div key={index} className="flex flex-col items-center bg-white dark:bg-zinc-700/50 p-6 rounded-xl shadow-sm border-2" style={{borderColor: 'var(--worksheet-border-color)'}}>
                     <ImageDisplay base64={item.imageBase64} description={item.word} className="w-24 h-24 mb-4 rounded-lg shadow-sm" />
@@ -131,16 +139,16 @@ export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
     </div>
 );
 
-export const SpellingCheckSheet: React.FC<{ data: SpellingCheckData }> = ({ data }) => (
+export const SpellingCheckSheet: React.FC<SheetProps<SpellingCheckData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || "Doğru yazılanı bul."} note={data.pedagogicalNote} />
-        <div className="space-y-4 max-w-3xl mx-auto">
+        <div className="space-y-4 max-w-3xl mx-auto dynamic-grid">
             {(data.checks || []).map((check, index) => (
                 <div key={index} className="p-5 rounded-xl bg-white dark:bg-zinc-700/50 border border-zinc-200 dark:border-zinc-600 shadow-sm flex flex-col sm:flex-row gap-4 items-center">
                     <div className="flex-shrink-0">
                         <ImageDisplay base64={check.imageBase64} description={check.correct} className="w-24 h-24 rounded-lg" />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 w-full">
                         <p className="font-semibold mb-4 text-lg">
                             Aşağıdakilerden hangisi doğru yazılmıştır?
                         </p>
@@ -159,10 +167,10 @@ export const SpellingCheckSheet: React.FC<{ data: SpellingCheckData }> = ({ data
     </div>
 );
 
-export const LetterBridgeSheet: React.FC<{ data: LetterBridgeData }> = ({ data }) => (
+export const LetterBridgeSheet: React.FC<SheetProps<LetterBridgeData>> = ({ data }) => (
      <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-6 max-w-lg mx-auto my-8">
+        <div className="space-y-6 max-w-lg mx-auto my-8 dynamic-grid">
             {(data.pairs || []).map((pair, index) => (
                 <div key={index} className="flex items-center justify-center p-4 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm">
                     <span className="text-2xl font-bold tracking-widest text-zinc-400">{pair.word1.toUpperCase()}</span>
@@ -182,12 +190,12 @@ export const LetterBridgeSheet: React.FC<{ data: LetterBridgeData }> = ({ data }
     </div>
 );
 
-export const WordLadderSheet: React.FC<{ data: WordLadderData }> = ({ data }) => (
+export const WordLadderSheet: React.FC<SheetProps<WordLadderData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         {data.theme && <div className="text-center mb-6 inline-block w-full"><span className="px-4 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-bold">{data.theme}</span></div>}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 justify-items-center">
+        <div className="dynamic-grid justify-items-center">
             {(data.ladders || []).map((ladder, index) => (
                 <div key={index} className="relative p-6 bg-white dark:bg-zinc-700/50 rounded-2xl border-2 border-zinc-200 dark:border-zinc-600 shadow-lg w-full max-w-xs">
                     {/* Ladder Visual */}
@@ -209,10 +217,10 @@ export const WordLadderSheet: React.FC<{ data: WordLadderData }> = ({ data }) =>
     </div>
 );
 
-export const WordFormationSheet: React.FC<{ data: WordFormationData }> = ({ data }) => (
+export const WordFormationSheet: React.FC<SheetProps<WordFormationData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="dynamic-grid">
             {(data.sets || []).map((set, index) => (
                 <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 bg-amber-400 text-amber-900 text-xs font-bold px-3 py-1 rounded-bl-lg shadow-sm">
@@ -248,10 +256,10 @@ export const WordFormationSheet: React.FC<{ data: WordFormationData }> = ({ data
     </div>
 );
 
-export const ReverseWordSheet: React.FC<{ data: ReverseWordData }> = ({ data }) => (
+export const ReverseWordSheet: React.FC<SheetProps<ReverseWordData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="dynamic-grid max-w-4xl mx-auto">
             {(data.words || []).map((word, index) => (
                 <div key={index} className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 dark:border-zinc-600 shadow-sm">
                     <div className="bg-indigo-50 dark:bg-indigo-900/30 px-4 py-2 rounded-lg">
@@ -270,7 +278,7 @@ export const ReverseWordSheet: React.FC<{ data: ReverseWordData }> = ({ data }) 
     </div>
 );
 
-export const WordGroupingSheet: React.FC<{ data: WordGroupingData }> = ({ data }) => (
+export const WordGroupingSheet: React.FC<SheetProps<WordGroupingData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
@@ -285,7 +293,7 @@ export const WordGroupingSheet: React.FC<{ data: WordGroupingData }> = ({ data }
             </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="dynamic-grid">
             {(data.categoryNames || []).map((name, index) => (
                 <div key={index} className="bg-white dark:bg-zinc-700/30 rounded-xl border-t-8 border-indigo-400 shadow-md overflow-hidden">
                     <div className="bg-indigo-50 dark:bg-indigo-900/30 p-3 text-center border-b border-indigo-100 dark:border-indigo-800">
@@ -302,10 +310,10 @@ export const WordGroupingSheet: React.FC<{ data: WordGroupingData }> = ({ data }
     </div>
 );
 
-export const MiniWordGridSheet: React.FC<{ data: MiniWordGridData }> = ({ data }) => (
+export const MiniWordGridSheet: React.FC<SheetProps<MiniWordGridData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
+        <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
                 <div key={index} className="p-2 bg-white dark:bg-zinc-700/50 rounded-lg shadow-md inline-block border-4 border-zinc-200 dark:border-zinc-600">
                     <GridComponent grid={puzzle.grid} cellClassName="w-12 h-12 text-2xl font-bold" />
@@ -320,10 +328,10 @@ export const MiniWordGridSheet: React.FC<{ data: MiniWordGridData }> = ({ data }
     </div>
 );
 
-export const PasswordFinderSheet: React.FC<{ data: PasswordFinderData }> = ({ data }) => (
+export const PasswordFinderSheet: React.FC<SheetProps<PasswordFinderData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+        <div className="dynamic-grid mb-10">
             {(data.words || []).map((item, index) => (
                 <div key={index} className="flex items-center p-3 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-600">
                      <div className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800 rounded-md flex items-center justify-center text-sm font-bold text-zinc-400 mr-3">{index + 1}</div>
@@ -342,7 +350,7 @@ export const PasswordFinderSheet: React.FC<{ data: PasswordFinderData }> = ({ da
     </div>
 );
 
-export const SyllableCompletionSheet: React.FC<{ data: SyllableCompletionData }> = ({ data }) => {
+export const SyllableCompletionSheet: React.FC<SheetProps<SyllableCompletionData>> = ({ data }) => {
     let storyContent: React.ReactNode = data.storyPrompt;
     if (data.storyTemplate) {
         const parts = data.storyTemplate.split('__WORD__');
@@ -372,7 +380,7 @@ export const SyllableCompletionSheet: React.FC<{ data: SyllableCompletionData }>
           </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+      <div className="dynamic-grid mb-10">
           {(data.wordParts || []).map((part, index) => (
               <div key={index} className="flex items-center justify-center p-4 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm">
                   <span className="text-2xl font-bold text-zinc-800 dark:text-zinc-200 mr-1">{part.first}</span>
@@ -390,7 +398,7 @@ export const SyllableCompletionSheet: React.FC<{ data: SyllableCompletionData }>
     )
 };
 
-export const SpiralPuzzleSheet: React.FC<{ data: SpiralPuzzleData | PunctuationSpiralPuzzleData }> = ({ data }) => (
+export const SpiralPuzzleSheet: React.FC<SheetProps<SpiralPuzzleData | PunctuationSpiralPuzzleData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
@@ -434,7 +442,7 @@ export const SpiralPuzzleSheet: React.FC<{ data: SpiralPuzzleData | PunctuationS
     </div>
 );
 
-export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => {
+export const CrosswordSheet: React.FC<SheetProps<CrosswordData>> = ({ data }) => {
     const { title, prompt, grid, clues, passwordCells, passwordLength, theme, passwordPrompt, pedagogicalNote, instruction } = data;
     const [processedClues, positionToNumberMap] = React.useMemo(() => {
         const processed: CrosswordClue[] = JSON.parse(JSON.stringify(clues || []));
@@ -538,7 +546,7 @@ export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => {
     );
 };
 
-export const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData }> = ({ data }) => (
+export const JumbledWordStorySheet: React.FC<SheetProps<JumbledWordStoryData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
@@ -548,7 +556,7 @@ export const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData }> = (
             </div>
         )}
 
-        <div className="space-y-6 mb-10">
+        <div className="space-y-6 mb-10 dynamic-grid">
              {(data.puzzles || []).map((puzzle, index) => (
                  <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm border border-zinc-200 flex items-center gap-4">
                      <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center">{index + 1}</span>
@@ -572,11 +580,11 @@ export const JumbledWordStorySheet: React.FC<{ data: JumbledWordStoryData }> = (
     </div>
 );
 
-export const ResfebeSheet: React.FC<{ data: ResfebeData | AntonymResfebeData }> = ({ data }) => (
+export const ResfebeSheet: React.FC<SheetProps<ResfebeData | AntonymResfebeData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
                 <div key={index} className="bg-white dark:bg-zinc-700/50 p-6 rounded-2xl shadow-md border-2 border-zinc-100 dark:border-zinc-600 flex flex-col items-center">
                     <div className="flex flex-wrap items-center justify-center gap-4 mb-6 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl w-full min-h-[120px]">
@@ -610,11 +618,11 @@ export const ResfebeSheet: React.FC<{ data: ResfebeData | AntonymResfebeData }> 
     </div>
 );
 
-export const AntonymFlowerPuzzleSheet: React.FC<{ data: AntonymFlowerPuzzleData }> = ({ data }) => (
+export const AntonymFlowerPuzzleSheet: React.FC<SheetProps<AntonymFlowerPuzzleData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 justify-items-center">
+        <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
                 <div key={index} className="relative w-64 h-64 flex items-center justify-center">
                     {/* Flower Center */}
@@ -655,7 +663,7 @@ export const AntonymFlowerPuzzleSheet: React.FC<{ data: AntonymFlowerPuzzleData 
     </div>
 );
 
-export const WordGridPuzzleSheet: React.FC<{ data: WordGridPuzzleData }> = ({ data }) => (
+export const WordGridPuzzleSheet: React.FC<SheetProps<WordGridPuzzleData>> = ({ data }) => (
      <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
@@ -685,10 +693,10 @@ export const WordGridPuzzleSheet: React.FC<{ data: WordGridPuzzleData }> = ({ da
     </div>
 );
 
-export const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = ({ data }) => (
+export const HomonymSentenceSheet: React.FC<SheetProps<HomonymSentenceData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-8">
+        <div className="space-y-8 dynamic-grid">
             {(data.items || []).map((item, idx) => (
                 <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border-l-8 border-indigo-500">
                     <h4 className="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">{item.word}</h4>
@@ -716,7 +724,7 @@ export const HomonymSentenceSheet: React.FC<{ data: HomonymSentenceData }> = ({ 
     </div>
 );
 
-export const HomonymImageMatchSheet: React.FC<{ data: HomonymImageMatchData }> = ({ data }) => (
+export const HomonymImageMatchSheet: React.FC<SheetProps<HomonymImageMatchData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex justify-between items-center mb-8 gap-8">
@@ -751,7 +759,7 @@ export const HomonymImageMatchSheet: React.FC<{ data: HomonymImageMatchData }> =
     </div>
 );
 
-export const SynonymAntonymGridSheet: React.FC<{ data: SynonymAntonymGridData }> = ({ data }) => (
+export const SynonymAntonymGridSheet: React.FC<SheetProps<SynonymAntonymGridData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex flex-col md:flex-row gap-8">
@@ -776,7 +784,7 @@ export const SynonymAntonymGridSheet: React.FC<{ data: SynonymAntonymGridData }>
     </div>
 );
 
-export const SynonymMatchingPatternSheet: React.FC<{ data: SynonymMatchingPatternData }> = ({ data }) => (
+export const SynonymMatchingPatternSheet: React.FC<SheetProps<SynonymMatchingPatternData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 gap-y-8 gap-x-12 max-w-3xl mx-auto relative">
@@ -800,7 +808,7 @@ export const SynonymMatchingPatternSheet: React.FC<{ data: SynonymMatchingPatter
     </div>
 );
 
-export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }) => (
+export const MissingPartsSheet: React.FC<SheetProps<MissingPartsData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex justify-between gap-8 max-w-4xl mx-auto">
@@ -826,7 +834,7 @@ export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }
     </div>
 );
 
-export const WordWebSheet: React.FC<{ data: WordWebData }> = ({ data }) => (
+export const WordWebSheet: React.FC<SheetProps<WordWebData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex flex-col items-center">
@@ -848,7 +856,7 @@ export const WordWebSheet: React.FC<{ data: WordWebData }> = ({ data }) => (
     </div>
 );
 
-export const SyllableWordSearchSheet: React.FC<{ data: SyllableWordSearchData }> = ({ data }) => (
+export const SyllableWordSearchSheet: React.FC<SheetProps<SyllableWordSearchData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
@@ -889,7 +897,7 @@ export const SyllableWordSearchSheet: React.FC<{ data: SyllableWordSearchData }>
     </div>
 );
 
-export const WordWebWithPasswordSheet: React.FC<{ data: WordWebWithPasswordData }> = ({ data }) => (
+export const WordWebWithPasswordSheet: React.FC<SheetProps<WordWebWithPasswordData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex justify-center">
@@ -904,7 +912,7 @@ export const WordWebWithPasswordSheet: React.FC<{ data: WordWebWithPasswordData 
     </div>
 );
 
-export const WordPlacementPuzzleSheet: React.FC<{ data: WordPlacementPuzzleData }> = ({ data }) => (
+export const WordPlacementPuzzleSheet: React.FC<SheetProps<WordPlacementPuzzleData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex flex-col md:flex-row gap-8">
@@ -929,7 +937,7 @@ export const WordPlacementPuzzleSheet: React.FC<{ data: WordPlacementPuzzleData 
     </div>
 );
 
-export const PositionalAnagramSheet: React.FC<{ data: PositionalAnagramData }> = ({ data }) => (
+export const PositionalAnagramSheet: React.FC<SheetProps<PositionalAnagramData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-6 max-w-2xl mx-auto">
@@ -955,10 +963,10 @@ export const PositionalAnagramSheet: React.FC<{ data: PositionalAnagramData }> =
     </div>
 );
 
-export const ImageAnagramSortSheet: React.FC<{ data: ImageAnagramSortData }> = ({ data }) => (
+export const ImageAnagramSortSheet: React.FC<SheetProps<ImageAnagramSortData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="dynamic-grid">
             {data.cards.map((card, i) => (
                 <div key={i} className="border-2 border-zinc-200 rounded-xl p-3 bg-white flex flex-col items-center text-center">
                     <div className="w-full aspect-square bg-zinc-100 rounded-lg mb-2 overflow-hidden">
@@ -972,7 +980,7 @@ export const ImageAnagramSortSheet: React.FC<{ data: ImageAnagramSortData }> = (
     </div>
 );
 
-export const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> = ({ data }) => (
+export const AnagramImageMatchSheet: React.FC<SheetProps<AnagramImageMatchData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
@@ -981,7 +989,7 @@ export const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> =
             {data.wordBank.map(w => <span key={w} className="inline-block mx-2 px-2 py-1 bg-white rounded shadow-sm">{w}</span>)}
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="dynamic-grid">
             {data.puzzles.map((puzzle, i) => (
                 <div key={i} className="flex items-center gap-4 p-4 border rounded-xl bg-white">
                     <div className="w-24 h-24 bg-zinc-50 rounded border">
@@ -998,7 +1006,7 @@ export const AnagramImageMatchSheet: React.FC<{ data: AnagramImageMatchData }> =
     </div>
 );
 
-export const AntonymResfebeSheet: React.FC<{ data: AntonymResfebeData }> = (props) => <ResfebeSheet {...props} />;
+export const AntonymResfebeSheet: React.FC<SheetProps<AntonymResfebeData>> = (props) => <ResfebeSheet {...props} />;
 
 // Aliases for sheets that reuse existing components
 export const WordSearchWithPasswordSheet = WordSearchSheet;

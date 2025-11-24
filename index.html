@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bursa Disleksi Ai</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome 6.5.1 (Integrity removed for better compatibility) -->
+    <!-- Font Awesome 6.5.1 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- OpenDyslexic Font -->
     <link href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css" rel="stylesheet">
@@ -16,9 +16,10 @@
     theme: {
       extend: {
         fontFamily: {
-          sans: ['OpenDyslexic', 'sans-serif'],
-          serif: ['OpenDyslexic', 'serif'],
-          mono: ['OpenDyslexic', 'monospace'],
+          sans: ['var(--ui-font)', 'OpenDyslexic', 'sans-serif'],
+          serif: ['var(--ui-font)', 'OpenDyslexic', 'serif'],
+          mono: ['var(--ui-font)', 'OpenDyslexic', 'monospace'],
+          dyslexic: ['OpenDyslexic', 'sans-serif']
         },
         colors: {
             brand: {
@@ -59,18 +60,23 @@
 <style>
   /* --- GLOBAL FONT & RESET --- */
   :root {
-    --font-primary: 'OpenDyslexic', sans-serif;
+    --ui-font: 'OpenDyslexic', sans-serif;
+    --ui-spacing: normal;
+    --ui-scale: 1;
   }
 
   body {
-    font-family: var(--font-primary);
+    font-family: var(--ui-font);
+    letter-spacing: var(--ui-spacing);
+    font-size: calc(16px * var(--ui-scale));
     background-color: #fafafa;
     color: #18181b;
   }
 
-  /* Ensure these elements inherit the font, but do NOT force it with !important globally to avoid breaking icons */
+  /* Ensure these elements inherit the font */
   button, input, select, textarea {
-    font-family: var(--font-primary);
+    font-family: inherit;
+    letter-spacing: inherit;
   }
 
   /* --- ICON FIX --- */
@@ -121,8 +127,12 @@
       gap: var(--worksheet-gap, 1rem) !important;
   }
 
-  .worksheet-page .grid[class*="grid-cols-"] {
+  /* Dynamic Column Handling inside Worksheet */
+  /* This allows components to use grid-cols-[var] to respond to slider */
+  .worksheet-page .dynamic-grid {
+      display: grid;
       grid-template-columns: repeat(var(--dynamic-cols, 1), minmax(0, 1fr)) !important;
+      gap: 1rem;
   }
 
   /* --- ANIMATIONS --- */
@@ -154,6 +164,9 @@
   .worksheet-page {
       background-color: #ffffff !important;
       color: #000000 !important;
+      font-family: 'OpenDyslexic', sans-serif !important; /* Worksheet fontu sabittir veya etkinlik tipine göre değişir */
+      letter-spacing: normal !important; /* Worksheet aralığı sabittir */
+      font-size: 1rem !important; /* Reset base size inside worksheet */
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05) !important;
       transition: box-shadow 0.3s ease;
   }
@@ -209,10 +222,10 @@
   /* --- PRINT STYLES --- */
   @media print {
     @page { size: A4 portrait; margin: 5mm; }
-    html, body { width: 100%; height: auto !important; background-color: white !important; color: black !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html, body { width: 100%; height: auto !important; background-color: white !important; color: black !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-size: 12pt !important; }
     #root, .h-screen, .flex, .flex-col, .flex-1, .overflow-hidden, .overflow-y-auto, main { height: auto !important; overflow: visible !important; display: block !important; }
     header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar, .reading-ruler { display: none !important; }
-    .worksheet-page { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; page-break-after: always; }
+    .worksheet-page { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; page-break-after: always; transform: none !important; }
     .worksheet-page:last-child { page-break-after: auto; }
     img { max-height: 150px !important; }
   }
@@ -238,95 +251,62 @@
   html.dark .text-zinc-500 { color: #a1a1aa !important; }
   html.dark .bg-zinc-50 { background-color: #27272a !important; }
 
-  /* Pastel Theme (Now Dark Mode Based) */
+  /* Pastel Theme */
   html.theme-pastel body { 
-      background-color: #2c2a25; /* Dark brownish-grey */
-      color: #e6e0d0; /* Creamy text */
+      background-color: #2c2a25; 
+      color: #e6e0d0; 
   }
   html.theme-pastel aside, html.theme-pastel header, html.theme-pastel .bg-white { 
       background-color: rgba(50, 48, 44, 0.95) !important; 
       border-color: #5c564b !important; 
       color: #e6e0d0 !important;
   }
-  html.theme-pastel .bg-zinc-50 { background-color: #3a3630 !important; }
-  html.theme-pastel .text-zinc-500 { color: #9d968b !important; }
-  html.theme-pastel .text-zinc-800 { color: #e6e0d0 !important; }
-  html.theme-pastel .text-zinc-600 { color: #d1c7b5 !important; }
-  html.theme-pastel button.bg-indigo-600 { background-color: #7a9eb1 !important; color: #fff !important; }
-  html.theme-pastel .text-indigo-600 { color: #a5c5d9 !important; }
   
-  /* Sepia Theme (Now Dark Mode Based) */
+  /* Sepia Theme */
   html.theme-sepia body { 
-      background-color: #2b2016; /* Very dark brown */
-      color: #ead9c3; /* Light sepia text */
+      background-color: #2b2016;
+      color: #ead9c3; 
   }
   html.theme-sepia aside, html.theme-sepia header, html.theme-sepia .bg-white { 
       background-color: rgba(62, 45, 32, 0.95) !important; 
       border-color: #5c4030 !important;
       color: #ead9c3 !important;
   }
-  html.theme-sepia .bg-zinc-50 { background-color: #4a3627 !important; }
-  html.theme-sepia .text-zinc-500 { color: #9c826b !important; }
-  html.theme-sepia .text-zinc-800 { color: #ead9c3 !important; }
-  html.theme-sepia .text-zinc-600 { color: #d6c0a6 !important; }
-  html.theme-sepia .bg-indigo-600 { background-color: #a98962 !important; }
-  html.theme-sepia .text-indigo-600 { color: #d4b48c !important; }
 
-  /* Purple Theme (Now Dark Mode Based) */
+  /* Purple Theme */
   html.theme-purple body { 
-      background-color: #180f24; /* Very dark purple */
-      color: #e9d5ff; /* Light lavender text */
+      background-color: #180f24; 
+      color: #e9d5ff; 
   }
   html.theme-purple aside, html.theme-purple header, html.theme-purple .bg-white { 
       background-color: rgba(38, 24, 56, 0.95) !important; 
       border-color: #4c2f6e !important;
       color: #e9d5ff !important;
   }
-  html.theme-purple .bg-zinc-50 { background-color: #2e1d45 !important; }
-  html.theme-purple .text-zinc-500 { color: #a78bfa !important; }
-  html.theme-purple .text-zinc-800 { color: #f3e8ff !important; }
-  html.theme-purple .text-zinc-600 { color: #d8b4fe !important; }
-  html.theme-purple .bg-indigo-600 { background-color: #9333ea !important; }
-  html.theme-purple .text-indigo-600 { color: #c084fc !important; }
-  html.theme-purple .sidebar-activity-item-active { background-color: #3b0764 !important; color: #e9d5ff !important; }
 
-  /* Orange Theme (Now Dark Mode Based) */
+  /* Orange Theme */
   html.theme-orange body { 
-      background-color: #261209; /* Very dark orange/brown */
-      color: #ffedd5; /* Light orange text */
+      background-color: #261209; 
+      color: #ffedd5; 
   }
   html.theme-orange aside, html.theme-orange header, html.theme-orange .bg-white { 
       background-color: rgba(61, 31, 20, 0.95) !important; 
       border-color: #7c2d12 !important;
       color: #ffedd5 !important;
   }
-  html.theme-orange .bg-zinc-50 { background-color: #431407 !important; }
-  html.theme-orange .text-zinc-500 { color: #fdba74 !important; }
-  html.theme-orange .text-zinc-800 { color: #fff7ed !important; }
-  html.theme-orange .text-zinc-600 { color: #fed7aa !important; }
-  html.theme-orange .bg-indigo-600 { background-color: #ea580c !important; }
-  html.theme-orange .text-indigo-600 { color: #fb923c !important; }
-  html.theme-orange .sidebar-activity-item-active { background-color: #7c2d12 !important; color: #ffedd5 !important; }
 
-  /* Maroon Theme (Now Dark Mode Based) */
+  /* Maroon Theme */
   html.theme-maroon body { 
-      background-color: #23080e; /* Very dark maroon */
-      color: #ffe4e6; /* Light rose text */
+      background-color: #23080e; 
+      color: #ffe4e6; 
   }
   html.theme-maroon aside, html.theme-maroon header, html.theme-maroon .bg-white { 
       background-color: rgba(63, 16, 25, 0.95) !important; 
       border-color: #881337 !important;
       color: #ffe4e6 !important;
   }
-  html.theme-maroon .bg-zinc-50 { background-color: #4c0519 !important; }
-  html.theme-maroon .text-zinc-500 { color: #fca5a5 !important; }
-  html.theme-maroon .text-zinc-800 { color: #fff1f2 !important; }
-  html.theme-maroon .text-zinc-600 { color: #fecdd3 !important; }
-  html.theme-maroon .bg-indigo-600 { background-color: #be123c !important; }
-  html.theme-maroon .text-indigo-600 { color: #fb7185 !important; }
-  html.theme-maroon .sidebar-activity-item-active { background-color: #881337 !important; color: #ffe4e6 !important; }
 
-  /* High Contrast Theme (Kept as is) */
+  /* High Contrast Theme */
   html.theme-contrast body { 
       background-color: #000000; 
       color: #FFFF00; 

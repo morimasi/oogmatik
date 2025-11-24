@@ -139,6 +139,12 @@ export enum ActivityType {
 
 export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia' | 'purple' | 'orange' | 'maroon';
 
+export interface UiSettings {
+    fontFamily: 'OpenDyslexic' | 'Inter';
+    fontSizeScale: number; // 0.8 to 1.5
+    letterSpacing: 'normal' | 'wide';
+}
+
 export interface StyleSettings {
   fontSize: number;
   borderColor: string;
