@@ -86,14 +86,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                 <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
                     
                     {/* Live Preview Box */}
-                    <div className="mb-8 p-4 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 transition-all duration-300"
+                    <div className={`mb-8 p-4 rounded-xl border-2 transition-all duration-300 ${theme === 'light' ? '' : (theme === 'dark' ? 'theme-dark' : `theme-${theme}`)}`}
                          style={{
                              fontFamily: uiSettings.fontFamily,
                              lineHeight: uiSettings.lineHeight,
                              letterSpacing: uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal',
-                             filter: `saturate(${uiSettings.saturation}%)`
+                             filter: `saturate(${uiSettings.saturation}%)`,
+                             backgroundColor: 'var(--bg-primary)',
+                             color: 'var(--text-primary)',
+                             borderColor: 'var(--border-color)',
+                             backgroundImage: 'radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px), radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px)',
+                             backgroundSize: '32px 32px',
+                             backgroundPosition: '0 0, 16px 16px'
                          }}>
-                        <p className="text-xs text-zinc-400 uppercase font-bold mb-2">Önizleme</p>
+                        <p className="text-xs opacity-70 uppercase font-bold mb-2">Önizleme</p>
                         <h3 className="text-xl font-bold mb-2">Bursa Disleksi AI</h3>
                         <p className="text-base">
                             Yapay zeka destekli eğitim materyalleri ile öğrenme sürecini kişiselleştirin. 

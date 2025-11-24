@@ -69,6 +69,17 @@
     --ui-scale: 1;
     --ui-line-height: 1.6;
     --ui-saturation: 100%;
+
+    /* Theme Defaults (Light - Zinc) */
+    --bg-primary: #fafafa;
+    --bg-secondary: #f4f4f5;
+    --bg-paper: #ffffff;
+    --text-primary: #18181b;
+    --text-secondary: #71717a;
+    --text-muted: #a1a1aa;
+    --border-color: #e4e4e7;
+    --panel-bg: rgba(255, 255, 255, 0.85);
+    --pattern-color: rgba(0,0,0,0.03);
   }
 
   /* 
@@ -86,10 +97,131 @@
       filter: saturate(var(--ui-saturation));
   }
 
+  /* --- THEME DEFINITIONS --- */
+  /* Apply to html.class OR .class for preview box */
+  
+  html.dark, .theme-dark {
+      --bg-primary: #18181b;
+      --bg-secondary: #27272a;
+      --bg-paper: #27272a;
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --border-color: #3f3f46;
+      --panel-bg: rgba(39, 39, 42, 0.9);
+      --pattern-color: rgba(255,255,255,0.02);
+  }
+
+  html.theme-pastel, .theme-pastel {
+      --bg-primary: #2c2a25;
+      --bg-secondary: #3f3d39;
+      --bg-paper: #3a3832;
+      --text-primary: #e6e0d0;
+      --text-secondary: #afa895;
+      --text-muted: #787366;
+      --border-color: #5c564b;
+      --panel-bg: rgba(50, 48, 44, 0.95);
+      --pattern-color: rgba(230, 224, 208, 0.04);
+  }
+
+  html.theme-sepia, .theme-sepia {
+      --bg-primary: #2b2016;
+      --bg-secondary: #3d2e22;
+      --bg-paper: #3d2e22;
+      --text-primary: #ead9c3;
+      --text-secondary: #a89f91;
+      --text-muted: #70685e;
+      --border-color: #5c4030;
+      --panel-bg: rgba(62, 45, 32, 0.95);
+      --pattern-color: rgba(234, 217, 195, 0.04);
+  }
+
+  html.theme-purple, .theme-purple {
+      --bg-primary: #180f24;
+      --bg-secondary: #251738;
+      --bg-paper: #2d1b45;
+      --text-primary: #e9d5ff;
+      --text-secondary: #c084fc;
+      --text-muted: #7e22ce;
+      --border-color: #4c2f6e;
+      --panel-bg: rgba(38, 24, 56, 0.95);
+      --pattern-color: rgba(233, 213, 255, 0.04);
+  }
+
+  html.theme-orange, .theme-orange {
+      --bg-primary: #261209;
+      --bg-secondary: #3f1e0e;
+      --bg-paper: #4a2412;
+      --text-primary: #ffedd5;
+      --text-secondary: #fb923c;
+      --text-muted: #c2410c;
+      --border-color: #7c2d12;
+      --panel-bg: rgba(61, 31, 20, 0.95);
+      --pattern-color: rgba(255, 237, 213, 0.04);
+  }
+
+  html.theme-maroon, .theme-maroon {
+      --bg-primary: #23080e;
+      --bg-secondary: #3f0e19;
+      --bg-paper: #4a1220;
+      --text-primary: #ffe4e6;
+      --text-secondary: #fb7185;
+      --text-muted: #be123c;
+      --border-color: #881337;
+      --panel-bg: rgba(63, 16, 25, 0.95);
+      --pattern-color: rgba(255, 228, 230, 0.04);
+  }
+
+  html.theme-contrast, .theme-contrast {
+      --bg-primary: #000000;
+      --bg-secondary: #000000;
+      --bg-paper: #000000;
+      --text-primary: #FFFF00;
+      --text-secondary: #00FF00;
+      --text-muted: #00FF00;
+      --border-color: #FFFFFF;
+      --panel-bg: #000000;
+      --pattern-color: transparent;
+  }
+
+  /* --- GLOBAL STYLES WITH VARS --- */
   body {
     font-size: calc(16px * var(--ui-scale));
-    background-color: #fafafa;
-    color: #18181b;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.4s ease, color 0.3s ease;
+    
+    /* Subtle Texture: Dots */
+    background-image: 
+        radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px),
+        radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+    background-position: 0 0, 16px 16px;
+  }
+
+  /* UI Elements using Theme Variables */
+  aside, header {
+      background-color: var(--panel-bg) !important;
+      border-color: var(--border-color) !important;
+      color: var(--text-primary) !important;
+      backdrop-filter: blur(12px);
+  }
+
+  /* Map Tailwind utilities to CSS Variables to enforce theme consistency */
+  .bg-white { background-color: var(--bg-paper) !important; }
+  .bg-zinc-50 { background-color: var(--bg-secondary) !important; }
+  .border-zinc-200, .border-zinc-100 { border-color: var(--border-color) !important; }
+  .text-zinc-900, .text-zinc-800 { color: var(--text-primary) !important; }
+  .text-zinc-600, .text-zinc-500, .text-zinc-400 { color: var(--text-secondary) !important; }
+  
+  /* Special handling for dark/theme mode specific utility classes */
+  html.dark .dark\:bg-zinc-800, 
+  [class*="theme-"] .dark\:bg-zinc-800 { 
+      background-color: var(--bg-paper) !important; 
+  }
+  html.dark .dark\:border-zinc-700,
+  [class*="theme-"] .dark\:border-zinc-700 {
+      border-color: var(--border-color) !important;
   }
 
   /* --- ICON PROTECTION (Double Safety) --- */
@@ -114,8 +246,8 @@
     outline-offset: 2px !important;
     border-radius: 4px;
   }
-  html.dark *:focus-visible {
-    outline-color: #818cf8 !important;
+  html.dark *:focus-visible, [class*="theme-"] *:focus-visible {
+    outline-color: var(--text-primary) !important;
   }
 
   /* --- CUSTOM SCROLLBARS --- */
@@ -129,14 +261,14 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(161, 161, 170, 0.5);
+    background-color: var(--border-color);
     border-radius: 4px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(113, 113, 122, 0.8);
+    background-color: var(--text-secondary);
   }
 
   /* --- WORKSHEET DYNAMICS --- */
@@ -151,7 +283,6 @@
       gap: var(--worksheet-gap, 1rem) !important;
   }
 
-  /* Dynamic Column Handling inside Worksheet */
   .worksheet-page .dynamic-grid {
       display: grid;
       grid-template-columns: repeat(var(--dynamic-cols, 1), minmax(0, 1fr)) !important;
@@ -183,11 +314,13 @@
   }
 
   /* --- PAPER SIMULATION (The Protected Area) --- */
+  /* 
+     IMPORTANT: Worksheet styles MUST be isolated from the app theme.
+     They should always look like paper (White bg, Black text) for printing consistency.
+  */
   .worksheet-page {
       background-color: #ffffff !important;
       color: #000000 !important;
-      /* Use dynamic font but keep other props fixed */
-      /* Note: The global * selector above handles font-family via variable */
       letter-spacing: normal !important; 
       line-height: 1.5 !important;
       font-size: 1rem !important; 
@@ -252,107 +385,6 @@
     .worksheet-page:last-child { page-break-after: auto; }
     img { max-height: 150px !important; }
   }
-
-  /* --- GLOBAL THEMES (DARK MODE BASE FOR COLORS) --- */
-  
-  /* Default Light Theme */
-  body {
-      background-color: #fafafa; /* zinc-50 */
-      color: #18181b; /* zinc-900 */
-  }
-
-  /* Dark Theme (Standard) */
-  html.dark body { 
-      background-color: #18181b; /* zinc-900 */
-      color: #f4f4f5; /* zinc-100 */
-  }
-  html.dark aside, html.dark header, html.dark .bg-white {
-      background-color: rgba(39, 39, 42, 0.95) !important; /* zinc-800 */
-      border-color: #3f3f46 !important;
-      color: #f4f4f5;
-  }
-  html.dark .text-zinc-500 { color: #a1a1aa !important; }
-  html.dark .bg-zinc-50 { background-color: #27272a !important; }
-
-  /* Pastel Theme */
-  html.theme-pastel body { 
-      background-color: #2c2a25; 
-      color: #e6e0d0; 
-  }
-  html.theme-pastel aside, html.theme-pastel header, html.theme-pastel .bg-white { 
-      background-color: rgba(50, 48, 44, 0.95) !important; 
-      border-color: #5c564b !important; 
-      color: #e6e0d0 !important;
-  }
-  
-  /* Sepia Theme */
-  html.theme-sepia body { 
-      background-color: #2b2016;
-      color: #ead9c3; 
-  }
-  html.theme-sepia aside, html.theme-sepia header, html.theme-sepia .bg-white { 
-      background-color: rgba(62, 45, 32, 0.95) !important; 
-      border-color: #5c4030 !important;
-      color: #ead9c3 !important;
-  }
-
-  /* Purple Theme */
-  html.theme-purple body { 
-      background-color: #180f24; 
-      color: #e9d5ff; 
-  }
-  html.theme-purple aside, html.theme-purple header, html.theme-purple .bg-white { 
-      background-color: rgba(38, 24, 56, 0.95) !important; 
-      border-color: #4c2f6e !important;
-      color: #e9d5ff !important;
-  }
-
-  /* Orange Theme */
-  html.theme-orange body { 
-      background-color: #261209; 
-      color: #ffedd5; 
-  }
-  html.theme-orange aside, html.theme-orange header, html.theme-orange .bg-white { 
-      background-color: rgba(61, 31, 20, 0.95) !important; 
-      border-color: #7c2d12 !important;
-      color: #ffedd5 !important;
-  }
-
-  /* Maroon Theme */
-  html.theme-maroon body { 
-      background-color: #23080e; 
-      color: #ffe4e6; 
-  }
-  html.theme-maroon aside, html.theme-maroon header, html.theme-maroon .bg-white { 
-      background-color: rgba(63, 16, 25, 0.95) !important; 
-      border-color: #881337 !important;
-      color: #ffe4e6 !important;
-  }
-
-  /* High Contrast Theme */
-  html.theme-contrast body { 
-      background-color: #000000; 
-      color: #FFFF00; 
-  }
-  html.theme-contrast aside, html.theme-contrast header, html.theme-contrast .bg-white, html.theme-contrast .bg-zinc-50 { 
-      background-color: #000000 !important; 
-      color: #FFFF00 !important; 
-      border-color: #FFFFFF !important; 
-  }
-  html.theme-contrast .text-zinc-500, html.theme-contrast .text-zinc-400, html.theme-contrast .text-zinc-600, html.theme-contrast .text-zinc-800, html.theme-contrast .text-zinc-700 { 
-      color: #00FF00 !important; 
-  }
-  html.theme-contrast button, html.theme-contrast input, html.theme-contrast select { 
-      border: 2px solid #FFFFFF !important; 
-      background-color: #000000 !important; 
-      color: #FFFFFF !important; 
-  }
-  html.theme-contrast .bg-indigo-600 { 
-      border: 2px solid #00FFFF !important; 
-      color: #00FFFF !important; 
-      background-color: #000000 !important; 
-  }
-  html.theme-contrast .text-indigo-600 { color: #00FFFF !important; }
 
   /* --- UI ENHANCEMENTS --- */
   button, a { transition: all 0.2s ease-in-out; }
