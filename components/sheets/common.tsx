@@ -3,36 +3,31 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
 
-// --- HELPER: SMART EMOJI FINDER ---
-const findEmojiForDescription = (desc: string): string | null => {
-    if (!desc) return null;
+// --- HELPER: SMART VISUAL FINDER ---
+// Finds emoji OR SVG shape instructions
+const findVisualForDescription = (desc: string): { type: 'emoji' | 'shape' | 'none', value: string } => {
+    if (!desc) return { type: 'none', value: '' };
     const lowerDesc = desc.toLocaleLowerCase('tr');
     
-    // 1. Check direct mapping in EMOJI_MAP keys or values
-    if (EMOJI_MAP[desc]) return EMOJI_MAP[desc]; 
-    
-    // 2. Reverse lookup: Check if description matches any mapped value
-    for (const [emoji, name] of Object.entries(EMOJI_MAP)) {
-        if (lowerDesc.includes(name.toLocaleLowerCase('tr')) || name.toLocaleLowerCase('tr').includes(lowerDesc)) {
-            return emoji;
-        }
-    }
-    
-    // 3. Expanded Heuristics for common terms not in map
-    const commonMap: Record<string, string> = {
-        'elma': '🍎', 'kedi': '🐱', 'köpek': '🐶', 'araba': '🚗', 'yıldız': '⭐',
-        'kalem': '✏️', 'kitap': '📚', 'top': '⚽', 'balık': '🐟', 'kuş': '🐦',
-        'çiçek': '🌸', 'ev': '🏠', 'güneş': '☀️', 'ay': '🌙', 'saat': '⏰',
-        'ağaç': '🌳', 'kalp': '❤️', 'bulut': '☁️', 'kar': '❄️', 'ateş': '🔥',
-        'su': '💧', 'muz': '🍌', 'çilek': '🍓', 'portakal': '🍊', 'üzüm': '🍇',
-        'kutu': '📦', 'şapka': '🧢', 'gözlük': '👓', 'ayakkabı': '👟', 'çanta': '🎒'
-    };
+    // 1. Check for Geometric Shapes (SVG Render)
+    if (lowerDesc.includes('kare') || lowerDesc.includes('square')) return { type: 'shape', value: 'square' };
+    if (lowerDesc.includes('daire') || lowerDesc.includes('çember') || lowerDesc.includes('circle')) return { type: 'shape', value: 'circle' };
+    if (lowerDesc.includes('üçgen') || lowerDesc.includes('triangle')) return { type: 'shape', value: 'triangle' };
+    if (lowerDesc.includes('yıldız') || lowerDesc.includes('star')) return { type: 'shape', value: 'star' };
+    if (lowerDesc.includes('kalp') || lowerDesc.includes('heart')) return { type: 'shape', value: 'heart' };
+    if (lowerDesc.includes('elmas') || lowerDesc.includes('baklava') || lowerDesc.includes('diamond')) return { type: 'shape', value: 'diamond' };
+    if (lowerDesc.includes('beşgen') || lowerDesc.includes('pentagon')) return { type: 'shape', value: 'pentagon' };
+    if (lowerDesc.includes('altıgen') || lowerDesc.includes('hexagon')) return { type: 'shape', value: 'hexagon' };
 
-    for (const [key, emoji] of Object.entries(commonMap)) {
-        if (lowerDesc.includes(key)) return emoji;
+    // 2. Check EMOJI_MAP (English & Turkish keys)
+    if (EMOJI_MAP[lowerDesc]) return { type: 'emoji', value: EMOJI_MAP[lowerDesc] };
+    
+    // 3. Contains search in map keys
+    for (const [key, emoji] of Object.entries(EMOJI_MAP)) {
+        if (lowerDesc.includes(key)) return { type: 'emoji', value: emoji };
     }
     
-    return null;
+    return { type: 'none', value: '' };
 };
 
 // --- TTS HELPER ---
@@ -149,25 +144,34 @@ export const ReadingRuler: React.FC = () => {
     );
 };
 
-export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: ShapeType; className?: string }) => {
+export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: string; className?: string }) => {
     const strokeColor = "currentColor"; 
     const strokeWidth = "4";
     const fillColor = "transparent"; 
     
-    switch (name) {
-        case 'circle': return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
-        case 'square': return <svg viewBox="0 0 100 100" className={className}><rect x="10" y="10" width="80" height="80" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
-        case 'triangle': return <svg viewBox="0 0 100 100" className={className}><polygon points="50,10 90,90 10,90" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
-        case 'hexagon': return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
-        case 'star': return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 61,40 98,40 68,62 79,96 50,75 21,96 32,62 2,40 39,40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
-        case 'diamond': return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,50 50,95 5,50" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
-        case 'pentagon': return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,40 78,95 22,95 5,40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
-        case 'octagon': return <svg viewBox="0 0 100 100" className={className}><polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
-        case 'cube': return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M25 35 V75 L50 90 L75 75 V35 L50 20 Z M25 35 L50 20 L75 35 M50 90 V55 L25 75 M75 75 L50 55"/></svg>;
-        case 'sphere': return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><circle cx="50" cy="50" r="40"/><ellipse cx="50" cy="50" rx="40" ry="10" strokeDasharray="5,5" /></svg>;
-        case 'pyramid': return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M50 10 L10 90 H90 Z M50 10 L50 90 M10 90 L50 50 L90 90"/></svg>;
-        case 'cone': return <svg viewBox="0 0 100 100" className={className} fill="none" stroke={strokeColor} strokeWidth={strokeWidth}><path d="M50 10 L10 90 H90 Z"/><ellipse cx="50" cy="90" rx="40" ry="10"/></svg>;
-        default: return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="20" stroke={strokeColor} strokeWidth="2" fill="none" /></svg>;
+    const shapeName = name.toLowerCase();
+
+    switch (true) {
+        case shapeName.includes('circle') || shapeName.includes('daire'): 
+            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
+        case shapeName.includes('square') || shapeName.includes('kare'): 
+            return <svg viewBox="0 0 100 100" className={className}><rect x="10" y="10" width="80" height="80" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
+        case shapeName.includes('triangle') || shapeName.includes('üçgen'): 
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,10 90,90 10,90" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
+        case shapeName.includes('hexagon') || shapeName.includes('altıgen'): 
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
+        case shapeName.includes('star') || shapeName.includes('yıldız'): 
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 61,40 98,40 68,62 79,96 50,75 21,96 32,62 2,40 39,40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
+        case shapeName.includes('diamond') || shapeName.includes('elmas'): 
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,50 50,95 5,50" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
+        case shapeName.includes('pentagon') || shapeName.includes('beşgen'): 
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="50,5 95,40 78,95 22,95 5,40" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
+        case shapeName.includes('octagon') || shapeName.includes('sekizgen'): 
+            return <svg viewBox="0 0 100 100" className={className}><polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>;
+        case shapeName.includes('heart') || shapeName.includes('kalp'):
+            return <svg viewBox="0 0 100 100" className={className}><path d="M50 30 L50 90 L90 30 A20 20 0 0 0 50 30 A20 20 0 0 0 10 30 Z" stroke={strokeColor} strokeWidth={strokeWidth} fill={fillColor} /></svg>; // Simplified Heart
+        default: 
+            return <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="20" stroke={strokeColor} strokeWidth="2" fill="none" /></svg>;
     }
 });
 
@@ -179,27 +183,32 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
         return <img src={`data:image/png;base64,${base64}`} alt={description || 'Görsel'} className={`${className} object-contain rounded-md bg-white dark:bg-zinc-800 shadow-sm`} loading="lazy" />;
     }
     
-    // 2. Smart Emoji/Icon Fallback
-    const emojiIcon = findEmojiForDescription(description || '');
+    // 2. Smart Fallback (Emoji or Shape)
+    const visual = findVisualForDescription(description || '');
     
     // 3. Render
     return (
         <div className={`bg-indigo-50 dark:bg-zinc-800/80 rounded-lg border-2 border-dashed border-indigo-200 dark:border-zinc-600 flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none ${className}`}>
-            {emojiIcon ? (
+            {visual.type === 'emoji' ? (
                 // Emoji High-Res Representation
                 <div className="text-6xl md:text-7xl lg:text-8xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={description}>
-                    {emojiIcon}
+                    {visual.value}
+                </div>
+            ) : visual.type === 'shape' ? (
+                // SVG Shape Render
+                <div className="w-24 h-24 text-indigo-600 dark:text-indigo-400 animate-in fade-in zoom-in duration-300">
+                    <Shape name={visual.value} className="w-full h-full" />
                 </div>
             ) : (
                 // Generic Placeholder if nothing matches
                 <div className="flex flex-col items-center justify-center h-full opacity-50">
                     <i className="fa-regular fa-image text-4xl text-indigo-300 dark:text-zinc-500 mb-2"></i>
-                    <span className="text-[10px] font-bold text-indigo-400 dark:text-zinc-500 uppercase">Görsel</span>
+                    <span className="text-[10px] font-bold text-indigo-400 dark:text-zinc-500 uppercase">Resim Alanı</span>
                 </div>
             )}
             
-            {/* Only show label if it's a placeholder or specific requirement */}
-            {description && !emojiIcon && (
+            {/* Show label only if it's NOT an emoji (to avoid redundancy) or if it's a placeholder */}
+            {description && visual.type !== 'emoji' && (
                 <p className="text-[10px] sm:text-xs font-bold text-indigo-900 dark:text-indigo-200 px-1 leading-tight uppercase tracking-wide break-words w-full mt-1">
                     {description}
                 </p>
