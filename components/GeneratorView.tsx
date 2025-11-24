@@ -310,7 +310,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'num1Digits', label: '1. Sayı Basamak', type: 'range', defaultValue: 2, min: 1, max: 6, width: 'half' },
                     { key: 'num2Digits', label: '2. Sayı Basamak', type: 'range', defaultValue: 1, min: 1, max: 6, width: 'half' },
                     
-                    itemCountField(12, 4, 24, 'İşlem Sayısı'),
+                    // Updated to fit 5x5 grid on A4
+                    itemCountField(25, 5, 50, 'İşlem Sayısı'),
                     
                     // Conditional Fields - Updated logic for multi-select
                     { key: 'allowCarry', label: 'Eldeli Olsun', type: 'checkbox', defaultValue: false, width: 'half', condition: (vals) => vals.selectedOperations?.includes('addition') },
@@ -471,15 +472,18 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             let newItemCount = 10;
             let newDirections = 'diagonal';
 
-            if (difficulty === 'Başlangıç') { newGridSize = 8; newItemCount = 6; newDirections = 'simple'; } 
-            else if (difficulty === 'Orta') { newGridSize = 12; newItemCount = 10; newDirections = 'diagonal'; } 
-            else if (difficulty === 'Zor') { newGridSize = 15; newItemCount = 12; newDirections = 'all'; } 
-            else if (difficulty === 'Uzman') { newGridSize = 18; newItemCount = 15; newDirections = 'all'; }
+            // Difficulty adjustments only apply if not BASIC_OPERATIONS to respect its 25 default
+            if (activity.id !== ActivityType.BASIC_OPERATIONS) {
+                if (difficulty === 'Başlangıç') { newGridSize = 8; newItemCount = 6; newDirections = 'simple'; } 
+                else if (difficulty === 'Orta') { newGridSize = 12; newItemCount = 10; newDirections = 'diagonal'; } 
+                else if (difficulty === 'Zor') { newGridSize = 15; newItemCount = 12; newDirections = 'all'; } 
+                else if (difficulty === 'Uzman') { newGridSize = 18; newItemCount = 15; newDirections = 'all'; }
+            }
 
             // Only update if values are actually different to prevent unnecessary renders
             const updates: any = {};
             if (prev.hasOwnProperty('gridSize') && prev.gridSize !== newGridSize) updates.gridSize = newGridSize;
-            if (prev.hasOwnProperty('itemCount') && prev.itemCount !== newItemCount) updates.itemCount = newItemCount;
+            if (prev.hasOwnProperty('itemCount') && prev.itemCount !== newItemCount && activity.id !== ActivityType.BASIC_OPERATIONS) updates.itemCount = newItemCount;
             if (prev.hasOwnProperty('directions') && prev.directions !== newDirections) updates.directions = newDirections;
 
             if (Object.keys(updates).length > 0) {
@@ -487,7 +491,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             }
             return prev;
         });
-    }, [difficulty]);
+    }, [difficulty, activity.id]);
 
     const handleOptionChange = (key: string, value: any) => {
         setSpecificOptions(prev => ({ ...prev, [key]: value }));

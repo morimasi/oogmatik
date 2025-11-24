@@ -12,15 +12,15 @@ import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, Pedagog
 export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        {/* Updated Grid to 5 Columns for A4 Fit */}
-        <div className="grid grid-cols-5 gap-4 mt-4">
+        {/* Updated to 5 columns for A4 fit */}
+        <div className="grid grid-cols-5 gap-3 mt-4">
             {data.operations.map((op, index) => (
-                <div key={index} className="p-3 bg-white dark:bg-zinc-700/50 rounded-lg border-2 border-zinc-300 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-2xl font-mono font-bold break-inside-avoid relative overflow-hidden">
+                <div key={index} className="p-3 bg-white dark:bg-zinc-700/50 rounded-lg border-2 border-zinc-300 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-xl font-mono font-bold break-inside-avoid relative overflow-hidden">
                     {/* Dikey İşlem Formatı */}
                     <div className="tracking-wide mr-2">{op.num1}</div>
                     
                     <div className="flex items-center w-full justify-end gap-2 mr-2">
-                        <span className="text-xl absolute left-2 text-zinc-400">{op.operator}</span>
+                        <span className="text-lg absolute left-2 text-zinc-400">{op.operator}</span>
                         <div className="tracking-wide">{op.num2}</div>
                     </div>
                     
@@ -34,13 +34,13 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
                     <div className="w-full border-b-2 border-zinc-800 dark:border-zinc-200 my-1"></div>
                     
                     {/* Sonuç Alanı */}
-                    <div className="h-10 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded border border-dashed border-zinc-300"></div>
+                    <div className="h-8 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded border border-dashed border-zinc-300"></div>
                     
                     {/* Kalanlı Bölme Alanı */}
                     {op.remainder !== undefined && (
-                        <div className="mt-2 w-full flex justify-between items-center text-xs text-zinc-500 font-sans font-normal border-t pt-1">
+                        <div className="mt-1 w-full flex justify-between items-center text-[10px] text-zinc-500 font-sans font-normal border-t pt-1">
                             <span>K:</span>
-                            <div className="w-8 h-6 border-b border-zinc-400"></div>
+                            <div className="w-6 h-4 border-b border-zinc-400"></div>
                         </div>
                     )}
                 </div>

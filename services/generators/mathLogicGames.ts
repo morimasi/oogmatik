@@ -51,7 +51,7 @@ export const generateBasicOperationsFromAI = async (options: GeneratorOptions): 
     - İŞLEM TÜRLERİ: ${ops}. (Seçilen türlerden eşit sayıda soru üret).
     - SAYI 1 (Üstteki/Bölünen) BASAMAK SAYISI: ${num1Digits || 2}.
     - SAYI 2 (Alttaki/Bölen/Çarpan) BASAMAK SAYISI: ${num2Digits || 1}.
-    - İŞLEM SAYISI: ${itemCount || 12} adet.
+    - İŞLEM SAYISI: ${itemCount || 25} adet. (Varsayılan olarak 25 tane üret ki sayfa dolsun).
     
     ÖZEL KURALLAR (Uygulamak Zorunlu):
     - Toplama ise: ${allowCarry ? 'Eldeli olabilir.' : 'KESİNLİKLE ELDESİZ OLMALI.'} ${useThirdNumber ? '3 adet sayı alt alta toplanmalı (3. sayının basamağı 2. sayı ile uyumlu olsun).' : '2 sayı toplanmalı.'}
@@ -170,7 +170,7 @@ export const generateMultiplicationWheelFromAI = async(options: GeneratorOptions
 }
 
 export const generateTargetNumberFromAI = async (options: GeneratorOptions): Promise<TargetNumberData[]> => {
-    const prompt = `Hedef Sayı Oyunu. Verilen sayıları ve dört işlemi kullanarak hedef sayıya ulaş. ${PEDAGOGICAL_PROMPT}`;
+    const prompt = `Hedef Sayı Oyunu. Verilen sayıları ve dört işlemi kullanarak hedef sayıya ulaş. ${PEDAGICAL_PROMPT}`;
     const schema = { type: Type.ARRAY, items: baseMathSchema('puzzles', {type: Type.OBJECT, properties: {target: {type: Type.INTEGER}, givenNumbers: {type: Type.ARRAY, items: {type: Type.INTEGER}}}, required: ["target", "givenNumbers"]}) };
     return generateWithSchema(prompt, schema) as Promise<TargetNumberData[]>;
 };
