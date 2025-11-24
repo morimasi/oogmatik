@@ -9,16 +9,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- OpenDyslexic Font -->
     <link href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css" rel="stylesheet">
+    <!-- Google Fonts: Lexend (Science-backed reading font), Inter, Lora, Comic Neue -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Lora:wght@400;600&family=Comic+Neue:wght@400;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <script>
   tailwind.config = {
     darkMode: 'class',
     theme: {
       extend: {
         fontFamily: {
-          // Force OpenDyslexic as the primary font for all stacks
-          sans: ['OpenDyslexic', 'sans-serif'],
-          serif: ['OpenDyslexic', 'serif'],
-          mono: ['OpenDyslexic', 'monospace'],
+          // Default Tailwind stacks will be overridden by CSS variables below
+          sans: ['var(--ui-font)', 'sans-serif'],
+          serif: ['var(--ui-font)', 'serif'],
+          mono: ['var(--ui-font)', 'monospace'],
           dyslexic: ['OpenDyslexic', 'sans-serif']
         },
         colors: {
@@ -60,21 +63,26 @@
 <style>
   /* --- GLOBAL FONT ENFORCEMENT --- */
   :root {
-    --ui-font: 'OpenDyslexic', sans-serif;
+    --ui-font: 'Lexend'; /* Default to Lexend as it's cleaner */
     --ui-spacing: normal;
     --ui-scale: 1;
+    --ui-line-height: 1.6;
+    --ui-saturation: 100%;
   }
 
-  /* Apply OpenDyslexic to almost everything by default with high priority */
-  html, body, h1, h2, h3, h4, h5, h6, p, span, div, a, li, td, th, label, blockquote, pre, code {
-    font-family: 'OpenDyslexic', sans-serif !important;
+  /* 
+     SMART FONT ENFORCEMENT
+     Apply the font to everything EXCEPT icon elements.
+     This is more robust than overriding icons later.
+  */
+  *:not(i):not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands) {
+    font-family: var(--ui-font), sans-serif !important;
     letter-spacing: var(--ui-spacing);
+    line-height: var(--ui-line-height);
   }
 
-  /* Ensure form elements also inherit this explicitly */
-  button, input, select, textarea {
-    font-family: 'OpenDyslexic', sans-serif !important;
-    letter-spacing: inherit;
+  html {
+      filter: saturate(var(--ui-saturation));
   }
 
   body {
@@ -83,15 +91,13 @@
     color: #18181b;
   }
 
-  /* --- ICON PROTECTION --- */
-  /* CRITICAL: Override the font-family back to FontAwesome for icons */
+  /* --- ICON PROTECTION (Double Safety) --- */
   .fa, .fas, .far, .fal, .fab, .fa-solid, .fa-regular, .fa-brands, i[class*="fa-"] {
       font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
-      font-weight: 900; /* Solid icons need weight */
-  }
-  /* Regular brand icons might need normal weight */
-  .fa-brands {
-      font-weight: 400;
+      font-style: normal;
+      font-variant: normal;
+      line-height: 1;
+      text-rendering: auto;
   }
 
   /* --- ACCESSIBILITY: HIGH CONTRAST FOCUS RINGS --- */
@@ -169,23 +175,22 @@
   }
 
   /* --- PAPER SIMULATION (The Protected Area) --- */
-  /* Bu alan her zaman beyaz kağıt, siyah yazı olmalıdır. Tema ne olursa olsun. */
   .worksheet-page {
       background-color: #ffffff !important;
       color: #000000 !important;
-      font-family: 'OpenDyslexic', sans-serif !important;
-      letter-spacing: normal !important; /* Worksheet aralığı sabittir */
-      font-size: 1rem !important; /* Reset base size inside worksheet */
+      /* Use dynamic font but keep other props fixed */
+      /* Note: The global * selector above handles font-family */
+      letter-spacing: normal !important; 
+      line-height: 1.5 !important;
+      font-size: 1rem !important; 
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05) !important;
       transition: box-shadow 0.3s ease;
   }
   
-  /* Worksheet içindeki tüm metin elemanlarını zorla siyaha çevir */
   .worksheet-page h1, .worksheet-page h2, .worksheet-page h3, .worksheet-page h4, 
   .worksheet-page h5, .worksheet-page h6, .worksheet-page p, .worksheet-page span, 
   .worksheet-page li, .worksheet-page div {
       color: inherit; 
-      font-family: 'OpenDyslexic', sans-serif !important;
   }
 
   @media screen {
@@ -232,7 +237,7 @@
   /* --- PRINT STYLES --- */
   @media print {
     @page { size: A4 portrait; margin: 5mm; }
-    html, body { width: 100%; height: auto !important; background-color: white !important; color: black !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-size: 12pt !important; font-family: 'OpenDyslexic', sans-serif !important; }
+    html, body { width: 100%; height: auto !important; background-color: white !important; color: black !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-size: 12pt !important; }
     #root, .h-screen, .flex, .flex-col, .flex-1, .overflow-hidden, .overflow-y-auto, main { height: auto !important; overflow: visible !important; display: block !important; }
     header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar, .reading-ruler { display: none !important; }
     .worksheet-page { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; page-break-after: always; transform: none !important; }

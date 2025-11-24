@@ -18,6 +18,7 @@ import { TourGuide, TourStep } from './components/TourGuide';
 import { SharedWorksheetsView } from './components/SharedWorksheetsView';
 import { SavedWorksheetsView } from './components/SavedWorksheetsView';
 import { AssessmentModule } from './components/AssessmentModule';
+import { SettingsModal } from './components/SettingsModal'; // Imported
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
@@ -30,9 +31,11 @@ const initialStyleSettings: StyleSettings = {
 };
 
 const initialUiSettings: UiSettings = {
-    fontFamily: 'OpenDyslexic',
+    fontFamily: 'Lexend',
     fontSizeScale: 1,
-    letterSpacing: 'normal'
+    letterSpacing: 'normal',
+    lineHeight: 1.6,
+    saturation: 100
 };
 
 type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings';
@@ -99,7 +102,8 @@ const AppContent: React.FC = () => {
   const [uiSettings, setUiSettings] = useState<UiSettings>(() => {
       try {
           const stored = localStorage.getItem('app-ui-settings');
-          return stored ? JSON.parse(stored) : initialUiSettings;
+          // Merge with initial to ensure new props exist
+          return stored ? { ...initialUiSettings, ...JSON.parse(stored) } : initialUiSettings;
       } catch (e) {
           return initialUiSettings;
       }
@@ -157,13 +161,23 @@ const AppContent: React.FC = () => {
       }
   }, [theme]);
 
-  // Apply UI Settings
+  // Apply UI Settings (Updated for Lexend support)
   useEffect(() => {
       try {
           const root = document.documentElement;
-          root.style.setProperty('--ui-font', uiSettings.fontFamily === 'OpenDyslexic' ? 'OpenDyslexic, sans-serif' : 'Inter, sans-serif');
+          // Use the selected font, fallback to sans-serif
+          const fontVal = uiSettings.fontFamily === 'Lexend' ? 'Lexend' :
+                          uiSettings.fontFamily === 'OpenDyslexic' ? 'OpenDyslexic' : 
+                          uiSettings.fontFamily === 'Inter' ? 'Inter' :
+                          uiSettings.fontFamily === 'Comic Neue' ? 'Comic Neue' :
+                          uiSettings.fontFamily === 'Lora' ? 'Lora' : 'Lexend';
+                          
+          root.style.setProperty('--ui-font', fontVal);
           root.style.setProperty('--ui-scale', uiSettings.fontSizeScale.toString());
           root.style.setProperty('--ui-spacing', uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal');
+          root.style.setProperty('--ui-line-height', (uiSettings.lineHeight || 1.6).toString());
+          root.style.setProperty('--ui-saturation', `${uiSettings.saturation || 100}%`);
+          
           localStorage.setItem('app-ui-settings', JSON.stringify(uiSettings));
       } catch (e) {
           console.error("UI Settings application failed:", e);
@@ -407,95 +421,15 @@ const AppContent: React.FC = () => {
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       
-      {/* SETTINGS MODAL */}
-      <Modal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} title="Görünüm Ayarları">
-          <div className="space-y-6">
-              {/* Accessibility Settings */}
-              <div className="space-y-4 border-b border-zinc-100 pb-6">
-                  <h3 className="font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
-                      <i className="fa-solid fa-universal-access text-indigo-500"></i> Erişilebilirlik
-                  </h3>
-                  
-                  <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Yazı Tipi</label>
-                      <div className="flex bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-lg">
-                          <button 
-                              onClick={() => setUiSettings({...uiSettings, fontFamily: 'Inter'})}
-                              className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${uiSettings.fontFamily === 'Inter' ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}
-                              style={{fontFamily: 'Inter, sans-serif'}}
-                          >
-                              Standart
-                          </button>
-                          <button 
-                              onClick={() => setUiSettings({...uiSettings, fontFamily: 'OpenDyslexic'})}
-                              className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${uiSettings.fontFamily === 'OpenDyslexic' ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}
-                              style={{fontFamily: 'OpenDyslexic, sans-serif'}}
-                          >
-                              Disleksi Dostu
-                          </button>
-                      </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                      <div className="flex justify-between">
-                          <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Arayüz Yazı Boyutu</label>
-                          <span className="text-xs font-mono bg-zinc-200 dark:bg-zinc-700 px-2 rounded">{Math.round(uiSettings.fontSizeScale * 100)}%</span>
-                      </div>
-                      <input 
-                          type="range" min="0.8" max="1.3" step="0.1"
-                          value={uiSettings.fontSizeScale}
-                          onChange={(e) => setUiSettings({...uiSettings, fontSizeScale: parseFloat(e.target.value)})}
-                          className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                      />
-                      <div className="flex justify-between text-[10px] text-zinc-400">
-                          <span>Küçük</span>
-                          <span>Normal</span>
-                          <span>Büyük</span>
-                      </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-900/30 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                      <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Geniş Harf Aralığı</label>
-                      <div className="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
-                          <input type="checkbox" 
-                              checked={uiSettings.letterSpacing === 'wide'}
-                              onChange={(e) => setUiSettings({...uiSettings, letterSpacing: e.target.checked ? 'wide' : 'normal'})}
-                              className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-indigo-600"/>
-                          <label className="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-300 cursor-pointer"></label>
-                      </div>
-                  </div>
-              </div>
-
-              {/* Theme Settings */}
-              <div className="space-y-4">
-                  <h3 className="font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
-                      <i className="fa-solid fa-palette text-indigo-500"></i> Tema
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <button onClick={() => setTheme('light')} className={`p-3 border rounded-xl capitalize flex flex-col items-center gap-2 transition-all ${theme === 'light' ? 'border-indigo-500 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-200' : 'border-zinc-200 hover:bg-zinc-50'}`}>
-                          <div className="w-6 h-6 rounded-full bg-white border border-zinc-300 shadow-sm"></div>
-                          <span className="text-xs font-bold">Açık</span>
-                      </button>
-                      <button onClick={() => setTheme('dark')} className={`p-3 border rounded-xl capitalize flex flex-col items-center gap-2 transition-all ${theme === 'dark' ? 'border-indigo-500 bg-indigo-900/20 text-indigo-300 ring-2 ring-indigo-900' : 'border-zinc-200 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800'}`}>
-                          <div className="w-6 h-6 rounded-full bg-zinc-900 border border-zinc-700 shadow-sm"></div>
-                          <span className="text-xs font-bold">Koyu</span>
-                      </button>
-                      <button onClick={() => setTheme('pastel')} className={`p-3 border rounded-xl capitalize flex flex-col items-center gap-2 transition-all ${theme === 'pastel' ? 'border-amber-500 bg-amber-50 text-amber-700 ring-2 ring-amber-200' : 'border-zinc-200 hover:bg-amber-50/50'}`}>
-                          <div className="w-6 h-6 rounded-full bg-[#fdf6e3] border border-[#eaddcf]"></div>
-                          <span className="text-xs font-bold">Pastel</span>
-                      </button>
-                      <button onClick={() => setTheme('sepia')} className={`p-3 border rounded-xl capitalize flex flex-col items-center gap-2 transition-all ${theme === 'sepia' ? 'border-orange-500 bg-orange-50 text-orange-700 ring-2 ring-orange-200' : 'border-zinc-200 hover:bg-orange-50/50'}`}>
-                          <div className="w-6 h-6 rounded-full bg-[#f4ecd8] border border-[#dcd0b8]"></div>
-                          <span className="text-xs font-bold">Sepya</span>
-                      </button>
-                      <button onClick={() => setTheme('contrast')} className={`p-3 border rounded-xl capitalize flex flex-col items-center gap-2 transition-all ${theme === 'contrast' ? 'border-yellow-400 bg-black text-yellow-400 ring-2 ring-yellow-200' : 'border-zinc-200 hover:bg-zinc-50'}`}>
-                          <div className="w-6 h-6 rounded-full bg-black border-2 border-yellow-400"></div>
-                          <span className="text-xs font-bold">Yüksek Zıtlık</span>
-                      </button>
-                  </div>
-              </div>
-          </div>
-      </Modal>
+      {/* SETTINGS MODAL - REPLACED */}
+      <SettingsModal 
+          isOpen={openModal === 'settings'} 
+          onClose={() => setOpenModal(null)}
+          uiSettings={uiSettings}
+          onUpdateUiSettings={setUiSettings}
+          theme={theme}
+          onUpdateTheme={setTheme}
+      />
 
       <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi">
           {historyItems.length === 0 ? (

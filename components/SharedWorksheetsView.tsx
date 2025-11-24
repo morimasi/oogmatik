@@ -80,7 +80,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
     }
 
     // Sort items within each group by date (newest first)
-    Object.values(grouped).forEach((group) => {
+    Object.values(grouped).forEach((group: { title: string; items: SavedWorksheet[] }) => {
       group.items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     });
 
