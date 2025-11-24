@@ -12,34 +12,35 @@ import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, Pedagog
 export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mt-8">
+        {/* Updated Grid to 5 Columns for A4 Fit */}
+        <div className="grid grid-cols-5 gap-4 mt-4">
             {data.operations.map((op, index) => (
-                <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-300 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-4xl font-mono font-bold break-inside-avoid relative overflow-hidden">
+                <div key={index} className="p-3 bg-white dark:bg-zinc-700/50 rounded-lg border-2 border-zinc-300 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-2xl font-mono font-bold break-inside-avoid relative overflow-hidden">
                     {/* Dikey İşlem Formatı */}
-                    <div className="tracking-widest mr-2">{op.num1}</div>
+                    <div className="tracking-wide mr-2">{op.num1}</div>
                     
-                    <div className="flex items-center w-full justify-end gap-3 mr-2">
-                        <span className="text-3xl absolute left-4 text-zinc-400">{op.operator}</span>
-                        <div className="tracking-widest">{op.num2}</div>
+                    <div className="flex items-center w-full justify-end gap-2 mr-2">
+                        <span className="text-xl absolute left-2 text-zinc-400">{op.operator}</span>
+                        <div className="tracking-wide">{op.num2}</div>
                     </div>
                     
                     {op.num3 !== undefined && (
-                        <div className="flex items-center w-full justify-end gap-3 mr-2">
-                            <div className="tracking-widest">{op.num3}</div>
+                        <div className="flex items-center w-full justify-end gap-2 mr-2">
+                            <div className="tracking-wide">{op.num3}</div>
                         </div>
                     )}
                     
                     {/* İşlem Çizgisi */}
-                    <div className="w-full border-b-4 border-zinc-800 dark:border-zinc-200 my-2"></div>
+                    <div className="w-full border-b-2 border-zinc-800 dark:border-zinc-200 my-1"></div>
                     
                     {/* Sonuç Alanı */}
-                    <div className="h-14 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded border border-dashed border-zinc-300"></div>
+                    <div className="h-10 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded border border-dashed border-zinc-300"></div>
                     
                     {/* Kalanlı Bölme Alanı */}
                     {op.remainder !== undefined && (
-                        <div className="mt-3 w-full flex justify-between items-center text-sm text-zinc-500 font-sans font-normal border-t pt-2">
-                            <span>Kalan:</span>
-                            <div className="w-12 h-8 border-b border-zinc-400"></div>
+                        <div className="mt-2 w-full flex justify-between items-center text-xs text-zinc-500 font-sans font-normal border-t pt-1">
+                            <span>K:</span>
+                            <div className="w-8 h-6 border-b border-zinc-400"></div>
                         </div>
                     )}
                 </div>

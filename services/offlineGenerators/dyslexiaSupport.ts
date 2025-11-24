@@ -263,7 +263,7 @@ export const generateOfflineMirrorLetters = async (options: GeneratorOptions): P
 
 // --- 6. Syllable Train (Hece Treni) ---
 export const generateOfflineSyllableTrain = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
-    const { worksheetCount, difficulty, topic, wordLength } = options;
+    const { worksheetCount, difficulty, topic, wordLength, itemCount } = options;
     
     let pool = getWordsForDifficulty(difficulty, topic);
     if (wordLength && wordLength !== 'mixed') {

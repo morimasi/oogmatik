@@ -157,7 +157,7 @@ export const getWordsForDifficulty = (difficulty: string, topic?: string): strin
 
     // 2. If topic is provided and valid, mix in topic words
     if (topic && topic !== 'Rastgele' && topic in TR_VOCAB) {
-        const topicWords = TR_VOCAB[topic] || [];
+        const topicWords = (TR_VOCAB[topic] as string[]) || [];
         // Mix 50/50 topic words and difficulty words to ensure variety
         pool = [...getRandomItems(pool, 10), ...getRandomItems(topicWords, 10)];
     }
