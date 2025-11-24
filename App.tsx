@@ -31,7 +31,7 @@ const initialStyleSettings: StyleSettings = {
 };
 
 const initialUiSettings: UiSettings = {
-    fontFamily: 'Lexend',
+    fontFamily: 'Lexend', // Changed default from OpenDyslexic to Lexend
     fontSizeScale: 1,
     letterSpacing: 'normal',
     lineHeight: 1.6,
@@ -421,7 +421,7 @@ const AppContent: React.FC = () => {
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       
-      {/* SETTINGS MODAL - REPLACED */}
+      {/* SETTINGS MODAL */}
       <SettingsModal 
           isOpen={openModal === 'settings'} 
           onClose={() => setOpenModal(null)}

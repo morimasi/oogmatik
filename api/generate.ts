@@ -68,7 +68,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!data) return res.status(500).json({ error: "Yapay zeka yanıt vermedi." });
 
         // Adım 2: Görsel Üretimi (Gemini 2.5 Flash Image - Nano Banana)
-        // Hızlı ve entegre görsel üretimi için modeli güncelledik.
         const imagePromptsToProcess: { obj: any, imagePrompt: string }[] = [];
         
         const findImagePrompts = (obj: any) => {
@@ -90,35 +89,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         if (imagePromptsToProcess.length > 0) {
             // Kota dostu olması için maksimum 3 görsel üretelim (ana görsel + 2 detay gibi)
-            // Geri kalanlar frontend'deki akıllı emoji/ikon sistemine düşer.
             const chunk = imagePromptsToProcess.slice(0, 3); 
             
             await Promise.all(chunk.map(async ({ obj, imagePrompt }) => {
                 try {
-                    // 'gemini-2.5-flash-image' (Nano Banana) kullanımı
-                    // generateImages yerine generateContent kullanıyoruz.
                     const response = await ai.models.generateContent({
                         model: 'gemini-2.5-flash-image',
-                        contents: {
-                            parts: [{ text: imagePrompt }]
-                        },
+                        contents: { parts: [{ text: imagePrompt }] },
                         config: {
-                            // Nano Banana modelleri için responseMimeType ayarlanmaz.
-                            // Aspect ratio varsayılan 1:1
+                            // responseMimeType ve responseSchema resim üretimi için kullanılmaz
                         }
                     });
 
-                    // Yanıt parçalarını tara ve görseli bul
+                    let imageFound = false;
                     if (response.candidates && response.candidates[0].content.parts) {
                         for (const part of response.candidates[0].content.parts) {
                             if (part.inlineData && part.inlineData.data) {
                                 obj['imageBase64'] = part.inlineData.data;
-                                break; // İlk görseli al ve çık
+                                imageFound = true;
+                                break;
                             }
                         }
                     }
-                    // Prompt'u temizle ki arayüzde metin olarak görünmesin
-                    delete obj['imagePrompt']; 
+                    
+                    // Sadece görsel başarıyla geldiyse metni sil, yoksa frontend fallback kullansın
+                    if (imageFound) {
+                        delete obj['imagePrompt'];
+                    }
                 } catch (imgError) {
                     console.warn("Görsel oluşturulamadı, metin korunuyor:", imgError);
                     obj['imageBase64'] = '';

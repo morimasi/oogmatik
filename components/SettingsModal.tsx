@@ -28,7 +28,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
     ];
 
     const fonts: { id: UiSettings['fontFamily']; name: string }[] = [
-        { id: 'Lexend', name: 'Lexend (Önerilen)' },
+        { id: 'Lexend', name: 'Lexend (Önerilen - Okuma Dostu)' },
         { id: 'OpenDyslexic', name: 'OpenDyslexic (Klasik)' },
         { id: 'Inter', name: 'Inter (Modern)' },
         { id: 'Comic Neue', name: 'Comic Sans (Samimi)' },

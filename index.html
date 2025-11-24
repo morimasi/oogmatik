@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -18,7 +19,7 @@
     theme: {
       extend: {
         fontFamily: {
-          // Default Tailwind stacks will be overridden by CSS variables below
+          // Default Tailwind stacks overridden by CSS variables
           sans: ['var(--ui-font)', 'sans-serif'],
           serif: ['var(--ui-font)', 'serif'],
           mono: ['var(--ui-font)', 'monospace'],
@@ -63,7 +64,7 @@
 <style>
   /* --- GLOBAL FONT ENFORCEMENT --- */
   :root {
-    --ui-font: 'Lexend'; /* Default to Lexend as it's cleaner */
+    --ui-font: 'Lexend'; /* Default to Lexend for readability */
     --ui-spacing: normal;
     --ui-scale: 1;
     --ui-line-height: 1.6;
@@ -73,9 +74,9 @@
   /* 
      SMART FONT ENFORCEMENT
      Apply the font to everything EXCEPT icon elements.
-     This is more robust than overriding icons later.
+     Using specific exclusions prevents breaking FontAwesome icons.
   */
-  *:not(i):not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands) {
+  *:not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not(i) {
     font-family: var(--ui-font), sans-serif !important;
     letter-spacing: var(--ui-spacing);
     line-height: var(--ui-line-height);
@@ -98,6 +99,13 @@
       font-variant: normal;
       line-height: 1;
       text-rendering: auto;
+      font-weight: 900; /* Solid icons need weight */
+  }
+  .fa-brands, .fab {
+      font-weight: 400;
+  }
+  .fa-regular, .far {
+      font-weight: 400;
   }
 
   /* --- ACCESSIBILITY: HIGH CONTRAST FOCUS RINGS --- */
@@ -179,7 +187,7 @@
       background-color: #ffffff !important;
       color: #000000 !important;
       /* Use dynamic font but keep other props fixed */
-      /* Note: The global * selector above handles font-family */
+      /* Note: The global * selector above handles font-family via variable */
       letter-spacing: normal !important; 
       line-height: 1.5 !important;
       font-size: 1rem !important; 
