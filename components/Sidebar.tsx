@@ -155,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <div key={category.id} className="py-1">
                                 <button
                                     onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
-                                    className="w-full flex items-center justify-between p-3 text-left font-semibold text-zinc-700 dark:text-zinc-200 rounded-lg hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                    className="w-full flex items-center justify-between p-3 text-left font-semibold text-zinc-800 dark:text-zinc-200 rounded-lg hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                                     aria-expanded={openCategoryId === category.id}
                                 >
                                     <span>{category.title}</span>
@@ -170,7 +170,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                         onSelectActivity(activity.id);
                                                         closeSidebar();
                                                     }}
-                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md text-zinc-600 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${selectedActivity === activity.id ? 'sidebar-activity-item-active' : ''}`}
+                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md text-zinc-800 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${selectedActivity === activity.id ? 'sidebar-activity-item-active' : ''}`}
                                                 >
                                                     <i className={`${activity.icon} fa-fw mr-2 text-zinc-400 dark:text-zinc-500`}></i>
                                                     {activity.title}
