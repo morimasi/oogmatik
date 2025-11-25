@@ -87,20 +87,45 @@ Tarayıcınızda `http://localhost:5173` adresine gidin.
 
 ## 🗄️ Veritabanı Kurulumu (Supabase SQL)
 
-Uygulamanın tam fonksiyonel çalışması için (giriş yapma, kaydetme, paylaşma, istatistikler vb.) Supabase projenizdeki **SQL Editor** bölümünde aşağıdaki kodları sırasıyla çalıştırın. Bu kod, var olan tabloları silip yeniden oluşturduğu için tekrar tekrar çalıştırılabilir.
-
-### Adım 1: Resetleme ve Tabloları Oluşturma
+Uygulamanın tam fonksiyonel çalışması için (giriş yapma, kaydetme, paylaşma, istatistikler vb.) Supabase projenizdeki **SQL Editor** bölümünde aşağıdaki kodun **tamamını** çalıştırın. Bu betik, var olan tüm veritabanı yapılandırmasını silip yeniden oluşturduğu için tekrar tekrar hatasız çalıştırılabilir.
 
 ```sql
--- MEVCUT TABLOLARI VE FONKSİYONLARI GÜVENLİ BİR ŞEKİLDE SİLME
--- Bu blok, kurulumu tekrar tekrar yapmanızı sağlar.
+-- MEVCUT TABLOLARI, POLİTİKALARI, FONKSİYONLARI VE TETİKLEYİCİLERİ GÜVENLİ BİR ŞEKİLDE SİLME
+-- Bu blok, kurulumu tekrar tekrar hatasız yapmanızı sağlar.
+
+-- Önce Tetikleyiciyi ve Fonksiyonunu Kaldır
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_new_user();
+DROP FUNCTION IF EXISTS public.increment_worksheet_count(uuid);
+
+-- Sonra Politikaları Kaldır (İsimleriyle birlikte)
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.users;
+DROP POLICY IF EXISTS "Users can insert their own profile." ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile." ON public.users;
+DROP POLICY IF EXISTS "Users can view own or shared worksheets" ON public.saved_worksheets;
+DROP POLICY IF EXISTS "Users can insert worksheets" ON public.saved_worksheets;
+DROP POLICY IF EXISTS "Users can delete own or shared worksheets" ON public.saved_worksheets;
+DROP POLICY IF EXISTS "Users can view own or shared assessments" ON public.saved_assessments;
+DROP POLICY IF EXISTS "Users can insert assessments" ON public.saved_assessments;
+DROP POLICY IF EXISTS "Users can delete shared assessments they received" ON public.saved_assessments;
+DROP POLICY IF EXISTS "Users can see messages sent to or from them" ON public.messages;
+DROP POLICY IF EXISTS "Users can send messages" ON public.messages;
+DROP POLICY IF EXISTS "Users can update read status of received messages" ON public.messages;
+DROP POLICY IF EXISTS "Anyone can insert feedback" ON public.feedbacks;
+DROP POLICY IF EXISTS "Only admins can view feedbacks" ON public.feedbacks;
+DROP POLICY IF EXISTS "Only admins can update feedbacks" ON public.feedbacks;
+DROP POLICY IF EXISTS "Public stats are viewable by everyone." ON public.activity_stats;
+DROP POLICY IF EXISTS "Authenticated users can insert stats" ON public.activity_stats;
+DROP POLICY IF EXISTS "Authenticated users can update stats" ON public.activity_stats;
+
+
+-- En Son Tabloları Kaldır (CASCADE ile ilişkili her şeyi temizler)
 DROP TABLE IF EXISTS public.activity_stats CASCADE;
 DROP TABLE IF EXISTS public.feedbacks CASCADE;
 DROP TABLE IF EXISTS public.messages CASCADE;
 DROP TABLE IF EXISTS public.saved_assessments CASCADE;
 DROP TABLE IF EXISTS public.saved_worksheets CASCADE;
 DROP TABLE IF EXISTS public.users CASCADE;
-DROP FUNCTION IF EXISTS increment_worksheet_count(uuid);
 
 -- YENİ KURULUM
 -- UUID eklentisini aktifleştir
@@ -111,20 +136,14 @@ create table public.users (
   id uuid references auth.users on delete cascade not null primary key,
   email text not null,
   name text,
-  role text default 'user', -- 'admin' veya 'user'
+  role text default 'user',
   avatar text,
   created_at timestamptz default now(),
   last_login timestamptz,
   worksheet_count int default 0,
-  status text default 'active', -- 'active', 'suspended'
+  status text default 'active',
   subscription_plan text default 'free'
 );
-
--- RLS (Güvenlik) Politikaları - Users
-alter table public.users enable row level security;
-create policy "Public profiles are viewable by everyone." on public.users for select using (true);
-create policy "Users can insert their own profile." on public.users for insert with check (auth.uid() = id);
-create policy "Users can update own profile." on public.users for update using (auth.uid() = id);
 
 -- 2. KAYDEDİLEN ETKİNLİKLER TABLOSU
 create table public.saved_worksheets (
@@ -142,12 +161,6 @@ create table public.saved_worksheets (
   shared_with uuid references public.users(id)
 );
 
--- RLS - Worksheets
-alter table public.saved_worksheets enable row level security;
-create policy "Users can view own or shared worksheets" on public.saved_worksheets for select using (auth.uid() = user_id or auth.uid() = shared_with);
-create policy "Users can insert worksheets" on public.saved_worksheets for insert with check (auth.uid() = user_id or auth.uid() = shared_by);
-create policy "Users can delete own or shared worksheets" on public.saved_worksheets for delete using (auth.uid() = user_id or auth.uid() = shared_with);
-
 -- 3. DEĞERLENDİRME RAPORLARI TABLOSU
 create table public.saved_assessments (
   id uuid default gen_random_uuid() primary key,
@@ -163,12 +176,6 @@ create table public.saved_assessments (
   shared_with uuid references public.users(id)
 );
 
--- RLS - Assessments
-alter table public.saved_assessments enable row level security;
-create policy "Users can view own or shared assessments" on public.saved_assessments for select using (auth.uid() = user_id or auth.uid() = shared_with);
-create policy "Users can insert assessments" on public.saved_assessments for insert with check (auth.uid() = user_id or auth.uid() = shared_by);
-create policy "Users can delete shared assessments they received" on public.saved_assessments for delete using (auth.uid() = shared_with);
-
 -- 4. MESAJLAR TABLOSU
 create table public.messages (
   id uuid default gen_random_uuid() primary key,
@@ -181,12 +188,6 @@ create table public.messages (
   related_feedback_id uuid
 );
 
--- RLS - Messages
-alter table public.messages enable row level security;
-create policy "Users can see messages sent to or from them" on public.messages for select using (auth.uid() = sender_id or auth.uid() = receiver_id);
-create policy "Users can send messages" on public.messages for insert with check (auth.uid() = sender_id);
-create policy "Users can update read status of received messages" on public.messages for update using (auth.uid() = receiver_id);
-
 -- 5. GERİ BİLDİRİMLER TABLOSU
 create table public.feedbacks (
   id uuid default gen_random_uuid() primary key,
@@ -198,15 +199,9 @@ create table public.feedbacks (
   rating int,
   message text,
   timestamp timestamptz default now(),
-  status text default 'new', -- 'new', 'read', 'replied'
+  status text default 'new',
   admin_reply text
 );
-
--- RLS - Feedbacks
-alter table public.feedbacks enable row level security;
-create policy "Anyone can insert feedback" on public.feedbacks for insert with check (true);
-create policy "Only admins can view feedbacks" on public.feedbacks for select using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
-create policy "Only admins can update feedbacks" on public.feedbacks for update using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
 
 -- 6. İSTATİSTİKLER TABLOSU
 create table public.activity_stats (
@@ -217,19 +212,74 @@ create table public.activity_stats (
   avg_completion_time float default 10
 );
 
--- RLS - Stats
+-- GÜVENLİK POLİTİKALARI (RLS)
+-- Users
+alter table public.users enable row level security;
+create policy "Public profiles are viewable by everyone." on public.users for select using (true);
+create policy "Users can update own profile." on public.users for update using (auth.uid() = id);
+
+-- Worksheets
+alter table public.saved_worksheets enable row level security;
+create policy "Users can view own or shared worksheets" on public.saved_worksheets for select using (auth.uid() = user_id or auth.uid() = shared_with);
+create policy "Users can insert worksheets" on public.saved_worksheets for insert with check (auth.uid() = user_id or auth.uid() = shared_by);
+create policy "Users can delete own or shared worksheets" on public.saved_worksheets for delete using (auth.uid() = user_id or auth.uid() = shared_with);
+
+-- Assessments
+alter table public.saved_assessments enable row level security;
+create policy "Users can view own or shared assessments" on public.saved_assessments for select using (auth.uid() = user_id or auth.uid() = shared_with);
+create policy "Users can insert assessments" on public.saved_assessments for insert with check (auth.uid() = user_id or auth.uid() = shared_by);
+create policy "Users can delete shared assessments they received" on public.saved_assessments for delete using (auth.uid() = shared_with);
+
+-- Messages
+alter table public.messages enable row level security;
+create policy "Users can see messages sent to or from them" on public.messages for select using (auth.uid() = sender_id or auth.uid() = receiver_id);
+create policy "Users can send messages" on public.messages for insert with check (auth.uid() = sender_id);
+create policy "Users can update read status of received messages" on public.messages for update using (auth.uid() = receiver_id);
+
+-- Feedbacks
+alter table public.feedbacks enable row level security;
+create policy "Anyone can insert feedback" on public.feedbacks for insert with check (true);
+create policy "Only admins can view feedbacks" on public.feedbacks for select using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
+create policy "Only admins can update feedbacks" on public.feedbacks for update using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
+
+-- Stats
 alter table public.activity_stats enable row level security;
 create policy "Public stats are viewable by everyone." on public.activity_stats for select using (true);
-create policy "Authenticated users can update stats" on public.activity_stats for insert with check (auth.role() = 'authenticated');
+create policy "Authenticated users can insert stats" on public.activity_stats for insert with check (auth.role() = 'authenticated');
 create policy "Authenticated users can update stats" on public.activity_stats for update using (auth.role() = 'authenticated');
-```
 
-### Adım 2: RPC (Stored Procedure) Fonksiyonları
+-- FONKSİYONLAR VE TETİKLEYİCİLER
 
-Kullanıcı seviyesini ve istatistikleri güncellemek için bu fonksiyonları ekleyin.
+-- Yeni kullanıcı kaydolduğunda public.users tablosuna otomatik profil oluşturan ve admin atayan fonksiyon
+create or replace function public.handle_new_user()
+returns trigger as $$
+declare
+  user_role text;
+begin
+  if new.email IN ('morimasi@gmail.com', 'meliksahterdek@gmail.com') then
+    user_role := 'admin';
+  else
+    user_role := 'user';
+  end if;
+  
+  insert into public.users (id, email, name, role, avatar)
+  values (
+    new.id,
+    new.email,
+    new.raw_user_meta_data->>'full_name',
+    user_role,
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=' || (new.raw_user_meta_data->>'full_name')
+  );
+  return new;
+end;
+$$ language plpgsql security definer;
 
-```sql
--- Kullanıcının worksheet_count değerini güvenli bir şekilde 1 artıran fonksiyon
+-- auth.users tablosuna yeni kayıt eklendiğinde handle_new_user fonksiyonunu çalıştıran tetikleyici
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- Kullanıcının etkinlik sayısını güvenli artıran fonksiyon
 create or replace function increment_worksheet_count(user_id uuid)
 returns void as $$
 begin
@@ -238,15 +288,6 @@ begin
   where id = user_id;
 end;
 $$ language plpgsql security definer;
-```
-
-### Adım 3: Admin Kullanıcısı Ayarlama
-
-Uygulama kodunda varsayılan admin olarak `morimasi@gmail.com` tanımlıdır. Kendi kullanıcınızı admin yapmak için veritabanında şu sorguyu çalıştırın:
-
-```sql
--- Kendi e-posta adresinizi girin
-UPDATE public.users SET role = 'admin' WHERE email = 'sizin@email.com';
 ```
 
 ---
