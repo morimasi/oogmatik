@@ -19,15 +19,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
         { id: 'light', name: 'Açık', color: '#fafafa' },
         { id: 'dark', name: 'Koyu', color: '#18181b' },
         { id: 'anthracite', name: 'Antrasit', color: '#222226' },
-        { id: 'anthracite-gold', name: 'Antrasit Altın', color: '#1f1f22' },
+        { id: 'anthracite-gold', name: 'Altın', color: '#1f1f22' },
         { id: 'anthracite-cyber', name: 'Cyber', color: '#000000' },
-        { id: 'anthracite-bumblebee', name: 'Bumblebee', color: '#28282b' },
-        { id: 'pastel', name: 'Pastel', color: '#2c2a25' },
-        { id: 'sepia', name: 'Sepya', color: '#2b2016' },
-        { id: 'purple', name: 'Mor', color: '#180f24' },
-        { id: 'orange', name: 'Turuncu', color: '#261209' },
-        { id: 'maroon', name: 'Bordo', color: '#23080e' },
-        { id: 'contrast', name: 'Yüksek Zıtlık', color: '#000000' },
+        { id: 'anthracite-bumblebee', name: 'Bumblebee', color: '#2c2820' },
+        { id: 'anthracite-stone', name: 'Taş', color: '#3d4043' },
+        { id: 'anthracite-honey', name: 'Bal', color: '#38322f' },
+        { id: 'anthracite-onyx', name: 'Oniks', color: '#121212' },
     ];
 
     const fonts: { id: UiSettings['fontFamily']; name: string }[] = [

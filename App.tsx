@@ -149,7 +149,8 @@ const AppContent: React.FC = () => {
   useEffect(() => {
       try {
           const root = document.documentElement;
-          root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon', 'theme-anthracite', 'theme-anthracite-gold', 'theme-anthracite-cyber', 'theme-anthracite-bumblebee');
+          const themesToRemove = ['dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon', 'theme-anthracite', 'theme-anthracite-gold', 'theme-anthracite-cyber', 'theme-anthracite-bumblebee', 'theme-anthracite-stone', 'theme-anthracite-honey', 'theme-anthracite-onyx'];
+          root.classList.remove(...themesToRemove);
           if (theme === 'dark') root.classList.add('dark');
           else if (theme !== 'light') root.classList.add(`theme-${theme}`);
           localStorage.setItem('app-theme', theme);

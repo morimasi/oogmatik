@@ -142,7 +142,7 @@ export enum ActivityType {
   VISUAL_DISCRIMINATION_MATH = 'VISUAL_DISCRIMINATION_MATH'
 }
 
-export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia' | 'purple' | 'orange' | 'maroon' | 'anthracite' | 'anthracite-gold' | 'anthracite-cyber' | 'anthracite-bumblebee';
+export type AppTheme = 'light' | 'dark' | 'anthracite' | 'anthracite-gold' | 'anthracite-cyber' | 'anthracite-bumblebee' | 'anthracite-stone' | 'anthracite-honey' | 'anthracite-onyx';
 
 export interface UiSettings {
     fontFamily: 'Lexend' | 'OpenDyslexic' | 'Inter' | 'Lora' | 'Comic Neue';
