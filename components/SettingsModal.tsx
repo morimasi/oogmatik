@@ -46,7 +46,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
             lineHeight: 1.6,
             saturation: 100
         });
-        onUpdateTheme('light');
+        onUpdateTheme('anthracite');
     };
 
     return (

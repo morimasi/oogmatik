@@ -89,10 +89,10 @@ const AppContent: React.FC = () => {
   const [theme, setTheme] = useState<AppTheme>(() => {
       try {
           const storedTheme = localStorage.getItem('app-theme');
-          return (storedTheme as AppTheme) || 'light';
+          return (storedTheme as AppTheme) || 'anthracite';
       } catch (e) {
           console.warn("LocalStorage access failed", e);
-          return 'light';
+          return 'anthracite';
       }
   });
 
