@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -7,10 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome 6.5.1 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- OpenDyslexic Font -->
-    <link href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css" rel="stylesheet">
-    <!-- Google Fonts: Lexend (Science-backed reading font), Inter, Lora, Comic Neue -->
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Lora:wght@400;600&family=Comic+Neue:wght@400;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- OpenDyslexic CDN (Backup) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.css">
 
 <script>
   tailwind.config = {
@@ -18,7 +21,6 @@
     theme: {
       extend: {
         fontFamily: {
-          // Default Tailwind stacks overridden by CSS variables
           sans: ['var(--ui-font)', 'sans-serif'],
           serif: ['var(--ui-font)', 'serif'],
           mono: ['var(--ui-font)', 'monospace'],
@@ -61,9 +63,32 @@
   }
 </script>
 <style>
-  /* --- GLOBAL FONT ENFORCEMENT --- */
+  /* --- EXPLICIT FONT DEFINITIONS --- */
+  @font-face {
+      font-family: 'OpenDyslexic';
+      src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic-regular.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+  }
+  @font-face {
+      font-family: 'OpenDyslexic';
+      src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic-bold.woff') format('woff');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+  }
+  @font-face {
+      font-family: 'OpenDyslexic';
+      src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic-italic.woff') format('woff');
+      font-weight: normal;
+      font-style: italic;
+      font-display: swap;
+  }
+
+  /* --- GLOBAL VARIABLES --- */
   :root {
-    --ui-font: 'OpenDyslexic'; /* Default to OpenDyslexic */
+    --ui-font: 'OpenDyslexic'; /* Default Force */
     --ui-spacing: normal;
     --ui-scale: 1;
     --ui-line-height: 1.6;
@@ -73,6 +98,7 @@
     --bg-primary: #fafafa;
     --bg-secondary: #f4f4f5;
     --bg-paper: #ffffff;
+    --bg-inset: #f4f4f5;
     --text-primary: #18181b;
     --text-secondary: #71717a;
     --text-muted: #a1a1aa;
@@ -82,27 +108,58 @@
   }
 
   /* 
-     SMART FONT ENFORCEMENT
-     Apply the font to everything EXCEPT icon elements.
-     Using specific exclusions prevents breaking FontAwesome icons.
+     --- UNIVERSAL FONT ENFORCEMENT ---
+     Applies to all elements except icons.
   */
-  *:not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not(i) {
+  :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not(i) {
     font-family: var(--ui-font), sans-serif !important;
-    letter-spacing: var(--ui-spacing);
-    line-height: var(--ui-line-height);
   }
 
+  /* Specifically target common form elements to override UA styles */
+  button, input, textarea, select, optgroup, label, ::placeholder {
+      font-family: var(--ui-font), sans-serif !important;
+  }
+
+  body {
+    font-size: calc(16px * var(--ui-scale));
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.4s ease, color 0.3s ease;
+    
+    /* Subtle Texture: Dots */
+    background-image: 
+        radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px),
+        radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+    background-position: 0 0, 16px 16px;
+  }
+
+  /* 
+     --- ICON PROTECTION ---
+  */
+  .fa, .fas, .far, .fal, .fab, .fa-solid, .fa-regular, .fa-brands, i[class*="fa-"] {
+      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+      font-weight: 900; 
+      font-style: normal;
+      font-variant: normal;
+      line-height: 1;
+      text-rendering: auto;
+  }
+  .fa-brands, .fab { font-weight: 400; }
+  .fa-regular, .far { font-weight: 400; }
+
+  /* --- IMAGE FILTERS --- */
   html {
       filter: saturate(var(--ui-saturation));
   }
 
   /* --- THEME DEFINITIONS --- */
-  /* Apply to html.class OR .class for preview box */
   
   html.dark, .theme-dark {
       --bg-primary: #18181b;
       --bg-secondary: #27272a;
       --bg-paper: #27272a;
+      --bg-inset: #202023;
       --text-primary: #f4f4f5;
       --text-secondary: #a1a1aa;
       --text-muted: #71717a;
@@ -115,8 +172,8 @@
       --bg-primary: #222226;
       --bg-secondary: #303034;
       --bg-paper: #303034;
-      --bg-inset: #38383c;
-      --text-primary: #ffffff;
+      --bg-inset: #38383c; 
+      --text-primary: #ffffff; 
       --text-secondary: #FFD700;
       --text-muted: #b0b0b0;
       --border-color: #444448;
@@ -129,7 +186,7 @@
       --bg-secondary: #2d2d30;
       --bg-paper: #2d2d30;
       --bg-inset: #353538;
-      --text-primary: #f7f2e9;
+      --text-primary: #ffffff;
       --text-secondary: #FFC300;
       --text-muted: #b3ada2;
       --border-color: #4a4a4f;
@@ -142,7 +199,7 @@
       --bg-secondary: #111111;
       --bg-paper: #111111;
       --bg-inset: #1a1a1a;
-      --text-primary: #F3FF00;
+      --text-primary: #ffffff;
       --text-secondary: #F3FF00;
       --text-muted: #cccccc;
       --border-color: #F3FF00;
@@ -168,7 +225,7 @@
       --bg-secondary: #4a4d50;
       --bg-paper: #4a4d50;
       --bg-inset: #525558;
-      --text-primary: #f0f0f0;
+      --text-primary: #ffffff;
       --text-secondary: #ffc107;
       --text-muted: #a1a1aa;
       --border-color: #5c6063;
@@ -181,7 +238,7 @@
       --bg-secondary: #453e3a;
       --bg-paper: #453e3a;
       --bg-inset: #4d4642;
-      --text-primary: #f5eadd;
+      --text-primary: #ffffff;
       --text-secondary: #ffab00;
       --text-muted: #b3a9a2;
       --border-color: #574f4a;
@@ -194,27 +251,12 @@
       --bg-secondary: #1e1e1e;
       --bg-paper: #1e1e1e;
       --bg-inset: #262626;
-      --text-primary: #e0e0e0;
+      --text-primary: #ffffff;
       --text-secondary: #ffa000;
       --text-muted: #9e9e9e;
       --border-color: #424242;
       --panel-bg: rgba(18, 18, 18, 0.95);
       --pattern-color: rgba(255, 160, 0, 0.05);
-  }
-
-  /* --- GLOBAL STYLES WITH VARS --- */
-  body {
-    font-size: calc(16px * var(--ui-scale));
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    transition: background-color 0.4s ease, color 0.3s ease;
-    
-    /* Subtle Texture: Dots */
-    background-image: 
-        radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px),
-        radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px);
-    background-size: 32px 32px;
-    background-position: 0 0, 16px 16px;
   }
 
   /* UI Elements using Theme Variables */
@@ -225,7 +267,7 @@
       backdrop-filter: blur(12px);
   }
 
-  /* Map Tailwind utilities to CSS Variables to enforce theme consistency */
+  /* Map Tailwind utilities to CSS Variables */
   .bg-white { background-color: var(--bg-paper) !important; }
   .bg-zinc-50 { background-color: var(--bg-secondary) !important; }
   .border-zinc-200, .border-zinc-100 { border-color: var(--border-color) !important; }
@@ -255,22 +297,6 @@
   html.dark .dark\:border-zinc-700,
   [class*="theme-"] .dark\:border-zinc-700 {
       border-color: var(--border-color) !important;
-  }
-
-  /* --- ICON PROTECTION (Double Safety) --- */
-  .fa, .fas, .far, .fal, .fab, .fa-solid, .fa-regular, .fa-brands, i[class*="fa-"] {
-      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
-      font-style: normal;
-      font-variant: normal;
-      line-height: 1;
-      text-rendering: auto;
-      font-weight: 900; /* Solid icons need weight */
-  }
-  .fa-brands, .fab {
-      font-weight: 400;
-  }
-  .fa-regular, .far {
-      font-weight: 400;
   }
 
   /* --- ACCESSIBILITY: HIGH CONTRAST FOCUS RINGS --- */
@@ -347,13 +373,7 @@
   }
 
   /* --- PAPER SIMULATION (The Protected Area) --- */
-  /* 
-     IMPORTANT: Worksheet styles MUST be isolated from the app theme.
-     They should always look like paper (White bg, Black text) for printing consistency.
-     This is achieved by resetting CSS variables to their light-mode defaults within this scope.
-  */
   .worksheet-page {
-      /* Force a white paper background */
       background-color: #ffffff !important;
       
       /* Reset all theme variables to their "light mode" defaults */
@@ -366,10 +386,8 @@
       --text-muted: #a1a1aa !important;
       --border-color: #e4e4e7 !important;
       
-      /* Fallback text color */
       color: #18181b !important; 
 
-      /* Non-theme related styles for print */
       letter-spacing: normal !important; 
       line-height: 1.5 !important;
       font-size: 1rem !important; 
@@ -377,7 +395,7 @@
       transition: box-shadow 0.3s ease;
   }
   
-  /* A generic fallback to ensure text inside worksheet components inherits the correct color */
+  /* Fallback text color for worksheet components */
   .worksheet-page h1, .worksheet-page h2, .worksheet-page h3, .worksheet-page h4, 
   .worksheet-page h5, .worksheet-page h6, .worksheet-page p, .worksheet-page span, 
   .worksheet-page li, .worksheet-page div {
@@ -390,7 +408,7 @@
       }
   }
   
-  /* Any component inside the worksheet using theme-aware background or border colors will now default to light theme */
+  /* Worksheet components overrides */
   .worksheet-page input, 
   .worksheet-page textarea {
       background-color: #ffffff !important;
@@ -398,7 +416,7 @@
       color: #18181b !important;
   }
   
-  /* Preserve Semantic Colors inside Worksheet (Keep this section) */
+  /* Semantic Colors */
   .worksheet-page .text-indigo-600 { color: #4f46e5 !important; }
   .worksheet-page .text-emerald-600 { color: #059669 !important; }
   .worksheet-page .text-amber-600 { color: #d97706 !important; }
@@ -466,3 +484,4 @@
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
+    
