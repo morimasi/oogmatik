@@ -87,11 +87,22 @@ Tarayıcınızda `http://localhost:5173` adresine gidin.
 
 ## 🗄️ Veritabanı Kurulumu (Supabase SQL)
 
-Uygulamanın tam fonksiyonel çalışması için (giriş yapma, kaydetme, paylaşma, istatistikler vb.) Supabase projenizdeki **SQL Editor** bölümünde aşağıdaki kodları sırasıyla çalıştırın.
+Uygulamanın tam fonksiyonel çalışması için (giriş yapma, kaydetme, paylaşma, istatistikler vb.) Supabase projenizdeki **SQL Editor** bölümünde aşağıdaki kodları sırasıyla çalıştırın. Bu kod, var olan tabloları silip yeniden oluşturduğu için tekrar tekrar çalıştırılabilir.
 
-### Adım 1: Tabloları Oluşturma
+### Adım 1: Resetleme ve Tabloları Oluşturma
 
 ```sql
+-- MEVCUT TABLOLARI VE FONKSİYONLARI GÜVENLİ BİR ŞEKİLDE SİLME
+-- Bu blok, kurulumu tekrar tekrar yapmanızı sağlar.
+DROP TABLE IF EXISTS public.activity_stats CASCADE;
+DROP TABLE IF EXISTS public.feedbacks CASCADE;
+DROP TABLE IF EXISTS public.messages CASCADE;
+DROP TABLE IF EXISTS public.saved_assessments CASCADE;
+DROP TABLE IF EXISTS public.saved_worksheets CASCADE;
+DROP TABLE IF EXISTS public.users CASCADE;
+DROP FUNCTION IF EXISTS increment_worksheet_count(uuid);
+
+-- YENİ KURULUM
 -- UUID eklentisini aktifleştir
 create extension if not exists "uuid-ossp";
 
