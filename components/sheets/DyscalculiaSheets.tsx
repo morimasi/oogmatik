@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData } from '../../types';
 import { PedagogicalHeader, ImageDisplay } from './common';
@@ -51,10 +50,13 @@ const Domino: React.FC<{ count: number }> = ({ count }) => {
 
 // Kesir Çubuğu (Fraction Bar)
 const FractionBar: React.FC<{ num: number; den: number }> = ({ num, den }) => {
+    const validDen = den > 0 ? den : 1; // Prevent division by zero or negative length
+    const validNum = Math.max(0, num);
+    
     return (
         <div className="w-full h-10 border-2 border-black rounded flex overflow-hidden bg-white">
-            {Array.from({ length: den }).map((_, i) => (
-                <div key={i} className={`flex-1 border-r border-zinc-400 last:border-r-0 ${i < num ? 'bg-indigo-400 pattern-dots' : ''}`}>
+            {Array.from({ length: validDen }).map((_, i) => (
+                <div key={i} className={`flex-1 border-r border-zinc-400 last:border-r-0 ${i < validNum ? 'bg-indigo-400 pattern-dots' : ''}`}>
                 </div>
             ))}
         </div>
@@ -64,10 +66,12 @@ const FractionBar: React.FC<{ num: number; den: number }> = ({ num, den }) => {
 // Advanced SVG Number Line
 const NumberLineSVG: React.FC<{ start: number; end: number; target?: number; missing?: boolean; step?: number }> = ({ start, end, target, missing, step = 1 }) => {
     const range = end - start;
-    const totalTicks = range / step + 1;
+    const safeStep = step || 1;
+    const totalTicks = Math.floor(range / safeStep) + 1;
     const width = 600;
     const margin = 40;
-    const tickSpacing = (width - 2 * margin) / (totalTicks - 1);
+    // Prevent division by zero if totalTicks is 1
+    const tickSpacing = totalTicks > 1 ? (width - 2 * margin) / (totalTicks - 1) : 0;
 
     return (
         <svg width="100%" viewBox={`0 0 ${width} 120`} className="overflow-visible">
@@ -83,7 +87,7 @@ const NumberLineSVG: React.FC<{ start: number; end: number; target?: number; mis
             </defs>
 
             {Array.from({ length: totalTicks }).map((_, i) => {
-                const val = start + i * step;
+                const val = start + i * safeStep;
                 const x = margin + i * tickSpacing;
                 const isTarget = val === target;
                 
@@ -111,7 +115,7 @@ const NumberLineSVG: React.FC<{ start: number; end: number; target?: number; mis
                             />
                         )}
                         {i < totalTicks - 1 && (
-                            <text x={tickSpacing/2} y="-55" textAnchor="middle" className="text-xs fill-zinc-400 font-bold">+{step}</text>
+                            <text x={tickSpacing/2} y="-55" textAnchor="middle" className="text-xs fill-zinc-400 font-bold">+{safeStep}</text>
                         )}
                     </g>
                 );
@@ -124,7 +128,9 @@ const NumberLineSVG: React.FC<{ start: number; end: number; target?: number; mis
 const EstimationJar: React.FC<{ count: number; itemType?: string }> = ({ count, itemType = 'circle' }) => {
     // Seeded random positions would be better to avoid overlap, but simple random is fine for offline generator visual
     const items = React.useMemo(() => {
-        return Array.from({ length: count }).map((_, i) => ({
+        // Safety check for NaN count
+        const safeCount = isNaN(count) ? 0 : count;
+        return Array.from({ length: safeCount }).map((_, i) => ({
             x: Math.random() * 160 + 20, // Jar width 200, padding 20
             y: Math.random() * 220 + 40, // Jar height 300, padding top 40 (lid) bottom 20
             rotation: Math.random() * 360,
@@ -160,27 +166,18 @@ const EstimationJar: React.FC<{ count: number; itemType?: string }> = ({ count, 
 
 // Isometric 3D Cube Stack
 const CubeStack: React.FC<{ grid: number[][] }> = ({ grid }) => {
-    // Isometric projection constants
-    const tileW = 40;
-    // const tileH = 20; // Not directly used, derived math
-    
-    // Draw a single cube at grid position x, y with height z
-    // In isometric: screenX = (x - y) * tileW, screenY = (x + y) * tileH/2 - z * tileH
-    // Let's simplify: Standard isometric projection
-    // Origin at top center
-    
     const cubes = [];
+    // Safety check for grid
+    if (!grid || !Array.isArray(grid) || grid.length === 0) return null;
+
     const rows = grid.length;
+    // Safety check for grid[0]
+    if (!grid[0]) return null;
     const cols = grid[0].length;
+    
     const centerX = 150;
     const centerY = 50;
 
-    // Iterate to build cubes list, we need to sort them for painter's algorithm (back to front)
-    // Order: x increases (right), y increases (left). 
-    // Draw order: min X, min Y first? No, max X, max Y is front. Min X, Min Y is back.
-    // Actually, lowest Z first? No, Z up.
-    
-    // Standard loop: x from 0 to cols, y from 0 to rows
     for (let x = 0; x < rows; x++) {
         for (let y = 0; y < cols; y++) {
             const h = grid[x][y];
@@ -236,6 +233,7 @@ const VisualCounter: React.FC<{ count: number; type: string; className?: string 
         );
     }
 
+    // Default to stars
     return (
         <div className={`flex flex-wrap gap-1 justify-center max-w-[120px] ${className}`}>
             {Array.from({ length: count }).map((_, i) => (
@@ -394,7 +392,15 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
                     <div className="w-1/3 flex justify-center items-center p-4 bg-zinc-50 rounded-lg border border-zinc-100">
                         {pair.type === 'fraction' ? (
                             <div className="flex flex-col items-center gap-2 w-full">
-                                <FractionBar num={parseInt(pair.item1.split('/')[0])} den={parseInt(pair.item1.split('/')[1])} />
+                                {(() => {
+                                    const strVal = typeof pair.item1 === 'string' ? pair.item1 : String(pair.item1 || "");
+                                    const parts = strVal.split('/');
+                                    const num = parts[0] ? parseInt(parts[0]) : 1;
+                                    const den = parts[1] ? parseInt(parts[1]) : 2;
+                                    return (
+                                        <FractionBar num={isNaN(num) ? 1 : num} den={isNaN(den) ? 2 : den} />
+                                    );
+                                })()}
                                 <span className="font-bold text-xl font-mono">{pair.item1}</span>
                             </div>
                         ) : (

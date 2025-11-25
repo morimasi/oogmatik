@@ -118,6 +118,12 @@ export enum ActivityType {
   BASIC_OPERATIONS = 'BASIC_OPERATIONS',
   REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS',
   
+  // --- NEW ACTIVITIES ---
+  FAMILY_RELATIONS = 'FAMILY_RELATIONS',
+  LOGIC_DEDUCTION = 'LOGIC_DEDUCTION',
+  NUMBER_BOX_LOGIC = 'NUMBER_BOX_LOGIC',
+  MAP_INSTRUCTION = 'MAP_INSTRUCTION',
+
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
   ARITHMETIC_FLUENCY = 'ARITHMETIC_FLUENCY',
@@ -141,10 +147,10 @@ export type AppTheme = 'light' | 'dark' | 'contrast' | 'pastel' | 'sepia' | 'pur
 
 export interface UiSettings {
     fontFamily: 'Lexend' | 'OpenDyslexic' | 'Inter' | 'Lora' | 'Comic Neue';
-    fontSizeScale: number; // 0.8 to 1.5
+    fontSizeScale: number; 
     letterSpacing: 'normal' | 'wide';
-    lineHeight: number; // 1.2 to 2.0
-    saturation: number; // 0 to 100 (percentage)
+    lineHeight: number; 
+    saturation: number; 
 }
 
 export interface StyleSettings {
@@ -296,6 +302,41 @@ export interface BaseActivityData {
     imageBase64?: string;
 }
 
+// --- NEW ACTIVITY DATA TYPES ---
+
+export interface FamilyRelationsData extends BaseActivityData {
+    leftColumn: { text: string, id: number }[];
+    rightColumn: { text: string, id: number }[];
+}
+
+export interface LogicDeductionData extends BaseActivityData {
+    questions: {
+        riddle: string;
+        options: string[];
+        answerIndex: number;
+        correctLetter: string; 
+    }[];
+    scoringText?: string;
+}
+
+export interface NumberBoxLogicData extends BaseActivityData {
+    puzzles: {
+        box1: number[];
+        box2: number[];
+        questions: {
+            text: string;
+            options: string[];
+            correctAnswer: string;
+        }[];
+    }[];
+}
+
+export interface MapInstructionData extends BaseActivityData {
+    mapSvg: string; // Or specialized structure
+    instructions: string[];
+    cities: {name: string, x: number, y: number}[];
+}
+
 // --- DYSLEXIA SUPPORT TYPES ---
 export interface ReadingFlowData extends BaseActivityData {
     prompt: string;
@@ -391,7 +432,7 @@ export interface NumberSenseData extends DyscalculiaCommonData {
         values: number[];
         target?: number;
         visualType?: VisualMathType;
-        step?: number; // Used for number-line-advanced
+        step?: number; 
     }[];
 }
 
@@ -409,7 +450,7 @@ export interface VisualArithmeticData extends DyscalculiaCommonData {
 
 export interface SpatialGridData extends DyscalculiaCommonData {
     gridSize: number;
-    cubeData?: number[][]; // Height map for 3D cubes
+    cubeData?: number[][]; 
     tasks: {
         type: 'position' | 'direction' | 'copy' | 'path' | 'count-cubes';
         grid: (string | null)[][];
@@ -420,7 +461,7 @@ export interface SpatialGridData extends DyscalculiaCommonData {
 
 export interface ConceptMatchData extends DyscalculiaCommonData {
     pairs: {
-        item1: string | number; // e.g. "Topla", "+" or "3/4", [pie_chart]
+        item1: string | number; 
         item2: string | number;
         type: 'symbol' | 'time' | 'fraction' | 'measurement';
         imagePrompt1?: string;
@@ -434,7 +475,7 @@ export interface EstimationData extends DyscalculiaCommonData {
     items: {
         count: number;
         visualType: VisualMathType;
-        options: number[]; // e.g. [10, 20, 50]
+        options: number[]; 
         imagePrompt?: string;
         imageBase64?: string;
     }[];
@@ -769,6 +810,14 @@ export interface WordWebWithPasswordData extends BaseActivityData { prompt: stri
 export interface LetterGridWordFindData extends BaseActivityData { prompt: string; words: string[]; grid: string[][]; writingPrompt: string; }
 export interface WordPlacementPuzzleData extends BaseActivityData { prompt: string; grid: (string | null)[][]; wordGroups: { length: number; words: string[]; }[]; unusedWordPrompt: string; }
 export interface PositionalAnagramData extends BaseActivityData { prompt: string; puzzles: { id: number; scrambled: string; answer: string; }[]; }
+export interface ReadingFlowData extends BaseActivityData { prompt: string; text: { paragraphs: { sentences: { syllables: { text: string; color: string }[]; }[]; }[]; }; readingSpeedTarget?: string; }
+export interface LetterDiscriminationData extends BaseActivityData { prompt: string; targetLetters: string[]; rows: { letters: string[]; targetCount: number; }[]; }
+export interface RapidNamingData extends BaseActivityData { prompt: string; grid: { items: { type: 'color' | 'icon' | 'number' | 'letter'; value: string; label: string }[]; }; type: 'color' | 'object' | 'number' | 'letter'; }
+export interface PhonologicalAwarenessData extends BaseActivityData { prompt: string; exercises: { type: 'syllable-counting' | 'rhyming'; question: string; word: string; imagePrompt?: string; imageBase64?: string; options: number[] | string[]; answer: number | string; }[]; }
+export interface MirrorLettersData extends BaseActivityData { targetPair: string; rows: { items: { letter: string; isMirrored: boolean; rotation: number }[]; }[]; }
+export interface SyllableTrainData extends BaseActivityData { trains: { word: string; syllables: string[]; imagePrompt?: string; imageBase64?: string; }[]; }
+export interface VisualTrackingLineData extends BaseActivityData { paths: { id: number; color: string; d: string; startLabel: string; endLabel: string; startImage?: string; endImage?: string; }[]; width: number; height: number; }
+export interface BackwardSpellingData extends BaseActivityData { items: { reversed: string; correct: string; imagePrompt?: string; imageBase64?: string; }[]; }
 
 export type SingleWorksheetData = 
   | FindTheDifferenceData
@@ -892,7 +941,11 @@ export type SingleWorksheetData =
   | VisualArithmeticData
   | SpatialGridData
   | ConceptMatchData
-  | EstimationData;
+  | EstimationData
+  | FamilyRelationsData
+  | LogicDeductionData
+  | NumberBoxLogicData
+  | MapInstructionData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

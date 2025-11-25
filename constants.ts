@@ -2,6 +2,31 @@
 import { Activity, ActivityType, ActivityCategory } from './types';
 
 export const ACTIVITIES: Activity[] = [
+  // ... (previous activities)
+  {
+    id: ActivityType.FAMILY_RELATIONS,
+    title: 'Akrabalık İlişkileri Eşleştirme',
+    description: 'Tanımları verilen akrabalık terimlerini (Teyze, Hala, Dayı vb.) doğru şekilde eşleştirin.',
+    icon: 'fa-solid fa-people-roof',
+  },
+  {
+    id: ActivityType.LOGIC_DEDUCTION,
+    title: 'Mantıksal Çıkarım Bulmacaları',
+    description: 'İpuçlarını kullanarak doğru cevabı mantıksal çıkarımla bulun.',
+    icon: 'fa-solid fa-puzzle-piece',
+  },
+  {
+    id: ActivityType.NUMBER_BOX_LOGIC,
+    title: 'Kutulu Sayı Analizi',
+    description: 'Kutulardaki sayılarla ilgili mantık ve işlem sorularını çözün.',
+    icon: 'fa-solid fa-square-poll-horizontal',
+  },
+  {
+    id: ActivityType.MAP_INSTRUCTION,
+    title: 'Harita ve Yönerge Takibi',
+    description: 'Harita üzerindeki yönergeleri takip ederek şehirleri boyayın veya işaretleyin.',
+    icon: 'fa-solid fa-map',
+  },
   {
     id: ActivityType.NUMBER_SENSE,
     title: 'Sayı Hissi ve Miktar Kavramı',
@@ -167,7 +192,7 @@ export const ACTIVITIES: Activity[] = [
   {
     id: ActivityType.SPELLING_CHECK,
     title: 'Doğru Yazılışı Bulma',
-    description: 'Verilen kelimeler arasından doğru yazılanı seçin.',
+    description: 'Verilen kelimeleri arasından doğru yazılanı seçin.',
     icon: 'fa-solid fa-spell-check',
   },
   {
@@ -839,7 +864,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.VISUAL_NUMBER_PATTERN,
       ActivityType.ODD_ONE_OUT,
       ActivityType.PUNCTUATION_MAZE,
-      ActivityType.PUNCTUATION_PHONE_NUMBER
+      ActivityType.PUNCTUATION_PHONE_NUMBER,
+      ActivityType.NUMBER_BOX_LOGIC // NEW
     ]
   },
   {
@@ -848,6 +874,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     description: 'Kelime dağarcığını ve dil becerilerini geliştiren oyunlar.',
     icon: 'fa-solid fa-spell-check',
     activities: [
+      ActivityType.FAMILY_RELATIONS, // NEW
       ActivityType.WORD_SEARCH,
       ActivityType.ANAGRAM,
       ActivityType.WORD_LADDER,
@@ -913,7 +940,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.STROOP_TEST,
       ActivityType.CHAOTIC_NUMBER_SEARCH,
       ActivityType.PUNCTUATION_COLORING,
-      ActivityType.SYNONYM_ANTONYM_COLORING
+      ActivityType.SYNONYM_ANTONYM_COLORING,
+      ActivityType.MAP_INSTRUCTION // NEW
     ]
   },
   {
@@ -955,7 +983,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.STORY_ANALYSIS,
       ActivityType.STORY_SEQUENCING,
       ActivityType.PROVERB_FILL_IN_THE_BLANK,
-      ActivityType.PROVERB_SEARCH
+      ActivityType.PROVERB_SEARCH,
+      ActivityType.LOGIC_DEDUCTION // NEW
     ]
   },
   {

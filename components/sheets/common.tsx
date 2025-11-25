@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
@@ -6,10 +5,12 @@ import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
 // --- HELPER: SMART EMOJI FINDER ---
 const findEmojiForDescription = (desc: string): string | null => {
     if (!desc) return null;
-    const lowerDesc = desc.toLocaleLowerCase('tr');
+    // Safely handle non-string input
+    const safeDesc = String(desc);
+    const lowerDesc = safeDesc.toLocaleLowerCase('tr');
     
     // 1. Check direct mapping in EMOJI_MAP keys or values
-    if (EMOJI_MAP[desc]) return EMOJI_MAP[desc]; 
+    if (EMOJI_MAP[safeDesc]) return EMOJI_MAP[safeDesc]; 
     
     // 2. Reverse lookup: Check if description matches any mapped value
     for (const [emoji, name] of Object.entries(EMOJI_MAP)) {
@@ -25,7 +26,10 @@ const findEmojiForDescription = (desc: string): string | null => {
         'çiçek': '🌸', 'ev': '🏠', 'güneş': '☀️', 'ay': '🌙', 'saat': '⏰',
         'ağaç': '🌳', 'kalp': '❤️', 'bulut': '☁️', 'kar': '❄️', 'ateş': '🔥',
         'su': '💧', 'muz': '🍌', 'çilek': '🍓', 'portakal': '🍊', 'üzüm': '🍇',
-        'kutu': '📦', 'şapka': '🧢', 'gözlük': '👓', 'ayakkabı': '👟', 'çanta': '🎒'
+        'kutu': '📦', 'şapka': '🧢', 'gözlük': '👓', 'ayakkabı': '👟', 'çanta': '🎒',
+        'matematik': '🧮', 'sayı': '1️⃣', 'işlem': '➗', 'bulmaca': '🧩', 'dikkat': '👀',
+        'fark': '≠', 'hece': '🗣️', 'tren': '🚂', 'resfebe': '🖼️', 'müzik': '🎵',
+        'harf': '🅰️', 'kelime': '🔤', 'tablo': '📊', 'şekil': '🔷', 'tema': '🎨'
     };
 
     for (const [key, emoji] of Object.entries(commonMap)) {
@@ -33,6 +37,35 @@ const findEmojiForDescription = (desc: string): string | null => {
     }
     
     return null;
+};
+
+// --- HELPER: STRING TO COLOR ---
+const stringToColor = (str: string): string => {
+    const safeStr = String(str);
+    const colors = [
+        'bg-red-100 text-red-600 border-red-200',
+        'bg-orange-100 text-orange-600 border-orange-200',
+        'bg-amber-100 text-amber-600 border-amber-200',
+        'bg-yellow-100 text-yellow-600 border-yellow-200',
+        'bg-lime-100 text-lime-600 border-lime-200',
+        'bg-green-100 text-green-600 border-green-200',
+        'bg-emerald-100 text-emerald-600 border-emerald-200',
+        'bg-teal-100 text-teal-600 border-teal-200',
+        'bg-cyan-100 text-cyan-600 border-cyan-200',
+        'bg-sky-100 text-sky-600 border-sky-200',
+        'bg-blue-100 text-blue-600 border-blue-200',
+        'bg-indigo-100 text-indigo-600 border-indigo-200',
+        'bg-violet-100 text-violet-600 border-violet-200',
+        'bg-purple-100 text-purple-600 border-purple-200',
+        'bg-fuchsia-100 text-fuchsia-600 border-fuchsia-200',
+        'bg-pink-100 text-pink-600 border-pink-200',
+        'bg-rose-100 text-rose-600 border-rose-200'
+    ];
+    let hash = 0;
+    for (let i = 0; i < safeStr.length; i++) {
+        hash = safeStr.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
 };
 
 // --- TTS HELPER ---
@@ -71,44 +104,51 @@ const useTTS = () => {
 };
 
 // Enhanced ImageDisplay with robust Fallback
-export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string; className?: string }) => {
+export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string | number; className?: string }) => {
     
+    // Explicitly handle non-primitive descriptions
+    let safeDesc = '';
+    try {
+        if (description !== null && description !== undefined) {
+            safeDesc = String(description);
+        }
+    } catch (e) {
+        safeDesc = '';
+    }
+
     // 1. Try rendering Base64 Image
     if (base64 && typeof base64 === 'string' && base64.length > 100) { 
         return (
             <img 
                 src={`data:image/png;base64,${base64}`} 
-                alt={description || 'Görsel'} 
+                alt={safeDesc || 'Görsel'} 
                 className={`${className} object-contain rounded-lg shadow-sm bg-white/50 dark:bg-zinc-800/50 transition-all duration-300 hover:scale-[1.02]`} 
                 loading="lazy" 
             />
         );
     }
     
+    const cleanDescription = (safeDesc.trim().length > 0) ? safeDesc : 'Görsel';
     // 2. Smart Emoji/Icon Fallback
-    const emojiIcon = findEmojiForDescription(description || '');
+    const emojiIcon = findEmojiForDescription(cleanDescription);
     
-    // 3. Render
+    // 3. Deterministic Color Avatar Fallback
+    const colorClass = stringToColor(cleanDescription);
+    const initial = cleanDescription.charAt(0).toUpperCase();
+    
     return (
-        <div className={`bg-indigo-50/50 dark:bg-zinc-800/50 rounded-xl border-2 border-dashed border-indigo-200 dark:border-zinc-600 flex flex-col items-center justify-center text-center p-4 overflow-hidden select-none ${className}`}>
+        <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all ${className} ${emojiIcon ? 'bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700' : `border-2 ${colorClass}`}`}>
             {emojiIcon ? (
                 // Emoji High-Res Representation
-                <div className="text-6xl md:text-7xl lg:text-8xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={description}>
+                <div className="text-5xl md:text-6xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={cleanDescription}>
                     {emojiIcon}
                 </div>
             ) : (
-                // Generic Placeholder if nothing matches
-                <div className="flex flex-col items-center justify-center h-full opacity-40">
-                    <i className="fa-regular fa-image text-4xl text-indigo-300 dark:text-zinc-500 mb-2"></i>
-                    <span className="text-[10px] font-bold text-indigo-400 dark:text-zinc-500 uppercase">Görsel</span>
+                // Colorful Text Avatar
+                <div className="flex flex-col items-center justify-center h-full w-full animate-in fade-in duration-500">
+                    <span className="text-4xl font-black opacity-80 mb-1">{initial}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 px-1 truncate max-w-full">{cleanDescription}</span>
                 </div>
-            )}
-            
-            {/* Only show label if it's a placeholder or specific requirement */}
-            {description && !emojiIcon && (
-                <p className="text-[10px] sm:text-xs font-bold text-indigo-900 dark:text-indigo-200 px-1 leading-tight uppercase tracking-wide break-words w-full mt-1">
-                    {description}
-                </p>
             )}
         </div>
     );

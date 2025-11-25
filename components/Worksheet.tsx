@@ -9,6 +9,7 @@ import * as MathLogicSheets from './sheets/MathLogicSheets';
 import * as VisualSheets from './sheets/VisualPerceptionSheets';
 import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 import * as DyscalculiaSheets from './sheets/DyscalculiaSheets';
+import * as NewActivitySheets from './sheets/NewActivitySheets'; // Added
 
 interface WorksheetProps {
   activityType: ActivityType | null;
@@ -18,12 +19,18 @@ interface WorksheetProps {
 
 const renderSheet = (type: ActivityType | null, data: any, settings: StyleSettings) => {
     try {
-        // Pass settings to components that support layout customization (like columns)
         const props = { data, settings };
 
         switch (type) {
+            // --- New Activities ---
+            case ActivityType.FAMILY_RELATIONS: return <NewActivitySheets.FamilyRelationsSheet {...props} />;
+            case ActivityType.LOGIC_DEDUCTION: return <NewActivitySheets.LogicDeductionSheet {...props} />;
+            case ActivityType.NUMBER_BOX_LOGIC: return <NewActivitySheets.NumberBoxLogicSheet {...props} />;
+            case ActivityType.MAP_INSTRUCTION: return <NewActivitySheets.MapInstructionSheet {...props} />;
+
             // --- Dyscalculia Support ---
             case ActivityType.NUMBER_SENSE: return <DyscalculiaSheets.NumberSenseSheet {...props} />;
+            // ... (rest of the existing cases remain unchanged)
             case ActivityType.ARITHMETIC_FLUENCY:
             case ActivityType.VISUAL_ARITHMETIC:
             case ActivityType.NUMBER_GROUPING:
@@ -40,7 +47,7 @@ const renderSheet = (type: ActivityType | null, data: any, settings: StyleSettin
             case ActivityType.ESTIMATION_SKILLS:
                 return <DyscalculiaSheets.EstimationSheet {...props} />;
             case ActivityType.VISUAL_NUMBER_REPRESENTATION:
-                return <DyscalculiaSheets.NumberSenseSheet {...props} />; // Reuse logic
+                return <DyscalculiaSheets.NumberSenseSheet {...props} />; 
             case ActivityType.PROBLEM_SOLVING_STRATEGIES:
             case ActivityType.APPLIED_MATH_STORY:
                 return MathLogicSheets.RealLifeMathProblemsSheet ? <MathLogicSheets.RealLifeMathProblemsSheet {...props} /> : <div>Component Not Found</div>;
@@ -206,7 +213,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--worksheet-gap': `${settings.gap}px`,
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-border-color': settings.borderColor,
-        '--dynamic-cols': settings.columns, // Pass column setting to CSS variable
+        '--dynamic-cols': settings.columns,
     } as CSSProperties;
 
     return (
@@ -217,7 +224,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     className="worksheet-page bg-white shadow-lg print:shadow-none print:break-after-page w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden"
                     style={pageStyle}
                 >
-                    {/* If renderSheet returns a single block, we need to rely on the internal components to use var(--dynamic-cols) */}
                     {renderSheet(activityType, sheetData, settings)}
 
                     <div className="absolute bottom-4 right-6 text-[10px] text-zinc-400 font-bold uppercase tracking-widest print:block hidden opacity-50">
@@ -229,7 +235,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     );
 };
 
-// Prevent re-renders unless data or settings strictly change
 export default React.memo(Worksheet, (prevProps, nextProps) => {
     return prevProps.activityType === nextProps.activityType && 
            prevProps.data === nextProps.data && 

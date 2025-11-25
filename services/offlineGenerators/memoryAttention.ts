@@ -1,6 +1,4 @@
 
-
-
 import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, WordMemoryItem } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
@@ -36,6 +34,7 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
             pedagogicalNote: "Kısa süreli işitsel-sözel bellek kapasitesini ölçer.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
+            imagePrompt: 'Hafıza',
             wordsToMemorize: allWords.slice(0, memorizeCount).map(word => ({ text: word })),
             testWords: shuffle(allWords).map(word => ({ text: word }))
         });
@@ -61,6 +60,7 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
             pedagogicalNote: "Görsel tanıma belleği ve detaylara dikkat becerisini geliştirir.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
+            imagePrompt: 'Görsel Hafıza',
             itemsToMemorize: allItems.slice(0, memorizeCount),
             testItems: shuffle(allItems)
         });
@@ -98,6 +98,7 @@ export const generateOfflineNumberSearch = async (options: GeneratorOptions): Pr
             title: `Sayı Avı (${difficulty})`, 
             instruction: `${range.start}'den ${range.end}'e kadar olan sayıları sırasıyla bulup daire içine al.`,
             pedagogicalNote: "Sıralı dikkat, görsel tarama ve takip becerisi.",
+            imagePrompt: 'Sayılar',
             numbers: shuffle([...numbersToFind, ...distractors]), 
             range: range 
         });
@@ -140,6 +141,7 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
             title: 'İkiliyi Bul', 
             instruction: "Her satırda iki kez yazılmış olan karakteri bul.",
             pedagogicalNote: "Odaklanmış dikkat ve görsel ayrım.",
+            imagePrompt: 'Dikkat',
             rows 
         });
     }
@@ -194,6 +196,7 @@ export const generateOfflineLetterGridTest = async (options: GeneratorOptions): 
             title: `Harf Izgara Testi (${difficulty})`,
             instruction: `Aşağıdaki tabloda sadece "${targets.join(', ')}" harflerini bul ve işaretle.`,
             pedagogicalNote: "Seçici dikkat ve sürdürülebilir dikkat becerisi.",
+            imagePrompt: 'Harfler',
             grid: grid,
             targetLetters: targets
         });
@@ -208,7 +211,8 @@ export const generateOfflineBurdonTest = async (options: GeneratorOptions): Prom
         ...d, 
         title: 'Burdon Dikkat Testi',
         instruction: 'Sırasıyla her satırı tara ve "a, b, d, g" harflerini bulup çiz.',
-        pedagogicalNote: 'Standart dikkat ölçüm testi. Hız ve doğruluk önemlidir.'
+        pedagogicalNote: 'Standart dikkat ölçüm testi. Hız ve doğruluk önemlidir.',
+        imagePrompt: 'Dikkat'
     }));
 };
 
@@ -235,6 +239,7 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
             title: 'Harf İkilisini Bul', 
             instruction: `Tabloda yan yana gelmiş "${pair}" ikililerini bul ve daire içine al.`,
             pedagogicalNote: "Görsel tarama ve desen tanıma.",
+            imagePrompt: 'İkili',
             grid, 
             targetPair: pair 
         });
@@ -261,6 +266,7 @@ export const generateOfflineTargetSearch = async (options: GeneratorOptions): Pr
             title: 'Dikkatli Göz', 
             instruction: `Sadece "${target}" karakterlerini bul. Çeldirici "${distractor}" karakterlerine dikkat et.`,
             pedagogicalNote: "Zorlu zemin üzerinde şekil ayırt etme (Figure-Ground Perception).",
+            imagePrompt: 'Hedef',
             grid, 
             target, 
             distractor 
@@ -277,7 +283,8 @@ export const generateOfflineColorWheelMemory = async (options: GeneratorOptions)
         const emojis = getRandomItems(Object.keys(EMOJI_MAP), count);
         const items = emojis.map((emoji, index) => ({
             name: `${EMOJI_MAP[emoji]} ${emoji}`,
-            color: COLORS[index % COLORS.length].css
+            color: COLORS[index % COLORS.length].css,
+            imagePrompt: `${EMOJI_MAP[emoji]}`
         }));
         results.push({
             title: 'Renk Çemberi',
@@ -285,6 +292,7 @@ export const generateOfflineColorWheelMemory = async (options: GeneratorOptions)
             pedagogicalNote: "Görsel-mekansal hafıza ve renk eşleştirme.",
             memorizeTitle: 'Ezberle',
             testTitle: 'Hatırla ve Eşleştir',
+            imagePrompt: 'Renk',
             items
         });
     }
@@ -318,6 +326,7 @@ export const generateOfflineImageComprehension = async (options: GeneratorOption
             memorizeTitle: "Metni Oku ve Canlandır",
             testTitle: "Soruları Cevapla",
             sceneDescription: selectedScene.scene,
+            imagePrompt: 'Resim',
             imageBase64: "", // No image in fast mode
             questions: selectedScene.questions
         });
@@ -335,7 +344,8 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
         const memorizeCount = Math.floor(count * ((memorizeRatio || 50) / 100));
         const allEmojis = getRandomItems(Object.keys(EMOJI_MAP), count);
         const allItems = allEmojis.map(emoji => ({
-            description: `${getRandomItems(adjectives, 1)[0]} ${EMOJI_MAP[emoji]} ${emoji}`
+            description: `${getRandomItems(adjectives, 1)[0]} ${EMOJI_MAP[emoji]} ${emoji}`,
+            imagePrompt: `${EMOJI_MAP[emoji]}`
         }));
         
         results.push({
@@ -344,6 +354,7 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
             pedagogicalNote: "Sıfat-isim tamlamalarıyla ilişkilendirilmiş hafıza çalışması.",
             memorizeTitle: 'Karakterleri Ezberle',
             testTitle: 'Doğru Karakterleri İşaretle',
+            imagePrompt: 'Karakter',
             charactersToMemorize: allItems.slice(0, memorizeCount),
             testCharacters: shuffle(allItems)
         });
@@ -367,6 +378,7 @@ export const generateOfflineStroopTest = async (options: GeneratorOptions): Prom
             title: 'Stroop Testi (Renk Okuma)', 
             instruction: "Kelimeyi okuma! Kelimenin yazıldığı RENGİ söyle. Hızlı olmaya çalış.",
             pedagogicalNote: "Dürtü kontrolü (inhibisyon), seçici dikkat ve bilişsel esneklik sağlar.",
+            imagePrompt: 'Renkler',
             items 
         });
     }
@@ -401,6 +413,7 @@ export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptio
             title: 'Kaotik Sayı Bulma',
             instruction: `${range.start}'den ${range.end}'e kadar olan sayıları sırasıyla bul ve işaretle.`,
             pedagogicalNote: "Karmaşık görsel zeminde sıralı takip ve dikkat.",
+            imagePrompt: 'Kaos',
             prompt: `Karışık sayılar arasından ${range.start}'den ${range.end}'e kadar olanları boyayın.`,
             numbers,
             range

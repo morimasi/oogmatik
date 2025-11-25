@@ -1,6 +1,4 @@
 
-
-
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
     GeneratorOptions
@@ -90,6 +88,7 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
             title: `Farklı Olanı Bul (Hızlı Mod)`, 
             instruction: "Her satırda, diğerlerinden farklı yazılmış veya görünen kelimeyi bulup işaretleyin.",
             pedagogicalNote: "Bu etkinlik görsel ayrım ve detaylara dikkat becerisini güçlendirir.",
+            imagePrompt: 'Fark',
             rows 
         });
     }
@@ -108,6 +107,7 @@ export const generateOfflineWordComparison = async (options: GeneratorOptions): 
             title: 'Kelime Karşılaştırma',
             instruction: "İki kutuyu karşılaştırın ve sadece bir kutuda olup diğerinde olmayan kelimeleri bulun.",
             pedagogicalNote: "Görsel tarama ve kısa süreli bellek kullanımını destekler.",
+            imagePrompt: 'Karşılaştırma',
             box1Title: 'Liste A',
             box2Title: 'Liste B',
             wordList1: shuffle([...commonWords, ...list1_diff]),
@@ -138,6 +138,7 @@ export const generateOfflineShapeMatching = async (options: GeneratorOptions): P
             title: 'Şekil Eşleştirme', 
             instruction: "Sol sütundaki şekil gruplarını sağ sütundaki eşleriyle çizgilerle birleştirin.",
             pedagogicalNote: "Görsel form algısı ve eşleştirme becerisi çalışmasıdır.",
+            imagePrompt: 'Şekiller',
             leftColumn, 
             rightColumn,
             complexity: shapeCount
@@ -158,6 +159,7 @@ export const generateOfflineFindIdenticalWord = async (options: GeneratorOptions
             title: 'Aynısını Bul', 
             instruction: "Verilen örneğin aynısı olan kelimeyi seçenekler arasından bulun.",
             pedagogicalNote: "Benzer uyaranlar arasından doğru olanı seçme (şekil-zemin) becerisi.",
+            imagePrompt: 'Kelime',
             groups 
         });
     }
@@ -181,6 +183,7 @@ export const generateOfflineGridDrawing = async (options: GeneratorOptions): Pro
             title: 'Kare Çizim / Ayna Çizimi', 
             instruction: "Soldaki deseni sağdaki boş ızgaraya birebir aynı olacak şekilde çizin.",
             pedagogicalNote: "El-göz koordinasyonu ve uzamsal konumlandırma becerisini geliştirir.",
+            imagePrompt: 'Çizim',
             gridDim: dim, 
             drawings 
         });
@@ -214,6 +217,7 @@ export const generateOfflineSymbolCipher = async (options: GeneratorOptions): Pr
             title: 'Şekil Şifresi', 
             instruction: "Anahtar tablosunu kullanarak şekillerle yazılmış şifreli kelimeleri çözün.",
             pedagogicalNote: "Sembolik kodlama ve kod çözme becerisi, okuma-yazma temelli bilişsel süreçleri destekler.",
+            imagePrompt: 'Şifre',
             cipherKey, 
             wordsToSolve 
         });
@@ -236,6 +240,7 @@ export const generateOfflineBlockPainting = async (options: GeneratorOptions): P
             title: 'Blok Boyama (Piksel Sanatı)',
             instruction: "Verilen renkli blokları kullanarak deseni oluşturun veya desene göre kareleri boyayın.",
             pedagogicalNote: "Görsel bütünleme ve parça-bütün ilişkisi kurma becerisi.",
+            imagePrompt: 'Blok',
             grid: {rows: 8, cols: 8},
             targetPattern: pattern,
             shapes: [
@@ -284,6 +289,7 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
             title: 'Görsel Farklı Olanı Bul',
             instruction: difficulty === 'Uzman' ? "Şekiller döndürülmüş olabilir. Yapısal olarak farklı olanı bul." : "Her satırda kuralı bozan şekli bul.",
             pedagogicalNote: "Görsel sınıflandırma, zihinsel döndürme ve mantıksal çıkarım.",
+            imagePrompt: 'Şekil',
             rows
         });
     }
@@ -301,6 +307,7 @@ export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions):
             title: 'Simetri Tamamlama',
             instruction: "Kırmızı çizgiye göre şeklin yansımasını (ayna görüntüsünü) çizin.",
             pedagogicalNote: "Uzamsal algı ve simetri kavramını pekiştirir.",
+            imagePrompt: 'Simetri',
             gridDim: dim,
             dots,
             axis: 'vertical',
@@ -324,6 +331,7 @@ export const generateOfflineFindDifferentString = async (options: GeneratorOptio
             title: 'Farklı Diziyi Bul',
             instruction: "Her satırda diğerlerinden farklı olan karakter dizisini bulun.",
             pedagogicalNote: "Dikkat süresi ve görsel tarama hızını artırır.",
+            imagePrompt: 'Dizi',
             rows
         });
     }
@@ -343,6 +351,7 @@ export const generateOfflineDotPainting = async (options: GeneratorOptions): Pro
             title: 'Nokta Boyama',
             instruction: "Verilen renkteki noktaları boyayarak gizli resmi ortaya çıkar.",
             pedagogicalNote: "İnce motor becerileri ve görsel bütünleme.",
+            imagePrompt: 'Nokta',
             prompt1: 'Sadece renkli noktaları takip et.',
             prompt2: `Gizli Şekil: ${shape.name}`,
             svgViewBox: '0 0 100 100',
@@ -386,6 +395,7 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
             title: 'ABC Bağlama (Profesyonel)',
             instruction: "Aynı harfleri, çizgiler birbirini kesmeyecek şekilde birleştirin. Tüm kareler dolmalıdır.",
             pedagogicalNote: "Planlama ve uzamsal akıl yürütme.",
+            imagePrompt: 'Bağlama',
             puzzles: [{id: 1, gridDim: dim, points}]
         });
     }
@@ -414,6 +424,7 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
             title: 'Koordinat Şifreleme', 
             instruction: "Verilen koordinatlardaki harfleri bularak şifreyi çözün.",
             pedagogicalNote: "Matris mantığı ve kod çözme.",
+            imagePrompt: 'Koordinat',
             grid, 
             wordsToFind: [], 
             cipherCoordinates, 
@@ -446,6 +457,7 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
             title: "Kelime Bağlama (Hızlı Mod)",
             instruction: "İlişkili kelimeleri çizgilerle birleştir.",
             pedagogicalNote: "Anlamsal ilişkilendirme ve görsel eşleştirme.",
+            imagePrompt: 'Bağlantı',
             gridDim: 10,
             points
         });
@@ -459,13 +471,14 @@ export const generateOfflineProfessionConnect = async (options: GeneratorOptions
     for(let i=0; i<worksheetCount; i++){
         const professions: string[] = getRandomItems(TR_VOCAB.jobs, itemCount || 5);
         const points = professions.flatMap((p: string, idx) => ([
-            { label: p, imageDescription: p, imagePrompt: '', x: 0, y: idx * 2, pairId: idx },
-            { label: '', imageDescription: `${p} Aracı`, imagePrompt: '', x: 5, y: idx * 2, pairId: idx }
+            { label: p, imageDescription: p, imagePrompt: 'Meslek', x: 0, y: idx * 2, pairId: idx },
+            { label: '', imageDescription: `${p} Aracı`, imagePrompt: 'Meslek', x: 5, y: idx * 2, pairId: idx }
         ]));
         results.push({ 
             title: 'Meslek Eşleştirme', 
             instruction: "Meslekleri kullandıkları araçlarla eşleştirin.",
             pedagogicalNote: "İlişkilendirme ve kelime dağarcığı.",
+            imagePrompt: 'Meslek',
             gridDim: 6, 
             points 
         });
@@ -482,6 +495,7 @@ export const generateOfflineMatchstickSymmetry = async (options: GeneratorOption
             title: 'Kibrit Simetrisi',
             instruction: "Verilen şeklin simetriğini çizin.",
             pedagogicalNote: "Görsel kopyalama ve simetri.",
+            imagePrompt: 'Kibrit',
             puzzles: [{
                 id: 1,
                 axis: 'vertical',
@@ -514,8 +528,8 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
             }
 
             const items = shuffle([
-                ...mainItems.map(desc => ({ description: desc, isOdd: false })),
-                { description: oddItem, isOdd: true }
+                ...mainItems.map(desc => ({ description: desc, imagePrompt: 'Tema', isOdd: false })),
+                { description: oddItem, imagePrompt: 'Tema', isOdd: true }
             ]);
 
             rows.push({ theme: mainCatKey, items });
@@ -525,6 +539,7 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
             title: 'Tematik Farklı Olanı Bul (Hızlı Mod)',
             instruction: "Her grupta, konuyla ilgisiz olanı bulun.",
             pedagogicalNote: "Kategorizasyon ve mantıksal çıkarım.",
+            imagePrompt: 'Tema',
             rows
         });
     }
@@ -556,6 +571,7 @@ export const generateOfflinePunctuationColoring = async (options: GeneratorOptio
             title: 'Noktalama Boyama',
             instruction: "Cümlenin sonuna gelecek işarete göre kutuyu boya.",
             pedagogicalNote: "Dilbilgisi kurallarını görselleştirme.",
+            imagePrompt: 'Noktalama',
             sentences: sentences.slice(0, count)
         };
     });
@@ -586,6 +602,7 @@ export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOp
             title: 'Eş/Zıt Anlamlı Boyama',
             instruction: "Kelimelerin ilişkisine göre (eş/zıt) boyama yap.",
             pedagogicalNote: "Kelime anlamı ilişkileri pekiştirme.",
+            imagePrompt: 'Eş Anlam',
             colorKey,
             wordsOnImage
         });
@@ -608,6 +625,7 @@ export const generateOfflineStarHunt = async (options: GeneratorOptions): Promis
             title: 'Yıldız Avı (Hızlı Mod)',
             instruction: "Her satır ve sütunda 1 yıldız olacak şekilde yerleştirin. Yıldızlar birbirine değmemelidir.",
             pedagogicalNote: "Mantıksal çıkarım ve kısıtlama yönetimi (Constraint Satisfaction).",
+            imagePrompt: 'Yıldız',
             grid: grid,
             targetCount: size
         };
@@ -641,6 +659,7 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
             title: 'Üçgen Sayma',
             instruction: "Şeklin içinde kaç tane üçgen olduğunu sayın.",
             pedagogicalNote: "Görsel ayrıştırma, parça-bütün ilişkisi ve sistematik sayma becerisi.",
+            imagePrompt: 'Üçgen',
             figures: [{
                 svgPaths: figure.svgPaths,
                 targetShape: 'triangle',

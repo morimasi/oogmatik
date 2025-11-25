@@ -41,7 +41,7 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
             title: `Sayı Hissi ve Tahmin (${difficulty})`,
             instruction: 'Sayı doğrusundaki eksik sayıyı bul ve kavanozdaki nesneleri tahmin et.',
             pedagogicalNote: 'Sayısal aralıklar, ritmik sayma ve görsel miktar tahmini.',
-            imagePrompt: 'Number line with missing numbers',
+            imagePrompt: 'Sayı Doğrusu',
             layout: 'visual',
             exercises
         };
@@ -71,7 +71,7 @@ export const generateOfflineArithmeticFluency = async (options: GeneratorOptions
                 operator: op as '+' | '-' | 'x' | '÷',
                 answer: op === '+' ? n1 + n2 : n1 - n2,
                 visualType: 'ten-frame' as const, 
-                imagePrompt: ''
+                imagePrompt: 'Matematik İşlemi'
             };
         });
 
@@ -79,7 +79,7 @@ export const generateOfflineArithmeticFluency = async (options: GeneratorOptions
             title: 'Görsel İşlem (10\'luk Çerçeve)',
             instruction: 'Noktaları sayarak işlemleri yap.',
             pedagogicalNote: 'Görsel destekli toplama/çıkarma.',
-            imagePrompt: 'Math addition worksheet',
+            imagePrompt: 'Matematik İşlemi',
             layout: 'visual',
             problems
         };
@@ -100,7 +100,7 @@ export const generateOfflineNumberGrouping = async (options: GeneratorOptions): 
                 operator: 'group' as const,
                 answer: val,
                 visualType: 'domino' as const,
-                imagePrompt: ''
+                imagePrompt: 'Domino'
             };
         });
 
@@ -108,7 +108,7 @@ export const generateOfflineNumberGrouping = async (options: GeneratorOptions): 
             title: 'Sayı Gruplama (Domino)',
             instruction: 'Dominodaki noktaları say ve kutuya yaz.',
             pedagogicalNote: 'Hızlı sayı tanıma (Subitizing).',
-            imagePrompt: 'Domino pieces',
+            imagePrompt: 'Domino',
             layout: 'visual',
             problems
         };
@@ -149,7 +149,7 @@ export const generateOfflineSpatialReasoning = async (options: GeneratorOptions)
             title: 'Uzamsal Algı ve Küpler',
             instruction: 'Şekilleri incele ve istenenleri yap.',
             pedagogicalNote: '3 boyutlu düşünme, zihinsel döndürme ve görsel kopyalama.',
-            imagePrompt: '3D cubes isometric',
+            imagePrompt: 'Küp',
             layout: 'grid',
             gridSize: size,
             cubeData: cubeGrid,
@@ -167,13 +167,13 @@ export const generateOfflineMathLanguage = async (options: GeneratorOptions): Pr
         title: 'Matematik Dili',
         instruction: 'Kelimeleri doğru sembollerle eşleştir.',
         pedagogicalNote: 'Sembol okuryazarlığı.',
-        imagePrompt: 'Math symbols',
+        imagePrompt: 'Matematik Sembolleri',
         layout: 'list',
         pairs: [
-            { item1: 'ARTI', item2: '+', type: 'symbol', imagePrompt1: '' },
-            { item1: 'EKSİ', item2: '-', type: 'symbol', imagePrompt1: '' },
-            { item1: 'EŞİTTİR', item2: '=', type: 'symbol', imagePrompt1: '' },
-            { item1: 'BÜYÜKTÜR', item2: '>', type: 'symbol', imagePrompt1: '' }
+            { item1: 'ARTI', item2: '+', type: 'symbol', imagePrompt1: 'Artı' },
+            { item1: 'EKSİ', item2: '-', type: 'symbol', imagePrompt1: 'Eksi' },
+            { item1: 'EŞİTTİR', item2: '=', type: 'symbol', imagePrompt1: 'Eşittir' },
+            { item1: 'BÜYÜKTÜR', item2: '>', type: 'symbol', imagePrompt1: 'Büyüktür' }
         ]
     }));
 };
@@ -184,7 +184,7 @@ export const generateOfflineTimeMeasurementGeometry = async (options: GeneratorO
         title: 'Zamanı Oku',
         instruction: 'Saatleri doğru zamanla eşleştir.',
         pedagogicalNote: 'Analog saat okuma becerisi.',
-        imagePrompt: 'Analog Clocks',
+        imagePrompt: 'Saat',
         layout: 'visual',
         pairs: [
             { item1: '3:00', item2: 'Saat Üç', type: 'time', imagePrompt1: '3:00' },
@@ -201,13 +201,13 @@ export const generateOfflineFractionsDecimals = async (options: GeneratorOptions
         title: 'Kesirleri Eşleştir',
         instruction: 'Şeklin boyalı kısmı hangi kesri gösteriyor?',
         pedagogicalNote: 'Görsel kesir modelleri (Area Model).',
-        imagePrompt: 'Fraction bars',
+        imagePrompt: 'Kesir',
         layout: 'visual',
         pairs: [
-            { item1: '1/2', item2: 'Yarım', type: 'fraction', imagePrompt1: '' },
-            { item1: '1/4', item2: 'Çeyrek', type: 'fraction', imagePrompt1: '' },
-            { item1: '3/4', item2: 'Üç Çeyrek', type: 'fraction', imagePrompt1: '' },
-            { item1: '2/3', item2: 'İki Bölü Üç', type: 'fraction', imagePrompt1: '' }
+            { item1: '1/2', item2: 'Yarım', type: 'fraction', imagePrompt1: 'Yarım' },
+            { item1: '1/4', item2: 'Çeyrek', type: 'fraction', imagePrompt1: 'Çeyrek' },
+            { item1: '3/4', item2: 'Üç Çeyrek', type: 'fraction', imagePrompt1: 'Üç Çeyrek' },
+            { item1: '2/3', item2: 'İki Bölü Üç', type: 'fraction', imagePrompt1: 'İki Bölü Üç' }
         ]
     }));
 };
@@ -231,7 +231,7 @@ export const generateOfflineEstimationSkills = async (options: GeneratorOptions)
                 count: target,
                 visualType: 'estimation-jar',
                 options: shuffle([close, Math.max(5, far1), far2]),
-                imagePrompt: ''
+                imagePrompt: 'Kavanoz'
             });
         }
 
@@ -239,7 +239,7 @@ export const generateOfflineEstimationSkills = async (options: GeneratorOptions)
             title: 'Tahmin Kavanozu',
             instruction: 'Kavanozdaki nesne sayısını tahmin et (Saymadan!)',
             pedagogicalNote: 'Miktar algısı ve referans alarak tahmin yürütme.',
-            imagePrompt: 'Jar with candies',
+            imagePrompt: 'Kavanoz',
             layout: 'visual',
             items
         };
