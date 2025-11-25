@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
@@ -163,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     <i className={`fa-solid fa-chevron-down text-sm text-zinc-400 transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (
-                                    <ul className="mt-1 space-y-1 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg p-2 mx-2 shadow-inner border border-zinc-100 dark:border-zinc-700/50">
+                                    <ul className="sidebar-activity-list mt-1 space-y-1 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg p-2 mx-2 shadow-inner border border-zinc-100 dark:border-zinc-700/50">
                                         {category.items.map(activity => (
                                             <li key={`${activity.id}-${activity.title}`}>
                                                 <button
