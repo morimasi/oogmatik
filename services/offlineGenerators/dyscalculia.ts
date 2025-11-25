@@ -6,31 +6,42 @@ import { generateOfflineVisualOddOneOut } from './perceptualSkills';
 
 // --- 1. Number Sense ---
 export const generateOfflineNumberSense = async (options: GeneratorOptions): Promise<NumberSenseData[]> => {
-    const { worksheetCount, range } = options;
-    const max = range === '1-100' ? 20 : (range === '1-20' ? 20 : 10); // Limit visual max for ten-frames
+    const { worksheetCount, range, difficulty } = options;
     
     return Array.from({ length: worksheetCount }, () => {
         const exercises: NumberSenseData['exercises'] = [];
         
-        // 1. Missing Number
-        const start = getRandomInt(1, max - 3);
-        const sequence = [start, start+1, start+2, start+3];
-        const hiddenIdx = getRandomInt(1, 2);
-        const missingVal = sequence[hiddenIdx];
-        sequence[hiddenIdx] = -1; 
-        exercises.push({ type: 'missing', values: sequence, target: missingVal, visualType: 'number-line' });
+        // Determine parameters based on difficulty
+        const max = difficulty === 'Başlangıç' ? 10 : (difficulty === 'Orta' ? 20 : 100);
+        const step = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 5);
+        
+        // 1. Advanced Number Line Task
+        const start = getRandomInt(0, max - (step * 5));
+        const sequence = Array.from({length: 6}, (_, i) => start + i * step);
+        const hiddenIdx = getRandomInt(1, 4);
+        const target = sequence[hiddenIdx];
+        
+        exercises.push({ 
+            type: 'missing', 
+            values: sequence, 
+            target: target, 
+            visualType: 'number-line-advanced',
+            step: step
+        });
 
-        // 2. Ten Frame Comparison
-        const c1 = getRandomInt(1, 10); // Keep within single frame for clarity initially
-        let c2 = getRandomInt(1, 10);
-        while(c1===c2) c2 = getRandomInt(1, 10);
-        exercises.push({ type: 'comparison', values: [c1, c2], target: Math.max(c1, c2), visualType: 'ten-frame' });
+        // 2. Ten Frame Comparison (Standard)
+        if (max <= 20) {
+            const c1 = getRandomInt(1, 10);
+            let c2 = getRandomInt(1, 10);
+            while(c1===c2) c2 = getRandomInt(1, 10);
+            exercises.push({ type: 'comparison', values: [c1, c2], target: Math.max(c1, c2), visualType: 'ten-frame' });
+        }
 
         return {
-            title: 'Sayı Hissi ve Miktar (10\'luk Çerçeve)',
-            instruction: 'Eksik sayıları yaz ve çok olan grubu daire içine al.',
-            pedagogicalNote: '10\'luk çerçeve (Ten Frame) kullanımı sayı hissini somutlaştırır.',
-            imagePrompt: 'Ten frame math tool',
+            title: `Sayı Hissi ve Tahmin (${difficulty})`,
+            instruction: 'Sayı doğrusundaki eksik sayıyı bul ve kavanozdaki nesneleri tahmin et.',
+            pedagogicalNote: 'Sayısal aralıklar, ritmik sayma ve görsel miktar tahmini.',
+            imagePrompt: 'Number line with missing numbers',
             layout: 'visual',
             exercises
         };
@@ -40,7 +51,7 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
 // --- 2. Arithmetic Fluency ---
 export const generateOfflineArithmeticFluency = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
     const { worksheetCount, operation } = options;
-    const limit = 20; // Visual tools limit
+    const limit = 20; 
     
     return Array.from({ length: worksheetCount }, () => {
         const problems = Array.from({ length: 6 }, () => {
@@ -82,7 +93,6 @@ export const generateOfflineNumberGrouping = async (options: GeneratorOptions): 
     
     return Array.from({ length: worksheetCount }, () => {
         const problems = Array.from({ length: 4 }, () => {
-            // Use Domino patterns for grouping recognition
             const val = getRandomInt(1, 6);
             return {
                 num1: val,
@@ -105,7 +115,7 @@ export const generateOfflineNumberGrouping = async (options: GeneratorOptions): 
     });
 };
 
-// --- 7. Spatial Reasoning ---
+// --- 7. Spatial Reasoning (Updated with Cubes) ---
 export const generateOfflineSpatialReasoning = async (options: GeneratorOptions): Promise<SpatialGridData[]> => {
     const { worksheetCount, gridSize } = options;
     const size = gridSize || 4;
@@ -113,29 +123,36 @@ export const generateOfflineSpatialReasoning = async (options: GeneratorOptions)
     return Array.from({ length: worksheetCount }, () => {
         const tasks: SpatialGridData['tasks'] = [];
         
-        // Generate Pattern Copy Tasks
-        for(let i=0; i<2; i++) {
-            const grid = Array.from({length: size}, () => Array(size).fill(null));
-            // Create a random pattern
-            for(let k=0; k<Math.floor(size*size/3); k++) {
-                grid[getRandomInt(0, size-1)][getRandomInt(0, size-1)] = 'filled';
-            }
-            
-            tasks.push({ 
-                type: 'copy', 
-                grid, 
-                instruction: 'Soldaki deseni sağdaki boş kareye aynen çiz.', 
-                target: {r:0, c:0} 
-            });
+        // 1. Cube Counting Task
+        // Generate random 3x3 height map (0 to 3)
+        const cubeGrid = Array.from({length: 3}, () => Array.from({length: 3}, () => getRandomInt(0, 3)));
+        tasks.push({
+            type: 'count-cubes',
+            grid: [], // Unused for cubes
+            instruction: 'Yandaki şekilde toplam kaç küp var? (Görünmeyenleri de say)',
+            target: {r: 0, c: 0}
+        });
+
+        // 2. Pattern Copy Task
+        const grid = Array.from({length: size}, () => Array(size).fill(null));
+        for(let k=0; k<Math.floor(size*size/3); k++) {
+            grid[getRandomInt(0, size-1)][getRandomInt(0, size-1)] = 'filled';
         }
+        tasks.push({ 
+            type: 'copy', 
+            grid, 
+            instruction: 'Soldaki deseni sağdaki boş kareye aynen çiz.', 
+            target: {r:0, c:0} 
+        });
 
         return {
-            title: 'Deseni Kopyala',
-            instruction: 'Noktaların yerlerine dikkat et.',
-            pedagogicalNote: 'Görsel-uzamsal kopyalama ve konumlandırma.',
-            imagePrompt: 'Grid pattern copy task',
+            title: 'Uzamsal Algı ve Küpler',
+            instruction: 'Şekilleri incele ve istenenleri yap.',
+            pedagogicalNote: '3 boyutlu düşünme, zihinsel döndürme ve görsel kopyalama.',
+            imagePrompt: '3D cubes isometric',
             layout: 'grid',
             gridSize: size,
+            cubeData: cubeGrid,
             tasks
         };
     });
@@ -195,20 +212,38 @@ export const generateOfflineFractionsDecimals = async (options: GeneratorOptions
     }));
 };
 
-// --- 8. Estimation ---
+// --- 8. Estimation (Updated with Jar) ---
 export const generateOfflineEstimationSkills = async (options: GeneratorOptions): Promise<EstimationData[]> => {
-    return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Tahmin Et',
-        instruction: 'Saymadan tahmin et: Hangisi daha yakın?',
-        pedagogicalNote: 'Miktar tahmini ve büyüklük algısı.',
-        imagePrompt: 'Scattered items',
-        layout: 'visual',
-        items: [
-            { count: 18, visualType: 'dots', options: [5, 20, 50], imagePrompt: '' },
-            { count: 8, visualType: 'dots', options: [10, 30, 100], imagePrompt: '' },
-            { count: 35, visualType: 'dots', options: [10, 35, 80], imagePrompt: '' }
-        ]
-    }));
+    const { worksheetCount } = options;
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const items: EstimationData['items'] = [];
+        
+        // Generate 2 Estimation Tasks
+        for(let i=0; i<2; i++) {
+            const target = getRandomInt(15, 40);
+            // Generate options: one close, two far
+            const close = target + getRandomInt(-3, 3);
+            const far1 = target - getRandomInt(10, 15);
+            const far2 = target + getRandomInt(10, 20);
+            
+            items.push({
+                count: target,
+                visualType: 'estimation-jar',
+                options: shuffle([close, Math.max(5, far1), far2]),
+                imagePrompt: ''
+            });
+        }
+
+        return {
+            title: 'Tahmin Kavanozu',
+            instruction: 'Kavanozdaki nesne sayısını tahmin et (Saymadan!)',
+            pedagogicalNote: 'Miktar algısı ve referans alarak tahmin yürütme.',
+            imagePrompt: 'Jar with candies',
+            layout: 'visual',
+            items
+        };
+    });
 };
 
 // --- 10. Visual Number Rep ---

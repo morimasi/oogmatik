@@ -379,7 +379,7 @@ export interface BackwardSpellingData extends BaseActivityData {
 }
 
 // --- DYSCALCULIA SUPPORT TYPES (Consolidated) ---
-export type VisualMathType = 'dots' | 'objects' | 'fingers' | 'shapes' | 'number-line' | 'mixed' | 'ten-frame' | 'domino';
+export type VisualMathType = 'dots' | 'objects' | 'fingers' | 'shapes' | 'number-line' | 'mixed' | 'ten-frame' | 'domino' | 'number-line-advanced' | 'estimation-jar' | 'spatial-cubes';
 
 export interface DyscalculiaCommonData extends BaseActivityData {
     layout: 'grid' | 'list' | 'visual';
@@ -391,6 +391,7 @@ export interface NumberSenseData extends DyscalculiaCommonData {
         values: number[];
         target?: number;
         visualType?: VisualMathType;
+        step?: number; // Used for number-line-advanced
     }[];
 }
 
@@ -408,8 +409,9 @@ export interface VisualArithmeticData extends DyscalculiaCommonData {
 
 export interface SpatialGridData extends DyscalculiaCommonData {
     gridSize: number;
+    cubeData?: number[][]; // Height map for 3D cubes
     tasks: {
-        type: 'position' | 'direction' | 'copy' | 'path';
+        type: 'position' | 'direction' | 'copy' | 'path' | 'count-cubes';
         grid: (string | null)[][];
         instruction: string;
         target?: {r: number, c: number};
