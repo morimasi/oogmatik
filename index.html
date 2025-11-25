@@ -350,10 +350,26 @@
   /* 
      IMPORTANT: Worksheet styles MUST be isolated from the app theme.
      They should always look like paper (White bg, Black text) for printing consistency.
+     This is achieved by resetting CSS variables to their light-mode defaults within this scope.
   */
   .worksheet-page {
+      /* Force a white paper background */
       background-color: #ffffff !important;
-      color: #000000 !important;
+      
+      /* Reset all theme variables to their "light mode" defaults */
+      --bg-primary: #fafafa !important;
+      --bg-secondary: #f4f4f5 !important;
+      --bg-paper: #ffffff !important;
+      --panel-bg: rgba(255, 255, 255, 0.85) !important;
+      --text-primary: #18181b !important;
+      --text-secondary: #71717a !important;
+      --text-muted: #a1a1aa !important;
+      --border-color: #e4e4e7 !important;
+      
+      /* Fallback text color */
+      color: #18181b !important; 
+
+      /* Non-theme related styles for print */
       letter-spacing: normal !important; 
       line-height: 1.5 !important;
       font-size: 1rem !important; 
@@ -361,10 +377,11 @@
       transition: box-shadow 0.3s ease;
   }
   
+  /* A generic fallback to ensure text inside worksheet components inherits the correct color */
   .worksheet-page h1, .worksheet-page h2, .worksheet-page h3, .worksheet-page h4, 
   .worksheet-page h5, .worksheet-page h6, .worksheet-page p, .worksheet-page span, 
   .worksheet-page li, .worksheet-page div {
-      color: inherit; 
+      color: var(--text-primary); 
   }
 
   @media screen {
@@ -372,32 +389,16 @@
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0,0,0,0.05) !important;
       }
   }
-
-  /* Override Dark Mode & Themes Inside Worksheet to ensure Print Look */
+  
+  /* Any component inside the worksheet using theme-aware background or border colors will now default to light theme */
   .worksheet-page input, 
-  .worksheet-page textarea,
-  .worksheet-page .bg-white,
-  .worksheet-page .dark\:bg-zinc-800,
-  .worksheet-page .dark\:bg-zinc-700,
-  .worksheet-page .dark\:bg-zinc-900,
-  .worksheet-page .dark\:bg-zinc-700\/50,
-  .worksheet-page .bg-zinc-50,
-  .worksheet-page .bg-zinc-100,
-  html[class*="theme-"] .worksheet-page .bg-white {
+  .worksheet-page textarea {
       background-color: #ffffff !important;
       border-color: #d4d4d8 !important;
       color: #18181b !important;
   }
   
-  .worksheet-page .text-zinc-800,
-  .worksheet-page .dark\:text-zinc-100,
-  .worksheet-page .dark\:text-zinc-200,
-  .worksheet-page .dark\:text-zinc-300,
-  .worksheet-page .dark\:text-white {
-      color: #18181b !important; 
-  }
-  
-  /* Preserve Semantic Colors inside Worksheet */
+  /* Preserve Semantic Colors inside Worksheet (Keep this section) */
   .worksheet-page .text-indigo-600 { color: #4f46e5 !important; }
   .worksheet-page .text-emerald-600 { color: #059669 !important; }
   .worksheet-page .text-amber-600 { color: #d97706 !important; }

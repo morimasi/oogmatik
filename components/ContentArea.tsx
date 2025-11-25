@@ -1,4 +1,3 @@
-
 import React, { memo } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View } from '../types';
 import Worksheet from './Worksheet';
@@ -226,7 +225,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         <i className="fa-solid fa-book-open text-zinc-200/50 dark:text-zinc-700/50 absolute text-7xl" style={{ top: '60%', left: '5%', animation: 'float 12s ease-in-out infinite 2s' }}></i>
                         <i className="fa-solid fa-puzzle-piece text-zinc-200/50 dark:text-zinc-700/50 absolute text-9xl" style={{ top: '20%', right: '8%', animation: 'float 10s ease-in-out infinite 1s' }}></i>
                     </div>
-                     <div className="text-center p-8 z-10 max-w-2xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-2xl">
+                     <div className="text-center p-8 z-10 max-w-2xl bg-[var(--panel-bg)] backdrop-blur-sm rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-2xl">
                         <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-indigo-100/50 dark:ring-indigo-900/20 shadow-xl transform hover:scale-110 transition-transform">
                             <i className="fa-solid fa-wand-magic-sparkles text-5xl text-indigo-600 dark:text-indigo-400"></i>
                         </div>
