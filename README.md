@@ -9,7 +9,7 @@ Eğitmenler ve ebeveynler için tasarlanan bu uygulama, **Google Gemini AI** tek
 ## 🚀 Özellikler
 
 ### 🎨 İçerik Üretimi
-*   **60+ Farklı Etkinlik Türü:** Kelime bulmacaları, dikkat testleri, görsel algı oyunları, matematik problemleri, hece çalışmaları, harita takibi ve mantık bulmacaları.
+*   **100+ Farklı Etkinlik Türü:** Kelime bulmacaları, dikkat testleri, görsel algı oyunları, matematik problemleri, hece çalışmaları, harita takibi ve mantık bulmacaları.
 *   **Çift Modlu Üretim:**
     *   **✨ AI Modu:** Google Gemini kullanarak her seferinde benzersiz, yaratıcı ve bağlamsal içerikler üretir.
     *   **⚡ Hızlı Mod (Çevrimdışı):** İnternet kotası harcamadan veya API limitlerine takılmadan, yerel algoritmalarla anında içerik üretir.
@@ -135,7 +135,7 @@ create table public.saved_worksheets (
 alter table public.saved_worksheets enable row level security;
 create policy "Users can view own or shared worksheets" on public.saved_worksheets for select using (auth.uid() = user_id or auth.uid() = shared_with);
 create policy "Users can insert worksheets" on public.saved_worksheets for insert with check (auth.uid() = user_id or auth.uid() = shared_by);
-create policy "Users can delete own worksheets" on public.saved_worksheets for delete using (auth.uid() = user_id);
+create policy "Users can delete own or shared worksheets" on public.saved_worksheets for delete using (auth.uid() = user_id or auth.uid() = shared_with);
 
 -- 3. DEĞERLENDİRME RAPORLARI TABLOSU
 create table public.saved_assessments (
@@ -156,6 +156,7 @@ create table public.saved_assessments (
 alter table public.saved_assessments enable row level security;
 create policy "Users can view own or shared assessments" on public.saved_assessments for select using (auth.uid() = user_id or auth.uid() = shared_with);
 create policy "Users can insert assessments" on public.saved_assessments for insert with check (auth.uid() = user_id or auth.uid() = shared_by);
+create policy "Users can delete shared assessments they received" on public.saved_assessments for delete using (auth.uid() = shared_with);
 
 -- 4. MESAJLAR TABLOSU
 create table public.messages (
@@ -202,14 +203,14 @@ create table public.activity_stats (
   title text,
   generation_count int default 0,
   last_generated timestamptz default now(),
-  avg_completion_time float default 0
+  avg_completion_time float default 10
 );
 
 -- RLS - Stats
 alter table public.activity_stats enable row level security;
-create policy "Public stats read" on public.activity_stats for select using (true);
-create policy "Public stats update" on public.activity_stats for insert with check (true);
-create policy "Public stats update existing" on public.activity_stats for update using (true);
+create policy "Public stats are viewable by everyone." on public.activity_stats for select using (true);
+create policy "Authenticated users can update stats" on public.activity_stats for insert with check (auth.role() = 'authenticated');
+create policy "Authenticated users can update stats" on public.activity_stats for update using (auth.role() = 'authenticated');
 ```
 
 ### Adım 2: RPC (Stored Procedure) Fonksiyonları
@@ -258,9 +259,3 @@ Son güncelleme ile aşağıdaki etkinlikler sisteme dahil edilmiştir:
 *   **Mantıksal Çıkarım Bulmacaları:** Okuma & Anlama kategorisinde.
 *   **Kutulu Sayı Analizi:** Matematik & Mantık kategorisinde.
 *   **Harita ve Yönerge Takibi:** Dikkat & Hafıza kategorisinde.
-
----
-
-## 📄 Lisans
-
-Bu proje özel eğitim amaçlı geliştirilmiştir. Ticari kullanım ve dağıtım hakları saklıdır.
