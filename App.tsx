@@ -14,7 +14,6 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { MessagesView } from './components/MessagesView';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
-import { TourGuide, TourStep } from './components/TourGuide';
 import { SharedWorksheetsView } from './components/SharedWorksheetsView';
 import { SavedWorksheetsView } from './components/SavedWorksheetsView';
 import { AssessmentModule } from './components/AssessmentModule';
@@ -87,7 +86,6 @@ const AppContent: React.FC = () => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isTourOpen, setIsTourOpen] = useState(false);
   
   const [theme, setTheme] = useState<AppTheme>(() => {
       try {
@@ -183,23 +181,6 @@ const AppContent: React.FC = () => {
           console.error("UI Settings application failed:", e);
       }
   }, [uiSettings]);
-
-  useEffect(() => {
-      try {
-          const hasSeenTour = localStorage.getItem('has_seen_tour_v2');
-          if (!hasSeenTour) {
-              const timer = setTimeout(() => {
-                  setIsTourOpen(true);
-              }, 1500);
-              return () => clearTimeout(timer);
-          }
-      } catch (e) { console.error("Tour check failed:", e); }
-  }, []);
-
-  const handleTourClose = () => {
-      setIsTourOpen(false);
-      try { localStorage.setItem('has_seen_tour_v2', 'true'); } catch (e) {}
-  };
 
   useEffect(() => {
       try {
@@ -302,8 +283,6 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
-      <TourGuide steps={[]} isOpen={isTourOpen} onClose={handleTourClose} />
-
       <header className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-700/50 shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
@@ -319,9 +298,6 @@ const AppContent: React.FC = () => {
              </div>
              
              <div className="flex items-center gap-1 border-r border-zinc-300 dark:border-zinc-700 pr-2 mx-1">
-                <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Nasıl Kullanılır?">
-                    <i className="fa-solid fa-circle-question fa-lg"></i>
-                </button>
                 <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Hakkımızda">
                     <i className="fa-solid fa-circle-info fa-lg"></i>
                 </button>
