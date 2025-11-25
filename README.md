@@ -1,36 +1,36 @@
 # 🧠 Bursa Disleksi AI - Özel Eğitim İçerik Platformu
 
-**Bursa Disleksi AI**, disleksi (okuma güçlüğü), diskalkuli (matematik öğrenme güçlüğü) ve dikkat eksikliği yaşayan bireyler için kişiselleştirilmiş eğitim materyalleri üreten, yapay zeka destekli web tabanlı bir platformdur.
+**Bursa Disleksi AI**, öğrenme güçlüğü (disleksi, diskalkuli) ve dikkat eksikliği yaşayan bireyler için kişiselleştirilmiş eğitim materyalleri üreten, yapay zeka destekli kapsamlı bir web platformudur.
 
-Eğitmenler ve ebeveynler için tasarlanan bu uygulama, Google Gemini AI teknolojisini kullanarak saniyeler içinde sonsuz sayıda, özgün ve pedagojik temelli çalışma kağıtları oluşturur.
+Eğitmenler ve ebeveynler için tasarlanan bu uygulama, **Google Gemini AI** teknolojisini kullanarak saniyeler içinde sonsuz sayıda, özgün ve pedagojik temelli çalışma kağıtları oluşturur. Ayrıca öğrencilerin gelişimini takip etmek için detaylı bir **Değerlendirme Modülü** sunar.
 
 ---
 
 ## 🚀 Özellikler
 
 ### 🎨 İçerik Üretimi
-*   **50+ Farklı Etkinlik Türü:** Kelime bulmacaları, dikkat testleri, görsel algı oyunları, matematik problemleri, hece çalışmaları ve daha fazlası.
+*   **60+ Farklı Etkinlik Türü:** Kelime bulmacaları, dikkat testleri, görsel algı oyunları, matematik problemleri, hece çalışmaları, harita takibi ve mantık bulmacaları.
 *   **Çift Modlu Üretim:**
-    *   **✨ AI Modu:** Google Gemini kullanarak yaratıcı, bağlamsal ve görsel açıdan zengin içerikler üretir.
+    *   **✨ AI Modu:** Google Gemini kullanarak her seferinde benzersiz, yaratıcı ve bağlamsal içerikler üretir.
     *   **⚡ Hızlı Mod (Çevrimdışı):** İnternet kotası harcamadan veya API limitlerine takılmadan, yerel algoritmalarla anında içerik üretir.
-*   **Görsel Destek:** Etkinlikler için otomatik görsel betimlemeler ve emoji/ikon desteği.
+*   **Akıllı Görselleştirme:** Etkinlikler için otomatik görsel betimlemeler, SVG çizimleri ve emoji desteği.
 
 ### 📊 Değerlendirme ve Analiz
 *   **Bilişsel Değerlendirme Modülü:** Öğrencilerin okuma, matematik, dikkat, görsel algı ve bellek becerilerini test eden interaktif batarya.
-*   **AI Raporlama:** Test sonuçlarına ve eğitmen gözlemlerine dayanarak detaylı gelişim raporları ve kişiselleştirilmiş yol haritaları oluşturur.
+*   **AI Raporlama:** Test sonuçlarına ve eğitmen gözlemlerine dayanarak detaylı gelişim raporları, risk analizi ve kişiselleştirilmiş yol haritaları oluşturur.
 *   **Radar Grafikleri:** Öğrencinin güçlü ve zayıf yönlerini görselleştirir.
 
 ### ♿ Erişilebilirlik ve UX
-*   **Özel Fontlar:** OpenDyslexic, Lexend gibi okuma dostu yazı tipleri.
-*   **Okuma Cetveli:** Satır takibini kolaylaştıran dijital cetvel aracı.
-*   **Arayüz Özelleştirme:** Renk temaları (Pastel, Koyu, Kontrast vb.), yazı boyutu, doygunluk ve harf aralığı ayarları.
+*   **Özel Fontlar:** OpenDyslexic, Lexend, Inter, Comic Neue gibi okuma dostu yazı tipleri.
+*   **Okuma Araçları:** Satır takibini kolaylaştıran dijital okuma cetveli ve hece renklendirme.
+*   **Arayüz Özelleştirme:** Renk temaları (Pastel, Koyu, Kontrast, Sepya vb.), yazı boyutu ve harf aralığı ayarları.
 *   **Yazdırılabilir Format:** Tüm etkinlikler A4 kağıt düzenine uygun (Print-friendly) çıktı verir.
 
 ### 🤝 Sosyal ve Yönetim
-*   **Paylaşım:** Hazırlanan etkinlikleri ve raporları diğer kullanıcılarla (eğitmen/veli) paylaşma.
+*   **Paylaşım:** Hazırlanan etkinlikleri ve raporları sistemdeki diğer kullanıcılarla (eğitmen/veli) paylaşma.
 *   **Mesajlaşma:** Kullanıcılar arası dahili mesajlaşma sistemi.
-*   **Yönetici Paneli:** Kullanıcı yönetimi, istatistikler ve geri bildirim takibi.
-*   **Oyunlaştırma:** Seviye (Level) ve XP sistemi ile eğitmen motivasyonu.
+*   **Yönetici Paneli:** Kullanıcı yönetimi, istatistikler ve geri bildirim takibi (`morimasi@gmail.com` varsayılan admin).
+*   **Oyunlaştırma:** Seviye (Level) ve XP sistemi.
 
 ---
 
@@ -38,59 +38,64 @@ Eğitmenler ve ebeveynler için tasarlanan bu uygulama, Google Gemini AI teknolo
 
 *   **Frontend:** React 19, TypeScript, Vite
 *   **Styling:** Tailwind CSS
-*   **AI:** Google Gemini API (`@google/genai` SDK)
+*   **AI:** Google Gemini API (`@google/genai` SDK) - Models: `gemini-2.5-flash`, `gemini-3-pro-preview`
 *   **Backend / Database:** Supabase (PostgreSQL, Auth, Realtime)
 *   **Deployment:** Vercel (Serverless Functions for API proxy)
 
 ---
 
-## ⚙️ Kurulum
+## ⚙️ Kurulum ve Çalıştırma
 
 Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyin:
 
-1.  **Projeyi Klonlayın:**
-    ```bash
-    git clone https://github.com/kullaniciadi/bursa-disleksi-ai.git
-    cd bursa-disleksi-ai
-    ```
+### 1. Ön Hazırlıklar
+*   **Node.js:** v18 veya üzeri.
+*   **Supabase Hesabı:** Bir proje oluşturun ve URL/Anon Key'i alın.
+*   **Google AI Studio API Key:** Gemini modellerine erişim için bir API anahtarı alın.
 
-2.  **Bağımlılıkları Yükleyin:**
-    ```bash
-    npm install
-    ```
+### 2. Projeyi Klonlayın
+```bash
+git clone https://github.com/kullaniciadi/bursa-disleksi-ai.git
+cd bursa-disleksi-ai
+```
 
-3.  **Çevresel Değişkenleri Ayarlayın:**
-    Kök dizinde `.env` dosyası oluşturun ve aşağıdaki anahtarları ekleyin:
+### 3. Bağımlılıkları Yükleyin
+```bash
+npm install
+```
 
-    ```env
-    # Client-side (Vite - Supabase Bağlantısı)
-    VITE_SUPABASE_URL=https://sizin-proje-id.supabase.co
-    VITE_SUPABASE_ANON_KEY=sizin-supabase-anon-key
+### 4. Çevresel Değişkenleri Ayarlayın
+Kök dizinde `.env` dosyası oluşturun ve aşağıdaki anahtarları ekleyin:
 
-    # Server-side (Vercel / Local API - Google Gemini)
-    # Not: 'api/generate.ts' dosyasında kullanılır.
-    API_KEY=sizin_google_gemini_api_key
-    ```
+```env
+# Client-side (Vite - Supabase Bağlantısı)
+VITE_SUPABASE_URL=https://sizin-proje-id.supabase.co
+VITE_SUPABASE_ANON_KEY=sizin-supabase-anon-key
 
-4.  **Uygulamayı Başlatın:**
-    ```bash
-    npm run dev
-    ```
+# Server-side (Vercel / Local API - Google Gemini)
+# Not: Bu anahtar sadece 'api/generate.ts' sunucu fonksiyonunda kullanılır, client'a sızmaz.
+API_KEY=sizin_google_gemini_api_key
+```
+
+### 5. Uygulamayı Başlatın
+```bash
+npm run dev
+```
+Tarayıcınızda `http://localhost:5173` adresine gidin.
 
 ---
 
 ## 🗄️ Veritabanı Kurulumu (Supabase SQL)
 
-Uygulamanın tam fonksiyonel çalışması için (giriş yapma, kaydetme, paylaşma vb.) Supabase projenizdeki **SQL Editor** bölümünde aşağıdaki kodları sırasıyla çalıştırarak tabloları ve fonksiyonları oluşturun.
+Uygulamanın tam fonksiyonel çalışması için (giriş yapma, kaydetme, paylaşma, istatistikler vb.) Supabase projenizdeki **SQL Editor** bölümünde aşağıdaki kodları sırasıyla çalıştırın.
 
-### 1. Tabloları ve Güvenlik Politikalarını (RLS) Oluşturma
+### Adım 1: Tabloları Oluşturma
 
 ```sql
 -- UUID eklentisini aktifleştir
 create extension if not exists "uuid-ossp";
 
 -- 1. KULLANICI PROFİLLERİ TABLOSU
--- Auth sistemindeki kullanıcılar buraya senkronize edilir veya manuel eklenir.
 create table public.users (
   id uuid references auth.users on delete cascade not null primary key,
   email text not null,
@@ -104,7 +109,7 @@ create table public.users (
   subscription_plan text default 'free'
 );
 
--- RLS (Güvenlik) Politikaları
+-- RLS (Güvenlik) Politikaları - Users
 alter table public.users enable row level security;
 create policy "Public profiles are viewable by everyone." on public.users for select using (true);
 create policy "Users can insert their own profile." on public.users for insert with check (auth.uid() = id);
@@ -116,16 +121,17 @@ create table public.saved_worksheets (
   user_id uuid references public.users(id) on delete cascade not null,
   name text not null,
   activity_type text not null,
-  worksheet_data jsonb not null, -- Etkinlik verisi JSON formatında saklanır
+  worksheet_data jsonb not null,
   icon text,
   category_id text,
   category_title text,
   created_at timestamptz default now(),
-  shared_by uuid references public.users(id), -- Eğer paylaşılmışsa gönderen ID
+  shared_by uuid references public.users(id),
   shared_by_name text,
-  shared_with uuid references public.users(id) -- Eğer paylaşılmışsa alıcı ID
+  shared_with uuid references public.users(id)
 );
 
+-- RLS - Worksheets
 alter table public.saved_worksheets enable row level security;
 create policy "Users can view own or shared worksheets" on public.saved_worksheets for select using (auth.uid() = user_id or auth.uid() = shared_with);
 create policy "Users can insert worksheets" on public.saved_worksheets for insert with check (auth.uid() = user_id or auth.uid() = shared_by);
@@ -139,13 +145,14 @@ create table public.saved_assessments (
   gender text,
   age int,
   grade text,
-  report jsonb not null, -- Rapor verisi JSON formatında saklanır
+  report jsonb not null,
   created_at timestamptz default now(),
   shared_by uuid references public.users(id),
   shared_by_name text,
   shared_with uuid references public.users(id)
 );
 
+-- RLS - Assessments
 alter table public.saved_assessments enable row level security;
 create policy "Users can view own or shared assessments" on public.saved_assessments for select using (auth.uid() = user_id or auth.uid() = shared_with);
 create policy "Users can insert assessments" on public.saved_assessments for insert with check (auth.uid() = user_id or auth.uid() = shared_by);
@@ -162,6 +169,7 @@ create table public.messages (
   related_feedback_id uuid
 );
 
+-- RLS - Messages
 alter table public.messages enable row level security;
 create policy "Users can see messages sent to or from them" on public.messages for select using (auth.uid() = sender_id or auth.uid() = receiver_id);
 create policy "Users can send messages" on public.messages for insert with check (auth.uid() = sender_id);
@@ -182,6 +190,7 @@ create table public.feedbacks (
   admin_reply text
 );
 
+-- RLS - Feedbacks
 alter table public.feedbacks enable row level security;
 create policy "Anyone can insert feedback" on public.feedbacks for insert with check (true);
 create policy "Only admins can view feedbacks" on public.feedbacks for select using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
@@ -196,15 +205,16 @@ create table public.activity_stats (
   avg_completion_time float default 0
 );
 
+-- RLS - Stats
 alter table public.activity_stats enable row level security;
 create policy "Public stats read" on public.activity_stats for select using (true);
 create policy "Public stats update" on public.activity_stats for insert with check (true);
 create policy "Public stats update existing" on public.activity_stats for update using (true);
 ```
 
-### 2. RPC Fonksiyonları (Stored Procedures)
+### Adım 2: RPC (Stored Procedure) Fonksiyonları
 
-Etkinlik oluşturulduğunda kullanıcının XP/Sayaç değerini artırmak için gerekli fonksiyon:
+Kullanıcı seviyesini ve istatistikleri güncellemek için bu fonksiyonları ekleyin.
 
 ```sql
 -- Kullanıcının worksheet_count değerini güvenli bir şekilde 1 artıran fonksiyon
@@ -218,16 +228,39 @@ end;
 $$ language plpgsql security definer;
 ```
 
+### Adım 3: Admin Kullanıcısı Ayarlama
+
+Uygulama kodunda varsayılan admin olarak `morimasi@gmail.com` tanımlıdır. Kendi kullanıcınızı admin yapmak için veritabanında şu sorguyu çalıştırın:
+
+```sql
+-- Kendi e-posta adresinizi girin
+UPDATE public.users SET role = 'admin' WHERE email = 'sizin@email.com';
+```
+
 ---
 
-## 📚 Kullanım İpuçları
+## 📦 Dağıtım (Deployment)
 
-1.  **Admin Yetkisi:** `services/authService.ts` dosyasında `morimasi@gmail.com` e-posta adresi varsayılan **Admin** olarak tanımlanmıştır. Kendi e-posta adresinizle değiştirebilir veya veritabanında `users` tablosundaki `role` sütununu `admin` olarak güncelleyebilirsiniz.
-2.  **Yazdırma:** Etkinlik oluşturulduktan sonra araç çubuğundaki "Yazdır" veya "İndir" butonunu kullanın. Tarayıcı yazdırma ayarlarında **"Arka plan grafiklerini yazdır" (Background graphics)** seçeneğinin işaretli olduğundan emin olun.
-3.  **Hızlı Mod vs AI:** İnternet bağlantısı yavaşsa veya API kotası dolduysa, kenar çubuğunda "Hızlı (Çevrimdışı)" modunu seçerek anında içerik üretebilirsiniz.
+Bu proje Vercel üzerinde çalışmak üzere optimize edilmiştir (API routes için).
+
+1.  Projeyi GitHub'a pushlayın.
+2.  Vercel'de yeni bir proje oluşturun ve GitHub reponuzu bağlayın.
+3.  Vercel proje ayarlarında **Environment Variables** kısmına `.env` dosyasındaki değerleri ekleyin (`API_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
+4.  Deploy!
+
+---
+
+## 🧩 Yeni Eklenen Etkinlikler
+
+Son güncelleme ile aşağıdaki etkinlikler sisteme dahil edilmiştir:
+
+*   **Akrabalık İlişkileri Eşleştirme:** Kelime Oyunları kategorisinde.
+*   **Mantıksal Çıkarım Bulmacaları:** Okuma & Anlama kategorisinde.
+*   **Kutulu Sayı Analizi:** Matematik & Mantık kategorisinde.
+*   **Harita ve Yönerge Takibi:** Dikkat & Hafıza kategorisinde.
 
 ---
 
 ## 📄 Lisans
 
-Bu proje özel eğitim amaçlı geliştirilmiştir. Ticari kullanım için iletişime geçiniz.
+Bu proje özel eğitim amaçlı geliştirilmiştir. Ticari kullanım ve dağıtım hakları saklıdır.
