@@ -30,7 +30,7 @@ const initialStyleSettings: StyleSettings = {
 };
 
 const initialUiSettings: UiSettings = {
-    fontFamily: 'Lexend', // Changed default from OpenDyslexic to Lexend
+    fontFamily: 'OpenDyslexic',
     fontSizeScale: 1,
     letterSpacing: 'normal',
     lineHeight: 1.6,
@@ -150,7 +150,7 @@ const AppContent: React.FC = () => {
   useEffect(() => {
       try {
           const root = document.documentElement;
-          root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon');
+          root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon', 'theme-anthracite');
           if (theme === 'dark') root.classList.add('dark');
           else if (theme !== 'light') root.classList.add(`theme-${theme}`);
           localStorage.setItem('app-theme', theme);
@@ -168,7 +168,7 @@ const AppContent: React.FC = () => {
                           uiSettings.fontFamily === 'OpenDyslexic' ? 'OpenDyslexic' : 
                           uiSettings.fontFamily === 'Inter' ? 'Inter' :
                           uiSettings.fontFamily === 'Comic Neue' ? 'Comic Neue' :
-                          uiSettings.fontFamily === 'Lora' ? 'Lora' : 'Lexend';
+                          uiSettings.fontFamily === 'Lora' ? 'Lora' : 'OpenDyslexic';
                           
           root.style.setProperty('--ui-font', fontVal);
           root.style.setProperty('--ui-scale', uiSettings.fontSizeScale.toString());

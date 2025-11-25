@@ -19,6 +19,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
     const themes: { id: AppTheme; name: string; color: string }[] = [
         { id: 'light', name: 'Açık', color: '#fafafa' },
         { id: 'dark', name: 'Koyu', color: '#18181b' },
+        { id: 'anthracite', name: 'Antrasit', color: '#222226' },
         { id: 'pastel', name: 'Pastel', color: '#2c2a25' },
         { id: 'sepia', name: 'Sepya', color: '#2b2016' },
         { id: 'purple', name: 'Mor', color: '#180f24' },
@@ -28,8 +29,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
     ];
 
     const fonts: { id: UiSettings['fontFamily']; name: string }[] = [
-        { id: 'Lexend', name: 'Lexend (Önerilen - Okuma Dostu)' },
-        { id: 'OpenDyslexic', name: 'OpenDyslexic (Klasik)' },
+        { id: 'OpenDyslexic', name: 'OpenDyslexic (Varsayılan)' },
+        { id: 'Lexend', name: 'Lexend (Okuma Dostu)' },
         { id: 'Inter', name: 'Inter (Modern)' },
         { id: 'Comic Neue', name: 'Comic Sans (Samimi)' },
         { id: 'Lora', name: 'Serif (Kitap)' }
@@ -37,7 +38,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
 
     const handleReset = () => {
         onUpdateUiSettings({
-            fontFamily: 'Lexend',
+            fontFamily: 'OpenDyslexic',
             fontSizeScale: 1,
             letterSpacing: 'normal',
             lineHeight: 1.6,
