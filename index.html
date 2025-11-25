@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -124,6 +123,42 @@
       --pattern-color: rgba(255, 199, 0, 0.04);
   }
 
+  html.theme-anthracite-gold, .theme-anthracite-gold {
+      --bg-primary: #1f1f22;
+      --bg-secondary: #2d2d30;
+      --bg-paper: #2d2d30;
+      --text-primary: #f0eadd;
+      --text-secondary: #FFB800; /* More golden yellow */
+      --text-muted: #a0988a;
+      --border-color: #4a4a4f;
+      --panel-bg: rgba(35, 35, 38, 0.95);
+      --pattern-color: rgba(255, 184, 0, 0.03);
+  }
+  
+  html.theme-anthracite-cyber, .theme-anthracite-cyber {
+      --bg-primary: #000000;
+      --bg-secondary: #111111;
+      --bg-paper: #111111;
+      --text-primary: #F3FF00; /* Bright neon yellow */
+      --text-secondary: #F3FF00;
+      --text-muted: #bbbbbb;
+      --border-color: #F3FF00;
+      --panel-bg: rgba(10, 10, 10, 0.9);
+      --pattern-color: rgba(243, 255, 0, 0.05);
+  }
+  
+  html.theme-anthracite-bumblebee, .theme-anthracite-bumblebee {
+      --bg-primary: #28282b;
+      --bg-secondary: #3d3d41;
+      --bg-paper: #3d3d41;
+      --text-primary: #ffffff;
+      --text-secondary: #FFD700;
+      --text-muted: #b0b0b0;
+      --border-color: #FFD700;
+      --panel-bg: rgba(50, 40, 0, 0.90);
+      --pattern-color: rgba(255, 215, 0, 0.08);
+  }
+
   html.theme-pastel, .theme-pastel {
       --bg-primary: #2c2a25;
       --bg-secondary: #3f3d39;
@@ -226,6 +261,21 @@
   .text-zinc-900, .text-zinc-800 { color: var(--text-primary) !important; }
   .text-zinc-600, .text-zinc-500, .text-zinc-400 { color: var(--text-secondary) !important; }
   
+  /* --- ANTHRACITE THEME BUTTON OVERRIDE --- */
+  html[class*="theme-anthracite"] .bg-indigo-600,
+  html[class*="theme-anthracite"] .from-violet-600 {
+      background-image: none !important;
+      background-color: var(--text-secondary) !important;
+      color: var(--bg-primary) !important;
+  }
+  html[class*="theme-anthracite"] .hover\:bg-indigo-700:hover {
+      filter: brightness(1.1);
+  }
+  html[class*="theme-anthracite"] .sidebar-activity-item-active { 
+      background-color: var(--panel-bg) !important;
+      color: var(--text-secondary) !important;
+  }
+
   /* Special handling for dark/theme mode specific utility classes */
   html.dark .dark\:bg-zinc-800, 
   [class*="theme-"] .dark\:bg-zinc-800 { 
@@ -259,7 +309,7 @@
     border-radius: 4px;
   }
   html.dark *:focus-visible, [class*="theme-"] *:focus-visible {
-    outline-color: var(--text-primary) !important;
+    outline-color: var(--text-secondary) !important;
   }
 
   /* --- CUSTOM SCROLLBARS --- */
@@ -362,11 +412,7 @@
   .worksheet-page .dark\:bg-zinc-700\/50,
   .worksheet-page .bg-zinc-50,
   .worksheet-page .bg-zinc-100,
-  html.theme-pastel .worksheet-page .bg-white,
-  html.theme-sepia .worksheet-page .bg-white,
-  html.theme-purple .worksheet-page .bg-white,
-  html.theme-orange .worksheet-page .bg-white,
-  html.theme-maroon .worksheet-page .bg-white {
+  html[class*="theme-"] .worksheet-page .bg-white {
       background-color: #ffffff !important;
       border-color: #d4d4d8 !important;
       color: #18181b !important;

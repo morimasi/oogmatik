@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity, HistoryItem, User, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
@@ -150,7 +149,7 @@ const AppContent: React.FC = () => {
   useEffect(() => {
       try {
           const root = document.documentElement;
-          root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon', 'theme-anthracite');
+          root.classList.remove('dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon', 'theme-anthracite', 'theme-anthracite-gold', 'theme-anthracite-cyber', 'theme-anthracite-bumblebee');
           if (theme === 'dark') root.classList.add('dark');
           else if (theme !== 'light') root.classList.add(`theme-${theme}`);
           localStorage.setItem('app-theme', theme);
