@@ -38,23 +38,23 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
           @keyframes mixedFlip {
             0% {
               transform: rotateY(0deg);
-              fill: currentColor; /* Mevcut renk (Sarı) */
+              fill: currentColor;
             }
             15% {
-              transform: rotateY(180deg); /* Ters dön */
-              fill: #f97316; /* Orange-500 (Turuncu) */
+              transform: rotateY(180deg);
+              fill: #4338CA; /* Lacivert (Indigo-700) - Ters Dönüş */
             }
             45% {
-              transform: rotateY(180deg); /* Ters bekle */
-              fill: #f97316; /* Orange-500 (Turuncu) */
+              transform: rotateY(180deg);
+              fill: #4338CA;
             }
             60% {
-              transform: rotateY(360deg); /* Düz dön */
-              fill: currentColor; /* Mevcut renk (Sarı) */
+              transform: rotateY(360deg);
+              fill: #D97706; /* Koyu Sarı/Altın (Amber-600) - Düz Dönüş */
             }
             100% {
-              transform: rotateY(360deg); /* Düz bekle */
-              fill: currentColor; /* Mevcut renk (Sarı) */
+              transform: rotateY(360deg);
+              fill: currentColor;
             }
           }
 
@@ -107,8 +107,13 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
               textAnchor="middle" // Anchor the text at its calculated center (x)
               fontSize="32"
               fontWeight="bold"
-              /* fill-amber-400 (Sarı/Bal rengi) for Light mode, fill-yellow-300 for Dark mode */
-              className={`fill-amber-400 dark:fill-yellow-300 drop-shadow-sm ${isVowel ? 'logo-letter' : ''}`}
+              /* 
+                 Base Color Logic:
+                 - Light Theme: fill-amber-500 (Warm Gold/Yellow) for visibility against white.
+                 - Dark Theme: fill-amber-200 (Light Cream/Yellow) for visibility against dark gray.
+                 - Drop Shadow: Added for extra contrast on all backgrounds.
+              */
+              className={`fill-amber-500 dark:fill-amber-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] ${isVowel ? 'logo-letter' : ''}`}
               fontFamily="OpenDyslexic, sans-serif"
               style={style}
             >
