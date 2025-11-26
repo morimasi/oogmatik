@@ -339,8 +339,9 @@ const AppContent: React.FC = () => {
              <div className="flex items-center gap-2">
              
                 {/* Favorites Button - Always visible */}
-                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-500 hover:text-red-500 transition-colors rounded-md" title="Favoriler">
+                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-500 hover:text-red-500 transition-colors rounded-md relative group" title="Favoriler">
                     <i className="fa-solid fa-heart fa-lg"></i>
+                    <span className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-zinc-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">Favoriler</span>
                 </button>
 
              {user ? (

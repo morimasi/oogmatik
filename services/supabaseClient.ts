@@ -39,6 +39,9 @@ export const checkDbConnection = async () => {
 // Sunucuyu uyanık tutma (Heartbeat)
 export const keepAlive = async () => {
     try {
+        console.log("💓 Sunucu kontrol ediliyor...");
         await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
+        // Ayrıca API endpointini de uyandırabiliriz (isteğe bağlı)
+        fetch('/api/generate', { method: 'OPTIONS' }).catch(() => {});
     } catch (e) { /* Ignore */ }
 };

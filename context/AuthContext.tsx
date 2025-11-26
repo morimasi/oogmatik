@@ -20,29 +20,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Initial Check
     useEffect(() => {
-        const initAuth = async () => {
-            try {
-                const currentUser = await authService.getCurrentUser();
-                setUser(currentUser);
-            } catch (e) {
-                console.error(e);
-            } finally {
+        // Dinleyici kur
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                // Oturum varsa kullanıcıyı al (önbellek veya DB'den)
+                try {
+                    const currentUser = await authService.getCurrentUser();
+                    setUser(currentUser);
+                } catch(e) {
+                    console.error("Auth state change user fetch error:", e);
+                } finally {
+                    setIsLoading(false);
+                }
+            } else {
+                // Oturum yoksa çıkış yap
+                setUser(null);
                 setIsLoading(false);
             }
-        };
-        initAuth();
-
-        // Subscribe to auth changes
-        const { data: { subscription } } = supabase?.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                const currentUser = await authService.getCurrentUser();
-                setUser(currentUser);
-            } else if (event === 'SIGNED_OUT') {
-                setUser(null);
-            }
-        }) || { data: { subscription: { unsubscribe: () => {} } } };
+        });
 
         return () => {
             subscription.unsubscribe();

@@ -134,6 +134,7 @@ export const authService = {
         const { data: profile } = await supabase.from('users').select('*').eq('id', session.user.id).maybeSingle();
 
         if (!profile) {
+             // Fallback: Return basic session info to prevent auto-logout if DB is slow/offline
              return {
                 id: session.user.id,
                 email: session.user.email || '',

@@ -213,6 +213,7 @@ export interface User {
     subscriptionPlan: SubscriptionPlan;
 }
 
+// ... (Geri kalan tipler aynı kalır)
 export interface FeedbackItem {
     id: string;
     userId?: string;
@@ -302,6 +303,7 @@ export interface BaseActivityData {
     imageBase64?: string;
 }
 
+// ... (Diğer tüm arayüzler aynı)
 // --- NEW ACTIVITY DATA TYPES ---
 
 export interface FamilyRelationsData extends BaseActivityData {

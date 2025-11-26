@@ -26,7 +26,7 @@ interface ContentAreaProps {
   onDeleteSaved: (id: string) => void;
   onFeedback: () => void;
   onOpenAuth: () => void;
-  onSelectActivity?: (activityType: ActivityType) => void; // Made optional to match interface but used conditionally
+  onSelectActivity?: (activityType: ActivityType) => void;
 }
 
 // Extracted component to prevent re-definition on every render
