@@ -14,7 +14,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { MessagesView } from './components/MessagesView';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
-import { keepAlive } from './services/supabaseClient';
+import { keepAlive, checkDbConnection } from './services/supabaseClient';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
 
@@ -120,7 +120,19 @@ const AppContent: React.FC = () => {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
+      const checkConnection = async () => {
+          console.log("🔄 Supabase bağlantısı test ediliyor...");
+          const isConnected = await checkDbConnection();
+          if (isConnected) {
+              console.log("✅ Supabase bağlantısı başarılı.");
+          } else {
+              console.error("❌ Supabase bağlantısı başarısız. Lütfen internet bağlantınızı kontrol edin.");
+          }
+      };
+      
+      checkConnection();
       keepAlive();
+      
       const interval = setInterval(() => {
           keepAlive();
       }, 120000);
