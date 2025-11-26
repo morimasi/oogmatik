@@ -44,7 +44,7 @@ if (!supabaseUrl || isPlaceholder(supabaseUrl)) {
 } else {
     try {
         supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
-        // console.log("✅ Supabase bağlantısı başlatıldı.");
+        console.log("✅ Supabase istemcisi oluşturuldu:", supabaseUrl);
     } catch (error) {
         console.error("🛑 Supabase başlatma hatası (Mock moda geçiliyor):", error);
         supabaseInstance = null;
@@ -56,18 +56,30 @@ export const supabase = supabaseInstance;
 // Connection check helper
 export const checkDbConnection = async () => {
     if (!supabase) {
+        console.log("Mock mode active (no supabase instance)");
         return false; // Mock mode active
     }
     try {
         // Basit bir sorgu ile bağlantıyı test et
-        const { error } = await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
+        const { data, error } = await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
+        
         if (error) {
-            console.warn("⚠️ Veritabanı hatası (Mock moda geçilebilir):", error.message);
-            return false;
+            // RLS policy might deny anonymous read on users, but connection is technically alive if we get a 401/403 from Supabase.
+            // However, 'relation "users" does not exist' is a 404-like DB error.
+            console.warn("⚠️ Veritabanı bağlantı testi uyarısı:", error.message);
+            
+            // If error is about permissions, we still are connected.
+            // If error is "fetch failed", we are not connected.
+            if (error.message.includes("fetch") || error.message.includes("network")) {
+                return false;
+            }
+            return true; // Connected but maybe permission error or table missing
         }
+        
+        console.log("✅ Veritabanı bağlantısı başarılı.");
         return true;
-    } catch (e) {
-        console.error("🛑 Veritabanı bağlantı hatası:", e);
+    } catch (e: any) {
+        console.error("🛑 Veritabanı bağlantı hatası (Exception):", e);
         return false;
     }
 };
