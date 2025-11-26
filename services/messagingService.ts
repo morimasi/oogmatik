@@ -73,7 +73,7 @@ export const messagingService = {
             .update({ status: 'replied', admin_reply: replyMessage })
             .eq('id', feedbackId)
             .select()
-            .single();
+            .maybeSingle();
 
         if (fbError) throw fbError;
 

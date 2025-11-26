@@ -46,7 +46,7 @@ export const worksheetService = {
             .from('saved_worksheets')
             .insert(dbPayload)
             .select()
-            .single();
+            .maybeSingle();
 
         if (error) throw error;
         

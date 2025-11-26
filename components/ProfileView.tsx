@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { SavedAssessment, ActivityType } from '../types';
+import { SavedAssessment } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { RadarChart } from './RadarChart';
 import { ACTIVITIES } from '../constants';
@@ -156,8 +156,7 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     // XP Logic
     const level = Math.floor(user.worksheetCount / 10) + 1;
     const xp = (user.worksheetCount % 10) * 10;
-    const nextLevelXp = 100;
-
+    
     return (
         <div className="bg-zinc-50 dark:bg-zinc-900 min-h-full p-4 md:p-8 overflow-y-auto">
             <div className="max-w-5xl mx-auto">
@@ -208,7 +207,7 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     ref={fileInputRef} 
                                     onChange={handleFileChange} 
                                     className="hidden" 
-                                    accept="image/png, image/jpeg, image/jpg, image/gif"
+                                    accept="image/*"
                                 />
                             </div>
                             
