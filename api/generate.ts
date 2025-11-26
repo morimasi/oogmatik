@@ -102,8 +102,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     });
 
                     let imageFound = false;
-                    if (response.candidates && response.candidates[0].content.parts) {
-                        for (const part of response.candidates[0].content.parts) {
+                    const candidate = response.candidates?.[0];
+                    const parts = candidate?.content?.parts;
+
+                    if (parts) {
+                        for (const part of parts) {
                             if (part.inlineData && part.inlineData.data) {
                                 obj['imageBase64'] = part.inlineData.data;
                                 imageFound = true;
