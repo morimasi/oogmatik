@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity, HistoryItem, User, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
@@ -37,7 +38,7 @@ const initialUiSettings: UiSettings = {
     saturation: 100
 };
 
-type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings';
+type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings' | 'developer';
 
 // Modal Component (reused)
 interface ModalProps {
@@ -67,7 +68,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
           <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-200">{title}</h2>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700"><i className="fa-solid fa-times"></i></button>
         </header>
-        <div className="p-6 overflow-y-auto space-y-4 text-zinc-600 dark:text-zinc-300">{children}</div>
+        <div className="p-6 overflow-y-auto space-y-4 text-zinc-600 dark:text-zinc-300 custom-scrollbar">{children}</div>
       </div>
     </div>
   );
@@ -314,6 +315,9 @@ const AppContent: React.FC = () => {
                 <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Nasıl Kullanılır?">
                     <i className="fa-solid fa-question-circle fa-lg"></i>
                 </button>
+                <button onClick={() => setOpenModal('developer')} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Geliştirici İletişim">
+                    <i className="fa-solid fa-laptop-code fa-lg"></i>
+                </button>
                 <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Hakkımızda">
                     <i className="fa-solid fa-circle-info fa-lg"></i>
                 </button>
@@ -468,6 +472,45 @@ const AppContent: React.FC = () => {
             <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700">
                 <p className="text-xs text-zinc-400">Versiyon 1.0.0</p>
                 <p className="text-xs text-zinc-400">© 2024 Bursa Disleksi</p>
+            </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} title="Geliştirici İletişim">
+        <div className="text-center space-y-6">
+            {/* Intro */}
+            <div>
+                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-3">Uygulama Geliştiricisi</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                    Uygulama ile ilgili her türlü soru, öneri veya geri bildiriminiz için bizimle iletişime geçebilirsiniz. Gelişimimize katkıda bulunduğunuz için teşekkür ederiz.
+                </p>
+            </div>
+
+            {/* Contact Info Box */}
+            <div className="bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 space-y-3">
+                <div className="flex flex-col items-center gap-1">
+                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">E-posta</span>
+                    <a href="mailto:morimasi@gmail.com" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">morimasi@gmail.com</a>
+                </div>
+                <div className="flex justify-center gap-3 flex-wrap">
+                    <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 px-3 py-1 rounded-full text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                        <i className="fa-brands fa-instagram mr-1"></i> @bbmaltunel
+                    </span>
+                    <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 px-3 py-1 rounded-full text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                        <i className="fa-brands fa-x-twitter mr-1"></i> @barismutlualtunel
+                    </span>
+                </div>
+            </div>
+
+            {/* Pitch / CTA */}
+            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-6 rounded-xl shadow-lg text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+                <div className="relative z-10">
+                    <h4 className="font-bold text-lg mb-2">Dijital Eğitim Materyali Projeleriniz İçin</h4>
+                    <p className="text-sm text-indigo-100 leading-relaxed">
+                        Belirlediğiniz bir alanda, istediğiniz mantıklı işlevlere sahip özgür, güvenli ve eğitsel dijital ürün çözümleri için lütfen iletişime geçiniz.
+                    </p>
+                </div>
             </div>
         </div>
       </Modal>

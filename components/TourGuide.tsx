@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -27,6 +28,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             document.body.style.overflow = 'hidden';
         } else {
             setIsReady(false);
+            setTargetRect(null); // Reset rect on close
             document.body.style.overflow = '';
         }
         return () => {
@@ -39,9 +41,10 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         if (!isOpen || !isReady) return;
 
         let skipTimeout: ReturnType<typeof setTimeout>;
+        let scrollTimeout: ReturnType<typeof setTimeout>;
 
         const handleNextAuto = () => {
-            setTargetRect(null); // FIX: Prevent rendering with stale rect data
+            setTargetRect(null);
             if (currentStepIndex < steps.length - 1) {
                 // Move to next step immediately
                 skipTimeout = setTimeout(() => setCurrentStepIndex(prev => prev + 1), 0);
@@ -63,7 +66,8 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                 element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 
                 // Wait slightly for scroll to finish then measure
-                setTimeout(() => {
+                scrollTimeout = setTimeout(() => {
+                    if (!element) return; // Double check existence
                     const rect = element.getBoundingClientRect();
                     // Check again if element is actually visible in viewport dimensions
                     if (rect.width === 0 && rect.height === 0) {
@@ -74,7 +78,6 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                 }, 350);
             } else {
                 // Element not found or hidden (e.g. Toolbar not generated yet)
-                // Automatically skip to next step without closing if possible
                 console.log(`Tour target #${step.targetId} not visible, skipping step.`);
                 handleNextAuto();
             }
@@ -85,16 +88,20 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         return () => {
             window.removeEventListener('resize', updateRect);
             clearTimeout(skipTimeout);
+            clearTimeout(scrollTimeout);
         };
     }, [isOpen, currentStepIndex, steps, isReady, onClose]);
 
-    if (!isOpen || !targetRect) return null;
-
     const currentStep = steps[currentStepIndex];
+
+    // Safety check: If not open, no rect, or invalid step, don't render
+    if (!isOpen || !targetRect || !currentStep) return null;
+
     const isLastStep = currentStepIndex === steps.length - 1;
 
     const handleNext = (e: React.MouseEvent) => {
         e.stopPropagation();
+        setTargetRect(null); // Clear rect to prevent stale render during transition
         if (isLastStep) {
             onClose();
         } else {
@@ -104,7 +111,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
 
     const handlePrev = (e: React.MouseEvent) => {
         e.stopPropagation();
-        // Find previous visible step
+        setTargetRect(null); // Clear rect to prevent stale render during transition
         if (currentStepIndex > 0) {
             setCurrentStepIndex(prev => prev - 1);
         }

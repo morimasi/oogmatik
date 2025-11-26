@@ -96,8 +96,6 @@ const AnalogClock: React.FC<{ hour: number; minute: number }> = ({ hour, minute 
 
 // Money Visual (Simplified TL)
 const MoneyVisual: React.FC<{ amount: number }> = ({ amount }) => {
-    // Break down amount into pieces (Simplistic approach)
-    // Ideally handles: 1 TL, 0.50, 0.25
     const coins: number[] = [];
     let rem = amount;
     while (rem >= 1) { coins.push(1); rem -= 1; }
@@ -231,26 +229,59 @@ const EstimationJar: React.FC<{ count: number; itemType?: string; className?: st
     );
 };
 
+// Improved 3D Cube Stack Renderer
 const CubeStack: React.FC<{ grid: number[][] }> = ({ grid }) => {
     if (!grid || !grid[0]) return null;
+    
+    const dimX = grid.length;
+    const dimY = grid[0].length;
+    const cubeSize = 40;
+    const originX = 150;
+    const originY = 50; // Starting Top Offset
+
     const cubes = [];
-    const centerX = 150, centerY = 50;
-    for (let x = 0; x < grid.length; x++) {
-        for (let y = 0; y < grid[0].length; y++) {
-            for (let z = 0; z < grid[x][y]; z++) {
-                cubes.push({ sx: centerX + (y - x) * 20, sy: centerY + (y + x) * 12 - (z * 24) });
+
+    // Generate cubes from Back to Front (Painter's Algorithm logic for isometric)
+    // x iterates 0..dim, y iterates 0..dim
+    // To render correctly back-to-front:
+    // Iterate x from 0 to dim
+    // Iterate y from 0 to dim
+    // This usually works for standard isometric projection (x-y, x+y)
+    
+    for (let x = 0; x < dimX; x++) {
+        for (let y = 0; y < dimY; y++) {
+            const h = grid[x][y];
+            for (let z = 0; z < h; z++) {
+                // Iso Projection
+                // screenX = (x - y) * tile_width / 2
+                // screenY = (x + y) * tile_height / 2 - z * height
+                const sx = originX + (y - x) * (cubeSize * 0.866); // cos(30) approx
+                const sy = originY + (y + x) * (cubeSize * 0.5) - (z * cubeSize);
+                
+                cubes.push({ sx, sy, colorBase: '#6366f1' }); // Indigo base
             }
         }
     }
+
     return (
-        <svg width="300" height="250" viewBox="0 0 300 250" className="overflow-visible">
-            {cubes.map((c, i) => (
-                <g key={i}>
-                    <path d={`M ${c.sx} ${c.sy} L ${c.sx + 20} ${c.sy - 12} L ${c.sx} ${c.sy - 24} L ${c.sx - 20} ${c.sy - 12} Z`} fill="#e0e7ff" stroke="black" strokeWidth="1" />
-                    <path d={`M ${c.sx} ${c.sy} L ${c.sx + 20} ${c.sy - 12} L ${c.sx + 20} ${c.sy + 12} L ${c.sx} ${c.sy + 24} Z`} fill="#818cf8" stroke="black" strokeWidth="1" />
-                    <path d={`M ${c.sx} ${c.sy} L ${c.sx - 20} ${c.sy - 12} L ${c.sx - 20} ${c.sy + 12} L ${c.sx} ${c.sy + 24} Z`} fill="#4f46e5" stroke="black" strokeWidth="1" />
-                </g>
-            ))}
+        <svg width="300" height="350" viewBox="0 0 300 350" className="overflow-visible">
+            {cubes.map((c, i) => {
+                const size = 40;
+                const topPoints = `${c.sx},${c.sy - size} ${c.sx + size*0.866},${c.sy - size*0.5} ${c.sx},${c.sy} ${c.sx - size*0.866},${c.sy - size*0.5}`;
+                const rightPoints = `${c.sx + size*0.866},${c.sy - size*0.5} ${c.sx + size*0.866},${c.sy + size*0.5} ${c.sx},${c.sy + size} ${c.sx},${c.sy}`;
+                const leftPoints = `${c.sx},${c.sy} ${c.sx},${c.sy + size} ${c.sx - size*0.866},${c.sy + size*0.5} ${c.sx - size*0.866},${c.sy - size*0.5}`;
+
+                return (
+                    <g key={i}>
+                        {/* Left Face */}
+                        <polygon points={leftPoints} fill="#4338ca" stroke="#312e81" strokeWidth="1" />
+                        {/* Right Face */}
+                        <polygon points={rightPoints} fill="#6366f1" stroke="#312e81" strokeWidth="1" />
+                        {/* Top Face */}
+                        <polygon points={topPoints} fill="#a5b4fc" stroke="#312e81" strokeWidth="1" />
+                    </g>
+                );
+            })}
         </svg>
     );
 };
@@ -346,26 +377,64 @@ export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) 
         <div className="flex flex-col gap-12 items-center">
             {data.tasks.map((task, i) => (
                 <div key={i} className="p-6 bg-zinc-50 border-2 border-zinc-200 rounded-2xl break-inside-avoid w-full max-w-2xl">
+                    
+                    {/* CUBE COUNTING TASK */}
                     {task.type === 'count-cubes' && data.cubeData ? (
                         <div className="flex flex-col items-center">
-                            <div className="mb-6 transform scale-110"><CubeStack grid={data.cubeData} /></div>
+                            <div className="mb-6 transform scale-110">
+                                <CubeStack grid={data.cubeData} />
+                            </div>
                             <div className="flex items-center gap-4 bg-white p-4 rounded-xl border shadow-sm">
                                 <span className="text-lg font-bold">Kaç küp var?</span>
-                                <div className="w-20 h-10 border-b-2 border-black"></div>
+                                <div className="w-20 h-12 border-2 border-dashed border-zinc-400 rounded bg-white"></div>
                             </div>
                         </div>
-                    ) : (
+                    ) : task.type === 'copy' ? (
+                        /* COPY PATTERN TASK */
                         <div className="flex flex-col md:flex-row items-center justify-center gap-8">
                             <div className="flex-1 text-center">
+                                <div className="text-sm font-bold text-zinc-500 mb-2">ÖRNEK</div>
                                 <div className="grid gap-0.5 bg-zinc-800 border-4 border-zinc-800 inline-grid" style={{ gridTemplateColumns: `repeat(${data.gridSize}, 40px)` }}>
-                                    {task.grid.map((row, r) => row.map((cell, c) => <div key={`ref-${r}-${c}`} className={`w-[40px] h-[40px] bg-white flex items-center justify-center`}>{cell === 'filled' && <div className="w-full h-full bg-zinc-800"></div>}</div>))}
+                                    {task.grid.map((row, r) => row.map((cell, c) => (
+                                        <div key={`ref-${r}-${c}`} className="w-[40px] h-[40px] bg-white flex items-center justify-center relative">
+                                            {/* Coordinate Labels */}
+                                            {r === 0 && <span className="absolute -top-6 text-[10px] font-bold text-zinc-400">{c+1}</span>}
+                                            {c === 0 && <span className="absolute -left-6 text-[10px] font-bold text-zinc-400">{String.fromCharCode(65+r)}</span>}
+                                            
+                                            {cell === 'filled' && <div className="w-full h-full bg-zinc-800"></div>}
+                                        </div>
+                                    )))}
                                 </div>
                             </div>
                             <div className="hidden md:flex items-center text-zinc-300"><i className="fa-solid fa-arrow-right text-4xl"></i></div>
                             <div className="flex-1 text-center">
+                                <div className="text-sm font-bold text-zinc-500 mb-2">SENİN ÇİZİMİN</div>
                                 <div className="grid gap-0.5 bg-zinc-300 border-4 border-zinc-300 inline-grid" style={{ gridTemplateColumns: `repeat(${data.gridSize}, 40px)` }}>
-                                    {Array.from({length: data.gridSize}).map((_, r) => Array.from({length: data.gridSize}).map((_, c) => <div key={`target-${r}-${c}`} className="w-[40px] h-[40px] bg-white border border-zinc-100"></div>))}
+                                    {Array.from({length: data.gridSize}).map((_, r) => Array.from({length: data.gridSize}).map((_, c) => (
+                                        <div key={`target-${r}-${c}`} className="w-[40px] h-[40px] bg-white border border-zinc-100"></div>
+                                    )))}
                                 </div>
+                            </div>
+                        </div>
+                    ) : (
+                        /* PATH / DIRECTION TASK */
+                        <div className="flex flex-col items-center">
+                            <div className="grid gap-1 bg-zinc-200 p-1 border-2 border-zinc-300 inline-grid rounded-lg mb-6" style={{ gridTemplateColumns: `repeat(${data.gridSize}, 50px)` }}>
+                                {task.grid.map((row, r) => row.map((cell, c) => (
+                                    <div key={`path-${r}-${c}`} className="w-[50px] h-[50px] bg-white rounded flex items-center justify-center border border-zinc-100 text-xs font-bold text-zinc-300">
+                                        {cell === 'S' ? <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white">B</div> : 
+                                         cell === 'E' ? <div className="w-8 h-8 rounded-full bg-red-500/20 text-red-500 border-2 border-red-500">?</div> : 
+                                         `${String.fromCharCode(65+r)}${c+1}`}
+                                    </div>
+                                )))}
+                            </div>
+                            <div className="w-full bg-white p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm">
+                                <h4 className="font-bold text-indigo-900 mb-2">Yönergeler:</h4>
+                                <p className="text-lg font-medium leading-relaxed">{task.instruction.replace('Yönergeler: ', '')}</p>
+                            </div>
+                            <div className="mt-6 flex items-center gap-2">
+                                <span className="font-bold">Hedef Koordinat:</span>
+                                <div className="w-24 h-10 border-b-2 border-zinc-500"></div>
                             </div>
                         </div>
                     )}

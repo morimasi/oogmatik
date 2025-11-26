@@ -144,13 +144,25 @@ export const generateNumberGroupingFromAI = async (options: GeneratorOptions): P
     return generateWithSchema(prompt, schema) as Promise<VisualArithmeticData[]>;
 };
 
-// --- 7. Spatial Reasoning & 13, 14, 15 ---
+// --- 7. Spatial Reasoning & 13, 14, 15 (UPDATED FOR CUBES) ---
 export const generateSpatialReasoningFromAI = async (options: GeneratorOptions): Promise<SpatialGridData[]> => {
     const { gridSize, concept, worksheetCount } = options;
     const prompt = `
-    Diskalkuli/Uzamsal Algı etkinliği. Konu: ${concept || 'position'}.
-    Izgara Boyutu: ${gridSize || 3}x${gridSize}.
-    Görevler: Nesnenin konumunu bulma, yön takip etme, deseni kopyalama.
+    Diskalkuli/Uzamsal Algı etkinliği. Konu: ${concept || 'count-cubes'}.
+    
+    Eğer Konu 'count-cubes' ise:
+    - 'cubeData': ${gridSize || 3}x${gridSize} boyutunda, her hücrede küp yüksekliğini belirten sayı matrisi üret (örn: [[2,1,0],[3,2,1]...]).
+    - 'type': 'count-cubes'
+    
+    Eğer Konu 'copy' (Kopyalama) ise:
+    - 'grid': ${gridSize || 4}x${gridSize} ızgara. Dolu hücreler için 'filled', boş için null.
+    - 'type': 'copy'
+    
+    Eğer Konu 'path' (Yön) ise:
+    - 'grid': Başlangıç 'S', Bitiş 'E' olan ızgara.
+    - 'instruction': Yolu tarif et (Yukarı, Sağ, Aşağı).
+    - 'type': 'path'
+
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -166,12 +178,16 @@ export const generateSpatialReasoningFromAI = async (options: GeneratorOptions):
                 imagePrompt: { type: Type.STRING },
                 layout: { type: Type.STRING, enum: ['grid'] },
                 gridSize: { type: Type.INTEGER },
+                cubeData: { 
+                    type: Type.ARRAY, 
+                    items: { type: Type.ARRAY, items: { type: Type.INTEGER } } 
+                },
                 tasks: {
                     type: Type.ARRAY,
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            type: { type: Type.STRING, enum: ['position', 'direction', 'copy', 'path'] },
+                            type: { type: Type.STRING, enum: ['position', 'direction', 'copy', 'path', 'count-cubes'] },
                             grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
                             instruction: { type: Type.STRING },
                             target: { type: Type.OBJECT, properties: { r: { type: Type.NUMBER }, c: { type: Type.NUMBER } } }
@@ -400,9 +416,5 @@ export const generateAppliedMathStoryFromAI = async (options: GeneratorOptions):
 export const generateProblemSolvingStrategiesFromAI = async (options: GeneratorOptions) => generateAppliedMathStoryFromAI(options);
 
 // --- 16. Visual Discrimination (Math specific) ---
-// We can reuse the existing Visual Discrimination generator but tailor prompt/config or create a wrapper if needed.
-// For now, let's assume the existing one covers it or we alias it.
-// Actually, let's create a specific one that focuses on distinguishing numbers (6 vs 9, 2 vs 5) and shapes.
 import { generateVisualOddOneOutFromAI } from './perceptualSkills';
 export const generateVisualDiscriminationMathFromAI = async (options: GeneratorOptions) => generateVisualOddOneOutFromAI(options);
-

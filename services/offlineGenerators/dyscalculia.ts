@@ -120,48 +120,127 @@ export const generateOfflineNumberGrouping = async (options: GeneratorOptions): 
     });
 };
 
-// --- 7. Spatial Reasoning ---
+// --- 7. Spatial Reasoning (UPDATED) ---
 export const generateOfflineSpatialReasoning = async (options: GeneratorOptions): Promise<SpatialGridData[]> => {
-    const { worksheetCount, gridSize } = options;
+    const { worksheetCount, gridSize, concept, difficulty } = options;
     const size = gridSize || 4;
+    const type = concept || 'count-cubes';
     
     return Array.from({ length: worksheetCount }, () => {
         const tasks: SpatialGridData['tasks'] = [];
-        
-        const cubeGrid = Array.from({length: 3}, () => Array.from({length: 3}, () => getRandomInt(0, 3)));
-        tasks.push({
-            type: 'count-cubes',
-            grid: [],
-            instruction: 'Yandaki şekilde toplam kaç küp var? (Görünmeyenleri de say)',
-            target: {r: 0, c: 0}
-        });
+        let title = "Uzamsal Akıl Yürütme";
+        let instruction = "";
+        let note = "";
+        let cubeData = undefined;
 
-        const grid = Array.from({length: size}, () => Array(size).fill(null));
-        for(let k=0; k<Math.floor(size*size/3); k++) {
-            grid[getRandomInt(0, size-1)][getRandomInt(0, size-1)] = 'filled';
+        if (type === 'count-cubes') {
+            title = `3D Küp Sayma (${difficulty})`;
+            instruction = "Şekilde toplam kaç tane birim küp olduğunu bulun (Görünmeyenleri de sayın!).";
+            note = "3 boyutlu düşünme, derinlik algısı ve zihinsel canlandırma.";
+            
+            // Generate 3D grid data: 2D array where value is stack height
+            // 3x3, 4x4 based on difficulty
+            const dim = difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 4 : 5);
+            const maxH = difficulty === 'Başlangıç' ? 3 : 5;
+            
+            const grid = Array.from({length: dim}, () => Array.from({length: dim}, () => 0));
+            
+            // Randomize heights but ensure no floating cubes (gravity)
+            // Simple stack logic: just random heights 0-maxH
+            for(let x=0; x<dim; x++) {
+                for(let y=0; y<dim; y++) {
+                    // Higher chance of being non-zero in center
+                    if (Math.random() > 0.3) {
+                        grid[x][y] = getRandomInt(1, maxH);
+                    }
+                }
+            }
+            // Ensure at least one cube
+            grid[Math.floor(dim/2)][Math.floor(dim/2)] = Math.max(1, grid[Math.floor(dim/2)][Math.floor(dim/2)]);
+            
+            cubeData = grid;
+            
+            tasks.push({
+                type: 'count-cubes',
+                grid: [], // Not used for cubes
+                instruction: 'Toplam Küp Sayısı:',
+                target: {r: 0, c: 0}
+            });
+
+        } else if (type === 'copy') {
+            title = `Desen Kopyalama (${difficulty})`;
+            instruction = "Soldaki ızgaradaki deseni sağdaki boş ızgaraya birebir aynı olacak şekilde çizin.";
+            note = "Görsel-motor kopyalama ve konumsal bellek.";
+            
+            const density = difficulty === 'Başlangıç' ? 0.3 : 0.5;
+            const grid = Array.from({length: size}, () => Array(size).fill(null));
+            
+            for(let r=0; r<size; r++) {
+                for(let c=0; c<size; c++) {
+                    if (Math.random() < density) {
+                        grid[r][c] = 'filled';
+                    }
+                }
+            }
+            
+            tasks.push({ type: 'copy', grid, instruction: '', target: {r:0, c:0} });
+
+        } else { // Path / Direction
+            title = `Yön Takibi (${difficulty})`;
+            instruction = "Başlangıç noktasından yönergeleri takip ederek hedefe ulaşın.";
+            note = "Yön kavramları (Sağ, Sol, Yukarı, Aşağı) ve ardışık işlem.";
+            
+            const grid = Array.from({length: size}, () => Array(size).fill(null));
+            const startR = getRandomInt(0, size-1);
+            const startC = getRandomInt(0, size-1);
+            grid[startR][startC] = 'S'; // Start
+            
+            // Generate path
+            let currR = startR;
+            let currC = startC;
+            const steps = difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 5 : 8);
+            const instructions = [];
+            
+            for(let k=0; k<steps; k++) {
+                const moves = [];
+                if (currR > 0) moves.push({dr: -1, dc: 0, txt: 'Yukarı'});
+                if (currR < size-1) moves.push({dr: 1, dc: 0, txt: 'Aşağı'});
+                if (currC > 0) moves.push({dr: 0, dc: -1, txt: 'Sol'});
+                if (currC < size-1) moves.push({dr: 0, dc: 1, txt: 'Sağ'});
+                
+                if (moves.length > 0) {
+                    const move = getRandomItems(moves, 1)[0];
+                    currR += move.dr;
+                    currC += move.dc;
+                    instructions.push(move.txt);
+                }
+            }
+            
+            grid[currR][currC] = 'E'; // End (Hidden in display usually)
+            
+            tasks.push({
+                type: 'path',
+                grid,
+                instruction: `Yönergeler: ${instructions.join(' -> ')}`,
+                target: {r: currR, c: currC}
+            });
         }
-        tasks.push({ 
-            type: 'copy', 
-            grid, 
-            instruction: 'Soldaki deseni sağdaki boş kareye aynen çiz.', 
-            target: {r:0, c:0} 
-        });
 
         return {
-            title: 'Uzamsal Algı ve Küpler',
-            instruction: 'Şekilleri incele ve istenenleri yap.',
-            pedagogicalNote: '3 boyutlu düşünme, zihinsel döndürme ve görsel kopyalama.',
-            imagePrompt: 'Küp',
+            title,
+            instruction,
+            pedagogicalNote: note,
+            imagePrompt: type === 'count-cubes' ? 'Küp' : 'Desen',
             layout: 'grid',
             gridSize: size,
-            cubeData: cubeGrid,
+            cubeData: cubeData,
             tasks
         };
     });
 };
-export const generateOfflineSpatialAwarenessDiscovery = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts});
-export const generateOfflinePositionalConcepts = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts});
-export const generateOfflineDirectionalConcepts = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts});
+export const generateOfflineSpatialAwarenessDiscovery = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts, concept: 'path'});
+export const generateOfflinePositionalConcepts = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts, concept: 'copy'});
+export const generateOfflineDirectionalConcepts = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts, concept: 'path'});
 
 // --- 5. Math Language ---
 export const generateOfflineMathLanguage = async (options: GeneratorOptions): Promise<ConceptMatchData[]> => {
@@ -180,7 +259,7 @@ export const generateOfflineMathLanguage = async (options: GeneratorOptions): Pr
     }));
 };
 
-// --- 6. Time/Measure/Geometry (UPDATED) ---
+// --- 6. Time/Measure/Geometry ---
 export const generateOfflineTimeMeasurementGeometry = async (options: GeneratorOptions): Promise<ConceptMatchData[]> => {
     const { worksheetCount, subType, difficulty } = options;
     const cat = subType || 'time'; // 'time', 'money', 'measurement', 'geometry'
