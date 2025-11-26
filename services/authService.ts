@@ -47,7 +47,7 @@ export const authService = {
         let profile = null;
         let attempts = 0;
         
-        // Try up to 3 times to get the profile
+        // Try up to 3 times to get the profile (Optimized delay)
         while (!profile && attempts < 3) {
             const { data, error } = await supabase
                 .from('users')
@@ -62,12 +62,12 @@ export const authService = {
             
             attempts++;
             if (!profile && attempts < 3) {
-                // Short wait to allow trigger to finish
-                await new Promise(r => setTimeout(r, 500));
+                // Reduced wait time for faster feedback
+                await new Promise(r => setTimeout(r, 200));
             }
         }
 
-        // Fail-safe: If profile is still missing (Trigger failed or lag), construct from Auth Data
+        // Fail-safe: If profile is still missing (Trigger failed or lag), construct from Auth Data immediately
         if (!profile) {
              console.warn("Profile fetch failed or timed out. Using fallback auth data.");
              const fallbackProfile = {

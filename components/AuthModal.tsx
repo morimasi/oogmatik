@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 interface AuthModalProps {
@@ -15,8 +15,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     const [error, setError] = useState('');
     const { login, register } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const isMounted = useRef(true);
+
+    useEffect(() => {
+        isMounted.current = true;
+        return () => { isMounted.current = false; };
+    }, []);
 
     if (!isOpen) return null;
+
+    const handleClose = () => {
+        if (!isLoading) {
+            onClose();
+        } else {
+            // Force close if loading (user wants to abort)
+            setIsLoading(false);
+            onClose();
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,9 +46,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             return;
         }
 
-        // 15 seconds timeout protection
+        // 8 seconds timeout protection (Reduced from 15s for better UX)
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Sunucu yanıt vermiyor. Lütfen internet bağlantınızı kontrol edin.")), 15000)
+            setTimeout(() => reject(new Error("Sunucu yanıt vermiyor. Lütfen tekrar deneyin.")), 8000)
         );
 
         try {
@@ -42,14 +58,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 if (!name) throw new Error('İsim alanı zorunludur.');
                 await Promise.race([register(email, password, name), timeoutPromise]);
             }
-            // Close only on success
-            onClose();
+            
+            if (isMounted.current) {
+                onClose();
+            }
         } catch (err: any) {
             console.error("Auth operation failed:", err);
-            const errorMessage = err?.message || "Bilinmeyen bir hata oluştu.";
-            setError(errorMessage);
+            if (isMounted.current) {
+                const errorMessage = err?.message || "Bilinmeyen bir hata oluştu.";
+                // Translate common Supabase errors
+                if (errorMessage.includes("Invalid login credentials")) {
+                    setError("Hatalı e-posta veya şifre.");
+                } else {
+                    setError(errorMessage);
+                }
+            }
         } finally {
-            setIsLoading(false);
+            if (isMounted.current) {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -59,13 +86,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <div className="flex border-b border-zinc-200 dark:border-zinc-700">
                     <button
                         className={`flex-1 py-4 text-sm font-bold transition-colors ${mode === 'login' ? 'bg-white dark:bg-zinc-800 text-indigo-600 border-b-2 border-indigo-600' : 'bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500'}`}
-                        onClick={() => { setMode('login'); setError(''); }}
+                        onClick={() => { if(!isLoading) { setMode('login'); setError(''); } }}
+                        disabled={isLoading}
                     >
                         Giriş Yap
                     </button>
                     <button
                         className={`flex-1 py-4 text-sm font-bold transition-colors ${mode === 'register' ? 'bg-white dark:bg-zinc-800 text-indigo-600 border-b-2 border-indigo-600' : 'bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500'}`}
-                        onClick={() => { setMode('register'); setError(''); }}
+                        onClick={() => { if(!isLoading) { setMode('register'); setError(''); } }}
+                        disabled={isLoading}
                     >
                         Kayıt Ol
                     </button>
@@ -77,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     </h2>
 
                     {error && (
-                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800 flex items-start gap-2">
+                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800 flex items-start gap-2 animate-pulse">
                             <i className="fa-solid fa-circle-exclamation mt-0.5"></i>
                             <span>{error}</span>
                         </div>
@@ -94,6 +123,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                     className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                                     placeholder="Adınız"
                                     required={mode === 'register'}
+                                    disabled={isLoading}
                                 />
                             </div>
                         )}
@@ -106,6 +136,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                 className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                                 placeholder="ornek@email.com"
                                 required
+                                disabled={isLoading}
                             />
                         </div>
                         <div>
@@ -118,13 +149,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                 placeholder="••••••"
                                 required
                                 minLength={6}
+                                disabled={isLoading}
                             />
                         </div>
 
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                         >
                             {isLoading ? (
                                 <>
@@ -135,10 +167,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         </button>
                     </form>
                     
+                    {/* Vazgeç butonu her zaman aktif, böylece kullanıcı takılırsa çıkabilir */}
                     <button 
-                        onClick={onClose} 
-                        disabled={isLoading} 
-                        className="w-full mt-4 text-zinc-400 text-sm hover:text-zinc-600 dark:hover:text-zinc-300 disabled:opacity-50 transition-colors"
+                        onClick={handleClose} 
+                        type="button"
+                        className="w-full mt-4 text-zinc-400 text-sm hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors py-2"
                     >
                         Vazgeç
                     </button>
