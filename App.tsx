@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
@@ -76,6 +77,7 @@ const tourSteps: TourStep[] = [
     { targetId: 'tour-search', title: 'Hızlı Arama', content: 'Yüzlerce etkinlik arasında kaybolmayın. Aradığınız bir etkinliğe buradan hızlıca ulaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-content', title: 'İçerik Alanı', content: 'Seçtiğiniz etkinlik ayarları ve ürettiğiniz çalışma kağıtlarınız bu ana alanda görüntülenir.', position: 'left' },
     { targetId: 'tour-toolbar', title: 'Araç Çubuğu', content: 'Etkinlik oluşturulduktan sonra, bu araç çubuğu belirir. Yazdırma, kaydetme, paylaşma ve görünüm ayarlarını (yakınlaştırma, kenar boşluğu vb.) buradan yapabilirsiniz.', position: 'bottom' },
+    { targetId: 'tour-favorites-btn', title: 'Favoriler', content: 'En çok kullanılan etkinliklere buradan hızlıca ulaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-archive-btn', title: 'Arşiv', content: 'Kaydettiğiniz tüm etkinliklere buradan ulaşabilir, tekrar açabilir veya arkadaşlarınızla paylaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-profile-btn', title: 'Profiliniz', content: 'Hesap bilgilerinizi, istatistiklerinizi ve değerlendirme raporlarınızı yönetmek için profilinize gidin.', position: 'bottom' },
 ];
@@ -323,6 +325,12 @@ const AppContent: React.FC = () => {
              <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
 
              <div className="flex items-center gap-2">
+             
+                {/* Favorites Button - Always visible */}
+                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-500 hover:text-red-500 transition-colors rounded-md" title="Favoriler">
+                    <i className="fa-solid fa-heart fa-lg"></i>
+                </button>
+
              {user ? (
                  <>
                     {user.role === 'admin' && (

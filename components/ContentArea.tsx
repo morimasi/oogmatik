@@ -124,6 +124,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         if (currentView === 'savedList') return ['Ana Sayfa', 'Arşivim'];
         if (currentView === 'shared') return ['Ana Sayfa', 'Paylaşılanlar'];
         if (currentView === 'assessment') return ['Ana Sayfa', 'Değerlendirme'];
+        if (currentView === 'favorites') return ['Ana Sayfa', 'Favoriler'];
         if (currentView === 'generator' && activityType) {
             const act = ACTIVITIES.find(a => a.id === activityType);
             const cat = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType || '' as ActivityType));
@@ -238,13 +239,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             Eğitimi kişiselleştirmek hiç bu kadar kolay olmamıştı.<br/>
                             <strong>Disleksi</strong>, <strong>Diskalkuli</strong> ve <strong>Dikkat Eksikliği</strong> için özel olarak tasarlanmış materyaller üretin.
                         </p>
-                        
-                        {/* FAVORITES SECTION INTEGRATION */}
-                        <div id="favorites-section-container">
-                             {onSelectActivity && (
-                                 <FavoritesSection onSelectActivity={onSelectActivity} />
-                             )}
-                        </div>
                     </div>
                 </div>
             )}
@@ -273,6 +267,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               onSelectActivity={(id) => {
                   if (onSelectActivity) onSelectActivity(id);
               }} 
+          />
+      ) : currentView === 'favorites' ? (
+          <FavoritesSection 
+              onSelectActivity={(id) => {
+                  if (onSelectActivity) onSelectActivity(id);
+              }}
+              onBack={onBackToGenerator}
           />
       ) : null}
     </main>

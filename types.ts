@@ -163,7 +163,7 @@ export interface StyleSettings {
   showPedagogicalNote: boolean;
 }
 
-export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment';
+export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment' | 'favorites';
 
 export interface GeneratorOptions {
     mode: 'ai' | 'fast';
