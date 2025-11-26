@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Activity, ActivityType, GeneratorOptions } from '../types';
 
@@ -241,7 +242,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         />
                     </div>
                     <p className="text-xs text-zinc-400 mt-2">
-                        Seçilen sayıda, <strong>birbirinden farklı</strong> içeriğe sahip etkinlik üretilir. Çoklu seçimde her etkinlik ayrı bir A4 sayfasına basılacak şekilde düzenlenir.
+                        Seçilen sayıda, birbirinden farklı içeriğe sahip etkinlik üretilir. <strong>Yazdırırken kağıt tasarrufu için sığabildiği kadar etkinlik bir sayfaya yerleştirilir ve gerekirse sonraki sayfaya taşar.</strong>
                     </p>
                 </div>
 

@@ -1,3 +1,4 @@
+
 import React, { CSSProperties } from 'react';
 import { ActivityType, SingleWorksheetData, StyleSettings } from '../types';
 
@@ -220,14 +221,23 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             {data.map((sheetData, index) => (
                 <div 
                     key={index} 
-                    className="worksheet-page bg-white shadow-lg w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden print:m-0 print:shadow-none print:break-after-page break-after-page"
+                    // Changed classes for Print Flow:
+                    // print:h-auto -> Allows height to adjust (no fixed A4 height)
+                    // print:break-inside-avoid -> Prevents splitting a single activity box
+                    // aspect-[210/297] -> Kept for screen preview to look like paper
+                    // print:aspect-auto -> Removes aspect ratio constraint for print flow
+                    className="worksheet-page bg-white shadow-lg w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden print:m-0 print:shadow-none print:break-inside-avoid print:h-auto print:min-h-0 print:aspect-auto break-inside-avoid mb-8"
                     style={pageStyle}
                 >
                     {renderSheet(activityType, sheetData, settings)}
 
                     <div className="absolute bottom-4 right-6 text-[10px] text-zinc-400 font-bold uppercase tracking-widest print:block hidden opacity-50">
-                        Bursa Disleksi AI - Sayfa {index + 1}
+                        Bursa Disleksi AI - Varyasyon {index + 1}
                     </div>
+                    
+                    {/* Visual separator for screen view only usually, but useful in flow print too if needed. 
+                        Currently hidden in print by default via CSS in index.html if not specifically targeted. 
+                        We added a border-bottom in CSS for print. */}
                 </div>
             ))}
         </div>
