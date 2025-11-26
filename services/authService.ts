@@ -6,12 +6,12 @@ import { User } from '../types';
 const mapDbUserToAppUser = (dbUser: any): User => ({
     id: dbUser.id,
     email: dbUser.email,
-    name: dbUser.name || dbUser.email.split('@')[0],
+    name: dbUser.name || dbUser.email?.split('@')[0] || 'Kullanıcı',
     // 'morimasi@gmail.com' hesabına otomatik admin yetkisi ver
     role: dbUser.email === 'morimasi@gmail.com' ? 'admin' : (dbUser.role || 'user'),
     avatar: dbUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${dbUser.email}`,
-    createdAt: dbUser.created_at,
-    lastLogin: dbUser.last_login,
+    createdAt: dbUser.created_at || new Date().toISOString(),
+    lastLogin: dbUser.last_login || new Date().toISOString(),
     worksheetCount: dbUser.worksheet_count || 0,
     status: dbUser.status || 'active',
     subscriptionPlan: dbUser.subscription_plan || 'free'
@@ -28,25 +28,24 @@ export const authService = {
 
         if (authError) {
             console.error("Auth Error:", authError);
-            
             if (authError.status === 400 || authError.message.includes("Invalid login credentials")) {
                 throw new Error("Giriş yapılamadı: E-posta adresi veya şifre hatalı.");
             }
-
             throw new Error("Giriş hatası: " + (authError.message || "Bilinmeyen bir hata oluştu."));
         }
 
         if (!authData.user) throw new Error("Kullanıcı bilgileri alınamadı.");
 
-        // Update last login (Non-blocking)
+        // Update last login (Fire and forget - Non-blocking)
         supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id).then(({ error }) => {
-            if (error) console.warn("Last login update failed", error);
+            if (error) console.warn("Last login update warning:", error.message);
         });
 
-        // Fetch profile with retry logic (to handle potential trigger delay)
+        // Fetch profile with retry logic
         let profile = null;
         let attempts = 0;
         
+        // Try up to 3 times to get the profile
         while (!profile && attempts < 3) {
             const { data, error } = await supabase
                 .from('users')
@@ -60,27 +59,28 @@ export const authService = {
             }
             
             attempts++;
-            if (!data && attempts < 3) {
-                // Exponential backoff (wait 500ms, 1000ms)
-                await new Promise(r => setTimeout(r, 500 * attempts));
+            if (!profile && attempts < 3) {
+                // Short wait to allow trigger to finish
+                await new Promise(r => setTimeout(r, 500));
             }
         }
 
-        // If profile is still missing after retries, create a fallback user object
+        // Fail-safe: If profile is still missing (Trigger failed or lag), construct from Auth Data
         if (!profile) {
-             console.warn("Profile not found after retries, using fallback.");
-             return {
+             console.warn("Profile fetch failed or timed out. Using fallback auth data.");
+             const fallbackProfile = {
                 id: authData.user.id,
                 email: authData.user.email || '',
-                name: email.split('@')[0],
-                role: 'user',
+                name: email.split('@')[0], // Fallback name
+                role: email === 'morimasi@gmail.com' ? 'admin' : 'user',
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-                createdAt: new Date().toISOString(),
-                lastLogin: new Date().toISOString(),
-                worksheetCount: 0,
+                created_at: new Date().toISOString(),
+                last_login: new Date().toISOString(),
+                worksheet_count: 0,
                 status: 'active',
-                subscriptionPlan: 'free'
+                subscription_plan: 'free'
             };
+            return mapDbUserToAppUser(fallbackProfile);
         }
         
         if (profile.status === 'suspended') {
@@ -94,6 +94,7 @@ export const authService = {
     register: async (email: string, pass: string, name: string): Promise<User> => {
         if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
 
+        // 1. Sign Up
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password: pass,
@@ -109,9 +110,9 @@ export const authService = {
             throw new Error("Kayıt hatası: " + authError.message);
         }
         
-        if (!authData.user) throw new Error("Kayıt oluşturulamadı.");
+        if (!authData.user) throw new Error("Kayıt oluşturulamadı. Lütfen tekrar deneyin.");
 
-        // Create public user profile manually
+        // 2. Prepare Profile Data
         const newUserProfile = {
             id: authData.user.id,
             email: email,
@@ -125,15 +126,15 @@ export const authService = {
             worksheet_count: 0
         };
 
-        const { data: profile, error: dbError } = await supabase
-            .from('users')
-            .upsert(newUserProfile)
-            .select()
-            .single();
+        // 3. Attempt to ensure profile exists (Non-Blocking / Best Effort)
+        // We don't await this or check for errors strictly to avoid blocking the UI if DB is slow.
+        // The DB trigger `on_auth_user_created` usually handles this.
+        supabase.from('users').upsert(newUserProfile).then(({ error }) => {
+            if (error) console.warn("Manual profile creation warning (Trigger likely handled it):", error.message);
+        });
 
-        if (dbError) console.error("Profile creation error:", dbError);
-
-        return mapDbUserToAppUser(profile || newUserProfile);
+        // 4. Return user immediately to let them in
+        return mapDbUserToAppUser(newUserProfile);
     },
 
     logout: async () => {
@@ -153,14 +154,27 @@ export const authService = {
             .eq('id', session.user.id)
             .maybeSingle();
 
-        if (!profile) return null;
+        if (!profile) {
+            // Fallback if profile missing but auth exists
+             return {
+                id: session.user.id,
+                email: session.user.email || '',
+                name: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'Kullanıcı',
+                role: 'user',
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.user.email}`,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                worksheetCount: 0,
+                status: 'active',
+                subscriptionPlan: 'free'
+            };
+        }
         return mapDbUserToAppUser(profile);
     },
 
     updateProfile: async (userId: string, updates: Partial<User>): Promise<User> => {
         if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
 
-        // Convert camelCase to snake_case for DB
         const dbUpdates: any = {};
         if (updates.name) dbUpdates.name = updates.name;
         if (updates.avatar) dbUpdates.avatar = updates.avatar;
@@ -197,7 +211,6 @@ export const authService = {
         return data.map(mapDbUserToAppUser);
     },
 
-    // --- ADMIN METHODS ---
     getAllUsers: async (): Promise<User[]> => {
         if (!supabase) return [];
         const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });

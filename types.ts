@@ -420,7 +420,7 @@ export interface BackwardSpellingData extends BaseActivityData {
 }
 
 // --- DYSCALCULIA SUPPORT TYPES (Consolidated) ---
-export type VisualMathType = 'dots' | 'objects' | 'fingers' | 'shapes' | 'number-line' | 'mixed' | 'ten-frame' | 'domino' | 'number-line-advanced' | 'estimation-jar' | 'spatial-cubes';
+export type VisualMathType = 'dots' | 'objects' | 'fingers' | 'shapes' | 'number-line' | 'mixed' | 'ten-frame' | 'domino' | 'number-line-advanced' | 'estimation-jar' | 'spatial-cubes' | 'number-bond' | 'dice' | 'blocks';
 
 export interface DyscalculiaCommonData extends BaseActivityData {
     layout: 'grid' | 'list' | 'visual';

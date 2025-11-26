@@ -44,7 +44,11 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
         if (!isOpen || !isReady) return;
         
         // Safety check: ensure steps exist and index is valid
-        if (!steps || steps.length === 0 || currentStepIndex >= steps.length) {
+        if (!steps || steps.length === 0 || currentStepIndex >= steps.length || currentStepIndex < 0) {
+            // If we went out of bounds, close the tour safely
+            if (currentStepIndex >= (steps?.length || 0) && (steps?.length || 0) > 0) {
+                 onClose();
+            }
             return;
         }
 
@@ -62,7 +66,10 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
         
         const updateRect = () => {
             const step = steps[currentStepIndex];
-            if (!step) return;
+            if (!step || !step.targetId) {
+                handleNextAuto();
+                return;
+            }
 
             const element = document.getElementById(step.targetId);
             
@@ -72,8 +79,14 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
                 } catch (e) { /* ignore */ }
                 
                 scrollTimeout = setTimeout(() => {
-                    if (!element) return;
-                    const rect = element.getBoundingClientRect();
+                    // Check element existence again inside timeout to be safe
+                    const el = document.getElementById(step.targetId);
+                    if (!el) {
+                        handleNextAuto();
+                        return;
+                    }
+                    const rect = el.getBoundingClientRect();
+                    // Check if element is visible (non-zero size)
                     if (rect.width === 0 && rect.height === 0) {
                          handleNextAuto();
                     } else {
@@ -81,6 +94,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
                     }
                 }, 350);
             } else {
+                // Element not found, skip to next step
                 handleNextAuto();
             }
         };
@@ -99,6 +113,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
     if (!isOpen || !isReady || !steps || steps.length === 0) return null;
     
     const currentStep = steps[currentStepIndex];
+    // If currentStep is undefined (e.g. during state transition), do not render
     if (!currentStep || !targetRect) return null;
 
     const isLastStep = currentStepIndex === steps.length - 1;
@@ -122,6 +137,8 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
     };
 
     const getTooltipStyle = () => {
+        if (!targetRect || !currentStep) return { top: 0, left: 0 }; // Guard
+
         const gap = 20;
         let top = 0;
         let left = 0;
@@ -145,11 +162,13 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
         }
 
         const padding = 20;
+        // Bounds checking
         if (left < padding) left = padding;
-        if (left + tooltipWidth > window.innerWidth - padding) left = window.innerWidth - tooltipWidth - padding;
-        
-        if (top < padding) top = padding;
-        if (top + tooltipHeight > window.innerHeight - padding) top = window.innerHeight - tooltipHeight - padding;
+        if (typeof window !== 'undefined') {
+            if (left + tooltipWidth > window.innerWidth - padding) left = window.innerWidth - tooltipWidth - padding;
+            if (top < padding) top = padding;
+            if (top + tooltipHeight > window.innerHeight - padding) top = window.innerHeight - tooltipHeight - padding;
+        }
 
         return { top, left };
     };
@@ -167,8 +186,8 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
                             <rect 
                                 x={targetRect.left - padding} 
                                 y={targetRect.top - padding} 
-                                width={targetRect.width + (padding*2)} 
-                                height={targetRect.height + (padding*2)} 
+                                width={Math.max(0, targetRect.width + (padding*2))} 
+                                height={Math.max(0, targetRect.height + (padding*2))} 
                                 fill="black" 
                                 rx="8" 
                             />
@@ -178,8 +197,8 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
                     <rect 
                         x={targetRect.left - padding} 
                         y={targetRect.top - padding} 
-                        width={targetRect.width + (padding*2)} 
-                        height={targetRect.height + (padding*2)} 
+                        width={Math.max(0, targetRect.width + (padding*2))} 
+                        height={Math.max(0, targetRect.height + (padding*2))} 
                         fill="none" 
                         stroke="#6366F1" 
                         strokeWidth="3" 

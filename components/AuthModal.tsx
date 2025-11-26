@@ -23,7 +23,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         setError('');
         setIsLoading(true);
 
-        // 15 seconds timeout
+        // Check Connection first
+        if (!navigator.onLine) {
+            setError("İnternet bağlantınız yok. Lütfen kontrol edin.");
+            setIsLoading(false);
+            return;
+        }
+
+        // 15 seconds timeout protection
         const timeoutPromise = new Promise((_, reject) => 
             setTimeout(() => reject(new Error("Sunucu yanıt vermiyor. Lütfen internet bağlantınızı kontrol edin.")), 15000)
         );
@@ -35,10 +42,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 if (!name) throw new Error('İsim alanı zorunludur.');
                 await Promise.race([register(email, password, name), timeoutPromise]);
             }
+            // Close only on success
             onClose();
         } catch (err: any) {
             console.error("Auth operation failed:", err);
-            // Ensure error message is always a string
             const errorMessage = err?.message || "Bilinmeyen bir hata oluştu.";
             setError(errorMessage);
         } finally {
@@ -47,18 +54,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
                 <div className="flex border-b border-zinc-200 dark:border-zinc-700">
                     <button
                         className={`flex-1 py-4 text-sm font-bold transition-colors ${mode === 'login' ? 'bg-white dark:bg-zinc-800 text-indigo-600 border-b-2 border-indigo-600' : 'bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500'}`}
-                        onClick={() => setMode('login')}
+                        onClick={() => { setMode('login'); setError(''); }}
                     >
                         Giriş Yap
                     </button>
                     <button
                         className={`flex-1 py-4 text-sm font-bold transition-colors ${mode === 'register' ? 'bg-white dark:bg-zinc-800 text-indigo-600 border-b-2 border-indigo-600' : 'bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500'}`}
-                        onClick={() => setMode('register')}
+                        onClick={() => { setMode('register'); setError(''); }}
                     >
                         Kayıt Ol
                     </button>
@@ -70,8 +77,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     </h2>
 
                     {error && (
-                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800">
-                            {error}
+                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800 flex items-start gap-2">
+                            <i className="fa-solid fa-circle-exclamation mt-0.5"></i>
+                            <span>{error}</span>
                         </div>
                     )}
 
@@ -83,8 +91,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                                     placeholder="Adınız"
+                                    required={mode === 'register'}
                                 />
                             </div>
                         )}
@@ -94,8 +103,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                                 placeholder="ornek@email.com"
+                                required
                             />
                         </div>
                         <div>
@@ -104,15 +114,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                                 placeholder="••••••"
+                                required
+                                minLength={6}
                             />
                         </div>
 
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                         >
                             {isLoading ? (
                                 <>
@@ -123,7 +135,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         </button>
                     </form>
                     
-                    <button onClick={onClose} disabled={isLoading} className="w-full mt-4 text-zinc-400 text-sm hover:text-zinc-600 disabled:opacity-50">Vazgeç</button>
+                    <button 
+                        onClick={onClose} 
+                        disabled={isLoading} 
+                        className="w-full mt-4 text-zinc-400 text-sm hover:text-zinc-600 dark:hover:text-zinc-300 disabled:opacity-50 transition-colors"
+                    >
+                        Vazgeç
+                    </button>
                 </div>
             </div>
         </div>
