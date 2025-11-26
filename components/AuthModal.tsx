@@ -46,9 +46,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             return;
         }
 
-        // 8 seconds timeout protection (Reduced from 15s for better UX)
+        // 20 seconds timeout protection (Increased from 8s to handle Supabase Cold Start)
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Sunucu yanıt vermiyor. Lütfen tekrar deneyin.")), 8000)
+            setTimeout(() => reject(new Error("Sunucu yanıt vermiyor (Zaman aşımı). Lütfen tekrar deneyin.")), 20000)
         );
 
         try {
@@ -69,6 +69,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 // Translate common Supabase errors
                 if (errorMessage.includes("Invalid login credentials")) {
                     setError("Hatalı e-posta veya şifre.");
+                } else if (errorMessage.includes("Email not confirmed")) {
+                    setError("Lütfen e-posta adresinizi doğrulayın.");
                 } else {
                     setError(errorMessage);
                 }
@@ -161,13 +163,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                             {isLoading ? (
                                 <>
                                     <i className="fa-solid fa-circle-notch fa-spin"></i>
-                                    <span>İşleniyor...</span>
+                                    <span>Bağlanıyor...</span>
                                 </>
                             ) : (mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol')}
                         </button>
                     </form>
                     
-                    {/* Vazgeç butonu her zaman aktif, böylece kullanıcı takılırsa çıkabilir */}
+                    {/* Vazgeç butonu */}
                     <button 
                         onClick={handleClose} 
                         type="button"

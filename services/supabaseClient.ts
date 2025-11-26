@@ -8,15 +8,25 @@ import { createClient } from '@supabase/supabase-js';
 const HARDCODED_PROJECT_REF = "ushxgmkhhrvjevaalkgo";
 const HARDCODED_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzaHhnbWtoaHJ2amV2YWFsa2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MjMzNjEsImV4cCI6MjA3OTI5OTM2MX0.uiQ_AMpf7tPWwdLUf1yEzJkAzJvE228k_8MdgDieE1g";
 
-const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL || `https://${HARDCODED_PROJECT_REF}.supabase.co`;
-const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || HARDCODED_ANON_KEY;
+// URL ve Key'i temizle (boşlukları sil)
+const envUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
+const envKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
+
+const supabaseUrl = (envUrl || `https://${HARDCODED_PROJECT_REF}.supabase.co`).trim();
+const supabaseAnonKey = (envKey || HARDCODED_ANON_KEY).trim();
 
 let supabaseInstance = null;
 
 // Anahtarlar varsa istemciyi oluştur.
 if (supabaseUrl && supabaseAnonKey) {
     try {
-        supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+        supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+            auth: {
+                persistSession: true, // Oturumu sakla
+                autoRefreshToken: true, // Token'ı otomatik yenile
+                detectSessionInUrl: true // URL'deki tokenları algıla (şifre sıfırlama vb. için)
+            }
+        });
         // console.log("✅ Supabase istemcisi başlatıldı.");
     } catch (error) {
         console.error("🛑 Supabase başlatma hatası:", error);
@@ -35,16 +45,22 @@ export const checkDbConnection = async () => {
         return false;
     }
     try {
+        // Basit bir health check: Kullanıcı sayısını almayı dene
+        // Bu sorgu hafiftir ve bağlantının canlı olup olmadığını gösterir.
         const { error } = await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
         
         if (error) {
             // Tablo yoksa veya yetki hatası varsa bile sunucuya ulaşıldı demektir.
             // PGRST hataları (4xx, 5xx) bağlantının var olduğunu gösterir.
+            if (error.code === 'PGRST116') {
+               // Veri bulunamadı hatası bağlantının çalıştığını gösterir
+               return true;
+            }
             if (error.code === '42P01') {
                 console.warn("⚠️ Bağlantı başarılı ancak tablolar eksik (SQL'i çalıştırın).");
-            } else {
-                console.warn("⚠️ Bağlantı uyarısı:", error.message);
+                return true;
             }
+            console.warn("⚠️ Bağlantı uyarısı (ancak sunucuya erişildi):", error.message);
             return true; 
         }
         
