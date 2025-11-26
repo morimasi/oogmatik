@@ -1,19 +1,29 @@
 
 import React from 'react';
 import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, VisualMathType } from '../../types';
-import { PedagogicalHeader } from './common';
+import { PedagogicalHeader, ImageDisplay, Shape, ShapeDisplay } from './common';
 
 // --- VISUAL HELPERS ---
 
-// 10'luk Çerçeve
-const TenFrame: React.FC<{ count: number; className?: string }> = ({ count, className }) => {
-    return (
-        <div className={`grid grid-cols-5 grid-rows-2 gap-1 p-1 bg-white border-2 border-black w-[120px] h-[50px] ${className}`}>
+// 10'luk Çerçeve (Ten Frame)
+const TenFrame: React.FC<{ count: number; className?: string }> = ({ count, className = "" }) => {
+    const validCount = Math.min(20, Math.max(0, count));
+    const frames = validCount > 10 ? 2 : 1;
+    
+    const renderFrame = (fill: number) => (
+        <div className={`grid grid-cols-5 grid-rows-2 gap-1 p-1 bg-white border-2 border-black w-[120px] h-[52px] ${className}`}>
             {Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="border border-zinc-300 flex items-center justify-center relative">
-                    {i < count && <div className="w-3/4 h-3/4 bg-black rounded-full shadow-sm"></div>}
+                    {i < fill && <div className="w-3/4 h-3/4 bg-black rounded-full shadow-sm"></div>}
                 </div>
             ))}
+        </div>
+    );
+
+    return (
+        <div className="flex flex-col gap-2">
+            {renderFrame(Math.min(10, validCount))}
+            {validCount > 10 && renderFrame(validCount - 10)}
         </div>
     );
 };
@@ -21,29 +31,62 @@ const TenFrame: React.FC<{ count: number; className?: string }> = ({ count, clas
 // Domino
 const Domino: React.FC<{ count: number }> = ({ count }) => {
     const dots = Array.from({length: 9}).map(() => false);
-    if(count === 1) dots[4] = true;
-    else if(count === 2) { dots[0]=true; dots[8]=true; }
-    else if(count === 3) { dots[0]=true; dots[4]=true; dots[8]=true; }
-    else if(count === 4) { dots[0]=true; dots[2]=true; dots[6]=true; dots[8]=true; }
-    else if(count === 5) { dots[0]=true; dots[2]=true; dots[4]=true; dots[6]=true; dots[8]=true; }
-    else if(count === 6) { dots[0]=true; dots[2]=true; dots[3]=true; dots[5]=true; dots[6]=true; dots[8]=true; }
+    const c = Math.min(9, Math.max(0, count));
     
-    if (count > 6) {
+    // Standard dice patterns for 1-6, simpler for others
+    if(c === 1) dots[4] = true;
+    else if(c === 2) { dots[0]=true; dots[8]=true; }
+    else if(c === 3) { dots[0]=true; dots[4]=true; dots[8]=true; }
+    else if(c === 4) { dots[0]=true; dots[2]=true; dots[6]=true; dots[8]=true; }
+    else if(c === 5) { dots[0]=true; dots[2]=true; dots[4]=true; dots[6]=true; dots[8]=true; }
+    else if(c === 6) { dots[0]=true; dots[2]=true; dots[3]=true; dots[5]=true; dots[6]=true; dots[8]=true; }
+    else if(c === 7) { dots[0]=true; dots[2]=true; dots[3]=true; dots[4]=true; dots[5]=true; dots[6]=true; dots[8]=true; }
+    else if(c === 8) { dots[0]=true; dots[1]=true; dots[2]=true; dots[3]=true; dots[5]=true; dots[6]=true; dots[7]=true; dots[8]=true; }
+    else if(c === 9) { dots.fill(true); }
+    
+    if (count > 9) {
         return (
-            <div className="w-10 h-16 border-2 border-black rounded bg-white flex items-center justify-center text-xl font-bold">
+            <div className="w-12 h-20 border-2 border-black rounded-lg bg-white flex items-center justify-center text-2xl font-bold shadow-sm">
                 {count}
             </div>
         );
     }
 
     return (
-        <div className="w-10 h-16 border-2 border-black rounded bg-white grid grid-cols-3 grid-rows-3 p-1 gap-0.5 shadow-sm">
+        <div className="w-12 h-12 border-2 border-black rounded-lg bg-white grid grid-cols-3 grid-rows-3 p-1 gap-0.5 shadow-sm">
             {dots.map((isActive, i) => (
                 <div key={i} className="flex items-center justify-center">
-                    {isActive && <div className="w-1.5 h-1.5 bg-black rounded-full"></div>}
+                    {isActive && <div className="w-2 h-2 bg-black rounded-full"></div>}
                 </div>
             ))}
         </div>
+    );
+};
+
+// Number Bond (Parça-Bütün)
+const NumberBond: React.FC<{ whole: number; part1: number; part2: number | null; isAddition: boolean }> = ({ whole, part1, part2, isAddition }) => {
+    return (
+        <svg width="160" height="140" viewBox="0 0 160 140" className="overflow-visible">
+            {/* Connections */}
+            <line x1="80" y1="40" x2="40" y2="100" stroke="black" strokeWidth="2" />
+            <line x1="80" y1="40" x2="120" y2="100" stroke="black" strokeWidth="2" />
+            
+            {/* Whole (Top) */}
+            <circle cx="80" cy="30" r="25" fill={isAddition ? "#fff" : "#e0e7ff"} stroke="black" strokeWidth="2" />
+            <text x="80" y="30" dominantBaseline="middle" textAnchor="middle" className="text-xl font-bold">
+                {isAddition ? '?' : whole}
+            </text>
+            
+            {/* Part 1 (Left) */}
+            <circle cx="40" cy="110" r="25" fill="white" stroke="black" strokeWidth="2" />
+            <text x="40" y="110" dominantBaseline="middle" textAnchor="middle" className="text-xl font-bold">{part1}</text>
+            
+            {/* Part 2 (Right) */}
+            <circle cx="120" cy="110" r="25" fill={!isAddition && part2 === null ? "#e0e7ff" : "white"} stroke="black" strokeWidth="2" />
+            <text x="120" y="110" dominantBaseline="middle" textAnchor="middle" className="text-xl font-bold">
+                {part2 !== null ? part2 : '?'}
+            </text>
+        </svg>
     );
 };
 
@@ -386,43 +429,53 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
     </div>
 );
 
-export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = ({ data }) => (
+export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = ({ data }) => {
+    const isNumberBond = data.problems[0]?.visualType === 'number-bond';
+    const isTenFrame = data.problems[0]?.visualType === 'ten-frame';
+    
+    return (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-1 gap-y-10 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto">
             {data.problems.map((prob, i) => (
-                <div key={i} className="relative p-6 bg-white border-4 border-zinc-200 rounded-2xl break-inside-avoid shadow-md">
+                <div key={i} className="relative p-6 bg-white border-4 border-zinc-200 rounded-2xl break-inside-avoid shadow-md flex flex-col items-center justify-center min-h-[200px]">
                     <div className="absolute -top-4 -left-4 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-black text-xl border-4 border-white shadow-md">{i + 1}</div>
+                    
                     {prob.operator === 'group' ? (
-                        <div className="flex flex-col gap-6">
-                            <div className="flex flex-wrap justify-center gap-8 p-4 bg-zinc-50 rounded-xl border-2 border-dashed border-zinc-300">
+                        <div className="flex flex-col gap-6 items-center w-full">
+                            <div className="flex flex-wrap justify-center gap-4 p-4 bg-zinc-50 rounded-xl border-2 border-dashed border-zinc-300 w-full">
                                 {Array.from({length: prob.num1}).map((_, gIndex) => <GroupDisplay key={gIndex} itemsPerGroup={prob.num2} visualType={prob.visualType} />)}
                             </div>
-                            <div className="flex justify-around text-sm font-bold text-zinc-600">
-                                <div className="flex flex-col items-center"><span>Grup</span><div className="w-12 h-10 border-2 border-zinc-400 rounded bg-white mt-1"></div></div>
-                                <div className="flex flex-col items-center"><span>Nesne</span><div className="w-12 h-10 border-2 border-zinc-400 rounded bg-white mt-1"></div></div>
+                            <div className="flex justify-around text-sm font-bold text-zinc-600 w-full">
+                                <div className="flex flex-col items-center p-2 border rounded"><span>Grup</span><span className="text-xl text-indigo-600">{prob.num1}</span></div>
+                                <div className="flex flex-col items-center p-2 border rounded"><span>Nesne</span><span className="text-xl text-indigo-600">{prob.num2}</span></div>
                             </div>
-                            <div className="flex items-center justify-center gap-2 text-2xl font-black text-zinc-800 font-mono bg-indigo-50 p-3 rounded-xl">
-                                {Array.from({length: prob.num1}).map((_, idx) => (<React.Fragment key={idx}>{idx > 0 && <span className="text-indigo-400">+</span>}<div className="w-12 h-12 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div></React.Fragment>))}
-                                <span className="text-indigo-600 mx-2">=</span><div className="w-16 h-12 bg-white border-2 border-indigo-400 rounded-lg shadow-inner border-dashed"></div>
+                            <div className="flex items-center justify-center gap-2 text-2xl font-black text-zinc-800 font-mono bg-indigo-50 p-3 rounded-xl w-full">
+                                <span>{prob.num1} x {prob.num2} = </span>
+                                <div className="w-16 h-10 border-b-2 border-indigo-400 border-dashed"></div>
                             </div>
                         </div>
+                    ) : isNumberBond ? (
+                        <NumberBond whole={prob.answer} part1={prob.num1} part2={prob.operator === '+' ? prob.num2 : null} isAddition={prob.operator === '+'} />
                     ) : (
-                        <div className="flex items-center justify-between bg-zinc-50 rounded-xl p-4 border-2 border-zinc-100">
-                            <div className="flex items-center gap-3 text-4xl font-black text-zinc-800 font-mono">
-                                <div className="w-16 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
-                                <span className="text-indigo-500">{prob.operator}</span>
-                                <div className="w-16 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
-                                <span>=</span>
+                        <div className="flex flex-col items-center gap-4 w-full">
+                            <div className="flex items-center justify-center gap-4 w-full">
+                                {prob.visualType === 'ten-frame' ? <TenFrame count={prob.num1} /> : prob.visualType === 'dice' ? <Domino count={prob.num1} /> : <div className="text-4xl font-bold">{prob.num1}</div>}
+                                <span className="text-4xl font-black text-indigo-500">{prob.operator}</span>
+                                {prob.visualType === 'ten-frame' ? <TenFrame count={prob.num2} /> : prob.visualType === 'dice' ? <Domino count={prob.num2} /> : <div className="text-4xl font-bold">{prob.num2}</div>}
                             </div>
-                            <div className="w-20 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
+                            <div className="w-full border-t-2 border-zinc-200 pt-4 flex items-center justify-center gap-2">
+                                <span className="text-2xl font-bold text-zinc-400">=</span>
+                                <div className="w-24 h-16 border-2 border-dashed border-zinc-400 rounded-lg bg-zinc-50"></div>
+                            </div>
                         </div>
                     )}
                 </div>
             ))}
         </div>
     </div>
-);
+    );
+};
 
 export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) => (
     <div>

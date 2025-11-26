@@ -48,37 +48,63 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
     });
 };
 
-// --- 2. Arithmetic Fluency ---
+// --- 2. Arithmetic Fluency & Visual Arithmetic (UPDATED) ---
 export const generateOfflineArithmeticFluency = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
-    const { worksheetCount, operation } = options;
-    const limit = 20; 
+    const { worksheetCount, operation, visualStyle, numberRange } = options;
     
+    // Define range
+    let limit = 10;
+    if (numberRange === '1-20') limit = 20;
+    
+    // Map operation text to symbol
+    let op: '+' | '-' | 'x' = '+';
+    if (operation === 'subtraction') op = '-';
+    if (operation === 'multiplication') op = 'x';
+    
+    // Visual Style: 'objects' | 'ten-frame' | 'number-bond' | 'dice'
+    const style = visualStyle || 'objects';
+
     return Array.from({ length: worksheetCount }, () => {
         const problems = Array.from({ length: 6 }, () => {
-            let n1 = getRandomInt(1, 10);
-            let n2 = getRandomInt(1, 10);
-            let op = (!operation || operation === 'mixed') ? (Math.random() > 0.5 ? '+' : '-') : (operation === 'subtraction' ? '-' : '+');
+            let n1 = 0, n2 = 0, ans = 0;
             
             if (op === '+') {
-                if (n1 + n2 > limit) n2 = limit - n1;
-            } else {
-                if (n1 < n2) [n1, n2] = [n2, n1];
+                n1 = getRandomInt(1, limit / 2);
+                n2 = getRandomInt(1, limit / 2);
+                ans = n1 + n2;
+            } else if (op === '-') {
+                n1 = getRandomInt(Math.floor(limit/2), limit);
+                n2 = getRandomInt(1, n1);
+                ans = n1 - n2;
+            } else if (op === 'x') {
+                n1 = getRandomInt(1, 5);
+                n2 = getRandomInt(1, 5);
+                ans = n1 * n2;
             }
-            
+
             return {
                 num1: n1,
                 num2: n2,
-                operator: op as '+' | '-' | 'x' | '÷',
-                answer: op === '+' ? n1 + n2 : n1 - n2,
-                visualType: 'ten-frame' as const, 
+                operator: op,
+                answer: ans,
+                visualType: style as VisualMathType,
                 imagePrompt: 'Matematik İşlemi'
             };
         });
 
+        const titles: Record<string, string> = {
+            'ten-frame': '10\'luk Çerçeve ile İşlemler',
+            'number-bond': 'Sayı Bağları (Parça-Bütün)',
+            'dice': 'Domino Aritmetiği',
+            'objects': 'Görsel Aritmetik'
+        };
+
         return {
-            title: 'Görsel İşlem (10\'luk Çerçeve)',
-            instruction: 'Noktaları sayarak işlemleri yap.',
-            pedagogicalNote: 'Görsel destekli toplama/çıkarma.',
+            title: titles[style] || 'Görsel Aritmetik',
+            instruction: style === 'number-bond' 
+                ? (op === '+' ? 'Parçaları toplayarak bütünü bulun.' : 'Bütünden parçayı çıkararak diğer parçayı bulun.')
+                : 'Görselleri kullanarak işlemi yapın.',
+            pedagogicalNote: 'Somutlaştırma (CRA) modeli ile matematiksel işlem becerisi.',
             imagePrompt: 'Matematik İşlemi',
             layout: 'visual',
             problems

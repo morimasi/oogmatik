@@ -68,6 +68,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'gridSize', label: 'Izgara Boyutu', type: 'number', defaultValue: 4, min: 3, max: 6, width: 'half' },
                     { key: 'difficulty', label: 'Karmaşıklık', type: 'select', defaultValue: 'Orta', options: ['Başlangıç', 'Orta', 'Zor'], width: 'half' }
                 ];
+            case ActivityType.VISUAL_ARITHMETIC:
+                return [
+                    { key: 'operation', label: 'İşlem Türü', type: 'select', defaultValue: 'addition', options: ['addition', 'subtraction', 'multiplication'], width: 'half' },
+                    { key: 'visualStyle', label: 'Görsel Model', type: 'select', defaultValue: 'objects', options: ['objects', 'ten-frame', 'number-bond', 'dice'], width: 'half', description: 'Nesne, 10\'luk Çerçeve, Sayı Bağı, Domino' },
+                    { key: 'numberRange', label: 'Sayı Aralığı', type: 'select', defaultValue: '1-10', options: ['1-10', '1-20'], width: 'full' }
+                ];
             // Default fields for other activities can be customized here
             default:
                 return [
@@ -162,7 +168,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                     opt === 'percentage' ? 'Yüzde (%)' :
                                     opt === 'pie' ? 'Pasta Grafiği' :
                                     opt === 'bar' ? 'Şerit Model' :
-                                    opt === 'grid' ? '100\'lük Tablo' : opt
+                                    opt === 'grid' ? '100\'lük Tablo' : 
+                                    opt === 'addition' ? 'Toplama' :
+                                    opt === 'subtraction' ? 'Çıkarma' :
+                                    opt === 'multiplication' ? 'Çarpma' :
+                                    opt === 'objects' ? 'Nesneler (Standart)' :
+                                    opt === 'ten-frame' ? '10\'luk Çerçeve' :
+                                    opt === 'number-bond' ? 'Sayı Bağı (Parça-Bütün)' :
+                                    opt === 'dice' ? 'Domino / Zar' : opt
                                 }</option>)}
                             </select>
                         ) : field.type === 'number' ? (
