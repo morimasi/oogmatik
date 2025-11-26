@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, RealLifeProblemData } from '../../types';
+import { GeneratorOptions, NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, RealLifeProblemData, VisualMathType } from '../../types';
 import { getRandomInt, shuffle, getRandomItems } from './helpers';
 import { generateOfflineRealLifeMathProblems } from './mathLogic';
 import { generateOfflineVisualOddOneOut } from './perceptualSkills';
@@ -87,28 +87,36 @@ export const generateOfflineArithmeticFluency = async (options: GeneratorOptions
 };
 export const generateOfflineVisualArithmetic = generateOfflineArithmeticFluency;
 
-// --- 3. Number Grouping ---
+// --- 3. Number Grouping (UPDATED) ---
 export const generateOfflineNumberGrouping = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, groupSize, groupCount, visualType } = options;
+    
+    // Default fallbacks
+    const targetGroupCount = groupCount || 3;
+    const targetItemsPerGroup = groupSize || 4;
     
     return Array.from({ length: worksheetCount }, () => {
-        const problems = Array.from({ length: 4 }, () => {
-            const val = getRandomInt(1, 6);
+        // Create 3-4 distinct grouping problems per page
+        const problems = Array.from({ length: 3 }, () => {
+            // Variate slightly around the chosen settings to avoid monotony
+            const gCount = Math.max(2, targetGroupCount + getRandomInt(-1, 1)); 
+            const iCount = Math.max(2, targetItemsPerGroup + getRandomInt(-1, 1));
+            
             return {
-                num1: val,
-                num2: val,
+                num1: gCount, // Number of groups
+                num2: iCount, // Items per group
                 operator: 'group' as const,
-                answer: val,
-                visualType: 'domino' as const,
-                imagePrompt: 'Domino'
+                answer: gCount * iCount,
+                visualType: (visualType || 'objects') as VisualMathType,
+                imagePrompt: 'Nesne Grupları'
             };
         });
 
         return {
-            title: 'Sayı Gruplama (Domino)',
-            instruction: 'Dominodaki noktaları say ve kutuya yaz.',
-            pedagogicalNote: 'Hızlı sayı tanıma (Subitizing).',
-            imagePrompt: 'Domino',
+            title: 'Sayı Gruplama ve Tekrarlı Toplama',
+            instruction: 'Grupları incele: Kaç grup var? Her grupta kaç nesne var? Toplam kaç eder?',
+            pedagogicalNote: 'Çarpma işlemine hazırlık: Eşit grupları tanıma ve tekrarlı toplama mantığı.',
+            imagePrompt: 'Gruplama',
             layout: 'visual',
             problems
         };

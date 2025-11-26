@@ -45,6 +45,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [
                     { key: 'itemCount', label: 'Yönerge Sayısı', type: 'number', defaultValue: 8, min: 4, max: 12, width: 'full' }
                 ];
+            case ActivityType.NUMBER_GROUPING:
+                return [
+                    { key: 'groupCount', label: 'Grup Sayısı (Kaç tabak?)', type: 'number', defaultValue: 3, min: 2, max: 5, width: 'half' },
+                    { key: 'groupSize', label: 'Nesne Sayısı (Her tabakta?)', type: 'number', defaultValue: 4, min: 2, max: 6, width: 'half' },
+                    { key: 'visualType', label: 'Görsel Tipi', type: 'select', defaultValue: 'objects', options: ['objects', 'dice', 'blocks'], width: 'full' }
+                ];
             // Default fields for other activities can be customized here
             default:
                 return [

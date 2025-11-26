@@ -255,6 +255,47 @@ const VisualCounter: React.FC<{ count: number; type: string; className?: string 
     );
 };
 
+// --- GROUP DISPLAY HELPER ---
+const GroupDisplay: React.FC<{ itemsPerGroup: number; visualType: string }> = ({ itemsPerGroup, visualType }) => {
+    // Define a 'Container' style (Bowl, Basket, or just a Box)
+    // Visual type can be 'objects', 'dice', 'blocks'
+    
+    const renderItems = () => {
+        if (visualType === 'dice') {
+            return <Domino count={itemsPerGroup} />;
+        }
+        if (visualType === 'blocks') {
+            // Stack of blocks
+            return (
+                <div className="flex flex-col-reverse gap-0.5">
+                    {Array.from({length: itemsPerGroup}).map((_, i) => (
+                        <div key={i} className="w-8 h-6 bg-indigo-500 border border-indigo-700 rounded-sm shadow-sm"></div>
+                    ))}
+                </div>
+            );
+        }
+        // Default Objects (Apples in a plate/basket)
+        return (
+            <div className="relative w-24 h-20 flex items-center justify-center">
+                {/* Basket/Plate Base */}
+                <div className="absolute bottom-0 w-20 h-8 bg-amber-200 border-2 border-amber-400 rounded-b-3xl rounded-t-md shadow-sm z-10"></div>
+                {/* Items */}
+                <div className="flex flex-wrap justify-center gap-1 mb-4 z-0" style={{maxWidth: '80px'}}>
+                    {Array.from({length: itemsPerGroup}).map((_, i) => (
+                        <div key={i} className="w-5 h-5 rounded-full bg-red-500 border border-red-700 shadow-inner"></div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col items-center justify-end p-2">
+            {renderItems()}
+        </div>
+    );
+};
+
 // --- SHEETS ---
 
 export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) => (
@@ -319,42 +360,73 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
 export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-y-10 max-w-3xl mx-auto">
             {data.problems.map((prob, i) => (
                 <div key={i} className="relative p-6 bg-white border-4 border-zinc-200 rounded-2xl break-inside-avoid shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
                     <div className="absolute -top-4 -left-4 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-black text-xl border-4 border-white shadow-md">
                         {i + 1}
                     </div>
                     
-                    {/* Visual Layer */}
-                    <div className="flex justify-center items-center gap-4 mb-6 min-h-[80px]">
-                        <div className="flex flex-col items-center">
-                            <VisualCounter count={prob.num1} type={prob.visualType} />
-                        </div>
-                        <div className="text-3xl font-black text-zinc-400">
-                            {prob.operator === 'group' ? '' : prob.operator}
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <VisualCounter count={prob.num2} type={prob.visualType} />
-                        </div>
-                    </div>
+                    {prob.operator === 'group' ? (
+                        // --- GROUPING LAYOUT (Multiplication Prep) ---
+                        <div className="flex flex-col gap-6">
+                            {/* Visual Groups */}
+                            <div className="flex flex-wrap justify-center gap-8 p-4 bg-zinc-50 rounded-xl border-2 border-dashed border-zinc-300">
+                                {Array.from({length: prob.num1}).map((_, gIndex) => (
+                                    <GroupDisplay key={gIndex} itemsPerGroup={prob.num2} visualType={prob.visualType} />
+                                ))}
+                            </div>
+                            
+                            {/* Analysis Inputs */}
+                            <div className="flex justify-around text-sm font-bold text-zinc-600">
+                                <div className="flex flex-col items-center">
+                                    <span>Grup Sayısı</span>
+                                    <div className="w-12 h-10 border-2 border-zinc-400 rounded bg-white mt-1"></div>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <span>Nesne Sayısı</span>
+                                    <div className="w-12 h-10 border-2 border-zinc-400 rounded bg-white mt-1"></div>
+                                </div>
+                            </div>
 
-                    {/* Numerical Layer - Modified to hide numbers */}
-                    <div className="flex items-center justify-between bg-zinc-50 rounded-xl p-4 border-2 border-zinc-100">
-                        <div className="flex items-center gap-3 text-4xl font-black text-zinc-800 font-mono">
-                            {/* Num 1 Box */}
-                            <div className="w-16 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
-                            
-                            <span className="text-indigo-500">{prob.operator}</span>
-                            
-                            {/* Num 2 Box */}
-                            <div className="w-16 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
-                            
-                            <span>=</span>
+                            {/* Equation Layer (Repeated Addition) */}
+                            <div className="flex items-center justify-center gap-2 text-2xl font-black text-zinc-800 font-mono bg-indigo-50 p-3 rounded-xl">
+                                {Array.from({length: prob.num1}).map((_, idx) => (
+                                    <React.Fragment key={idx}>
+                                        {idx > 0 && <span className="text-indigo-400">+</span>}
+                                        <div className="w-12 h-12 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
+                                    </React.Fragment>
+                                ))}
+                                <span className="text-indigo-600 mx-2">=</span>
+                                <div className="w-16 h-12 bg-white border-2 border-indigo-400 rounded-lg shadow-inner border-dashed"></div>
+                            </div>
                         </div>
-                        {/* Result Box */}
-                        <div className="w-20 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
-                    </div>
+                    ) : (
+                        // --- STANDARD ARITHMETIC LAYOUT ---
+                        <>
+                            <div className="flex justify-center items-center gap-4 mb-6 min-h-[80px]">
+                                <div className="flex flex-col items-center">
+                                    <VisualCounter count={prob.num1} type={prob.visualType} />
+                                </div>
+                                <div className="text-3xl font-black text-zinc-400">
+                                    {prob.operator}
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <VisualCounter count={prob.num2} type={prob.visualType} />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between bg-zinc-50 rounded-xl p-4 border-2 border-zinc-100">
+                                <div className="flex items-center gap-3 text-4xl font-black text-zinc-800 font-mono">
+                                    <div className="w-16 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
+                                    <span className="text-indigo-500">{prob.operator}</span>
+                                    <div className="w-16 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
+                                    <span>=</span>
+                                </div>
+                                <div className="w-20 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
+                            </div>
+                        </>
+                    )}
                 </div>
             ))}
         </div>
