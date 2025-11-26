@@ -1,5 +1,4 @@
-
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
@@ -10,6 +9,9 @@ import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { SkeletonLoader } from './SkeletonLoader';
 import { AssessmentModule } from './AssessmentModule';
 import { FavoritesSection } from './FavoritesSection';
+import { ShareModal } from './ShareModal';
+import { worksheetService } from '../services/worksheetService';
+
 
 interface ContentAreaProps {
   currentView: View;
@@ -73,6 +75,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onSelectActivity
 }) => {
     const { user } = useAuth();
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
 
     const generateAutoName = () => {
         if (!activityType) return 'Kaydedilmiş Etkinlik';
@@ -93,7 +97,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         if (activityType && worksheetData) {
             const name = generateAutoName();
             onSave(name, activityType, worksheetData);
-            alert(`Etkinlik "${name}" adıyla kaydedildi.`);
+            alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
         }
     }
 
@@ -105,10 +109,40 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             return;
         }
         if (!activityType || !worksheetData) return;
+        setIsShareModalOpen(true);
+    };
 
-        const name = generateAutoName();
-        onSave(name, activityType, worksheetData);
-        alert(`Etkinlik "${name}" olarak kaydedildi. Şimdi 'Arşiv' menüsüne giderek 'Paylaş' butonuna tıklayabilir ve arkadaşlarınızı seçebilirsiniz.`);
+    const handleConfirmShare = async (receiverId: string) => {
+        if (!user || !activityType || !worksheetData) return;
+        setIsSharing(true);
+        try {
+            const name = generateAutoName();
+            const activity = ACTIVITIES.find(a => a.id === activityType);
+            const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
+            if (!activity || !category) throw new Error("Aktivite meta verisi bulunamadı");
+    
+            const worksheetToShare: SavedWorksheet = {
+                id: 'temp-share-id',
+                userId: user.id, name, activityType, worksheetData,
+                icon: activity.icon,
+                category: { id: category.id, title: category.title },
+                createdAt: new Date().toISOString()
+            };
+    
+            // 1. Alıcıya gönder
+            await worksheetService.shareWorksheet(worksheetToShare, user.id, user.name, receiverId);
+            
+            // 2. Gönderenin arşivine bir kopya kaydet
+            await onSave(name, activityType, worksheetData);
+            
+            alert('Etkinlik paylaşıldı ve arşivinize kaydedildi!');
+            setIsShareModalOpen(false);
+        } catch (error) {
+            console.error("Anında paylaşım hatası:", error);
+            alert('Paylaşım sırasında bir hata oluştu.');
+        } finally {
+            setIsSharing(false);
+        }
     };
 
     const handleDownloadPDF = () => {
@@ -276,6 +310,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               onBack={onBackToGenerator}
           />
       ) : null}
+
+        <ShareModal 
+            isOpen={isShareModalOpen} 
+            onClose={() => setIsShareModalOpen(false)} 
+            onShare={handleConfirmShare} 
+            isSending={isSharing}
+        />
     </main>
   );
 };

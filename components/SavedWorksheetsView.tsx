@@ -1,10 +1,10 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { SavedWorksheet, User } from '../types';
 import { ACTIVITIES } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import { worksheetService } from '../services/worksheetService';
+import { ShareModal } from './ShareModal';
 
 interface SavedWorksheetsViewProps {
   savedWorksheets: SavedWorksheet[];
@@ -18,18 +18,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [selectedWorksheetToShare, setSelectedWorksheetToShare] = useState<SavedWorksheet | null>(null);
-  const [contacts, setContacts] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-      if (user) {
-          const loadContacts = async () => {
-              const data = await authService.getContacts(user.id);
-              setContacts(data);
-          };
-          loadContacts();
-      }
-  }, [user]);
+  const [isSharing, setIsSharing] = useState(false);
 
   const getActivityTitle = (type: SavedWorksheet['activityType']) => {
     const activity = ACTIVITIES.find(a => a.id === type);
@@ -74,6 +63,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
 
   const handleShareSubmit = async (receiverId: string) => {
       if (!selectedWorksheetToShare || !user) return;
+      setIsSharing(true);
       try {
           await worksheetService.shareWorksheet(selectedWorksheetToShare, user.id, user.name, receiverId);
           alert('Çalışma sayfası başarıyla paylaşıldı!');
@@ -82,10 +72,10 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
       } catch (error) {
           console.error("Share error:", error);
           alert('Paylaşım sırasında bir hata oluştu.');
+      } finally {
+        setIsSharing(false);
       }
   };
-
-  const filteredContacts = contacts.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="bg-white dark:bg-zinc-800/50 rounded-xl shadow-sm p-4 sm:p-6 md:p-8">
@@ -172,54 +162,13 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ savedW
         </div>
       )}
 
-      {/* SHARE MODAL */}
-      {isShareModalOpen && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl w-full max-w-md flex flex-col border border-zinc-200 dark:border-zinc-700 overflow-hidden max-h-[80vh]">
-                  <div className="bg-indigo-600 p-4 flex justify-between items-center">
-                      <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                          <i className="fa-solid fa-share-nodes"></i> Paylaş
-                      </h3>
-                      <button onClick={() => setIsShareModalOpen(false)} className="text-white/80 hover:text-white transition-colors">
-                          <i className="fa-solid fa-times text-xl"></i>
-                      </button>
-                  </div>
-                  
-                  <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
-                      <input 
-                          type="text" 
-                          placeholder="Kişi ara..." 
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
-                      />
-                  </div>
-
-                  <div className="overflow-y-auto flex-1 p-2">
-                      {filteredContacts.length === 0 ? (
-                          <p className="text-center text-zinc-500 p-4">Kişi bulunamadı.</p>
-                      ) : (
-                          <div className="space-y-2">
-                              {filteredContacts.map(contact => (
-                                  <button 
-                                      key={contact.id}
-                                      onClick={() => handleShareSubmit(contact.id)}
-                                      className="w-full flex items-center gap-3 p-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors text-left"
-                                  >
-                                      <img src={contact.avatar} alt={contact.name} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-600" />
-                                      <div>
-                                          <p className="font-bold text-zinc-800 dark:text-zinc-100">{contact.name}</p>
-                                          <p className="text-xs text-zinc-500">{contact.email}</p>
-                                      </div>
-                                      <i className="fa-solid fa-paper-plane ml-auto text-indigo-500"></i>
-                                  </button>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-              </div>
-          </div>
-      )}
+      <ShareModal 
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onShare={handleShareSubmit}
+        isSending={isSharing}
+        worksheetTitle={selectedWorksheetToShare?.name}
+      />
     </div>
   );
 };

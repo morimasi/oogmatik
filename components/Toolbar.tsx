@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { StyleSettings } from '../types';
 
@@ -102,12 +101,14 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
             
             <div className="w-px h-4 bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
             
-            <button onClick={onShare} className="p-1.5 text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded transition-colors" title="Paylaş">
-                <i className="fa-solid fa-share-nodes text-sm"></i>
+             <button onClick={onSave} className="px-3 py-1.5 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5" title="Arşive Kaydet">
+                <i className="fa-solid fa-save"></i>
+                <span className="hidden sm:inline">Kaydet</span>
             </button>
 
-            <button onClick={onSave} className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors" title="Kaydet">
-                <i className="fa-solid fa-save text-sm"></i>
+            <button onClick={onShare} className="px-3 py-1.5 text-violet-600 bg-violet-50 hover:bg-violet-100 dark:text-violet-400 dark:bg-violet-900/20 dark:hover:bg-violet-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5" title="Paylaş">
+                <i className="fa-solid fa-share-nodes"></i>
+                <span className="hidden sm:inline">Paylaş</span>
             </button>
             
             <button onClick={onDownloadPDF || handlePrint} className="ml-1 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold py-1.5 px-2.5 rounded shadow-sm transition-colors flex items-center gap-1.5">
