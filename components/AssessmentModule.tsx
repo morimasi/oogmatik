@@ -641,7 +641,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                         type="text" 
                                         value={profile.studentName}
                                         onChange={e => setProfile({...profile, studentName: e.target.value})}
-                                        className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-700 focus:border-indigo-500 outline-none"
+                                        className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-indigo-500 outline-none"
                                         placeholder="Öğrenci Adı"
                                     />
                                 </div>
@@ -868,25 +868,25 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
                     {currentStep === 9 && report && (
                         <div className="flex flex-col h-full animate-in zoom-in duration-500">
-                            <div className="p-6 bg-indigo-600 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
+                            <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
                                 <div>
-                                    <h3 className="text-2xl font-bold">{profile.studentName}</h3>
-                                    <p className="text-indigo-200 text-sm">Bilişsel Değerlendirme Raporu</p>
+                                    <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{profile.studentName}</h3>
+                                    <p className="text-sm text-zinc-500">Bilişsel Değerlendirme Raporu</p>
                                 </div>
                                 <div className="flex items-center gap-2 self-end sm:self-center">
                                     {user && (
                                         <>
-                                            <button onClick={handleManualSave} disabled={saving} className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2" title="Kaydet">
+                                            <button onClick={handleManualSave} disabled={saving} className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition-colors text-zinc-600 dark:text-white text-xs font-bold flex items-center gap-2 border border-zinc-200 dark:border-zinc-600" title="Kaydet">
                                                 {saving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
                                                 <span className="hidden sm:inline">{savedSuccess ? 'Kaydedildi!' : 'Kaydet'}</span>
                                             </button>
-                                            <button onClick={() => setIsShareModalOpen(true)} className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2" title="Paylaş">
+                                            <button onClick={() => setIsShareModalOpen(true)} className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition-colors text-zinc-600 dark:text-white text-xs font-bold flex items-center gap-2 border border-zinc-200 dark:border-zinc-600" title="Paylaş">
                                                 <i className="fa-solid fa-share-nodes"></i>
                                                 <span className="hidden sm:inline">Paylaş</span>
                                             </button>
                                         </>
                                     )}
-                                    <button onClick={() => window.print()} className="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2" title="Yazdır/PDF">
+                                    <button onClick={() => window.print()} className="bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2 shadow-sm" title="Yazdır/PDF">
                                         <i className="fa-solid fa-print"></i>
                                         <span className="hidden sm:inline">Yazdır</span>
                                     </button>
