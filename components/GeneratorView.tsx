@@ -78,7 +78,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             default:
                 return [
                     { key: 'difficulty', label: 'Zorluk Seviyesi', type: 'select', defaultValue: 'Orta', options: ['Başlangıç', 'Orta', 'Zor', 'Uzman'], width: 'full' },
-                    { key: 'worksheetCount', label: 'Sayfa Sayısı', type: 'number', defaultValue: 1, min: 1, max: 10, width: 'full' },
+                    // worksheetCount is handled globally below to ensure consistent 1-20 range
                     { key: 'topic', label: 'Konu (Opsiyonel)', type: 'text', defaultValue: '', width: 'full', description: 'Örn: Doğa, Okul, Uzay' }
                 ];
         }
@@ -146,7 +146,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     </p>
                 </div>
 
-                {fields.map(field => (
+                {fields.filter(f => f.key !== 'worksheetCount').map(field => (
                     <div key={field.key} className={`mb-3 ${field.width === 'half' ? 'inline-block w-[48%] mr-[2%] last:mr-0' : 'w-full'}`}>
                         <label className="block text-sm font-bold mb-1 text-zinc-700 dark:text-zinc-300">{field.label}</label>
                         {field.type === 'select' ? (
@@ -215,19 +215,37 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         </select>
                     </div>
                 )}
-                 {!fields.find(f => f.key === 'worksheetCount') && (
-                     <div className="mb-3">
-                        <label className="block text-sm font-bold mb-1 text-zinc-700 dark:text-zinc-300">Sayfa Sayısı</label>
+
+                {/* GLOBAL WORKSHEET COUNT - ALWAYS VISIBLE, RANGE 1-20 */}
+                <div className="mb-3 p-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl">
+                    <label className="block text-sm font-bold mb-2 text-indigo-600 dark:text-indigo-400 flex justify-between items-center">
+                        <span><i className="fa-solid fa-copy mr-2"></i>Oluşturulacak Sayfa Sayısı</span>
+                        <span className="bg-white dark:bg-zinc-700 px-2 py-0.5 rounded border text-xs shadow-sm">{formValues.worksheetCount} Adet</span>
+                    </label>
+                    <div className="flex items-center gap-4">
+                        <input 
+                            type="range" 
+                            min="1" 
+                            max="20" 
+                            step="1"
+                            value={formValues.worksheetCount}
+                            onChange={(e) => handleChange('worksheetCount', parseInt(e.target.value))}
+                            className="flex-1 h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                        />
                         <input 
                             type="number" 
                             value={formValues.worksheetCount}
                             min={1}
-                            max={10}
-                            onChange={(e) => handleChange('worksheetCount', parseInt(e.target.value))}
-                            className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                            max={20}
+                            onChange={(e) => handleChange('worksheetCount', Math.min(20, Math.max(1, parseInt(e.target.value) || 1)))}
+                            className="w-16 p-2 text-center border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
                         />
                     </div>
-                )}
+                    <p className="text-xs text-zinc-400 mt-2">
+                        1 ile 20 arasında seçim yapabilirsiniz. Her sayfa ayrı bir A4 kağıdına sığacak şekilde üretilir.
+                    </p>
+                </div>
+
             </div>
 
             {/* Actions */}
@@ -245,7 +263,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     ) : (
                         <>
                             <i className="fa-solid fa-print"></i>
-                            Etkinlik Oluştur
+                            Etkinlik Oluştur ({formValues.worksheetCount} Sayfa)
                         </>
                     )}
                 </button>

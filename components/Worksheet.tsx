@@ -217,17 +217,17 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     } as CSSProperties;
 
     return (
-        <div className="flex flex-col gap-8 items-center w-full max-w-[210mm] mx-auto">
+        <div className="flex flex-col gap-8 items-center w-full max-w-[210mm] mx-auto printable-document">
             {data.map((sheetData, index) => (
                 <div 
                     key={index} 
-                    className="worksheet-page bg-white shadow-lg print:shadow-none print:break-after-page w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden"
+                    className="worksheet-page bg-white shadow-lg w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden print:m-0 print:shadow-none print:break-after-page"
                     style={pageStyle}
                 >
                     {renderSheet(activityType, sheetData, settings)}
 
                     <div className="absolute bottom-4 right-6 text-[10px] text-zinc-400 font-bold uppercase tracking-widest print:block hidden opacity-50">
-                        Bursa Disleksi AI
+                        Bursa Disleksi AI - Sayfa {index + 1}
                     </div>
                 </div>
             ))}
