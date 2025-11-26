@@ -38,40 +38,37 @@ export const authService = {
 
         if (!authData.user) throw new Error("Kullanıcı bilgileri alınamadı.");
 
-        // Update last login
-        await supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id);
+        // Update last login (Non-blocking)
+        supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id).then(({ error }) => {
+            if (error) console.warn("Last login update failed", error);
+        });
 
-        // Fetch profile
-        const { data: profile, error: profileError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', authData.user.id)
-            .maybeSingle(); 
-
-        if (profileError) {
-            console.error("Profile Load Error:", profileError);
-            // Fallback if profile fails to load but auth succeeded
-            return {
-                id: authData.user.id,
-                email: authData.user.email || '',
-                name: authData.user.user_metadata?.full_name || email.split('@')[0],
-                role: 'user',
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-                createdAt: new Date().toISOString(),
-                lastLogin: new Date().toISOString(),
-                worksheetCount: 0,
-                status: 'active',
-                subscriptionPlan: 'free'
-            };
-        }
+        // Fetch profile with retry logic (to handle potential trigger delay)
+        let profile = null;
+        let attempts = 0;
         
-        if (profile && profile.status === 'suspended') {
-            await supabase.auth.signOut();
-            throw new Error('Hesabınız askıya alınmıştır. Lütfen yönetici ile iletişime geçin.');
+        while (!profile && attempts < 3) {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', authData.user.id)
+                .maybeSingle();
+            
+            if (!error && data) {
+                profile = data;
+                break;
+            }
+            
+            attempts++;
+            if (!data && attempts < 3) {
+                // Exponential backoff (wait 500ms, 1000ms)
+                await new Promise(r => setTimeout(r, 500 * attempts));
+            }
         }
 
-        // If profile doesn't exist yet
+        // If profile is still missing after retries, create a fallback user object
         if (!profile) {
+             console.warn("Profile not found after retries, using fallback.");
              return {
                 id: authData.user.id,
                 email: authData.user.email || '',
@@ -84,6 +81,11 @@ export const authService = {
                 status: 'active',
                 subscriptionPlan: 'free'
             };
+        }
+        
+        if (profile.status === 'suspended') {
+            await supabase.auth.signOut();
+            throw new Error('Hesabınız askıya alınmıştır. Lütfen yönetici ile iletişime geçin.');
         }
 
         return mapDbUserToAppUser(profile);

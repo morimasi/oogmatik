@@ -23,16 +23,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         setError('');
         setIsLoading(true);
 
+        // 15 seconds timeout
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Sunucu yanıt vermiyor. Lütfen internet bağlantınızı kontrol edin.")), 15000)
+        );
+
         try {
             if (mode === 'login') {
-                await login(email, password);
+                await Promise.race([login(email, password), timeoutPromise]);
             } else {
                 if (!name) throw new Error('İsim alanı zorunludur.');
-                await register(email, password, name);
+                await Promise.race([register(email, password, name), timeoutPromise]);
             }
             onClose();
         } catch (err: any) {
-            setError(err.message);
+            console.error("Auth operation failed:", err);
+            // Ensure error message is always a string
+            const errorMessage = err?.message || "Bilinmeyen bir hata oluştu.";
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -62,7 +70,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     </h2>
 
                     {error && (
-                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-sm rounded-lg">
+                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800">
                             {error}
                         </div>
                     )}
@@ -104,13 +112,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 mt-4"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
                         >
-                            {isLoading ? 'İşleniyor...' : (mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol')}
+                            {isLoading ? (
+                                <>
+                                    <i className="fa-solid fa-circle-notch fa-spin"></i>
+                                    <span>İşleniyor...</span>
+                                </>
+                            ) : (mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol')}
                         </button>
                     </form>
                     
-                    <button onClick={onClose} className="w-full mt-4 text-zinc-400 text-sm hover:text-zinc-600">Vazgeç</button>
+                    <button onClick={onClose} disabled={isLoading} className="w-full mt-4 text-zinc-400 text-sm hover:text-zinc-600 disabled:opacity-50">Vazgeç</button>
                 </div>
             </div>
         </div>
