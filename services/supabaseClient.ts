@@ -44,7 +44,7 @@ if (!supabaseUrl || isPlaceholder(supabaseUrl)) {
 } else {
     try {
         supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
-        console.log("✅ Supabase istemcisi oluşturuldu:", supabaseUrl);
+        // console.log("✅ Supabase istemcisi oluşturuldu."); 
     } catch (error) {
         console.error("🛑 Supabase başlatma hatası (Mock moda geçiliyor):", error);
         supabaseInstance = null;
@@ -56,7 +56,7 @@ export const supabase = supabaseInstance;
 // Connection check helper
 export const checkDbConnection = async () => {
     if (!supabase) {
-        console.log("Mock mode active (no supabase instance)");
+        console.log("ℹ️ Mock mode active (No Supabase keys found).");
         return false; // Mock mode active
     }
     try {
@@ -64,19 +64,25 @@ export const checkDbConnection = async () => {
         const { data, error } = await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
         
         if (error) {
-            // RLS policy might deny anonymous read on users, but connection is technically alive if we get a 401/403 from Supabase.
-            // However, 'relation "users" does not exist' is a 404-like DB error.
-            console.warn("⚠️ Veritabanı bağlantı testi uyarısı:", error.message);
+            // RLS policy might deny anonymous read on users, but connection is technically alive if we get a 401/403.
+            // However, 'relation "users" does not exist' is a 404-like DB error meaning SQL script wasn't run.
+            // '42P01' is table missing.
+            console.warn("⚠️ Veritabanı bağlantı uyarısı:", error.message, error.code);
             
-            // If error is about permissions, we still are connected.
-            // If error is "fetch failed", we are not connected.
-            if (error.message.includes("fetch") || error.message.includes("network")) {
+            // If error is connection related
+            if (error.message.includes("fetch") || error.message.includes("network") || error.message.includes("connection")) {
+                console.error("🛑 Sunucuya erişilemiyor.");
                 return false;
             }
-            return true; // Connected but maybe permission error or table missing
+            
+            if (error.code === '42P01') {
+                console.warn("⚠️ Tablolar bulunamadı. Lütfen SQL kurulumunu yapın.");
+            }
+
+            return true; // Connected to Supabase, even if table access denied or missing
         }
         
-        console.log("✅ Veritabanı bağlantısı başarılı.");
+        console.log("✅ Veritabanı bağlantısı başarılı ve tablolar hazır.");
         return true;
     } catch (e: any) {
         console.error("🛑 Veritabanı bağlantı hatası (Exception):", e);
