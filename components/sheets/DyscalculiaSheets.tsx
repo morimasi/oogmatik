@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData } from '../../types';
 import { PedagogicalHeader, ImageDisplay } from './common';
@@ -125,41 +126,52 @@ const NumberLineSVG: React.FC<{ start: number; end: number; target?: number; mis
 };
 
 // Estimation Jar with randomly scattered items
-const EstimationJar: React.FC<{ count: number; itemType?: string }> = ({ count, itemType = 'circle' }) => {
+const EstimationJar: React.FC<{ count: number; itemType?: string; className?: string }> = ({ count, itemType = 'circle', className = "" }) => {
     // Seeded random positions would be better to avoid overlap, but simple random is fine for offline generator visual
     const items = React.useMemo(() => {
         // Safety check for NaN count
         const safeCount = isNaN(count) ? 0 : count;
         return Array.from({ length: safeCount }).map((_, i) => ({
-            x: Math.random() * 160 + 20, // Jar width 200, padding 20
-            y: Math.random() * 220 + 40, // Jar height 300, padding top 40 (lid) bottom 20
+            x: Math.random() * 140 + 30, // Jar width 200, padding
+            y: Math.random() * 200 + 50, // Jar height 300, padding
             rotation: Math.random() * 360,
-            color: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa'][Math.floor(Math.random() * 5)]
+            scale: 0.8 + Math.random() * 0.4,
+            color: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#f472b6'][Math.floor(Math.random() * 6)]
         }));
     }, [count]);
 
     return (
-        <svg width="200" height="300" viewBox="0 0 200 300" className="overflow-visible">
-            {/* Jar Body */}
+        <svg viewBox="0 0 200 300" className={`overflow-visible ${className}`}>
+            {/* Jar Body - Glass Effect */}
             <path d="M 30 20 L 170 20 L 190 50 L 190 280 Q 190 300 170 300 L 30 300 Q 10 300 10 280 L 10 50 L 30 20 Z" 
-                  fill="white" stroke="#9ca3af" strokeWidth="4" fillOpacity="0.5" />
+                  fill="#f1f5f9" stroke="#64748b" strokeWidth="3" fillOpacity="0.4" />
             
-            {/* Lid */}
-            <rect x="25" y="5" width="150" height="15" rx="2" fill="#cbd5e1" stroke="#64748b" strokeWidth="2" />
-            
-            {/* Items */}
+            {/* Items Inside */}
             {items.map((item, i) => (
-                <g key={i} transform={`translate(${item.x}, ${item.y}) rotate(${item.rotation})`}>
+                <g key={i} transform={`translate(${item.x}, ${item.y}) rotate(${item.rotation}) scale(${item.scale})`}>
                     {itemType === 'star' ? (
-                        <polygon points="0,-8 2,-2 8,-2 4,2 6,8 0,4 -6,8 -4,2 -8,-2 -2,-2" fill={item.color} stroke="black" strokeWidth="1" />
+                        <polygon points="0,-8 2,-2 8,-2 4,2 6,8 0,4 -6,8 -4,2 -8,-2 -2,-2" fill={item.color} stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+                    ) : itemType === 'flower' ? (
+                        <g>
+                            <circle cx="0" cy="-5" r="3" fill={item.color} />
+                            <circle cx="5" cy="0" r="3" fill={item.color} />
+                            <circle cx="0" cy="5" r="3" fill={item.color} />
+                            <circle cx="-5" cy="0" r="3" fill={item.color} />
+                            <circle cx="0" cy="0" r="3" fill="#fff" />
+                        </g>
                     ) : (
-                        <circle r="8" fill={item.color} stroke="black" strokeWidth="1" />
+                        <circle r="8" fill={item.color} stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
                     )}
                 </g>
             ))}
             
-            {/* Shine/Reflection */}
-            <path d="M 170 60 Q 180 150 170 240" stroke="white" strokeWidth="3" fill="none" opacity="0.6" />
+            {/* Jar Highlights/Reflections */}
+            <path d="M 175 60 Q 185 150 175 240" stroke="white" strokeWidth="4" fill="none" opacity="0.7" strokeLinecap="round" />
+            <path d="M 25 60 Q 15 150 25 240" stroke="white" strokeWidth="2" fill="none" opacity="0.4" strokeLinecap="round" />
+            
+            {/* Lid */}
+            <rect x="25" y="5" width="150" height="15" rx="3" fill="#94a3b8" stroke="#475569" strokeWidth="2" />
+            <line x1="25" y1="20" x2="175" y2="20" stroke="#475569" strokeWidth="1" />
         </svg>
     );
 };
@@ -255,7 +267,7 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                     <div className="flex items-center gap-3 mb-4">
                         <span className="w-8 h-8 bg-zinc-800 text-white rounded-full flex items-center justify-center font-bold">{i + 1}</span>
                         <h4 className="text-lg font-bold text-zinc-700">
-                            {ex.type === 'missing' ? 'Eksik sayıyı bul.' : 'Hangi grup daha fazla?'}
+                            {ex.type === 'missing' ? 'Eksik sayıyı bul.' : 'Hangi kavanozda daha çok var?'}
                         </h4>
                     </div>
 
@@ -278,15 +290,23 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                             ))}
                         </div>
                     ) : (
-                        <div className="flex justify-around items-center gap-8 mt-2">
-                            <div className="flex flex-col items-center p-4 border-2 border-dashed border-zinc-300 rounded-xl">
-                                <VisualCounter count={ex.values[0]} type={ex.visualType || 'ten-frame'} />
-                                <p className="text-2xl font-black mt-2">{ex.values[0]}</p>
+                        <div className="flex justify-around items-end gap-8 mt-4">
+                            <div className="flex flex-col items-center">
+                                <div className="relative">
+                                    <EstimationJar count={ex.values[0]} itemType="circle" className="w-32 h-48" />
+                                </div>
+                                <div className="w-full h-1 bg-zinc-200 rounded-full mt-2 shadow-sm"></div>
                             </div>
-                            <span className="text-zinc-300 font-bold text-xl">VS</span>
-                            <div className="flex flex-col items-center p-4 border-2 border-dashed border-zinc-300 rounded-xl">
-                                <VisualCounter count={ex.values[1]} type={ex.visualType || 'ten-frame'} />
-                                <p className="text-2xl font-black mt-2">{ex.values[1]}</p>
+                            
+                            <div className="flex flex-col items-center justify-center mb-10">
+                                <span className="text-4xl font-black text-indigo-500 bg-indigo-50 px-4 py-2 rounded-lg border-2 border-indigo-100">VS</span>
+                            </div>
+
+                            <div className="flex flex-col items-center">
+                                <div className="relative">
+                                    <EstimationJar count={ex.values[1]} itemType="flower" className="w-32 h-48" />
+                                </div>
+                                <div className="w-full h-1 bg-zinc-200 rounded-full mt-2 shadow-sm"></div>
                             </div>
                         </div>
                     )}
