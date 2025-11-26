@@ -9,7 +9,12 @@ export const statsService = {
         if (!supabase) return [];
         
         try {
-            const { data, error } = await supabase.from('activity_stats').select('*');
+            // Timeout ekleyerek veritabanı yanıt vermezse beklemesini engelliyoruz
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000));
+            const dbPromise = supabase.from('activity_stats').select('*');
+            
+            const { data, error } = await Promise.race([dbPromise, timeoutPromise]) as any;
+
             if (error) {
                 console.warn("Stats fetch error:", error.message);
                 return [];
@@ -23,7 +28,7 @@ export const statsService = {
                 avgCompletionTime: item.avg_completion_time
             }));
         } catch (e) {
-            console.error("Stats service error:", e);
+            console.error("Stats service error (using defaults):", e);
             return [];
         }
     },
@@ -61,8 +66,12 @@ export const statsService = {
     },
 
     // En popüler etkinlikleri getir (Favoriler için)
-    getTopActivities: async (limit: number = 6): Promise<(Activity & { stats: ActivityStats })[]> => {
-        const stats = await statsService.getAllStats();
+    getTopActivities: async (limit: number = 10, forceDefaults: boolean = false): Promise<(Activity & { stats: ActivityStats })[]> => {
+        let stats: ActivityStats[] = [];
+        
+        if (!forceDefaults) {
+            stats = await statsService.getAllStats();
+        }
         
         // İstatistiklere göre sırala (En çok üretilen en üstte)
         const sortedStats = stats.sort((a, b) => b.generationCount - a.generationCount).slice(0, limit);
@@ -79,7 +88,8 @@ export const statsService = {
             }
         });
         
-        // Eğer yeterli veri yoksa (yeni kurulum), varsayılan popüler etkinlikleri ekle
+        // Eğer yeterli veri yoksa veya veritabanı boşsa, varsayılan popüler etkinlikleri ekle
+        // Bu sayede liste asla boş görünmez veya sonsuz yüklemede kalmaz
         if (result.length < limit) {
             const defaults = [
                 ActivityType.WORD_SEARCH,
@@ -87,7 +97,11 @@ export const statsService = {
                 ActivityType.STORY_COMPREHENSION,
                 ActivityType.VISUAL_ODD_ONE_OUT,
                 ActivityType.ODD_EVEN_SUDOKU,
-                ActivityType.PUNCTUATION_MAZE
+                ActivityType.PUNCTUATION_MAZE,
+                ActivityType.FIND_THE_DIFFERENCE,
+                ActivityType.NUMBER_SEARCH,
+                ActivityType.READING_FLOW,
+                ActivityType.BASIC_OPERATIONS
             ].filter(id => !result.find(r => r.id === id));
 
             defaults.forEach(defId => {
@@ -98,7 +112,7 @@ export const statsService = {
                         stats: {
                             activityId: def.id,
                             title: def.title,
-                            generationCount: 0, // Henüz verisi yok
+                            generationCount: 0, 
                             lastGenerated: new Date().toISOString(),
                             avgCompletionTime: 10
                         }

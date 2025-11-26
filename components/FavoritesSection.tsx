@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, ActivityStats, ActivityType } from '../types';
 import { statsService } from '../services/statsService';
+import { ACTIVITY_CATEGORIES } from '../constants';
 
 interface FavoritesSectionProps {
     onSelectActivity: (id: ActivityType) => void;
@@ -15,7 +16,15 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
     useEffect(() => {
         const loadFavorites = async () => {
             try {
-                const data = await statsService.getTopActivities(9); // Load more items for a full page
+                // Yükleme süresini limitlemek için zaman aşımı koyuyoruz, veri gelmezse varsayılanları gösterir
+                const dataPromise = statsService.getTopActivities(10);
+                const timeoutPromise = new Promise<(Activity & { stats: ActivityStats })[]>((resolve) => {
+                    setTimeout(async () => {
+                        resolve(await statsService.getTopActivities(10, true)); // Force defaults
+                    }, 3000);
+                });
+
+                const data = await Promise.race([dataPromise, timeoutPromise]);
                 setFavorites(data);
             } catch (e) {
                 console.error("Favorites load error", e);
@@ -26,18 +35,35 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
         loadFavorites();
     }, []);
 
+    const getCategoryTitle = (activityId: ActivityType) => {
+        const category = ACTIVITY_CATEGORIES.find(cat => cat.activities.includes(activityId));
+        return category ? category.title : 'Genel';
+    };
+
+    const getCategoryColor = (activityId: ActivityType) => {
+        const category = ACTIVITY_CATEGORIES.find(cat => cat.activities.includes(activityId));
+        switch (category?.id) {
+            case 'math-logic': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
+            case 'word-games': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300';
+            case 'visual-perception': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300';
+            case 'attention-memory': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
+            case 'reading-comprehension': return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300';
+            default: return 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300';
+        }
+    };
+
     if (loading) return (
         <div className="flex h-full items-center justify-center">
             <div className="flex flex-col items-center">
                 <i className="fa-solid fa-circle-notch fa-spin text-indigo-500 text-4xl mb-4"></i>
-                <p className="text-zinc-500">Favoriler yükleniyor...</p>
+                <p className="text-zinc-500">Favoriler hazırlanıyor...</p>
             </div>
         </div>
     );
 
     return (
         <div className="bg-white dark:bg-zinc-800/50 rounded-xl shadow-sm p-4 sm:p-6 md:p-8 h-full overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-zinc-200 dark:border-zinc-700">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-700">
                 <div>
                     <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
                         <i className="fa-solid fa-fire text-orange-500"></i> 
@@ -62,38 +88,52 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
                     <p>Henüz yeterli veri yok.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="flex flex-col gap-3">
                     {favorites.map((fav, index) => (
-                        <button 
+                        <div 
                             key={fav.id}
-                            onClick={() => onSelectActivity(fav.id)}
-                            className="group relative flex flex-col p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300 text-left overflow-hidden"
+                            className="group flex flex-col sm:flex-row items-start sm:items-center p-4 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200"
                         >
-                            <div className="flex justify-between items-start w-full mb-4">
-                                <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-all duration-300 shadow-inner">
-                                    <i className={`${fav.icon} text-3xl text-indigo-600 dark:text-indigo-400`}></i>
-                                </div>
-                                <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${index < 3 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400'}`}>
+                            {/* Sıra ve İkon */}
+                            <div className="flex items-center gap-4 w-full sm:w-auto mb-3 sm:mb-0">
+                                <span className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold ${index < 3 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400'}`}>
                                     #{index + 1}
+                                </span>
+                                <div className="w-12 h-12 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-colors">
+                                    <i className={`${fav.icon} text-2xl text-indigo-600 dark:text-indigo-400`}></i>
                                 </div>
                             </div>
-                            
-                            <div className="flex-1 min-w-0 w-full">
-                                <h4 className="font-bold text-lg text-zinc-800 dark:text-zinc-100 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                                    {fav.title}
-                                </h4>
-                                <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 opacity-90">
+
+                            {/* İçerik */}
+                            <div className="flex-1 ml-0 sm:ml-4 min-w-0 w-full">
+                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                    <h4 className="font-bold text-base text-zinc-800 dark:text-zinc-100 truncate">
+                                        {fav.title}
+                                    </h4>
+                                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${getCategoryColor(fav.id)}`}>
+                                        {getCategoryTitle(fav.id)}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-1">
                                     {fav.description}
                                 </p>
-                                
-                                <div className="flex items-center gap-2 text-xs font-medium text-zinc-400 mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-700/50 w-full">
-                                    <i className="fa-solid fa-bolt text-amber-500"></i> 
-                                    <span>{fav.stats.generationCount > 0 ? `${fav.stats.generationCount} kez üretildi` : 'Yeni'}</span>
-                                </div>
                             </div>
-                            
-                            <div className="absolute bottom-0 left-0 w-full h-1.5 bg-indigo-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-                        </button>
+
+                            {/* İstatistik ve Aksiyon */}
+                            <div className="flex items-center justify-between w-full sm:w-auto mt-3 sm:mt-0 sm:ml-6 gap-4 border-t sm:border-t-0 border-zinc-100 dark:border-zinc-700 pt-3 sm:pt-0">
+                                <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 whitespace-nowrap">
+                                    <i className="fa-solid fa-bolt text-amber-500"></i>
+                                    <span>{fav.stats.generationCount > 0 ? `${fav.stats.generationCount} Üretim` : 'Yeni'}</span>
+                                </div>
+                                
+                                <button 
+                                    onClick={() => onSelectActivity(fav.id)}
+                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg shadow-sm transition-all flex items-center gap-2 whitespace-nowrap"
+                                >
+                                    <i className="fa-solid fa-play"></i> Aç
+                                </button>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}
