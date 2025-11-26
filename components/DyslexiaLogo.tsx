@@ -38,18 +38,23 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
           @keyframes mixedFlip {
             0% {
               transform: rotateY(0deg);
+              fill: currentColor; /* Mevcut renk (Sarı) */
             }
             15% {
               transform: rotateY(180deg); /* Ters dön */
+              fill: #f97316; /* Orange-500 (Turuncu) */
             }
             45% {
               transform: rotateY(180deg); /* Ters bekle */
+              fill: #f97316; /* Orange-500 (Turuncu) */
             }
             60% {
               transform: rotateY(360deg); /* Düz dön */
+              fill: currentColor; /* Mevcut renk (Sarı) */
             }
             100% {
               transform: rotateY(360deg); /* Düz bekle */
+              fill: currentColor; /* Mevcut renk (Sarı) */
             }
           }
 
@@ -102,7 +107,8 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
               textAnchor="middle" // Anchor the text at its calculated center (x)
               fontSize="32"
               fontWeight="bold"
-              className={`fill-orange-500 dark:fill-orange-400 drop-shadow-sm ${isVowel ? 'logo-letter' : ''}`}
+              /* fill-amber-400 (Sarı/Bal rengi) for Light mode, fill-yellow-300 for Dark mode */
+              className={`fill-amber-400 dark:fill-yellow-300 drop-shadow-sm ${isVowel ? 'logo-letter' : ''}`}
               fontFamily="OpenDyslexic, sans-serif"
               style={style}
             >
