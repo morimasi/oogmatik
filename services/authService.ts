@@ -2,13 +2,15 @@
 import { supabase } from './supabaseClient';
 import { User } from '../types';
 
+const ADMIN_EMAILS = ['morimasi@gmail.com', 'meliksahterdek@gmail.com'];
+
 // Map DB columns to App User type
 const mapDbUserToAppUser = (dbUser: any): User => ({
     id: dbUser.id,
     email: dbUser.email,
     name: dbUser.name || dbUser.email?.split('@')[0] || 'Kullanıcı',
-    // 'morimasi@gmail.com' hesabına otomatik admin yetkisi ver
-    role: dbUser.email === 'morimasi@gmail.com' ? 'admin' : (dbUser.role || 'user'),
+    // Belirtilen e-posta adreslerine otomatik admin yetkisi ver
+    role: ADMIN_EMAILS.includes(dbUser.email) ? 'admin' : (dbUser.role || 'user'),
     avatar: dbUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${dbUser.email}`,
     createdAt: dbUser.created_at || new Date().toISOString(),
     lastLogin: dbUser.last_login || new Date().toISOString(),
@@ -72,7 +74,7 @@ export const authService = {
                 id: authData.user.id,
                 email: authData.user.email || '',
                 name: email.split('@')[0], // Fallback name
-                role: email === 'morimasi@gmail.com' ? 'admin' : 'user',
+                role: ADMIN_EMAILS.includes(email) ? 'admin' : 'user',
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
                 created_at: new Date().toISOString(),
                 last_login: new Date().toISOString(),
@@ -117,7 +119,7 @@ export const authService = {
             id: authData.user.id,
             email: email,
             name: name,
-            role: email === 'morimasi@gmail.com' ? 'admin' : 'user',
+            role: ADMIN_EMAILS.includes(email) ? 'admin' : 'user',
             created_at: new Date().toISOString(),
             last_login: new Date().toISOString(),
             avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
@@ -160,7 +162,7 @@ export const authService = {
                 id: session.user.id,
                 email: session.user.email || '',
                 name: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'Kullanıcı',
-                role: 'user',
+                role: ADMIN_EMAILS.includes(session.user.email || '') ? 'admin' : 'user',
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.user.email}`,
                 createdAt: new Date().toISOString(),
                 lastLogin: new Date().toISOString(),
