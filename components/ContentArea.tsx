@@ -1,3 +1,4 @@
+
 import React, { memo } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View } from '../types';
 import Worksheet from './Worksheet';
@@ -8,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { SkeletonLoader } from './SkeletonLoader';
 import { AssessmentModule } from './AssessmentModule';
+import { FavoritesSection } from './FavoritesSection';
 
 interface ContentAreaProps {
   currentView: View;
@@ -23,7 +25,8 @@ interface ContentAreaProps {
   onLoadSaved: (worksheet: SavedWorksheet) => void;
   onDeleteSaved: (id: string) => void;
   onFeedback: () => void;
-  onOpenAuth: () => void; 
+  onOpenAuth: () => void;
+  onSelectActivity?: (activityType: ActivityType) => void;
 }
 
 // Extracted component to prevent re-definition on every render
@@ -66,7 +69,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onLoadSaved,
   onDeleteSaved,
   onFeedback,
-  onOpenAuth
+  onOpenAuth,
+  onSelectActivity
 }) => {
     const { user } = useAuth();
 
@@ -129,6 +133,29 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     };
 
     const breadcrumbs = getBreadcrumbs();
+
+    // Handle Activity Selection from Favorites (which triggers Generator View)
+    const handleFavoriteSelect = (id: ActivityType) => {
+        // We need to trigger the parent's activity selection.
+        // This is passed down via Sidebar usually, but here we might need a way to tell Sidebar or App.
+        // Wait, ContentArea doesn't have onSelectActivity prop directly exposed to change MAIN state that affects Sidebar.
+        // However, `App.tsx` passes `handleSelectActivity` to Sidebar and AssessmentModule.
+        // It seems `ContentArea` is purely display.
+        // BUT! App.tsx controls `selectedActivity`. ContentArea receives it.
+        // We need to elevate the selection.
+        
+        // Workaround: We'll dispatch a custom event or require a new prop.
+        // Let's look at App.tsx usage.
+        // `handleSelectActivity` is what we need.
+        
+        // Since I cannot easily change App.tsx props interface without breaking things or adding a new prop,
+        // I will check if there's an existing prop I can use. 
+        // `onBackToGenerator` resets it.
+        
+        // Actually, I need to pass a new prop `onSelectActivity` to ContentArea in App.tsx.
+        // Let's assume for this specific request I can modify App.tsx to pass it down.
+        // Checking App.tsx... yes, I can update App.tsx to pass `handleSelectActivity` to ContentArea.
+    };
 
   return (
     <main id="tour-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent">
@@ -218,14 +245,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
 
             {!isLoading && !error && !worksheetData && (
-                 <div className="flex flex-col justify-center items-center h-full relative min-h-[500px] animate-in fade-in duration-500">
+                 <div className="flex flex-col items-center h-full relative min-h-[500px] animate-in fade-in duration-500 w-full">
                     <div className="absolute inset-0 overflow-hidden -z-10">
                         {/* Decorative Icons */}
                         <i className="fa-solid fa-lightbulb text-zinc-200/50 dark:text-zinc-700/50 absolute text-8xl" style={{ top: '15%', left: '10%', animation: 'float 8s ease-in-out infinite' }}></i>
                         <i className="fa-solid fa-book-open text-zinc-200/50 dark:text-zinc-700/50 absolute text-7xl" style={{ top: '60%', left: '5%', animation: 'float 12s ease-in-out infinite 2s' }}></i>
                         <i className="fa-solid fa-puzzle-piece text-zinc-200/50 dark:text-zinc-700/50 absolute text-9xl" style={{ top: '20%', right: '8%', animation: 'float 10s ease-in-out infinite 1s' }}></i>
                     </div>
-                     <div className="text-center p-8 z-10 max-w-2xl bg-[var(--panel-bg)] backdrop-blur-sm rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-2xl">
+                     <div className="text-center p-8 z-10 max-w-3xl bg-[var(--panel-bg)] backdrop-blur-sm rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-2xl w-full">
                         <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-indigo-100/50 dark:ring-indigo-900/20 shadow-xl transform hover:scale-110 transition-transform">
                             <i className="fa-solid fa-wand-magic-sparkles text-5xl text-indigo-600 dark:text-indigo-400"></i>
                         </div>
@@ -234,7 +261,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             Eğitimi kişiselleştirmek hiç bu kadar kolay olmamıştı.<br/>
                             <strong>Disleksi</strong>, <strong>Diskalkuli</strong> ve <strong>Dikkat Eksikliği</strong> için özel olarak tasarlanmış materyaller üretin.
                         </p>
-                        {/* Buttons removed as requested */}
+                        
+                        {/* FAVORITES SECTION INTEGRATION */}
+                        <div id="favorites-section-container">
+                             {onSelectActivity && (
+                                 <FavoritesSection onSelectActivity={onSelectActivity} />
+                             )}
+                        </div>
                     </div>
                 </div>
             )}

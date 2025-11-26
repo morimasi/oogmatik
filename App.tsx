@@ -425,6 +425,7 @@ const AppContent: React.FC = () => {
           onDeleteSaved={deleteSavedWorksheet}
           onFeedback={() => setIsFeedbackOpen(true)}
           onOpenAuth={() => setIsAuthModalOpen(true)}
+          onSelectActivity={handleSelectActivity} 
         />
       </div>
       

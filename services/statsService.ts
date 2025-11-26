@@ -1,6 +1,6 @@
 
 import { supabase } from './supabaseClient';
-import { ActivityType, ActivityStats } from '../types';
+import { ActivityType, ActivityStats, Activity } from '../types';
 import { ACTIVITIES } from '../constants';
 
 export const statsService = {
@@ -76,8 +76,39 @@ export const statsService = {
         return stats.reduce((sum, item) => sum + item.generationCount, 0);
     },
     
-    getTopActivities: async (limit: number = 5): Promise<ActivityStats[]> => {
+    getTopActivities: async (limit: number = 6): Promise<(Activity & { stats: ActivityStats })[]> => {
         const stats = await statsService.getAllStats();
-        return stats.sort((a, b) => b.generationCount - a.generationCount).slice(0, limit);
+        const sortedStats = stats.sort((a, b) => b.generationCount - a.generationCount).slice(0, limit);
+        
+        const result: (Activity & { stats: ActivityStats })[] = [];
+        
+        sortedStats.forEach(stat => {
+            const activityDef = ACTIVITIES.find(a => a.id === stat.activityId);
+            if (activityDef) {
+                result.push({
+                    ...activityDef,
+                    stats: stat
+                });
+            }
+        });
+        
+        // If not enough stats (new app), fill with defaults
+        if (result.length < limit) {
+            const defaults = ACTIVITIES.slice(0, limit - result.length).filter(a => !result.find(r => r.id === a.id));
+            defaults.forEach(def => {
+                result.push({
+                    ...def,
+                    stats: {
+                        activityId: def.id,
+                        title: def.title,
+                        generationCount: 0,
+                        lastGenerated: new Date().toISOString(),
+                        avgCompletionTime: 10
+                    }
+                });
+            });
+        }
+
+        return result;
     }
 };
