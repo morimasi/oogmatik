@@ -20,26 +20,27 @@ const mapDbUserToAppUser = (dbUser: any): User => ({
 
 export const authService = {
     login: async (email: string, pass: string): Promise<User> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı yok. Lütfen sistem yöneticisiyle iletişime geçin.");
+        if (!supabase) throw new Error("Veritabanı bağlantısı kurulamadı.");
 
+        console.log("Giriş deneniyor:", email);
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email,
             password: pass
         });
 
         if (authError) {
-            console.error("Auth Error:", authError);
+            console.error("Giriş Hatası Detayı:", authError);
             if (authError.status === 400 || authError.message.includes("Invalid login credentials")) {
                 throw new Error("Giriş yapılamadı: E-posta adresi veya şifre hatalı.");
             }
-            throw new Error("Giriş hatası: " + (authError.message || "Bilinmeyen bir hata oluştu."));
+            throw new Error(`Giriş hatası (${authError.status}): ${authError.message}`);
         }
 
-        if (!authData.user) throw new Error("Kullanıcı bilgileri alınamadı.");
+        if (!authData.user) throw new Error("Kullanıcı bilgileri sunucudan alınamadı.");
 
         // Update last login
         supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id).then(({ error }) => {
-            if (error) console.warn("Last login update warning:", error.message);
+            if (error) console.warn("Son giriş tarihi güncellenemedi:", error.message);
         });
 
         let profile = null;
@@ -52,11 +53,13 @@ export const authService = {
                 profile = data;
                 break;
             }
+            console.log(`Profil çekme denemesi ${attempts + 1} başarısız, tekrar deneniyor...`);
             attempts++;
             if (!profile && attempts < 3) await new Promise(r => setTimeout(r, 500));
         }
 
         if (!profile) {
+             console.warn("Profil veritabanında bulunamadı, geçici profil oluşturuluyor.");
              // Fallback purely for display if DB fetch fails but Auth succeeded
              const fallbackProfile = {
                 id: authData.user.id,
@@ -82,7 +85,7 @@ export const authService = {
     },
 
     register: async (email: string, pass: string, name: string): Promise<User> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
+        if (!supabase) throw new Error("Veritabanı bağlantısı kurulamadı.");
 
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
@@ -91,11 +94,12 @@ export const authService = {
         });
 
         if (authError) {
+            console.error("Kayıt Hatası:", authError);
             if (authError.message.includes("already registered")) throw new Error("Bu e-posta adresi zaten kayıtlı.");
             throw new Error("Kayıt hatası: " + authError.message);
         }
         
-        if (!authData.user) throw new Error("Kayıt oluşturulamadı. Lütfen tekrar deneyin.");
+        if (!authData.user) throw new Error("Kayıt işlemi sunucuda tamamlanamadı. Lütfen tekrar deneyin.");
 
         // Manually insert profile just in case trigger fails
         const newUserProfile = {
@@ -112,7 +116,7 @@ export const authService = {
         };
 
         const { error: profileError } = await supabase.from('users').upsert(newUserProfile);
-        if (profileError) console.warn("Manual profile creation warning:", profileError.message);
+        if (profileError) console.warn("Manuel profil oluşturma uyarısı:", profileError.message);
 
         return mapDbUserToAppUser(newUserProfile);
     },
@@ -124,8 +128,8 @@ export const authService = {
     getCurrentUser: async (): Promise<User | null> => {
         if (!supabase) return null;
         
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) return null;
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error || !session?.user) return null;
 
         const { data: profile } = await supabase.from('users').select('*').eq('id', session.user.id).maybeSingle();
 

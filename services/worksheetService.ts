@@ -51,7 +51,7 @@ export const worksheetService = {
         if (error) throw error;
         
         // Increment user stats
-        await supabase.rpc('increment_worksheet_count', { user_id: userId }).catch(() => {});
+        await supabase.rpc('increment_worksheet_count', { user_id: userId });
 
         return mapDbToWorksheet(inserted);
     },
