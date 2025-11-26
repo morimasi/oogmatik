@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { AssessmentProfile, AssessmentReport, ActivityType, TestCategory, User, SavedAssessment } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
@@ -7,6 +6,7 @@ import { RadarChart } from './RadarChart';
 import { useAuth } from '../context/AuthContext';
 import { assessmentService } from '../services/assessmentService';
 import { authService } from '../services/authService';
+import { ShareModal } from './ShareModal';
 
 interface AssessmentModuleProps {
     onBack: () => void;
@@ -305,63 +305,6 @@ const TransitionScreen = ({ message, icon = "fa-spinner" }: { message: string, i
     </div>
 );
 
-// --- SHARE MODAL (Duplicated logic from SavedWorksheetsView for independence) ---
-const ShareModal: React.FC<{ isOpen: boolean; onClose: () => void; onShare: (receiverId: string) => void }> = ({ isOpen, onClose, onShare }) => {
-    const { user } = useAuth();
-    const [contacts, setContacts] = useState<User[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
-
-    useEffect(() => {
-        if (user && isOpen) {
-            authService.getContacts(user.id).then(setContacts);
-        }
-    }, [user, isOpen]);
-
-    const filtered = contacts.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl w-full max-w-md flex flex-col border border-zinc-200 dark:border-zinc-700 overflow-hidden max-h-[80vh]">
-                <div className="bg-indigo-600 p-4 flex justify-between items-center">
-                    <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                        <i className="fa-solid fa-share-nodes"></i> Rapor Paylaş
-                    </h3>
-                    <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
-                        <i className="fa-solid fa-times text-xl"></i>
-                    </button>
-                </div>
-                <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
-                    <input 
-                        type="text" placeholder="Kişi ara..." value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
-                    />
-                </div>
-                <div className="overflow-y-auto flex-1 p-2">
-                    {filtered.length === 0 ? (
-                        <p className="text-center text-zinc-500 p-4">Kişi bulunamadı.</p>
-                    ) : (
-                        <div className="space-y-2">
-                            {filtered.map(contact => (
-                                <button key={contact.id} onClick={() => onShare(contact.id)} className="w-full flex items-center gap-3 p-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors text-left">
-                                    <img src={contact.avatar} alt={contact.name} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-600" />
-                                    <div>
-                                        <p className="font-bold text-zinc-800 dark:text-zinc-100">{contact.name}</p>
-                                        <p className="text-xs text-zinc-500">{contact.email}</p>
-                                    </div>
-                                    <i className="fa-solid fa-paper-plane ml-auto text-indigo-500"></i>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-};
-
 // --- MAIN COMPONENT ---
 
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity }) => {
@@ -564,10 +507,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             const result = await generateAssessmentReport(profile);
             if (result) {
                 setReport(result);
-                // Auto-save logic removed to be triggered by button or kept silent if desired
-                // But user requested explicit Save button, so we rely on that for "Visual" confirmation.
-                // However, saving automatically is good UX for data safety. 
-                // Let's keep auto-save but silent, and buttons for explicit actions.
                 if (user) {
                     assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, result).catch(console.error);
                 }
@@ -609,9 +548,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const handleManualShare = async (receiverId: string) => {
         if (!user || !report) return;
         try {
-            // Create a temporary SavedAssessment object to pass to share function
             const assessmentObj: SavedAssessment = {
-                id: 'temp', // ID handled by DB
+                id: 'temp',
                 userId: user.id,
                 studentName: profile.studentName,
                 gender: profile.gender,
@@ -678,7 +616,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         </div>
                     )}
 
-                    {/* ... (Step 0 to Step 7 same as before) ... */}
                     {currentStep === 0 && (
                         <div className="p-10 text-center flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white dark:from-zinc-800 dark:to-zinc-900">
                             <div className="w-28 h-28 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-8 shadow-xl animate-pulse">
@@ -704,7 +641,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                         type="text" 
                                         value={profile.studentName}
                                         onChange={e => setProfile({...profile, studentName: e.target.value})}
-                                        className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-transparent focus:border-indigo-500 outline-none"
+                                        className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-700 focus:border-indigo-500 outline-none"
                                         placeholder="Öğrenci Adı"
                                     />
                                 </div>
@@ -765,10 +702,10 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                             </button>
                         </div>
                     )}
-
-                    {/* Steps 2-6 (Tests) - kept same structure, just ensuring rendering */}
-                    {currentStep === 2 && (
-                        isTestReady() ? (
+                    
+                    {currentStep > 1 && currentStep < 7 && !isTestReady(currentStep === 4) && <TransitionScreen message={`${steps[currentStep]} Testi Hazırlanıyor...`} />}
+                    
+                    {currentStep === 2 && isTestReady() && (
                             <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
@@ -804,11 +741,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     )}
                                 </div>
                             </div>
-                        ) : <TransitionScreen message="Okuma Testi Hazırlanıyor..." />
                     )}
 
-                    {currentStep === 3 && (
-                        isTestReady() ? (
+                    {currentStep === 3 && isTestReady() && (
                             <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" /></div>
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
@@ -824,11 +759,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <TransitionScreen message="Sorular Yükleniyor..." />
                     )}
 
-                    {currentStep === 4 && (
-                        isTestReady(true) ? (
+                    {currentStep === 4 && isTestReady(true) && (
                             <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-6 px-6 flex justify-between items-center border-b pb-4 border-zinc-100 dark:border-zinc-700">
                                     <div>
@@ -857,11 +790,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <TransitionScreen message="Izgara Oluşturuluyor..." />
                     )}
 
-                    {currentStep === 5 && (
-                        isTestReady() ? (
+                    {currentStep === 5 && isTestReady() && (
                             <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Matris Mantığı" /></div>
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
@@ -883,11 +814,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                        ) : <TransitionScreen message="Görsel Test Hazırlanıyor..." />
                     )}
 
-                    {currentStep === 6 && (
-                        isTestReady() ? (
+                    {currentStep === 6 && isTestReady() && (
                             <div className="flex flex-col h-full relative animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Sıralı Bellek" /></div>
                                 <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
@@ -919,7 +848,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     )}
                                 </div>
                             </div>
-                        ) : <TransitionScreen message="Bellek Testi Hazırlanıyor..." />
                     )}
 
                     {currentStep === 7 && (
@@ -940,49 +868,46 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
                     {currentStep === 9 && report && (
                         <div className="flex flex-col h-full animate-in zoom-in duration-500">
-                            <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
+                            <div className="p-6 bg-indigo-600 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
                                 <div>
                                     <h3 className="text-2xl font-bold">{profile.studentName}</h3>
                                     <p className="text-indigo-200 text-sm">Bilişsel Değerlendirme Raporu</p>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="text-right mr-4">
-                                        <div className="text-3xl font-black">{report.scores.reading < 30 && report.scores.math < 30 ? 'A+' : 'B'}</div>
-                                        <div className="text-xs opacity-75">Genel Durum</div>
-                                    </div>
+                                <div className="flex items-center gap-2 self-end sm:self-center">
                                     {user && (
-                                        <div className="flex gap-2">
-                                            <button onClick={handleManualSave} disabled={saving} className="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-colors text-white" title="Kaydet">
+                                        <>
+                                            <button onClick={handleManualSave} disabled={saving} className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2" title="Kaydet">
                                                 {saving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
+                                                <span className="hidden sm:inline">{savedSuccess ? 'Kaydedildi!' : 'Kaydet'}</span>
                                             </button>
-                                            <button onClick={() => setIsShareModalOpen(true)} className="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-colors text-white" title="Paylaş">
+                                            <button onClick={() => setIsShareModalOpen(true)} className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2" title="Paylaş">
                                                 <i className="fa-solid fa-share-nodes"></i>
+                                                <span className="hidden sm:inline">Paylaş</span>
                                             </button>
-                                        </div>
+                                        </>
                                     )}
+                                    <button onClick={() => window.print()} className="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2" title="Yazdır/PDF">
+                                        <i className="fa-solid fa-print"></i>
+                                        <span className="hidden sm:inline">Yazdır</span>
+                                    </button>
                                 </div>
                             </div>
                             
-                            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                            <div className="assessment-report-container flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                                 {savedSuccess && (
-                                    <div className="p-3 bg-green-100 border border-green-300 text-green-800 rounded-lg text-center font-bold animate-in fade-in">
+                                    <div className="p-3 bg-green-100 border border-green-300 text-green-800 rounded-lg text-center font-bold animate-in fade-in no-print">
                                         <i className="fa-solid fa-check-circle mr-2"></i> Rapor Başarıyla Kaydedildi!
                                     </div>
                                 )}
-
-                                {/* Summary */}
                                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800 text-indigo-900 dark:text-indigo-100 text-sm leading-relaxed">
                                     <i className="fa-solid fa-quote-left text-2xl text-indigo-200 mr-2 float-left"></i>
                                     {report.overallSummary}
                                 </div>
-
-                                {/* Charts & Scores */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-600 flex flex-col items-center justify-center min-h-[250px]">
                                         <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Risk Analizi Grafiği</h4>
                                         {report.chartData && <RadarChart data={report.chartData} />}
                                     </div>
-                                    
                                     <div className="space-y-3">
                                         {Object.entries(report.scores).map(([key, value]) => {
                                             const score = value as number;
@@ -1004,8 +929,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                         )})}
                                     </div>
                                 </div>
-
-                                {/* Strengths & Weaknesses */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
                                         <h4 className="font-bold text-green-700 dark:text-green-400 mb-3 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
@@ -1020,8 +943,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                         </ul>
                                     </div>
                                 </div>
-
-                                {/* Roadmap */}
                                 <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg">
                                     <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-route text-indigo-400"></i> Kişiselleştirilmiş Yol Haritası</h4>
                                     <div className="space-y-4">
