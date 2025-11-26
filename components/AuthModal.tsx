@@ -16,6 +16,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     const [error, setError] = useState('');
     const { login, register } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingText, setLoadingText] = useState('Bağlanıyor...');
     const isMounted = useRef(true);
 
     useEffect(() => {
@@ -46,6 +47,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
+        setLoadingText('Sunucuya bağlanılıyor...');
 
         // Check Connection first
         if (!navigator.onLine) {
@@ -54,17 +56,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             return;
         }
 
-        // 60 seconds timeout protection (Increased to handle heavy Supabase Cold Start)
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Sunucu yanıt vermiyor (Zaman aşımı). Lütfen tekrar deneyin veya bağlantınızı kontrol edin.")), 60000)
-        );
+        // UX: Uzun süren bağlantılar için bilgilendirme mesajları
+        const longWaitTimer = setTimeout(() => {
+            if (isMounted.current && isLoading) {
+                setLoadingText('Sunucu hazırlanıyor, lütfen bekleyin (Soğuk Başlatma)...');
+            }
+        }, 4000);
+
+        const veryLongWaitTimer = setTimeout(() => {
+            if (isMounted.current && isLoading) {
+                setLoadingText('Hala yanıt bekleniyor, işlem devam ediyor...');
+            }
+        }, 15000);
 
         try {
+            // Yapay zaman aşımı (Promise.race) kaldırıldı. 
+            // Supabase istemcisinin kendi doğal zaman aşımını veya sunucu yanıtını bekliyoruz.
             if (mode === 'login') {
-                await Promise.race([login(email, password), timeoutPromise]);
+                await login(email, password);
             } else {
                 if (!name) throw new Error('İsim alanı zorunludur.');
-                await Promise.race([register(email, password, name), timeoutPromise]);
+                await register(email, password, name);
             }
             
             if (isMounted.current) {
@@ -79,13 +91,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     setError("Hatalı e-posta veya şifre.");
                 } else if (errorMessage.includes("Email not confirmed")) {
                     setError("Lütfen e-posta adresinizi doğrulayın.");
+                } else if (errorMessage.includes("fetch failed") || errorMessage.includes("network")) {
+                    setError("Ağ hatası. Sunucuya ulaşılamıyor, lütfen internetinizi kontrol edin.");
                 } else {
                     setError(errorMessage);
                 }
             }
         } finally {
+            clearTimeout(longWaitTimer);
+            clearTimeout(veryLongWaitTimer);
             if (isMounted.current) {
                 setIsLoading(false);
+                setLoadingText('');
             }
         }
     };
@@ -171,7 +188,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                             {isLoading ? (
                                 <>
                                     <i className="fa-solid fa-circle-notch fa-spin"></i>
-                                    <span>Bağlanıyor...</span>
+                                    <span>{loadingText}</span>
                                 </>
                             ) : (mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol')}
                         </button>
