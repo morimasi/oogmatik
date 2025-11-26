@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -41,6 +40,17 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
 
         let skipTimeout: ReturnType<typeof setTimeout>;
 
+        const handleNextAuto = () => {
+            setTargetRect(null); // FIX: Prevent rendering with stale rect data
+            if (currentStepIndex < steps.length - 1) {
+                // Move to next step immediately
+                skipTimeout = setTimeout(() => setCurrentStepIndex(prev => prev + 1), 0);
+            } else {
+                // If it's the last step and missing, close tour
+                onClose();
+            }
+        };
+        
         const updateRect = () => {
             const step = steps[currentStepIndex];
             if (!step) return;
@@ -70,23 +80,13 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             }
         };
 
-        const handleNextAuto = () => {
-            if (currentStepIndex < steps.length - 1) {
-                // Move to next step immediately
-                skipTimeout = setTimeout(() => setCurrentStepIndex(prev => prev + 1), 0);
-            } else {
-                // If it's the last step and missing, close tour
-                onClose();
-            }
-        };
-
         updateRect();
         window.addEventListener('resize', updateRect);
         return () => {
             window.removeEventListener('resize', updateRect);
             clearTimeout(skipTimeout);
         };
-    }, [isOpen, currentStepIndex, steps, isReady]);
+    }, [isOpen, currentStepIndex, steps, isReady, onClose]);
 
     if (!isOpen || !targetRect) return null;
 
@@ -130,8 +130,8 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             top = targetRect.top;
             left = targetRect.right + gap;
         } else if (pos === 'left') {
-            top = targetRect.top;
             left = targetRect.left - tooltipWidth - gap;
+            top = targetRect.top + (targetRect.height / 2) - (tooltipHeight / 2);
         }
 
         // Keep within viewport with padding
@@ -140,8 +140,8 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         if (left + tooltipWidth > window.innerWidth - padding) left = window.innerWidth - tooltipWidth - padding;
         
         if (top < padding) top = padding;
-        // If bottom goes off screen, flip to top? (Simple clamp for now)
-        // if (top + tooltipHeight > window.innerHeight - padding) top = targetRect.top - gap - tooltipHeight;
+        if (top + tooltipHeight > window.innerHeight - padding) top = window.innerHeight - tooltipHeight - padding;
+
 
         return { top, left };
     };
