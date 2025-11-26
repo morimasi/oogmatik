@@ -83,7 +83,10 @@ export const assessmentService = {
     },
 
     shareAssessment: async (assessment: SavedAssessment, senderId: string, senderName: string, receiverId: string): Promise<void> => {
-        if (!supabase) return;
+        if (!supabase) {
+            console.log("Mock share assessment simulated.");
+            return;
+        }
 
         const payload = {
             user_id: senderId,

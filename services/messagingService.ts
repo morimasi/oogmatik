@@ -50,14 +50,23 @@ export const messagingService = {
     },
 
     getAllFeedbacks: async (): Promise<FeedbackItem[]> => {
-        if (!supabase) return [];
+        if (!supabase) {
+            // Mock feedbacks
+            return [
+                { id: 'm1', userId: 'u1', userName: 'Mehmet', userEmail: 'mehmet@test.com', activityType: 'WORD_SEARCH', activityTitle: 'Kelime Bulmaca', rating: 5, message: 'Harika bir uygulama!', timestamp: new Date().toISOString(), status: 'new' },
+                { id: 'm2', userId: 'u2', userName: 'Ayşe', userEmail: 'ayse@test.com', activityType: 'MATH', activityTitle: 'Matematik', rating: 4, message: 'Daha fazla soru eklenebilir.', timestamp: new Date(Date.now() - 86400000).toISOString(), status: 'read' }
+            ];
+        }
         const { data, error } = await supabase.from('feedbacks').select('*').order('timestamp', { ascending: false });
         if (error) return [];
         return data.map(mapDbFeedback);
     },
 
     replyToFeedback: async (feedbackId: string, replyMessage: string, adminUser: User): Promise<void> => {
-        if (!supabase) return;
+        if (!supabase) {
+            console.log("Mock reply sent:", replyMessage);
+            return;
+        }
 
         const { data: feedback, error: fbError } = await supabase
             .from('feedbacks')
@@ -98,7 +107,19 @@ export const messagingService = {
     },
 
     getMessagesForUser: async (userId: string): Promise<Message[]> => {
-        if (!supabase) return [];
+        if (!supabase) {
+            // Return empty for mock users unless we implement a local message store,
+            // or return a welcome message
+            return [{
+                id: 'welcome-msg',
+                senderId: 'system',
+                receiverId: userId,
+                senderName: 'Sistem',
+                content: 'Sisteme hoş geldiniz! Bu mesaj çevrimdışı modda olduğunuz için otomatik oluşturulmuştur.',
+                timestamp: new Date().toISOString(),
+                isRead: false
+            }];
+        }
 
         const { data, error } = await supabase
             .from('messages')

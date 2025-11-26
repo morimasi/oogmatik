@@ -34,17 +34,21 @@ const isPlaceholder = (val: string | undefined) => {
     return val.includes('sizin-') || val.includes('your-') || val === 'undefined' || val === 'null';
 };
 
-// Initialize connection if keys exist and are not placeholders
+// Initialize connection
 let supabaseInstance = null;
 
-try {
-    if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http') && !isPlaceholder(supabaseUrl) && !isPlaceholder(supabaseAnonKey)) {
+if (!supabaseUrl || isPlaceholder(supabaseUrl)) {
+    console.warn("⚠️ Supabase URL eksik veya yapılandırılmamış. Uygulama Çevrimdışı/Mock modunda çalışıyor.");
+} else if (!supabaseAnonKey || isPlaceholder(supabaseAnonKey)) {
+    console.warn("⚠️ Supabase Key eksik veya yapılandırılmamış. Uygulama Çevrimdışı/Mock modunda çalışıyor.");
+} else {
+    try {
         supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
-    } else {
-        console.warn("Supabase credentials missing, invalid, or placeholders. App will run in Offline/Mock mode.");
+        // console.log("✅ Supabase bağlantısı başlatıldı.");
+    } catch (error) {
+        console.error("🛑 Supabase başlatma hatası (Mock moda geçiliyor):", error);
+        supabaseInstance = null;
     }
-} catch (error) {
-    console.error("Supabase initialization failed:", error);
 }
 
 export const supabase = supabaseInstance;
@@ -52,17 +56,18 @@ export const supabase = supabaseInstance;
 // Connection check helper
 export const checkDbConnection = async () => {
     if (!supabase) {
-        return false;
+        return false; // Mock mode active
     }
     try {
+        // Basit bir sorgu ile bağlantıyı test et
         const { error } = await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
         if (error) {
-            console.warn("DB Connection warning:", error.message);
+            console.warn("⚠️ Veritabanı hatası (Mock moda geçilebilir):", error.message);
             return false;
         }
         return true;
     } catch (e) {
-        console.error("DB Connection error:", e);
+        console.error("🛑 Veritabanı bağlantı hatası:", e);
         return false;
     }
 };

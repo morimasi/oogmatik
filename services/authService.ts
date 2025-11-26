@@ -24,7 +24,7 @@ export const authService = {
         // --- MOCK FALLBACK ---
         if (!supabase) {
             console.warn("Supabase not connected. Using Mock Login.");
-            await new Promise(r => setTimeout(r, 800)); // Simulate network
+            await new Promise(r => setTimeout(r, 500)); // Simulate network
             
             // Simple mock user generation
             const mockUser: User = {
@@ -108,7 +108,7 @@ export const authService = {
         // --- MOCK FALLBACK ---
         if (!supabase) {
             console.warn("Supabase not connected. Using Mock Register.");
-            await new Promise(r => setTimeout(r, 800));
+            await new Promise(r => setTimeout(r, 500));
             
             const mockUser: User = {
                 id: 'mock-' + Math.random().toString(36).substring(2, 9),
@@ -230,7 +230,7 @@ export const authService = {
 
     getContacts: async (currentUserId: string): Promise<User[]> => {
         if (!supabase) {
-            // Return some mock users
+            // Return some mock users for demo
             return [
                 { id: 'mock-1', name: 'Ali Yılmaz', email: 'ali@test.com', role: 'user', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ali', createdAt: '', lastLogin: '', worksheetCount: 5, status: 'active', subscriptionPlan: 'free' },
                 { id: 'mock-2', name: 'Ayşe Demir', email: 'ayse@test.com', role: 'user', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ayse', createdAt: '', lastLogin: '', worksheetCount: 12, status: 'active', subscriptionPlan: 'pro' }
@@ -249,19 +249,26 @@ export const authService = {
     },
 
     getAllUsers: async (): Promise<User[]> => {
-        if (!supabase) return [];
+        if (!supabase) {
+            // Return mock users list for admin panel
+             return [
+                { id: 'mock-1', name: 'Ali Yılmaz', email: 'ali@test.com', role: 'user', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ali', createdAt: new Date().toISOString(), lastLogin: new Date().toISOString(), worksheetCount: 5, status: 'active', subscriptionPlan: 'free' },
+                { id: 'mock-2', name: 'Ayşe Demir', email: 'ayse@test.com', role: 'user', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ayse', createdAt: new Date().toISOString(), lastLogin: new Date().toISOString(), worksheetCount: 12, status: 'active', subscriptionPlan: 'pro' },
+                { id: 'mock-3', name: 'Admin User', email: 'morimasi@gmail.com', role: 'admin', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin', createdAt: new Date().toISOString(), lastLogin: new Date().toISOString(), worksheetCount: 99, status: 'active', subscriptionPlan: 'enterprise' }
+            ];
+        }
         const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
         if (error) return [];
         return data.map(mapDbUserToAppUser);
     },
 
     deleteUser: async (userId: string): Promise<void> => {
-        if (!supabase) return;
+        if (!supabase) return; // Mock delete does nothing
         await supabase.from('users').delete().eq('id', userId);
     },
 
     toggleUserStatus: async (userId: string, currentStatus: string) => {
-        if (!supabase) return;
+        if (!supabase) return; // Mock toggle does nothing
         const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
         await supabase.from('users').update({ status: newStatus }).eq('id', userId);
     }

@@ -118,7 +118,7 @@ export const worksheetService = {
 
     shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
         if (!supabase) {
-            console.log("Mock sharing not fully supported but acknowledged.");
+            console.log("Mock sharing simulated.");
             return;
         }
 
@@ -141,7 +141,7 @@ export const worksheetService = {
     },
 
     getSharedWithMe: async (userId: string): Promise<SavedWorksheet[]> => {
-        if (!supabase) return [];
+        if (!supabase) return []; // No mock shared worksheets yet
 
         const { data, error } = await supabase
             .from('saved_worksheets')

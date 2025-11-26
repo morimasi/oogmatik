@@ -5,7 +5,16 @@ import { ACTIVITIES } from '../constants';
 
 export const statsService = {
     getAllStats: async (): Promise<ActivityStats[]> => {
-        if (!supabase) return [];
+        if (!supabase) {
+            // Mock Stats so dashboard isn't empty
+            return ACTIVITIES.slice(0, 10).map(act => ({
+                activityId: act.id,
+                title: act.title,
+                generationCount: Math.floor(Math.random() * 50) + 5,
+                lastGenerated: new Date().toISOString(),
+                avgCompletionTime: Math.floor(Math.random() * 15) + 5
+            }));
+        }
         
         try {
             const { data, error } = await supabase.from('activity_stats').select('*');
