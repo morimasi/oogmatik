@@ -47,6 +47,7 @@ export const authService = {
         
         // Retry logic for profile fetching (in case trigger is slow)
         while (!profile && attempts < 3) {
+            // Changed from .single() to .maybeSingle() to avoid "Cannot coerce..." error if no rows
             const { data, error } = await supabase.from('users').select('*').eq('id', authData.user.id).maybeSingle();
             if (!error && data) {
                 profile = data;
@@ -127,6 +128,7 @@ export const authService = {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) return null;
 
+        // Changed from .single() to .maybeSingle()
         const { data: profile } = await supabase.from('users').select('*').eq('id', session.user.id).maybeSingle();
 
         if (!profile) {
@@ -154,9 +156,12 @@ export const authService = {
         if (updates.avatar) dbUpdates.avatar = updates.avatar;
         if (updates.worksheetCount !== undefined) dbUpdates.worksheet_count = updates.worksheetCount;
 
-        const { data, error } = await supabase.from('users').update(dbUpdates).eq('id', userId).select().single();
+        // Changed from .single() to .maybeSingle()
+        const { data, error } = await supabase.from('users').update(dbUpdates).eq('id', userId).select().maybeSingle();
 
         if (error) throw new Error(error.message);
+        if (!data) throw new Error("Profil güncellenemedi veya bulunamadı.");
+        
         return mapDbUserToAppUser(data);
     },
 

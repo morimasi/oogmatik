@@ -192,13 +192,13 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     <div className="px-8 pb-8">
                         <div className="flex flex-col md:flex-row items-start md:items-end -mt-20 gap-6 mb-8">
                             <div className="relative group">
-                                <div className="w-40 h-40 rounded-full p-1.5 bg-white dark:bg-zinc-800 ring-4 ring-white dark:ring-zinc-800 shadow-2xl">
+                                <div className="w-40 h-40 rounded-full p-1.5 bg-white dark:bg-zinc-800 ring-4 ring-white dark:ring-zinc-800 shadow-2xl overflow-hidden">
                                     <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full bg-zinc-100 object-cover" />
                                 </div>
                                 <button 
                                     onClick={handleAvatarClick}
                                     disabled={isChangingAvatar}
-                                    className="absolute bottom-2 right-2 w-10 h-10 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-all hover:scale-110 cursor-pointer"
+                                    className="absolute bottom-2 right-2 w-10 h-10 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-all hover:scale-110 cursor-pointer z-10 border-2 border-white dark:border-zinc-700"
                                     title="Profil Resmini Değiştir"
                                 >
                                     <i className={`fa-solid ${isChangingAvatar ? 'fa-circle-notch fa-spin' : 'fa-camera'}`}></i>
