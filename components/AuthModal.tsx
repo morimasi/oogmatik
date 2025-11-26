@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { keepAlive } from '../services/supabaseClient';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -19,8 +20,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         isMounted.current = true;
+        
+        if (isOpen) {
+            // Pencere açılır açılmaz sunucuyu "dürt" (Wake up call)
+            // Bu sayede kullanıcı form doldururken sunucu ısınır.
+            keepAlive();
+        }
+
         return () => { isMounted.current = false; };
-    }, []);
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -46,9 +54,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             return;
         }
 
-        // 20 seconds timeout protection (Increased from 8s to handle Supabase Cold Start)
+        // 60 seconds timeout protection (Increased to handle heavy Supabase Cold Start)
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Sunucu yanıt vermiyor (Zaman aşımı). Lütfen tekrar deneyin.")), 20000)
+            setTimeout(() => reject(new Error("Sunucu yanıt vermiyor (Zaman aşımı). Lütfen tekrar deneyin veya bağlantınızı kontrol edin.")), 60000)
         );
 
         try {

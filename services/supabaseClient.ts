@@ -70,3 +70,21 @@ export const checkDbConnection = async () => {
         return false;
     }
 };
+
+// Sunucuyu uyanık tutma (Heartbeat / Keep Alive)
+export const keepAlive = async () => {
+    if (!supabase) return;
+    try {
+        // 1. Supabase Veritabanı Sinyali (Hafif sorgu)
+        // Sunucunun "pause" moduna geçmesini engeller
+        await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
+        
+        // 2. Vercel API Sinyali (Cold Start Önleme)
+        // Fonksiyonu uyandırmak için hafif bir istek (Cevap beklenmez)
+        fetch('/api/generate', { method: 'OPTIONS' }).catch(() => {});
+        
+        // console.debug("Heartbeat signal sent.");
+    } catch (error) {
+        // Hataları yut, kullanıcıya yansıtma. Amaç sadece trafik yaratmak.
+    }
+};

@@ -14,6 +14,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { MessagesView } from './components/MessagesView';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
+import { keepAlive } from './services/supabaseClient';
 import { SharedWorksheetsView } from './components/SharedWorksheetsView';
 import { SavedWorksheetsView } from './components/SavedWorksheetsView';
 import { AssessmentModule } from './components/AssessmentModule';
@@ -123,6 +124,19 @@ const AppContent: React.FC = () => {
   const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
   const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+
+  // Heartbeat System (Sunucuyu Uyanık Tutma)
+  useEffect(() => {
+      // Uygulama açılır açılmaz sunucuyu uyandır
+      keepAlive();
+      
+      // Her 2 dakikada bir sinyal göndererek sunucunun uyumasını engelle
+      const interval = setInterval(() => {
+          keepAlive();
+      }, 120000); // 120 saniye = 2 dakika
+
+      return () => clearInterval(interval);
+  }, []);
 
   // Load user data when user changes
   useEffect(() => {
