@@ -1,4 +1,3 @@
-
 import React, { CSSProperties } from 'react';
 import { ActivityType, SingleWorksheetData, StyleSettings } from '../types';
 
@@ -9,7 +8,7 @@ import * as MathLogicSheets from './sheets/MathLogicSheets';
 import * as VisualSheets from './sheets/VisualPerceptionSheets';
 import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 import * as DyscalculiaSheets from './sheets/DyscalculiaSheets';
-import * as NewActivitySheets from './sheets/NewActivitySheets'; // Added
+import * as NewActivitySheets from './sheets/NewActivitySheets'; 
 
 interface WorksheetProps {
   activityType: ActivityType | null;
@@ -217,11 +216,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     } as CSSProperties;
 
     return (
-        <div className="flex flex-col gap-8 items-center w-full max-w-[210mm] mx-auto printable-document">
+        <div className="flex flex-col gap-8 items-center w-full max-w-[210mm] mx-auto printable-document print:block">
             {data.map((sheetData, index) => (
                 <div 
                     key={index} 
-                    className="worksheet-page bg-white shadow-lg w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden print:m-0 print:shadow-none print:break-after-page"
+                    className="worksheet-page bg-white shadow-lg w-full relative text-black aspect-[210/297] md:aspect-auto md:min-h-[297mm] overflow-hidden print:m-0 print:shadow-none print:break-after-page break-after-page"
                     style={pageStyle}
                 >
                     {renderSheet(activityType, sheetData, settings)}

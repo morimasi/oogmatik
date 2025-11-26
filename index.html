@@ -427,10 +427,33 @@
   @media print {
     @page { size: A4 portrait; margin: 5mm; }
     html, body { width: 100%; height: auto !important; background-color: white !important; color: black !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-size: 12pt !important; }
-    #root, .h-screen, .flex, .flex-col, .flex-1, .overflow-hidden, .overflow-y-auto, main { height: auto !important; overflow: visible !important; display: block !important; }
+    
+    /* Reset main containers to block to allow flow, remove height restrictions */
+    #root, .h-screen, .overflow-hidden, .overflow-y-auto, main { height: auto !important; overflow: visible !important; display: block !important; }
+    
+    /* Hide UI elements */
     header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar, .reading-ruler { display: none !important; }
-    .worksheet-page { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; page-break-after: always; transform: none !important; }
-    .worksheet-page:last-child { page-break-after: auto; }
+    
+    /* Allow printable document wrapper to flow */
+    .printable-document { display: block !important; }
+
+    /* Worksheet Page Formatting */
+    .worksheet-page { 
+        width: 100% !important; 
+        max-width: none !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        border: none !important; 
+        box-shadow: none !important; 
+        break-after: page;
+        page-break-after: always; 
+        transform: none !important; 
+    }
+    .worksheet-page:last-child { 
+        break-after: auto;
+        page-break-after: auto; 
+    }
+    
     img { max-height: 150px !important; }
   }
 
@@ -484,4 +507,3 @@
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
-    

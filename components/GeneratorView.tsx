@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Activity, ActivityType, GeneratorOptions } from '../types';
 
@@ -216,10 +215,10 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     </div>
                 )}
 
-                {/* GLOBAL WORKSHEET COUNT - ALWAYS VISIBLE, RANGE 1-20 */}
+                {/* GLOBAL WORKSHEET COUNT - VARIATIONS */}
                 <div className="mb-3 p-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl">
                     <label className="block text-sm font-bold mb-2 text-indigo-600 dark:text-indigo-400 flex justify-between items-center">
-                        <span><i className="fa-solid fa-copy mr-2"></i>Oluşturulacak Sayfa Sayısı</span>
+                        <span><i className="fa-solid fa-layer-group mr-2"></i>Çalışma Sayısı (Varyasyon)</span>
                         <span className="bg-white dark:bg-zinc-700 px-2 py-0.5 rounded border text-xs shadow-sm">{formValues.worksheetCount} Adet</span>
                     </label>
                     <div className="flex items-center gap-4">
@@ -242,7 +241,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         />
                     </div>
                     <p className="text-xs text-zinc-400 mt-2">
-                        1 ile 20 arasında seçim yapabilirsiniz. Her sayfa ayrı bir A4 kağıdına sığacak şekilde üretilir.
+                        Seçilen sayıda, <strong>birbirinden farklı</strong> içeriğe sahip etkinlik üretilir. Çoklu seçimde her etkinlik ayrı bir A4 sayfasına basılacak şekilde düzenlenir.
                     </p>
                 </div>
 
@@ -263,7 +262,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     ) : (
                         <>
                             <i className="fa-solid fa-print"></i>
-                            Etkinlik Oluştur ({formValues.worksheetCount} Sayfa)
+                            Etkinlik Oluştur ({formValues.worksheetCount} Adet)
                         </>
                     )}
                 </button>
