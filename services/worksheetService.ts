@@ -2,6 +2,8 @@
 import { supabase } from './supabaseClient';
 import { SavedWorksheet, SingleWorksheetData, ActivityType } from '../types';
 
+const MOCK_STORAGE_KEY = 'mock_saved_worksheets';
+
 // Mapper
 const mapDbToWorksheet = (dbItem: any): SavedWorksheet => ({
     id: dbItem.id,
@@ -29,7 +31,25 @@ export const worksheetService = {
         icon: string,
         category: { id: string, title: string }
     ): Promise<SavedWorksheet> => {
-        if (!supabase) throw new Error("DB Error");
+        // --- MOCK FALLBACK ---
+        if (!supabase) {
+            const newWorksheet: SavedWorksheet = {
+                id: 'mock-ws-' + Date.now(),
+                userId,
+                name,
+                activityType,
+                worksheetData: data,
+                icon,
+                category,
+                createdAt: new Date().toISOString()
+            };
+            const stored = localStorage.getItem(MOCK_STORAGE_KEY);
+            const worksheets = stored ? JSON.parse(stored) : [];
+            worksheets.push(newWorksheet);
+            localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(worksheets));
+            return newWorksheet;
+        }
+        // ---------------------
 
         const dbPayload = {
             user_id: userId,
@@ -51,22 +71,25 @@ export const worksheetService = {
         if (error) throw error;
         
         // Increment user stats
-        await supabase.rpc('increment_worksheet_count', { user_id: userId }).catch(() => {
-            // Fallback if RPC not exists
-             console.log("Stats increment failed (RPC missing?)");
-        });
+        await supabase.rpc('increment_worksheet_count', { user_id: userId }).catch(() => {});
 
         return mapDbToWorksheet(inserted);
     },
 
     getUserWorksheets: async (userId: string): Promise<SavedWorksheet[]> => {
-        if (!supabase) return [];
+        // --- MOCK FALLBACK ---
+        if (!supabase) {
+            const stored = localStorage.getItem(MOCK_STORAGE_KEY);
+            const worksheets: SavedWorksheet[] = stored ? JSON.parse(stored) : [];
+            return worksheets.filter(w => w.userId === userId && !w.sharedWith).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }
+        // ---------------------
         
         const { data, error } = await supabase
             .from('saved_worksheets')
             .select('*')
             .eq('user_id', userId)
-            .is('shared_with', null) // Only own worksheets
+            .is('shared_with', null) 
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -77,16 +100,30 @@ export const worksheetService = {
     },
 
     deleteWorksheet: async (id: string) => {
-        if (!supabase) return;
+        // --- MOCK FALLBACK ---
+        if (!supabase) {
+            const stored = localStorage.getItem(MOCK_STORAGE_KEY);
+            if (stored) {
+                const worksheets: SavedWorksheet[] = JSON.parse(stored);
+                const filtered = worksheets.filter(w => w.id !== id);
+                localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(filtered));
+            }
+            return;
+        }
+        // ---------------------
+
         const { error } = await supabase.from('saved_worksheets').delete().eq('id', id);
         if (error) throw error;
     },
 
     shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
-        if (!supabase) return;
+        if (!supabase) {
+            console.log("Mock sharing not fully supported but acknowledged.");
+            return;
+        }
 
         const sharedPayload = {
-            user_id: senderId, // Original owner
+            user_id: senderId, 
             name: worksheet.name,
             activity_type: worksheet.activityType,
             worksheet_data: worksheet.worksheetData,
@@ -95,7 +132,7 @@ export const worksheetService = {
             category_title: worksheet.category.title,
             shared_by: senderId,
             shared_by_name: senderName,
-            shared_with: receiverId, // The recipient
+            shared_with: receiverId,
             created_at: new Date().toISOString()
         };
 

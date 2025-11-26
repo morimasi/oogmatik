@@ -1,21 +1,15 @@
+
 import { supabase } from './supabaseClient';
 import { ActivityType, ActivityStats } from '../types';
 import { ACTIVITIES } from '../constants';
 
 export const statsService = {
-    // İstatistikleri veritabanından çek
     getAllStats: async (): Promise<ActivityStats[]> => {
         if (!supabase) return [];
         
         try {
-            const { data, error } = await supabase
-                .from('activity_stats')
-                .select('*');
-
-            if (error) {
-                // Tablo yoksa veya hata varsa boş dön, konsola basma (sessizce geç)
-                return [];
-            }
+            const { data, error } = await supabase.from('activity_stats').select('*');
+            if (error) return [];
 
             return data.map((item: any) => ({
                 activityId: item.activity_id as ActivityType,
@@ -29,7 +23,6 @@ export const statsService = {
         }
     },
 
-    // Kullanım sayısını artır (Upsert işlemi)
     incrementUsage: async (activityId: ActivityType) => {
         if (!supabase) return;
         
@@ -37,17 +30,13 @@ export const statsService = {
             const activity = ACTIVITIES.find(a => a.id === activityId);
             const title = activity ? activity.title : activityId;
             
-            // Mevcut veriyi çek - maybeSingle kullanarak 0 satır hatasını (406) önle
             const { data: existing, error } = await supabase
                 .from('activity_stats')
                 .select('*')
                 .eq('activity_id', activityId)
                 .maybeSingle();
             
-            if (error) {
-                // Bağlantı veya yetki hatası varsa dur, ancak console'a basıp akışı bozma
-                return; 
-            }
+            if (error) return; 
             
             let newCount = 1;
             let newAvg = 10;
@@ -66,12 +55,9 @@ export const statsService = {
                 avg_completion_time: newAvg
             };
 
-            await supabase
-                .from('activity_stats')
-                .upsert(payload);
+            await supabase.from('activity_stats').upsert(payload);
             
         } catch (e) {
-            // İstatistik hatası akışı bozmamalı
             console.warn("Stats increment warning:", e);
         }
     },

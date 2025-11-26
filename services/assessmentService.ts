@@ -2,6 +2,8 @@
 import { supabase } from './supabaseClient';
 import { AssessmentReport, SavedAssessment } from '../types';
 
+const MOCK_ASSESSMENTS_KEY = 'mock_saved_assessments';
+
 export const assessmentService = {
     saveAssessment: async (
         userId: string,
@@ -11,7 +13,25 @@ export const assessmentService = {
         grade: string,
         report: AssessmentReport
     ): Promise<void> => {
-        if (!supabase) return;
+        // --- MOCK FALLBACK ---
+        if (!supabase) {
+            const newAssessment: SavedAssessment = {
+                id: 'mock-assess-' + Date.now(),
+                userId,
+                studentName,
+                gender,
+                age,
+                grade,
+                report,
+                createdAt: new Date().toISOString()
+            };
+            const stored = localStorage.getItem(MOCK_ASSESSMENTS_KEY);
+            const list = stored ? JSON.parse(stored) : [];
+            list.push(newAssessment);
+            localStorage.setItem(MOCK_ASSESSMENTS_KEY, JSON.stringify(list));
+            return;
+        }
+        // ---------------------
 
         const payload = {
             user_id: userId,
@@ -28,13 +48,19 @@ export const assessmentService = {
     },
 
     getUserAssessments: async (userId: string): Promise<SavedAssessment[]> => {
-        if (!supabase) return [];
+        // --- MOCK FALLBACK ---
+        if (!supabase) {
+            const stored = localStorage.getItem(MOCK_ASSESSMENTS_KEY);
+            const list: SavedAssessment[] = stored ? JSON.parse(stored) : [];
+            return list.filter(a => a.userId === userId && !a.sharedWith).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }
+        // ---------------------
 
         const { data, error } = await supabase
             .from('saved_assessments')
             .select('*')
             .eq('user_id', userId)
-            .is('shared_with', null) // Only own assessments
+            .is('shared_with', null)
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -60,7 +86,7 @@ export const assessmentService = {
         if (!supabase) return;
 
         const payload = {
-            user_id: senderId, // Original owner as reference
+            user_id: senderId,
             student_name: assessment.studentName,
             gender: assessment.gender,
             age: assessment.age,
@@ -68,7 +94,7 @@ export const assessmentService = {
             report: assessment.report,
             shared_by: senderId,
             shared_by_name: senderName,
-            shared_with: receiverId, // The recipient
+            shared_with: receiverId,
             created_at: new Date().toISOString()
         };
 

@@ -3,13 +3,13 @@ import { supabase } from './supabaseClient';
 import { User } from '../types';
 
 const ADMIN_EMAILS = ['morimasi@gmail.com', 'meliksahterdek@gmail.com'];
+const MOCK_SESSION_KEY = 'mock_session_user';
 
 // Map DB columns to App User type
 const mapDbUserToAppUser = (dbUser: any): User => ({
     id: dbUser.id,
     email: dbUser.email,
     name: dbUser.name || dbUser.email?.split('@')[0] || 'Kullanıcı',
-    // Belirtilen e-posta adreslerine otomatik admin yetkisi ver
     role: ADMIN_EMAILS.includes(dbUser.email) ? 'admin' : (dbUser.role || 'user'),
     avatar: dbUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${dbUser.email}`,
     createdAt: dbUser.created_at || new Date().toISOString(),
@@ -21,7 +21,28 @@ const mapDbUserToAppUser = (dbUser: any): User => ({
 
 export const authService = {
     login: async (email: string, pass: string): Promise<User> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edin.");
+        // --- MOCK FALLBACK ---
+        if (!supabase) {
+            console.warn("Supabase not connected. Using Mock Login.");
+            await new Promise(r => setTimeout(r, 800)); // Simulate network
+            
+            // Simple mock user generation
+            const mockUser: User = {
+                id: 'mock-' + Math.random().toString(36).substring(2, 9),
+                email: email,
+                name: email.split('@')[0],
+                role: ADMIN_EMAILS.includes(email) ? 'admin' : 'user',
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                worksheetCount: 5,
+                status: 'active',
+                subscriptionPlan: 'free'
+            };
+            localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(mockUser));
+            return mockUser;
+        }
+        // ---------------------
 
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email,
@@ -38,42 +59,29 @@ export const authService = {
 
         if (!authData.user) throw new Error("Kullanıcı bilgileri alınamadı.");
 
-        // Update last login (Fire and forget - Non-blocking)
+        // Update last login
         supabase.from('users').update({ last_login: new Date().toISOString() }).eq('id', authData.user.id).then(({ error }) => {
             if (error) console.warn("Last login update warning:", error.message);
         });
 
-        // Fetch profile with retry logic
         let profile = null;
         let attempts = 0;
         
-        // Try up to 3 times to get the profile (Optimized delay)
         while (!profile && attempts < 3) {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', authData.user.id)
-                .maybeSingle();
-            
+            const { data, error } = await supabase.from('users').select('*').eq('id', authData.user.id).maybeSingle();
             if (!error && data) {
                 profile = data;
                 break;
             }
-            
             attempts++;
-            if (!profile && attempts < 3) {
-                // Reduced wait time for faster feedback
-                await new Promise(r => setTimeout(r, 200));
-            }
+            if (!profile && attempts < 3) await new Promise(r => setTimeout(r, 200));
         }
 
-        // Fail-safe: If profile is still missing (Trigger failed or lag), construct from Auth Data immediately
         if (!profile) {
-             console.warn("Profile fetch failed or timed out. Using fallback auth data.");
              const fallbackProfile = {
                 id: authData.user.id,
                 email: authData.user.email || '',
-                name: email.split('@')[0], // Fallback name
+                name: email.split('@')[0],
                 role: ADMIN_EMAILS.includes(email) ? 'admin' : 'user',
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
                 created_at: new Date().toISOString(),
@@ -94,27 +102,41 @@ export const authService = {
     },
 
     register: async (email: string, pass: string, name: string): Promise<User> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
+        // --- MOCK FALLBACK ---
+        if (!supabase) {
+            console.warn("Supabase not connected. Using Mock Register.");
+            await new Promise(r => setTimeout(r, 800));
+            
+            const mockUser: User = {
+                id: 'mock-' + Math.random().toString(36).substring(2, 9),
+                email: email,
+                name: name,
+                role: ADMIN_EMAILS.includes(email) ? 'admin' : 'user',
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                worksheetCount: 0,
+                status: 'active',
+                subscriptionPlan: 'free'
+            };
+            localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(mockUser));
+            return mockUser;
+        }
+        // ---------------------
 
-        // 1. Sign Up
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password: pass,
-            options: {
-                data: { full_name: name }
-            }
+            options: { data: { full_name: name } }
         });
 
         if (authError) {
-            if (authError.message.includes("already registered")) {
-                throw new Error("Bu e-posta adresi zaten kayıtlı.");
-            }
+            if (authError.message.includes("already registered")) throw new Error("Bu e-posta adresi zaten kayıtlı.");
             throw new Error("Kayıt hatası: " + authError.message);
         }
         
         if (!authData.user) throw new Error("Kayıt oluşturulamadı. Lütfen tekrar deneyin.");
 
-        // 2. Prepare Profile Data
         const newUserProfile = {
             id: authData.user.id,
             email: email,
@@ -128,36 +150,33 @@ export const authService = {
             worksheet_count: 0
         };
 
-        // 3. Attempt to ensure profile exists (Non-Blocking / Best Effort)
-        // We don't await this or check for errors strictly to avoid blocking the UI if DB is slow.
-        // The DB trigger `on_auth_user_created` usually handles this.
         supabase.from('users').upsert(newUserProfile).then(({ error }) => {
-            if (error) console.warn("Manual profile creation warning (Trigger likely handled it):", error.message);
+            if (error) console.warn("Manual profile creation warning:", error.message);
         });
 
-        // 4. Return user immediately to let them in
         return mapDbUserToAppUser(newUserProfile);
     },
 
     logout: async () => {
-        if (!supabase) return;
+        if (!supabase) {
+            localStorage.removeItem(MOCK_SESSION_KEY);
+            return;
+        }
         await supabase.auth.signOut();
     },
 
     getCurrentUser: async (): Promise<User | null> => {
-        if (!supabase) return null;
+        if (!supabase) {
+            const stored = localStorage.getItem(MOCK_SESSION_KEY);
+            return stored ? JSON.parse(stored) : null;
+        }
         
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) return null;
 
-        const { data: profile } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
+        const { data: profile } = await supabase.from('users').select('*').eq('id', session.user.id).maybeSingle();
 
         if (!profile) {
-            // Fallback if profile missing but auth exists
              return {
                 id: session.user.id,
                 email: session.user.email || '',
@@ -175,32 +194,45 @@ export const authService = {
     },
 
     updateProfile: async (userId: string, updates: Partial<User>): Promise<User> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
+        if (!supabase) {
+            const stored = localStorage.getItem(MOCK_SESSION_KEY);
+            if (stored) {
+                const current = JSON.parse(stored);
+                const updated = { ...current, ...updates };
+                localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(updated));
+                return updated;
+            }
+            throw new Error("Kullanıcı bulunamadı (Mock).");
+        }
 
         const dbUpdates: any = {};
         if (updates.name) dbUpdates.name = updates.name;
         if (updates.avatar) dbUpdates.avatar = updates.avatar;
         if (updates.worksheetCount !== undefined) dbUpdates.worksheet_count = updates.worksheetCount;
 
-        const { data, error } = await supabase
-            .from('users')
-            .update(dbUpdates)
-            .eq('id', userId)
-            .select()
-            .single();
+        const { data, error } = await supabase.from('users').update(dbUpdates).eq('id', userId).select().single();
 
         if (error) throw new Error(error.message);
         return mapDbUserToAppUser(data);
     },
 
     updatePassword: async (newPassword: string): Promise<void> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
+        if (!supabase) {
+            console.log("Mock password update success");
+            return;
+        }
         const { error } = await supabase.auth.updateUser({ password: newPassword });
         if (error) throw new Error("Şifre güncellenirken hata oluştu: " + error.message);
     },
 
     getContacts: async (currentUserId: string): Promise<User[]> => {
-        if (!supabase) return [];
+        if (!supabase) {
+            // Return some mock users
+            return [
+                { id: 'mock-1', name: 'Ali Yılmaz', email: 'ali@test.com', role: 'user', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ali', createdAt: '', lastLogin: '', worksheetCount: 5, status: 'active', subscriptionPlan: 'free' },
+                { id: 'mock-2', name: 'Ayşe Demir', email: 'ayse@test.com', role: 'user', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ayse', createdAt: '', lastLogin: '', worksheetCount: 12, status: 'active', subscriptionPlan: 'pro' }
+            ];
+        }
         
         const { data, error } = await supabase
             .from('users')

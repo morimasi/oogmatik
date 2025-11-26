@@ -1,31 +1,42 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Vite ortam değişkenlerine güvenli erişim sağlayan yardımcı fonksiyon
-// Bazı ortamlarda import.meta.env undefined olabilir, bu durumu yakalarız.
+// Helper to safely access env variables across different environments (Vite/Next/Node)
 const getEnv = (key: string): string | undefined => {
+    let val: string | undefined;
+    // 1. Try Vite import.meta.env
     try {
         // @ts-ignore
         if (typeof import.meta !== 'undefined' && import.meta.env) {
             // @ts-ignore
-            return import.meta.env[key];
+            val = import.meta.env[key];
         }
-        return undefined;
-    } catch (e) {
-        console.warn("Environment variable access error:", e);
-        return undefined;
+    } catch (e) {}
+
+    // 2. Try process.env (Node/Webpack fallback)
+    if (!val) {
+        try {
+            // @ts-ignore
+            if (typeof process !== 'undefined' && process.env) {
+                // @ts-ignore
+                val = process.env[key];
+            }
+        } catch (e) {}
     }
+    return val;
 };
 
 const supabaseUrl = getEnv('VITE_SUPABASE_URL');
 const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
 
-// Bağlantıyı oluştur (Eğer anahtarlar yoksa null döner, uygulama çökmez)
+// Initialize connection if keys exist
 let supabaseInstance = null;
 
 try {
     if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http')) {
         supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+    } else {
+        console.warn("Supabase credentials missing or invalid. App will run in Offline/Mock mode.");
     }
 } catch (error) {
     console.error("Supabase initialization failed:", error);
@@ -33,21 +44,20 @@ try {
 
 export const supabase = supabaseInstance;
 
-// Yardımcı fonksiyon: Bağlantı kontrolü
+// Connection check helper
 export const checkDbConnection = async () => {
     if (!supabase) {
-        console.warn("Supabase istemcisi başlatılamadı. .env dosyasını kontrol edin.");
         return false;
     }
     try {
         const { error } = await supabase.from('users').select('count', { count: 'exact', head: true });
         if (error) {
-            console.warn("DB Bağlantı uyarısı:", error.message);
+            console.warn("DB Connection warning:", error.message);
             return false;
         }
         return true;
     } catch (e) {
-        console.error("Veritabanı bağlantı hatası:", e);
+        console.error("DB Connection error:", e);
         return false;
     }
 };

@@ -2,7 +2,6 @@
 import { supabase } from './supabaseClient';
 import { FeedbackItem, Message, User } from '../types';
 
-// Mappers
 const mapDbFeedback = (db: any): FeedbackItem => ({
     id: db.id,
     userId: db.user_id,
@@ -29,9 +28,11 @@ const mapDbMessage = (db: any): Message => ({
 });
 
 export const messagingService = {
-    // --- FEEDBACK ---
     submitFeedback: async (data: Omit<FeedbackItem, 'id' | 'timestamp' | 'status'>): Promise<void> => {
-        if (!supabase) return;
+        if (!supabase) {
+            console.log("Mock Feedback Submitted:", data);
+            return;
+        }
         
         const payload = {
             user_id: data.userId,
@@ -58,7 +59,6 @@ export const messagingService = {
     replyToFeedback: async (feedbackId: string, replyMessage: string, adminUser: User): Promise<void> => {
         if (!supabase) return;
 
-        // 1. Update Feedback
         const { data: feedback, error: fbError } = await supabase
             .from('feedbacks')
             .update({ status: 'replied', admin_reply: replyMessage })
@@ -68,7 +68,6 @@ export const messagingService = {
 
         if (fbError) throw fbError;
 
-        // 2. Send Message if user exists
         if (feedback && feedback.user_id) {
             await messagingService.sendMessage({
                 senderId: adminUser.id,
@@ -80,9 +79,11 @@ export const messagingService = {
         }
     },
 
-    // --- MESSAGING ---
     sendMessage: async (msgData: Omit<Message, 'id' | 'timestamp' | 'isRead'>): Promise<void> => {
-        if (!supabase) return;
+        if (!supabase) {
+            console.log("Mock Message Sent:", msgData);
+            return;
+        }
 
         const payload = {
             sender_id: msgData.senderId,
@@ -103,7 +104,7 @@ export const messagingService = {
             .from('messages')
             .select('*')
             .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-            .order('timestamp', { ascending: true }); // Chat order
+            .order('timestamp', { ascending: true });
 
         if (error) return [];
         return data.map(mapDbMessage);
