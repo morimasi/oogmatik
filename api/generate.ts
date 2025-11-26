@@ -67,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!data) return res.status(500).json({ error: "Yapay zeka yanıt vermedi." });
 
-        // Adım 2: Görsel Üretimi (Gemini 2.5 Flash Image - Nano Banana)
+        // Adım 2: Görsel Üretimi (Google Imagen)
         const imagePromptsToProcess: { obj: any, imagePrompt: string }[] = [];
         
         const findImagePrompts = (obj: any) => {
@@ -93,34 +93,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             
             await Promise.all(chunk.map(async ({ obj, imagePrompt }) => {
                 try {
-                    const response = await ai.models.generateContent({
-                        model: 'gemini-2.5-flash-image',
-                        contents: { parts: [{ text: imagePrompt }] },
+                    // YENİ: Imagen modeli ile görsel üretimi
+                    const imageResponse = await ai.models.generateImages({
+                        model: 'imagen-4.0-generate-001', // Yüksek kaliteli model
+                        prompt: imagePrompt,
                         config: {
-                            // responseMimeType ve responseSchema resim üretimi için kullanılmaz
-                        }
+                            numberOfImages: 1,
+                            outputMimeType: 'image/png', // PNG şeffaflık için daha iyi
+                            aspectRatio: '1:1'
+                        },
                     });
+        
+                    const base64String = imageResponse.generatedImages?.[0]?.image?.imageBytes;
 
-                    let imageFound = false;
-                    const candidate = response.candidates?.[0];
-                    const parts = candidate?.content?.parts;
-
-                    if (parts) {
-                        for (const part of parts) {
-                            if (part.inlineData && part.inlineData.data) {
-                                obj['imageBase64'] = part.inlineData.data;
-                                imageFound = true;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    // Sadece görsel başarıyla geldiyse metni sil, yoksa frontend fallback kullansın
-                    if (imageFound) {
+                    if (base64String) {
+                        obj['imageBase64'] = base64String;
                         delete obj['imagePrompt'];
+                    } else {
+                        console.warn("Imagen modelinden görsel verisi alınamadı, imagePrompt korunuyor.", imagePrompt);
+                        obj['imageBase64'] = '';
                     }
                 } catch (imgError) {
-                    console.warn("Görsel oluşturulamadı, metin korunuyor:", imgError);
+                    console.warn("Görsel oluşturulamadı (Imagen), metin korunuyor:", imgError);
                     obj['imageBase64'] = '';
                     // imagePrompt silinmez ki frontend fallback olarak kullanabilsin
                 }

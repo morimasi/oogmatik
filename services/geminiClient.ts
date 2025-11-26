@@ -7,7 +7,7 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
         
         // Changed visual style instruction to allow variety: drawing, cartoon, vector.
         // Added strict instruction to ALWAYS generate imagePrompt for every possible item to ensure visual richness.
-        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Benzersiz ol. Random Seed: ${uniqueSeed}.\n2. GÖRSEL ZORUNLULUĞU: Şema içinde 'imagePrompt' alanı tanımlı olan HER ÖĞE için MUTLAKA dolu ve detaylı bir İngilizce görsel betimlemesi yaz. Asla boş bırakma.\n3. GÖRSEL STİLİ: Betimlemelere şu stillerden uygun olanı ekle: 'Cute colorful vector art style', 'Children book illustration style', 'Vibrant cartoon style'. Amaç çocukların ilgisini çekecek, pozitif, renkli ve net görseller üretmektir. Korkutucu veya karanlık öğelerden kaçın.]`;
+        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Benzersiz ol. Random Seed: ${uniqueSeed}.\n2. GÖRSEL ZORUNLULUĞU: Şema içinde 'imagePrompt' alanı tanımlı olan HER ÖĞE için MUTLAKA dolu ve detaylı bir İngilizce görsel betimlemesi yaz. Asla boş bırakma. Bu betimlemeler bir eylem ve bağlam içermelidir (Örn: 'kedi' yerine 'yumakla oynayan sevimli bir kedi').\n3. GÖRSEL STİLİ: Betimlemelere şu stillerden uygun olanı ekle: 'Cute colorful vector art style', 'Children book illustration style', 'Vibrant cartoon style'. Amaç çocukların ilgisini çekecek, pozitif, renkli ve net görseller üretmektir. Korkutucu veya karanlık öğelerden kaçın.]`;
 
         const response = await fetch('/api/generate', {
             method: 'POST',
