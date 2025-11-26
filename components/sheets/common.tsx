@@ -176,12 +176,12 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 <p className="text-lg font-medium text-indigo-700 dark:text-indigo-300">{instruction}</p>
             </div>
             
-            {/* Main Activity Image - Enhanced Display */}
-            {(data?.imageBase64 || data?.imagePrompt) && (
+            {/* Main Activity Image - ONLY renders if imageBase64 is present */}
+            {data?.imageBase64 && (
                 <div className="my-6 mx-auto max-w-2xl rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300">
                     <ImageDisplay 
-                        base64={data?.imageBase64} 
-                        description={data?.imagePrompt || title} 
+                        base64={data.imageBase64} 
+                        description={data.imagePrompt || title} 
                         className="w-full h-64 object-contain bg-white dark:bg-zinc-900" 
                     />
                     {/* Decorative Shine */}
