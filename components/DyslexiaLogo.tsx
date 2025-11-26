@@ -1,3 +1,4 @@
+
 import React, { CSSProperties, useRef, useState, useEffect } from 'react';
 
 const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
@@ -101,7 +102,7 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
               textAnchor="middle" // Anchor the text at its calculated center (x)
               fontSize="32"
               fontWeight="bold"
-              className={`fill-zinc-800 dark:fill-zinc-100 ${isVowel ? 'logo-letter' : ''}`}
+              className={`fill-orange-500 dark:fill-orange-400 drop-shadow-sm ${isVowel ? 'logo-letter' : ''}`}
               fontFamily="OpenDyslexic, sans-serif"
               style={style}
             >
