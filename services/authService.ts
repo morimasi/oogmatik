@@ -54,6 +54,9 @@ export const authService = {
             if (authError.status === 400 || authError.message.includes("Invalid login credentials")) {
                 throw new Error("Giriş yapılamadı: E-posta adresi veya şifre hatalı.");
             }
+            if (authError.message.includes("Failed to fetch") || authError.message.includes("Network request failed")) {
+                throw new Error("Sunucuya ulaşılamıyor. İnternet bağlantınızı kontrol edin.");
+            }
             throw new Error("Giriş hatası: " + (authError.message || "Bilinmeyen bir hata oluştu."));
         }
 

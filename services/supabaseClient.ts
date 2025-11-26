@@ -29,14 +29,19 @@ const getEnv = (key: string): string | undefined => {
 const supabaseUrl = getEnv('VITE_SUPABASE_URL');
 const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
 
-// Initialize connection if keys exist
+const isPlaceholder = (val: string | undefined) => {
+    if (!val) return true;
+    return val.includes('sizin-') || val.includes('your-') || val === 'undefined' || val === 'null';
+};
+
+// Initialize connection if keys exist and are not placeholders
 let supabaseInstance = null;
 
 try {
-    if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http')) {
+    if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http') && !isPlaceholder(supabaseUrl) && !isPlaceholder(supabaseAnonKey)) {
         supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
     } else {
-        console.warn("Supabase credentials missing or invalid. App will run in Offline/Mock mode.");
+        console.warn("Supabase credentials missing, invalid, or placeholders. App will run in Offline/Mock mode.");
     }
 } catch (error) {
     console.error("Supabase initialization failed:", error);
@@ -50,7 +55,7 @@ export const checkDbConnection = async () => {
         return false;
     }
     try {
-        const { error } = await supabase.from('users').select('count', { count: 'exact', head: true });
+        const { error } = await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
         if (error) {
             console.warn("DB Connection warning:", error.message);
             return false;
