@@ -339,14 +339,20 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
                         </div>
                     </div>
 
-                    {/* Numerical Layer */}
+                    {/* Numerical Layer - Modified to hide numbers */}
                     <div className="flex items-center justify-between bg-zinc-50 rounded-xl p-4 border-2 border-zinc-100">
                         <div className="flex items-center gap-3 text-4xl font-black text-zinc-800 font-mono">
-                            <span>{prob.num1}</span>
+                            {/* Num 1 Box */}
+                            <div className="w-16 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
+                            
                             <span className="text-indigo-500">{prob.operator}</span>
-                            <span>{prob.num2}</span>
+                            
+                            {/* Num 2 Box */}
+                            <div className="w-16 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
+                            
                             <span>=</span>
                         </div>
+                        {/* Result Box */}
                         <div className="w-20 h-16 bg-white border-2 border-zinc-400 rounded-lg shadow-inner"></div>
                     </div>
                 </div>
