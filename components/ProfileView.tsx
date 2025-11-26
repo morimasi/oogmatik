@@ -108,26 +108,28 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     };
 
     const handleAvatarClick = () => {
-        fileInputRef.current?.click();
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
     };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        if (!file.type.startsWith('image/')) {
-            showMessage('error', 'Lütfen geçerli bir resim dosyası seçin.');
-            return;
-        }
-
-        if (file.size > 2 * 1024 * 1024) { // 2MB Limit
-            showMessage('error', 'Resim boyutu çok büyük (Max: 2MB).');
-            return;
-        }
-
-        setIsChangingAvatar(true);
-
         try {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showMessage('error', 'Lütfen geçerli bir resim dosyası seçin.');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) { // 5MB Limit
+                showMessage('error', 'Resim boyutu çok büyük (Max: 5MB).');
+                return;
+            }
+
+            setIsChangingAvatar(true);
+
             const base64 = await new Promise<string>((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -138,11 +140,13 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             await updateUser({ avatar: base64 });
             showMessage('success', 'Profil resmi güncellendi.');
         } catch (e) {
-            console.error(e);
+            console.error("Avatar update error:", e);
             showMessage('error', 'Profil resmi yüklenirken hata oluştu.');
         } finally {
             setIsChangingAvatar(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         }
     };
 
@@ -477,42 +481,80 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     {/* STATS TAB (Detailed) */}
                     {activeTab === 'stats' && (
                         <div className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="bg-white dark:bg-zinc-800 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                                    <h3 className="text-xl font-bold mb-6 text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                                        <i className="fa-solid fa-chart-simple text-indigo-500"></i> Kategori Dağılımı
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl">
+                                        <i className="fa-solid fa-bolt"></i>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">Toplam Üretim</p>
+                                        <p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">{user.worksheetCount}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl">
+                                        <i className="fa-solid fa-trophy"></i>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">Seviye</p>
+                                        <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{level}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-2xl">
+                                        <i className="fa-solid fa-star"></i>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">XP</p>
+                                        <p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">
+                                            {xp}%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                <div className="lg:col-span-2 bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                                    <h3 className="text-lg font-bold mb-6 text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                                        <i className="fa-solid fa-bolt text-yellow-500"></i> Seviye İlerlemesi
                                     </h3>
-                                    <div className="space-y-6">
-                                        {[
-                                            { label: 'Kelime Oyunları', val: 65, color: 'bg-emerald-500' },
-                                            { label: 'Matematik & Mantık', val: 20, color: 'bg-blue-500' },
-                                            { label: 'Dikkat & Hafıza', val: 10, color: 'bg-purple-500' },
-                                            { label: 'Okuma & Anlama', val: 5, color: 'bg-amber-500' }
-                                        ].map((cat, i) => (
-                                            <div key={i}>
-                                                <div className="flex justify-between text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">
-                                                    <span>{cat.label}</span>
-                                                    <span>{cat.val}%</span>
-                                                </div>
-                                                <div className="h-3 w-full bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
-                                                    <div className={`h-full rounded-full ${cat.color}`} style={{ width: `${cat.val}%` }}></div>
-                                                </div>
+                                    <div className="relative pt-2 px-2">
+                                        <div className="flex mb-2 items-center justify-between">
+                                            <div>
+                                                <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">
+                                                    Sonraki Seviye: {level + 1}
+                                                </span>
                                             </div>
-                                        ))}
+                                            <div className="text-right">
+                                                <span className="text-xs font-semibold inline-block text-indigo-600">
+                                                    {xp}% / 100 XP
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="overflow-hidden h-4 mb-4 text-xs flex rounded-full bg-indigo-100 dark:bg-zinc-700">
+                                            <div style={{ width: `${xp}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-1000 ease-out"></div>
+                                        </div>
+                                        <p className="text-sm text-zinc-500 dark:text-zinc-400">Yeni etkinlikler oluşturarak ve değerlendirmeleri tamamlayarak XP kazanabilirsin.</p>
                                     </div>
                                 </div>
 
-                                <div className="bg-white dark:bg-zinc-800 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col justify-center items-center text-center">
-                                    <div className="w-40 h-40 rounded-full border-[12px] border-indigo-100 dark:border-indigo-900/30 flex items-center justify-center relative mb-6">
-                                        <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400">
-                                            {level}
-                                        </div>
-                                        <div className="absolute bottom-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">SEVİYE</div>
+                                <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                                    <h3 className="text-lg font-bold mb-6 text-zinc-800 dark:text-zinc-100">Son Aktiviteler</h3>
+                                    <div className="space-y-4">
+                                        {recentActivities.length > 0 ? recentActivities.map((act, i) => (
+                                            <div key={i} className="flex items-center gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-700 last:border-0">
+                                                <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center text-zinc-500">
+                                                    <i className={`${act.icon || 'fa-solid fa-file'} text-sm`}></i>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate">{act.name}</p>
+                                                    <p className="text-xs text-zinc-500">{new Date(act.createdAt).toLocaleDateString('tr-TR')}</p>
+                                                </div>
+                                            </div>
+                                        )) : (
+                                            <p className="text-zinc-400 text-sm text-center py-4">Henüz aktivite yok.</p>
+                                        )}
                                     </div>
-                                    <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Üretken Eğitimci</h3>
-                                    <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-xs">
-                                        Toplam {user.worksheetCount} etkinlik ürettiniz. Bir sonraki seviye için {10 - (user.worksheetCount % 10)} etkinlik daha oluşturun.
-                                    </p>
                                 </div>
                             </div>
                         </div>

@@ -161,7 +161,14 @@ export const authService = {
         const { data, error } = await supabase.from('users').update(dbUpdates).eq('id', userId).select().maybeSingle();
 
         if (error) throw new Error(error.message);
-        if (!data) throw new Error("Profil güncellenemedi veya bulunamadı.");
+        
+        // If data is null (e.g. row deleted or RLS issue), try fetching current data to return consistent state or throw
+        if (!data) {
+             // Fallback: try to fetch the user again to see if they exist
+             const { data: existing, error: fetchError } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+             if (!existing || fetchError) throw new Error("Profil güncellenemedi: Kullanıcı bulunamadı.");
+             return mapDbUserToAppUser(existing);
+        }
         
         return mapDbUserToAppUser(data);
     },
