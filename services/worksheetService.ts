@@ -2,8 +2,6 @@
 import { supabase } from './supabaseClient';
 import { SavedWorksheet, SingleWorksheetData, ActivityType } from '../types';
 
-const MOCK_STORAGE_KEY = 'mock_saved_worksheets';
-
 // Mapper
 const mapDbToWorksheet = (dbItem: any): SavedWorksheet => ({
     id: dbItem.id,
@@ -31,25 +29,7 @@ export const worksheetService = {
         icon: string,
         category: { id: string, title: string }
     ): Promise<SavedWorksheet> => {
-        // --- MOCK FALLBACK ---
-        if (!supabase) {
-            const newWorksheet: SavedWorksheet = {
-                id: 'mock-ws-' + Date.now(),
-                userId,
-                name,
-                activityType,
-                worksheetData: data,
-                icon,
-                category,
-                createdAt: new Date().toISOString()
-            };
-            const stored = localStorage.getItem(MOCK_STORAGE_KEY);
-            const worksheets = stored ? JSON.parse(stored) : [];
-            worksheets.push(newWorksheet);
-            localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(worksheets));
-            return newWorksheet;
-        }
-        // ---------------------
+        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
 
         const dbPayload = {
             user_id: userId,
@@ -77,13 +57,7 @@ export const worksheetService = {
     },
 
     getUserWorksheets: async (userId: string): Promise<SavedWorksheet[]> => {
-        // --- MOCK FALLBACK ---
-        if (!supabase) {
-            const stored = localStorage.getItem(MOCK_STORAGE_KEY);
-            const worksheets: SavedWorksheet[] = stored ? JSON.parse(stored) : [];
-            return worksheets.filter(w => w.userId === userId && !w.sharedWith).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        }
-        // ---------------------
+        if (!supabase) return [];
         
         const { data, error } = await supabase
             .from('saved_worksheets')
@@ -100,27 +74,13 @@ export const worksheetService = {
     },
 
     deleteWorksheet: async (id: string) => {
-        // --- MOCK FALLBACK ---
-        if (!supabase) {
-            const stored = localStorage.getItem(MOCK_STORAGE_KEY);
-            if (stored) {
-                const worksheets: SavedWorksheet[] = JSON.parse(stored);
-                const filtered = worksheets.filter(w => w.id !== id);
-                localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(filtered));
-            }
-            return;
-        }
-        // ---------------------
-
+        if (!supabase) return;
         const { error } = await supabase.from('saved_worksheets').delete().eq('id', id);
         if (error) throw error;
     },
 
     shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
-        if (!supabase) {
-            console.log("Mock sharing simulated.");
-            return;
-        }
+        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
 
         const sharedPayload = {
             user_id: senderId, 
@@ -141,7 +101,7 @@ export const worksheetService = {
     },
 
     getSharedWithMe: async (userId: string): Promise<SavedWorksheet[]> => {
-        if (!supabase) return []; // No mock shared worksheets yet
+        if (!supabase) return [];
 
         const { data, error } = await supabase
             .from('saved_worksheets')

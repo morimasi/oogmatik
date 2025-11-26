@@ -1,91 +1,56 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Helper to safely access env variables across different environments (Vite/Next/Node)
-const getEnv = (key: string): string | undefined => {
-    let val: string | undefined;
-    // 1. Try Vite import.meta.env
-    try {
-        // @ts-ignore
-        if (typeof import.meta !== 'undefined' && import.meta.env) {
-            // @ts-ignore
-            val = import.meta.env[key];
-        }
-    } catch (e) {}
+// Vite ortamı için standart çevre değişkeni okuma
+// Tip tanımları eksik olduğunda hata vermemesi için 'as any' kullanıyoruz.
+// Eğer .env dosyasında veya Vercel ayarlarında tanımlı değilse, aşağıda verilen sabit değerleri kullanır.
 
-    // 2. Try process.env (Node/Webpack fallback)
-    if (!val) {
-        try {
-            // @ts-ignore
-            if (typeof process !== 'undefined' && process.env) {
-                // @ts-ignore
-                val = process.env[key];
-            }
-        } catch (e) {}
-    }
-    return val;
-};
+const HARDCODED_PROJECT_REF = "ushxgmkhhrvjevaalkgo";
+const HARDCODED_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzaHhnbWtoaHJ2amV2YWFsa2dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MjMzNjEsImV4cCI6MjA3OTI5OTM2MX0.uiQ_AMpf7tPWwdLUf1yEzJkAzJvE228k_8MdgDieE1g";
 
-const supabaseUrl = getEnv('VITE_SUPABASE_URL');
-const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
+const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL || `https://${HARDCODED_PROJECT_REF}.supabase.co`;
+const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || HARDCODED_ANON_KEY;
 
-const isPlaceholder = (val: string | undefined) => {
-    if (!val) return true;
-    return val.includes('sizin-') || val.includes('your-') || val === 'undefined' || val === 'null';
-};
-
-// Initialize connection
 let supabaseInstance = null;
 
-if (!supabaseUrl || isPlaceholder(supabaseUrl)) {
-    console.warn("⚠️ Supabase URL eksik veya yapılandırılmamış. Uygulama Çevrimdışı/Mock modunda çalışıyor.");
-} else if (!supabaseAnonKey || isPlaceholder(supabaseAnonKey)) {
-    console.warn("⚠️ Supabase Key eksik veya yapılandırılmamış. Uygulama Çevrimdışı/Mock modunda çalışıyor.");
-} else {
+// Anahtarlar varsa istemciyi oluştur.
+if (supabaseUrl && supabaseAnonKey) {
     try {
         supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
-        // console.log("✅ Supabase istemcisi oluşturuldu."); 
+        // console.log("✅ Supabase istemcisi başlatıldı.");
     } catch (error) {
-        console.error("🛑 Supabase başlatma hatası (Mock moda geçiliyor):", error);
+        console.error("🛑 Supabase başlatma hatası:", error);
         supabaseInstance = null;
     }
+} else {
+    console.error("🛑 KRİTİK HATA: Supabase URL veya Key bulunamadı!");
 }
 
 export const supabase = supabaseInstance;
 
-// Connection check helper
+// Bağlantı kontrolü
 export const checkDbConnection = async () => {
     if (!supabase) {
-        console.log("ℹ️ Mock mode active (No Supabase keys found).");
-        return false; // Mock mode active
+        console.error("🛑 Supabase istemcisi yok. Bağlantı kurulamadı.");
+        return false;
     }
     try {
-        // Basit bir sorgu ile bağlantıyı test et
-        const { data, error } = await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
+        const { error } = await supabase.from('users').select('count', { count: 'exact', head: true }).limit(1);
         
         if (error) {
-            // RLS policy might deny anonymous read on users, but connection is technically alive if we get a 401/403.
-            // However, 'relation "users" does not exist' is a 404-like DB error meaning SQL script wasn't run.
-            // '42P01' is table missing.
-            console.warn("⚠️ Veritabanı bağlantı uyarısı:", error.message, error.code);
-            
-            // If error is connection related
-            if (error.message.includes("fetch") || error.message.includes("network") || error.message.includes("connection")) {
-                console.error("🛑 Sunucuya erişilemiyor.");
-                return false;
-            }
-            
+            // Tablo yoksa veya yetki hatası varsa bile sunucuya ulaşıldı demektir.
+            // PGRST hataları (4xx, 5xx) bağlantının var olduğunu gösterir.
             if (error.code === '42P01') {
-                console.warn("⚠️ Tablolar bulunamadı. Lütfen SQL kurulumunu yapın.");
+                console.warn("⚠️ Bağlantı başarılı ancak tablolar eksik (SQL'i çalıştırın).");
+            } else {
+                console.warn("⚠️ Bağlantı uyarısı:", error.message);
             }
-
-            return true; // Connected to Supabase, even if table access denied or missing
+            return true; 
         }
         
-        console.log("✅ Veritabanı bağlantısı başarılı ve tablolar hazır.");
         return true;
     } catch (e: any) {
-        console.error("🛑 Veritabanı bağlantı hatası (Exception):", e);
+        console.error("🛑 Veritabanı bağlantı istisnası:", e);
         return false;
     }
 };
