@@ -87,18 +87,15 @@ export const generateOfflineArithmeticFluency = async (options: GeneratorOptions
 };
 export const generateOfflineVisualArithmetic = generateOfflineArithmeticFluency;
 
-// --- 3. Number Grouping (UPDATED) ---
+// --- 3. Number Grouping ---
 export const generateOfflineNumberGrouping = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
     const { worksheetCount, groupSize, groupCount, visualType } = options;
     
-    // Default fallbacks
     const targetGroupCount = groupCount || 3;
     const targetItemsPerGroup = groupSize || 4;
     
     return Array.from({ length: worksheetCount }, () => {
-        // Create 3-4 distinct grouping problems per page
         const problems = Array.from({ length: 3 }, () => {
-            // Variate slightly around the chosen settings to avoid monotony
             const gCount = Math.max(2, targetGroupCount + getRandomInt(-1, 1)); 
             const iCount = Math.max(2, targetItemsPerGroup + getRandomInt(-1, 1));
             
@@ -123,7 +120,7 @@ export const generateOfflineNumberGrouping = async (options: GeneratorOptions): 
     });
 };
 
-// --- 7. Spatial Reasoning (Updated with Cubes) ---
+// --- 7. Spatial Reasoning ---
 export const generateOfflineSpatialReasoning = async (options: GeneratorOptions): Promise<SpatialGridData[]> => {
     const { worksheetCount, gridSize } = options;
     const size = gridSize || 4;
@@ -131,17 +128,14 @@ export const generateOfflineSpatialReasoning = async (options: GeneratorOptions)
     return Array.from({ length: worksheetCount }, () => {
         const tasks: SpatialGridData['tasks'] = [];
         
-        // 1. Cube Counting Task
-        // Generate random 3x3 height map (0 to 3)
         const cubeGrid = Array.from({length: 3}, () => Array.from({length: 3}, () => getRandomInt(0, 3)));
         tasks.push({
             type: 'count-cubes',
-            grid: [], // Unused for cubes
+            grid: [],
             instruction: 'Yandaki şekilde toplam kaç küp var? (Görünmeyenleri de say)',
             target: {r: 0, c: 0}
         });
 
-        // 2. Pattern Copy Task
         const grid = Array.from({length: size}, () => Array(size).fill(null));
         for(let k=0; k<Math.floor(size*size/3); k++) {
             grid[getRandomInt(0, size-1)][getRandomInt(0, size-1)] = 'filled';
@@ -186,21 +180,90 @@ export const generateOfflineMathLanguage = async (options: GeneratorOptions): Pr
     }));
 };
 
-// --- 6. Time/Measure ---
+// --- 6. Time/Measure/Geometry (UPDATED) ---
 export const generateOfflineTimeMeasurementGeometry = async (options: GeneratorOptions): Promise<ConceptMatchData[]> => {
-    return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Zamanı Oku',
-        instruction: 'Saatleri doğru zamanla eşleştir.',
-        pedagogicalNote: 'Analog saat okuma becerisi.',
-        imagePrompt: 'Saat',
-        layout: 'visual',
-        pairs: [
-            { item1: '3:00', item2: 'Saat Üç', type: 'time', imagePrompt1: '3:00' },
-            { item1: '6:00', item2: 'Saat Altı', type: 'time', imagePrompt1: '6:00' },
-            { item1: '9:30', item2: 'Dokuz Buçuk', type: 'time', imagePrompt1: '9:30' },
-            { item1: '12:00', item2: 'On İki', type: 'time', imagePrompt1: '12:00' }
-        ]
-    }));
+    const { worksheetCount, subType, difficulty } = options;
+    const cat = subType || 'time'; // 'time', 'money', 'measurement', 'geometry'
+    
+    return Array.from({ length: worksheetCount }, () => {
+        let title = "";
+        let instruction = "";
+        let note = "";
+        let pairs: ConceptMatchData['pairs'] = [];
+        
+        if (cat === 'time') {
+            title = `Zamanı Oku (${difficulty})`;
+            instruction = "Saatleri doğru zamanla eşleştir.";
+            note = "Analog saat okuma becerisi.";
+            
+            for (let i = 0; i < 4; i++) {
+                let h, m;
+                if (difficulty === 'Başlangıç') {
+                    h = getRandomInt(1, 12);
+                    m = Math.random() > 0.5 ? 0 : 30;
+                } else if (difficulty === 'Orta') {
+                    h = getRandomInt(1, 12);
+                    m = getRandomInt(0, 3) * 15; // 0, 15, 30, 45
+                } else {
+                    h = getRandomInt(1, 12);
+                    m = getRandomInt(0, 11) * 5;
+                }
+                
+                const timeStr = `${h}:${m.toString().padStart(2, '0')}`;
+                let textStr = "";
+                if (m === 0) textStr = `Saat ${h}`;
+                else if (m === 30) textStr = `Saat ${h} buçuk`;
+                else if (m === 15) textStr = `${h} çeyrek geçiyor`;
+                else if (m === 45) textStr = `${h+1} çeyrek var`;
+                else textStr = `${h} ${m} geçiyor`;
+
+                pairs.push({ item1: timeStr, item2: textStr, type: 'time', imagePrompt1: `CLOCK:${h}:${m}` });
+            }
+        } else if (cat === 'money') {
+            title = `Paralarımız (${difficulty})`;
+            instruction = "Paraları toplam değerleriyle eşleştir.";
+            note = "Para tanıma ve toplama.";
+            
+            for(let i=0; i<4; i++) {
+                let val = 0;
+                if (difficulty === 'Başlangıç') {
+                    // Simple coins: 1, 2, 5, 10 TL (using 1TL coins mostly)
+                    val = getRandomInt(1, 5);
+                } else {
+                    // Mixed coins including cents
+                    val = getRandomInt(1, 10) + (Math.random() > 0.5 ? 0.5 : 0);
+                }
+                pairs.push({ item1: `MONEY:${val}`, item2: `${val} TL`, type: 'measurement', imagePrompt1: `MONEY:${val}` });
+            }
+        } else if (cat === 'measurement') {
+            title = `Ölçme (${difficulty})`;
+            instruction = "Nesnenin uzunluğunu cetvelde oku.";
+            note = "Standart olmayan ve standart ölçme birimleri.";
+            
+            for(let i=0; i<4; i++) {
+                const len = getRandomInt(2, 10);
+                pairs.push({ item1: `RULER:${len}`, item2: `${len} cm`, type: 'measurement', imagePrompt1: `RULER:${len}` });
+            }
+        } else { // Geometry
+            title = `Geometrik Şekiller (${difficulty})`;
+            instruction = "Şekli ismiyle eşleştir.";
+            note = "Şekil tanıma.";
+            const shapes = ['Üçgen', 'Kare', 'Dikdörtgen', 'Daire', 'Beşgen', 'Altıgen'];
+            const selectedShapes = getRandomItems(shapes, 4);
+            pairs = selectedShapes.map(s => ({
+                item1: `SHAPE:${s}`, item2: s, type: 'geometry', imagePrompt1: `SHAPE:${s}`
+            }));
+        }
+
+        return {
+            title,
+            instruction,
+            pedagogicalNote: note,
+            imagePrompt: cat,
+            layout: 'visual',
+            pairs
+        };
+    });
 };
 
 // --- 9. Fractions ---
@@ -220,17 +283,15 @@ export const generateOfflineFractionsDecimals = async (options: GeneratorOptions
     }));
 };
 
-// --- 8. Estimation (Updated with Jar) ---
+// --- 8. Estimation ---
 export const generateOfflineEstimationSkills = async (options: GeneratorOptions): Promise<EstimationData[]> => {
     const { worksheetCount } = options;
     
     return Array.from({ length: worksheetCount }, () => {
         const items: EstimationData['items'] = [];
         
-        // Generate 2 Estimation Tasks
         for(let i=0; i<2; i++) {
             const target = getRandomInt(15, 40);
-            // Generate options: one close, two far
             const close = target + getRandomInt(-3, 3);
             const far1 = target - getRandomInt(10, 15);
             const far2 = target + getRandomInt(10, 20);

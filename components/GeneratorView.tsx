@@ -51,6 +51,11 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'groupSize', label: 'Nesne Sayısı (Her tabakta?)', type: 'number', defaultValue: 4, min: 2, max: 6, width: 'half' },
                     { key: 'visualType', label: 'Görsel Tipi', type: 'select', defaultValue: 'objects', options: ['objects', 'dice', 'blocks'], width: 'full' }
                 ];
+            case ActivityType.TIME_MEASUREMENT_GEOMETRY:
+                return [
+                    { key: 'subType', label: 'Alt Kategori', type: 'select', defaultValue: 'time', options: ['time', 'money', 'measurement', 'geometry'], width: 'full' },
+                    { key: 'difficulty', label: 'Zorluk', type: 'select', defaultValue: 'Başlangıç', options: ['Başlangıç', 'Orta', 'Zor'], width: 'full' }
+                ];
             // Default fields for other activities can be customized here
             default:
                 return [
@@ -132,7 +137,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                 onChange={(e) => handleChange(field.key, e.target.value)}
                                 className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                             >
-                                {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                {field.options?.map(opt => <option key={opt} value={opt}>{opt === 'time' ? 'Zaman (Saatler)' : opt === 'money' ? 'Para (TL)' : opt === 'measurement' ? 'Ölçme (Uzunluk)' : opt === 'geometry' ? 'Geometri' : opt}</option>)}
                             </select>
                         ) : field.type === 'number' ? (
                             <input 

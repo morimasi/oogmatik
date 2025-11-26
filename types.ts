@@ -1,3 +1,4 @@
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -462,7 +463,7 @@ export interface ConceptMatchData extends DyscalculiaCommonData {
     pairs: {
         item1: string | number; 
         item2: string | number;
-        type: 'symbol' | 'time' | 'fraction' | 'measurement';
+        type: 'symbol' | 'time' | 'fraction' | 'measurement' | 'geometry';
         imagePrompt1?: string;
         imageBase64_1?: string;
         imagePrompt2?: string;

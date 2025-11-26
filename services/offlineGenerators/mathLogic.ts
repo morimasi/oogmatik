@@ -198,111 +198,71 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
 };
 
 export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
-    const { worksheetCount, itemCount, operationType, difficulty } = options;
+    const { worksheetCount, itemCount } = options;
     const results: RealLifeProblemData[] = [];
     
-    // Dynamic Templates based on difficulty and operation
-    const names = ["Ali", "Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Mert", "Duru"];
-    const items = ["elma", "kalem", "ceviz", "kitap", "bilye", "lira", "şeker", "kurabiye"];
+    const names = ["Ali", "Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Mert", "Duru", "Kerem", "Defne"];
+    const items = ["elma", "kalem", "ceviz", "kitap", "bilye", "lira", "şeker", "kurabiye", "balon", "top"];
     
-    const getTemplate = (op: string, diff: string) => {
-        const templates = [];
-        
-        if (op === 'addition' || op === 'mixed') {
-            templates.push(
-                (n1: number, n2: number, name: string, item: string) => ({
-                    text: `${name}'nin ${n1} tane ${item}sı vardı. Arkadaşı ona ${n2} tane daha verdi. ${name}'nin toplam kaç ${item}sı oldu?`,
-                    ans: n1 + n2, hint: "Toplama"
-                }),
-                (n1: number, n2: number, name: string, item: string) => ({
-                    text: `Bir manav sabah ${n1} kilo, öğleden sonra ${n2} kilo ${item} sattı. Manav toplam kaç kilo ${item} satmıştır?`,
-                    ans: n1 + n2, hint: "Toplama"
-                })
-            );
-        }
-        
-        if (op === 'subtraction' || op === 'mixed') {
-            templates.push(
-                (n1: number, n2: number, name: string, item: string) => ({
-                    text: `${name} ${n1} sayfalık kitabın ${n2} sayfasını okudu. Geriye okuması gereken kaç sayfa kaldı?`,
-                    ans: n1 - n2, hint: "Çıkarma"
-                }),
-                (n1: number, n2: number, name: string, item: string) => ({
-                    text: `Otobüste ${n1} yolcu vardı. Durakta ${n2} yolcu indi. Otobüste kaç yolcu kaldı?`,
-                    ans: n1 - n2, hint: "Çıkarma"
-                })
-            );
-        }
-
-        if (op === 'multiplication' || op === 'mixed') {
-            templates.push(
-                (n1: number, n2: number, name: string, item: string) => ({
-                    text: `Her birinde ${n2} tane ${item} olan ${n1} kutu var. Toplam kaç ${item} vardır?`,
-                    ans: n1 * n2, hint: "Çarpma"
-                }),
-                (n1: number, n2: number, name: string, item: string) => ({
-                    text: `Bir apartmanda ${n1} kat, her katta ${n2} pencere var. Bu apartmanda toplam kaç pencere vardır?`,
-                    ans: n1 * n2, hint: "Çarpma"
-                })
-            );
-        }
-
-        if (op === 'division' || op === 'mixed') {
-            templates.push(
-                (n1: number, n2: number, name: string, item: string) => ({
-                    text: `${name}, ${n1} tane ${item}sını ${n2} arkadaşına eşit olarak paylaştırdı. Her arkadaşına kaç ${item} düşer?`,
-                    ans: n1 / n2, hint: "Bölme"
-                }),
-                (n1: number, n2: number, name: string, item: string) => ({
-                    text: `${n1} litre süt, ${n2} litrelik şişelere dolduruluyor. Kaç şişe gerekir?`,
-                    ans: n1 / n2, hint: "Bölme"
-                })
-            );
-        }
-        return templates;
-    };
+    // Logic Problem Templates
+    const logicTemplates = [
+        // Age Problem
+        (n1: number, n2: number, name: string) => ({
+            text: `${name} ${n1} yaşındadır. Babasının yaşı, ${name}'nin yaşının 3 katından 4 fazladır. Babası kaç yaşındadır?`,
+            ans: (n1 * 3) + 4,
+            hint: "Çarpma ve Toplama"
+        }),
+        // Money Change (Multi-step)
+        (n1: number, n2: number, name: string, item: string) => ({
+            text: `${name}'nin ${n1} lirası vardı. Tanesi ${n2} lira olan ${item}lardan 2 tane aldı. Geriye kaç lirası kaldı?`,
+            ans: n1 - (n2 * 2),
+            hint: "Çarpma ve Çıkarma"
+        }),
+        // Sharing/Distribution
+        (n1: number, n2: number, name: string, item: string) => ({
+            text: `${name}, ${n1 * n2} tane ${item}sını ${n2} arkadaşına eşit olarak paylaştırdı. Her birine kaç ${item} düşer?`,
+            ans: n1,
+            hint: "Bölme"
+        }),
+        // Collection (Multi-step addition)
+        (n1: number, n2: number, name: string, item: string) => ({
+            text: `${name} sabah ${n1} tane, öğleden sonra ${n2} tane ${item} topladı. Akşam ${Math.floor(n1/2)} tanesini yedi. Geriye kaç ${item} kaldı?`,
+            ans: n1 + n2 - Math.floor(n1/2),
+            hint: "Toplama ve Çıkarma"
+        })
+    ];
 
     for(let i=0; i<worksheetCount; i++) {
         const problems: RealLifeProblemData['problems'] = [];
         const count = itemCount || 4;
-        const effectiveOp = (!operationType || operationType === 'mixed') ? 'mixed' : operationType;
 
         for(let j=0; j<count; j++) {
-            // Pick operation for this specific question if mixed
-            let currentOp = effectiveOp;
-            if (effectiveOp === 'mixed') {
-                currentOp = ['addition', 'subtraction', 'multiplication', 'division'][j % 4];
-            }
-
-            const templateFuncs = getTemplate(currentOp, difficulty || 'Orta');
-            const selectedFunc = getRandomItems(templateFuncs, 1)[0];
-            
+            const selectedFunc = logicTemplates[j % logicTemplates.length];
             const name = getRandomItems(names, 1)[0];
             const item = getRandomItems(items, 1)[0];
             
-            let n1 = 0, n2 = 0;
-            
-            // Number logic based on operation to ensure logical results
-            if (currentOp === 'addition') { n1 = getRandomInt(10, 100); n2 = getRandomInt(5, 50); }
-            else if (currentOp === 'subtraction') { n1 = getRandomInt(20, 100); n2 = getRandomInt(5, n1-5); }
-            else if (currentOp === 'multiplication') { n1 = getRandomInt(2, 10); n2 = getRandomInt(2, 10); }
-            else if (currentOp === 'division') { n2 = getRandomInt(2, 9); const mult = getRandomInt(2, 12); n1 = n2 * mult; }
+            // Smart numbers to ensure logic holds
+            const n1 = getRandomInt(10, 50); 
+            const n2 = getRandomInt(2, 9); 
 
-            const problemData = selectedFunc(n1, n2, name, item);
+            // Ensure Money problem is solvable (n1 > n2*2)
+            const validN1 = (j % logicTemplates.length === 1) ? Math.max(n1, (n2 * 2) + 10) : n1;
+
+            const problemData = selectedFunc(validN1, n2, name, item);
 
             problems.push({
                 text: problemData.text,
                 solution: `${problemData.ans}`,
-                operationHint: problemData.hint,
-                imagePrompt: 'Problem'
+                operationHint: "", // Removed visual hint
+                imagePrompt: j % 2 === 0 ? 'Düşünen Çocuk' : 'Matematik Problemi'
             });
         }
 
         results.push({
-            title: 'Gerçek Hayat Problemleri',
-            instruction: 'Soruları dikkatlice oku ve çözümlerini yaz.',
-            pedagogicalNote: 'Matematiksel modelleme ve okuduğunu anlama.',
-            imagePrompt: 'Problem',
+            title: 'Problem Çözme Stratejileri',
+            instruction: 'Problemleri 4 adımda (Anlama, Planlama, Çözme, Kontrol) çözün.',
+            pedagogicalNote: 'Polya\'nın problem çözme basamaklarını kullanarak analitik düşünme becerisi.',
+            imagePrompt: 'Strateji',
             problems
         });
     }

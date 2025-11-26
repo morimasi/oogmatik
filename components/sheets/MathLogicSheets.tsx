@@ -52,59 +52,91 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
 export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <div className="space-y-8 max-w-5xl mx-auto">
+        <div className="space-y-10 max-w-6xl mx-auto">
             {data.problems.map((problem, index) => (
-                <div key={index} className="flex flex-col md:flex-row gap-6 p-6 bg-white dark:bg-zinc-700/50 rounded-2xl border-2 border-indigo-100 dark:border-zinc-600 shadow-sm break-inside-avoid">
+                <div key={index} className="bg-white dark:bg-zinc-700/50 rounded-3xl border-2 border-zinc-300 dark:border-zinc-600 shadow-md break-inside-avoid overflow-hidden">
                     
-                    {/* Soru Alanı */}
-                    <div className="flex-1">
-                        <div className="flex items-start gap-4 mb-4">
-                            <span className="flex-shrink-0 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-md">{index + 1}</span>
-                            <p className="text-xl font-medium leading-relaxed text-zinc-800 dark:text-zinc-100">{problem.text}</p>
+                    {/* SORU BAŞLIĞI VE METNİ */}
+                    <div className="bg-zinc-50 dark:bg-zinc-800/50 p-6 border-b-2 border-zinc-200 dark:border-zinc-600 flex gap-6 items-start">
+                        <div className="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-2xl shadow-lg transform -rotate-3">
+                            {index + 1}
                         </div>
+                        <div className="flex-1">
+                            <h4 className="font-bold text-zinc-400 text-xs uppercase tracking-widest mb-2">Problem</h4>
+                            <p className="text-xl font-medium leading-relaxed text-zinc-800 dark:text-zinc-100 font-dyslexic">
+                                {problem.text}
+                            </p>
+                        </div>
+                        {problem.imagePrompt && (
+                            <div className="hidden sm:block w-24 h-24 bg-white rounded-lg border border-zinc-200 p-1 shadow-sm flex-shrink-0">
+                                <ImageDisplay base64={problem.imageBase64} description={problem.text} className="w-full h-full object-contain rounded" />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* PROBLEM ÇÖZME STRATEJİSİ ALANI (4'lü Matris) */}
+                    <div className="grid grid-cols-2 divide-x-2 divide-zinc-200 dark:divide-zinc-600 border-b-2 border-zinc-200 dark:border-zinc-600">
                         
-                        {/* Varsa Resim */}
-                        <div className="pl-14">
-                            {problem.imagePrompt && (
-                                <div className="inline-block w-32 h-32 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-600 overflow-hidden shadow-sm">
-                                    {problem.imageBase64 ? (
-                                        <ImageDisplay base64={problem.imageBase64} description={problem.text} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-zinc-300">
-                                            <i className="fa-solid fa-calculator text-3xl"></i>
-                                        </div>
-                                    )}
+                        {/* ADIM 1: ANLAMA */}
+                        <div className="p-4 min-h-[180px]">
+                            <div className="flex items-center gap-2 mb-3 text-emerald-600 dark:text-emerald-400">
+                                <i className="fa-solid fa-magnifying-glass-chart text-lg"></i>
+                                <h5 className="font-bold text-sm uppercase">1. Problemi Anlama</h5>
+                            </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <span className="text-xs font-bold text-zinc-400 block mb-1">Verilenler:</span>
+                                    <div className="w-full border-b border-zinc-300 dark:border-zinc-500 border-dashed h-6"></div>
+                                    <div className="w-full border-b border-zinc-300 dark:border-zinc-500 border-dashed h-6 mt-2"></div>
                                 </div>
-                            )}
-                            {/* İşlem İpucu */}
-                            {problem.operationHint && (
-                                <div className="mt-2 inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">
-                                    İpucu: {problem.operationHint}
+                                <div>
+                                    <span className="text-xs font-bold text-zinc-400 block mb-1">İstenen:</span>
+                                    <div className="w-full border-b border-zinc-300 dark:border-zinc-500 border-dashed h-6"></div>
                                 </div>
-                            )}
+                            </div>
+                        </div>
+
+                        {/* ADIM 2: PLANLAMA */}
+                        <div className="p-4 min-h-[180px]">
+                            <div className="flex items-center gap-2 mb-3 text-amber-600 dark:text-amber-400">
+                                <i className="fa-solid fa-pencil-ruler text-lg"></i>
+                                <h5 className="font-bold text-sm uppercase">2. Plan Yapma (Şekil Çiz)</h5>
+                            </div>
+                            <div className="w-full h-32 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-600 flex items-center justify-center">
+                                <span className="text-xs text-zinc-300 font-medium italic">Şekil veya şema alanı</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    {/* Çözüm Alanı (Kareli Defter Görünümü) */}
-                    <div className="w-full md:w-[400px] bg-white border-2 border-zinc-300 dark:border-zinc-500 rounded-xl overflow-hidden flex flex-col shadow-inner">
-                        <div className="bg-zinc-100 dark:bg-zinc-800 px-4 py-2 border-b border-zinc-300 dark:border-zinc-600 flex justify-between items-center">
-                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Çözüm Alanı</span>
-                            <i className="fa-solid fa-pencil text-zinc-400"></i>
-                        </div>
+
+                    <div className="grid grid-cols-2 divide-x-2 divide-zinc-200 dark:divide-zinc-600">
                         
-                        {/* CSS Grid Pattern for "Notebook" look */}
-                        <div className="flex-1 p-4 relative min-h-[150px]" 
-                             style={{
-                                 backgroundImage: 'linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)',
-                                 backgroundSize: '20px 20px'
-                             }}>
+                        {/* ADIM 3: UYGULAMA */}
+                        <div className="p-4 min-h-[180px]">
+                            <div className="flex items-center gap-2 mb-3 text-indigo-600 dark:text-indigo-400">
+                                <i className="fa-solid fa-calculator text-lg"></i>
+                                <h5 className="font-bold text-sm uppercase">3. Planı Uygulama</h5>
+                            </div>
+                            <div className="w-full h-full bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] opacity-50 min-h-[120px] border border-zinc-100 rounded"></div>
                         </div>
-                        
-                        <div className="flex items-center justify-between p-3 border-t-2 border-zinc-300 dark:border-zinc-500 bg-zinc-50 dark:bg-zinc-800">
-                            <span className="font-bold text-lg">Cevap:</span>
-                            <div className="w-32 h-10 border-b-2 border-dotted border-zinc-800 dark:border-zinc-200"></div>
+
+                        {/* ADIM 4: KONTROL */}
+                        <div className="p-4 min-h-[180px] bg-zinc-50/50 dark:bg-zinc-800/30 flex flex-col justify-between">
+                            <div>
+                                <div className="flex items-center gap-2 mb-3 text-rose-600 dark:text-rose-400">
+                                    <i className="fa-solid fa-clipboard-check text-lg"></i>
+                                    <h5 className="font-bold text-sm uppercase">4. Değerlendirme</h5>
+                                </div>
+                                <p className="text-xs text-zinc-500 mb-2">Sonucun mantıklı mı? Sağlamasını yap.</p>
+                                <div className="w-full border-b border-zinc-300 dark:border-zinc-500 border-dashed h-8"></div>
+                            </div>
+                            
+                            <div className="mt-4 pt-4 border-t-2 border-zinc-200 dark:border-zinc-600 flex items-center justify-between">
+                                <span className="font-black text-lg text-zinc-800 dark:text-zinc-100">SONUÇ:</span>
+                                <div className="w-24 h-10 border-2 border-zinc-800 dark:border-zinc-200 rounded bg-white dark:bg-zinc-700"></div>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             ))}
         </div>
