@@ -10,12 +10,12 @@ export interface TourStep {
 }
 
 interface TourGuideProps {
-    steps: TourStep[];
+    steps?: TourStep[];
     isOpen: boolean;
     onClose: () => void;
 }
 
-export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) => {
+export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClose }) => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
     const [isReady, setIsReady] = useState(false);
@@ -27,9 +27,12 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             setIsReady(true);
             document.body.style.overflow = 'hidden';
         } else {
-            setIsReady(false);
-            setTargetRect(null); // Reset rect on close
+            const timer = setTimeout(() => {
+                setIsReady(false);
+                setTargetRect(null);
+            }, 300); // Wait for transition
             document.body.style.overflow = '';
+            return () => clearTimeout(timer);
         }
         return () => {
             document.body.style.overflow = '';
@@ -39,6 +42,11 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
     // Calculate position of the target element OR Skip if missing
     useLayoutEffect(() => {
         if (!isOpen || !isReady) return;
+        
+        // Safety check: ensure steps exist and index is valid
+        if (!steps || steps.length === 0 || currentStepIndex >= steps.length) {
+            return;
+        }
 
         let skipTimeout: ReturnType<typeof setTimeout>;
         let scrollTimeout: ReturnType<typeof setTimeout>;
@@ -46,10 +54,8 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         const handleNextAuto = () => {
             setTargetRect(null);
             if (currentStepIndex < steps.length - 1) {
-                // Move to next step immediately
                 skipTimeout = setTimeout(() => setCurrentStepIndex(prev => prev + 1), 0);
             } else {
-                // If it's the last step and missing, close tour
                 onClose();
             }
         };
@@ -60,16 +66,14 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
 
             const element = document.getElementById(step.targetId);
             
-            // Element exists and is visible (has dimensions)
             if (element && element.offsetParent !== null) {
-                // Scroll element into view if needed
-                element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                try {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                } catch (e) { /* ignore */ }
                 
-                // Wait slightly for scroll to finish then measure
                 scrollTimeout = setTimeout(() => {
-                    if (!element) return; // Double check existence
+                    if (!element) return;
                     const rect = element.getBoundingClientRect();
-                    // Check again if element is actually visible in viewport dimensions
                     if (rect.width === 0 && rect.height === 0) {
                          handleNextAuto();
                     } else {
@@ -77,14 +81,13 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                     }
                 }, 350);
             } else {
-                // Element not found or hidden (e.g. Toolbar not generated yet)
-                console.log(`Tour target #${step.targetId} not visible, skipping step.`);
                 handleNextAuto();
             }
         };
 
         updateRect();
         window.addEventListener('resize', updateRect);
+        
         return () => {
             window.removeEventListener('resize', updateRect);
             clearTimeout(skipTimeout);
@@ -92,38 +95,38 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         };
     }, [isOpen, currentStepIndex, steps, isReady, onClose]);
 
+    // Robust check for rendering
+    if (!isOpen || !isReady || !steps || steps.length === 0) return null;
+    
     const currentStep = steps[currentStepIndex];
-
-    // Safety check: If not open, no rect, or invalid step, don't render
-    if (!isOpen || !targetRect || !currentStep) return null;
+    if (!currentStep || !targetRect) return null;
 
     const isLastStep = currentStepIndex === steps.length - 1;
 
     const handleNext = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setTargetRect(null); // Clear rect to prevent stale render during transition
         if (isLastStep) {
             onClose();
         } else {
+            setTargetRect(null);
             setCurrentStepIndex(prev => prev + 1);
         }
     };
 
     const handlePrev = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setTargetRect(null); // Clear rect to prevent stale render during transition
         if (currentStepIndex > 0) {
+            setTargetRect(null);
             setCurrentStepIndex(prev => prev - 1);
         }
     };
 
-    // Determine tooltip position style
     const getTooltipStyle = () => {
         const gap = 20;
         let top = 0;
         let left = 0;
         const tooltipWidth = 320; 
-        const tooltipHeight = 200; // Approx
+        const tooltipHeight = 200; 
         
         const pos = currentStep.position || 'bottom';
 
@@ -141,7 +144,6 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
             top = targetRect.top + (targetRect.height / 2) - (tooltipHeight / 2);
         }
 
-        // Keep within viewport with padding
         const padding = 20;
         if (left < padding) left = padding;
         if (left + tooltipWidth > window.innerWidth - padding) left = window.innerWidth - tooltipWidth - padding;
@@ -149,21 +151,18 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
         if (top < padding) top = padding;
         if (top + tooltipHeight > window.innerHeight - padding) top = window.innerHeight - tooltipHeight - padding;
 
-
         return { top, left };
     };
 
     const tooltipStyle = getTooltipStyle();
-    const padding = 8; // Padding around the highlight area
+    const padding = 8;
     
     return createPortal(
         <div className="fixed inset-0 z-[9999] overflow-hidden font-sans tour-overlay" onClick={onClose}>
-            {/* Blurred Background via Backdrop Filter + SVG Mask */}
             <div className="absolute inset-0 pointer-events-none transition-all duration-300 ease-in-out">
                 <svg width="100%" height="100%" className="absolute inset-0">
                     <defs>
                         <mask id="tour-mask">
-                            {/* White fills the mask (visible), Black hides it (transparent hole) */}
                             <rect x="0" y="0" width="100%" height="100%" fill="white" />
                             <rect 
                                 x={targetRect.left - padding} 
@@ -175,14 +174,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                             />
                         </mask>
                     </defs>
-                    
-                    <rect 
-                        x="0" y="0" width="100%" height="100%" 
-                        fill="rgba(0,0,0,0.6)" 
-                        mask="url(#tour-mask)" 
-                    />
-                    
-                    {/* Spotlight animated border */}
+                    <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#tour-mask)" />
                     <rect 
                         x={targetRect.left - padding} 
                         y={targetRect.top - padding} 
@@ -197,7 +189,6 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps, isOpen, onClose }) 
                 </svg>
             </div>
 
-            {/* Tooltip Card */}
             <div 
                 className="absolute bg-white dark:bg-zinc-900 rounded-xl shadow-2xl p-6 w-full max-w-xs border border-zinc-200 dark:border-zinc-700 flex flex-col gap-3 transition-all duration-300 ease-out z-[10000]"
                 style={{ top: tooltipStyle.top, left: tooltipStyle.left }}
