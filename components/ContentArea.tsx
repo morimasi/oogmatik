@@ -26,7 +26,7 @@ interface ContentAreaProps {
   onDeleteSaved: (id: string) => void;
   onFeedback: () => void;
   onOpenAuth: () => void;
-  onSelectActivity?: (activityType: ActivityType) => void;
+  onSelectActivity?: (activityType: ActivityType) => void; // Made optional to match interface but used conditionally
 }
 
 // Extracted component to prevent re-definition on every render
@@ -133,29 +133,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     };
 
     const breadcrumbs = getBreadcrumbs();
-
-    // Handle Activity Selection from Favorites (which triggers Generator View)
-    const handleFavoriteSelect = (id: ActivityType) => {
-        // We need to trigger the parent's activity selection.
-        // This is passed down via Sidebar usually, but here we might need a way to tell Sidebar or App.
-        // Wait, ContentArea doesn't have onSelectActivity prop directly exposed to change MAIN state that affects Sidebar.
-        // However, `App.tsx` passes `handleSelectActivity` to Sidebar and AssessmentModule.
-        // It seems `ContentArea` is purely display.
-        // BUT! App.tsx controls `selectedActivity`. ContentArea receives it.
-        // We need to elevate the selection.
-        
-        // Workaround: We'll dispatch a custom event or require a new prop.
-        // Let's look at App.tsx usage.
-        // `handleSelectActivity` is what we need.
-        
-        // Since I cannot easily change App.tsx props interface without breaking things or adding a new prop,
-        // I will check if there's an existing prop I can use. 
-        // `onBackToGenerator` resets it.
-        
-        // Actually, I need to pass a new prop `onSelectActivity` to ContentArea in App.tsx.
-        // Let's assume for this specific request I can modify App.tsx to pass it down.
-        // Checking App.tsx... yes, I can update App.tsx to pass `handleSelectActivity` to ContentArea.
-    };
 
   return (
     <main id="tour-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent">
@@ -290,6 +267,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             onLoad={onLoadSaved}
             onBack={onBackToGenerator}
         />
+      ) : currentView === 'assessment' ? (
+          <AssessmentModule 
+              onBack={onBackToGenerator} 
+              onSelectActivity={(id) => {
+                  if (onSelectActivity) onSelectActivity(id);
+              }} 
+          />
       ) : null}
     </main>
   );

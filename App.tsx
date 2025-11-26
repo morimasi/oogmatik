@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect, useMemo } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, Activity, HistoryItem, User, StyleSettings, View, UiSettings } from './types';
+import React, { useState, useEffect } from 'react';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -15,11 +14,8 @@ import { MessagesView } from './components/MessagesView';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
 import { keepAlive } from './services/supabaseClient';
-import { SharedWorksheetsView } from './components/SharedWorksheetsView';
-import { SavedWorksheetsView } from './components/SavedWorksheetsView';
-import { AssessmentModule } from './components/AssessmentModule';
-import { SettingsModal } from './components/SettingsModal'; // Imported
-import { TourGuide, TourStep } from './components/TourGuide'; // Added
+import { SettingsModal } from './components/SettingsModal';
+import { TourGuide, TourStep } from './components/TourGuide';
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
@@ -41,7 +37,6 @@ const initialUiSettings: UiSettings = {
 
 type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings' | 'developer';
 
-// Modal Component (reused)
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -75,7 +70,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
   );
 };
 
-// --- TOUR STEPS DEFINITION ---
 const tourSteps: TourStep[] = [
     { targetId: 'tour-logo', title: 'Ana Sayfa', content: 'Uygulamaya hoş geldiniz! Buraya tıklayarak her zaman ana ekrana dönebilir ve etkinlik seçimini sıfırlayabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-sidebar', title: 'Etkinlik Menüsü', content: 'Uygulamanın kalbi burası! Üretmek istediğiniz etkinlik kategorisini ve türünü bu menüden seçin. Seçim yaptıktan sonra ayar ekranı açılacaktır.', position: 'right' },
@@ -86,7 +80,6 @@ const tourSteps: TourStep[] = [
     { targetId: 'tour-profile-btn', title: 'Profiliniz', content: 'Hesap bilgilerinizi, istatistiklerinizi ve değerlendirme raporlarınızı yönetmek için profilinize gidin.', position: 'bottom' },
 ];
 
-// --- MAIN APP COMPONENT WRAPPED IN PROVIDER ---
 const AppContent: React.FC = () => {
   const { user, logout } = useAuth();
   const [currentView, setCurrentView] = useState<View>('generator');
@@ -99,7 +92,7 @@ const AppContent: React.FC = () => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isTourOpen, setIsTourOpen] = useState(false); // Tour state
+  const [isTourOpen, setIsTourOpen] = useState(false);
   
   const [theme, setTheme] = useState<AppTheme>(() => {
       try {
@@ -114,7 +107,6 @@ const AppContent: React.FC = () => {
   const [uiSettings, setUiSettings] = useState<UiSettings>(() => {
       try {
           const stored = localStorage.getItem('app-ui-settings');
-          // Merge with initial to ensure new props exist
           return stored ? { ...initialUiSettings, ...JSON.parse(stored) } : initialUiSettings;
       } catch (e) {
           return initialUiSettings;
@@ -125,20 +117,14 @@ const AppContent: React.FC = () => {
   const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
-  // Heartbeat System (Sunucuyu Uyanık Tutma)
   useEffect(() => {
-      // Uygulama açılır açılmaz sunucuyu uyandır
       keepAlive();
-      
-      // Her 2 dakikada bir sinyal göndererek sunucunun uyumasını engelle
       const interval = setInterval(() => {
           keepAlive();
-      }, 120000); // 120 saniye = 2 dakika
-
+      }, 120000);
       return () => clearInterval(interval);
   }, []);
 
-  // Load user data when user changes
   useEffect(() => {
       if (user) {
           loadUserWorksheets();
@@ -149,7 +135,7 @@ const AppContent: React.FC = () => {
               } catch (e) { console.error(e); }
           };
           checkMsgs();
-          const interval = setInterval(checkMsgs, 30000); // Increase interval to reduce load
+          const interval = setInterval(checkMsgs, 30000);
           return () => clearInterval(interval);
       } else {
           setSavedWorksheets([]);
@@ -173,7 +159,6 @@ const AppContent: React.FC = () => {
       }
   };
 
-  // Apply Theme
   useEffect(() => {
       try {
           const root = document.documentElement;
@@ -187,11 +172,9 @@ const AppContent: React.FC = () => {
       }
   }, [theme]);
 
-  // Apply UI Settings (Updated for Lexend support)
   useEffect(() => {
       try {
           const root = document.documentElement;
-          // Use the selected font, fallback to sans-serif
           const fontVal = uiSettings.fontFamily === 'Lexend' ? 'Lexend' :
                           uiSettings.fontFamily === 'OpenDyslexic' ? 'OpenDyslexic' : 
                           uiSettings.fontFamily === 'Inter' ? 'Inter' :
@@ -217,7 +200,6 @@ const AppContent: React.FC = () => {
               try {
                   setHistoryItems(JSON.parse(stored));
               } catch (parseError) {
-                  console.error("History parse error:", parseError);
                   sessionStorage.removeItem('sessionHistory');
               }
           }
@@ -297,16 +279,6 @@ const AppContent: React.FC = () => {
   if (currentView === 'messages') {
       return <MessagesView onBack={() => setCurrentView('generator')} />;
   }
-  if (currentView === 'assessment') {
-      return (
-          <AssessmentModule 
-              onBack={() => setCurrentView('generator')} 
-              onSelectActivity={(id) => {
-                  handleSelectActivity(id);
-              }} 
-          />
-      );
-  }
 
   return (
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
@@ -341,7 +313,7 @@ const AppContent: React.FC = () => {
              </div>
              
              <button 
-                onClick={() => setCurrentView('assessment')}
+                onClick={() => setCurrentView('assessment')} // Assesment Module
                 className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all"
                 title="Öğrenme Güçlüğü Analizi"
              >
@@ -425,7 +397,7 @@ const AppContent: React.FC = () => {
           onDeleteSaved={deleteSavedWorksheet}
           onFeedback={() => setIsFeedbackOpen(true)}
           onOpenAuth={() => setIsAuthModalOpen(true)}
-          onSelectActivity={handleSelectActivity} 
+          onSelectActivity={handleSelectActivity}
         />
       </div>
       
@@ -534,10 +506,12 @@ const AppContent: React.FC = () => {
   );
 };
 
-const App: React.FC = () => (
+const App: React.FC = () => {
+  return (
     <AuthProvider>
-        <AppContent />
+      <AppContent />
     </AuthProvider>
-);
+  );
+};
 
 export default App;
