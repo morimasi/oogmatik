@@ -345,21 +345,70 @@ export const generateOfflineTimeMeasurementGeometry = async (options: GeneratorO
     });
 };
 
-// --- 9. Fractions ---
+// --- 9. Fractions & Decimals (UPDATED) ---
 export const generateOfflineFractionsDecimals = async (options: GeneratorOptions): Promise<ConceptMatchData[]> => {
-    return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Kesirleri Eşleştir',
-        instruction: 'Şeklin boyalı kısmı hangi kesri gösteriyor?',
-        pedagogicalNote: 'Görsel kesir modelleri (Area Model).',
-        imagePrompt: 'Kesir',
-        layout: 'visual',
-        pairs: [
-            { item1: '1/2', item2: 'Yarım', type: 'fraction', imagePrompt1: 'Yarım' },
-            { item1: '1/4', item2: 'Çeyrek', type: 'fraction', imagePrompt1: 'Çeyrek' },
-            { item1: '3/4', item2: 'Üç Çeyrek', type: 'fraction', imagePrompt1: 'Üç Çeyrek' },
-            { item1: '2/3', item2: 'İki Bölü Üç', type: 'fraction', imagePrompt1: 'İki Bölü Üç' }
-        ]
-    }));
+    const { worksheetCount, visualStyle, conceptType, difficulty } = options;
+    // conceptType: 'fraction', 'decimal', 'percentage'
+    // visualStyle: 'pie', 'bar', 'grid' (grid is good for decimals)
+    
+    const activeConcept = conceptType || 'fraction';
+    const activeStyle = visualStyle || 'pie';
+    
+    return Array.from({ length: worksheetCount }, () => {
+        let pairs: ConceptMatchData['pairs'] = [];
+        
+        for(let i=0; i<4; i++) {
+            let num = 1, den = 2;
+            
+            if (difficulty === 'Başlangıç') {
+                // Halves, Quarters, Eighths
+                den = getRandomItems([2, 4, 8], 1)[0];
+                num = getRandomInt(1, den - 1);
+            } else if (difficulty === 'Orta') {
+                // Thirds, Fifths, Tenths
+                den = getRandomItems([3, 5, 6, 10], 1)[0];
+                num = getRandomInt(1, den - 1);
+            } else {
+                // Decimals focus
+                den = getRandomItems([10, 100], 1)[0];
+                num = getRandomInt(1, den - 1);
+            }
+
+            // Force denominator for decimals/percentages
+            if (activeConcept === 'decimal' || activeConcept === 'percentage') {
+                if (den !== 10 && den !== 100) den = 100; // Standardize to 100 for easier conversion visual
+            }
+
+            let label = "";
+            if (activeConcept === 'fraction') {
+                label = `${num}/${den}`;
+            } else if (activeConcept === 'decimal') {
+                label = (num / den).toFixed(den === 10 ? 1 : 2);
+            } else if (activeConcept === 'percentage') {
+                label = `%${Math.round((num/den)*100)}`;
+            }
+
+            // ImagePrompt format for frontend renderer: "STYLE:NUM:DEN"
+            // e.g. "PIE:3:4", "GRID:45:100", "BAR:2:5"
+            const visualCode = `${activeStyle.toUpperCase()}:${num}:${den}`;
+
+            pairs.push({
+                item1: visualCode, // Visual representation code
+                item2: label,      // Text representation
+                type: 'fraction',
+                imagePrompt1: visualCode // Used by renderer
+            });
+        }
+
+        return {
+            title: activeConcept === 'decimal' ? 'Ondalık Gösterim' : (activeConcept === 'percentage' ? 'Yüzdeler' : 'Kesirleri Görselleştirme'),
+            instruction: 'Görsel modelin ifade ettiği değeri bulun.',
+            pedagogicalNote: 'Parça-bütün ilişkisi ve sayısal gösterimler arası geçiş.',
+            imagePrompt: 'Matematik',
+            layout: 'visual',
+            pairs
+        };
+    });
 };
 
 // --- 8. Estimation ---

@@ -47,17 +47,84 @@ const Domino: React.FC<{ count: number }> = ({ count }) => {
     );
 };
 
-// Kesir Çubuğu
+// Kesir Çubuğu (Bar Model)
 const FractionBar: React.FC<{ num: number; den: number }> = ({ num, den }) => {
     const validDen = den > 0 ? den : 1; 
     const validNum = Math.max(0, num);
     
     return (
-        <div className="w-full h-10 border-2 border-black rounded flex overflow-hidden bg-white">
+        <div className="w-full h-12 border-2 border-black rounded flex overflow-hidden bg-white shadow-sm">
             {Array.from({ length: validDen }).map((_, i) => (
-                <div key={i} className={`flex-1 border-r border-zinc-400 last:border-r-0 ${i < validNum ? 'bg-indigo-400 pattern-dots' : ''}`}>
+                <div key={i} className={`flex-1 border-r border-black last:border-r-0 flex items-center justify-center ${i < validNum ? 'bg-indigo-400 pattern-dots' : ''}`}>
+                    {/* Optional labels inside bars if widely spaced */}
                 </div>
             ))}
+        </div>
+    );
+};
+
+// Fraction Pie Chart
+const FractionPie: React.FC<{ num: number; den: number }> = ({ num, den }) => {
+    const validDen = Math.max(1, den);
+    const validNum = Math.min(validDen, Math.max(0, num));
+    const radius = 40;
+    const center = 50;
+    
+    // Generate paths for slices
+    const slices = Array.from({ length: validDen }).map((_, i) => {
+        const startAngle = (i * 360) / validDen;
+        const endAngle = ((i + 1) * 360) / validDen;
+        
+        // Convert to radians
+        const startRad = (startAngle - 90) * (Math.PI / 180);
+        const endRad = (endAngle - 90) * (Math.PI / 180);
+        
+        const x1 = center + radius * Math.cos(startRad);
+        const y1 = center + radius * Math.sin(startRad);
+        const x2 = center + radius * Math.cos(endRad);
+        const y2 = center + radius * Math.sin(endRad);
+        
+        const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+        
+        const d = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+        
+        return { d, filled: i < validNum };
+    });
+
+    return (
+        <svg viewBox="0 0 100 100" className="w-24 h-24 overflow-visible">
+            {slices.map((slice, i) => (
+                <path 
+                    key={i} 
+                    d={slice.d} 
+                    fill={slice.filled ? '#6366f1' : '#fff'} 
+                    stroke="black" 
+                    strokeWidth="2" 
+                />
+            ))}
+        </svg>
+    );
+};
+
+// Decimal Grid (10x10)
+const DecimalGrid: React.FC<{ num: number; den: number }> = ({ num, den }) => {
+    // Assuming den is usually 100 for decimal grid, or 10 for 1x10
+    const isHundred = den >= 20; // Heuristic
+    const totalCells = isHundred ? 100 : 10;
+    const cols = isHundred ? 10 : 1;
+    const rows = isHundred ? 10 : 10;
+    const fillCount = num;
+
+    return (
+        <div className="border-2 border-black bg-white inline-block p-0.5">
+            <div className="grid gap-px bg-zinc-300" style={{ gridTemplateColumns: `repeat(${cols}, 10px)` }}>
+                {Array.from({ length: totalCells }).map((_, i) => (
+                    <div 
+                        key={i} 
+                        className={`w-[10px] h-[10px] ${i < fillCount ? 'bg-indigo-500' : 'bg-white'}`} 
+                    />
+                ))}
+            </div>
         </div>
     );
 };
@@ -241,24 +308,13 @@ const CubeStack: React.FC<{ grid: number[][] }> = ({ grid }) => {
 
     const cubes = [];
 
-    // Generate cubes from Back to Front (Painter's Algorithm logic for isometric)
-    // x iterates 0..dim, y iterates 0..dim
-    // To render correctly back-to-front:
-    // Iterate x from 0 to dim
-    // Iterate y from 0 to dim
-    // This usually works for standard isometric projection (x-y, x+y)
-    
     for (let x = 0; x < dimX; x++) {
         for (let y = 0; y < dimY; y++) {
             const h = grid[x][y];
             for (let z = 0; z < h; z++) {
-                // Iso Projection
-                // screenX = (x - y) * tile_width / 2
-                // screenY = (x + y) * tile_height / 2 - z * height
-                const sx = originX + (y - x) * (cubeSize * 0.866); // cos(30) approx
+                const sx = originX + (y - x) * (cubeSize * 0.866); 
                 const sy = originY + (y + x) * (cubeSize * 0.5) - (z * cubeSize);
-                
-                cubes.push({ sx, sy, colorBase: '#6366f1' }); // Indigo base
+                cubes.push({ sx, sy, colorBase: '#6366f1' }); 
             }
         }
     }
@@ -273,11 +329,8 @@ const CubeStack: React.FC<{ grid: number[][] }> = ({ grid }) => {
 
                 return (
                     <g key={i}>
-                        {/* Left Face */}
                         <polygon points={leftPoints} fill="#4338ca" stroke="#312e81" strokeWidth="1" />
-                        {/* Right Face */}
                         <polygon points={rightPoints} fill="#6366f1" stroke="#312e81" strokeWidth="1" />
-                        {/* Top Face */}
                         <polygon points={topPoints} fill="#a5b4fc" stroke="#312e81" strokeWidth="1" />
                     </g>
                 );
@@ -450,12 +503,17 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
         <div className="space-y-6 max-w-3xl mx-auto">
             {data.pairs.map((pair, i) => (
                 <div key={i} className="flex items-center justify-between p-4 bg-white border-2 border-zinc-200 rounded-xl shadow-sm hover:shadow-md transition-shadow break-inside-avoid">
-                    <div className="w-1/3 flex justify-center items-center p-4 bg-zinc-50 rounded-lg border border-zinc-100">
+                    <div className="w-1/3 flex justify-center items-center p-4 bg-zinc-50 rounded-lg border border-zinc-100 h-32">
                         {pair.type === 'fraction' ? (
-                            <div className="flex flex-col items-center gap-2 w-full">
+                            pair.imagePrompt1 && pair.imagePrompt1.startsWith('PIE:') ? (
+                                <FractionPie num={parseInt(pair.imagePrompt1.split(':')[1])} den={parseInt(pair.imagePrompt1.split(':')[2])} />
+                            ) : pair.imagePrompt1 && pair.imagePrompt1.startsWith('BAR:') ? (
+                                <FractionBar num={parseInt(pair.imagePrompt1.split(':')[1])} den={parseInt(pair.imagePrompt1.split(':')[2])} />
+                            ) : pair.imagePrompt1 && pair.imagePrompt1.startsWith('GRID:') ? (
+                                <DecimalGrid num={parseInt(pair.imagePrompt1.split(':')[1])} den={parseInt(pair.imagePrompt1.split(':')[2])} />
+                            ) : (
                                 <FractionBar num={parseInt(pair.item1.split('/')[0])} den={parseInt(pair.item1.split('/')[1])} />
-                                <span className="font-bold text-xl font-mono">{pair.item1}</span>
-                            </div>
+                            )
                         ) : pair.imagePrompt1 && pair.imagePrompt1.startsWith('CLOCK:') ? (
                             <AnalogClock hour={parseInt(pair.imagePrompt1.split(':')[1])} minute={parseInt(pair.imagePrompt1.split(':')[2])} />
                         ) : pair.imagePrompt1 && pair.imagePrompt1.startsWith('MONEY:') ? (
@@ -468,8 +526,8 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
                             <span className="text-4xl font-bold">{pair.item1}</span>
                         )}
                     </div>
-                    <div className="flex-1 border-b-4 border-dotted border-zinc-300 mx-6 relative h-0"><i className="fa-solid fa-scissors absolute left-1/2 -top-3 text-zinc-400 bg-white px-2"></i></div>
-                    <div className="w-1/3 flex justify-center p-4 bg-zinc-50 rounded-lg border border-zinc-100"><span className="text-xl font-bold text-center text-zinc-800">{pair.item2}</span></div>
+                    <div className="flex-1 border-b-4 border-dotted border-zinc-300 mx-6 relative h-0"><i className="fa-solid fa-link absolute left-1/2 -top-3 text-zinc-400 bg-white px-2"></i></div>
+                    <div className="w-1/3 flex justify-center p-4 bg-zinc-50 rounded-lg border border-zinc-100 h-32 items-center"><span className="text-xl font-bold text-center text-zinc-800">{pair.item2}</span></div>
                 </div>
             ))}
         </div>

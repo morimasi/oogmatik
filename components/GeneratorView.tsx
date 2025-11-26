@@ -56,6 +56,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'subType', label: 'Alt Kategori', type: 'select', defaultValue: 'time', options: ['time', 'money', 'measurement', 'geometry'], width: 'full' },
                     { key: 'difficulty', label: 'Zorluk', type: 'select', defaultValue: 'Başlangıç', options: ['Başlangıç', 'Orta', 'Zor'], width: 'full' }
                 ];
+            case ActivityType.FRACTIONS_DECIMALS:
+                return [
+                    { key: 'conceptType', label: 'Kavram', type: 'select', defaultValue: 'fraction', options: ['fraction', 'decimal', 'percentage'], width: 'half', description: 'Kesir, Ondalık veya Yüzde' },
+                    { key: 'visualStyle', label: 'Görsel Model', type: 'select', defaultValue: 'pie', options: ['pie', 'bar', 'grid'], width: 'half', description: 'Pasta, Şerit veya 100\'lük Tablo' },
+                    { key: 'difficulty', label: 'Zorluk', type: 'select', defaultValue: 'Orta', options: ['Başlangıç', 'Orta', 'Zor'], width: 'full' }
+                ];
             case ActivityType.SPATIAL_REASONING:
                 return [
                     { key: 'concept', label: 'Görev Tipi', type: 'select', defaultValue: 'count-cubes', options: ['count-cubes', 'copy', 'path'], width: 'full', description: 'Küp Sayma, Desen Kopyalama veya Yön Takibi' },
@@ -150,7 +156,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                     opt === 'geometry' ? 'Geometri' : 
                                     opt === 'count-cubes' ? 'Küp Sayma (3D)' :
                                     opt === 'copy' ? 'Desen Kopyalama' :
-                                    opt === 'path' ? 'Yön Takibi' : opt
+                                    opt === 'path' ? 'Yön Takibi' : 
+                                    opt === 'fraction' ? 'Kesir' :
+                                    opt === 'decimal' ? 'Ondalık Sayı' :
+                                    opt === 'percentage' ? 'Yüzde (%)' :
+                                    opt === 'pie' ? 'Pasta Grafiği' :
+                                    opt === 'bar' ? 'Şerit Model' :
+                                    opt === 'grid' ? '100\'lük Tablo' : opt
                                 }</option>)}
                             </select>
                         ) : field.type === 'number' ? (
