@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { SavedAssessment, ActivityType } from '../types';
 import { assessmentService } from '../services/assessmentService';
@@ -46,6 +46,8 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [isSavingPassword, setIsSavingPassword] = useState(false);
     const [isChangingAvatar, setIsChangingAvatar] = useState(false);
     const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+    
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (user) {
@@ -105,16 +107,42 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         }
     };
 
-    const handleAvatarChange = async () => {
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            showMessage('error', 'Lütfen geçerli bir resim dosyası seçin.');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) { // 2MB Limit
+            showMessage('error', 'Resim boyutu çok büyük (Max: 2MB).');
+            return;
+        }
+
         setIsChangingAvatar(true);
-        const randomSeed = Math.random().toString(36).substring(7);
-        const newAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}`;
+
         try {
-            await updateUser({ avatar: newAvatarUrl });
+            const base64 = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = error => reject(error);
+            });
+
+            await updateUser({ avatar: base64 });
+            showMessage('success', 'Profil resmi güncellendi.');
         } catch (e) {
             console.error(e);
+            showMessage('error', 'Profil resmi yüklenirken hata oluştu.');
         } finally {
             setIsChangingAvatar(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
@@ -168,13 +196,20 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full bg-zinc-100 object-cover" />
                                 </div>
                                 <button 
-                                    onClick={handleAvatarChange}
+                                    onClick={handleAvatarClick}
                                     disabled={isChangingAvatar}
-                                    className="absolute bottom-2 right-2 w-10 h-10 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-all hover:scale-110"
-                                    title="Avatarı Değiştir"
+                                    className="absolute bottom-2 right-2 w-10 h-10 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-all hover:scale-110 cursor-pointer"
+                                    title="Profil Resmini Değiştir"
                                 >
                                     <i className={`fa-solid ${isChangingAvatar ? 'fa-circle-notch fa-spin' : 'fa-camera'}`}></i>
                                 </button>
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef} 
+                                    onChange={handleFileChange} 
+                                    className="hidden" 
+                                    accept="image/png, image/jpeg, image/jpg, image/gif"
+                                />
                             </div>
                             
                             <div className="flex-1 w-full pt-2 md:pt-0">
