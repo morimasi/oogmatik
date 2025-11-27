@@ -1,3 +1,4 @@
+
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType } from '../types';
@@ -52,36 +53,49 @@ export const worksheetService = {
         icon: string,
         category: { id: string, title: string }
     ): Promise<SavedWorksheet> => {
-        // Serialize worksheetData to string to avoid "Nested arrays not supported" error in Firestore
-        const payload = {
-            userId,
-            name,
-            activityType,
-            worksheetData: serializeData(data),
-            icon,
-            category,
-            createdAt: new Date().toISOString()
-        };
+        try {
+            // Serialize worksheetData to string to avoid "Nested arrays not supported" error in Firestore
+            const safeCategory = category || { id: 'uncategorized', title: 'Genel' };
+            const safeIcon = icon || 'fa-solid fa-file';
+            
+            // Create a clean object to avoid undefined values which Firestore rejects
+            const payload = {
+                userId,
+                name: name || 'Adsız Etkinlik',
+                activityType,
+                worksheetData: serializeData(data),
+                icon: safeIcon,
+                category: { 
+                    id: safeCategory.id || 'uncategorized', 
+                    title: safeCategory.title || 'Genel' 
+                },
+                createdAt: new Date().toISOString()
+            };
 
-        const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
+            const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
 
-        // Increment user stats in Firestore
-        const userRef = doc(db, "users", userId);
-        updateDoc(userRef, { worksheetCount: increment(1) }).catch(console.warn);
+            // Increment user stats in Firestore
+            const userRef = doc(db, "users", userId);
+            // Fire and forget update
+            updateDoc(userRef, { worksheetCount: increment(1) }).catch(console.warn);
 
-        // Return with hydrated data for the UI
-        return {
-            ...mapDbToWorksheet(payload, docRef.id),
-            worksheetData: data 
-        };
+            // Return with hydrated data for the UI
+            return {
+                ...mapDbToWorksheet(payload, docRef.id),
+                worksheetData: data 
+            };
+        } catch (error) {
+            console.error("Error saving worksheet:", error);
+            throw error;
+        }
     },
 
     getUserWorksheets: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
         try {
+            // REMOVED orderBy("createdAt", "desc") to avoid index requirements error
             const q = query(
                 collection(db, "saved_worksheets"), 
-                where("userId", "==", userId),
-                orderBy("createdAt", "desc")
+                where("userId", "==", userId)
             );
             
             const querySnapshot = await getDocs(q);
@@ -93,6 +107,9 @@ export const worksheetService = {
                     items.push(mapDbToWorksheet(data, doc.id));
                 }
             });
+
+            // Client-side sorting
+            items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
             return { items, count: items.length };
         } catch (error) {
@@ -106,28 +123,39 @@ export const worksheetService = {
     },
 
     shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
-        const sharedPayload = {
-            userId: senderId,
-            name: worksheet.name,
-            activityType: worksheet.activityType,
-            worksheetData: serializeData(worksheet.worksheetData), // Serialize for sharing too
-            icon: worksheet.icon,
-            category: worksheet.category,
-            sharedBy: senderId,
-            sharedByName: senderName,
-            sharedWith: receiverId,
-            createdAt: new Date().toISOString()
-        };
+        try {
+            const safeCategory = worksheet.category || { id: 'uncategorized', title: 'Genel' };
+            const safeIcon = worksheet.icon || 'fa-solid fa-share';
 
-        await addDoc(collection(db, "saved_worksheets"), sharedPayload);
+            const sharedPayload = {
+                userId: senderId,
+                name: worksheet.name || 'Paylaşılan Etkinlik',
+                activityType: worksheet.activityType,
+                worksheetData: serializeData(worksheet.worksheetData), // Serialize for sharing too
+                icon: safeIcon,
+                category: {
+                    id: safeCategory.id || 'uncategorized',
+                    title: safeCategory.title || 'Genel'
+                },
+                sharedBy: senderId,
+                sharedByName: senderName || 'Anonim',
+                sharedWith: receiverId,
+                createdAt: new Date().toISOString()
+            };
+
+            await addDoc(collection(db, "saved_worksheets"), sharedPayload);
+        } catch (error) {
+            console.error("Error sharing worksheet:", error);
+            throw error;
+        }
     },
 
     getSharedWithMe: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
         try {
+            // REMOVED orderBy("createdAt", "desc") to avoid index requirements error
             const q = query(
                 collection(db, "saved_worksheets"), 
-                where("sharedWith", "==", userId),
-                orderBy("createdAt", "desc")
+                where("sharedWith", "==", userId)
             );
 
             const querySnapshot = await getDocs(q);
@@ -135,6 +163,9 @@ export const worksheetService = {
             querySnapshot.forEach((doc) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
+
+            // Client-side sorting
+            items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
             return { items, count: items.length };
         } catch (error) {

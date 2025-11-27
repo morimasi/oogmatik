@@ -1,3 +1,4 @@
+
 import React, { memo, useState } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View } from '../types';
 import Worksheet from './Worksheet';
@@ -115,12 +116,22 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         try {
             const name = generateAutoName();
             const activity = ACTIVITIES.find(a => a.id === activityType);
-            const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
-            if (!activity || !category) throw new Error("Aktivite meta verisi bulunamadı");
+            // Fallback category if not found
+            const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType)) || { 
+                id: 'general', 
+                title: 'Genel', 
+                icon: 'fa-solid fa-folder', 
+                activities: [] 
+            };
+            
+            if (!activity) throw new Error("Aktivite tanımları yüklenemedi");
     
             const worksheetToShare: SavedWorksheet = {
                 id: 'temp-share-id',
-                userId: user.id, name, activityType, worksheetData,
+                userId: user.id, 
+                name, 
+                activityType, 
+                worksheetData,
                 icon: activity.icon,
                 category: { id: category.id, title: category.title },
                 createdAt: new Date().toISOString()
@@ -136,7 +147,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             setIsShareModalOpen(false);
         } catch (error) {
             console.error("Anında paylaşım hatası:", error);
-            alert('Paylaşım sırasında bir hata oluştu.');
+            alert('Paylaşım sırasında bir hata oluştu. Lütfen internet bağlantınızı kontrol edin.');
         } finally {
             setIsSharing(false);
         }

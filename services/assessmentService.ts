@@ -1,8 +1,9 @@
+
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { AssessmentReport, SavedAssessment } from '../types';
 
-const { collection, addDoc, query, where, getDocs, orderBy } = firestore;
+const { collection, addDoc, query, where, getDocs } = firestore;
 
 export const assessmentService = {
     saveAssessment: async (
@@ -13,13 +14,14 @@ export const assessmentService = {
         grade: string,
         report: AssessmentReport
     ): Promise<void> => {
+        // Ensure no undefined values
         const payload = {
             userId,
-            studentName,
-            gender,
-            age,
-            grade,
-            report,
+            studentName: studentName || 'Öğrenci',
+            gender: gender || 'Erkek',
+            age: age || 7,
+            grade: grade || '1. Sınıf',
+            report: JSON.parse(JSON.stringify(report)), // Deep clone to strip undefineds
             createdAt: new Date().toISOString()
         };
 
@@ -28,10 +30,10 @@ export const assessmentService = {
 
     getUserAssessments: async (userId: string): Promise<SavedAssessment[]> => {
         try {
+            // REMOVED orderBy to prevent index errors
             const q = query(
                 collection(db, "saved_assessments"), 
-                where("userId", "==", userId),
-                orderBy("createdAt", "desc")
+                where("userId", "==", userId)
             );
 
             const querySnapshot = await getDocs(q);
@@ -39,7 +41,7 @@ export const assessmentService = {
             
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                // Filter out shared items if necessary, assuming sharedWith field check
+                // Filter out shared items if necessary
                 if (!data.sharedWith) {
                     assessments.push({
                         id: doc.id,
@@ -56,6 +58,9 @@ export const assessmentService = {
                 }
             });
 
+            // Client-side sorting
+            assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
             return assessments;
         } catch (error) {
             console.error("Error fetching assessments:", error);
@@ -70,9 +75,9 @@ export const assessmentService = {
             gender: assessment.gender,
             age: assessment.age,
             grade: assessment.grade,
-            report: assessment.report,
+            report: JSON.parse(JSON.stringify(assessment.report)), // Ensure clean object
             sharedBy: senderId,
-            sharedByName: senderName,
+            sharedByName: senderName || 'Anonim',
             sharedWith: receiverId,
             createdAt: new Date().toISOString()
         };
@@ -82,10 +87,10 @@ export const assessmentService = {
 
     getSharedAssessments: async (userId: string): Promise<SavedAssessment[]> => {
         try {
+            // REMOVED orderBy
             const q = query(
                 collection(db, "saved_assessments"), 
-                where("sharedWith", "==", userId),
-                orderBy("createdAt", "desc")
+                where("sharedWith", "==", userId)
             );
 
             const querySnapshot = await getDocs(q);
@@ -107,6 +112,9 @@ export const assessmentService = {
                     sharedWith: data.sharedWith
                 });
             });
+
+            // Client-side sorting
+            assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
             return assessments;
         } catch (error) {
