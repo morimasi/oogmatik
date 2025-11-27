@@ -4,13 +4,37 @@ import { SavedWorksheet, SingleWorksheetData, ActivityType } from '../types';
 
 const { collection, addDoc, query, where, getDocs, orderBy, deleteDoc, doc, updateDoc, increment } = firestore;
 
+// Helper to handle serialization of complex nested arrays (Firestore limitation)
+const serializeData = (data: any): string => {
+    try {
+        return JSON.stringify(data);
+    } catch (e) {
+        console.error("Serialization error", e);
+        return "[]";
+    }
+};
+
+const deserializeData = (data: any): SingleWorksheetData[] => {
+    if (typeof data === 'string') {
+        try {
+            return JSON.parse(data);
+        } catch (e) {
+            console.error("Deserialization error", e);
+            return [];
+        }
+    }
+    // Backward compatibility for existing non-stringified data (if any)
+    if (Array.isArray(data)) return data;
+    return [];
+};
+
 // Mapper
 const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     id: id,
     userId: docData.userId,
     name: docData.name,
     activityType: docData.activityType as ActivityType,
-    worksheetData: docData.worksheetData as SingleWorksheetData[],
+    worksheetData: deserializeData(docData.worksheetData),
     createdAt: docData.createdAt,
     icon: docData.icon || 'fa-solid fa-file',
     category: docData.category || { id: 'uncategorized', title: 'Genel' },
@@ -28,11 +52,12 @@ export const worksheetService = {
         icon: string,
         category: { id: string, title: string }
     ): Promise<SavedWorksheet> => {
+        // Serialize worksheetData to string to avoid "Nested arrays not supported" error in Firestore
         const payload = {
             userId,
             name,
             activityType,
-            worksheetData: data,
+            worksheetData: serializeData(data),
             icon,
             category,
             createdAt: new Date().toISOString()
@@ -44,7 +69,11 @@ export const worksheetService = {
         const userRef = doc(db, "users", userId);
         updateDoc(userRef, { worksheetCount: increment(1) }).catch(console.warn);
 
-        return mapDbToWorksheet(payload, docRef.id);
+        // Return with hydrated data for the UI
+        return {
+            ...mapDbToWorksheet(payload, docRef.id),
+            worksheetData: data 
+        };
     },
 
     getUserWorksheets: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
@@ -53,8 +82,6 @@ export const worksheetService = {
                 collection(db, "saved_worksheets"), 
                 where("userId", "==", userId),
                 orderBy("createdAt", "desc")
-                // Note: Firestore requires a composite index for this query. 
-                // If it fails, check console for index creation link.
             );
             
             const querySnapshot = await getDocs(q);
@@ -62,8 +89,6 @@ export const worksheetService = {
             
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                // Client-side filtering for sharedWith if index issues arise, 
-                // or ensure "sharedWith" field exists/is null.
                 if (!data.sharedWith) {
                     items.push(mapDbToWorksheet(data, doc.id));
                 }
@@ -82,12 +107,10 @@ export const worksheetService = {
 
     shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
         const sharedPayload = {
-            userId: senderId, // Original owner ID kept for reference, but usually receiver views their own list
-            // Actually, for "Shared With Me" view, we query where sharedWith == currentUserId
-            
+            userId: senderId,
             name: worksheet.name,
             activityType: worksheet.activityType,
-            worksheetData: worksheet.worksheetData,
+            worksheetData: serializeData(worksheet.worksheetData), // Serialize for sharing too
             icon: worksheet.icon,
             category: worksheet.category,
             sharedBy: senderId,
