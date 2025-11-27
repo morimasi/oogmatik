@@ -15,8 +15,6 @@ import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
-// NOTE: keepAlive no longer needed for Firebase
-// import { keepAlive } from './services/supabaseClient'; 
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
@@ -119,7 +117,7 @@ const AppContent: React.FC = () => {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-      // Firebase is auto-initialized, so explicit connection check is mostly symbolic or auth based.
+      // Firebase is auto-initialized
       console.log("🔥 Firebase başlatıldı.");
   }, []);
 

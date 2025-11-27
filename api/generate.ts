@@ -26,10 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         // --- KESİN ÇÖZÜM: API ANAHTARI ---
-        // .env dosyasından okuma sorunları nedeniyle anahtar doğrudan koda eklenmiştir.
-        // DİKKAT: Projenizi canlıya alırken (Vercel, Netlify vb.) bu anahtarı koddan silip
-        // platformun "Environment Variables" bölümüne `API_KEY` adıyla eklemeniz GÜVENLİK açısından KRİTİKTİR.
-        const apiKey = "AIzaSyCDqfLjXPmPwGuUx3Z9QPiGVLrMyHD_Zns";
+        // API anahtarı güvenli bir şekilde environment variable'dan alınmalıdır.
+        const apiKey = process.env.API_KEY;
         
         if (!apiKey) {
             console.error("API_KEY bulunamadı.");

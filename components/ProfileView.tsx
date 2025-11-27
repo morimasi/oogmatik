@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-// FIX: Import ActivityType for type casting.
 import { SavedAssessment, SavedWorksheet, ActivityType } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { RadarChart } from './RadarChart';
@@ -43,8 +42,6 @@ const LoadingSkeleton: React.FC = () => (
     </div>
 );
 
-
-// FIX: Add onSelectActivity to props to handle navigation.
 interface ProfileViewProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
@@ -84,13 +81,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
         if (!user) return;
         setLoading(true);
         try {
-            // FIX: Pass pagination arguments to getUserWorksheets. Fetch a large number to get all for stats.
             const [assessData, sheetsDataResult] = await Promise.all([
                 assessmentService.getUserAssessments(user.id),
                 worksheetService.getUserWorksheets(user.id, 0, 1000)
             ]);
             setAssessments(assessData);
-            // FIX: `getUserWorksheets` returns an object { items, count }. Use the `items` array.
             setWorksheets(sheetsDataResult.items);
         } catch (e) {
             console.error(e);
@@ -440,7 +435,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                     {selectedAssessment.report.chartData && <RadarChart data={selectedAssessment.report.chartData} />}
                                 </div>
                                 <div className="space-y-3">
-{/* FIX: Cast `value` from `unknown` to `number` to allow comparisons. */}
                                     {Object.entries(selectedAssessment.report.scores).map(([key, value]) => {
                                         const score = value as number;
                                         return (
