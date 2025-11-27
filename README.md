@@ -194,7 +194,7 @@ create table public.activity_stats (
 -- GÜVENLİK POLİTİKALARI (RLS)
 -- Users
 alter table public.users enable row level security;
-create policy "Public profiles are viewable by everyone." on public.users for select using (true);
+create policy "Authenticated users can view profiles." on public.users for select using (auth.role() = 'authenticated');
 create policy "Users can update own profile." on public.users for update using (auth.uid() = id);
 
 -- Worksheets

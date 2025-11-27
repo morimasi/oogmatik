@@ -15,7 +15,7 @@ const mapDbFeedback = (db: any): FeedbackItem => ({
     adminReply: db.admin_reply
 });
 
-const mapDbMessage = (db: any): Message => ({
+export const mapDbMessage = (db: any): Message => ({
     id: db.id,
     senderId: db.sender_id,
     receiverId: db.receiver_id,
@@ -100,10 +100,16 @@ export const messagingService = {
         }
     },
 
-    sendMessage: async (msgData: Omit<Message, 'id' | 'timestamp' | 'isRead'>): Promise<void> => {
+    sendMessage: async (msgData: Omit<Message, 'id' | 'timestamp' | 'isRead'>): Promise<Message> => {
         if (!supabase) {
             console.log("Mock Message Sent:", msgData);
-            return;
+             const mockMessage: Message = {
+                id: `mock-${Date.now()}`,
+                timestamp: new Date().toISOString(),
+                isRead: false,
+                ...msgData
+            };
+            return mockMessage;
         }
 
         const payload = {
@@ -114,8 +120,16 @@ export const messagingService = {
             related_feedback_id: msgData.relatedFeedbackId
         };
 
-        const { error } = await supabase.from('messages').insert(payload);
+        const { data, error } = await supabase
+            .from('messages')
+            .insert(payload)
+            .select()
+            .single();
+
         if (error) throw error;
+        if (!data) throw new Error("Mesaj gönderildi ancak sunucudan yanıt alınamadı.");
+        
+        return mapDbMessage(data);
     },
 
     getMessagesForUser: async (userId: string): Promise<Message[]> => {

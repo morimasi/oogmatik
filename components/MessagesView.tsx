@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { messagingService } from '../services/messagingService';
+import { messagingService, mapDbMessage } from '../services/messagingService';
 import { authService } from '../services/authService';
 import { Message, User } from '../types';
 import { supabase } from '../services/supabaseClient';
@@ -15,43 +15,43 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [sending, setSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const loadMessages = async () => {
-        if (user) {
-            const allMsgs = await messagingService.getMessagesForUser(user.id);
-            setMessages(allMsgs);
+    const loadInitialData = async () => {
+        if (!user) return;
+        
+        const [allUsers, allMsgs] = await Promise.all([
+            authService.getContacts(user.id),
+            messagingService.getMessagesForUser(user.id)
+        ]);
+
+        const sortedContacts = allUsers.sort((a, b) => {
+            if (a.role === 'admin' && b.role !== 'admin') return -1;
+            if (b.role === 'admin' && a.role !== 'admin') return 1;
+            return a.name.localeCompare(b.name);
+        });
+        
+        setContacts(sortedContacts);
+        setMessages(allMsgs);
+        
+        const admin = sortedContacts.find(u => u.role === 'admin');
+        if (!selectedContact && admin) {
+            setSelectedContact(admin);
         }
     };
 
     useEffect(() => {
         if (user) {
-            const initData = async () => {
-                const allUsers = await authService.getContacts(user.id);
-                const sortedContacts = allUsers.sort((a, b) => {
-                    if (a.role === 'admin' && b.role !== 'admin') return -1;
-                    if (b.role === 'admin' && a.role !== 'admin') return 1;
-                    return a.name.localeCompare(b.name);
-                });
-                setContacts(sortedContacts);
-                
-                await loadMessages();
-                
-                const admin = sortedContacts.find(u => u.role === 'admin');
-                if (!selectedContact && admin) {
-                    setSelectedContact(admin);
-                }
-            };
-            
-            initData();
+            loadInitialData();
 
-            // Set up real-time subscription
+            // Sadece BANA GELEN yeni mesajları dinle. Benim gönderdiklerim zaten anında ekleniyor.
             const channel = supabase
                 .channel(`messages_for_${user.id}`)
-                .on<Message>(
+                .on(
                     'postgres_changes',
-                    { event: '*', schema: 'public', table: 'messages' },
+                    { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
                     (payload) => {
-                        console.log('Realtime message update received!', payload);
-                        loadMessages(); 
+                        console.log('Real-time message received!', payload.new);
+                        const newMessage = mapDbMessage(payload.new);
+                        setMessages(prev => [...prev, newMessage]);
                     }
                 )
                 .subscribe();
@@ -62,17 +62,17 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         }
     }, [user]);
 
-    // Auto-scroll to bottom of chat
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, selectedContact]);
 
     const handleContactSelect = (contact: User) => {
         setSelectedContact(contact);
-        // Mark messages from this contact as read
-        messages
-            .filter(m => m.senderId === contact.id && m.receiverId === user?.id && !m.isRead)
-            .forEach(m => messagingService.markAsRead(m.id));
+        const unreadMessages = messages.filter(m => m.senderId === contact.id && m.receiverId === user?.id && !m.isRead);
+        if (unreadMessages.length > 0) {
+            unreadMessages.forEach(m => messagingService.markAsRead(m.id));
+            setMessages(prev => prev.map(m => unreadMessages.find(um => um.id === m.id) ? { ...m, isRead: true } : m));
+        }
     };
 
     const handleSend = async (e: React.FormEvent) => {
@@ -80,23 +80,26 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         if (!newMessage.trim() || !user || !selectedContact) return;
         
         setSending(true);
+        const contentToSend = newMessage;
+        setNewMessage(''); // Anında temizle
+
         try {
-            await messagingService.sendMessage({
+            const sentMessage = await messagingService.sendMessage({
                 senderId: user.id,
                 senderName: user.name,
                 receiverId: selectedContact.id,
-                content: newMessage
+                content: contentToSend
             });
-            setNewMessage('');
-            // No need to call loadMessages manually, realtime will handle it.
+            // Kendi mesajını anında ekle (optimistic update)
+            setMessages(prev => [...prev, sentMessage]);
         } catch (err) {
-            console.error(err);
+            console.error("Mesaj gönderme hatası:", err);
+            setNewMessage(contentToSend); // Hata olursa mesajı geri yükle
         } finally {
             setSending(false);
         }
     };
 
-    // Filter messages for the selected conversation
     const currentConversation = useMemo(() => {
         if (!selectedContact || !user) return [];
         return messages.filter(m => 
@@ -105,22 +108,20 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         ).sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     }, [messages, selectedContact, user]);
 
-    // Filter contacts based on search
     const filteredContacts = contacts.filter(c => 
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (c.role === 'admin' && 'yönetici'.includes(searchQuery.toLowerCase()))
     );
 
-    // Calculate unread counts per contact
     const getUnreadCount = (contactId: string) => {
-        return messages.filter(m => m.senderId === contactId && m.receiverId === user?.id && !m.isRead).length;
+        if (!user) return 0;
+        return messages.filter(m => m.senderId === contactId && m.receiverId === user.id && !m.isRead).length;
     };
 
     if (!user) return null;
 
     return (
         <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
-            {/* TOP NAVIGATION BAR */}
             <div className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 p-3 flex items-center shadow-sm shrink-0 z-20">
                 <button 
                     onClick={onBack}
@@ -135,9 +136,7 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <div className="flex-1 overflow-hidden p-2 md:p-6">
                 <div className="max-w-6xl mx-auto w-full h-full flex bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden">
                     
-                    {/* LEFT SIDEBAR: CONTACTS */}
                     <div className={`w-full md:w-80 flex flex-col border-r border-zinc-200 dark:border-zinc-700 ${selectedContact ? 'hidden md:flex' : 'flex'}`}>
-                        {/* Sidebar Header */}
                         <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="font-bold text-lg text-zinc-800 dark:text-zinc-100">Sohbetler</h2>
@@ -154,7 +153,6 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             </div>
                         </div>
 
-                        {/* Contact List */}
                         <div className="flex-1 overflow-y-auto">
                             {filteredContacts.map(contact => {
                                 const unread = getUnreadCount(contact.id);
@@ -198,11 +196,9 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         </div>
                     </div>
 
-                    {/* RIGHT SIDE: CHAT WINDOW */}
                     <div className={`flex-1 flex-col ${!selectedContact ? 'hidden md:flex' : 'flex'}`}>
                         {selectedContact ? (
                             <>
-                                {/* Chat Header */}
                                 <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 flex items-center justify-between shadow-sm z-10">
                                     <div className="flex items-center gap-3">
                                         <button onClick={() => setSelectedContact(null)} className="md:hidden mr-2 text-zinc-500 hover:text-zinc-800">
@@ -218,7 +214,6 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     </div>
                                 </div>
 
-                                {/* Messages Area */}
                                 <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-100/50 dark:bg-zinc-900/50 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
                                     {currentConversation.length === 0 ? (
                                         <div className="h-full flex flex-col items-center justify-center text-zinc-400 opacity-70">
@@ -253,7 +248,6 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     <div ref={messagesEndRef} />
                                 </div>
 
-                                {/* Input Area */}
                                 <form onSubmit={handleSend} className="p-4 bg-white dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700">
                                     <div className="flex gap-3 items-end">
                                         <textarea
