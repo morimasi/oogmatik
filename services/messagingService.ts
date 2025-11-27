@@ -1,8 +1,9 @@
+
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { FeedbackItem, Message, User } from '../types';
 
-const { collection, addDoc, query, where, getDocs, orderBy, updateDoc, doc } = firestore;
+const { collection, addDoc, query, where, getDocs, orderBy, updateDoc, doc, deleteDoc, writeBatch } = firestore;
 
 const mapDbFeedback = (data: any, id: string): FeedbackItem => ({
     id: id,
@@ -107,5 +108,37 @@ export const messagingService = {
 
     markAsRead: async (messageId: string) => {
         await updateDoc(doc(db, "messages", messageId), { isRead: true });
+    },
+
+    deleteMessage: async (messageId: string) => {
+        await deleteDoc(doc(db, "messages", messageId));
+    },
+
+    clearConversation: async (userId: string, contactId: string) => {
+        // Find messages sent by user to contact
+        const q1 = query(
+            collection(db, "messages"),
+            where("senderId", "==", userId),
+            where("receiverId", "==", contactId)
+        );
+        
+        // Find messages sent by contact to user
+        const q2 = query(
+            collection(db, "messages"),
+            where("senderId", "==", contactId),
+            where("receiverId", "==", userId)
+        );
+
+        const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        
+        const batch = writeBatch(db);
+        let count = 0;
+
+        snap1.forEach((doc) => { batch.delete(doc.ref); count++; });
+        snap2.forEach((doc) => { batch.delete(doc.ref); count++; });
+
+        if (count > 0) {
+            await batch.commit();
+        }
     }
 };

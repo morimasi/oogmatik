@@ -63,13 +63,15 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
             const unsubscribe = onSnapshot(q, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
-                        console.log("New message: ", change.doc.data());
                         const newMsg = mapDbMessage(change.doc.data(), change.doc.id);
                         setMessages(prev => {
                             // Avoid duplicates just in case
                             if (prev.some(m => m.id === newMsg.id)) return prev;
                             return [...prev, newMsg];
                         });
+                    }
+                    if (change.type === "removed") {
+                        setMessages(prev => prev.filter(m => m.id !== change.doc.id));
                     }
                 });
             });
@@ -121,6 +123,42 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
             setNewMessage(contentToSend); 
         } finally {
             setSending(false);
+        }
+    };
+
+    const handleDeleteMessage = async (messageId: string) => {
+        if (!confirm('Bu mesajı silmek istediğinize emin misiniz?')) return;
+        
+        // Optimistic UI update
+        setMessages(prev => prev.filter(m => m.id !== messageId));
+        
+        try {
+            await messagingService.deleteMessage(messageId);
+        } catch (err) {
+            console.error("Silme hatası:", err);
+            // Revert on error would require refetching, simply alert for now
+            alert("Mesaj silinemedi.");
+        }
+    };
+
+    const handleClearChat = async () => {
+        if (!user || !selectedContact) return;
+        if (!confirm('Bu kişiyle olan TÜM sohbet geçmişini silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) return;
+
+        const contactId = selectedContact.id;
+        
+        // Optimistic UI Update
+        setMessages(prev => prev.filter(m => 
+            !((m.senderId === user.id && m.receiverId === contactId) || 
+              (m.senderId === contactId && m.receiverId === user.id))
+        ));
+
+        try {
+            await messagingService.clearConversation(user.id, contactId);
+        } catch (err) {
+            console.error("Sohbet temizleme hatası:", err);
+            alert("Sohbet temizlenirken bir hata oluştu.");
+            loadInitialData(); // Reload to restore state if failed
         }
     };
 
@@ -236,6 +274,14 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                             </span>
                                         </div>
                                     </div>
+                                    {/* DELETE CHAT BUTTON */}
+                                    <button 
+                                        onClick={handleClearChat}
+                                        className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        title="Sohbeti Temizle"
+                                    >
+                                        <i className="fa-solid fa-trash-can fa-lg"></i>
+                                    </button>
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-100/50 dark:bg-zinc-900/50 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
@@ -251,11 +297,11 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                         currentConversation.map((msg) => {
                                             const isMe = msg.senderId === user.id;
                                             return (
-                                                <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                                    <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm relative ${
+                                                <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group`}>
+                                                    <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm relative group ${
                                                         isMe 
                                                         ? 'bg-indigo-600 text-white rounded-br-none' 
-                                                        : 'bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100 rounded-bl-none border border-zinc-200 dark:border-zinc-600'
+                                                        : 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-bl-none border border-zinc-200 dark:border-zinc-600'
                                                     }`}>
                                                         <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                                                         <div className={`text-[10px] flex items-center justify-end gap-1 mt-1 ${isMe ? 'text-indigo-200' : 'text-zinc-400'}`}>
@@ -264,6 +310,14 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                                                 <i className={`fa-solid fa-check-double ${msg.isRead ? 'text-blue-300' : 'opacity-50'}`}></i>
                                                             )}
                                                         </div>
+                                                        {/* DELETE MESSAGE BUTTON - VISIBLE ON HOVER */}
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleDeleteMessage(msg.id); }}
+                                                            className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 hover:bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center ${isMe ? 'right-auto left-1' : ''}`}
+                                                            title="Mesajı Sil"
+                                                        >
+                                                            <i className="fa-solid fa-times"></i>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             );
