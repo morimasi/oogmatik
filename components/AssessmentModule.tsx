@@ -632,8 +632,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     )}
 
                     {currentStep === 1 && (
-                        <div className="p-8 md:p-12 flex flex-col flex-1 justify-center max-w-lg mx-auto w-full">
-                            <h3 className="text-2xl font-bold mb-8 text-center text-zinc-800 dark:text-zinc-100">Öğrenci Profili</h3>
+                        <div className="p-4 md:p-12 flex flex-col flex-1 md:justify-center max-w-lg mx-auto w-full">
+                            <h3 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-center text-zinc-800 dark:text-zinc-100">Öğrenci Profili</h3>
                             <div className="space-y-6">
                                 <div>
                                     <label className="block font-bold mb-2 text-zinc-700 dark:text-zinc-300">Adı Soyadı</label>
