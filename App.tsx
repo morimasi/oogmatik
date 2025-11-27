@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
@@ -121,19 +122,22 @@ const AppContent: React.FC = () => {
       console.log("🔥 Firebase başlatıldı.");
   }, []);
 
-  useEffect(() => {
+  const refreshNotifications = useCallback(async () => {
       if (user) {
-          const checkMsgs = async () => {
-              try {
-                  const count = await messagingService.getUnreadCount(user.id);
-                  setUnreadCount(count);
-              } catch (e) { console.error(e); }
-          };
-          checkMsgs();
-          const interval = setInterval(checkMsgs, 30000);
-          return () => clearInterval(interval);
+          try {
+              const count = await messagingService.getUnreadCount(user.id);
+              setUnreadCount(count);
+          } catch (e) { console.error(e); }
       }
   }, [user]);
+
+  useEffect(() => {
+      if (user) {
+          refreshNotifications();
+          const interval = setInterval(refreshNotifications, 30000);
+          return () => clearInterval(interval);
+      }
+  }, [user, refreshNotifications]);
 
   useEffect(() => {
       if (!user && ['profile', 'admin', 'messages', 'shared'].includes(currentView)) {
@@ -254,7 +258,7 @@ const AppContent: React.FC = () => {
       return <ProfileView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} />;
   }
   if (currentView === 'messages') {
-      return <MessagesView onBack={() => setCurrentView('generator')} />;
+      return <MessagesView onBack={() => setCurrentView('generator')} onRefreshNotifications={refreshNotifications} />;
   }
 
   return (

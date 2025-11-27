@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { messagingService, mapDbMessage } from '../services/messagingService';
@@ -8,7 +9,12 @@ import * as firestore from "firebase/firestore";
 
 const { collection, query, where, onSnapshot, orderBy } = firestore;
 
-export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+interface MessagesViewProps {
+    onBack: () => void;
+    onRefreshNotifications?: () => void;
+}
+
+export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNotifications }) => {
     const { user } = useAuth();
     const [contacts, setContacts] = useState<User[]>([]);
     const [selectedContact, setSelectedContact] = useState<User | null>(null);
@@ -76,12 +82,20 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, selectedContact]);
 
-    const handleContactSelect = (contact: User) => {
+    const handleContactSelect = async (contact: User) => {
         setSelectedContact(contact);
         const unreadMessages = messages.filter(m => m.senderId === contact.id && m.receiverId === user?.id && !m.isRead);
         if (unreadMessages.length > 0) {
-            unreadMessages.forEach(m => messagingService.markAsRead(m.id));
+            // 1. Optimistic Update for UI responsiveness
             setMessages(prev => prev.map(m => unreadMessages.find(um => um.id === m.id) ? { ...m, isRead: true } : m));
+            
+            // 2. Perform DB Updates and wait for completion
+            await Promise.all(unreadMessages.map(m => messagingService.markAsRead(m.id)));
+            
+            // 3. Trigger global refresh to update notification badge
+            if (onRefreshNotifications) {
+                onRefreshNotifications();
+            }
         }
     };
 
@@ -271,7 +285,7 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                             }}
                                             placeholder="Bir mesaj yazın..."
                                             rows={1}
-                                            className="flex-1 p-3 bg-zinc-100 dark:bg-zinc-700 border-transparent rounded-xl focus:bg-white dark:focus:bg-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none max-h-32"
+                                            className="flex-1 p-3 bg-zinc-100 dark:bg-zinc-700/50 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none max-h-32 placeholder:text-zinc-500"
                                             style={{minHeight: '48px'}}
                                         />
                                         <button 
