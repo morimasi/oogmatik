@@ -268,7 +268,8 @@ const AppContent: React.FC = () => {
       return <AdminDashboard onBack={() => setCurrentView('generator')} />;
   }
   if (currentView === 'profile') {
-      return <ProfileView onBack={() => setCurrentView('generator')} />;
+      // FIX: Pass onSelectActivity prop to ProfileView.
+      return <ProfileView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} />;
   }
   if (currentView === 'messages') {
       return <MessagesView onBack={() => setCurrentView('generator')} />;

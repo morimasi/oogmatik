@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { SavedAssessment, SavedWorksheet } from '../types';
+// FIX: Import ActivityType for type casting.
+import { SavedAssessment, SavedWorksheet, ActivityType } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { RadarChart } from './RadarChart';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
@@ -43,7 +44,13 @@ const LoadingSkeleton: React.FC = () => (
 );
 
 
-export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+// FIX: Add onSelectActivity to props to handle navigation.
+interface ProfileViewProps {
+    onBack: () => void;
+    onSelectActivity: (id: ActivityType) => void;
+}
+
+export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivity }) => {
     const { user, updateUser, updatePassword, logout } = useAuth();
     const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'evaluations' | 'settings'>('overview');
     
@@ -380,7 +387,7 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                                 <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-3 border border-zinc-200 dark:border-zinc-600 rounded-xl bg-zinc-50 dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none" />
                                             </div>
                                              <div>
-                                                <label className="block font-medium text-sm mb-1 text-zinc-600 dark:text-zinc-300">E-posta</pre>
+                                                <label className="block font-medium text-sm mb-1 text-zinc-600 dark:text-zinc-300">E-posta</label>
                                                 <input type="email" value={user.email} disabled className="w-full p-3 border border-zinc-200 dark:border-zinc-600 rounded-xl bg-zinc-100 dark:bg-zinc-700/50 opacity-70" />
                                             </div>
                                             <button type="submit" disabled={isSavingProfile} className="w-full py-3 bg-zinc-800 hover:bg-zinc-900 text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
@@ -469,16 +476,19 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     </ul>
                                 </div>
                             </div>
-                             <div className="bg-zinc-800 text-white p-6 rounded-xl">
+                             <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg">
                                 <h4 className="font-bold text-lg mb-4">Önerilen Yol Haritası</h4>
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {selectedAssessment.report.roadmap.map((item, idx) => (
-                                        <div key={idx} className="bg-zinc-700/50 p-3 rounded-lg flex justify-between items-center">
-                                            <div>
-                                                <h5 className="font-bold text-indigo-300">{ACTIVITIES.find(a => a.id === item.activityId)?.title}</h5>
-                                                <p className="text-xs text-zinc-400">{item.reason}</p>
+                                        <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-zinc-700 transition-colors group cursor-pointer" onClick={() => onSelectActivity(item.activityId as ActivityType)}>
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold">{idx + 1}</div>
+                                                <div>
+                                                    <h5 className="font-bold text-indigo-300 group-hover:text-white transition-colors">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
+                                                    <p className="text-xs text-zinc-400">{item.reason}</p>
+                                                </div>
                                             </div>
-                                            <span className="text-xs font-bold bg-zinc-900 px-2 py-1 rounded-full">{item.frequency}</span>
+                                            <span className="text-xs font-bold bg-zinc-900 px-3 py-1 rounded-full text-zinc-400 border border-zinc-600 whitespace-nowrap">{item.frequency}</span>
                                         </div>
                                     ))}
                                 </div>
