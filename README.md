@@ -292,6 +292,25 @@ $$ language plpgsql security definer;
 
 ---
 
+## 🌐 Sunucuyu Uyanık Tutma (Keep-Alive)
+
+Supabase'in ücretsiz planında, veritabanı bir süre kullanılmadığında "uyku moduna" geçebilir. Bu durum, uygulamaya uzun bir aradan sonra ilk giren kullanıcının yavaşlık veya zaman aşımı hatası yaşamasına neden olabilir.
+
+Bu sorunu çözmek için sisteme harici bir servisle tetiklenebilecek bir "keep-alive" API adresi eklenmiştir. Bu adres düzenli olarak ziyaret edildiğinde veritabanı bağlantısı sürekli aktif kalır.
+
+### Kurulum (cron-job.org ile)
+
+1.  **Üye Olun:** [cron-job.org](https://cron-job.org/) sitesine gidin ve ücretsiz bir hesap oluşturun.
+2.  **Cronjob Oluşturun:** Panelde "Create Cronjob" butonuna tıklayın.
+    *   **Title:** `Bursa Disleksi Keep-Alive` gibi bir başlık girin.
+    *   **URL:** `https://sizin-vercel-adresiniz.vercel.app/api/keep-alive` adresini girin. (`sizin-vercel-adresiniz` kısmını kendi dağıtım adresinizle değiştirin).
+    *   **Schedule:** "Every 15 minutes" (Her 15 dakikada bir) seçeneğini işaretleyin. Bu, sunucunun uykuya geçmesini engellemek için yeterlidir.
+3.  **Kaydedin:** "Create" butonuna basarak görevi oluşturun.
+
+Bu kadar! Artık harici servis, uygulamanızı her 15 dakikada bir ziyaret ederek veritabanını sürekli aktif tutacaktır.
+
+---
+
 ## 📦 Dağıtım (Deployment)
 
 Bu proje Vercel üzerinde çalışmak üzere optimize edilmiştir (API routes için).
