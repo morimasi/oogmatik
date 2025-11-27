@@ -25,8 +25,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
         }
         
-        // API anahtarı Vercel'deki Ortam Değişkenlerinden (Environment Variables) okunur.
-        const apiKey = process.env.API_KEY;
+        // --- DİKKAT: GELİŞTİRME AMAÇLI ANAHTAR ---
+        // .env dosyası ile ilgili yaşanan sorunları çözmek için API anahtarı geçici olarak buraya eklenmiştir.
+        // Bu yöntemin canlı (production) bir uygulama için GÜVENLİ OLMADIĞINI unutmayın.
+        // Projenizi Vercel'de yayınlarken bu anahtarı "Environment Variables" bölümüne taşımanız
+        // ve bu satırı `const apiKey = process.env.API_KEY;` olarak değiştirmeniz gerekir.
+        const apiKey = 'AIzaSyCDqfLjXPmPwGuUx3Z9QPiGVLrMyHD_Zns';
+        // const apiKey = process.env.API_KEY; // DEPLOY EDERKEN BU SATIRI AKTİF EDİN
         
         if (!apiKey) {
             console.error("API_KEY bulunamadı.");

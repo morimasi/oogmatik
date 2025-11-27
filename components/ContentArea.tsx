@@ -85,8 +85,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const year = now.getFullYear();
         const hour = String(now.getHours()).padStart(2, '0');
         const minute = String(now.getMinutes()).padStart(2, '0');
+        const second = String(now.getSeconds()).padStart(2, '0');
+        const millisecond = String(now.getMilliseconds()).padStart(3, '0');
         
-        return `${title} - ${day}.${month}.${year} ${hour}:${minute}`;
+        return `${title} - ${day}.${month}.${year} ${hour}:${minute}:${second}-${millisecond}`;
     };
 
     const handleSave = () => {

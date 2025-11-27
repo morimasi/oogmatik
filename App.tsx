@@ -246,7 +246,8 @@ const AppContent: React.FC = () => {
         alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
     } catch (e: any) {
         console.error("Save error:", e);
-        alert(`Kaydedilirken bir hata oluştu: ${e.message || 'Detaylar için konsolu kontrol edin.'}`);
+        const errorMessage = `Kaydedilirken bir hata oluştu: ${e.message || 'Bilinmeyen hata'}. Detay: ${e.details || 'Yok'}. Kod: ${e.code || 'Yok'}.`;
+        alert(errorMessage);
     }
   };
 

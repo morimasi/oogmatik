@@ -17,14 +17,27 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Bilinmeyen API hatası' }));
-            throw new Error(`API hatası: ${response.status} - ${errorData.error}`);
+            try {
+                const errorData = await response.json();
+                throw new Error(`API hatası: ${response.status} - ${errorData.error || 'Bilinmeyen API hatası'}`);
+            } catch (e) {
+                 throw new Error(`API hatası: ${response.status} - Sunucudan beklenmedik bir yanıt alındı. Lütfen internet bağlantınızı kontrol edin.`);
+            }
+        }
+        
+        try {
+            const parsed = await response.json();
+            return parsed;
+        } catch (e) {
+            console.error("Yapay zeka yanıtı ayrıştırılamadı:", e);
+            throw new Error("Yapay zeka sunucusundan geçersiz veya bozuk bir yanıt alındı. Lütfen tekrar deneyin.");
         }
 
-        const parsed = await response.json();
-        return parsed;
     } catch (error) {
         console.error("İstemci tarafında API çağrısı sırasında hata:", error);
+        if (error instanceof Error) {
+            throw error;
+        }
         throw new Error("Yapay zeka sunucusuna bağlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
     }
 };
