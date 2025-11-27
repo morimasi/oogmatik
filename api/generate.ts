@@ -25,9 +25,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
         }
         
-        const apiKey = process.env.API_KEY;
+        // --- GÜVENLİK UYARISI ---
+        // API anahtarları güvenlik nedeniyle doğrudan koda yazılmamalıdır.
+        // Bu yöntem, geliştirme kolaylığı için geçici olarak uygulanmıştır.
+        const apiKey = "AIzaSyCDqfLjXPmPwGuUx3Z9QPiGVLrMyHD_Zns";
+        
         if (!apiKey) {
-            console.error("API_KEY environment variable is not set on Vercel.");
+            console.error("API_KEY bulunamadı.");
             return res.status(500).json({ error: 'Sunucuda API anahtarı yapılandırılmamış.' });
         }
 

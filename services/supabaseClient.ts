@@ -2,12 +2,16 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 let supabaseExport: SupabaseClient;
 
-try {
-    const PROJECT_URL = (import.meta as any).env.VITE_SUPABASE_URL;
-    const ANON_KEY = (import.meta as any).env.VITE_SUPABASE_ANON_KEY;
+// --- GÜVENLİK UYARISI ---
+// API anahtarları güvenlik nedeniyle doğrudan koda yazılmamalıdır.
+// Bu yöntem, geliştirme kolaylığı için geçici olarak uygulanmıştır.
+// Projeyi canlıya almadan önce bu anahtarları .env dosyası gibi güvenli bir ortama taşıyın.
+const PROJECT_URL = "https://peqavnbubldvelitexiq.supabase.co";
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlcWF2bmJ1YmxkdmVsaXRleGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNzQwNzksImV4cCI6MjA3OTc1MDA3OX0.VecnYk4POIGZl-ff2lNFwrdnjzjql4QiakMTdlXnxCU";
 
+try {
     if (!PROJECT_URL || !ANON_KEY) {
-        throw new Error("Supabase URL veya Anon Key .env dosyasında bulunamadı.");
+        throw new Error("Supabase URL veya Anon Key doğrudan koda eklenmemiş.");
     }
 
     console.log("Supabase Bağlantısı Başlatılıyor...");
