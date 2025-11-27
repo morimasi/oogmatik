@@ -2,20 +2,19 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 let supabaseExport: SupabaseClient;
 
-// --- GÜVENLİK UYARISI ---
-// API anahtarları güvenlik nedeniyle doğrudan koda yazılmamalıdır.
-// Bu yöntem, geliştirme kolaylığı için geçici olarak uygulanmıştır.
-// Projeyi canlıya almadan önce bu anahtarları .env dosyası gibi güvenli bir ortama taşıyın.
-const PROJECT_URL = "https://peqavnbubldvelitexiq.supabase.co";
-const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlcWF2bmJ1YmxkdmVsaXRleGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNzQwNzksImV4cCI6MjA3OTc1MDA3OX0.VecnYk4POIGZl-ff2lNFwrdnjzjql4QiakMTdlXnxCU";
+// Ortam değişkenleri Vite'nin standart yöntemiyle okunuyor.
+// Bu değişkenler Vercel'deki "Environment Variables" kısmından uygulamaya enjekte edilir.
+const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
+const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
+
 
 try {
-    if (!PROJECT_URL || !ANON_KEY) {
-        throw new Error("Supabase URL veya Anon Key doğrudan koda eklenmemiş.");
+    if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error("Supabase URL veya Anon Key .env dosyasında bulunamadı.");
     }
 
     console.log("Supabase Bağlantısı Başlatılıyor...");
-    supabaseExport = createClient(PROJECT_URL, ANON_KEY, {
+    supabaseExport = createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
             persistSession: true,
             autoRefreshToken: true,

@@ -89,7 +89,12 @@ export const authService = {
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password: pass,
-            options: { data: { full_name: name } }
+            options: { 
+                data: { full_name: name },
+                // Bu satır, kullanıcının kayıt olduğu adrese (localhost, vercel.app vb.)
+                // doğrulama linki gönderilmesini sağlar. Alan adı sorununu çözer.
+                emailRedirectTo: window.location.origin 
+            }
         });
 
         if (authError) {

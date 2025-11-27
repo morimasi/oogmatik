@@ -25,10 +25,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
         }
         
-        // --- GÜVENLİK UYARISI ---
-        // API anahtarları güvenlik nedeniyle doğrudan koda yazılmamalıdır.
-        // Bu yöntem, geliştirme kolaylığı için geçici olarak uygulanmıştır.
-        const apiKey = "AIzaSyCDqfLjXPmPwGuUx3Z9QPiGVLrMyHD_Zns";
+        // API anahtarı Vercel'deki Ortam Değişkenlerinden (Environment Variables) okunur.
+        const apiKey = process.env.API_KEY;
         
         if (!apiKey) {
             console.error("API_KEY bulunamadı.");
@@ -45,9 +43,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let data;
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
+                // Yapay zekanın her seferinde farklı çıktı üretmesini sağlamak için benzersiz bir bağlam ekliyoruz.
+                const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+                
+                // Changed visual style instruction to allow variety: drawing, cartoon, vector.
+                // Added strict instruction to ALWAYS generate imagePrompt for every possible item to ensure visual richness.
+                const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Benzersiz ol. Random Seed: ${uniqueSeed}.\n2. GÖRSEL ZORUNLULUĞU: Şema içinde 'imagePrompt' alanı tanımlı olan HER ÖĞE için MUTLAKA dolu ve detaylı bir İngilizce görsel betimlemesi yaz. Asla boş bırakma. Bu betimlemeler bir eylem ve bağlam içermelidir (Örn: 'kedi' yerine 'yumakla oynayan sevimli bir kedi').\n3. GÖRSEL STİLİ: Betimlemelere şu stillerden uygun olanı ekle: 'Cute colorful vector art style', 'Children book illustration style', 'Vibrant cartoon style'. Amaç çocukların ilgisini çekecek, pozitif, renkli ve net görseller üretmektir. Korkutucu veya karanlık öğelerden kaçın.]`;
+
                 const textResponse = await ai.models.generateContent({
                     model: selectedModel, 
-                    contents: prompt,
+                    contents: enhancedPrompt,
                     config: {
                         responseMimeType: "application/json",
                         responseSchema: schema,
