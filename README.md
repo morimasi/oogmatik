@@ -64,20 +64,8 @@ cd bursa-disleksi-ai
 npm install
 ```
 
-### 4. Çevresel Değişkenleri Ayarlayın
-Kök dizinde `.env` dosyası oluşturun ve aşağıdaki anahtarları ekleyin:
-
-```env
-# Client-side (Vite - Supabase Bağlantısı)
-VITE_SUPABASE_URL=https://sizin-proje-id.supabase.co
-VITE_SUPABASE_ANON_KEY=sizin-supabase-anon-key
-
-# Server-side (Vercel / Local API - Google Gemini)
-# Not: Bu anahtar sadece 'api/generate.ts' sunucu fonksiyonunda kullanılır, client'a sızmaz.
-API_KEY=sizin_google_gemini_api_key
-```
-
-### 5. Uygulamayı Başlatın
+### 4. Geliştirme Sunucusunu Başlatın
+Uygulama artık `.env` dosyası gerektirmez, API anahtarları test amacıyla doğrudan koda eklenmiştir.
 ```bash
 npm run dev
 ```
@@ -195,6 +183,7 @@ create table public.activity_stats (
 -- Users
 alter table public.users enable row level security;
 create policy "Authenticated users can view profiles." on public.users for select using (auth.role() = 'authenticated');
+create policy "Users can insert their own profile." on public.users for insert with check (auth.uid() = id);
 create policy "Users can update own profile." on public.users for update using (auth.uid() = id);
 
 -- Worksheets
@@ -291,33 +280,42 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS feedbacks_status_idx ON public.feedbacks
 
 ---
 
-## 🌐 Sunucuyu Uyanık Tutma (Keep-Alive)
-
-Supabase'in ücretsiz planında, veritabanı bir süre kullanılmadığında "uyku moduna" geçebilir. Bu durum, uygulamaya uzun bir aradan sonra ilk giren kullanıcının yavaşlık veya zaman aşımı hatası yaşamasına neden olabilir.
-
-Bu sorunu çözmek için sisteme harici bir servisle tetiklenebilecek bir "keep-alive" API adresi eklenmiştir. Bu adres düzenli olarak ziyaret edildiğinde veritabanı bağlantısı sürekli aktif kalır.
-
-### Kurulum (cron-job.org ile)
-
-1.  **Üye Olun:** [cron-job.org](https://cron-job.org/) sitesine gidin ve ücretsiz bir hesap oluşturun.
-2.  **Cronjob Oluşturun:** Panelde "Create Cronjob" butonuna tıklayın.
-    *   **Title:** `Bursa Disleksi Keep-Alive` gibi bir başlık girin.
-    *   **URL:** `https://sizin-vercel-adresiniz.vercel.app/api/keep-alive` adresini girin. (`sizin-vercel-adresiniz` kısmını kendi dağıtım adresinizle değiştirin).
-    *   **Schedule:** "Every 15 minutes" (Her 15 dakikada bir) seçeneğini işaretleyin. Bu, sunucunun uykuya geçmesini engellemek için yeterlidir.
-3.  **Kaydedin:** "Create" butonuna basarak görevi oluşturun.
-
-Bu kadar! Artık harici servis, uygulamanızı her 15 dakikada bir ziyaret ederek veritabanını sürekli aktif tutacaktır.
-
----
-
 ## 📦 Dağıtım (Deployment)
 
-Bu proje Vercel üzerinde çalışmak üzere optimize edilmiştir (API routes için).
+Bu proje Vercel üzerinde çalışmak üzere optimize edilmiştir. Canlıya alırken, **güvenlik nedeniyle** koda gömülü API anahtarlarını Vercel'in ortam değişkenlerine taşımanız kritik öneme sahiptir.
 
-1.  Projeyi GitHub'a pushlayın.
-2.  Vercel'de yeni bir proje oluşturun ve GitHub reponuzu bağlayın.
-3.  Vercel proje ayarlarında **Environment Variables** kısmına `.env` dosyasındaki değerleri ekleyin (`API_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
-4.  Deploy!
+### Adım 1: Vercel Ortam Değişkenlerini Ayarlayın
+
+1.  [Vercel Proje Panelinize](https://vercel.com/) gidin ve projenizi seçin.
+2.  `Settings` -> `Environment Variables` menüsüne gidin.
+3.  Aşağıdaki **üç anahtarı** teker teker ekleyin:
+
+| İsim (Name)                | Değer (Value)                                                                                                                                                             |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_SUPABASE_URL`        | `https://sizin-proje-id.supabase.co` (Kendi Supabase URL'niz)                                                                                                               |
+| `VITE_SUPABASE_ANON_KEY`   | `sizin-supabase-anon-key` (Kendi Supabase Anon Key'iniz)                                                                                                                    |
+| `API_KEY`                  | `sizin_google_gemini_api_key` (Kendi Google AI API Key'iniz)                                                                                                                |
+
+**ÖNEMLİ:** Bu adımı yaptıktan sonra `services/supabaseClient.ts` ve `api/generate.ts` dosyalarındaki koda gömülü anahtarları silip, yorum satırı halindeki `process.env` ve `import.meta.env` kodlarını aktif hale getirmelisiniz.
+
+### Adım 2: Supabase Yönlendirme URL'lerini Ayarlayın
+
+Giriş ve kayıt işlemlerinin Vercel'de doğru çalışması için Supabase'e canlı alan adınızı tanıtmanız gerekir:
+
+1.  [Supabase Proje Panelinize](https://supabase.com) gidin.
+2.  **Authentication** (Kalkan simgesi) -> **URL Configuration** menüsüne tıklayın.
+3.  Ayarları aşağıdaki gibi güncelleyin:
+    *   **Site URL:** `https://sizin-vercel-adresiniz.vercel.app`
+    *   **Redirect URLs:** Aşağıdaki **üç adresi** listeye **ayrı ayrı** ekleyin:
+        *   `https://sizin-vercel-adresiniz.vercel.app`
+        *   `http://localhost:5173` (Yerelde çalışmak için)
+        *   `https://proje-adi-*.vercel.app` (Önizleme adresleri için)
+
+### Adım 3: Yeniden Dağıtım (Redeploy)
+
+Vercel projenizde "Deployments" sekmesine gidin ve son dağıtımın yanındaki üç noktaya tıklayarak "Redeploy" seçeneğini seçin. Bu, yeni ortam değişkenlerinin aktif olmasını sağlayacaktır.
+```
+This is a good, detailed section. I will add this to the `README.md`.
 
 ---
 

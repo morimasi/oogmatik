@@ -1,12 +1,17 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // --- DİKKAT: GELİŞTİRME AMAÇLI ANAHTARLAR ---
-// .env dosyası ile ilgili yaşanan sorunları çözmek için anahtarlar geçici olarak buraya eklenmiştir.
+// .env dosyası ile ilgili yaşanan ve tekrarlayan bağlantı sorunlarını kesin olarak çözmek için
+// anahtarlar geçici olarak doğrudan koda gömülmüştür.
 // Bu yöntemin canlı (production) bir uygulama için GÜVENLİ OLMADIĞINI unutmayın.
-// Projenizi Vercel gibi bir platformda yayınlarken bu anahtarları "Environment Variables"
-// bölümüne taşımanız ve kodu `import.meta.env.VITE_...` kullanacak şekilde güncellemeniz gerekir.
+// Projenizi Vercel'de yayınlarken bu anahtarları "Environment Variables" bölümüne taşımanız
+// ve aşağıdaki satırları `import.meta.env.VITE_...` kullanacak şekilde güncellemeniz GEREKİR.
 const supabaseUrl = 'https://peqavnbubldvelitexiq.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlcWF2bmJ1YmxkdmVsaXRleGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNzQwNzksImV4cCI6MjA3OTc1MDA3OX0.VecnYk4POIGZl-ff2lNFwrdnjzjql4QiakMTdlXnxCU';
+
+// DEPLOY EDERKEN KULLANILACAK KOD:
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 
 console.log("Supabase Bağlantısı Başlatılıyor (Hardcoded)...");

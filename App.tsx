@@ -242,11 +242,14 @@ const AppContent: React.FC = () => {
             activity.icon,
             { id: category.id, title: category.title }
         );
-        // Data is now local to SavedWorksheetsView, no need to reload here.
         alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
     } catch (e: any) {
         console.error("Save error:", e);
-        const errorMessage = `Kaydedilirken bir hata oluştu: ${e.message || 'Bilinmeyen hata'}. Detay: ${e.details || 'Yok'}. Kod: ${e.code || 'Yok'}.`;
+        let errorMessage = `Kaydedilirken bir hata oluştu: ${e.message || 'Bilinmeyen hata'}.`;
+        // Check for foreign key violation, which often indicates a profile sync issue.
+        if (e.code === '23503') {
+            errorMessage = "Kaydetme başarısız. Kullanıcı profilinizle ilgili bir sorun olabilir. Lütfen çıkış yapıp tekrar giriş yapmayı deneyin ve veritabanı betiğini çalıştırdığınızdan emin olun.";
+        }
         alert(errorMessage);
     }
   };
@@ -269,7 +272,6 @@ const AppContent: React.FC = () => {
       return <AdminDashboard onBack={() => setCurrentView('generator')} />;
   }
   if (currentView === 'profile') {
-      // FIX: Pass onSelectActivity prop to ProfileView.
       return <ProfileView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} />;
   }
   if (currentView === 'messages') {

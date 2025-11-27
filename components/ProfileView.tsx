@@ -435,7 +435,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                 {selectedAssessment.report.overallSummary}
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="p-4 border rounded-xl flex flex-col items-center justify-center">
+                                <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px]">
                                     <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Risk Analizi</h4>
                                     {selectedAssessment.report.chartData && <RadarChart data={selectedAssessment.report.chartData} />}
                                 </div>
