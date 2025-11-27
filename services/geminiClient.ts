@@ -1,4 +1,3 @@
-
 // This function will now call our own backend proxy instead of Google's API directly.
 export const generateWithSchema = async (prompt: string, schema: any, model?: string) => {
     try {

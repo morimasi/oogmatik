@@ -1,4 +1,3 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
@@ -53,7 +52,7 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
                         type: { type: Type.STRING, enum: ['multiple-choice', 'open-ended'] },
                         question: { type: Type.STRING },
                         options: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        answerIndex: { type: Type.INTEGER },
+                        answerIndex: { type: Type.INTEGER }
                     },
                     required: ['type', 'question']
                 },

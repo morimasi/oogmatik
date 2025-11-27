@@ -48,7 +48,7 @@ export const generateNumberPatternFromAI = async (options: GeneratorOptions): Pr
                     type: Type.OBJECT,
                     properties: {
                         sequence: { type: Type.STRING },
-                        answer: { type: Type.STRING },
+                        answer: { type: Type.STRING }
                     },
                      required: ['sequence', 'answer']
                 },

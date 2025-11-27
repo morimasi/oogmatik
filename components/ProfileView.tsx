@@ -105,9 +105,7 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             return acc;
         }, {});
         
-        // FIX: The sort function was performing an arithmetic operation on values that TypeScript could not
-        // guarantee to be numbers, leading to a type error. Added `|| 0` as a defensive measure to ensure
-        // both operands are numbers, preventing the error. This pattern is consistent with other sorting logic in the codebase.
+        // Fix: Ensure sort operands are numbers to prevent TypeScript errors.
         const sortedCategories = Object.entries(categoryCounts).sort((a, b) => (b[1] || 0) - (a[1] || 0));
 
         const mostUsedCategory = sortedCategories.length > 0 ? sortedCategories[0][0] : 'Yok';
