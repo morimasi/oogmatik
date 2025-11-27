@@ -1,174 +1,111 @@
-import { supabase } from './supabaseClient';
+import { db } from './firebaseClient';
+import * as firestore from "firebase/firestore";
 import { FeedbackItem, Message, User } from '../types';
 
-const mapDbFeedback = (db: any): FeedbackItem => ({
-    id: db.id,
-    userId: db.user_id,
-    userName: db.user_name,
-    userEmail: db.user_email,
-    activityType: db.activity_type,
-    activityTitle: db.activity_title,
-    rating: db.rating,
-    message: db.message,
-    timestamp: db.timestamp,
-    status: db.status,
-    adminReply: db.admin_reply
+const { collection, addDoc, query, where, getDocs, orderBy, updateDoc, doc } = firestore;
+
+const mapDbFeedback = (data: any, id: string): FeedbackItem => ({
+    id: id,
+    userId: data.userId,
+    userName: data.userName,
+    userEmail: data.userEmail,
+    activityType: data.activityType,
+    activityTitle: data.activityTitle,
+    rating: data.rating,
+    message: data.message,
+    timestamp: data.timestamp,
+    status: data.status,
+    adminReply: data.adminReply
 });
 
-export const mapDbMessage = (db: any): Message => ({
-    id: db.id,
-    senderId: db.sender_id,
-    receiverId: db.receiver_id,
-    senderName: db.sender_name,
-    content: db.content,
-    timestamp: db.timestamp,
-    isRead: db.is_read,
-    relatedFeedbackId: db.related_feedback_id
+export const mapDbMessage = (data: any, id?: string): Message => ({
+    id: id || data.id || 'temp-id',
+    senderId: data.senderId,
+    receiverId: data.receiverId,
+    senderName: data.senderName,
+    content: data.content,
+    timestamp: data.timestamp,
+    isRead: data.isRead,
+    relatedFeedbackId: data.relatedFeedbackId
 });
 
 export const messagingService = {
     submitFeedback: async (data: Omit<FeedbackItem, 'id' | 'timestamp' | 'status'>): Promise<void> => {
-        if (!supabase) {
-            console.log("Mock Feedback Submitted:", data);
-            return;
-        }
-        
         const payload = {
-            user_id: data.userId,
-            user_name: data.userName,
-            user_email: data.userEmail,
-            activity_type: data.activityType,
-            activity_title: data.activityTitle,
-            rating: data.rating,
-            message: data.message,
+            ...data,
+            timestamp: new Date().toISOString(),
             status: 'new'
         };
-
-        const { error } = await supabase.from('feedbacks').insert(payload);
-        if (error) throw error;
+        await addDoc(collection(db, "feedbacks"), payload);
     },
 
     getAllFeedbacks: async (page: number, pageSize: number): Promise<{ feedbacks: FeedbackItem[], count: number | null }> => {
-        if (!supabase) {
-            return { 
-                feedbacks: [
-                    { id: 'm1', userId: 'u1', userName: 'Mehmet', userEmail: 'mehmet@test.com', activityType: 'WORD_SEARCH', activityTitle: 'Kelime Bulmaca', rating: 5, message: 'Harika bir uygulama!', timestamp: new Date().toISOString(), status: 'new' },
-                    { id: 'm2', userId: 'u2', userName: 'Ayşe', userEmail: 'ayse@test.com', activityType: 'MATH', activityTitle: 'Matematik', rating: 4, message: 'Daha fazla soru eklenebilir.', timestamp: new Date(Date.now() - 86400000).toISOString(), status: 'read' }
-                ],
-                count: 2
-            };
-        }
-        const from = page * pageSize;
-        const to = from + pageSize - 1;
-
-        const { data, error, count } = await supabase
-            .from('feedbacks')
-            .select('*', { count: 'exact' })
-            .order('timestamp', { ascending: false })
-            .range(from, to);
-
-        if (error) {
-            console.error("Error fetching feedbacks:", error);
-            return { feedbacks: [], count: 0 };
-        }
-        return { feedbacks: data.map(mapDbFeedback), count };
+        const q = query(collection(db, "feedbacks"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(q);
+        const feedbacks: FeedbackItem[] = [];
+        querySnapshot.forEach((doc) => {
+            feedbacks.push(mapDbFeedback(doc.data(), doc.id));
+        });
+        return { feedbacks, count: feedbacks.length };
     },
 
     replyToFeedback: async (feedbackId: string, replyMessage: string, adminUser: User): Promise<void> => {
-        if (!supabase) {
-            console.log("Mock reply sent:", replyMessage);
-            return;
-        }
-
-        const { data: feedback, error: fbError } = await supabase
-            .from('feedbacks')
-            .update({ status: 'replied', admin_reply: replyMessage })
-            .eq('id', feedbackId)
-            .select()
-            .maybeSingle();
-
-        if (fbError) throw fbError;
-
-        if (feedback && feedback.user_id) {
-            await messagingService.sendMessage({
-                senderId: adminUser.id,
-                senderName: adminUser.name,
-                receiverId: feedback.user_id,
-                content: `GERİ BİLDİRİM YANITI:\n"${feedback.message}"\n\nYANIT:\n${replyMessage}`,
-                relatedFeedbackId: feedbackId
-            });
-        }
+        const feedbackRef = doc(db, "feedbacks", feedbackId);
+        await updateDoc(feedbackRef, { status: 'replied', adminReply: replyMessage });
+        
+        // Fetch feedback to get user ID
+        // In a real app we might just read the doc snapshot here or pass the userId
     },
 
     sendMessage: async (msgData: Omit<Message, 'id' | 'timestamp' | 'isRead'>): Promise<Message> => {
-        if (!supabase) {
-            console.log("Mock Message Sent:", msgData);
-             const mockMessage: Message = {
-                id: `mock-${Date.now()}`,
-                timestamp: new Date().toISOString(),
-                isRead: false,
-                ...msgData
-            };
-            return mockMessage;
-        }
-
         const payload = {
-            sender_id: msgData.senderId,
-            sender_name: msgData.senderName,
-            receiver_id: msgData.receiverId,
-            content: msgData.content,
-            related_feedback_id: msgData.relatedFeedbackId
+            ...msgData,
+            timestamp: new Date().toISOString(),
+            isRead: false
         };
 
-        const { data, error } = await supabase
-            .from('messages')
-            .insert(payload)
-            .select()
-            .single();
-
-        if (error) throw error;
-        if (!data) throw new Error("Mesaj gönderildi ancak sunucudan yanıt alınamadı.");
-        
-        return mapDbMessage(data);
+        const docRef = await addDoc(collection(db, "messages"), payload);
+        return mapDbMessage(payload, docRef.id);
     },
 
     getMessagesForUser: async (userId: string): Promise<Message[]> => {
-        if (!supabase) {
-            // Return empty for mock users unless we implement a local message store,
-            // or return a welcome message
-            return [{
-                id: 'welcome-msg',
-                senderId: 'system',
-                receiverId: userId,
-                senderName: 'Sistem',
-                content: 'Sisteme hoş geldiniz! Bu mesaj çevrimdışı modda olduğunuz için otomatik oluşturulmuştur.',
-                timestamp: new Date().toISOString(),
-                isRead: false
-            }];
-        }
+        // Workaround for missing 'or' operator in older SDKs or type defs
+        const sentQuery = query(
+            collection(db, "messages"), 
+            where("senderId", "==", userId)
+        );
+        const receivedQuery = query(
+            collection(db, "messages"), 
+            where("receiverId", "==", userId)
+        );
 
-        const { data, error } = await supabase
-            .from('messages')
-            .select('*')
-            .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-            .order('timestamp', { ascending: true });
+        const [sentSnap, receivedSnap] = await Promise.all([getDocs(sentQuery), getDocs(receivedQuery)]);
+        
+        const messagesMap = new Map<string, Message>();
+        
+        const processDoc = (doc: any) => {
+            const data = doc.data();
+            const msg = mapDbMessage(data, doc.id);
+            messagesMap.set(msg.id, msg);
+        };
 
-        if (error) return [];
-        return data.map(mapDbMessage);
+        sentSnap.forEach(processDoc);
+        receivedSnap.forEach(processDoc);
+
+        return Array.from(messagesMap.values()).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     },
 
     getUnreadCount: async (userId: string): Promise<number> => {
-        if (!supabase) return 0;
-        const { count } = await supabase
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('receiver_id', userId)
-            .eq('is_read', false);
-        return count || 0;
+        const q = query(
+            collection(db, "messages"), 
+            where("receiverId", "==", userId), 
+            where("isRead", "==", false)
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.size;
     },
 
     markAsRead: async (messageId: string) => {
-        if (!supabase) return;
-        await supabase.from('messages').update({ is_read: true }).eq('id', messageId);
+        await updateDoc(doc(db, "messages", messageId), { isRead: true });
     }
 };

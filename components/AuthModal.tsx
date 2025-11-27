@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { keepAlive } from '../services/supabaseClient';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -21,13 +20,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         isMounted.current = true;
-        
-        if (isOpen) {
-            // Pencere açılır açılmaz sunucuyu "dürt" (Wake up call)
-            // Bu sayede kullanıcı form doldururken sunucu ısınır.
-            keepAlive();
-        }
-
         return () => { isMounted.current = false; };
     }, [isOpen]);
 

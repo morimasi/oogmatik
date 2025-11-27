@@ -1,22 +1,22 @@
-import { supabase } from './supabaseClient';
+import { db } from './firebaseClient';
+import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType } from '../types';
 
+const { collection, addDoc, query, where, getDocs, orderBy, deleteDoc, doc, updateDoc, increment } = firestore;
+
 // Mapper
-const mapDbToWorksheet = (dbItem: any): SavedWorksheet => ({
-    id: dbItem.id,
-    userId: dbItem.user_id,
-    name: dbItem.name,
-    activityType: dbItem.activity_type as ActivityType,
-    worksheetData: dbItem.worksheet_data as SingleWorksheetData[],
-    createdAt: dbItem.created_at,
-    icon: dbItem.icon || 'fa-solid fa-file',
-    category: {
-        id: dbItem.category_id || 'uncategorized',
-        title: dbItem.category_title || 'Genel'
-    },
-    sharedBy: dbItem.shared_by,
-    sharedByName: dbItem.shared_by_name,
-    sharedWith: dbItem.shared_with
+const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
+    id: id,
+    userId: docData.userId,
+    name: docData.name,
+    activityType: docData.activityType as ActivityType,
+    worksheetData: docData.worksheetData as SingleWorksheetData[],
+    createdAt: docData.createdAt,
+    icon: docData.icon || 'fa-solid fa-file',
+    category: docData.category || { id: 'uncategorized', title: 'Genel' },
+    sharedBy: docData.sharedBy,
+    sharedByName: docData.sharedByName,
+    sharedWith: docData.sharedWith
 });
 
 export const worksheetService = {
@@ -28,110 +28,95 @@ export const worksheetService = {
         icon: string,
         category: { id: string, title: string }
     ): Promise<SavedWorksheet> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
-
-        const dbPayload = {
-            user_id: userId,
+        const payload = {
+            userId,
             name,
-            activity_type: activityType,
-            worksheet_data: data,
+            activityType,
+            worksheetData: data,
             icon,
-            category_id: category.id,
-            category_title: category.title,
-            created_at: new Date().toISOString()
+            category,
+            createdAt: new Date().toISOString()
         };
 
-        const { data: inserted, error } = await supabase
-            .from('saved_worksheets')
-            .insert(dbPayload)
-            .select()
-            .maybeSingle();
+        const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
 
-        if (error) {
-            console.error("Supabase worksheet insert error:", error);
-            throw error;
-        }
+        // Increment user stats in Firestore
+        const userRef = doc(db, "users", userId);
+        updateDoc(userRef, { worksheetCount: increment(1) }).catch(console.warn);
 
-        if (!inserted) {
-            throw new Error("Etkinlik kaydedildi ancak sunucudan yanıt alınamadı. Lütfen sayfayı yenileyip arşivinizi kontrol edin.");
-        }
-
-        // Increment user stats but don't fail the whole operation if this fails.
-        // This makes the save more robust.
-        supabase.rpc('increment_worksheet_count', { user_id: userId }).then(({ error: rpcError }) => {
-            if (rpcError) {
-                console.warn("Could not increment worksheet count via RPC:", rpcError);
-            }
-        });
-
-        return mapDbToWorksheet(inserted);
+        return mapDbToWorksheet(payload, docRef.id);
     },
 
     getUserWorksheets: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
-        if (!supabase) return { items: [], count: 0 };
-        
-        const from = page * pageSize;
-        const to = from + pageSize - 1;
+        try {
+            const q = query(
+                collection(db, "saved_worksheets"), 
+                where("userId", "==", userId),
+                orderBy("createdAt", "desc")
+                // Note: Firestore requires a composite index for this query. 
+                // If it fails, check console for index creation link.
+            );
+            
+            const querySnapshot = await getDocs(q);
+            const items: SavedWorksheet[] = [];
+            
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                // Client-side filtering for sharedWith if index issues arise, 
+                // or ensure "sharedWith" field exists/is null.
+                if (!data.sharedWith) {
+                    items.push(mapDbToWorksheet(data, doc.id));
+                }
+            });
 
-        const { data, error, count } = await supabase
-            .from('saved_worksheets')
-            .select('*', { count: 'exact' })
-            .eq('user_id', userId)
-            .is('shared_with', null) 
-            .order('created_at', { ascending: false })
-            .range(from, to);
-
-        if (error) {
+            return { items, count: items.length };
+        } catch (error) {
             console.error("Error fetching worksheets:", error);
             return { items: [], count: 0 };
         }
-        return { items: data.map(mapDbToWorksheet), count };
     },
 
     deleteWorksheet: async (id: string) => {
-        if (!supabase) return;
-        const { error } = await supabase.from('saved_worksheets').delete().eq('id', id);
-        if (error) throw error;
+        await deleteDoc(doc(db, "saved_worksheets", id));
     },
 
     shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
-        if (!supabase) throw new Error("Veritabanı bağlantısı yok.");
-
         const sharedPayload = {
-            user_id: senderId, 
+            userId: senderId, // Original owner ID kept for reference, but usually receiver views their own list
+            // Actually, for "Shared With Me" view, we query where sharedWith == currentUserId
+            
             name: worksheet.name,
-            activity_type: worksheet.activityType,
-            worksheet_data: worksheet.worksheetData,
+            activityType: worksheet.activityType,
+            worksheetData: worksheet.worksheetData,
             icon: worksheet.icon,
-            category_id: worksheet.category.id,
-            category_title: worksheet.category.title,
-            shared_by: senderId,
-            shared_by_name: senderName,
-            shared_with: receiverId,
-            created_at: new Date().toISOString()
+            category: worksheet.category,
+            sharedBy: senderId,
+            sharedByName: senderName,
+            sharedWith: receiverId,
+            createdAt: new Date().toISOString()
         };
 
-        const { error } = await supabase.from('saved_worksheets').insert(sharedPayload);
-        if (error) throw error;
+        await addDoc(collection(db, "saved_worksheets"), sharedPayload);
     },
 
     getSharedWithMe: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
-        if (!supabase) return { items: [], count: 0 };
+        try {
+            const q = query(
+                collection(db, "saved_worksheets"), 
+                where("sharedWith", "==", userId),
+                orderBy("createdAt", "desc")
+            );
 
-        const from = page * pageSize;
-        const to = from + pageSize - 1;
+            const querySnapshot = await getDocs(q);
+            const items: SavedWorksheet[] = [];
+            querySnapshot.forEach((doc) => {
+                items.push(mapDbToWorksheet(doc.data(), doc.id));
+            });
 
-        const { data, error, count } = await supabase
-            .from('saved_worksheets')
-            .select('*', { count: 'exact' })
-            .eq('shared_with', userId)
-            .order('created_at', { ascending: false })
-            .range(from, to);
-
-        if (error) {
+            return { items, count: items.length };
+        } catch (error) {
             console.error("Error fetching shared worksheets:", error);
             return { items: [], count: 0 };
         }
-        return { items: data.map(mapDbToWorksheet), count };
     }
 };

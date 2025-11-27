@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { authService } from '../services/authService';
-import { supabase } from '../services/supabaseClient';
+import { auth } from '../services/firebaseClient';
+import { onAuthStateChanged } from "firebase/auth";
 
 interface AuthContextType {
     user: User | null;
@@ -21,11 +21,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Dinleyici kur
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (session?.user) {
-                // Oturum varsa kullanıcıyı al (önbellek veya DB'den)
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
                 try {
+                    // Kullanıcı verisini Firestore'dan çek (veya oluştur)
+                    // authService.getCurrentUser bu mantığı içerir
                     const currentUser = await authService.getCurrentUser();
                     setUser(currentUser);
                 } catch(e) {
@@ -34,15 +34,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setIsLoading(false);
                 }
             } else {
-                // Oturum yoksa çıkış yap
                 setUser(null);
                 setIsLoading(false);
             }
         });
 
-        return () => {
-            subscription.unsubscribe();
-        };
+        return () => unsubscribe();
     }, []);
 
     const login = async (email: string, pass: string) => {

@@ -13,9 +13,10 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { MessagesView } from './components/MessagesView';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
-import { keepAlive, checkDbConnection } from './services/supabaseClient';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
+// NOTE: keepAlive no longer needed for Firebase
+// import { keepAlive } from './services/supabaseClient'; 
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
@@ -118,23 +119,8 @@ const AppContent: React.FC = () => {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-      const checkConnection = async () => {
-          console.log("🔄 Supabase bağlantısı test ediliyor...");
-          const isConnected = await checkDbConnection();
-          if (isConnected) {
-              console.log("✅ Supabase bağlantısı başarılı.");
-          } else {
-              console.error("❌ Supabase bağlantısı başarısız. Lütfen internet bağlantınızı kontrol edin.");
-          }
-      };
-      
-      checkConnection();
-      keepAlive();
-      
-      const interval = setInterval(() => {
-          keepAlive();
-      }, 120000);
-      return () => clearInterval(interval);
+      // Firebase is auto-initialized, so explicit connection check is mostly symbolic or auth based.
+      console.log("🔥 Firebase başlatıldı.");
   }, []);
 
   useEffect(() => {
@@ -245,12 +231,7 @@ const AppContent: React.FC = () => {
         alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
     } catch (e: any) {
         console.error("Save error:", e);
-        let errorMessage = `Kaydedilirken bir hata oluştu: ${e.message || 'Bilinmeyen hata'}.`;
-        // Check for foreign key violation, which often indicates a profile sync issue.
-        if (e.code === '23503') {
-            errorMessage = "Kaydetme başarısız. Kullanıcı profilinizle ilgili bir sorun olabilir. Lütfen çıkış yapıp tekrar giriş yapmayı deneyin ve veritabanı betiğini çalıştırdığınızdan emin olun.";
-        }
-        alert(errorMessage);
+        alert(`Kaydedilirken bir hata oluştu: ${e.message || 'Bilinmeyen hata'}.`);
     }
   };
 

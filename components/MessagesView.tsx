@@ -3,7 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { messagingService, mapDbMessage } from '../services/messagingService';
 import { authService } from '../services/authService';
 import { Message, User } from '../types';
-import { supabase } from '../services/supabaseClient';
+import { db } from '../services/firebaseClient';
+import * as firestore from "firebase/firestore";
+
+const { collection, query, where, onSnapshot, orderBy } = firestore;
 
 export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { user } = useAuth();
@@ -42,23 +45,30 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         if (user) {
             loadInitialData();
 
-            // Sadece BANA GELEN yeni mesajları dinle. Benim gönderdiklerim zaten anında ekleniyor.
-            const channel = supabase
-                .channel(`messages_for_${user.id}`)
-                .on(
-                    'postgres_changes',
-                    { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` },
-                    (payload) => {
-                        console.log('Real-time message received!', payload.new);
-                        const newMessage = mapDbMessage(payload.new);
-                        setMessages(prev => [...prev, newMessage]);
-                    }
-                )
-                .subscribe();
+            // Firestore Realtime Listener
+            // Listening for messages where I am the receiver
+            const q = query(
+                collection(db, "messages"),
+                where("receiverId", "==", user.id)
+                // Note: Firestore limits complex queries in listeners. 
+                // We'll filter or sort on client if needed, or rely on simple filter.
+            );
 
-            return () => {
-                supabase.removeChannel(channel);
-            };
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        console.log("New message: ", change.doc.data());
+                        const newMsg = mapDbMessage(change.doc.data(), change.doc.id);
+                        setMessages(prev => {
+                            // Avoid duplicates just in case
+                            if (prev.some(m => m.id === newMsg.id)) return prev;
+                            return [...prev, newMsg];
+                        });
+                    }
+                });
+            });
+
+            return () => unsubscribe();
         }
     }, [user]);
 
@@ -81,7 +91,7 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         
         setSending(true);
         const contentToSend = newMessage;
-        setNewMessage(''); // Anında temizle
+        setNewMessage(''); 
 
         try {
             const sentMessage = await messagingService.sendMessage({
@@ -90,11 +100,11 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 receiverId: selectedContact.id,
                 content: contentToSend
             });
-            // Kendi mesajını anında ekle (optimistic update)
+            // Optimistic update
             setMessages(prev => [...prev, sentMessage]);
         } catch (err) {
             console.error("Mesaj gönderme hatası:", err);
-            setNewMessage(contentToSend); // Hata olursa mesajı geri yükle
+            setNewMessage(contentToSend); 
         } finally {
             setSending(false);
         }
@@ -148,7 +158,7 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     placeholder="Kişi ara..." 
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                                 />
                             </div>
                         </div>

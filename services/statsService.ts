@@ -1,65 +1,56 @@
-
-import { supabase } from './supabaseClient';
+import { db } from './firebaseClient';
+import * as firestore from "firebase/firestore";
 import { ActivityType, ActivityStats, Activity } from '../types';
 import { ACTIVITIES } from '../constants';
+
+const { collection, doc, setDoc, getDocs, updateDoc, increment, getDoc } = firestore;
 
 export const statsService = {
     // Tüm istatistikleri çek
     getAllStats: async (): Promise<ActivityStats[]> => {
-        if (!supabase) return [];
-        
         try {
-            // Timeout ekleyerek veritabanı yanıt vermezse beklemesini engelliyoruz
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000));
-            const dbPromise = supabase.from('activity_stats').select('*');
+            const querySnapshot = await getDocs(collection(db, "activity_stats"));
+            const stats: ActivityStats[] = [];
             
-            const { data, error } = await Promise.race([dbPromise, timeoutPromise]) as any;
-
-            if (error) {
-                console.warn("Stats fetch error:", error.message);
-                return [];
-            }
-
-            return data.map((item: any) => ({
-                activityId: item.activity_id as ActivityType,
-                title: item.title,
-                generationCount: item.generation_count,
-                lastGenerated: item.last_generated,
-                avgCompletionTime: item.avg_completion_time
-            }));
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                stats.push({
+                    activityId: doc.id as ActivityType, // Doc ID is activityId
+                    title: data.title,
+                    generationCount: data.generationCount,
+                    lastGenerated: data.lastGenerated,
+                    avgCompletionTime: data.avgCompletionTime || 10
+                });
+            });
+            return stats;
         } catch (e) {
-            console.error("Stats service error (using defaults):", e);
+            console.error("Stats service error:", e);
             return [];
         }
     },
 
     // Kullanım sayısını artır (Otomatik)
     incrementUsage: async (activityId: ActivityType) => {
-        if (!supabase) return;
-        
         try {
             const activity = ACTIVITIES.find(a => a.id === activityId);
             const title = activity ? activity.title : activityId;
+            const statRef = doc(db, "activity_stats", activityId);
             
-            // Önce mevcut kaydı kontrol et
-            const { data: existing } = await supabase
-                .from('activity_stats')
-                .select('generation_count')
-                .eq('activity_id', activityId)
-                .maybeSingle();
-            
-            const newCount = (existing?.generation_count || 0) + 1;
+            const docSnap = await getDoc(statRef);
 
-            // Upsert (Ekle veya Güncelle)
-            const { error } = await supabase.from('activity_stats').upsert({
-                activity_id: activityId,
-                title: title,
-                generation_count: newCount,
-                last_generated: new Date().toISOString()
-            });
-
-            if (error) console.warn("Stats increment error:", error.message);
-            
+            if (docSnap.exists()) {
+                await updateDoc(statRef, {
+                    generationCount: increment(1),
+                    lastGenerated: new Date().toISOString()
+                });
+            } else {
+                await setDoc(statRef, {
+                    title: title,
+                    generationCount: 1,
+                    lastGenerated: new Date().toISOString(),
+                    avgCompletionTime: 10
+                });
+            }
         } catch (e) {
             console.warn("Stats increment warning:", e);
         }
@@ -88,8 +79,7 @@ export const statsService = {
             }
         });
         
-        // Eğer yeterli veri yoksa veya veritabanı boşsa, varsayılan popüler etkinlikleri ekle
-        // Bu sayede liste asla boş görünmez veya sonsuz yüklemede kalmaz
+        // Eğer yeterli veri yoksa, varsayılanları ekle
         if (result.length < limit) {
             const defaults = [
                 ActivityType.WORD_SEARCH,
