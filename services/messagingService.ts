@@ -1,4 +1,3 @@
-
 import { supabase } from './supabaseClient';
 import { FeedbackItem, Message, User } from '../types';
 
@@ -49,17 +48,30 @@ export const messagingService = {
         if (error) throw error;
     },
 
-    getAllFeedbacks: async (): Promise<FeedbackItem[]> => {
+    getAllFeedbacks: async (page: number, pageSize: number): Promise<{ feedbacks: FeedbackItem[], count: number | null }> => {
         if (!supabase) {
-            // Mock feedbacks
-            return [
-                { id: 'm1', userId: 'u1', userName: 'Mehmet', userEmail: 'mehmet@test.com', activityType: 'WORD_SEARCH', activityTitle: 'Kelime Bulmaca', rating: 5, message: 'Harika bir uygulama!', timestamp: new Date().toISOString(), status: 'new' },
-                { id: 'm2', userId: 'u2', userName: 'Ayşe', userEmail: 'ayse@test.com', activityType: 'MATH', activityTitle: 'Matematik', rating: 4, message: 'Daha fazla soru eklenebilir.', timestamp: new Date(Date.now() - 86400000).toISOString(), status: 'read' }
-            ];
+            return { 
+                feedbacks: [
+                    { id: 'm1', userId: 'u1', userName: 'Mehmet', userEmail: 'mehmet@test.com', activityType: 'WORD_SEARCH', activityTitle: 'Kelime Bulmaca', rating: 5, message: 'Harika bir uygulama!', timestamp: new Date().toISOString(), status: 'new' },
+                    { id: 'm2', userId: 'u2', userName: 'Ayşe', userEmail: 'ayse@test.com', activityType: 'MATH', activityTitle: 'Matematik', rating: 4, message: 'Daha fazla soru eklenebilir.', timestamp: new Date(Date.now() - 86400000).toISOString(), status: 'read' }
+                ],
+                count: 2
+            };
         }
-        const { data, error } = await supabase.from('feedbacks').select('*').order('timestamp', { ascending: false });
-        if (error) return [];
-        return data.map(mapDbFeedback);
+        const from = page * pageSize;
+        const to = from + pageSize - 1;
+
+        const { data, error, count } = await supabase
+            .from('feedbacks')
+            .select('*', { count: 'exact' })
+            .order('timestamp', { ascending: false })
+            .range(from, to);
+
+        if (error) {
+            console.error("Error fetching feedbacks:", error);
+            return { feedbacks: [], count: 0 };
+        }
+        return { feedbacks: data.map(mapDbFeedback), count };
     },
 
     replyToFeedback: async (feedbackId: string, replyMessage: string, adminUser: User): Promise<void> => {

@@ -1,4 +1,3 @@
-
 import { supabase } from './supabaseClient';
 import { SavedWorksheet, SingleWorksheetData, ActivityType } from '../types';
 
@@ -68,21 +67,25 @@ export const worksheetService = {
         return mapDbToWorksheet(inserted);
     },
 
-    getUserWorksheets: async (userId: string): Promise<SavedWorksheet[]> => {
-        if (!supabase) return [];
+    getUserWorksheets: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
+        if (!supabase) return { items: [], count: 0 };
         
-        const { data, error } = await supabase
+        const from = page * pageSize;
+        const to = from + pageSize - 1;
+
+        const { data, error, count } = await supabase
             .from('saved_worksheets')
-            .select('*')
+            .select('*', { count: 'exact' })
             .eq('user_id', userId)
             .is('shared_with', null) 
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false })
+            .range(from, to);
 
         if (error) {
             console.error("Error fetching worksheets:", error);
-            return [];
+            return { items: [], count: 0 };
         }
-        return data.map(mapDbToWorksheet);
+        return { items: data.map(mapDbToWorksheet), count };
     },
 
     deleteWorksheet: async (id: string) => {
@@ -112,16 +115,23 @@ export const worksheetService = {
         if (error) throw error;
     },
 
-    getSharedWithMe: async (userId: string): Promise<SavedWorksheet[]> => {
-        if (!supabase) return [];
+    getSharedWithMe: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
+        if (!supabase) return { items: [], count: 0 };
 
-        const { data, error } = await supabase
+        const from = page * pageSize;
+        const to = from + pageSize - 1;
+
+        const { data, error, count } = await supabase
             .from('saved_worksheets')
-            .select('*')
+            .select('*', { count: 'exact' })
             .eq('shared_with', userId)
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false })
+            .range(from, to);
 
-        if (error) return [];
-        return data.map(mapDbToWorksheet);
+        if (error) {
+            console.error("Error fetching shared worksheets:", error);
+            return { items: [], count: 0 };
+        }
+        return { items: data.map(mapDbToWorksheet), count };
     }
 };

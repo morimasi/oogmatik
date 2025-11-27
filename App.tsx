@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
@@ -116,7 +115,6 @@ const AppContent: React.FC = () => {
   });
 
   const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
-  const [savedWorksheets, setSavedWorksheets] = useState<SavedWorksheet[]>([]);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
@@ -141,7 +139,6 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
       if (user) {
-          loadUserWorksheets();
           const checkMsgs = async () => {
               try {
                   const count = await messagingService.getUnreadCount(user.id);
@@ -151,8 +148,6 @@ const AppContent: React.FC = () => {
           checkMsgs();
           const interval = setInterval(checkMsgs, 30000);
           return () => clearInterval(interval);
-      } else {
-          setSavedWorksheets([]);
       }
   }, [user]);
 
@@ -161,17 +156,6 @@ const AppContent: React.FC = () => {
           setCurrentView('generator');
       }
   }, [user, currentView]);
-
-  const loadUserWorksheets = async () => {
-      if (user) {
-          try {
-              const sheets = await worksheetService.getUserWorksheets(user.id);
-              setSavedWorksheets(sheets);
-          } catch (e) {
-              console.error("Worksheets load failed:", e);
-          }
-      }
-  };
 
   useEffect(() => {
       try {
@@ -258,16 +242,12 @@ const AppContent: React.FC = () => {
             activity.icon,
             { id: category.id, title: category.title }
         );
-        loadUserWorksheets(); 
+        // Data is now local to SavedWorksheetsView, no need to reload here.
+        alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
     } catch (e: any) {
         console.error("Save error:", e);
         alert(`Kaydedilirken bir hata oluştu: ${e.message || 'Detaylar için konsolu kontrol edin.'}`);
     }
-  };
-
-  const deleteSavedWorksheet = async (id: string) => {
-    await worksheetService.deleteWorksheet(id);
-    loadUserWorksheets();
   };
 
   const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
@@ -413,9 +393,7 @@ const AppContent: React.FC = () => {
           styleSettings={styleSettings}
           onStyleChange={setStyleSettings}
           onSave={addSavedWorksheet}
-          savedWorksheets={savedWorksheets}
           onLoadSaved={loadSavedWorksheet}
-          onDeleteSaved={deleteSavedWorksheet}
           onFeedback={() => setIsFeedbackOpen(true)}
           onOpenAuth={() => setIsAuthModalOpen(true)}
           onSelectActivity={handleSelectActivity}

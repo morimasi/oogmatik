@@ -292,6 +292,26 @@ $$ language plpgsql security definer;
 
 ---
 
+## ⚡ Performans Optimizasyonu (İndeksleme)
+
+Uygulamanın veritabanı sorgularının hızlı çalışması, özellikle kullanıcı sayısı arttıkça kritik öneme sahiptir. Supabase'deki yavaş sorguları ve RLS (Satır Seviyesi Güvenlik) politikalarından kaynaklanabilecek gecikmeleri önlemek için aşağıdaki SQL komutlarını Supabase projenizdeki **SQL Editor**'e yapıştırıp çalıştırmanız **önemle tavsiye edilir**.
+
+Bu komutlar, sıkça sorgulanan sütunlara indeksler ekleyerek veritabanının verilere çok daha hızlı erişmesini sağlar. Komutlar `IF NOT EXISTS` içerdiği için güvenle birden çok kez çalıştırılabilir.
+
+```sql
+-- Sıkça sorgulanan sütunlar için indeksler oluşturma
+CREATE INDEX CONCURRENTLY IF NOT EXISTS users_role_idx ON public.users (role);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS saved_worksheets_user_id_idx ON public.saved_worksheets (user_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS saved_worksheets_shared_with_idx ON public.saved_worksheets (shared_with);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS saved_assessments_user_id_idx ON public.saved_assessments (user_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS saved_assessments_shared_with_idx ON public.saved_assessments (shared_with);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS messages_sender_id_idx ON public.messages (sender_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS messages_receiver_id_idx ON public.messages (receiver_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS feedbacks_status_idx ON public.feedbacks (status);
+```
+
+---
+
 ## 🌐 Sunucuyu Uyanık Tutma (Keep-Alive)
 
 Supabase'in ücretsiz planında, veritabanı bir süre kullanılmadığında "uyku moduna" geçebilir. Bu durum, uygulamaya uzun bir aradan sonra ilk giren kullanıcının yavaşlık veya zaman aşımı hatası yaşamasına neden olabilir.

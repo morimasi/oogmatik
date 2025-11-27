@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { messagingService } from '../services/messagingService';
 import { authService } from '../services/authService';
 import { Message, User } from '../types';
+import { supabase } from '../services/supabaseClient';
 
 export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { user } = useAuth();
@@ -15,12 +15,17 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [sending, setSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const loadMessages = async () => {
+        if (user) {
+            const allMsgs = await messagingService.getMessagesForUser(user.id);
+            setMessages(allMsgs);
+        }
+    };
+
     useEffect(() => {
         if (user) {
             const initData = async () => {
-                // Load contacts
                 const allUsers = await authService.getContacts(user.id);
-                // Sort: Admin first, then alphabetically
                 const sortedContacts = allUsers.sort((a, b) => {
                     if (a.role === 'admin' && b.role !== 'admin') return -1;
                     if (b.role === 'admin' && a.role !== 'admin') return 1;
@@ -28,10 +33,8 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 });
                 setContacts(sortedContacts);
                 
-                // Initial Load
                 await loadMessages();
                 
-                // Default select admin if no contact selected and admin exists
                 const admin = sortedContacts.find(u => u.role === 'admin');
                 if (!selectedContact && admin) {
                     setSelectedContact(admin);
@@ -40,8 +43,22 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             
             initData();
 
-            const interval = setInterval(loadMessages, 3000);
-            return () => clearInterval(interval);
+            // Set up real-time subscription
+            const channel = supabase
+                .channel(`messages_for_${user.id}`)
+                .on<Message>(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'messages' },
+                    (payload) => {
+                        console.log('Realtime message update received!', payload);
+                        loadMessages(); 
+                    }
+                )
+                .subscribe();
+
+            return () => {
+                supabase.removeChannel(channel);
+            };
         }
     }, [user]);
 
@@ -49,13 +66,6 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, selectedContact]);
-
-    const loadMessages = async () => {
-        if (user) {
-            const allMsgs = await messagingService.getMessagesForUser(user.id);
-            setMessages(allMsgs);
-        }
-    };
 
     const handleContactSelect = (contact: User) => {
         setSelectedContact(contact);
@@ -78,7 +88,7 @@ export const MessagesView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 content: newMessage
             });
             setNewMessage('');
-            await loadMessages();
+            // No need to call loadMessages manually, realtime will handle it.
         } catch (err) {
             console.error(err);
         } finally {

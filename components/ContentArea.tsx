@@ -23,9 +23,7 @@ interface ContentAreaProps {
   styleSettings: StyleSettings;
   onStyleChange: (settings: StyleSettings) => void;
   onSave: (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => void;
-  savedWorksheets: SavedWorksheet[];
   onLoadSaved: (worksheet: SavedWorksheet) => void;
-  onDeleteSaved: (id: string) => void;
   onFeedback: () => void;
   onOpenAuth: () => void;
   onSelectActivity?: (activityType: ActivityType) => void;
@@ -67,9 +65,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   styleSettings,
   onStyleChange,
   onSave,
-  savedWorksheets,
   onLoadSaved,
-  onDeleteSaved,
   onFeedback,
   onOpenAuth,
   onSelectActivity
@@ -97,7 +93,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         if (activityType && worksheetData) {
             const name = generateAutoName();
             onSave(name, activityType, worksheetData);
-            alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
         }
     }
 
@@ -285,9 +280,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         </>
       ) : currentView === 'savedList' ? (
         <SavedWorksheetsView 
-            savedWorksheets={savedWorksheets}
             onLoad={onLoadSaved}
-            onDelete={onDeleteSaved}
             onBack={onBackToGenerator}
         />
       ) : currentView === 'shared' ? (

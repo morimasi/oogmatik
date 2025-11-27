@@ -1,6 +1,5 @@
-
 import { supabase } from './supabaseClient';
-import { User } from '../types';
+import { User, UserRole, UserStatus } from '../types';
 
 const ADMIN_EMAILS = ['morimasi@gmail.com', 'meliksahterdek@gmail.com'];
 
@@ -194,21 +193,50 @@ export const authService = {
         return data.map(mapDbUserToAppUser);
     },
 
-    getAllUsers: async (): Promise<User[]> => {
-        if (!supabase) return [];
-        const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
-        if (error) return [];
-        return data.map(mapDbUserToAppUser);
+    getAllUsers: async (page: number, pageSize: number): Promise<{ users: User[], count: number | null }> => {
+        if (!supabase) return { users: [], count: 0 };
+        const from = page * pageSize;
+        const to = from + pageSize - 1;
+
+        const { data, error, count } = await supabase
+            .from('users')
+            .select('*', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(from, to);
+            
+        if (error) {
+            console.error("Error fetching users:", error);
+            return { users: [], count: 0 };
+        }
+        return { users: data.map(mapDbUserToAppUser), count };
     },
 
     deleteUser: async (userId: string): Promise<void> => {
         if (!supabase) return;
-        await supabase.from('users').delete().eq('id', userId);
+        // This will fail if RLS is not configured for admins.
+        // The Supabase trigger on auth.users should handle this, but for direct admin action:
+        // This requires an admin role with elevated privileges on the backend.
+        // Assuming RLS is set up, or this is called from an admin client.
+        const { error } = await supabase.from('users').delete().eq('id', userId);
+        if(error) console.error("DB user delete error:", error);
+        
+        // The above only deletes from public.users. To delete from auth.users, an admin client is needed.
+        // This is a limitation of client-side RLS. For this app, we'll assume deleting from public.users is sufficient.
     },
 
-    toggleUserStatus: async (userId: string, currentStatus: string) => {
+    toggleUserStatus: async (userId: string, currentStatus: string): Promise<void> => {
         if (!supabase) return;
-        const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-        await supabase.from('users').update({ status: newStatus }).eq('id', userId);
+        const newStatus: UserStatus = currentStatus === 'active' ? 'suspended' : 'active';
+        const { error } = await supabase.from('users').update({ status: newStatus }).eq('id', userId);
+        if (error) throw error;
+    },
+
+    updateUserRole: async (userId: string, newRole: UserRole): Promise<void> => {
+        if (!supabase) return;
+        const { error } = await supabase.from('users').update({ role: newRole }).eq('id', userId);
+        if (error) {
+            console.error("Role update error:", error);
+            throw new Error(`Kullanıcı rolü güncellenemedi: ${error.message}. (Yönetici için RLS politikası eksik olabilir.)`);
+        }
     }
 };
