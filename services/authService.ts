@@ -154,7 +154,8 @@ export const authService = {
             const users: User[] = [];
             querySnapshot.forEach((doc) => {
                 if (doc.id !== currentUserId) {
-                    const data = doc.data();
+                    // FIX: Cast doc.data() to any to access its properties.
+                    const data = doc.data() as any;
                     if (data.status !== 'suspended') {
                         users.push(mapDbUserToAppUser(data, doc.id, data.email));
                     }
@@ -175,7 +176,9 @@ export const authService = {
             const querySnapshot = await getDocs(q);
             const users: User[] = [];
             querySnapshot.forEach((doc) => {
-                users.push(mapDbUserToAppUser(doc.data(), doc.id, doc.data().email));
+                // FIX: Cast doc.data() to any to access its properties.
+                const data = doc.data() as any;
+                users.push(mapDbUserToAppUser(data, doc.id, data.email));
             });
             return { users: users, count: users.length };
         } catch (error) {

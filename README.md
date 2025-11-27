@@ -24,12 +24,12 @@ Vercel proje panelinizde **Settings > Environment Variables** menüsüne gidin v
 | Anahtar (Key) | Açıklama / Nereden Alınır? |
 | :--- | :--- |
 | `API_KEY` | **Google Gemini API Anahtarı.** (Google AI Studio'dan alınır). Bu olmadan AI çalışmaz. |
-| `VITE_FIREBASE_API_KEY` | Firebase Console > Project Settings > General > `apiKey` |
-| `VITE_FIREBASE_AUTH_DOMAIN` | Firebase Console > Project Settings > General > `authDomain` |
-| `VITE_FIREBASE_PROJECT_ID` | Firebase Console > Project Settings > General > `projectId` |
-| `VITE_FIREBASE_STORAGE_BUCKET` | Firebase Console > Project Settings > General > `storageBucket` |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase Console > Project Settings > General > `messagingSenderId` |
-| `VITE_FIREBASE_APP_ID` | Firebase Console > Project Settings > General > `appId` |
+| `FIREBASE_API_KEY` | Firebase Console > Project Settings > General > `apiKey` |
+| `FIREBASE_AUTH_DOMAIN` | Firebase Console > Project Settings > General > `authDomain` |
+| `FIREBASE_PROJECT_ID` | Firebase Console > Project Settings > General > `projectId` |
+| `FIREBASE_STORAGE_BUCKET` | Firebase Console > Project Settings > General > `storageBucket` |
+| `FIREBASE_MESSAGING_SENDER_ID` | Firebase Console > Project Settings > General > `messagingSenderId` |
+| `FIREBASE_APP_ID` | Firebase Console > Project Settings > General > `appId` |
 
 **Not:** Değişkenleri ekledikten sonra Vercel'de projenizi **Redeploy** yapmanız gerekir.
 

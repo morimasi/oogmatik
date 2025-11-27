@@ -1,4 +1,3 @@
-
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType } from '../types';
@@ -102,7 +101,8 @@ export const worksheetService = {
             const items: SavedWorksheet[] = [];
             
             querySnapshot.forEach((doc) => {
-                const data = doc.data();
+                // FIX: Cast doc.data() to any to access properties
+                const data = doc.data() as any;
                 if (!data.sharedWith) {
                     items.push(mapDbToWorksheet(data, doc.id));
                 }

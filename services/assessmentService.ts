@@ -1,4 +1,3 @@
-
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { AssessmentReport, SavedAssessment } from '../types';
@@ -40,7 +39,8 @@ export const assessmentService = {
             const assessments: SavedAssessment[] = [];
             
             querySnapshot.forEach((doc) => {
-                const data = doc.data();
+                // FIX: Cast doc.data() to any to access properties
+                const data = doc.data() as any;
                 // Filter out shared items if necessary
                 if (!data.sharedWith) {
                     assessments.push({
@@ -97,7 +97,8 @@ export const assessmentService = {
             const assessments: SavedAssessment[] = [];
             
             querySnapshot.forEach((doc) => {
-                const data = doc.data();
+                // FIX: Cast doc.data() to any to access its properties
+                const data = doc.data() as any;
                 assessments.push({
                     id: doc.id,
                     userId: data.userId,

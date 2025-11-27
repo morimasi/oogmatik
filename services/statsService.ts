@@ -13,7 +13,8 @@ export const statsService = {
             const stats: ActivityStats[] = [];
             
             querySnapshot.forEach((doc) => {
-                const data = doc.data();
+                // FIX: Cast doc.data() to any to access its properties.
+                const data = doc.data() as any;
                 stats.push({
                     activityId: doc.id as ActivityType, // Doc ID is activityId
                     title: data.title,

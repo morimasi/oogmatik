@@ -1,9 +1,8 @@
-
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import * as firestore from "firebase/firestore";
 
-// Kullanıcının sağladığı yapılandırma
+// Using hardcoded Firebase configuration as requested to fix deployment issues.
 const firebaseConfig = {
   apiKey: "AIzaSyDEnRDzfZ65myaEFTXVjdYu6tyKyFhXP3w",
   authDomain: "ooggen-08916543-87358.firebaseapp.com",
@@ -12,6 +11,12 @@ const firebaseConfig = {
   messagingSenderId: "1013986256525",
   appId: "1:1013986256525:web:21ff26593d2422ad0e24c4"
 };
+
+// Check if required hardcoded values are set.
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+    console.error("Firebase configuration is missing. Please check the hardcoded config in services/firebaseClient.ts.");
+}
+
 
 // Firebase'i Başlat
 const app = initializeApp(firebaseConfig);

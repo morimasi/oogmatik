@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { messagingService, mapDbMessage } from '../services/messagingService';
@@ -60,7 +59,8 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                 // We'll filter or sort on client if needed, or rely on simple filter.
             );
 
-            const unsubscribe = onSnapshot(q, (snapshot) => {
+            // FIX: Explicitly type `snapshot` to resolve property access error.
+            const unsubscribe = onSnapshot(q, (snapshot: firestore.QuerySnapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
                         const newMsg = mapDbMessage(change.doc.data(), change.doc.id);
