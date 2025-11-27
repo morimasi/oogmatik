@@ -632,20 +632,10 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     )}
 
                     {currentStep === 1 && (
-                        <div className="p-4 md:p-12 flex flex-col flex-1 md:justify-center max-w-lg mx-auto w-full">
-                            <h3 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-center text-zinc-800 dark:text-zinc-100">Öğrenci Profili</h3>
+                        <div className="p-4 sm:p-8 flex flex-col flex-1 max-w-lg mx-auto w-full">
+                            <h3 className="text-2xl font-bold mb-6 text-center text-zinc-800 dark:text-zinc-100 shrink-0">Öğrenci Profili</h3>
+                            
                             <div className="space-y-6">
-                                <div>
-                                    <label className="block font-bold mb-2 text-zinc-700 dark:text-zinc-300">Adı Soyadı</label>
-                                    <input 
-                                        type="text" 
-                                        value={profile.studentName}
-                                        onChange={e => setProfile({...profile, studentName: e.target.value})}
-                                        className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-indigo-500 outline-none"
-                                        placeholder="Öğrenci Adı"
-                                    />
-                                </div>
-                                
                                 <div>
                                     <label className="block font-bold mb-2 text-zinc-700 dark:text-zinc-300">Cinsiyet</label>
                                     <div className="flex gap-4">
@@ -678,8 +668,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                 </div>
                                 <div>
                                     <label className="block font-bold mb-3 text-lg ml-1"><i className="fa-solid fa-graduation-cap text-indigo-500 mr-2"></i>Sınıf Seviyesi</label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf'].map(g => (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf'].map(g => (
                                             <button 
                                                 key={g} 
                                                 onClick={() => setProfile({...profile, grade: g})} 
@@ -691,15 +681,28 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 </div>
                             </div>
-                            <button 
-                                onClick={() => {
-                                    if(!profile.studentName) { alert('Lütfen öğrenci adını giriniz.'); return; }
-                                    triggerTransition('Okuma Testine Hazırlanılıyor...', 2);
-                                }} 
-                                className="mt-10 py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity"
-                            >
-                                Devam Et
-                            </button>
+                            
+                            <div className="mt-auto pt-6 shrink-0">
+                                <div>
+                                    <label className="block font-bold mb-2 text-zinc-700 dark:text-zinc-300">Adı Soyadı</label>
+                                    <input 
+                                        type="text" 
+                                        value={profile.studentName}
+                                        onChange={e => setProfile({...profile, studentName: e.target.value})}
+                                        className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-indigo-500 outline-none"
+                                        placeholder="Öğrenci Adı"
+                                    />
+                                </div>
+                                <button 
+                                    onClick={() => {
+                                        if(!profile.studentName) { alert('Lütfen öğrenci adını giriniz.'); return; }
+                                        triggerTransition('Okuma Testine Hazırlanılıyor...', 2);
+                                    }} 
+                                    className="mt-4 py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity"
+                                >
+                                    Devam Et
+                                </button>
+                            </div>
                         </div>
                     )}
                     
