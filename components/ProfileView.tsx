@@ -105,8 +105,9 @@ export const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             return acc;
         }, {});
         
-        // Fix: Ensure sort operands are numbers to prevent TypeScript errors.
-        const sortedCategories = Object.entries(categoryCounts).sort((a, b) => (b[1] || 0) - (a[1] || 0));
+        // FIX: The `|| 0` was redundant as categoryCounts values are guaranteed to be numbers.
+        // Removing it resolves potential type inference issues with some TypeScript configurations.
+        const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
 
         const mostUsedCategory = sortedCategories.length > 0 ? sortedCategories[0][0] : 'Yok';
 

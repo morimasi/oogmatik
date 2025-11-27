@@ -259,9 +259,9 @@ const AppContent: React.FC = () => {
             { id: category.id, title: category.title }
         );
         loadUserWorksheets(); 
-    } catch (e) {
+    } catch (e: any) {
         console.error("Save error:", e);
-        alert("Kaydedilirken bir hata oluştu.");
+        alert(`Kaydedilirken bir hata oluştu: ${e.message || 'Detaylar için konsolu kontrol edin.'}`);
     }
   };
 

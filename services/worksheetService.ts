@@ -48,10 +48,22 @@ export const worksheetService = {
             .select()
             .maybeSingle();
 
-        if (error) throw error;
-        
-        // Increment user stats
-        await supabase.rpc('increment_worksheet_count', { user_id: userId });
+        if (error) {
+            console.error("Supabase worksheet insert error:", error);
+            throw error;
+        }
+
+        if (!inserted) {
+            throw new Error("Etkinlik kaydedildi ancak sunucudan yanıt alınamadı. Lütfen sayfayı yenileyip arşivinizi kontrol edin.");
+        }
+
+        // Increment user stats but don't fail the whole operation if this fails.
+        // This makes the save more robust.
+        supabase.rpc('increment_worksheet_count', { user_id: userId }).then(({ error: rpcError }) => {
+            if (rpcError) {
+                console.warn("Could not increment worksheet count via RPC:", rpcError);
+            }
+        });
 
         return mapDbToWorksheet(inserted);
     },
