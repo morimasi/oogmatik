@@ -32,8 +32,8 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
 
   return (
     <svg 
-      // Updated viewBox to provide more space on the left (-20)
-      viewBox="-20 0 400 50" 
+      // Updated viewBox: expanded left (negative x) to prevent 'B' cutoff and accommodate shift
+      viewBox="-80 0 450 55" 
       xmlns="http://www.w3.org/2000/svg" 
       className={`${className} group cursor-default`}
       style={{ perspective: '800px' }}
@@ -61,7 +61,7 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
       {/* 1. Hidden Text for Measurement */}
       <text
         ref={textRef}
-        x="180" /* Fixed center point within the new viewBox width */
+        x="120" /* Shifted from 180 to 120 for left alignment */
         y="32" 
         dominantBaseline="middle"
         textAnchor="middle"
@@ -107,7 +107,7 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
       {/* Fallback if JS measurement fails or hasn't run yet */}
       {letterData.length === 0 && (
           <text
-            x="180"
+            x="120" /* Match the measurement text x */
             y="32" 
             dominantBaseline="middle"
             textAnchor="middle"
