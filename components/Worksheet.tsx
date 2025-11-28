@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -20,7 +19,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     if (!data || !activityType) return null;
 
     return (
-        <div className={`worksheet-container font-${settings.fontFamily}`} style={{
+        <div className="worksheet-container" style={{
+            fontFamily: 'var(--ui-font)',
             '--worksheet-font-size': `${settings.fontSize}px`,
             '--worksheet-border-color': settings.borderColor,
             '--worksheet-border-width': `${settings.borderWidth}px`,
@@ -54,6 +54,7 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.VISUAL_TRACKING_LINES: return <DyslexiaSheets.VisualTrackingLinesSheet {...props} />;
         case ActivityType.BACKWARD_SPELLING: return <DyslexiaSheets.BackwardSpellingSheet {...props} />;
         case ActivityType.CODE_READING: return <DyslexiaSheets.CodeReadingSheet {...props} />;
+        case ActivityType.ATTENTION_TO_QUESTION: return <DyslexiaSheets.AttentionToQuestionSheet {...props} />;
 
         // --- Math & Logic ---
         case ActivityType.BASIC_OPERATIONS: return <MathLogicSheets.BasicOperationsSheet {...props} />;

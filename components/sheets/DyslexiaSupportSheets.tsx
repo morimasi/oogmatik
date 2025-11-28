@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData } from '../../types';
-import { ImageDisplay, PedagogicalHeader, Shape, ShapeDisplay } from './common';
+import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData } from '../../types';
+import { ImageDisplay, PedagogicalHeader, Shape, GridComponent } from './common';
 
 // Helper for simple sheets
 const SimpleSheet = ({ data, children }: { data: any, children?: React.ReactNode }) => (
@@ -122,7 +122,6 @@ export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = (
 
 const ArrowSymbol = ({ type, className }: { type: string, className?: string }) => {
     // type example: 'arrow-up', 'arrow-left'
-    // Map simplified types to font-awesome classes or SVG
     let rotation = 0;
     if (type.includes('right')) rotation = 0;
     if (type.includes('down')) rotation = 90;
@@ -217,3 +216,131 @@ export const CodeReadingSheet: React.FC<{ data: CodeReadingData }> = ({ data }) 
         </div>
     </div>
 );
+
+// Advanced SVG Pentagon Renderer for Visual Logic
+const PentagonLogic = ({ item }: { item: any }) => {
+    const size = 100;
+    const center = size / 2;
+    const radius = 40;
+    
+    // Pentagon vertices
+    const vertices = Array.from({length: 5}).map((_, i) => {
+        const angle = (i * 72 - 18) * (Math.PI / 180); // Start from top
+        return {
+            x: center + radius * Math.cos(angle),
+            y: center + radius * Math.sin(angle)
+        };
+    });
+
+    return (
+        <svg viewBox="0 0 100 100" className="w-32 h-32 overflow-visible">
+            {/* Pentagon Outline */}
+            <polygon 
+                points={vertices.map(v => `${v.x},${v.y}`).join(' ')} 
+                fill="#fef9c3" stroke="#d97706" strokeWidth="1" 
+                className="dark:fill-yellow-900/20 dark:stroke-yellow-600"
+            />
+            
+            {/* Connections */}
+            {item.shapes.map((shape: any, i: number) => {
+                if (shape.connectedTo) {
+                    return shape.connectedTo.map((targetIdx: number) => (
+                        <line 
+                            key={`${i}-${targetIdx}`}
+                            x1={vertices[i].x} y1={vertices[i].y}
+                            x2={vertices[targetIdx].x} y2={vertices[targetIdx].y}
+                            stroke="#333" strokeWidth="2"
+                        />
+                    ));
+                }
+                return null;
+            })}
+
+            {/* Dots */}
+            {vertices.map((v, i) => (
+                <circle 
+                    key={i} 
+                    cx={v.x} cy={v.y} r="6" 
+                    fill={item.shapes[i]?.color || '#ccc'} 
+                    stroke="#333" strokeWidth="1"
+                />
+            ))}
+        </svg>
+    );
+};
+
+export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData }> = ({ data }) => {
+    return (
+        <div>
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            
+            {/* Sub-type: Letter Cancellation */}
+            {data.subType === 'letter-cancellation' && data.grid && (
+                <div className="flex flex-col items-center gap-8">
+                    <div className="bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700">
+                        <GridComponent grid={data.grid} cellClassName="w-12 h-12 text-2xl font-bold font-dyslexic" />
+                    </div>
+                    {data.targetChars && (
+                        <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-200 dark:border-rose-800 flex items-center gap-4">
+                            <span className="font-bold text-rose-700 dark:text-rose-300">Bu harflerin üzerini çiz:</span>
+                            <div className="flex gap-2">
+                                {data.targetChars.map((char, i) => (
+                                    <span key={i} className="w-8 h-8 flex items-center justify-center bg-white dark:bg-rose-950 border border-rose-300 rounded font-bold relative overflow-hidden">
+                                        {char}
+                                        <div className="absolute inset-0 border-t-2 border-l-2 border-red-500 transform rotate-45 scale-125 origin-center"></div>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {data.password && (
+                        <div className="w-full max-w-md p-6 border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 text-center">
+                            <p className="text-zinc-500 text-sm mb-2 uppercase tracking-widest">Kalan Harflerden Oluşan Şifre</p>
+                            <div className="flex justify-center gap-2">
+                                {data.password.split('').map((_, i) => (
+                                    <div key={i} className="w-10 h-12 border-b-4 border-zinc-400"></div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Sub-type: Path Finding */}
+            {data.subType === 'path-finding' && data.pathGrid && (
+                <div className="flex justify-center">
+                    <div className="relative bg-white dark:bg-zinc-800 p-4 rounded-xl shadow-lg border-2 border-zinc-300">
+                        <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${data.pathGrid[0].length}, minmax(0, 1fr))` }}>
+                            {data.pathGrid.map((row, r) => 
+                                row.map((cell, c) => (
+                                    <div key={`${r}-${c}`} className="w-12 h-12 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center text-2xl">
+                                        {/* Simple visualization based on string content */}
+                                        {cell.includes('start') ? <i className="fa-solid fa-circle-play text-green-500"></i> :
+                                         cell.includes('end') ? <i className="fa-solid fa-flag-checkered text-red-500"></i> :
+                                         cell.includes('star') ? <i className="fa-solid fa-star text-yellow-400"></i> :
+                                         cell.includes('arrow-right') ? <i className="fa-solid fa-arrow-right text-zinc-400"></i> :
+                                         cell.includes('arrow-down') ? <i className="fa-solid fa-arrow-down text-zinc-400"></i> :
+                                         <i className="fa-regular fa-star text-zinc-200"></i>}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Sub-type: Visual Logic */}
+            {data.subType === 'visual-logic' && data.logicItems && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {data.logicItems.map((item, idx) => (
+                        <div key={idx} className="p-4 border-2 rounded-xl bg-white dark:bg-zinc-800 flex items-center justify-between gap-4">
+                            <div className="bg-zinc-100 dark:bg-zinc-900 rounded-full w-8 h-8 flex items-center justify-center font-bold text-zinc-500">{idx + 1}</div>
+                            <PentagonLogic item={item} />
+                            <div className="w-12 h-12 border-2 border-dashed border-zinc-300 rounded-lg"></div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};

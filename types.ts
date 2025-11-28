@@ -125,6 +125,7 @@ export enum ActivityType {
   NUMBER_BOX_LOGIC = 'NUMBER_BOX_LOGIC',
   MAP_INSTRUCTION = 'MAP_INSTRUCTION',
   CODE_READING = 'CODE_READING',
+  ATTENTION_TO_QUESTION = 'ATTENTION_TO_QUESTION',
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -424,6 +425,24 @@ export interface BackwardSpellingData extends BaseActivityData {
 export interface CodeReadingData extends BaseActivityData {
     keyMap: { symbol: string; value: string; color?: string }[];
     codesToSolve: { sequence: string[]; answer: string }[];
+}
+
+export interface AttentionToQuestionData extends BaseActivityData {
+    subType: 'letter-cancellation' | 'path-finding' | 'visual-logic';
+    // For Letter Cancellation
+    grid?: string[][];
+    targetChars?: string[]; // Chars to cross out
+    password?: string;
+    // For Path Finding
+    pathGrid?: string[][]; // Icons/shapes grid codes (e.g. 'star-filled', 'star-outline')
+    correctPath?: {r: number, c: number}[];
+    // For Visual Logic
+    logicItems?: {
+        id: number;
+        shapes: { color: string, type: string, connectedTo?: number[] }[]; // Abstract representation of pentagons/shapes
+        isOdd: boolean;
+        correctAnswer: string;
+    }[];
 }
 
 // --- DYSCALCULIA SUPPORT TYPES (Consolidated) ---
@@ -953,7 +972,8 @@ export type SingleWorksheetData =
   | LogicDeductionData
   | NumberBoxLogicData
   | MapInstructionData
-  | CodeReadingData;
+  | CodeReadingData
+  | AttentionToQuestionData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

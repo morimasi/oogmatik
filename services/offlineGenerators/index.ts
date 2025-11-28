@@ -1,4 +1,4 @@
 
 // ... existing exports
 export * from './dyslexiaSupport';
-// Ensure generateOfflineCodeReading is exported from dyslexiaSupport.ts
+// Ensure generateOfflineCodeReading and generateOfflineAttentionToQuestion are exported from dyslexiaSupport.ts

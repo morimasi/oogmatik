@@ -29,6 +29,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'codeLength', label: 'Kod Uzunluğu', type: 'number', defaultValue: 4, min: 3, max: 6, width: 'half' },
                     { key: 'itemCount', label: 'Soru Sayısı', type: 'number', defaultValue: 5, min: 3, max: 8, width: 'full' }
                 ];
+            case ActivityType.ATTENTION_TO_QUESTION:
+                return [
+                    { key: 'subType', label: 'Alt Tip', type: 'select', defaultValue: 'letter-cancellation', options: ['letter-cancellation', 'path-finding', 'visual-logic'], width: 'full' },
+                    { key: 'gridSize', label: 'Izgara Boyutu (Sadece Harf)', type: 'number', defaultValue: 10, min: 5, max: 15, width: 'half' },
+                    { key: 'itemCount', label: 'Soru Sayısı', type: 'number', defaultValue: 4, min: 1, max: 10, width: 'half' }
+                ];
             // ... (other specific fields can be added here)
             default:
                 return [
@@ -104,7 +110,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                         className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
                                     >
                                         {field.options?.map((opt: string) => (
-                                            <option key={opt} value={opt}>{opt}</option>
+                                            <option key={opt} value={opt}>{opt === 'letter-cancellation' ? 'Harf Eleme (Şifre)' : opt === 'path-finding' ? 'Yol Takibi (Yıldız)' : opt === 'visual-logic' ? 'Görsel Mantık (Şekil)' : opt}</option>
                                         ))}
                                     </select>
                                 ) : (

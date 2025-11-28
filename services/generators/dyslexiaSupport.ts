@@ -1,7 +1,7 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, CodeReadingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -65,13 +65,80 @@ export const generateCodeReadingFromAI = async (options: GeneratorOptions): Prom
     return generateWithSchema(prompt, schema) as Promise<CodeReadingData[]>;
 };
 
+export const generateAttentionToQuestionFromAI = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
+    const { worksheetCount, subType } = options;
+    
+    const prompt = `
+    "Soruya Dikkat" başlığı altında bir dikkat ve görsel algı etkinliği üret.
+    Alt Tip: ${subType || 'letter-cancellation'}
+    
+    Eğer 'letter-cancellation' (Harf Eleme) ise:
+    - Bir kelime/şifre seç. 
+    - Harflerden oluşan bir ızgara (grid) oluştur.
+    - Bazı harfleri "targetChars" (üzeri çizilecekler) olarak belirle.
+    - Kalan harfler sırayla okunduğunda şifreyi oluştursun.
+    
+    Eğer 'path-finding' (Yol Takibi) ise:
+    - Bir ızgara dolusu sembol ('star-outline', 'star-filled' gibi).
+    - Başlangıçtan bitişe giden doğru bir yolu (correctPath) koordinat olarak ver.
+    
+    Eğer 'visual-logic' (Görsel Mantık) ise:
+    - Beşgen (pentagon) şekilleri düşün. Köşelerinde renkli noktalar ve içlerinde çizgiler var.
+    - 4 adet şekil üret. 3 tanesi aynı kurala uysun, 1 tanesi farklı olsun (isOdd).
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            subType: { type: Type.STRING, enum: ['letter-cancellation', 'path-finding', 'visual-logic'] },
+            // Letter Cancellation Props
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            targetChars: { type: Type.ARRAY, items: { type: Type.STRING } },
+            password: { type: Type.STRING },
+            // Path Finding Props
+            pathGrid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            correctPath: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: {r: {type: Type.NUMBER}, c: {type: Type.NUMBER}} } },
+            // Visual Logic Props
+            logicItems: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.NUMBER },
+                        isOdd: { type: Type.BOOLEAN },
+                        correctAnswer: { type: Type.STRING },
+                        shapes: { 
+                            type: Type.ARRAY, 
+                            items: { 
+                                type: Type.OBJECT, 
+                                properties: { color: { type: Type.STRING }, type: { type: Type.STRING }, connectedTo: { type: Type.ARRAY, items: { type: Type.NUMBER } } } 
+                            } 
+                        }
+                    }
+                }
+            }
+        },
+        required: ['title', 'instruction', 'subType', 'pedagogicalNote', 'imagePrompt']
+    };
+    
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionToQuestionData[]>;
+};
+
 // Re-export placeholders or other generators if they were lost, 
 // to prevent "export not found" errors if they are referenced elsewhere.
-export const generateReadingFlowFromAI = async (o: any) => [];
-export const generateLetterDiscriminationFromAI = async (o: any) => [];
-export const generateRapidNamingFromAI = async (o: any) => [];
-export const generatePhonologicalAwarenessFromAI = async (o: any) => [];
-export const generateMirrorLettersFromAI = async (o: any) => [];
-export const generateSyllableTrainFromAI = async (o: any) => [];
-export const generateVisualTrackingLinesFromAI = async (o: any) => [];
-export const generateBackwardSpellingFromAI = async (o: any) => [];
+export const generateReadingFlowFromAI = async (o: GeneratorOptions): Promise<ReadingFlowData[]> => [];
+export const generateLetterDiscriminationFromAI = async (o: GeneratorOptions): Promise<LetterDiscriminationData[]> => [];
+export const generateRapidNamingFromAI = async (o: GeneratorOptions): Promise<RapidNamingData[]> => [];
+export const generatePhonologicalAwarenessFromAI = async (o: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => [];
+export const generateMirrorLettersFromAI = async (o: GeneratorOptions): Promise<MirrorLettersData[]> => [];
+export const generateSyllableTrainFromAI = async (o: GeneratorOptions): Promise<SyllableTrainData[]> => [];
+export const generateVisualTrackingLinesFromAI = async (o: GeneratorOptions): Promise<VisualTrackingLineData[]> => [];
+export const generateBackwardSpellingFromAI = async (o: GeneratorOptions): Promise<BackwardSpellingData[]> => [];

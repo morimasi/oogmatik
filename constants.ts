@@ -745,6 +745,12 @@ export const ACTIVITIES: Activity[] = [
     description: 'Sembolleri, okları veya şekilleri referans tablosuna göre çözerek şifreyi bulun.',
     icon: 'fa-solid fa-code',
   },
+  {
+    id: ActivityType.ATTENTION_TO_QUESTION,
+    title: 'Soruya Dikkat',
+    description: 'Görsel dikkat, yönerge takibi ve şifre çözme egzersizleri.',
+    icon: 'fa-solid fa-eye-low-vision',
+  },
 
   // --- DYSCALCULIA SUPPORT ---
   {
@@ -1016,7 +1022,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         ActivityType.SYLLABLE_TRAIN,
         ActivityType.VISUAL_TRACKING_LINES,
         ActivityType.BACKWARD_SPELLING,
-        ActivityType.CODE_READING
+        ActivityType.CODE_READING,
+        ActivityType.ATTENTION_TO_QUESTION
     ]
   },
   {
