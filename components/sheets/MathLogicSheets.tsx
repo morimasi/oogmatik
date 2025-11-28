@@ -306,17 +306,26 @@ export const KendokuSheet: React.FC<{ data: KendokuData }> = ({ data }) => {
 };
 
 export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData }> = ({ data }) => {
+    const puzzle = data.puzzles?.[0]; // Get the puzzle once safely.
+    if (!puzzle) {
+        return (
+            <div>
+                <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
+                <p className="text-center text-zinc-500">Sudoku verisi yüklenemedi.</p>
+            </div>
+        );
+    }
+
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
             <div className="flex justify-center">
                 <div className="grid grid-cols-6 border-4 border-zinc-900 dark:border-zinc-400">
-                    {/* Assuming first puzzle for simplicity or mapping all */}
-                    {(data.puzzles[0]?.grid || []).map((row, rIndex) => (
+                    {/* Now puzzle is guaranteed to exist */}
+                    {(puzzle.grid || []).map((row, rIndex) => (
                         (row || []).map((cell, cIndex) => {
-                            const puzzle = data.puzzles[0];
-                            const isConstrained = 'constrainedCells' in puzzle && puzzle.constrainedCells?.some(c => c.row === rIndex && c.col === cIndex);
-                            const isShaded = 'shadedCells' in puzzle && puzzle.shadedCells?.some(c => c.row === rIndex && c.col === cIndex);
+                            const isConstrained = puzzle.constrainedCells?.some(c => c.row === rIndex && c.col === cIndex);
+                            const isShaded = puzzle.shadedCells?.some(c => c.row === rIndex && c.col === cIndex);
                             
                             // 2x3 blocks for 6x6
                             const borderRight = (cIndex + 1) % 3 === 0 && cIndex !== 5 ? 'border-r-4 border-zinc-900' : 'border-r border-zinc-400';
@@ -536,7 +545,6 @@ export const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) 
                         {(puzzle.grid || []).map((row, r) => 
                             row.map((shape, c) => (
                                 <div key={`${r}-${c}`} className={`w-16 h-16 flex items-center justify-center border border-zinc-400 ${(c+1)%2===0 && c!==3 ? 'border-r-4 border-zinc-800' : ''} ${(r+1)%2===0 && r!==3 ? 'border-b-4 border-zinc-800' : ''} bg-white`}>
-                                    {/* FIX: Cast string to ShapeType */}
                                     {shape ? <Shape name={shape as ShapeType} className="w-10 h-10" /> : ''}
                                 </div>
                             ))
@@ -544,7 +552,6 @@ export const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) 
                     </div>
                     <div className="flex gap-4 p-2 bg-zinc-100 rounded-lg">
                         <span className="font-bold text-sm self-center">Kullanılacaklar:</span>
-                        {/* FIX: Cast string to ShapeType */}
                         {puzzle.shapesToUse.map((s, i) => <Shape key={i} name={s.shape as ShapeType} className="w-8 h-8" />)}
                     </div>
                 </div>
