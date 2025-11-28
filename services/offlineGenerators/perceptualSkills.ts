@@ -39,6 +39,49 @@ const matchstickPatterns = [
     { name: 'Fish', lines: [{x1:1, y1:3, x2:3, y2:1}, {x1:1, y1:3, x2:3, y2:5}, {x1:3,y1:1, x2:3,y2:5}] }
 ];
 
+const pixelArtPatterns = {
+    'heart': [
+        [0,0,0,0,0,0,0,0],
+        [0,1,1,0,0,1,1,0],
+        [1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1],
+        [0,1,1,1,1,1,1,0],
+        [0,0,1,1,1,1,0,0],
+        [0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0]
+    ],
+    'smile': [
+        [0,0,1,1,1,1,0,0],
+        [0,1,0,0,0,0,1,0],
+        [1,0,1,0,0,1,0,1],
+        [1,0,0,0,0,0,0,1],
+        [1,0,1,0,0,1,0,1],
+        [1,0,0,1,1,0,0,1],
+        [0,1,0,0,0,0,1,0],
+        [0,0,1,1,1,1,0,0]
+    ],
+    'boat': [
+        [0,0,0,0,1,0,0,0],
+        [0,0,0,1,1,0,0,0],
+        [0,0,1,1,1,0,0,0],
+        [0,0,0,1,1,0,0,0],
+        [0,0,0,1,1,0,0,0],
+        [1,0,0,1,1,0,0,1],
+        [1,1,1,1,1,1,1,1],
+        [0,1,1,1,1,1,1,0]
+    ],
+    'diamond': [
+        [0,0,0,1,1,0,0,0],
+        [0,0,1,1,1,1,0,0],
+        [0,1,1,1,1,1,1,0],
+        [1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1],
+        [0,1,1,1,1,1,1,0],
+        [0,0,1,1,1,1,0,0],
+        [0,0,0,1,1,0,0,0]
+    ]
+};
+
 export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
     const { topic, itemCount, worksheetCount, difficulty } = options;
     const results: FindTheDifferenceData[] = [];
@@ -228,18 +271,17 @@ export const generateOfflineSymbolCipher = async (options: GeneratorOptions): Pr
 export const generateOfflineBlockPainting = async (options: GeneratorOptions): Promise<BlockPaintingData[]> => {
     const { worksheetCount } = options;
     const results: BlockPaintingData[] = [];
+    const keys = Object.keys(pixelArtPatterns);
+    
     for (let i = 0; i < worksheetCount; i++) {
-        const pattern: number[][] = [];
-        for(let r=0; r<8; r++) {
-            const row: number[] = [];
-            for(let c=0; c<4; c++) row.push(Math.random() > 0.5 ? 1 : 0);
-            pattern.push([...row, ...row.slice().reverse()]);
-        }
+        // Select a random standard pattern
+        const patternKey = keys[getRandomInt(0, keys.length - 1)] as keyof typeof pixelArtPatterns;
+        const pattern = pixelArtPatterns[patternKey];
 
         results.push({
             title: 'Blok Boyama (Piksel Sanatı)',
-            instruction: "Verilen renkli blokları kullanarak deseni oluşturun veya desene göre kareleri boyayın.",
-            pedagogicalNote: "Görsel bütünleme ve parça-bütün ilişkisi kurma becerisi.",
+            instruction: "Soldaki örneğe bakarak, sağdaki boş ızgaradaki kareleri aynı şekilde boya.",
+            pedagogicalNote: "Görsel bütünleme, parça-bütün ilişkisi ve konumsal kopyalama becerisi.",
             imagePrompt: 'Blok',
             grid: {rows: 8, cols: 8},
             targetPattern: pattern,

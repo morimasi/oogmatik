@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, AttentionFocusData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
 // --- Helper for creating random visual tracking paths ---
@@ -33,62 +33,108 @@ const generatePaths = (count: number, width: number, height: number) => {
     return paths;
 };
 
-// 1. Attention Focus (Mevcut olan korunuyor)
+// 1. Attention Focus (Geliştirilmiş Özellik Bazlı Sorular)
 export const generateOfflineAttentionFocus = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 4;
 
+    // Gelişmiş Özellik Havuzu
     interface ItemPoolItem {
         name: string;
-        color: string;
-        feature: string;
-        type: 'meyve' | 'sebze';
+        category: string;
+        features: string[]; // Renk dışındaki özellikler
+        negations: string[]; // Olumsuz özellikler (X değildir)
     }
 
-    const itemPool: { fruit: ItemPoolItem[], veg: ItemPoolItem[] } = {
-        fruit: [
-            { name: 'Limon', color: 'sarı', feature: 'ekşi', type: 'meyve' },
-            { name: 'Çilek', color: 'kırmızı', feature: 'tatlı', type: 'meyve' },
-            { name: 'Muz', color: 'sarı', feature: 'uzun', type: 'meyve' },
-            { name: 'Karpuz', color: 'yeşil', feature: 'büyük', type: 'meyve' },
-            { name: 'Kiraz', color: 'kırmızı', feature: 'saplı', type: 'meyve' },
-            { name: 'Armut', color: 'yeşil', feature: 'sulu', type: 'meyve' }
-        ],
-        veg: [
-            { name: 'Biber', color: 'yeşil', feature: 'acı', type: 'sebze' },
-            { name: 'Domates', color: 'kırmızı', feature: 'yuvarlak', type: 'sebze' },
-            { name: 'Havuç', color: 'turuncu', feature: 'uzun', type: 'sebze' },
-            { name: 'Patlıcan', color: 'mor', feature: 'uzun', type: 'sebze' }
-        ]
-    };
+    const itemPool: ItemPoolItem[] = [
+        { 
+            name: 'Limon', category: 'Meyve', 
+            features: ['tadı çok ekşidir', 'çay ve salatalara sıkılır', 'kabuğu pütürlüdür', 'sarı renklidir'], 
+            negations: ['tatlı değildir', 'kırmızı değildir'] 
+        },
+        { 
+            name: 'Çilek', category: 'Meyve', 
+            features: ['üzerinde küçük noktalar vardır', 'yazın yetişir', 'reçeli çok güzel olur', 'kırmızı renklidir'], 
+            negations: ['ekşi değildir', 'büyük bir meyve değildir'] 
+        },
+        { 
+            name: 'Karpuz', category: 'Meyve', 
+            features: ['dışı yeşil içi kırmızıdır', 'yazın serinlemek için yenir', 'çekirdekleri vardır', 'oldukça ağırdır'], 
+            negations: ['ağaçta yetişmez', 'kabuğuyla yenmez'] 
+        },
+        { 
+            name: 'Havuç', category: 'Sebze', 
+            features: ['tavşanlar çok sever', 'toprağın altında yetişir', 'uzun ve sivri şekillidir', 'gözlere faydalıdır'], 
+            negations: ['meyve değildir', 'yumuşak değildir'] 
+        },
+        { 
+            name: 'Patlıcan', category: 'Sebze', 
+            features: ['karnıyarık yemeği yapılır', 'mor renkli bir kabuğu vardır', 'sapı yeşildir', 'uzun veya tombul olabilir'], 
+            negations: ['çiğ yenmez', 'kırmızı değildir'] 
+        },
+        { 
+            name: 'Penguen', category: 'Hayvan', 
+            features: ['buzullarda yaşar', 'uçamayan bir kuştur', 'paytak paytak yürür', 'siyah beyaz renklidir'], 
+            negations: ['sıcağı sevmez', 'dört ayaklı değildir'] 
+        },
+        { 
+            name: 'Zürafa', category: 'Hayvan', 
+            features: ['çok uzun bir boynu vardır', 'ağaçların tepesindeki yaprakları yer', 'üzerinde kahverengi benekler vardır'], 
+            negations: ['et yemez', 'küçük değildir'] 
+        },
+        { 
+            name: 'Ambulans', category: 'Araç', 
+            features: ['hastaları hastaneye taşır', 'sireni çaldığında yol verilir', 'üzerinde kırmızı şeritler vardır'], 
+            negations: ['yük taşımaz', 'denizde gitmez'] 
+        },
+        { 
+            name: 'İtfaiye', category: 'Araç', 
+            features: ['yangınları söndürmeye gider', 'uzun bir merdiveni vardır', 'kırmızı renklidir'], 
+            negations: ['yolcu taşımaz', 'mavi değildir'] 
+        }
+    ];
 
     return Array.from({ length: worksheetCount }, () => {
         const puzzles = Array.from({ length: count }, () => {
-            const cat = Math.random() > 0.5 ? 'fruit' : 'veg';
-            const items = shuffle(itemPool[cat]);
-            const target = items[0];
-            const clueItem = items[1];
+            // Hedef öğeyi seç
+            const target = getRandomItems(itemPool, 1)[0];
             
-            const clueDesc = `${clueItem.color} renkli ${clueItem.type}nin`;
-            const targetDesc = `${target.color} renklidir`;
-            const riddle = `Aradığımız yiyecek, ${clueDesc} bulunduğu kutudadır. Bulunduğu kutudaki ${targetDesc}.`;
+            // Çeldiricileri seç (Aynı kategoriden veya tamamen farklı)
+            const sameCategoryItems = itemPool.filter(i => i.category === target.category && i.name !== target.name);
+            const diffCategoryItems = itemPool.filter(i => i.category !== target.category);
             
-            const box1 = shuffle([target.name, clueItem.name, 'Elma', 'Soğan']);
-            const box2 = shuffle(['Ispanak', 'Pırasa', 'Kavun', 'İncir']);
+            const distractor1 = getRandomItems(sameCategoryItems, 1)[0] || getRandomItems(diffCategoryItems, 1)[0];
+            const distractor2 = getRandomItems(diffCategoryItems, 1)[0];
+            
+            // Soruyu oluştur (Riddle)
+            let riddle = "";
+            const feature1 = getRandomItems(target.features, 1)[0];
+            const feature2 = getRandomItems(target.features.filter(f => f !== feature1), 1)[0];
+            const negation = getRandomItems(target.negations, 1)[0];
+
+            if (difficulty === 'Başlangıç') {
+                riddle = `Aradığımız varlık bir ${target.category}dir. ${feature1} ve ${feature2}.`;
+            } else {
+                riddle = `Aradığım şey bir ${distractor2.category} değildir. ${feature1}. Genellikle ${feature2} ama kesinlikle ${negation}.`;
+            }
+            
+            // Kutuları oluştur
+            const box1Items = shuffle([target.name, distractor1.name, getRandomItems(diffCategoryItems, 1)[0]?.name || 'Elma']);
+            const box2Items = shuffle([distractor2.name, getRandomItems(sameCategoryItems, 1)[0]?.name || 'Armut', 'Masa']);
             
             return {
                 riddle,
-                boxes: [{ items: box1 }, { items: box2 }],
-                options: shuffle([target.name, clueItem.name, 'Elma', 'Kavun']),
+                boxes: [{ title: 'Kutu A', items: box1Items }, { title: 'Kutu B', items: box2Items }],
+                options: shuffle([target.name, distractor1.name, distractor2.name]),
                 answer: target.name
             };
         });
 
         return {
             title: `Dikkatini Ver (${difficulty})`,
-            instruction: "İpuçlarını okuyun ve doğru cevabı bulun.",
-            pedagogicalNote: "Mantıksal çıkarım.",
-            imagePrompt: "Dedektif",
+            instruction: "Verilen özellikleri dikkatlice oku, ipuçlarını takip et ve doğru cevabı bul.",
+            pedagogicalNote: "İşitsel/Sözel dikkati sürdürme, detayları analiz etme ve eleme yöntemiyle problem çözme.",
+            imagePrompt: "Dedektif büyüteç ile iz sürüyor, flat vector style.",
             puzzles
         };
     });

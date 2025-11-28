@@ -1,6 +1,4 @@
 
-
-
 import React from 'react';
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
@@ -34,6 +32,44 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                     </div>
                 </div>
             ))}
+        </div>
+    </div>
+);
+
+export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex flex-col md:flex-row gap-8 justify-center items-start">
+            <div className="flex-1 bg-white dark:bg-zinc-700/50 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm w-full">
+                <h4 className="font-bold text-center mb-4 text-indigo-600 dark:text-indigo-400 border-b pb-2">{data.box1Title}</h4>
+                <ul className="space-y-2 text-center">
+                    {(data.wordList1 || []).map((word, i) => (
+                        <li key={i} className="font-medium text-lg">{word}</li>
+                    ))}
+                </ul>
+            </div>
+            
+            <div className="hidden md:flex flex-col justify-center self-center text-zinc-300">
+                <i className="fa-solid fa-right-left text-4xl"></i>
+            </div>
+
+            <div className="flex-1 bg-white dark:bg-zinc-700/50 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm w-full">
+                <h4 className="font-bold text-center mb-4 text-rose-600 dark:text-rose-400 border-b pb-2">{data.box2Title}</h4>
+                <ul className="space-y-2 text-center">
+                    {(data.wordList2 || []).map((word, i) => (
+                        <li key={i} className="font-medium text-lg">{word}</li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+        
+        <div className="mt-8 p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 text-center">
+            <p className="text-zinc-500 mb-2">Farklı olan kelimeleri buraya yazın:</p>
+            <div className="flex gap-4 justify-center flex-wrap">
+                {Array.from({length: Math.max(3, (data.correctDifferences || []).length)}).map((_, i) => (
+                    <div key={i} className="w-32 h-10 border-b-2 border-zinc-400"></div>
+                ))}
+            </div>
         </div>
     </div>
 );
@@ -184,61 +220,49 @@ export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }
 );
 
 export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data }) => {
-    const { grid: { rows, cols }, shapes } = data;
+    const { grid: { rows, cols }, targetPattern, shapes } = data;
+    const activeColor = shapes[0]?.color || '#3B82F6';
+
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            <div className="flex flex-col md:flex-row gap-12 justify-center items-start">
-                <div className="flex-1">
-                    <h4 className="font-bold text-center mb-4">Boyama Alanı</h4>
-                    <div className="border-2 border-black p-1 inline-block bg-white">
-                        <div className={`grid gap-px bg-zinc-200`} style={{gridTemplateColumns: `repeat(${cols}, 30px)`}}>
-                            {Array.from({length: rows * cols}).map((_, i) => (
-                                <div key={i} className="w-[30px] h-[30px] bg-white border border-zinc-100"></div>
+            <div className="flex flex-col md:flex-row gap-12 justify-center items-center">
+                
+                {/* Target Pattern (Left Side) */}
+                <div className="flex flex-col items-center">
+                    <h4 className="font-bold text-center mb-4 text-zinc-600 uppercase tracking-widest text-sm">Örnek Desen</h4>
+                    <div className="border-4 border-zinc-800 p-1 bg-white inline-block shadow-lg">
+                        <div className={`grid gap-px bg-zinc-300`} style={{gridTemplateColumns: `repeat(${cols}, 20px)`}}>
+                            {(targetPattern || []).flat().map((cell, i) => (
+                                <div key={i} className="w-[20px] h-[20px]" style={{backgroundColor: cell ? activeColor : 'white'}}></div>
                             ))}
                         </div>
                     </div>
                 </div>
+
+                <div className="text-zinc-300 hidden md:block">
+                    <i className="fa-solid fa-arrow-right text-4xl"></i>
+                </div>
                 
-                <div className="w-full md:w-1/3">
-                    <h4 className="font-bold text-center mb-4">Kullanılacak Bloklar</h4>
-                    <div className="space-y-6">
-                        {(shapes || []).map((shape, i) => (
-                            <div key={i} className="flex items-center justify-between p-3 bg-white rounded shadow-sm border">
-                                <div className={`grid gap-0.5`} style={{gridTemplateColumns: `repeat(${(shape.pattern || [[]])[0].length}, 12px)`}}>
-                                    {(shape.pattern || []).flat().map((cell, j) => (
-                                        <div key={j} className="w-[12px] h-[12px]" style={{backgroundColor: cell ? shape.color : 'transparent'}}></div>
-                                    ))}
-                                </div>
-                                <div className="text-sm font-bold">x {shape.count}</div>
-                            </div>
-                        ))}
+                {/* Empty Grid (Right Side) */}
+                <div className="flex flex-col items-center">
+                    <h4 className="font-bold text-center mb-4 text-zinc-600 uppercase tracking-widest text-sm">Boyama Alanı</h4>
+                    <div className="border-4 border-zinc-800 p-1 bg-white inline-block shadow-lg">
+                        <div className={`grid gap-px bg-zinc-300`} style={{gridTemplateColumns: `repeat(${cols}, 30px)`}}>
+                            {Array.from({length: rows * cols}).map((_, i) => (
+                                <div key={i} className="w-[30px] h-[30px] bg-white hover:bg-indigo-50 cursor-pointer"></div>
+                            ))}
+                        </div>
                     </div>
                 </div>
+            </div>
+            
+            <div className="mt-8 text-center text-sm text-zinc-500">
+                <p>İpucu: Kareleri sayarak boyayın.</p>
             </div>
         </div>
     )
 };
-
-export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 gap-8">
-             <div className="border-2 border-zinc-800 p-4 rounded">
-                 <h4 className="font-bold text-center mb-4 border-b pb-2">{data.box1Title}</h4>
-                 <ul className="columns-2 gap-4 text-sm">
-                     {data.wordList1.map(w => <li key={w}>{w}</li>)}
-                 </ul>
-             </div>
-             <div className="border-2 border-zinc-800 p-4 rounded">
-                 <h4 className="font-bold text-center mb-4 border-b pb-2">{data.box2Title}</h4>
-                 <ul className="columns-2 gap-4 text-sm">
-                     {data.wordList2.map(w => <li key={w}>{w}</li>)}
-                 </ul>
-             </div>
-        </div>
-    </div>
-);
 
 export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ data }) => (
     <div>
