@@ -1,6 +1,6 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Activity, GeneratorOptions, ActivityType } from '../types';
+import { statsService } from '../services/statsService';
 
 interface GeneratorViewProps {
     activity: Activity;
@@ -16,6 +16,16 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         difficulty: 'Orta',
         itemCount: 10
     });
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    useEffect(() => {
+        setIsFavorite(statsService.isFavorite(activity.id));
+    }, [activity.id]);
+
+    const handleToggleFavorite = () => {
+        statsService.toggleFavorite(activity.id);
+        setIsFavorite(!isFavorite);
+    };
 
     const handleChange = (key: string, value: any) => {
         setOptions((prev: any) => ({ ...prev, [key]: value }));
@@ -23,13 +33,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
     const getFields = (type: ActivityType) => {
         switch (type) {
-            case ActivityType.CODE_READING:
+            case 'CODE_READING':
                 return [
                     { key: 'symbolType', label: 'Sembol Tipi', type: 'select', defaultValue: 'arrows', options: ['arrows', 'shapes', 'colors'], width: 'half' },
                     { key: 'codeLength', label: 'Kod Uzunluğu', type: 'number', defaultValue: 4, min: 3, max: 6, width: 'half' },
                     { key: 'itemCount', label: 'Soru Sayısı', type: 'number', defaultValue: 5, min: 3, max: 8, width: 'full' }
                 ];
-            case ActivityType.ATTENTION_TO_QUESTION:
+            case 'ATTENTION_TO_QUESTION':
                 return [
                     { key: 'subType', label: 'Alt Tip', type: 'select', defaultValue: 'letter-cancellation', options: ['letter-cancellation', 'path-finding', 'visual-logic'], width: 'full' },
                     { key: 'gridSize', label: 'Izgara Boyutu (Sadece Harf)', type: 'number', defaultValue: 10, min: 5, max: 15, width: 'half' },
@@ -50,9 +60,18 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     return (
         <div className="flex flex-col h-full bg-white dark:bg-zinc-800 shadow-xl overflow-hidden">
             <div className="p-6 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
-                <button onClick={onBack} className="text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 mb-4 flex items-center">
-                    <i className="fa-solid fa-arrow-left mr-2"></i> Geri
-                </button>
+                <div className="flex justify-between items-start">
+                    <button onClick={onBack} className="text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 mb-4 flex items-center">
+                        <i className="fa-solid fa-arrow-left mr-2"></i> Geri
+                    </button>
+                    <button 
+                        onClick={handleToggleFavorite}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isFavorite ? 'bg-rose-100 text-rose-500' : 'bg-zinc-200 text-zinc-400 hover:bg-zinc-300'}`}
+                        title={isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+                    >
+                        <i className={`fa-solid fa-heart ${isFavorite ? 'animate-pulse' : ''}`}></i>
+                    </button>
+                </div>
                 <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center text-xl">
                         <i className={activity.icon}></i>

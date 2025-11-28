@@ -113,5 +113,26 @@ export const statsService = {
         }
 
         return result;
+    },
+
+    // --- FAVORITES (LOCAL STORAGE) ---
+    getFavorites: (): ActivityType[] => {
+        try {
+            if (typeof window === 'undefined') return [];
+            return JSON.parse(localStorage.getItem('user_favorites') || '[]');
+        } catch { return []; }
+    },
+
+    toggleFavorite: (id: ActivityType) => {
+        try {
+            const favs = statsService.getFavorites();
+            const newFavs = favs.includes(id) ? favs.filter(f => f !== id) : [...favs, id];
+            localStorage.setItem('user_favorites', JSON.stringify(newFavs));
+            return newFavs;
+        } catch { return []; }
+    },
+
+    isFavorite: (id: ActivityType) => {
+        return statsService.getFavorites().includes(id);
     }
 };

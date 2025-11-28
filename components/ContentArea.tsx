@@ -1,5 +1,5 @@
 
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
@@ -74,6 +74,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const { user } = useAuth();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
+    const mainRef = useRef<HTMLDivElement>(null);
+
+    // Scroll to top when view changes
+    useEffect(() => {
+        if (mainRef.current) {
+            mainRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [currentView, activityType]);
 
     const generateAutoName = () => {
         if (!activityType) return 'Kaydedilmiş Etkinlik';
@@ -178,7 +186,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = getBreadcrumbs();
 
   return (
-    <main id="tour-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent">
+    <main id="tour-content" ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent scroll-smooth">
       
       {/* Breadcrumbs */}
       <nav className="mb-4 flex items-center text-sm text-zinc-500 dark:text-zinc-400 print:hidden" aria-label="Breadcrumb">
