@@ -572,7 +572,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                 <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-road"></i> Önerilen Yol Haritası</h4>
                                 <div className="space-y-4">
                                     {selectedAssessment.report.roadmap.map((item, idx) => (
-                                        <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-600 break-inside-avoid">
+                                        <div key={idx} onClick={() => onSelectActivity(item.activityId as ActivityType)} className="bg-zinc-700/50 hover:bg-zinc-700 border border-zinc-600 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all cursor-pointer group break-inside-avoid">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-zinc-100">{idx + 1}</div>
                                                 <div>
@@ -590,7 +590,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                  </div>
             )}
             
-            {/* Share Modal moved to the end to ensure highest Z-Index stacking context */}
             <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} />
         </div>
     );

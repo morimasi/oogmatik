@@ -401,126 +401,85 @@
   
   /* --- PRINT STYLES --- */
   @media print {
-    @page { size: A4 portrait; margin: 5mm; }
+    @page { 
+      size: A4 portrait; 
+      margin: 0; /* REMOVE DEFAULT MARGINS to prevent top whitespace */
+    }
     
     /* 1. Global Reset for Print */
     *, *::before, *::after {
-        background: transparent !important;
-        color: #000 !important;
         box-shadow: none !important;
         text-shadow: none !important;
         transition: none !important;
         animation: none !important;
-        transform: none !important; /* Critical: Removes local stacking contexts */
         filter: none !important;
         opacity: 1 !important;
+        
+        /* FORCE COLOR PRINTING */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
-    html, body {
-        width: 100%;
-        height: auto;
+    /* 2. Hide Everything by Default */
+    body {
+        visibility: hidden !important;
+        background-color: white !important;
         margin: 0 !important;
         padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
         overflow: visible !important;
-        visibility: hidden !important; /* Hide everything by default */
-        background: white !important;
     }
 
-    /* 2. Hide standard UI elements explicitly using display:none 
-       NOTE: Do NOT hide #root or its direct children with display:none as it removes them from DOM 
-    */
-    nav, header, footer, button, .no-print,
-    .recharts-wrapper /* Hide charts interactivity wrappers if needed, but we keep svg visible */
-    {
+    /* 3. Hide all non-printable elements explicitly */
+    #root > * {
+       display: none !important;
+    }
+
+    nav, header, footer, button, .no-print, .recharts-wrapper {
         display: none !important;
     }
     
-    /* 3. RESET PARENT CONTAINERS that might clip content */
-    /* This fixes the 'blank page' issue where modal parents (fixed/absolute) hide the content */
-    .fixed, .absolute, .relative, .overflow-hidden, .overflow-y-auto, .max-h-\[90vh\] {
-        position: static !important;
-        overflow: visible !important;
-        height: auto !important;
-        max-height: none !important;
-        width: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
+    /* 4. Show Report Container ONLY */
+    #printable-report-content {
         display: block !important;
-        z-index: auto !important;
-    }
-
-    /* 4. VISIBILITY FOR REPORT */
-    .assessment-report-container,
-    .assessment-report-container * {
         visibility: visible !important;
-        color: black !important;
-    }
-
-    .assessment-report-container {
         position: absolute !important;
         top: 0 !important;
         left: 0 !important;
         width: 100% !important;
         margin: 0 !important;
-        padding: 5mm !important; /* Minimal padding */
+        padding: 10mm !important; /* Add padding inside the content, not page */
         background-color: white !important;
-        z-index: 2147483647 !important; /* Max Z-Index */
-        display: block !important;
-        overflow: visible !important;
+        color: black !important;
+        z-index: 9999 !important;
         height: auto !important;
-    }
-    
-    /* Optimize Report Content Spacing */
-    .assessment-report-container .space-y-6 > * + * {
-        margin-top: 1rem !important; /* Reduce vertical gaps */
-    }
-    
-    .assessment-report-container .p-6,
-    .assessment-report-container .p-4 {
-        padding: 1rem !important; /* Reduce inner padding */
-    }
-    
-    .assessment-report-container .mb-8 {
-        margin-bottom: 1rem !important;
-    }
-    
-    /* Ensure charts fit */
-    .assessment-report-container svg {
-        max-height: 200px !important;
-        width: auto !important;
-    }
-    
-    /* Clean backgrounds */
-    .assessment-report-container .bg-zinc-800,
-    .assessment-report-container .bg-indigo-50,
-    .assessment-report-container .bg-emerald-50,
-    .assessment-report-container .bg-rose-50 {
-        background-color: transparent !important;
-        border: 1px solid #ddd !important;
-        color: black !important;
-    }
-    
-    .assessment-report-container * {
-        color: black !important;
-        -webkit-text-fill-color: black !important;
+        overflow: visible !important;
     }
 
-    /* 5. VISIBILITY FOR WORKSHEETS */
-    .printable-area, 
-    .printable-area * {
+    #printable-report-content * {
         visibility: visible !important;
+        position: static !important; /* Reset position for children to flow naturally */
+        overflow: visible !important; /* Allow charts to be seen */
     }
-    
+
+    /* 5. Show Worksheets ONLY */
     .printable-area {
-        position: absolute;
+        display: block !important;
+        visibility: visible !important;
+        position: absolute !important;
         top: 0;
         left: 0;
         width: 100%;
         margin: 0;
         padding: 0;
     }
+    
+    .printable-area * {
+        visibility: visible !important;
+    }
 
-    /* Ensure specific elements break correctly */
+    /* 6. Page Break Handling */
     .break-inside-avoid {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
@@ -531,11 +490,18 @@
         page-break-after: always;
     }
     
-    /* Ensure backgrounds print for charts/graphs/progress bars */
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
+    /* 7. Specific Fixes */
+    /* Ensure text colors are maintained if they are important (like red for risk) */
+    .text-red-500 { color: #ef4444 !important; }
+    .text-green-500 { color: #22c55e !important; }
+    .text-yellow-500 { color: #eab308 !important; }
+    .bg-indigo-50 { background-color: #eef2ff !important; }
+    
+    /* Force Light Mode Look on Print */
+    .dark\:bg-zinc-800 { background-color: white !important; border-color: #e5e7eb !important; }
+    .dark\:text-zinc-100 { color: #18181b !important; }
+    .dark\:text-zinc-200 { color: #3f3f46 !important; }
+    .dark\:border-zinc-700 { border-color: #e5e7eb !important; }
     
     /* Hide scrollbars */
     ::-webkit-scrollbar {
