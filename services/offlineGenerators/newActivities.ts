@@ -1,5 +1,4 @@
-
-import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, GeneratorOptions, MindGamesData } from '../../types';
+import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, GeneratorOptions, MindGamesData, MindGames56Data } from '../../types';
 import { getRandomItems, getRandomInt, shuffle } from './helpers';
 
 export const generateOfflineFamilyRelations = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
@@ -182,7 +181,7 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
     });
 };
 
-// --- ENHANCED OFFLINE MIND GAMES (Akıl Oyunları 3-4. Sınıf) ---
+// --- MIND GAMES (3-4. Sınıf) ---
 export const generateOfflineMindGames = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 4;
@@ -192,104 +191,118 @@ export const generateOfflineMindGames = async (options: GeneratorOptions): Promi
             const typeRoll = Math.random();
             const multiplier = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 4);
             
-            // 1. Shape Math (Triangle Logic) - %25 Chance
-            if (typeRoll < 0.25) {
-                // Logic: Sum of corners = Center
+            if (typeRoll < 0.25) { // Shape Math
                 const n1 = getRandomInt(2, 10 * multiplier);
                 const n2 = getRandomInt(2, 10 * multiplier);
                 const n3 = getRandomInt(2, 10 * multiplier);
                 const center = n1 + n2 + n3;
-                
-                return {
-                    type: 'shape_math' as const,
-                    shape: 'triangle' as const,
-                    numbers: [n1, n2, n3, '?'], // Corners + Center(target)
-                    answer: center.toString(),
-                    hint: "Köşelerdeki sayıları topla.",
-                    imagePrompt: "Sayı üçgeni",
-                    question: "Soru işareti yerine hangi sayı gelmelidir?"
-                };
+                return { type: 'shape_math' as const, shape: 'triangle' as const, numbers: [n1, n2, n3, '?'], answer: center.toString(), hint: "Köşeleri topla." };
             } 
-            // 2. Matrix Logic (Kurallı Dikdörtgenler) - %25 Chance
-            else if (typeRoll < 0.5) {
-                // Logic: Row 2 = Row 1 * K
+            else if (typeRoll < 0.5) { // Matrix Logic
                 const k = getRandomInt(2, 4);
                 const r1 = [getRandomInt(2, 8), getRandomInt(2, 8), getRandomInt(2, 8)];
                 const r2 = r1.map(n => n * k);
-                
-                // Hide middle item of second row
-                const grid = [
-                    [r1[0], r1[1], r1[2]],
-                    [r2[0], '?', r2[2]]
-                ];
-                
-                return {
-                    type: 'matrix_logic' as const,
-                    grid: grid as any,
-                    answer: r2[1].toString(),
-                    hint: `Alt satır üst satırın ${k} katıdır.`,
-                    question: "Tablodaki kuralı bul ve boşluğu doldur."
-                };
+                return { type: 'matrix_logic' as const, grid: [r1, [r2[0], '?', r2[2]]] as any, answer: r2[1].toString(), hint: `Alt satır, üstün ${k} katıdır.` };
             }
-            // 3. Hexagon Logic (Altıgen Örüntü) - %25 Chance
-            else if (typeRoll < 0.75) {
-                // Logic: Opposite numbers sum to Center OR simple arithmetic on outer circle
-                // Let's do: Center is Sum of Top-Left and Bottom-Right opposites
+            else if (typeRoll < 0.75) { // Hexagon Logic
                 const center = getRandomInt(20, 50);
-                const pairs = [
-                    [getRandomInt(1, center-1), 0],
-                    [getRandomInt(1, center-1), 0],
-                    [getRandomInt(1, center-1), 0]
-                ];
-                // Calculate pairs to sum to center
-                pairs[0][1] = center - pairs[0][0];
-                pairs[1][1] = center - pairs[1][0];
-                pairs[2][1] = center - pairs[2][0];
-                
-                const nums = [
-                    pairs[0][0], pairs[1][0], pairs[2][0], // Top-Left, Top-Right, Right
-                    pairs[0][1], pairs[1][1], pairs[2][1], // Bottom-Right, Bottom-Left, Left
-                    center // Center
-                ];
-                
-                // Hide one random outer number
+                const p1 = getRandomInt(1, center-1);
+                const p2 = getRandomInt(1, center-1);
+                const p3 = getRandomInt(1, center-1);
+                const nums = [p1, p2, p3, center-p1, center-p2, center-p3, center];
                 const hiddenIdx = getRandomInt(0, 5);
                 const ans = nums[hiddenIdx];
                 nums[hiddenIdx] = '?' as any;
-                
-                return {
-                    type: 'hexagon_logic' as const,
-                    numbers: nums,
-                    answer: ans.toString(),
-                    hint: "Karşılıklı sayıların toplamı ortadaki sayıya eşittir.",
-                    question: "Eksik sayıyı bulun."
-                };
+                return { type: 'hexagon_logic' as const, numbers: nums, answer: ans.toString(), hint: "Karşılıklı sayılar ortayı verir." };
             }
-            // 4. Function Machine (Üç Aşağı Beş Yukarı) - %25 Chance
-            else {
-                // Input -> Rule -> Output
+            else { // Function Machine
                 const factor = getRandomInt(2, 5);
                 const add = getRandomInt(1, 10);
                 const input = getRandomInt(5, 15);
                 const output = input * factor + add;
-                
-                return {
-                    type: 'function_machine' as const,
-                    input: input,
-                    output: '?',
-                    rule: `x ${factor} + ${add}`,
-                    answer: output.toString(),
-                    hint: `Giriş sayısını ${factor} ile çarpıp ${add} ekle.`,
-                    question: "Makineden çıkan sonuç ne olur?"
-                };
+                return { type: 'function_machine' as const, input: input, output: '?', rule: `x ${factor} + ${add}`, answer: output.toString(), hint: `Sayıyı ${factor} ile çarp, ${add} ekle.` };
             }
         });
 
         return {
             title: "Akıl Oyunları (Hızlı Mod)",
-            instruction: "Mantığını kullan, kuralı keşfet ve soru işaretinin yerine gelmesi gereken sayıyı bul.",
-            pedagogicalNote: "Mantıksal akıl yürütme, örüntü tanıma, işlem becerisi ve görsel algı.",
+            instruction: "Kuralı keşfet ve '?' yerine gelecek sayıyı bul.",
+            pedagogicalNote: "Mantıksal akıl yürütme, örüntü tanıma ve işlem becerisi.",
             imagePrompt: "Zeka Oyunu",
+            puzzles
+        };
+    });
+};
+
+
+// --- MIND GAMES (5-6. Sınıf) ---
+export const generateOfflineMindGames56 = async (options: GeneratorOptions): Promise<MindGames56Data[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    const count = itemCount || 4;
+
+    const puzzleGenerators = [
+        // Word Problem: System of Equations (Portakal Sayısı)
+        () => {
+            const a_g = getRandomInt(8, 15);
+            const e_a = getRandomInt(8, 15);
+            const e_g = getRandomInt(5, a_g - 1);
+            const total = (a_g + e_a + e_g);
+            if (total % 2 !== 0) return null; // Ensure solvable with integer
+            const answer = total / 2;
+            return {
+                type: 'word_problem' as const,
+                title: 'Paylaşım Problemi',
+                question: `Açelya ile Görkem birlikte ${a_g} tane; Esra ile Açelya ${e_a} tane; Esra ile Görkem ise ${e_g} tane portakal yemiştir. Üçü birlikte toplam kaç portakal yemiştir?`,
+                answer: answer.toString(),
+                hint: 'Tüm verileri alt alta toplayıp ne elde ettiğine bak.'
+            };
+        },
+        // Cipher: Non-standard operation (Nasıl Bir İlişki Var?)
+        () => {
+            const n1 = getRandomInt(1, 9);
+            const n2 = getRandomInt(n1, 9);
+            const n3 = getRandomInt(1, 9);
+            const n4 = getRandomInt(n3, 9);
+            
+            return {
+                type: 'cipher' as const,
+                title: 'Sıradışı İşlem',
+                question: `Aşağıdaki işlemlerde '⌾' sembolü gizli bir kurala göre işlem yapmaktadır:\n- ${n1} ⌾ ${n2} = ${String(n1+n2) + String(n2-n1)}\n- ${n3} ⌾ ${n4} = ${String(n3+n4) + String(n4-n3)}\nBu kurala göre, 7 ⌾ 9 işleminin sonucu kaçtır?`,
+                answer: String(7+9) + String(9-7),
+                hint: 'Sayıları toplayıp başa, farkını alıp sona yaz.'
+            };
+        },
+        // Number Sequence: Fibonacci-like
+        () => {
+            const start1 = getRandomInt(1, 5);
+            const start2 = getRandomInt(start1, 7);
+            const sequence = [start1, start2];
+            for(let i=0; i<4; i++) {
+                sequence.push(sequence[i] + sequence[i+1]);
+            }
+            return {
+                type: 'number_sequence' as const,
+                title: 'Örüntü Sorusu',
+                question: `Aşağıdaki sayı dizisinin kuralını bulun ve bir sonraki sayıyı yazın:\n${sequence.slice(0, 5).join(', ')}, ?`,
+                answer: sequence[5].toString(),
+                hint: 'Her sayı, kendinden önceki iki sayının toplamıdır.'
+            };
+        }
+    ];
+
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = [];
+        for(let i=0; i<count; i++) {
+            const gen = puzzleGenerators[i % puzzleGenerators.length];
+            const puzzle = gen();
+            if(puzzle) puzzles.push(puzzle);
+        }
+
+        return {
+            title: "Akıl Oyunları (5-6. Sınıf)",
+            instruction: "Her bir bulmacayı dikkatlice oku ve çöz.",
+            pedagogicalNote: "Üst düzey mantıksal akıl yürütme, problem çözme stratejileri ve esnek düşünme.",
+            imagePrompt: "Strateji Oyunu",
             puzzles
         };
     });

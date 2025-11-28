@@ -1,7 +1,6 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData } from '../../types';
+import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData, MindGames56Data } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -160,7 +159,7 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     return generateWithSchema(prompt, schema) as Promise<MapInstructionData[]>;
 };
 
-// --- MIND GAMES AI GENERATOR ---
+// --- MIND GAMES AI GENERATOR (3-4. Sınıf) ---
 export const generateMindGamesFromAI = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     
@@ -225,4 +224,63 @@ export const generateMindGamesFromAI = async (options: GeneratorOptions): Promis
     };
     
     return generateWithSchema(prompt, schema) as Promise<MindGamesData[]>;
+};
+
+// --- MIND GAMES AI GENERATOR (5-6. Sınıf) ---
+export const generateMindGames56FromAI = async (options: GeneratorOptions): Promise<MindGames56Data[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    
+    const prompt = `
+    "Akıl Oyunları" (5. ve 6. Sınıf Seviyesi).
+    Zorluk: ${difficulty}.
+    
+    Aşağıdaki bulmaca tiplerinden KARIŞIK olarak ${itemCount || 4} adet üret:
+    
+    1. 'word_problem': Çok adımlı mantık ve matematik gerektiren sözel problemler (Yaş, para, kesir, mantık vb.).
+    2. 'number_sequence': Alışılmışın dışında, karmaşık kurallara sahip sayı veya harf-sayı dizileri.
+    3. 'visual_logic': Karmaşık bir şekil içindeki nesneleri sayma (örn: kaç kare var?), kibrit çöpü problemleri, zar mantığı.
+    4. 'cipher': Standart dışı matematiksel işlemlerle oluşturulmuş şifreler (örn: A ⌾ B = A*B + A).
+
+    HER BULMACA İÇİN:
+    - "type": Bulmaca tipi ('word_problem', 'number_sequence', 'visual_logic', 'cipher').
+    - "title": Bulmacanın özgün başlığı (örn: "Kurnaz Osman", "Bir Garip Sayı Dizisi").
+    - "question": Problemin tam metni.
+    - "answer": Cevap (Sadece sayı veya kısa metin).
+    - "hint": (Opsiyonel) Çözüme yönelik küçük bir ipucu.
+    - "imagePrompt": Her bulmaca için görsel betimlemesi (İngilizce). Stil: "Clean, modern educational illustration".
+    
+    "pedagogicalNote": Hangi zeka alanını geliştirdiği (Sözel Mantık, Sayısal Akıl Yürütme vb.).
+    ${worksheetCount} adet sayfa üret.
+    `;
+    
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                imagePrompt: { type: Type.STRING },
+                puzzles: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            type: { type: Type.STRING, enum: ['word_problem', 'number_sequence', 'visual_logic', 'cipher'] },
+                            title: { type: Type.STRING },
+                            question: { type: Type.STRING },
+                            answer: { type: Type.STRING },
+                            hint: { type: Type.STRING },
+                            imagePrompt: { type: Type.STRING }
+                        },
+                        required: ['type', 'title', 'question', 'answer']
+                    }
+                }
+            },
+            required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt']
+        }
+    };
+    
+    return generateWithSchema(prompt, schema) as Promise<MindGames56Data[]>;
 };

@@ -1,4 +1,3 @@
-
 import { Activity, ActivityCategory, ActivityType } from './types';
 
 export const ACTIVITIES: Activity[] = [
@@ -107,6 +106,12 @@ export const ACTIVITIES: Activity[] = [
         title: 'Akıl Oyunları (3-4. Sınıf)', 
         description: 'Matrisler, işlem piramitleri, fonksiyon makineleri ve şekil bağıntıları.', 
         icon: 'fa-solid fa-puzzle-piece' 
+    },
+    { 
+        id: ActivityType.MIND_GAMES_56, 
+        title: 'Akıl Oyunları (5-6. Sınıf)', 
+        description: 'Mantık, matematik ve sözel akıl yürütme problemleri.', 
+        icon: 'fa-solid fa-brain' 
     },
 
     // --- DİKKAT VE HAFIZA ---
@@ -222,7 +227,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
             ActivityType.VISUAL_NUMBER_PATTERN, ActivityType.LOGIC_GRID_PUZZLE, ActivityType.ODD_ONE_OUT, 
             ActivityType.SHAPE_NUMBER_PATTERN, ActivityType.BASIC_OPERATIONS, ActivityType.REAL_LIFE_MATH_PROBLEMS, 
             ActivityType.FAMILY_RELATIONS, ActivityType.LOGIC_DEDUCTION, ActivityType.NUMBER_BOX_LOGIC, 
-            ActivityType.MAP_INSTRUCTION, ActivityType.MIND_GAMES
+            ActivityType.MAP_INSTRUCTION, ActivityType.MIND_GAMES, ActivityType.MIND_GAMES_56
         ]
     },
     {

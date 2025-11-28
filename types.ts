@@ -1,4 +1,3 @@
-
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -127,8 +126,8 @@ export enum ActivityType {
   ATTENTION_DEVELOPMENT = 'ATTENTION_DEVELOPMENT',
   ATTENTION_FOCUS = 'ATTENTION_FOCUS',
   
-  // --- NEW ACTIVITY ---
   MIND_GAMES = 'MIND_GAMES',
+  MIND_GAMES_56 = 'MIND_GAMES_56',
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -367,7 +366,7 @@ export interface AttentionFocusData extends BaseActivityData {
     }[];
 }
 
-// --- MIND GAMES (Akıl Oyunları) ---
+// --- MIND GAMES (Akıl Oyunları 3-4) ---
 export type MindGamePuzzleType = 'shape_math' | 'matrix_logic' | 'number_pyramid' | 'hexagon_logic' | 'function_machine';
 
 export interface MindGamePuzzle {
@@ -392,6 +391,24 @@ export interface MindGamePuzzle {
 
 export interface MindGamesData extends BaseActivityData {
     puzzles: MindGamePuzzle[];
+}
+
+// --- MIND GAMES (5-6. Sınıf) ---
+export type MindGame56PuzzleType = 'word_problem' | 'number_sequence' | 'visual_logic' | 'cipher';
+
+export interface MindGame56Puzzle {
+    type: MindGame56PuzzleType;
+    title: string;
+    question: string;
+    imagePrompt?: string;
+    imageBase64?: string;
+    options?: string[];
+    answer: string;
+    hint?: string;
+}
+
+export interface MindGames56Data extends BaseActivityData {
+    puzzles: MindGame56Puzzle[];
 }
 
 
@@ -1031,7 +1048,8 @@ export type SingleWorksheetData =
   | AttentionToQuestionData
   | AttentionDevelopmentData
   | AttentionFocusData
-  | MindGamesData;
+  | MindGamesData
+  | MindGames56Data;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 
