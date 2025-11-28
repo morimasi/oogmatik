@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -27,11 +28,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, onShare
     if (!isOpen) return null;
     
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
           <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl w-full max-w-md flex flex-col border border-zinc-200 dark:border-zinc-700 overflow-hidden max-h-[80vh]">
               <div className="bg-indigo-600 p-4 flex justify-between items-center">
                   <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                      <i className="fa-solid fa-share-nodes"></i> Etkinlik Paylaş
+                      <i className="fa-solid fa-share-nodes"></i> Paylaş
                   </h3>
                   <button onClick={onClose} disabled={isSending} className="text-white/80 hover:text-white transition-colors disabled:opacity-50">
                       <i className="fa-solid fa-times text-xl"></i>
@@ -58,14 +59,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, onShare
                                   key={contact.id}
                                   onClick={() => onShare(contact.id)}
                                   disabled={isSending}
-                                  className="w-full flex items-center gap-3 p-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors text-left disabled:opacity-50"
+                                  className="w-full flex items-center gap-3 p-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors text-left disabled:opacity-50 group"
                               >
                                   <img src={contact.avatar} alt={contact.name} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-600" />
                                   <div>
                                       <p className="font-bold text-zinc-800 dark:text-zinc-100">{contact.name}</p>
                                       <p className="text-xs text-zinc-500">{contact.email}</p>
                                   </div>
-                                  <div className="ml-auto text-indigo-500">
+                                  <div className="ml-auto text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
                                       {isSending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-paper-plane"></i>}
                                   </div>
                               </button>

@@ -249,7 +249,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
 
     return (
         <div className="bg-zinc-50 dark:bg-zinc-900 min-h-full p-4 md:p-8 overflow-y-auto">
-            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} />
             
             <div className="max-w-5xl mx-auto">
                 {message && (
@@ -484,7 +483,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
             {selectedAssessment && (
                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setSelectedAssessment(null)}>
                     <div className="bg-white dark:bg-zinc-800 w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
-                        <header className="p-4 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
+                        <header className="p-4 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center no-print">
                             <div>
                                 <h3 className="font-bold text-lg text-zinc-800 dark:text-zinc-100">{selectedAssessment.studentName} Raporu</h3>
                                 <p className="text-xs text-zinc-500">{new Date(selectedAssessment.createdAt).toLocaleDateString('tr-TR')}</p>
@@ -509,15 +508,20 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar assessment-report-container">
-                            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-indigo-900 dark:text-indigo-100 text-sm leading-relaxed">
+                            <div className="hidden print:block mb-8 border-b-2 border-zinc-800 pb-4">
+                                <h1 className="text-3xl font-black">Bursa Disleksi AI - Öğrenci Değerlendirme Raporu</h1>
+                                <div className="flex justify-between mt-4"><p><strong>Öğrenci:</strong> {selectedAssessment.studentName}</p><p><strong>Tarih:</strong> {new Date(selectedAssessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
+                            </div>
+                            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-indigo-900 dark:text-indigo-100 text-sm leading-relaxed break-inside-avoid">
+                                <h4 className="font-bold mb-2">Genel Özet</h4>
                                 {selectedAssessment.report.overallSummary}
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
-                                <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px] bg-white dark:bg-zinc-800">
+                                <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px] bg-white dark:bg-zinc-800 break-inside-avoid">
                                     <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Risk Analizi</h4>
                                     {selectedAssessment.report.chartData && <RadarChart data={selectedAssessment.report.chartData} />}
                                 </div>
-                                <div className="space-y-3">
+                                <div className="space-y-3 break-inside-avoid">
                                     {Object.entries(selectedAssessment.report.scores).map(([key, value]) => {
                                         const score = value as number;
                                         return (
@@ -540,13 +544,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                 </div>
                             </div>
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
-                                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800 break-inside-avoid">
                                     <h4 className="font-bold text-green-700 mb-2 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
                                     <ul className="list-disc list-inside text-sm space-y-1">
                                         {selectedAssessment.report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
-                                <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800">
+                                <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800 break-inside-avoid">
                                     <h4 className="font-bold text-rose-700 mb-2 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
                                     <ul className="list-disc list-inside text-sm space-y-1">
                                         {selectedAssessment.report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
@@ -557,11 +561,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                 <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-road"></i> Önerilen Yol Haritası</h4>
                                 <div className="space-y-4">
                                     {selectedAssessment.report.roadmap.map((item, idx) => (
-                                        <div key={idx} onClick={() => onSelectActivity(item.activityId as ActivityType)} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-zinc-700 transition-colors group cursor-pointer border border-zinc-600">
+                                        <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-600">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold">{idx + 1}</div>
+                                                <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-zinc-100">{idx + 1}</div>
                                                 <div>
-                                                    <h5 className="font-bold text-indigo-300 group-hover:text-white transition-colors">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
+                                                    <h5 className="font-bold text-indigo-300">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
                                                     <p className="text-xs text-zinc-400">{item.reason}</p>
                                                 </div>
                                             </div>
@@ -574,6 +578,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                     </div>
                  </div>
             )}
+            
+            {/* Share Modal moved to the end to ensure highest Z-Index stacking context */}
+            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} />
         </div>
     );
 };

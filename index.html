@@ -402,66 +402,88 @@
   
   /* --- PRINT STYLES --- */
   @media print {
-    @page { size: A4 portrait; margin: 5mm; }
-    html, body { width: 100%; height: auto !important; background-color: white !important; color: black !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-size: 12pt !important; }
+    @page { size: A4 portrait; margin: 10mm; }
     
-    /* Reset main containers to block to allow flow, remove height restrictions */
-    #root, .h-screen, .overflow-hidden, .overflow-y-auto, main { height: auto !important; overflow: visible !important; display: block !important; }
+    html, body { 
+      width: 100%; 
+      height: 100% !important; 
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: white !important; 
+      color: black !important; 
+      -webkit-print-color-adjust: exact !important; 
+      print-color-adjust: exact !important; 
+      font-size: 11pt !important;
+      overflow: visible !important;
+    }
     
-    /* Hide UI elements */
-    header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar, .reading-ruler { display: none !important; }
+    /* Global Hide */
+    #root > *, header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar, .reading-ruler { 
+        display: none !important; 
+    }
     
-    /* Allow printable document wrapper to flow */
-    .printable-document { display: block !important; }
+    /* --- WORKSHEET PRINTING --- */
+    /* Only show content area if it's the target */
+    .printable-area, .printable-document { 
+        display: block !important; 
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
 
-    /* Worksheet Page Formatting - FLOW LAYOUT */
     .worksheet-page { 
         width: 100% !important; 
         max-width: none !important; 
         margin: 0 !important; 
-        margin-bottom: 20px !important;
-        padding: 5mm !important; 
+        padding: 0 !important;
         border: none !important; 
-        /* Visual separation in print if desired, optional */
-        border-bottom: 1px dashed #ccc !important; 
         box-shadow: none !important; 
-        
-        /* KEY CHANGE: ALLOW STACKING */
+        page-break-after: always !important;
+        break-after: page !important;
         break-inside: avoid !important;
-        page-break-inside: avoid !important;
-        break-after: auto !important;
-        page-break-after: auto !important;
-        
-        transform: none !important;
-        
-        /* Reset fixed heights */
-        height: auto !important;
-        min-height: 0 !important;
-        aspect-ratio: auto !important;
     }
     
     .worksheet-page:last-child { 
-        border-bottom: none !important;
-        margin-bottom: 0 !important;
+        page-break-after: auto !important;
     }
 
-    /* Assessment Report Print Specifics */
+    /* --- REPORT PRINTING --- */
+    /* Only show report container if it exists */
     .assessment-report-container {
-      padding: 0 !important;
+      display: block !important;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto !important;
       margin: 0 !important;
+      padding: 0 !important;
       border: none !important;
       box-shadow: none !important;
       background-color: white !important;
       color: black !important;
+      overflow: visible !important;
+      z-index: 9999;
     }
+
+    /* Report specific resets */
     .assessment-report-container * {
         color: black !important;
         background-color: transparent !important;
         border-color: #ccc !important;
+        box-shadow: none !important;
     }
-    .assessment-report-container h3, .assessment-report-container h4, .assessment-report-container h5 {
-        color: black !important;
+    
+    /* Ensure elements don't split weirdly */
+    .break-inside-avoid {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
+    
+    /* Restore some visual structure for report charts/tables */
     .assessment-report-container .bg-indigo-50,
     .assessment-report-container .bg-green-50,
     .assessment-report-container .bg-rose-50,
