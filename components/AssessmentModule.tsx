@@ -566,6 +566,15 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             alert('Paylaşım sırasında bir hata oluştu.');
         }
     };
+    
+    const handlePrint = () => {
+        const originalTitle = document.title;
+        const studentName = profile.studentName.replace(/ /g, '_');
+        document.title = `Rapor_${studentName}_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}`;
+        window.print();
+        document.title = originalTitle;
+    };
+
 
     const isTestReady = (isAttention = false) => {
         if (isTransitioning) return false;
@@ -889,9 +898,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                             </button>
                                         </>
                                     )}
-                                    <button onClick={() => window.print()} className="bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2 shadow-sm" title="Yazdır/PDF">
+                                    <button onClick={handlePrint} className="bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2 shadow-sm" title="Yazdır/PDF">
                                         <i className="fa-solid fa-print"></i>
-                                        <span className="hidden sm:inline">Yazdır</span>
+                                        <span className="hidden sm:inline">Yazdır/PDF</span>
                                     </button>
                                 </div>
                             </div>
