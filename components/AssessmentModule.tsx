@@ -18,28 +18,30 @@ const steps = ['Giriş', 'Profil', 'Okuma', 'Matematik', 'Dikkat', 'Görsel', 'B
 
 // --- VISUAL ASSETS ---
 
-// Professional Matrix Cell Renderer (Raven's Style)
+// Professional Matrix Cell Renderer (Raven's Style 2.0)
 const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, className = "" }) => {
-    if (!item) return <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-600 flex items-center justify-center`}><span className="text-4xl text-zinc-300">?</span></div>;
+    if (!item) return <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-dashed border-zinc-300 dark:border-zinc-600 flex items-center justify-center relative overflow-hidden`}><div className="absolute inset-0 bg-zinc-50 dark:bg-zinc-900 opacity-50"></div><span className="text-4xl text-zinc-400 font-bold relative z-10">?</span></div>;
 
-    const { outer, inner, count = 1, rotation = 0, fill = false } = item;
+    const { outer, inner, rotation = 0, fill = false } = item;
     
     // Shape Renderers
-    const renderShape = (type: string, size: number, style: 'stroke' | 'fill' | 'both', colorClass: string) => {
+    const renderShape = (type: string, size: number, style: 'stroke' | 'fill', colorClass: string) => {
         const center = 50;
         const r = size / 2;
         const props = {
             stroke: "currentColor",
-            strokeWidth: "4",
-            fill: style === 'fill' || style === 'both' ? "currentColor" : "none",
-            className: colorClass
+            strokeWidth: "3",
+            fill: style === 'fill' ? "currentColor" : "none",
+            className: colorClass,
+            vectorEffect: "non-scaling-stroke"
         };
 
         if (type === 'circle') return <circle cx={center} cy={center} r={r} {...props} />;
         if (type === 'square') return <rect x={center - r} y={center - r} width={size} height={size} {...props} />;
         if (type === 'triangle') return <polygon points={`${center},${center - r} ${center + r},${center + r} ${center - r},${center + r}`} {...props} />;
         if (type === 'diamond') return <polygon points={`${center},${center - r} ${center + r},${center} ${center},${center + r} ${center - r},${center}`} {...props} />;
-        if (type === 'cross') return <path d={`M${center-r},${center-r} L${center+r},${center+r} M${center+r},${center-r} L${center-r},${center+r}`} {...props} strokeWidth="6" />;
+        if (type === 'cross') return <path d={`M${center-r},${center-r} L${center+r},${center+r} M${center+r},${center-r} L${center-r},${center+r}`} {...props} strokeWidth="5" />;
+        if (type === 'star') return <polygon points="50,15 61,35 85,35 65,50 75,75 50,60 25,75 35,50 15,35 39,35" {...props} />;
         return null;
     };
 
@@ -48,18 +50,10 @@ const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, classNa
             <svg viewBox="0 0 100 100" className="w-4/5 h-4/5">
                 <g transform={`rotate(${rotation}, 50, 50)`}>
                     {/* Outer Shape */}
-                    {renderShape(outer, 80, 'stroke', "text-zinc-800 dark:text-zinc-200")}
+                    {renderShape(outer, 70, fill ? 'fill' : 'stroke', fill ? "text-zinc-800 dark:text-zinc-200" : "text-zinc-800 dark:text-zinc-200")}
                     
-                    {/* Inner Shape / Details */}
-                    {inner && renderShape(inner, 40, fill ? 'fill' : 'stroke', "text-indigo-600 dark:text-indigo-400")}
-                    
-                    {/* Count Logic (Dots) */}
-                    {count > 1 && (
-                        <g className="text-zinc-400 dark:text-zinc-500">
-                            {count === 2 && <><circle cx="20" cy="20" r="5" fill="currentColor"/><circle cx="80" cy="80" r="5" fill="currentColor"/></>}
-                            {count === 3 && <><circle cx="20" cy="20" r="5" fill="currentColor"/><circle cx="50" cy="50" r="5" fill="currentColor"/><circle cx="80" cy="80" r="5" fill="currentColor"/></>}
-                        </g>
-                    )}
+                    {/* Inner Shape */}
+                    {inner && renderShape(inner, 30, 'fill', "text-indigo-600 dark:text-indigo-400")}
                 </g>
             </svg>
         </div>
@@ -68,47 +62,85 @@ const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, classNa
 
 // --- DYNAMIC TEST GENERATORS ---
 
-// 1. Reading: Dynamic Pseudoword & Sentence Generator
+// 1. Reading: Dynamic Pseudoword & Sentence Generator (Improved)
 const generateReadingTest = (grade: number) => {
     const items = [];
-    const difficultyKey = grade <= 2 ? 'easy_words' : (grade <= 4 ? 'medium_words' : 'hard_words');
-    const wordPool = getRandomItems(TR_VOCAB[difficultyKey] || TR_VOCAB.easy_words, 10);
+    
+    // Kelime Havuzu Seçimi
+    let poolKey = 'easy_words';
+    if (grade >= 3 && grade <= 4) poolKey = 'medium_words';
+    if (grade >= 5) poolKey = 'hard_words';
+    
+    const realWords = getRandomItems((TR_VOCAB[poolKey] as string[]) || TR_VOCAB.easy_words, 15);
 
-    // Lexical (Real Word vs Pseudoword)
+    // Lexical (Real Word vs Pseudoword) - 6 Items
     for(let i=0; i<6; i++) {
         const isReal = Math.random() > 0.5;
-        let q = wordPool[i].toUpperCase();
+        let q = realWords[i].toLocaleUpperCase('tr');
         
         if (!isReal) {
-            // Create realistic pseudoword by swapping common confusing letters
-            q = q.replace('B', 'D').replace('M', 'N').replace('E', 'A').replace('O', 'Ö').replace('U', 'Ü');
-            // If no replacement happened, swap last two letters
-            if (q === wordPool[i].toUpperCase()) {
-                const chars = q.split('');
-                if(chars.length > 1) {
-                    [chars[chars.length-1], chars[chars.length-2]] = [chars[chars.length-2], chars[chars.length-1]];
-                    q = chars.join('');
-                } else {
-                    q = q + 'K';
-                }
+            // Gerçekçi Uydurma Kelime Üretimi (Disleksi Simülasyonu)
+            const original = q;
+            // 1. Benzer harfleri değiştir
+            if (q.includes('B')) q = q.replace('B', 'D');
+            else if (q.includes('D')) q = q.replace('D', 'B');
+            else if (q.includes('M')) q = q.replace('M', 'N');
+            else if (q.includes('N')) q = q.replace('N', 'M');
+            else if (q.includes('E')) q = q.replace('E', 'A');
+            // 2. Harf sırasını değiştir (Hecenin içini karıştır)
+            else if (q.length > 3) {
+                const arr = q.split('');
+                const idx = Math.floor(arr.length / 2);
+                [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]];
+                q = arr.join('');
             }
+            // 3. Sonuna ekle
+            else {
+                q = q + 'K';
+            }
+            
+            // Eğer kelime değişmediyse veya hala anlamlıysa zorla değiştir
+            if (q === original) q = "Z" + q.substring(1);
         }
         items.push({ subtype: 'lexical', q, isReal, id: `lex-${i}` });
     }
 
-    // Sentence Comprehension (Cloze)
-    const sentences = [
-        { q: "Hava kararınca sokak lambaları ___.", opts: ["yandı", "koştu", "uyudu"], a: "yandı" },
-        { q: "Kitabın sayfalarını çevirirken ___ yırtıldı.", opts: ["kağıt", "demir", "cam"], a: "kağıt" },
-        { q: "Dişlerimizi fırçalamak ___ için önemlidir.", opts: ["sağlık", "oyun", "yemek"], a: "sağlık" },
-        { q: "Trafik ışığı kırmızı yanınca araçlar ___.", opts: ["durur", "uçar", "yüzer"], a: "durur" }
+    // Sentence Comprehension (Cloze) - 4 Items
+    // Dinamik cümle şablonları
+    const sentenceTemplates = [
+        { t: "{subject} ağaca tırmanıp {object} topladı.", s: ["Kedi", "Maymun", "Çocuk"], o: ["elma", "kitap", "balık"], a: "elma" }, // Basit mantık
+        { t: "Hava çok soğuktu, bu yüzden {clothing} giydim.", c: ["montumu", "mayomu", "gözlüğümü"], a: "montumu" },
+        { t: "Susadığım için mutfağa gidip bir bardak {drink} içtim.", d: ["su", "ekmek", "çatal"], a: "su" },
+        { t: "{vehicle} kırmızı ışık yanınca hemen durdu.", v: ["Otobüs", "Kuş", "Nehir"], a: "Otobüs" }
     ];
-    items.push(...getRandomItems(sentences, 4).map((s, i) => ({ subtype: 'sentence', q: s.q, opts: shuffle(s.opts), a: s.a, id: `sent-${i}` })));
+    
+    const selectedSentences = getRandomItems(sentenceTemplates, 4);
+    selectedSentences.forEach((s, i) => {
+        let text = s.t;
+        // Basit şablon doldurma (Regex yerine manuel replace daha güvenli offline için)
+        if(s.s) text = text.replace('{subject}', getRandomItems(s.s, 1)[0]);
+        if(s.c) text = text.replace('{clothing}', "...");
+        if(s.d) text = text.replace('{drink}', "...");
+        if(s.o) text = text.replace('{object}', "...");
+        if(s.v) text = text.replace('{vehicle}', "...");
+        
+        // Eğer boşluk yoksa manuel ekle (yukarıdaki replace mantığına göre '...' zaten eklendi)
+        
+        // Seçenekleri hazırla
+        let opts: string[] = [];
+        if (s.c) opts = s.c;
+        else if (s.d) opts = s.d;
+        else if (s.v) opts = s.v;
+        else if (s.o) opts = s.o;
+        else opts = ["seçenek1", "seçenek2", "seçenek3"]; // Fallback
+
+        items.push({ subtype: 'sentence', q: text, opts: shuffle(opts), a: s.a, id: `sent-${i}` });
+    });
     
     return items;
 };
 
-// 2. Math: Mental Arithmetic
+// 2. Math: Mental Arithmetic (Unchanged logic, just ensure types)
 const generateMathTest = (grade: number) => {
     const items = [];
     for(let i=0; i<8; i++) {
@@ -134,45 +166,76 @@ const generateMathTest = (grade: number) => {
     return items;
 };
 
-// 3. Visual: Raven's Matrix Logic (2x2)
+// 3. Visual: Professional 2x2 Matrix Reasoning (Raven's Style)
 const generateVisualTest = (grade: number) => {
     const items = [];
-    const shapes = ['circle', 'square', 'triangle', 'diamond', 'cross'];
+    const shapes = ['circle', 'square', 'triangle', 'diamond', 'cross', 'star'];
     
-    // Logic Types: 1. Constant Row, 2. Progression, 3. Addition (Outer+Inner)
+    // Logic Types: 1. Identity, 2. Rotation, 3. Addition, 4. Subtraction (Inner)
     for(let i=0; i<6; i++) {
-        const logicType = i % 3; 
+        const logicType = i % 4; 
         let matrix = [null, null, null, null] as any[]; // TL, TR, BL, BR(Target)
         let target, distractors;
 
-        if (logicType === 0) { // Shape Match (Top=Bottom)
-            const s1 = shapes[getRandomInt(0, 4)];
-            const s2 = shapes[getRandomInt(0, 4)];
+        const s1 = shapes[getRandomInt(0, 5)];
+        const s2 = shapes[getRandomInt(0, 5)];
+
+        if (logicType === 0) { // Identity (Row 1 same, Row 2 same)
+            // A A
+            // B ? (B)
             matrix = [
-                { outer: s1, inner: s2 }, { outer: s1, inner: null },
-                { outer: s1, inner: s2 }, { outer: s1, inner: null } // Target
+                { outer: s1, inner: s2, rotation: 0 }, { outer: s1, inner: s2, rotation: 0 },
+                { outer: s2, inner: s1, rotation: 0 }, { outer: s2, inner: s1, rotation: 0 } // Target
             ];
             target = matrix[3];
-            distractors = [ { outer: s2, inner: null }, { outer: s1, inner: s2 }, { outer: s2, inner: s1 } ];
+            distractors = [ 
+                { outer: s2, inner: s2, rotation: 0 }, 
+                { outer: s1, inner: s1, rotation: 0 }, 
+                { outer: s2, inner: s1, rotation: 45 } 
+            ];
         } 
-        else if (logicType === 1) { // Progression (Rotation)
-            const s = shapes[getRandomInt(0, 4)];
+        else if (logicType === 1) { // Rotation Progression
+            // 0   45
+            // 90  ? (135)
             matrix = [
-                { outer: s, rotation: 0 }, { outer: s, rotation: 45 },
-                { outer: s, rotation: 90 }, { outer: s, rotation: 135 } // Target
+                { outer: s1, rotation: 0 }, { outer: s1, rotation: 45 },
+                { outer: s1, rotation: 90 }, { outer: s1, rotation: 135 } // Target
             ];
             target = matrix[3];
-            distractors = [ { outer: s, rotation: 0 }, { outer: s, rotation: 90 }, { outer: s, rotation: 180 } ];
+            distractors = [ 
+                { outer: s1, rotation: 0 }, 
+                { outer: s1, rotation: 90 }, 
+                { outer: s1, rotation: 180 } 
+            ];
         }
-        else { // Addition (Row 1 features + Row 2 features) - Simplified for 2x2: Diagonal match?
-            // Let's do: Col 1 has fill, Col 2 has no fill
-            const s = shapes[getRandomInt(0, 4)];
+        else if (logicType === 2) { // Inner Shape Addition
+            // Outer only   |  Inner only
+            // Both (Combined) |  ? (Complex Combined?) -> Let's simplify: Row logic
+            // Col 1: Empty inner. Col 2: Filled inner.
             matrix = [
-                { outer: s, fill: true }, { outer: s, fill: false },
-                { outer: 'square', fill: true }, { outer: 'square', fill: false } // Target
+                { outer: s1, inner: null }, { outer: s1, inner: s2 },
+                { outer: s2, inner: null }, { outer: s2, inner: s1 } // Target
             ];
             target = matrix[3];
-            distractors = [ { outer: 'square', fill: true }, { outer: s, fill: false }, { outer: 'circle', fill: false } ];
+            distractors = [ 
+                { outer: s2, inner: null }, 
+                { outer: s1, inner: s1 }, 
+                { outer: s2, inner: s2 } 
+            ];
+        }
+        else { // Fill Toggle
+            // Filled   Empty
+            // Empty    ? (Filled)
+            matrix = [
+                { outer: s1, fill: true }, { outer: s1, fill: false },
+                { outer: s2, fill: false }, { outer: s2, fill: true } // Target
+            ];
+            target = matrix[3];
+            distractors = [ 
+                { outer: s2, fill: false }, 
+                { outer: s1, fill: true }, 
+                { outer: s1, fill: false } 
+            ];
         }
 
         items.push({
@@ -190,11 +253,15 @@ const generateVisualTest = (grade: number) => {
 const generateAttentionTest = (grade: number) => {
     let target = 'b';
     let distractors = ['d'];
-    let totalItems = 36;
+    let totalItems = 36; // 6x6 Grid
 
-    if (grade <= 2) { target = 'b'; distractors = ['d']; }
-    else if (grade <= 4) { target = 'm'; distractors = ['n', 'u']; }
-    else { target = 'p'; distractors = ['q', 'b', 'd']; }
+    if (grade <= 2) { 
+        target = 'b'; distractors = ['d']; 
+    } else if (grade <= 4) { 
+        target = 'm'; distractors = ['n', 'u']; 
+    } else { 
+        target = 'p'; distractors = ['q', 'b', 'd']; 
+    }
 
     const items = Array.from({ length: totalItems }).map(() => {
         const isTarget = Math.random() < 0.3; // 30% targets
@@ -204,19 +271,20 @@ const generateAttentionTest = (grade: number) => {
             isCorrectTarget: isTarget
         };
     });
-    return items;
+    return { items, targetChar: target };
 };
 
-// 5. Memory: Digit Span Backwards
+// 5. Memory: Digit Span Backwards (Geriye Sayı Tekrarı)
 const generateMemoryTest = (grade: number) => {
     const items = [];
+    // Progressive difficulty: Start with 2 digits, go up to 5 or 6
     const lengths = grade <= 2 ? [2, 3, 3, 4] : (grade <= 4 ? [3, 4, 4, 5] : [3, 4, 5, 6]);
     
     for(let i=0; i<4; i++) {
         const len = lengths[i];
         const nums: number[] = [];
         while(nums.length < len) {
-            const n = getRandomInt(1, 9);
+            const n = getRandomInt(1, 9); // 1-9 (avoid 0 for simplicity in speech)
             if(nums[nums.length-1] !== n) nums.push(n); // No immediate repeats
         }
         items.push({
@@ -315,15 +383,16 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const [testState, setTestState] = useState({
         score: 0, total: 0, startTime: 0, items: [] as any[], currentIndex: 0,
         attentionState: [] as { char: string; isSelected: boolean; isCorrectTarget: boolean }[],
+        targetChar: '', // For attention test instruction
         answers: [] as boolean[]
     });
 
-    const startTestPhase = useCallback((items: any[], isAttention = false) => {
+    const startTestPhase = useCallback((items: any[], isAttention = false, attentionTarget = '') => {
         setFeedbackState('none');
         if (isAttention) {
-            setTestState({ score: 0, total: 1, startTime: Date.now(), items: [], currentIndex: 0, attentionState: items, answers: [] });
+            setTestState({ score: 0, total: 1, startTime: Date.now(), items: [], currentIndex: 0, attentionState: items, targetChar: attentionTarget, answers: [] });
         } else {
-            setTestState({ score: 0, total: items.length, startTime: Date.now(), items, currentIndex: 0, attentionState: [], answers: [] });
+            setTestState({ score: 0, total: items.length, startTime: Date.now(), items, currentIndex: 0, attentionState: [], targetChar: '', answers: [] });
             // For memory test, init phase
             if (items.length > 0 && items[0].type === 'digit-span') {
                 setMemoryPhase('show');
@@ -361,7 +430,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 
                 if (prev.items && prev.currentIndex < prev.items.length - 1) {
                     const nextIndex = prev.currentIndex + 1;
-                    const nextItem = prev.items[nextIndex];
                     
                     if (category === 'cognitive') {
                         setMemoryPhase('show');
@@ -407,7 +475,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         let nextMsg = "Sonraki aşama...";
         if (id === 'reading') nextMsg = "Matematik Testi Hazırlanıyor";
         if (id === 'math') nextMsg = "Dikkat Testi Hazırlanıyor";
-        if (id === 'attention') nextMsg = "Görsel Algı Testi Hazırlanıyor";
+        if (id === 'attention') nextMsg = "Görsel Mantık Testi Hazırlanıyor";
         if (id === 'visual') nextMsg = "İşleyen Bellek Testi Hazırlanıyor";
         if (id === 'cognitive') nextMsg = "Testler Tamamlandı!";
 
@@ -428,7 +496,10 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
         if (currentStep === 2 && testState.items.length === 0) startTestPhase(generateReadingTest(gradeInt));
         else if (currentStep === 3 && testState.items.length === 0) startTestPhase(generateMathTest(gradeInt));
-        else if (currentStep === 4 && testState.attentionState.length === 0) startTestPhase(generateAttentionTest(gradeInt), true);
+        else if (currentStep === 4 && testState.attentionState.length === 0) {
+            const { items, targetChar } = generateAttentionTest(gradeInt);
+            startTestPhase(items, true, targetChar);
+        }
         else if (currentStep === 5 && testState.items.length === 0) startTestPhase(generateVisualTest(gradeInt));
         else if (currentStep === 6 && testState.items.length === 0) startTestPhase(generateMemoryTest(gradeInt));
         else if (currentStep === 8 && !report && !isLoading) handleReportGeneration();
@@ -605,20 +676,20 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     {currentStep === 4 && isTestReady(true) && (
                         <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
                             <div className="pt-6 px-6 flex justify-between items-center border-b pb-4 border-zinc-100 dark:border-zinc-700">
-                                <div><h3 className="font-bold text-lg">Dikkat Testi</h3><p className="text-xs text-zinc-500">Sadece "{testState.attentionState.find(i=>i.isCorrectTarget)?.char}" harflerini işaretle.</p></div>
+                                <div><h3 className="font-bold text-lg">Dikkat Testi</h3><p className="text-xs text-zinc-500">Sadece "<span className="font-bold text-indigo-600">{testState.targetChar}</span>" harflerini işaretle.</p></div>
                                 <button onClick={() => {
                                     let score = 0, total = 0;
                                     testState.attentionState.forEach(i => { if(i.isCorrectTarget) total++; if(i.isSelected && i.isCorrectTarget) score++; if(i.isSelected && !i.isCorrectTarget) score-=0.5; });
                                     const acc = total > 0 ? (Math.max(0,score)/total)*100 : 0;
                                     setProfile(p => ({...p, testResults: {...p.testResults, 'attention': {id:'attention', name:'Dikkat', score: Math.max(0,score), total, accuracy: acc, duration: 60, timestamp: Date.now()}}}));
-                                    triggerTransition("Görsel Algı Testi Hazırlanıyor...", 5);
+                                    triggerTransition("Görsel Mantık Testi Hazırlanıyor...", 5);
                                 }} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-full shadow-md">Tamamla</button>
                             </div>
                             <div className="p-4 flex-1 flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/30">
                                 <div className="grid grid-cols-6 gap-2 md:gap-4">
                                     {testState.attentionState.map((item, i) => (
                                         <button key={i} onClick={() => setTestState(p => { const n = [...p.attentionState]; n[i].isSelected = !n[i].isSelected; return {...p, attentionState: n}; })} 
-                                            className={`w-10 h-10 md:w-14 md:h-14 rounded-lg text-2xl md:text-3xl font-bold flex items-center justify-center font-dyslexic shadow-sm border ${item.isSelected ? 'bg-indigo-600 text-white border-indigo-600 scale-110' : 'bg-white dark:bg-zinc-800 border-zinc-200 text-zinc-400 hover:border-indigo-300'}`}>
+                                            className={`w-10 h-10 md:w-14 md:h-14 rounded-lg text-2xl md:text-3xl font-bold flex items-center justify-center font-dyslexic shadow-sm border transition-all ${item.isSelected ? 'bg-indigo-600 text-white border-indigo-600 scale-110' : 'bg-white dark:bg-zinc-800 border-zinc-200 text-zinc-400 hover:border-indigo-300'}`}>
                                             {item.char}
                                         </button>
                                     ))}
@@ -627,21 +698,22 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         </div>
                     )}
 
-                    {/* STEP 5: VISUAL (Matrices) */}
+                    {/* STEP 5: VISUAL (Raven's Matrices) */}
                     {currentStep === 5 && isTestReady() && (
                         <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
                             <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Mantık (Matris)" /></div>
                             <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
+                                <h3 className="text-zinc-500 font-bold mb-4 uppercase tracking-wider text-xs">Eksik Parçayı Bul</h3>
                                 <div className="mb-8 grid grid-cols-2 gap-4 p-6 bg-zinc-100 dark:bg-zinc-900 rounded-2xl shadow-inner border-2 border-zinc-200 dark:border-zinc-700 max-w-md w-full">
                                     {currentItem?.grid?.map((item: any, i: number) => (
                                         <MatrixCell key={i} item={item} className="w-full aspect-square rounded-lg shadow-sm" />
                                     ))}
                                     <div className="w-full aspect-square bg-white dark:bg-zinc-800 border-2 border-dashed border-indigo-400 rounded-lg flex items-center justify-center"><span className="text-4xl font-bold text-indigo-300">?</span></div>
                                 </div>
-                                <div className="flex gap-4 justify-center w-full max-w-2xl">
+                                <div className="flex gap-4 justify-center w-full max-w-2xl flex-wrap">
                                     {currentItem?.opts?.map((opt: any, i:number) => (
                                         <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'visual', 'Görsel Algı')} className="w-20 h-20 md:w-24 md:h-24 hover:scale-105 transition-transform focus:outline-none">
-                                            <MatrixCell item={opt} className="w-full h-full rounded-xl shadow-md hover:border-indigo-500" />
+                                            <MatrixCell item={opt} className="w-full h-full rounded-xl shadow-md hover:border-indigo-500 hover:ring-2 hover:ring-indigo-300" />
                                         </button>
                                     ))}
                                 </div>
@@ -667,7 +739,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     </div>
                                 ) : (
                                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-300 w-full max-w-sm">
-                                        <h3 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-100">Sayıları TERSTEN Yaz</h3>
+                                        <h3 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-100"><i className="fa-solid fa-rotate-left mr-2 text-indigo-500"></i>Sayıları TERSTEN Yaz</h3>
                                         <div className="mb-6 h-16 w-full bg-zinc-100 dark:bg-zinc-700 rounded-xl flex items-center justify-center text-3xl font-mono tracking-widest border-2 border-indigo-200">
                                             {userMemoryInput}
                                             <span className="animate-pulse w-2 h-8 bg-indigo-500 ml-1"></span>
