@@ -159,90 +159,93 @@ export const generateOfflineAttentionToQuestion = async (options: GeneratorOptio
 };
 
 export const generateOfflineAttentionDevelopment = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
-    const { worksheetCount, itemCount } = options;
+    const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 4;
-
-    const templates: any[] = [
-        {
-            type: 'max-min',
-            text: (isLeft: boolean, isMax: boolean) => `Aradığımız sayı ${isLeft ? 'sol' : 'sağ'} kutudadır. Bulunduğu kutudaki en ${isMax ? 'büyük' : 'küçük'} sayıdır.`,
-            logic: (box1: number[], box2: number[], isLeft: boolean, isMax: boolean) => {
-                const targetBox = isLeft ? box1 : box2;
-                return isMax ? Math.max(...targetBox) : Math.min(...targetBox);
-            }
-        },
-        {
-            type: 'odd-even-max',
-            text: (isEven: boolean, isMax: boolean) => `Aradığımız sayı ${isEven ? 'çift' : 'tek'} sayıdır. Bulunduğu kutudaki en ${isMax ? 'büyük' : 'küçük'} ${isEven ? 'çift' : 'tek'} sayıdır.`,
-            logic: (box1: number[], box2: number[], isEven: boolean, isMax: boolean) => {
-                const all = [...box1, ...box2];
-                const filtered = all.filter(n => isEven ? n % 2 === 0 : n % 2 !== 0);
-                // Fallback if no numbers match filter
-                if (filtered.length === 0) return all[0];
-                return isMax ? Math.max(...filtered) : Math.min(...filtered);
-            }
-        },
-        {
-            type: 'digit-logic',
-            text: (isTwoDigit: boolean) => `Aradığımız sayı ${isTwoDigit ? 'iki' : 'bir'} basamaklıdır. Bulunduğu kutudaki tek ${isTwoDigit ? 'iki' : 'bir'} basamaklı sayıdır.`,
-            logic: (box1: number[], box2: number[], isTwoDigit: boolean) => {
-                // This logic requires creating data that fits. 
-                // We'll filter afterwards or just pick random and fix data.
-                return 0; // Placeholder, handled in loop
-            }
-        },
-        {
-            type: 'range',
-            text: (limit: number, isLess: boolean) => `Aradığımız sayı ${limit}'den ${isLess ? 'küçüktür' : 'büyüktür'}. Bu kurala uyan tek sayıdır.`,
-            logic: (box1: number[], box2: number[], limit: number, isLess: boolean) => 0
-        }
-    ];
 
     return Array.from({ length: worksheetCount }, () => {
         const puzzles = Array.from({ length: count }, () => {
-            const templateIdx = getRandomInt(0, 3); // Choose template
-            let box1: number[] = [], box2: number[] = [];
+            // 1. Generate Boxes
+            const rangeMax = difficulty === 'Uzman' ? 99 : (difficulty === 'Zor' ? 50 : 20);
+            
+            // Generate distinct random numbers
+            const allNumbers = new Set<number>();
+            while(allNumbers.size < 8) {
+                allNumbers.add(getRandomInt(1, rangeMax));
+            }
+            const numsArray = Array.from(allNumbers);
+            const box1 = numsArray.slice(0, 4);
+            const box2 = numsArray.slice(4, 8);
+
+            // 2. Select a target Answer randomly
+            const isLeft = Math.random() > 0.5;
+            const targetBox = isLeft ? box1 : box2;
+            const answerNum = getRandomItems(targetBox, 1)[0];
+            
+            // 3. Analyze Properties of the Answer
+            const isEven = answerNum % 2 === 0;
+            const isTwoDigit = answerNum >= 10;
+            const isMaxInBox = answerNum === Math.max(...targetBox);
+            const isMinInBox = answerNum === Math.min(...targetBox);
+            
+            // 4. Build a Complex Riddle based on Difficulty
             let riddle = "";
-            let answer = 0;
+            const boxName = isLeft ? "sol kutudaki" : "sağ kutudaki";
+            const otherBoxName = isLeft ? "sağ kutudaki" : "sol kutudaki";
 
-            if (templateIdx === 0) { // Max/Min in Box
-                box1 = Array.from({length: 4}, () => getRandomInt(1, 20));
-                box2 = Array.from({length: 4}, () => getRandomInt(1, 20));
-                const isLeft = Math.random() > 0.5;
-                const isMax = Math.random() > 0.5;
-                riddle = templates[0].text(isLeft, isMax);
-                answer = templates[0].logic(box1, box2, isLeft, isMax);
+            if (difficulty === 'Başlangıç') {
+                // Simple logic, slightly wordy
+                const prop = isEven ? "çift bir sayıdır" : "tek bir sayıdır";
+                const comp = isMaxInBox ? "en büyük" : (isMinInBox ? "en küçük" : "ne en büyük ne de en küçük");
+                riddle = `Aradığımız sayı ${boxName} sayıların arasındadır. Bu sayı ${prop}. Ayrıca bulunduğu kutudaki ${comp} sayıdır.`;
             } 
-            else if (templateIdx === 1) { // Odd/Even Max
-                // Ensure at least one odd and one even exist
-                box1 = [getRandomInt(1,10)*2, getRandomInt(1,10)*2+1, getRandomInt(1,20), getRandomInt(1,20)];
-                box2 = [getRandomInt(1,20), getRandomInt(1,20), getRandomInt(1,20), getRandomInt(1,20)];
-                const isEven = Math.random() > 0.5;
-                const isMax = Math.random() > 0.5;
-                riddle = templates[1].text(isEven, isMax);
-                answer = templates[1].logic(box1, box2, isEven, isMax);
-            }
-            else { // Range or Digits (Simplified for Range)
-                const target = getRandomInt(20, 40);
-                const others = [target + 10, target + 20, target + 5, target + 15, target + 12];
-                // Shuffle all
-                const all = shuffle([target, ...others]);
-                box1 = all.slice(0, 3);
-                box2 = all.slice(3, 6);
+            else if (difficulty === 'Orta') {
+                // Negations and distractors
+                const notProp = isEven ? "tek sayı değildir" : "çift sayı değildir";
+                const rangeHint = answerNum > 10 ? "bir desteden (10) fazladır" : "bir desteden (10) azdır";
                 
-                const limit = target + 2; // Say 22. "Less than 24". Others are > 24.
-                riddle = templates[3].text(limit, true); // "Less than X"
-                answer = target;
+                riddle = `Dikkatli bak! Aradığımız sayı ${boxName} sayılardan biridir. Bu sayı ${notProp}. Aynı zamanda ${rangeHint}. Sakın diğer kutuya bakma!`;
+            }
+            else { // Zor ve Uzman
+                // Complex logic, "Not the biggest", neighbor logic or math
+                const parts = [`Aradığımız sayı ${boxName} gizlenmiştir.`];
+                
+                // Distractor part
+                parts.push(`Bu sayı ${otherBoxName} hiçbir sayıya benzemez.`);
+                
+                // Tricky logic
+                if (isMaxInBox) {
+                    parts.push("Bulunduğu kutunun kralıdır, yani en büyüğüdür.");
+                } else if (isMinInBox) {
+                    parts.push("Bulunduğu kutunun en ufağıdır ama en değerlisidir.");
+                } else {
+                    parts.push("Bu sayı bulunduğu kutunun en büyüğü veya en küçüğü değildir.");
+                }
+
+                if (isTwoDigit) {
+                    const digitSum = Math.floor(answerNum / 10) + (answerNum % 10);
+                    parts.push(`Rakamlarını toplarsan ${digitSum} eder.`);
+                } else {
+                    parts.push("Tek basamaklı yalnız bir sayıdır.");
+                }
+
+                if (answerNum % 5 === 0) {
+                    parts.push("Beşer beşer sayarken bu sayıyı duyarsın.");
+                } else if (isEven) {
+                    parts.push("İkiye tam bölünebilen çift bir sayıdır.");
+                } else {
+                    parts.push("İkiye bölünemeyen tek bir sayıdır.");
+                }
+
+                riddle = parts.join(' ');
             }
 
-            // Create logical distractors
-            const options = shuffle([
-                answer.toString(),
-                (answer + 1).toString(),
-                (answer - 1).toString(),
-                box1[0].toString(),
-                box2[0].toString()
-            ].slice(0, 5));
+            // Create logical distractors for multiple choice
+            const distractors = shuffle([
+                ...box1.filter(n => n !== answerNum), 
+                ...box2.filter(n => n !== answerNum)
+            ]).slice(0, 4);
+            
+            const options = shuffle([answerNum.toString(), ...distractors.map(d => d.toString())]);
 
             return {
                 riddle,
@@ -251,15 +254,15 @@ export const generateOfflineAttentionDevelopment = async (options: GeneratorOpti
                     { label: '', numbers: box2 }
                 ],
                 options,
-                answer: answer.toString()
+                answer: answerNum.toString()
             };
         });
 
         return {
-            title: 'Dikkat Geliştirme (Hızlı Mod)',
-            instruction: 'İpuçlarını okuyun ve aradığımız sayıyı bulun.',
-            pedagogicalNote: 'İşitsel/Sözel dikkati sürdürme, yönerge takibi ve mantıksal eleme.',
-            imagePrompt: 'Mantık',
+            title: `Dikkat Geliştirme (${difficulty})`,
+            instruction: 'Aşağıdaki ipuçlarını dikkatlice okuyun, çeldiricilere aldanmayın ve doğru sayıyı bulun.',
+            pedagogicalNote: 'Sözel/Mantıksal akıl yürütme, yönerge takibi ve seçici dikkat becerilerini geliştirir.',
+            imagePrompt: 'Dedektif',
             puzzles
         };
     });

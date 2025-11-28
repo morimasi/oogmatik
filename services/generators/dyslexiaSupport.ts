@@ -140,15 +140,18 @@ export const generateAttentionDevelopmentFromAI = async (options: GeneratorOptio
     ${itemCount || 4} adet soru üret.
     
     HER SORU İÇİN:
-    1. İki kutu (Sol/Sağ veya Kutu 1/Kutu 2) veya tek kutu içinde sayılar listesi oluştur.
-    2. Bir hedef sayıyı tanımlayan bir bilmece (riddle) yaz.
-       Örnekler:
-       - "Aradığımız sayı çift sayı değildir. Bulunduğu kutudaki en büyük sayıdır."
-       - "Aradığımız sayı 50'den küçüktür ve sağ kutudadır."
-       - "İki basamaklı değildir. Bulunduğu kutudaki en küçük sayıdır."
-    3. Seçenekleri (a, b, c, d, e) belirle.
+    1. İki kutu (Sol/Sağ) içinde rastgele sayılar oluştur.
+    2. Bir hedef sayıyı tanımlayan KARMAŞIK ve ÇELDİRİCİ bir bilmece (riddle) yaz.
     
-    Zorluk: ${difficulty || 'Orta'}. Zorluk arttıkça mantık karmaşıklaşsın (basamak sayısı, tek/çift, katlar, konum).
+    Zorluk Seviyesi: ${difficulty || 'Orta'}
+    
+    METİN KURALLARI:
+    - Metinler uzun olsun (en az 2-3 cümle).
+    - Çeldirici ifadeler kullan (Örn: "En büyük sayı değildir ama en küçük de değildir.", "Sakın sağ kutuya bakma!", "Tek sayıları hemen ele.").
+    - Matematiksel terimler ekle: "Bir deste", "düzine", "rakamları toplamı", "çift sayı", "5'in katı".
+    - Örnek: "Aradığımız sayı sol kutuda saklanıyor. Bu sayı bir deste gülden fazladır ama 50'ye ulaşamaz. Çift bir sayıdır ve kutudaki en büyük sayı değildir."
+    
+    3. Seçenekleri (a, b, c, d, e) belirle.
     
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
