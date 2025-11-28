@@ -160,31 +160,34 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     return generateWithSchema(prompt, schema) as Promise<MapInstructionData[]>;
 };
 
-// --- MIND GAMES (Akıl Oyunları) ---
-
+// --- MIND GAMES AI GENERATOR ---
 export const generateMindGamesFromAI = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     
     const prompt = `
-    "Akıl Oyunları" etkinliği (Matematiksel ve Görsel Mantık).
-    Seviye: ${difficulty}.
+    "Akıl Oyunları" (3. ve 4. Sınıf Seviyesi - Bilsem Tarzı).
+    Zorluk: ${difficulty}.
     
-    Bulmaca Tipleri (Karışık üret):
-    1. 'shape_math': Bir şeklin (üçgen, kare) köşelerindeki sayılarla ortasındaki sayı arasında bir ilişki vardır (örn: Köşeleri topla, 2 çıkar). Soru işareti olanı sor.
-    2. 'matrix_logic': 3x3 veya 2x2 matriste sayılar/şekiller belirli bir kurala göre dizilmiştir. Eksik olanı sor.
-    3. 'number_pyramid': Alt sıradaki sayıların toplamı üst sırayı verir. Tepedeki eksik sayıyı sor.
+    Aşağıdaki bulmaca tiplerinden KARIŞIK olarak ${itemCount || 4} adet içeren bir set üret:
     
-    Format:
+    1. 'shape_math': Üçgen veya Kare içindeki/köşesindeki sayılarla işlem. (Örn: Köşeler toplamı = Orta veya Üst*Alt = Orta).
+    2. 'matrix_logic': 3x3 Izgarada sayı örüntüsü (Kurallı Dikdörtgenler). Satır veya sütun ilişkisi.
+    3. 'hexagon_logic': Altıgen dilimlerinde sayılar. Karşılıklı sayılar toplamı veya dairesel artış.
+    4. 'function_machine': Girdi -> Kural -> Çıktı (Örn: Giriş 5 -> Çıkış 15, Kural: x3).
+    5. 'number_pyramid': Sayı piramidi (Alttaki iki sayının toplamı üsttekini verir).
+
+    HER BULMACA İÇİN:
     - "type": Bulmaca tipi.
-    - "numbers": Sayı dizisi (shape_math ve number_pyramid için).
-    - "grid": Matris verisi (matrix_logic için, boşluk için null kullan).
-    - "question": Soru metni.
+    - "numbers": Dizi (shape_math, number_pyramid, hexagon_logic için). '?' için "string" kullan.
+    - "grid": Matris (matrix_logic için). '?' için "string" kullan.
+    - "input", "output", "rule": (function_machine için). '?' için "string" kullan.
+    - "question": Soru metni (Örn: "Soru işareti yerine kaç gelmelidir?").
     - "answer": Cevap.
-    - "hint": Kural açıklaması.
+    - "hint": İpucu (Kural açıklaması).
+    - "imagePrompt": Her bulmaca için görsel betimlemesi (İngilizce). Stil: "Educational vector art".
     
-    ${itemCount || 4} adet farklı bulmaca içeren sayfa üret.
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
+    "pedagogicalNote": Hangi zeka alanını geliştirdiği (Sayısal Mantık, Görsel Algı vb.).
+    ${worksheetCount} adet sayfa üret.
     `;
     
     const schema = {
@@ -201,13 +204,17 @@ export const generateMindGamesFromAI = async (options: GeneratorOptions): Promis
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            type: { type: Type.STRING, enum: ['shape_math', 'matrix_logic', 'number_pyramid'] },
+                            type: { type: Type.STRING, enum: ['shape_math', 'matrix_logic', 'number_pyramid', 'hexagon_logic', 'function_machine'] },
                             shape: { type: Type.STRING, enum: ['triangle', 'square', 'circle'] },
-                            numbers: { type: Type.ARRAY, items: { type: Type.NUMBER } },
-                            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } }, // using integer for simplicity or string if needed
+                            numbers: { type: Type.ARRAY, items: { oneOf: [{ type: Type.NUMBER }, { type: Type.STRING }] } },
+                            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { oneOf: [{ type: Type.NUMBER }, { type: Type.STRING }, { type: Type.NULL }] } } },
+                            input: { type: Type.NUMBER },
+                            output: { type: Type.STRING }, 
+                            rule: { type: Type.STRING },
                             question: { type: Type.STRING },
                             answer: { type: Type.STRING },
-                            hint: { type: Type.STRING }
+                            hint: { type: Type.STRING },
+                            imagePrompt: { type: Type.STRING }
                         },
                         required: ['type', 'answer']
                     }

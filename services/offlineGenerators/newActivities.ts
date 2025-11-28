@@ -182,6 +182,7 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
     });
 };
 
+// --- ENHANCED OFFLINE MIND GAMES (Akıl Oyunları 3-4. Sınıf) ---
 export const generateOfflineMindGames = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 4;
@@ -189,13 +190,14 @@ export const generateOfflineMindGames = async (options: GeneratorOptions): Promi
     return Array.from({ length: worksheetCount }, () => {
         const puzzles = Array.from({ length: count }).map(() => {
             const typeRoll = Math.random();
+            const multiplier = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 4);
             
-            // 1. Shape Math (Triangle Logic)
-            if (typeRoll < 0.4) {
-                // Logic: Top + Left + Right = Center (or variation)
-                const n1 = getRandomInt(1, 10);
-                const n2 = getRandomInt(1, 10);
-                const n3 = getRandomInt(1, 10);
+            // 1. Shape Math (Triangle Logic) - %25 Chance
+            if (typeRoll < 0.25) {
+                // Logic: Sum of corners = Center
+                const n1 = getRandomInt(2, 10 * multiplier);
+                const n2 = getRandomInt(2, 10 * multiplier);
+                const n3 = getRandomInt(2, 10 * multiplier);
                 const center = n1 + n2 + n3;
                 
                 return {
@@ -203,47 +205,90 @@ export const generateOfflineMindGames = async (options: GeneratorOptions): Promi
                     shape: 'triangle' as const,
                     numbers: [n1, n2, n3, '?'], // Corners + Center(target)
                     answer: center.toString(),
-                    hint: "Köşelerdeki sayıları topla."
+                    hint: "Köşelerdeki sayıları topla.",
+                    imagePrompt: "Sayı üçgeni",
+                    question: "Soru işareti yerine hangi sayı gelmelidir?"
                 };
             } 
-            // 2. Matrix Logic (3x3 Grid)
-            else if (typeRoll < 0.7) {
-                // Logic: Row sum is constant OR Arithmetic progression
-                const start = getRandomInt(1, 5);
-                const step = getRandomInt(1, 3);
+            // 2. Matrix Logic (Kurallı Dikdörtgenler) - %25 Chance
+            else if (typeRoll < 0.5) {
+                // Logic: Row 2 = Row 1 * K
+                const k = getRandomInt(2, 4);
+                const r1 = [getRandomInt(2, 8), getRandomInt(2, 8), getRandomInt(2, 8)];
+                const r2 = r1.map(n => n * k);
+                
+                // Hide middle item of second row
                 const grid = [
-                    [start, start+step, start+step*2],
-                    [start+step*3, start+step*4, start+step*5],
-                    [start+step*6, start+step*7, null] // Target
+                    [r1[0], r1[1], r1[2]],
+                    [r2[0], '?', r2[2]]
                 ];
-                const answer = start + step * 8;
                 
                 return {
                     type: 'matrix_logic' as const,
                     grid: grid as any,
-                    answer: answer.toString(),
-                    hint: `Sayılar ${step} artarak ilerliyor.`
+                    answer: r2[1].toString(),
+                    hint: `Alt satır üst satırın ${k} katıdır.`,
+                    question: "Tablodaki kuralı bul ve boşluğu doldur."
                 };
             }
-            // 3. Number Pyramid
-            else {
-                const base = [getRandomInt(1, 5), getRandomInt(1, 5), getRandomInt(1, 5)];
-                const mid = [base[0]+base[1], base[1]+base[2]];
-                const top = mid[0] + mid[1];
+            // 3. Hexagon Logic (Altıgen Örüntü) - %25 Chance
+            else if (typeRoll < 0.75) {
+                // Logic: Opposite numbers sum to Center OR simple arithmetic on outer circle
+                // Let's do: Center is Sum of Top-Left and Bottom-Right opposites
+                const center = getRandomInt(20, 50);
+                const pairs = [
+                    [getRandomInt(1, center-1), 0],
+                    [getRandomInt(1, center-1), 0],
+                    [getRandomInt(1, center-1), 0]
+                ];
+                // Calculate pairs to sum to center
+                pairs[0][1] = center - pairs[0][0];
+                pairs[1][1] = center - pairs[1][0];
+                pairs[2][1] = center - pairs[2][0];
+                
+                const nums = [
+                    pairs[0][0], pairs[1][0], pairs[2][0], // Top-Left, Top-Right, Right
+                    pairs[0][1], pairs[1][1], pairs[2][1], // Bottom-Right, Bottom-Left, Left
+                    center // Center
+                ];
+                
+                // Hide one random outer number
+                const hiddenIdx = getRandomInt(0, 5);
+                const ans = nums[hiddenIdx];
+                nums[hiddenIdx] = '?' as any;
                 
                 return {
-                    type: 'number_pyramid' as const,
-                    numbers: [...base, ...mid, '?'], // Flattened visualization handled by component
-                    answer: top.toString(),
-                    hint: "Alt kutuları toplayarak üste çık."
+                    type: 'hexagon_logic' as const,
+                    numbers: nums,
+                    answer: ans.toString(),
+                    hint: "Karşılıklı sayıların toplamı ortadaki sayıya eşittir.",
+                    question: "Eksik sayıyı bulun."
+                };
+            }
+            // 4. Function Machine (Üç Aşağı Beş Yukarı) - %25 Chance
+            else {
+                // Input -> Rule -> Output
+                const factor = getRandomInt(2, 5);
+                const add = getRandomInt(1, 10);
+                const input = getRandomInt(5, 15);
+                const output = input * factor + add;
+                
+                return {
+                    type: 'function_machine' as const,
+                    input: input,
+                    output: '?',
+                    rule: `x ${factor} + ${add}`,
+                    answer: output.toString(),
+                    hint: `Giriş sayısını ${factor} ile çarpıp ${add} ekle.`,
+                    question: "Makineden çıkan sonuç ne olur?"
                 };
             }
         });
 
         return {
             title: "Akıl Oyunları (Hızlı Mod)",
-            instruction: "Mantığını kullan ve soru işareti olan yere gelmesi gereken sayıyı bul.",
-            pedagogicalNote: "Mantıksal akıl yürütme, örüntü tanıma ve matematiksel ilişkilendirme.",
+            instruction: "Mantığını kullan, kuralı keşfet ve soru işaretinin yerine gelmesi gereken sayıyı bul.",
+            pedagogicalNote: "Mantıksal akıl yürütme, örüntü tanıma, işlem becerisi ve görsel algı.",
             imagePrompt: "Zeka Oyunu",
             puzzles
         };

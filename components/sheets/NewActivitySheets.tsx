@@ -139,72 +139,149 @@ export const MapInstructionSheet: React.FC<{ data: MapInstructionData }> = ({ da
     </div>
 );
 
+// --- VISUAL COMPONENTS FOR MIND GAMES ---
+
+const HexagonPuzzle = ({ numbers }: { numbers: (number|string)[] }) => {
+    // Numbers array: [Top-Left, Top-Right, Right, Bottom-Right, Bottom-Left, Left, Center]
+    const center = numbers[6];
+    const outers = numbers.slice(0, 6);
+    
+    return (
+        <div className="relative w-56 h-56 flex items-center justify-center">
+            <svg viewBox="0 0 200 200" className="w-full h-full overflow-visible">
+                 {/* Connections */}
+                 {outers.map((_, i) => {
+                     const angle = i * 60 - 90; // Start top
+                     const rad = angle * Math.PI / 180;
+                     const cx = 100 + 70 * Math.cos(rad);
+                     const cy = 100 + 70 * Math.sin(rad);
+                     return <line key={i} x1="100" y1="100" x2={cx} y2={cy} stroke="#cbd5e1" strokeWidth="2" />;
+                 })}
+                 
+                 {/* Central Hexagon */}
+                 <polygon points="100,60 135,80 135,120 100,140 65,120 65,80" fill="#f0f9ff" stroke="#0284c7" strokeWidth="3" />
+                 <text x="100" y="105" textAnchor="middle" className="text-2xl font-bold fill-sky-700" dominantBaseline="middle">{center}</text>
+                 
+                 {/* Outer Circles */}
+                 {outers.map((val, i) => {
+                     const angle = i * 60 - 90; // Start top
+                     const rad = angle * Math.PI / 180;
+                     const cx = 100 + 70 * Math.cos(rad);
+                     const cy = 100 + 70 * Math.sin(rad);
+                     return (
+                         <g key={i}>
+                             <circle cx={cx} cy={cy} r="18" fill="white" stroke="#64748b" strokeWidth="2" />
+                             <text x={cx} y={cy+1} textAnchor="middle" dominantBaseline="middle" className={`font-bold ${val === '?' ? 'fill-red-500 text-xl' : 'fill-slate-700'}`}>
+                                 {val}
+                             </text>
+                         </g>
+                     )
+                 })}
+            </svg>
+        </div>
+    );
+};
+
+const FunctionMachine = ({ input, output, rule }: { input: number, output: string | number, rule?: string }) => (
+    <div className="flex items-center gap-4 p-6 bg-zinc-100 rounded-xl border-2 border-zinc-300 w-full max-w-md mx-auto">
+        <div className="flex flex-col items-center">
+            <span className="text-xs font-bold text-zinc-400 uppercase mb-2">Giriş</span>
+            <div className="w-16 h-16 bg-white rounded-full border-4 border-emerald-400 flex items-center justify-center text-2xl font-bold shadow-sm text-emerald-700">
+                {input}
+            </div>
+        </div>
+        
+        <div className="flex-1 flex flex-col items-center px-2 relative">
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-zinc-300 -z-10"></div>
+            <div className="px-4 py-3 bg-zinc-800 text-white rounded-lg text-sm font-mono shadow-lg z-10 flex flex-col items-center">
+                <span className="text-[10px] text-zinc-400 mb-1">KURAL</span>
+                <span className="font-bold text-lg tracking-wider">{rule || "?"}</span>
+            </div>
+            <i className="fa-solid fa-chevron-right absolute right-0 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+        </div>
+        
+        <div className="flex flex-col items-center">
+             <span className="text-xs font-bold text-zinc-400 uppercase mb-2">Çıkış</span>
+             <div className={`w-16 h-16 bg-white rounded-full border-4 flex items-center justify-center text-2xl font-bold shadow-sm ${output === '?' ? 'border-rose-400 text-rose-600 border-dashed' : 'border-indigo-400 text-indigo-700'}`}>
+                 {output}
+             </div>
+        </div>
+    </div>
+);
+
 export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {data.puzzles.map((puzzle, idx) => (
-                <div key={idx} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center break-inside-avoid">
-                    <h4 className="font-bold text-indigo-600 mb-4 uppercase tracking-wide text-sm">Bulmaca {idx + 1}</h4>
+                <div key={idx} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center break-inside-avoid relative overflow-hidden min-h-[300px]">
+                    <div className="absolute top-0 left-0 bg-zinc-100 dark:bg-zinc-700 px-4 py-1 rounded-br-xl text-xs font-bold text-zinc-500 border-b border-r border-zinc-200">
+                        #{idx + 1}
+                    </div>
                     
-                    {/* Shape Math Type */}
-                    {puzzle.type === 'shape_math' && (
-                        <div className="relative w-48 h-40 mb-4">
-                            {puzzle.shape === 'triangle' && (
+                    <div className="flex-1 flex items-center justify-center w-full my-4">
+                        {/* 1. Shape Math (Triangle) */}
+                        {puzzle.type === 'shape_math' && puzzle.shape === 'triangle' && (
+                            <div className="relative w-64 h-56">
                                 <svg viewBox="0 0 100 86" className="w-full h-full overflow-visible">
-                                    <polygon points="50,0 100,86 0,86" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-800 dark:text-zinc-200" />
-                                    {/* Corners */}
-                                    <circle cx="50" cy="0" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
-                                    <text x="50" y="0" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{puzzle.numbers?.[0]}</text>
+                                    <polygon points="50,0 100,86 0,86" fill="none" stroke="#374151" strokeWidth="2" className="dark:stroke-zinc-400"/>
+                                    {[
+                                        {x: 50, y: 0, val: puzzle.numbers?.[0]},
+                                        {x: 0, y: 86, val: puzzle.numbers?.[1]},
+                                        {x: 100, y: 86, val: puzzle.numbers?.[2]}
+                                    ].map((pos, i) => (
+                                        <g key={i}>
+                                            <circle cx={pos.x} cy={pos.y} r="12" fill="white" stroke="#374151" strokeWidth="2" className="dark:fill-zinc-800 dark:stroke-zinc-400"/>
+                                            <text x={pos.x} y={pos.y} dominantBaseline="central" textAnchor="middle" className="text-xs font-bold fill-zinc-800 dark:fill-zinc-200">{pos.val}</text>
+                                        </g>
+                                    ))}
                                     
-                                    <circle cx="0" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
-                                    <text x="0" y="86" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{puzzle.numbers?.[1]}</text>
-                                    
-                                    <circle cx="100" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
-                                    <text x="100" y="86" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{puzzle.numbers?.[2]}</text>
-                                    
-                                    {/* Center Target */}
-                                    <circle cx="50" cy="50" r="15" fill="#e0e7ff" stroke="currentColor" className="text-indigo-600" />
-                                    <text x="50" y="50" dominantBaseline="central" textAnchor="middle" className="text-lg font-bold text-indigo-800">{puzzle.numbers?.[3] || '?'}</text>
+                                    <circle cx="50" cy="50" r="16" fill="#e0e7ff" stroke="#4f46e5" strokeWidth="2" className="dark:fill-indigo-900 dark:stroke-indigo-500"/>
+                                    <text x="50" y="50" dominantBaseline="central" textAnchor="middle" className="text-lg font-bold fill-indigo-800 dark:fill-indigo-200">{puzzle.numbers?.[3] || '?'}</text>
                                 </svg>
-                            )}
-                        </div>
-                    )}
+                            </div>
+                        )}
 
-                    {/* Matrix Logic Type */}
-                    {puzzle.type === 'matrix_logic' && puzzle.grid && (
-                        <div className="mb-4">
-                             <div className="border-4 border-zinc-800 dark:border-zinc-400 inline-block rounded-lg overflow-hidden">
-                                 <GridComponent grid={puzzle.grid as any} cellClassName="w-14 h-14 text-2xl font-bold flex items-center justify-center" showLetters={false} />
+                        {/* 2. Matrix Logic */}
+                        {puzzle.type === 'matrix_logic' && puzzle.grid && (
+                             <div className="bg-zinc-100 dark:bg-zinc-900 p-2 rounded-lg border-2 border-zinc-300 dark:border-zinc-600">
+                                 <GridComponent grid={puzzle.grid as any} cellClassName="w-16 h-16 text-2xl font-bold flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-600" showLetters={false} />
                              </div>
-                        </div>
-                    )}
+                        )}
 
-                    {/* Number Pyramid Type */}
-                    {puzzle.type === 'number_pyramid' && puzzle.numbers && (
-                         <div className="flex flex-col items-center gap-1 mb-4">
-                            {/* Top */}
-                            <div className="flex gap-1">
-                                <div className="w-12 h-12 border-2 border-indigo-500 bg-indigo-50 flex items-center justify-center font-bold rounded shadow-sm">{puzzle.numbers[5]}</div>
-                            </div>
-                            {/* Mid */}
-                            <div className="flex gap-1">
-                                <div className="w-12 h-12 border-2 border-zinc-300 bg-white flex items-center justify-center font-bold rounded">{puzzle.numbers[3]}</div>
-                                <div className="w-12 h-12 border-2 border-zinc-300 bg-white flex items-center justify-center font-bold rounded">{puzzle.numbers[4]}</div>
-                            </div>
-                            {/* Base */}
-                            <div className="flex gap-1">
-                                <div className="w-12 h-12 border-2 border-zinc-400 bg-zinc-50 flex items-center justify-center font-bold rounded">{puzzle.numbers[0]}</div>
-                                <div className="w-12 h-12 border-2 border-zinc-400 bg-zinc-50 flex items-center justify-center font-bold rounded">{puzzle.numbers[1]}</div>
-                                <div className="w-12 h-12 border-2 border-zinc-400 bg-zinc-50 flex items-center justify-center font-bold rounded">{puzzle.numbers[2]}</div>
-                            </div>
-                         </div>
-                    )}
+                        {/* 3. Number Pyramid */}
+                        {puzzle.type === 'number_pyramid' && puzzle.numbers && (
+                             <div className="flex flex-col items-center gap-2">
+                                <div className="w-16 h-16 border-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-xl rounded-lg shadow-sm text-indigo-700 dark:text-indigo-300">
+                                    {puzzle.numbers[5] || '?'}
+                                </div>
+                                <div className="flex gap-2">
+                                    <div className="w-16 h-16 border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 flex items-center justify-center font-bold text-lg rounded-lg shadow-sm">{puzzle.numbers[3]}</div>
+                                    <div className="w-16 h-16 border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 flex items-center justify-center font-bold text-lg rounded-lg shadow-sm">{puzzle.numbers[4]}</div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <div className="w-16 h-16 border-2 border-zinc-400 dark:border-zinc-500 bg-zinc-50 dark:bg-zinc-700 flex items-center justify-center font-bold text-lg rounded-lg shadow-inner">{puzzle.numbers[0]}</div>
+                                    <div className="w-16 h-16 border-2 border-zinc-400 dark:border-zinc-500 bg-zinc-50 dark:bg-zinc-700 flex items-center justify-center font-bold text-lg rounded-lg shadow-inner">{puzzle.numbers[1]}</div>
+                                    <div className="w-16 h-16 border-2 border-zinc-400 dark:border-zinc-500 bg-zinc-50 dark:bg-zinc-700 flex items-center justify-center font-bold text-lg rounded-lg shadow-inner">{puzzle.numbers[2]}</div>
+                                </div>
+                             </div>
+                        )}
+                        
+                        {/* 4. Hexagon Logic */}
+                        {puzzle.type === 'hexagon_logic' && puzzle.numbers && (
+                            <HexagonPuzzle numbers={puzzle.numbers} />
+                        )}
+
+                        {/* 5. Function Machine */}
+                        {puzzle.type === 'function_machine' && (
+                            <FunctionMachine input={puzzle.input || 0} output={puzzle.output || '?'} rule={puzzle.rule} />
+                        )}
+                    </div>
                     
-                    <div className="text-center">
-                        {puzzle.question && <p className="text-sm mb-2">{puzzle.question}</p>}
-                        {puzzle.hint && <p className="text-xs text-zinc-400 italic">İpucu: {puzzle.hint}</p>}
+                    <div className="text-center w-full bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-700 mt-auto">
+                        {puzzle.question && <p className="text-sm font-semibold mb-1 text-zinc-700 dark:text-zinc-300">{puzzle.question}</p>}
+                        {puzzle.hint && <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-lightbulb text-yellow-500 mr-1"></i>{puzzle.hint}</p>}
                     </div>
                 </div>
             ))}

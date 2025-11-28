@@ -102,7 +102,12 @@ export const ACTIVITIES: Activity[] = [
     { id: ActivityType.LOGIC_DEDUCTION, title: 'Mantıksal Çıkarım', description: 'İpuçlarından yola çıkarak doğru cevabı bulun.', icon: 'fa-solid fa-lightbulb' },
     { id: ActivityType.NUMBER_BOX_LOGIC, title: 'Kutu Mantığı', description: 'Kutulardaki sayıları analiz edin.', icon: 'fa-solid fa-box-open' },
     { id: ActivityType.MAP_INSTRUCTION, title: 'Harita Yönergesi', description: 'Yönergeleri takip ederek haritada yer bulun.', icon: 'fa-solid fa-map-location-dot' },
-    { id: ActivityType.MIND_GAMES, title: 'Akıl Oyunları', description: 'Zeka ve mantık geliştirici karma oyunlar.', icon: 'fa-solid fa-brain' },
+    { 
+        id: ActivityType.MIND_GAMES, 
+        title: 'Akıl Oyunları (3-4. Sınıf)', 
+        description: 'Matrisler, işlem piramitleri, fonksiyon makineleri ve şekil bağıntıları.', 
+        icon: 'fa-solid fa-puzzle-piece' 
+    },
 
     // --- DİKKAT VE HAFIZA ---
     { id: ActivityType.STROOP_TEST, title: 'Stroop Testi', description: 'Kelimeyi değil, rengi söyleyin.', icon: 'fa-solid fa-brush' },

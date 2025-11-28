@@ -37,7 +37,15 @@ export const generateOfflineAttentionFocus = async (options: GeneratorOptions): 
     const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 4;
 
-    const itemPool = {
+    // FIX: Define a type for the items in the pool to resolve 'unknown' type errors.
+    interface ItemPoolItem {
+        name: string;
+        color: string;
+        feature: string;
+        type: 'meyve' | 'sebze';
+    }
+
+    const itemPool: { fruit: ItemPoolItem[], veg: ItemPoolItem[] } = {
         fruit: [
             { name: 'Limon', color: 'sarı', feature: 'ekşi', type: 'meyve' },
             { name: 'Çilek', color: 'kırmızı', feature: 'tatlı', type: 'meyve' },
@@ -57,7 +65,7 @@ export const generateOfflineAttentionFocus = async (options: GeneratorOptions): 
     return Array.from({ length: worksheetCount }, () => {
         const puzzles = Array.from({ length: count }, () => {
             const cat = Math.random() > 0.5 ? 'fruit' : 'veg';
-            const items = shuffle((itemPool as any)[cat]);
+            const items = shuffle(itemPool[cat]);
             const target = items[0];
             const clueItem = items[1];
             
@@ -207,7 +215,7 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
     const text = "Ali okula gitti. Okulda arkadaşları ile oynadı. Derslerini dikkatle dinledi. Öğretmeni onu tebrik etti. Akşam eve mutlu döndü.";
     
     return Array.from({ length: worksheetCount }, () => {
-        const paragraphs = text.split('. ').map(sent => ({
+        const paragraphs = text.split('. ').filter(s => s).map(sent => ({
             sentences: [{
                 syllables: simpleSyllabify(sent).map((s, i) => ({
                     text: s,
@@ -219,6 +227,8 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
         return {
             title: 'Okuma Akışı (Hızlı Mod)',
             instruction: 'Renkli heceleri takip ederek metni okuyun.',
+            // FIX: Added missing 'prompt' property
+            prompt: 'Renkli heceleri takip ederek metni okuyun.',
             pedagogicalNote: 'Okuma hızını ve takibini kolaylaştırır.',
             imagePrompt: 'Kitap',
             text: { paragraphs }
@@ -243,6 +253,8 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
         return {
             title: 'Harf Ayırt Etme (Hızlı Mod)',
             instruction: `Sadece "${targets[0]}" harflerini bul ve daire içine al.`,
+            // FIX: Added missing 'prompt' property
+            prompt: `Sadece "${targets[0]}" harflerini bul.`,
             pedagogicalNote: 'Benzer harfleri ayırt etme (b/d/p/q).',
             imagePrompt: 'Harfler',
             targetLetters: targets,
@@ -280,6 +292,8 @@ export const generateOfflineRapidNaming = async (options: GeneratorOptions): Pro
         return {
             title: 'Hızlı İsimlendirme (Hızlı Mod)',
             instruction: 'Soldan sağa doğru olabildiğince hızlı bir şekilde isimlendirin.',
+            // FIX: Added missing 'prompt' property
+            prompt: 'Hızlıca isimlendir.',
             pedagogicalNote: 'Otomatikleşmiş isimlendirme hızı (RAN).',
             imagePrompt: 'Saat',
             grid: { items },
@@ -293,6 +307,8 @@ export const generateOfflinePhonologicalAwareness = async (options: GeneratorOpt
     return Array.from({ length: options.worksheetCount }, () => ({
         title: 'Fonolojik Farkındalık (Hızlı Mod)',
         instruction: 'Soruları cevaplayın.',
+        // FIX: Added missing 'prompt' property
+        prompt: 'Soruları cevaplayın.',
         pedagogicalNote: 'Ses ve hece farkındalığı.',
         imagePrompt: 'Kulak',
         exercises: [

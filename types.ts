@@ -368,24 +368,32 @@ export interface AttentionFocusData extends BaseActivityData {
 }
 
 // --- MIND GAMES (Akıl Oyunları) ---
-export type MindGamePuzzleType = 'shape_math' | 'matrix_logic' | 'number_pyramid';
+export type MindGamePuzzleType = 'shape_math' | 'matrix_logic' | 'number_pyramid' | 'hexagon_logic' | 'function_machine';
 
 export interface MindGamePuzzle {
     type: MindGamePuzzleType;
-    // For Shape Math (Triangle/Square with numbers)
+    // For Shape Math (Triangle/Square/Circle)
     shape?: 'triangle' | 'square' | 'circle';
-    numbers?: (number | string)[]; // Numbers placed on corners/center. Last one might be '?'
-    // For Matrix Logic
-    grid?: (number | string | null)[][]; // 3x3 or 2x2 grid
+    numbers?: (number | string)[]; // Corners/Outer + Center. Last one might be '?'
     
-    question?: string; // Text question if needed
+    // For Matrix Logic
+    grid?: (number | string | null)[][]; 
+    
+    // For Function Machine
+    input?: number;
+    output?: number | string;
+    rule?: string; 
+
+    question?: string;
     answer: string;
     hint?: string;
+    imagePrompt?: string; 
 }
 
 export interface MindGamesData extends BaseActivityData {
     puzzles: MindGamePuzzle[];
 }
+
 
 // --- DYSLEXIA SUPPORT TYPES ---
 export interface ReadingFlowData extends BaseActivityData {
