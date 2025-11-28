@@ -192,12 +192,14 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
 
             {/* Pedagogical Note */}
             {note && (
-                <div 
-                    className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 italic mt-2 print:hidden"
-                    style={{ display: 'var(--show-pedagogical-note, flex)' }}
-                >
-                    <i className="fa-solid fa-graduation-cap text-zinc-400"></i>
-                    <span>Eğitmen Notu: {note}</span>
+                <div className="print:hidden">
+                    <div 
+                        className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 italic mt-2"
+                        style={{ display: 'var(--show-pedagogical-note, flex)' }}
+                    >
+                        <i className="fa-solid fa-graduation-cap text-zinc-400"></i>
+                        <span>Eğitmen Notu: {note}</span>
+                    </div>
                 </div>
             )}
         </div>
