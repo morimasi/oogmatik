@@ -35,7 +35,7 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
       // Updated viewBox: Adjusted to start at 0 and cover the text width more tightly
       viewBox="0 0 350 55" 
       xmlns="http://www.w3.org/2000/svg" 
-      className={`${className} group`}
+      className={`${className} group cursor-default`}
       style={{ perspective: '800px' }}
     >
       <style>
