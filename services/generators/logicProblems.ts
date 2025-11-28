@@ -10,26 +10,34 @@ import {
 } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
-EĞİTİMSEL İÇERİK KURALLARI:
-1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi (örn: sıralı düşünme, görsel ayırt etme, mantıksal çıkarım) desteklediğini açıklayan kısa bir not.
-3. "instruction": Öğrenciye yönelik kısa, net ve cesaretlendirici bir yönerge (örn: "Sıradaki sayıyı bul ve yaz.").
-4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
-5. İçerik asla "Lorem ipsum" veya yer tutucu olmamalı, gerçek ve eğitici veri üret.
+ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
+1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
+2.  **Çıktı:** Sadece geçerli JSON.
+3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi (örn: görsel-uzamsal algı, mantıksal çıkarım, sıralı düşünme) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
+4.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol. (Örn: "Sıradaki sayıyı bulmak için kuralı keşfet ve boşluğu doldur.")
+5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+    - **Stil:** "Flat Vector Art Style", "Educational Illustration", "Clean Lines", "Vibrant Colors", "Minimalist Design".
+    - **Detay:** Asla "bir şekil" deme. "Turuncu renkli, köşeleri yuvarlatılmış, içinde yıldız deseni olan sevimli bir beşgen vektörü" de.
+    - **Amaç:** Görsel, soruyu çözmek için gerekli ipuçlarını net bir şekilde barındırmalı ve çocukların ilgisini çekmeli.
+6.  **İçerik:**
+    - Asla tekrar yapma.
+    - "Lorem ipsum" yasak.
+    - Mantıksal tutarlılık zorunlu.
+    - Zorluk seviyesine tam uygunluk sağla.
 `;
 
 export const generateNumberPatternFromAI = async (options: GeneratorOptions): Promise<NumberPatternData[]> => {
     const { itemCount, difficulty, worksheetCount, patternType } = options;
     
     let patternRules = "Basit aritmetik artışlar (örn: +2, +5).";
-    if (patternType === 'geometric' || difficulty === 'Orta') patternRules = "Artış/Azalış karışık veya çarpma/bölme.";
-    if (patternType === 'complex' || difficulty === 'Zor') patternRules = "İki aşamalı kurallar (x2 +1) veya Fibonacci.";
-    if (difficulty === 'Uzman') patternRules = "Karmaşık diziler, karesel artışlar.";
+    if (patternType === 'geometric' || difficulty === 'Orta') patternRules = "Artış/Azalış karışık veya çarpma/bölme içeren diziler.";
+    if (patternType === 'complex' || difficulty === 'Zor') patternRules = "İki aşamalı kurallar (x2 +1) veya Fibonacci benzeri diziler.";
+    if (difficulty === 'Uzman') patternRules = "Karmaşık diziler, karesel artışlar veya asal sayı dizileri.";
 
     const prompt = `
     "${difficulty}" zorluk seviyesinde, ${itemCount} adet Sayı Örüntüsü oluştur.
     Kural: ${patternRules}
-    Her örüntü bir dizi sayı ve sonunda '?' içermeli.
+    Her örüntü mantıksal bir dizi sayı ve sonunda '?' içermeli.
     Cevabı (answer) belirt.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet çalışma sayfası verisi üret.
@@ -40,7 +48,7 @@ export const generateNumberPatternFromAI = async (options: GeneratorOptions): Pr
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             patterns: {
                 type: Type.ARRAY,
                 items: {
@@ -64,7 +72,7 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
     const prompt = `
     "${difficulty}" seviyesinde Şekilli Sayı Örüntüsü (Shape Number Pattern) oluştur.
     Üçgenlerin köşelerindeki sayılarla (veya merkezindeki) bir matematiksel ilişki kur.
-    Örn: Üst sayı = Sol alt + Sağ alt.
+    Örn: Üst sayı = (Sol alt + Sağ alt) * 2 veya benzeri mantıklı bir kural.
     Bir şekildeki sayı '?' olsun.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
@@ -76,7 +84,7 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             patterns: {
                 type: Type.ARRAY,
                 items: {
@@ -108,9 +116,9 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
     const { topic, difficulty, worksheetCount } = options;
     const prompt = `
     '${topic}' temalı, "${difficulty}" seviyesinde "Tematik Farklı Olanı Bul" etkinliği.
-    Her satırda 4 kelime/kavram olsun. 3'ü temaya uygun, 1'i farklı.
-    Her kelime için **İngilizce** 'imagePrompt' oluştur. Stil: "Cute colorful icon" veya "Vector illustration".
-    Ana görsel (imagePrompt) tema ile ilgili olsun.
+    Her satırda 4 kelime/kavram olsun. 3'ü temaya uygun, 1'i farklı (semantik olarak).
+    Her kelime için **İngilizce** 'imagePrompt' oluştur. Stil: "Cute colorful icon set style, flat vector".
+    Ana görsel (imagePrompt) tema ile ilgili zengin bir illüstrasyon olsun.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -121,7 +129,7 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             theme: { type: Type.STRING },
             rows: {
                 type: Type.ARRAY,
@@ -156,9 +164,10 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
     const { difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde "Noktalama Labirenti".
-    Bir noktalama işareti seç (örn: Nokta, Virgül).
+    Bir noktalama işareti seç (örn: Nokta, Virgül, Ünlem).
     Bu işaretin kullanımıyla ilgili 8 kural yaz (bazıları doğru, bazıları yanlış).
     Doğru kurallar labirentin çıkış yolunu göstersin.
+    Görselde labirent teması ve noktalama işaretleri kullan.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -169,7 +178,7 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             punctuationMark: { type: Type.STRING },
             rules: {
                 type: Type.ARRAY,
@@ -205,7 +214,7 @@ export const generateThematicOddOneOutSentenceFromAI = async (options: Generator
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             rows: {
                 type: Type.ARRAY,
                 items: {
@@ -240,7 +249,7 @@ export const generateColumnOddOneOutSentenceFromAI = async (options: GeneratorOp
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             columns: {
                 type: Type.ARRAY,
                 items: {
@@ -276,7 +285,7 @@ export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOpt
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             clues: {
                 type: Type.ARRAY,
                 items: {
@@ -312,6 +321,7 @@ export const generateArithmeticConnectFromAI = async (options: GeneratorOptions)
     "${difficulty}" seviyesinde "İşlem Bağlamaca".
     10-12 adet aritmetik işlem (veya sonuç sayı) oluştur.
     Aynı sonuca çıkan işlemleri eşleştirmek üzere gruplandır.
+    Görsel olarak sayıları birbirine bağlayan çizgiler hayal et.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -322,7 +332,7 @@ export const generateArithmeticConnectFromAI = async (options: GeneratorOptions)
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             example: { type: Type.STRING },
             expressions: {
                 type: Type.ARRAY,
@@ -359,7 +369,7 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -397,7 +407,7 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added (Main image)
+            imagePrompt: { type: Type.STRING },
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -436,7 +446,7 @@ export const generateLengthConnectFromAI = async (options: GeneratorOptions): Pr
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             gridDim: { type: Type.INTEGER },
             points: {
                 type: Type.ARRAY,
@@ -474,7 +484,7 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             puzzles: {
                 type: Type.ARRAY,
                 items: {
@@ -521,7 +531,7 @@ export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): 
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             clues: { type: Type.ARRAY, items: { type: Type.STRING } },
             people: { type: Type.ARRAY, items: { type: Type.STRING } },
             categories: {

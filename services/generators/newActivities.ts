@@ -1,13 +1,20 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData, MindGames56Data } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
-EĞİTİMSEL İÇERİK KURALLARI:
-1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Bilişsel beceri açıklaması.
-3. "instruction": Net yönerge.
-4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce).
+ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
+1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
+2.  **Çıktı:** Sadece geçerli JSON.
+3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi (örn: kavramsal eşleştirme, soyut düşünme, yön bulma) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
+4.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol.
+5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+    - **Stil:** "Professional Vector Illustration", "Clean & Educational".
+    - **Detay:** İçeriğe uygun, zengin ve estetik bir görsel betimle.
+6.  **İçerik:**
+    - Üst düzey düşünme becerilerini (HOTs) hedefle.
+    - Kültürel olarak nötr veya evrensel.
 `;
 
 export const generateFamilyRelationsFromAI = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {

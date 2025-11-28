@@ -7,12 +7,17 @@ import { GeneratorOptions,
 } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
-EĞİTİMSEL İÇERİK KURALLARI (DİSKALKULİ ÖZEL):
-1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Diskalkuli için hangi beceriyi (sayı hissi, uzamsal algı, miktar korunumu vb.) desteklediğini açıkla.
-3. "instruction": Yönerge çok kısa, net ve basit olsun. Karmaşık cümlelerden kaçın.
-4. "imagePrompt": Soyut kavramları SOMUTLAŞTIRAN, net, yüksek kontrastlı görseller iste. Gereksiz detaydan kaçın.
-5. Sayılar ve miktarlar tutarlı olmalı.
+ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
+1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
+2.  **Çıktı:** Sadece geçerli JSON.
+3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik diskalkuli becerisini (örn: sayı hissi, uzamsal algı, miktar korunumu) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
+4.  **"instruction":** Yönerge çok kısa, net ve basit olsun. Karmaşık cümlelerden kaçın.
+5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+    - **Stil:** "Minimalist Math Art", "Clear Shapes", "High Contrast".
+    - **Detay:** Soyut kavramları SOMUTLAŞTIRAN, net görseller iste.
+6.  **İçerik:**
+    - Sayılar ve miktarlar tutarlı olmalı.
+    - Diskalkuli dostu (karışıklığa yer vermeyen) tasarım.
 `;
 
 // --- 1. Number Sense & Quantity ---
@@ -203,7 +208,7 @@ export const generateSpatialReasoningFromAI = async (options: GeneratorOptions):
 };
 
 export const generateSpatialAwarenessDiscoveryFromAI = async (opts: GeneratorOptions) => generateSpatialReasoningFromAI({...opts, concept: 'path'});
-export const generatePositionalConceptsFromAI = async (opts: GeneratorOptions) => generateSpatialReasoningFromAI({...opts, concept: 'position'});
+export const generatePositionalConceptsFromAI = async (opts: GeneratorOptions) => generateSpatialReasoningFromAI({...opts, concept: 'copy'});
 export const generateDirectionalConceptsFromAI = async (opts: GeneratorOptions) => generateSpatialReasoningFromAI({...opts, concept: 'direction'});
 
 // --- 5. Math Language & 6. Time/Measure ---
@@ -366,7 +371,7 @@ export const generateEstimationSkillsFromAI = async (options: GeneratorOptions):
     return generateWithSchema(prompt, schema) as Promise<EstimationData[]>;
 };
 
-// --- 10. Visual Number Representation ---
+// --- 10. Visual Number Rep ---
 export const generateVisualNumberRepresentationFromAI = async (options: GeneratorOptions): Promise<NumberSenseData[]> => {
     // Maps numbers to visual representations (fingers, tally marks, dice)
     return generateNumberSenseFromAI({ ...options, visualType: 'mixed' });

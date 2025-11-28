@@ -9,12 +9,16 @@ import {
 } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
-EĞİTİMSEL İÇERİK KURALLARI:
-1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Etkinliğin desteklediği bilişsel beceriyi (örn: mantıksal akıl yürütme, işlem akıcılığı) açıkla.
-3. "instruction": Öğrenciye yönelik net, kısa ve cesaretlendirici bir yönerge.
-4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Matematiksel, geometrik veya soyut bir illüstrasyon.
-5. Veriler tutarlı ve çözülebilir olmalı (rastgele sayı yığını olmamalı).
+ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
+1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
+2.  **Çıktı:** Sadece geçerli JSON.
+3.  **"pedagogicalNote":** Etkinliğin desteklediği bilişsel beceriyi (örn: mantıksal akıl yürütme, işlem akıcılığı, problem çözme stratejileri) açıkla.
+4.  **"instruction":** Öğrenciye yönelik net, kısa ve cesaretlendirici bir yönerge.
+5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+    - **Stil:** "Geometric Flat Art", "Mathematical Illustration", "Clean & Modern".
+    - **Detay:** Soyut kavramları somutlaştıracak renkli ve net şekiller tarif et.
+6.  **İçerik:**
+    - Veriler tutarlı ve kesinlikle çözülebilir olmalı (rastgele sayı yığını olmamalı).
 `;
 
 const baseMathSchema = (itemProp: string, itemType: any) => ({
@@ -24,7 +28,7 @@ const baseMathSchema = (itemProp: string, itemType: any) => ({
         prompt: { type: Type.STRING },
         instruction: { type: Type.STRING },
         pedagogicalNote: { type: Type.STRING },
-        imagePrompt: { type: Type.STRING }, // Added
+        imagePrompt: { type: Type.STRING },
         [itemProp]: { type: Type.ARRAY, items: itemType }
     },
     required: ["title", "prompt", "instruction", "pedagogicalNote", "imagePrompt", itemProp]
@@ -297,7 +301,7 @@ export const generateRomanNumeralStarHuntFromAI = async (options: GeneratorOptio
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             starCount: { type: Type.INTEGER }
         },
@@ -315,7 +319,7 @@ export const generateRoundingConnectFromAI = async (options: GeneratorOptions): 
             prompt: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             example: { type: Type.STRING },
             numbers: {
                 type: Type.ARRAY,

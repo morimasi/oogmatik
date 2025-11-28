@@ -5,12 +5,18 @@ import { GeneratorOptions } from '../../types';
 import { StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, ProverbFillData, ProverbSayingSortData, ProverbWordChainData, ProverbSentenceFinderData, StoryQuestion, ProverbSearchData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
-EĞİTİMSEL İÇERİK KURALLARI:
-1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Bilişsel beceri açıklaması.
-3. "instruction": Net yönerge.
-4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon (örneğin: 'Children book illustration style').
-5. İçerik özgün ve eğitici olmalı.
+ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
+1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
+2.  **Çıktı:** Sadece geçerli JSON.
+3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi (örn: okuduğunu anlama, çıkarım yapma, kelime dağarcığı) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
+4.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol.
+5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+    - **Stil:** "Children's Book Illustration Style", "Warm Colors", "Expressive Characters".
+    - **Detay:** "Ormanda kaybolan kırmızı şapkalı bir çocuk ve meraklı bir tavşan, suluboya tarzı vektör".
+    - **Amaç:** Hikayenin atmosferini yansıtmalı.
+6.  **İçerik:**
+    - Hikayeler özgün, sürükleyici ve yaşa uygun olmalı.
+    - Karakterler ve olay örgüsü tutarlı olmalı.
 `;
 
 // Helper for difficulty scaling in stories

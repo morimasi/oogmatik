@@ -5,12 +5,18 @@ import { GeneratorOptions } from '../../types';
 import { MathPuzzleData, ShapeCountingData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
-EĞİTİMSEL İÇERİK KURALLARI:
-1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi (örn: sayı hissi, geometrik algı) desteklediğini açıkla.
-3. "instruction": Öğrenciye yönelik net ve anlaşılır bir yönerge.
-4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
-5. İçerik "Lorem ipsum" olmamalı, gerçek matematiksel problemler içermeli.
+ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
+1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
+2.  **Çıktı:** Sadece geçerli JSON.
+3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi (örn: sayı hissi, geometrik algı, parça-bütün ilişkisi) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
+4.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol.
+5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+    - **Stil:** "Flat Vector Art Style", "Educational Illustration", "Clean Lines", "Vibrant Colors".
+    - **Detay:** Asla "bir nesne" deme. "Kırmızı, parlak, tek yapraklı bir elma vektörü" de.
+    - **Amaç:** Görsel, matematiksel kavramı somutlaştırmalı.
+6.  **İçerik:**
+    - "Lorem ipsum" yasak.
+    - Gerçek, tutarlı ve çözülebilir matematiksel problemler üret.
 `;
 
 export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
@@ -33,7 +39,7 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promi
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING }, // Added
+      imagePrompt: { type: Type.STRING },
       puzzles: {
         type: Type.ARRAY,
         items: {
@@ -70,6 +76,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     "${difficulty}" seviyesinde "Şekil Sayma" (Örn: Kaç üçgen var?).
     Karmaşık, iç içe geçmiş şekillerden oluşan SVG path verileri üret.
     SVG pathleri 'd' attribute olarak ve renkleri 'fill' olarak ver.
+    Şekiller birbirini kesmeli ve dikkatli saymayı gerektirmeli.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
@@ -79,7 +86,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             figures: {
                 type: Type.ARRAY,
                 items: {

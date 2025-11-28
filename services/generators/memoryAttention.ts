@@ -8,12 +8,17 @@ import {
 } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
-EĞİTİMSEL İÇERİK KURALLARI:
-1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Bu etkinlik hangi bilişsel beceriyi desteklediğini açıkla (örn: görsel hafıza, seçici dikkat).
-3. "instruction": Öğrenciye yönelik net yönerge.
-4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
-5. İçerik dolu ve gerçekçi olmalı.
+ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
+1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
+2.  **Çıktı:** Sadece geçerli JSON.
+3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi (örn: görsel hafıza, seçici dikkat, işleyen bellek) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
+4.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol.
+5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+    - **Stil:** "Flat Vector Art Style", "Educational Illustration", "Clean Lines", "Vibrant Colors".
+    - **Detay:** Asla "bir nesne" deme. "Renkli, eğlenceli ve akılda kalıcı bir oyuncak ayı vektörü" de.
+    - **Amaç:** Görsel, hafızada kalıcı olmalı.
+6.  **İçerik:**
+    - İçerik dolu ve gerçekçi olmalı.
 `;
 
 export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
@@ -38,7 +43,7 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             wordsToMemorize: { type: Type.ARRAY, items: itemSchema },
@@ -72,7 +77,7 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING }, // Added
+      imagePrompt: { type: Type.STRING },
       memorizeTitle: { type: Type.STRING },
       testTitle: { type: Type.STRING },
       itemsToMemorize: { type: Type.ARRAY, items: itemSchema },
@@ -93,7 +98,7 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             numbers: { type: Type.ARRAY, items: { type: Type.STRING } },
             range: {
                 type: Type.OBJECT,
@@ -116,7 +121,7 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING }, // Added
+      imagePrompt: { type: Type.STRING },
       rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
     },
     required: ['title', 'rows', 'instruction', 'pedagogicalNote', 'imagePrompt']
@@ -139,7 +144,7 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             targetLetters: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
@@ -158,7 +163,7 @@ export const generateFindLetterPairFromAI = async (options: GeneratorOptions): P
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
             targetPair: { type: Type.STRING }
         },
@@ -177,7 +182,7 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING }, // Added
+      imagePrompt: { type: Type.STRING },
       grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
       target: { type: Type.STRING },
       distractor: { type: Type.STRING }
@@ -202,7 +207,7 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             items: {
@@ -238,11 +243,10 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // This is already present as 'imagePrompt' for the scene, but we keep consistency
+            imagePrompt: { type: Type.STRING },
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             sceneDescription: { type: Type.STRING },
-            // imagePrompt: { type: Type.STRING }, // Replaced by top-level for consistency, but keeping both is fine if keys match
             questions: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
         required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions", 'instruction', 'pedagogicalNote']
@@ -265,7 +269,7 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, // Added
+            imagePrompt: { type: Type.STRING },
             memorizeTitle: { type: Type.STRING },
             testTitle: { type: Type.STRING },
             charactersToMemorize: {
@@ -310,7 +314,7 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
              title: { type: Type.STRING },
              instruction: { type: Type.STRING },
              pedagogicalNote: { type: Type.STRING },
-             imagePrompt: { type: Type.STRING }, // Added
+             imagePrompt: { type: Type.STRING },
              items: {
                  type: Type.ARRAY,
                  items: {
@@ -335,7 +339,7 @@ export const generateChaoticNumberSearchFromAI = async (options: GeneratorOption
              prompt: { type: Type.STRING },
              instruction: { type: Type.STRING },
              pedagogicalNote: { type: Type.STRING },
-             imagePrompt: { type: Type.STRING }, // Added
+             imagePrompt: { type: Type.STRING },
              numbers: {
                  type: Type.ARRAY,
                  items: {
