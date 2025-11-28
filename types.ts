@@ -125,9 +125,10 @@ export enum ActivityType {
   CODE_READING = 'CODE_READING',
   ATTENTION_TO_QUESTION = 'ATTENTION_TO_QUESTION',
   ATTENTION_DEVELOPMENT = 'ATTENTION_DEVELOPMENT',
+  ATTENTION_FOCUS = 'ATTENTION_FOCUS',
   
   // --- NEW ACTIVITY ---
-  ATTENTION_FOCUS = 'ATTENTION_FOCUS',
+  MIND_GAMES = 'MIND_GAMES',
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -364,6 +365,26 @@ export interface AttentionFocusData extends BaseActivityData {
         options: string[];
         answer: string;
     }[];
+}
+
+// --- MIND GAMES (Akıl Oyunları) ---
+export type MindGamePuzzleType = 'shape_math' | 'matrix_logic' | 'number_pyramid';
+
+export interface MindGamePuzzle {
+    type: MindGamePuzzleType;
+    // For Shape Math (Triangle/Square with numbers)
+    shape?: 'triangle' | 'square' | 'circle';
+    numbers?: (number | string)[]; // Numbers placed on corners/center. Last one might be '?'
+    // For Matrix Logic
+    grid?: (number | string | null)[][]; // 3x3 or 2x2 grid
+    
+    question?: string; // Text question if needed
+    answer: string;
+    hint?: string;
+}
+
+export interface MindGamesData extends BaseActivityData {
+    puzzles: MindGamePuzzle[];
 }
 
 // --- DYSLEXIA SUPPORT TYPES ---
@@ -1001,7 +1022,8 @@ export type SingleWorksheetData =
   | CodeReadingData
   | AttentionToQuestionData
   | AttentionDevelopmentData
-  | AttentionFocusData;
+  | AttentionFocusData
+  | MindGamesData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

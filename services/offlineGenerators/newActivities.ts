@@ -1,5 +1,5 @@
 
-import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, GeneratorOptions } from '../../types';
+import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, GeneratorOptions, MindGamesData } from '../../types';
 import { getRandomItems, getRandomInt, shuffle } from './helpers';
 
 export const generateOfflineFamilyRelations = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
@@ -178,6 +178,74 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
             mapSvg: "TURKEY_MAP_PLACEHOLDER", // Frontend will render the actual SVG
             cities,
             instructions: getRandomItems(instructions, itemCount || 8)
+        };
+    });
+};
+
+export const generateOfflineMindGames = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    const count = itemCount || 4;
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = Array.from({ length: count }).map(() => {
+            const typeRoll = Math.random();
+            
+            // 1. Shape Math (Triangle Logic)
+            if (typeRoll < 0.4) {
+                // Logic: Top + Left + Right = Center (or variation)
+                const n1 = getRandomInt(1, 10);
+                const n2 = getRandomInt(1, 10);
+                const n3 = getRandomInt(1, 10);
+                const center = n1 + n2 + n3;
+                
+                return {
+                    type: 'shape_math' as const,
+                    shape: 'triangle' as const,
+                    numbers: [n1, n2, n3, '?'], // Corners + Center(target)
+                    answer: center.toString(),
+                    hint: "Köşelerdeki sayıları topla."
+                };
+            } 
+            // 2. Matrix Logic (3x3 Grid)
+            else if (typeRoll < 0.7) {
+                // Logic: Row sum is constant OR Arithmetic progression
+                const start = getRandomInt(1, 5);
+                const step = getRandomInt(1, 3);
+                const grid = [
+                    [start, start+step, start+step*2],
+                    [start+step*3, start+step*4, start+step*5],
+                    [start+step*6, start+step*7, null] // Target
+                ];
+                const answer = start + step * 8;
+                
+                return {
+                    type: 'matrix_logic' as const,
+                    grid: grid as any,
+                    answer: answer.toString(),
+                    hint: `Sayılar ${step} artarak ilerliyor.`
+                };
+            }
+            // 3. Number Pyramid
+            else {
+                const base = [getRandomInt(1, 5), getRandomInt(1, 5), getRandomInt(1, 5)];
+                const mid = [base[0]+base[1], base[1]+base[2]];
+                const top = mid[0] + mid[1];
+                
+                return {
+                    type: 'number_pyramid' as const,
+                    numbers: [...base, ...mid, '?'], // Flattened visualization handled by component
+                    answer: top.toString(),
+                    hint: "Alt kutuları toplayarak üste çık."
+                };
+            }
+        });
+
+        return {
+            title: "Akıl Oyunları (Hızlı Mod)",
+            instruction: "Mantığını kullan ve soru işareti olan yere gelmesi gereken sayıyı bul.",
+            pedagogicalNote: "Mantıksal akıl yürütme, örüntü tanıma ve matematiksel ilişkilendirme.",
+            imagePrompt: "Zeka Oyunu",
+            puzzles
         };
     });
 };

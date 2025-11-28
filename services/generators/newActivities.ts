@@ -1,7 +1,7 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData } from '../../types';
+import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -158,4 +158,64 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
         }
     };
     return generateWithSchema(prompt, schema) as Promise<MapInstructionData[]>;
+};
+
+// --- MIND GAMES (Akıl Oyunları) ---
+
+export const generateMindGamesFromAI = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    
+    const prompt = `
+    "Akıl Oyunları" etkinliği (Matematiksel ve Görsel Mantık).
+    Seviye: ${difficulty}.
+    
+    Bulmaca Tipleri (Karışık üret):
+    1. 'shape_math': Bir şeklin (üçgen, kare) köşelerindeki sayılarla ortasındaki sayı arasında bir ilişki vardır (örn: Köşeleri topla, 2 çıkar). Soru işareti olanı sor.
+    2. 'matrix_logic': 3x3 veya 2x2 matriste sayılar/şekiller belirli bir kurala göre dizilmiştir. Eksik olanı sor.
+    3. 'number_pyramid': Alt sıradaki sayıların toplamı üst sırayı verir. Tepedeki eksik sayıyı sor.
+    
+    Format:
+    - "type": Bulmaca tipi.
+    - "numbers": Sayı dizisi (shape_math ve number_pyramid için).
+    - "grid": Matris verisi (matrix_logic için, boşluk için null kullan).
+    - "question": Soru metni.
+    - "answer": Cevap.
+    - "hint": Kural açıklaması.
+    
+    ${itemCount || 4} adet farklı bulmaca içeren sayfa üret.
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                imagePrompt: { type: Type.STRING },
+                puzzles: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            type: { type: Type.STRING, enum: ['shape_math', 'matrix_logic', 'number_pyramid'] },
+                            shape: { type: Type.STRING, enum: ['triangle', 'square', 'circle'] },
+                            numbers: { type: Type.ARRAY, items: { type: Type.NUMBER } },
+                            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } }, // using integer for simplicity or string if needed
+                            question: { type: Type.STRING },
+                            answer: { type: Type.STRING },
+                            hint: { type: Type.STRING }
+                        },
+                        required: ['type', 'answer']
+                    }
+                }
+            },
+            required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt']
+        }
+    };
+    
+    return generateWithSchema(prompt, schema) as Promise<MindGamesData[]>;
 };

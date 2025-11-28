@@ -1,6 +1,7 @@
+
 import React from 'react';
-import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData } from '../../types';
-import { PedagogicalHeader } from './common';
+import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData } from '../../types';
+import { PedagogicalHeader, GridComponent } from './common';
 
 // --- TURKEY MAP COMPONENT ---
 const TurkeyMapSVG = ({ cities }: { cities: { name: string, x: number, y: number }[] }) => {
@@ -134,6 +135,79 @@ export const MapInstructionSheet: React.FC<{ data: MapInstructionData }> = ({ da
             <div>
                 <TurkeyMapSVG cities={data.cities || []} />
             </div>
+        </div>
+    </div>
+);
+
+export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {data.puzzles.map((puzzle, idx) => (
+                <div key={idx} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center break-inside-avoid">
+                    <h4 className="font-bold text-indigo-600 mb-4 uppercase tracking-wide text-sm">Bulmaca {idx + 1}</h4>
+                    
+                    {/* Shape Math Type */}
+                    {puzzle.type === 'shape_math' && (
+                        <div className="relative w-48 h-40 mb-4">
+                            {puzzle.shape === 'triangle' && (
+                                <svg viewBox="0 0 100 86" className="w-full h-full overflow-visible">
+                                    <polygon points="50,0 100,86 0,86" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-800 dark:text-zinc-200" />
+                                    {/* Corners */}
+                                    <circle cx="50" cy="0" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                    <text x="50" y="0" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{puzzle.numbers?.[0]}</text>
+                                    
+                                    <circle cx="0" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                    <text x="0" y="86" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{puzzle.numbers?.[1]}</text>
+                                    
+                                    <circle cx="100" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                    <text x="100" y="86" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{puzzle.numbers?.[2]}</text>
+                                    
+                                    {/* Center Target */}
+                                    <circle cx="50" cy="50" r="15" fill="#e0e7ff" stroke="currentColor" className="text-indigo-600" />
+                                    <text x="50" y="50" dominantBaseline="central" textAnchor="middle" className="text-lg font-bold text-indigo-800">{puzzle.numbers?.[3] || '?'}</text>
+                                </svg>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Matrix Logic Type */}
+                    {puzzle.type === 'matrix_logic' && puzzle.grid && (
+                        <div className="mb-4">
+                             <div className="border-4 border-zinc-800 dark:border-zinc-400 inline-block rounded-lg overflow-hidden">
+                                 <GridComponent grid={puzzle.grid as any} cellClassName="w-14 h-14 text-2xl font-bold flex items-center justify-center" showLetters={false} />
+                             </div>
+                        </div>
+                    )}
+
+                    {/* Number Pyramid Type */}
+                    {puzzle.type === 'number_pyramid' && puzzle.numbers && (
+                         <div className="flex flex-col items-center gap-1 mb-4">
+                            {/* Top */}
+                            <div className="flex gap-1">
+                                <div className="w-12 h-12 border-2 border-indigo-500 bg-indigo-50 flex items-center justify-center font-bold rounded shadow-sm">{puzzle.numbers[5]}</div>
+                            </div>
+                            {/* Mid */}
+                            <div className="flex gap-1">
+                                <div className="w-12 h-12 border-2 border-zinc-300 bg-white flex items-center justify-center font-bold rounded">{puzzle.numbers[3]}</div>
+                                <div className="w-12 h-12 border-2 border-zinc-300 bg-white flex items-center justify-center font-bold rounded">{puzzle.numbers[4]}</div>
+                            </div>
+                            {/* Base */}
+                            <div className="flex gap-1">
+                                <div className="w-12 h-12 border-2 border-zinc-400 bg-zinc-50 flex items-center justify-center font-bold rounded">{puzzle.numbers[0]}</div>
+                                <div className="w-12 h-12 border-2 border-zinc-400 bg-zinc-50 flex items-center justify-center font-bold rounded">{puzzle.numbers[1]}</div>
+                                <div className="w-12 h-12 border-2 border-zinc-400 bg-zinc-50 flex items-center justify-center font-bold rounded">{puzzle.numbers[2]}</div>
+                            </div>
+                         </div>
+                    )}
+                    
+                    <div className="text-center">
+                        {puzzle.question && <p className="text-sm mb-2">{puzzle.question}</p>}
+                        {puzzle.hint && <p className="text-xs text-zinc-400 italic">İpucu: {puzzle.hint}</p>}
+                    </div>
+                </div>
+            ))}
         </div>
     </div>
 );
