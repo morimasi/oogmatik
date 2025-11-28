@@ -6,6 +6,7 @@ import { assessmentService } from '../services/assessmentService';
 import { RadarChart } from './RadarChart';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { worksheetService } from '../services/worksheetService';
+import { ShareModal } from './ShareModal';
 
 const StatCard: React.FC<{ icon: string; label: string; value: string | number; color: string; trend?: string }> = ({ icon, label, value, color, trend }) => (
     <div className="bg-white dark:bg-zinc-800 p-5 rounded-xl border border-zinc-100 dark:border-zinc-700 shadow-sm flex items-center gap-4 hover:shadow-md transition-all transform hover:-translate-y-1">
@@ -72,6 +73,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
     const [isSavingPassword, setIsSavingPassword] = useState(false);
     const [isChangingAvatar, setIsChangingAvatar] = useState(false);
     const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+    
+    // Sharing State
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -212,6 +216,30 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
         }
     };
 
+    const handleShareReport = async (receiverId: string) => {
+        if (!selectedAssessment || !user) return;
+        try {
+            await assessmentService.shareAssessment(
+                selectedAssessment, 
+                user.id, 
+                user.name, 
+                receiverId
+            );
+            showMessage('success', 'Rapor başarıyla paylaşıldı.');
+            setIsShareModalOpen(false);
+        } catch (e) {
+            console.error(e);
+            showMessage('error', 'Paylaşım sırasında hata oluştu.');
+        }
+    };
+
+    const handlePrintReport = () => {
+        const originalTitle = document.title;
+        document.title = `${selectedAssessment?.studentName || 'Ogrenci'}_Degerlendirme_Raporu`;
+        window.print();
+        document.title = originalTitle;
+    };
+
     const showMessage = (type: 'success' | 'error', text: string) => {
         setMessage({ type, text });
         setTimeout(() => setMessage(null), 3000);
@@ -221,6 +249,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
 
     return (
         <div className="bg-zinc-50 dark:bg-zinc-900 min-h-full p-4 md:p-8 overflow-y-auto">
+            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} />
+            
             <div className="max-w-5xl mx-auto">
                 {message && (
                     <div className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 ${message.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
@@ -461,12 +491,29 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             </div>
                             <button onClick={() => setSelectedAssessment(null)} className="w-8 h-8 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center"><i className="fa-solid fa-times"></i></button>
                         </header>
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                        
+                        {/* TOOLBAR FOR REPORT ACTIONS */}
+                        <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 no-print">
+                            <button 
+                                onClick={() => setIsShareModalOpen(true)} 
+                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all shadow-sm"
+                            >
+                                <i className="fa-solid fa-share-nodes text-blue-500"></i> Paylaş
+                            </button>
+                            <button 
+                                onClick={handlePrintReport} 
+                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                            >
+                                <i className="fa-solid fa-print"></i> Yazdır / PDF
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar assessment-report-container">
                             <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-indigo-900 dark:text-indigo-100 text-sm leading-relaxed">
                                 {selectedAssessment.report.overallSummary}
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px]">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
+                                <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px] bg-white dark:bg-zinc-800">
                                     <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Risk Analizi</h4>
                                     {selectedAssessment.report.chartData && <RadarChart data={selectedAssessment.report.chartData} />}
                                 </div>
@@ -474,7 +521,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                     {Object.entries(selectedAssessment.report.scores).map(([key, value]) => {
                                         const score = value as number;
                                         return (
-                                            <div key={key} className="p-3 rounded-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-between">
+                                            <div key={key} className="p-3 rounded-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-between bg-white dark:bg-zinc-800">
                                                 <span className="capitalize font-bold text-sm text-zinc-700 dark:text-zinc-300">
                                                     {key === 'reading' ? 'Okuma' : key === 'math' ? 'Matematik' : key === 'attention' ? 'Dikkat' : key === 'cognitive' ? 'Bellek' : 'Yazma'}
                                                 </span>
@@ -492,25 +539,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                     })}
                                 </div>
                             </div>
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                                    <h4 className="font-bold text-green-700 mb-2">Güçlü Yönler</h4>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
+                                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                                    <h4 className="font-bold text-green-700 mb-2 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
                                     <ul className="list-disc list-inside text-sm space-y-1">
                                         {selectedAssessment.report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
-                                <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl">
-                                    <h4 className="font-bold text-rose-700 mb-2">Gelişim Alanları</h4>
+                                <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800">
+                                    <h4 className="font-bold text-rose-700 mb-2 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
                                     <ul className="list-disc list-inside text-sm space-y-1">
                                         {selectedAssessment.report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
                             </div>
-                             <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg">
-                                <h4 className="font-bold text-lg mb-4">Önerilen Yol Haritası</h4>
+                             <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg break-inside-avoid">
+                                <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-road"></i> Önerilen Yol Haritası</h4>
                                 <div className="space-y-4">
                                     {selectedAssessment.report.roadmap.map((item, idx) => (
-                                        <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-zinc-700 transition-colors group cursor-pointer" onClick={() => onSelectActivity(item.activityId as ActivityType)}>
+                                        <div key={idx} onClick={() => onSelectActivity(item.activityId as ActivityType)} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-zinc-700 transition-colors group cursor-pointer border border-zinc-600">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold">{idx + 1}</div>
                                                 <div>
