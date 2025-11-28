@@ -1,7 +1,7 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, ImageInterpretationTFData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -256,6 +256,51 @@ export const generateAttentionFocusFromAI = async (options: GeneratorOptions): P
 
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<AttentionFocusData[]>;
+};
+
+// 13. Image Interpretation T/F
+export const generateImageInterpretationTFFromAI = async (options: GeneratorOptions): Promise<ImageInterpretationTFData[]> => {
+    const { worksheetCount, itemCount } = options;
+    const prompt = `
+    "Resim Yorumlama ve Doğru-Yanlış (D-Y) Okuma" etkinliği.
+    
+    1. Çocuklar için renkli, detaylı ve neşeli bir sahne kurgula (Örn: Piknik yapan aile, sınıfta ders işleyen öğrenciler, oyun parkı).
+    2. 'sceneDescription': Bu sahneyi detaylıca betimle (Görseli zihinde canlandırmak için).
+    3. 'imagePrompt': Bu sahneyi görselleştirecek İngilizce prompt yaz. Stil: "Children book illustration, clear lines, colorful".
+    4. Bu sahneyle ilgili ${itemCount || 9} adet cümle yaz.
+       - Bazıları sahneye göre DOĞRU, bazıları YANLIŞ olsun.
+       - Cümleler görsel detaylara (renk, konum, eylem, sayı) odaklanmalı.
+       - Örn: "Kırmızı tişörtlü çocuk ayakta duruyor." (Doğru/Yanlış)
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            sceneDescription: { type: Type.STRING },
+            items: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        text: { type: Type.STRING },
+                        isCorrect: { type: Type.BOOLEAN }
+                    },
+                    required: ['text', 'isCorrect']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'items', 'pedagogicalNote', 'imagePrompt', 'sceneDescription']
+    };
+
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<ImageInterpretationTFData[]>;
 };
 
 // Re-export placeholders or other generators if they were lost, 

@@ -1,3 +1,4 @@
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -128,6 +129,9 @@ export enum ActivityType {
   
   MIND_GAMES = 'MIND_GAMES',
   MIND_GAMES_56 = 'MIND_GAMES_56',
+  
+  // NEW
+  IMAGE_INTERPRETATION_TF = 'IMAGE_INTERPRETATION_TF',
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -515,6 +519,11 @@ export interface AttentionToQuestionData extends BaseActivityData {
         isOdd: boolean;
         correctAnswer: string;
     }[];
+}
+
+export interface ImageInterpretationTFData extends BaseActivityData {
+    items: { text: string; isCorrect: boolean }[];
+    sceneDescription?: string;
 }
 
 // --- DYSCALCULIA SUPPORT TYPES (Consolidated) ---
@@ -1049,7 +1058,8 @@ export type SingleWorksheetData =
   | AttentionDevelopmentData
   | AttentionFocusData
   | MindGamesData
-  | MindGames56Data;
+  | MindGames56Data
+  | ImageInterpretationTFData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

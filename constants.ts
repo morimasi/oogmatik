@@ -1,3 +1,4 @@
+
 import { Activity, ActivityCategory, ActivityType } from './types';
 
 export const ACTIVITIES: Activity[] = [
@@ -100,7 +101,7 @@ export const ACTIVITIES: Activity[] = [
     { id: ActivityType.FAMILY_RELATIONS, title: 'Akrabalık İlişkileri', description: 'Akrabalık terimlerini ve ilişkilerini eşleştirin.', icon: 'fa-solid fa-people-roof' },
     { id: ActivityType.LOGIC_DEDUCTION, title: 'Mantıksal Çıkarım', description: 'İpuçlarından yola çıkarak doğru cevabı bulun.', icon: 'fa-solid fa-lightbulb' },
     { id: ActivityType.NUMBER_BOX_LOGIC, title: 'Kutu Mantığı', description: 'Kutulardaki sayıları analiz edin.', icon: 'fa-solid fa-box-open' },
-    { id: ActivityType.MAP_INSTRUCTION, title: 'Harita Yönergesi', description: 'Yönergeleri takip ederek haritada yer bulun.', icon: 'fa-solid fa-map-location-dot' },
+    { id: ActivityType.MAP_INSTRUCTION, title: 'Harita Yönergesi', description: 'Yönergeleri takiperek haritada yer bulun.', icon: 'fa-solid fa-map-location-dot' },
     { 
         id: ActivityType.MIND_GAMES, 
         title: 'Akıl Oyunları (3-4. Sınıf)', 
@@ -150,6 +151,7 @@ export const ACTIVITIES: Activity[] = [
     { id: ActivityType.ATTENTION_TO_QUESTION, title: 'Soruya Dikkat', description: 'Detaylı görsel dikkat ve yönerge takibi.', icon: 'fa-solid fa-circle-question' },
     { id: ActivityType.ATTENTION_DEVELOPMENT, title: 'Dikkat Geliştirme', description: 'Mantıksal çıkarım ve dikkat.', icon: 'fa-solid fa-brain' },
     { id: ActivityType.ATTENTION_FOCUS, title: 'Dikkatini Ver', description: 'İpuçlarını takip ederek doğru nesneyi bul.', icon: 'fa-solid fa-eye' },
+    { id: ActivityType.IMAGE_INTERPRETATION_TF, title: 'Resim Yorumlama (D-Y)', description: 'Görsele bakarak cümlelerin doğruluğunu kontrol et.', icon: 'fa-solid fa-photo-film' },
 
     // --- DİSKALKULİ ---
     { id: ActivityType.NUMBER_SENSE, title: 'Sayı Hissi', description: 'Miktar ve sayı kavramı çalışmaları.', icon: 'fa-solid fa-1' },
@@ -262,7 +264,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
             ActivityType.READING_FLOW, ActivityType.LETTER_DISCRIMINATION, ActivityType.RAPID_NAMING, 
             ActivityType.PHONOLOGICAL_AWARENESS, ActivityType.MIRROR_LETTERS, ActivityType.SYLLABLE_TRAIN, 
             ActivityType.VISUAL_TRACKING_LINES, ActivityType.BACKWARD_SPELLING, ActivityType.CODE_READING, 
-            ActivityType.ATTENTION_TO_QUESTION, ActivityType.ATTENTION_DEVELOPMENT, ActivityType.ATTENTION_FOCUS
+            ActivityType.ATTENTION_TO_QUESTION, ActivityType.ATTENTION_DEVELOPMENT, ActivityType.ATTENTION_FOCUS,
+            ActivityType.IMAGE_INTERPRETATION_TF
         ]
     },
     {

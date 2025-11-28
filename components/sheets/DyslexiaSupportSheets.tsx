@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData } from '../../types';
+import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ImageInterpretationTFData } from '../../types';
 import { ImageDisplay, PedagogicalHeader, Shape, GridComponent } from './common';
 
 // Helper for simple sheets
@@ -436,6 +436,42 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
             {/* Answer Key Strip (For Print) */}
             <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
                 Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
+            </div>
+        </div>
+    );
+};
+
+export const ImageInterpretationTFSheet: React.FC<{ data: ImageInterpretationTFData }> = ({ data }) => {
+    return (
+        <div>
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            
+            {/* Main Visual - Centered and Prominent */}
+            <div className="mb-8 flex justify-center">
+                <div className="w-full max-w-2xl bg-white dark:bg-zinc-800 p-2 rounded-2xl shadow-lg border-4 border-white dark:border-zinc-700 overflow-hidden relative group">
+                    <ImageDisplay base64={data.imageBase64} description={data.sceneDescription || data.imagePrompt} className="w-full h-auto max-h-[400px] object-contain rounded-xl bg-zinc-50 dark:bg-zinc-900" />
+                    {/* Hover Description Tooltip */}
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <p className="text-white text-center font-medium text-lg leading-relaxed">{data.sceneDescription}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Questions List */}
+            <div className="max-w-2xl mx-auto space-y-4 font-dyslexic text-lg">
+                <div className="text-center text-rose-500 font-bold mb-4 print:block hidden">
+                    Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.
+                </div>
+                {data.items.map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-4 p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded transition-colors break-inside-avoid">
+                        <div className="w-16 flex-shrink-0 flex items-center justify-center font-bold text-zinc-400">
+                            ( &nbsp;&nbsp;&nbsp; )
+                        </div>
+                        <div className="flex-1 pt-0.5 text-zinc-800 dark:text-zinc-100 leading-normal">
+                            {item.text}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );

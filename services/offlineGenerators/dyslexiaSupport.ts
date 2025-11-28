@@ -1,4 +1,5 @@
-import { GeneratorOptions, AttentionFocusData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+
+import { GeneratorOptions, AttentionFocusData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, ImageInterpretationTFData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
 // --- Helper for creating random visual tracking paths ---
@@ -388,4 +389,104 @@ export const generateOfflineBackwardSpelling = async (options: GeneratorOptions)
             correct: w
         }))
     }));
+};
+
+// 13. Image Interpretation TF
+export const generateOfflineImageInterpretationTF = async (options: GeneratorOptions): Promise<ImageInterpretationTFData[]> => {
+    const { worksheetCount, itemCount } = options;
+    
+    const scenarios = [
+        {
+            title: "Oyun Hamuru Zamanı",
+            sceneDescription: "Üç çocuk masada oyun hamuru ile oynuyor. Solda sarı saçlı bir erkek çocuk, ortada siyahi kız çocuk, sağda kahverengi saçlı erkek çocuk var.",
+            imagePrompt: "Çocuklar Oyun Hamuru",
+            items: [
+                { text: "Çocuklar masada oturuyor.", isCorrect: true },
+                { text: "Sarı saçlı çocuk yemek yiyiyor.", isCorrect: false },
+                { text: "Kırmızı tişörtlü çocuk erkektir.", isCorrect: false },
+                { text: "Çocuklar oyun hamurları ile oynuyor.", isCorrect: true },
+                { text: "Kahverengi saçlı çocuğun ayakkabısı kahverengi.", isCorrect: true },
+                { text: "Yeşil ayakkabılı çocuk kırmızı çorap giymiş.", isCorrect: false },
+                { text: "Sağda oturan çocuğun saçı sarı.", isCorrect: false },
+                { text: "Kız çocuk ortada oturuyor.", isCorrect: true },
+                { text: "Masada beş çocuk oturuyor.", isCorrect: false }
+            ]
+        },
+        {
+            title: "Piknik Keyfi",
+            sceneDescription: "İki kız çocuk piknik yapıyor. Yerde örtü, oyuncak ayı ve yiyecekler var.",
+            imagePrompt: "Çocuklar Piknik",
+            items: [
+                { text: "Çocuklar piknik yapıyor.", isCorrect: true },
+                { text: "Mor tişörtlü kızın elinde kaşık var.", isCorrect: false },
+                { text: "Ayıcık pembe kıyafetli kızın elinde.", isCorrect: true },
+                { text: "Kızlar piknikte ağlıyor.", isCorrect: false },
+                { text: "Mor kıyafetli kız üç parça ekmek kesmiş.", isCorrect: true },
+                { text: "Pembe kıyafetli kızın saçında renkli toka yok.", isCorrect: false },
+                { text: "Patlıcan ve domates tencerenin dışında.", isCorrect: true },
+                { text: "Bıçak pembe kıyafetli kızın elinde değil.", isCorrect: true },
+                { text: "Yere serdikleri örtü turuncu renkli.", isCorrect: false }
+            ]
+        },
+        {
+            title: "Çamaşır Asma",
+            sceneDescription: "Bahçede çamaşır asan aile. Anne, baba ve çocuklar var. İpte kıyafetler asılı.",
+            imagePrompt: "Aile Çamaşır",
+            items: [
+                { text: "Tüm aile bulaşık yıkıyorlar.", isCorrect: false },
+                { text: "Anne ipe yorgan asıyor.", isCorrect: true },
+                { text: "Pembe kıyafetli kız çamaşır teknesinin içinde.", isCorrect: false },
+                { text: "Çoraplar ipte en başa asılmış.", isCorrect: false },
+                { text: "İpe iki tane yorgan asılmış.", isCorrect: false },
+                { text: "Çamaşırları evde yıkıyorlar.", isCorrect: false },
+                { text: "Abi ve abla aynı teknede çamaşır yıkıyor.", isCorrect: true },
+                { text: "Pembe elbiseli kız annesinin yanında.", isCorrect: true },
+                { text: "Turuncu elbiseli kızın saçları siyah.", isCorrect: false }
+            ]
+        },
+        {
+            title: "Televizyon Keyfi",
+            sceneDescription: "Bir çocuk koltukta uzanmış, etraf dağınık. Cips yiyor ve içecek içiyor.",
+            imagePrompt: "Dağınık Çocuk",
+            items: [
+                { text: "Çocuk koltuğa yatmış bilgisayar ile oynuyor.", isCorrect: false },
+                { text: "Çocuğun içtiği kola çok sağlıklıdır.", isCorrect: false },
+                { text: "Yerde altı tane içecek kutusu vardır.", isCorrect: false },
+                { text: "Çocuğun yediği cips sağlığa zararlıdır.", isCorrect: true },
+                { text: "Koltuk kırmızı renklidir.", isCorrect: false },
+                { text: "Televizyonun kumandası koltuğun kenarındadır.", isCorrect: true },
+                { text: "Çocuğun üzerinde okul forması var.", isCorrect: false },
+                { text: "Koltuğun altında iki tane defter var.", isCorrect: false },
+                { text: "Çocuk koltukta uyuyakalmış.", isCorrect: false }
+            ]
+        },
+        {
+            title: "Aile Portresi",
+            sceneDescription: "Geniş bir aile. Dede, nine, anne, baba ve çocuklar.",
+            imagePrompt: "Geniş Aile",
+            items: [
+                { text: "Ailede dört çocuk var.", isCorrect: false },
+                { text: "Dede ninenin yanında.", isCorrect: true },
+                { text: "Kız ve erkek çocuk nine ile babanın önünde.", isCorrect: true },
+                { text: "Babanın gözünde gözlük yok.", isCorrect: true },
+                { text: "Bebek dedenin kucağında.", isCorrect: false },
+                { text: "Nine ve dede gözlük takıyor.", isCorrect: true },
+                { text: "Anne kucağında bebeği tutuyor.", isCorrect: true },
+                { text: "Küçük kız çocuğu dedenin yanında.", isCorrect: false },
+                { text: "Ailede yedi kişi var.", isCorrect: true }
+            ]
+        }
+    ];
+
+    return Array.from({ length: worksheetCount }, (_, i) => {
+        const scenario = scenarios[i % scenarios.length];
+        return {
+            title: "Resim Yorumlama (D-Y) (Hızlı Mod)",
+            instruction: "Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.",
+            pedagogicalNote: "Görsel algı, dikkat ve okuduğunu anlama becerisi.",
+            imagePrompt: scenario.imagePrompt,
+            sceneDescription: scenario.sceneDescription,
+            items: scenario.items
+        };
+    });
 };
