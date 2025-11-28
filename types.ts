@@ -117,12 +117,14 @@ export enum ActivityType {
   BACKWARD_SPELLING = 'BACKWARD_SPELLING',
   BASIC_OPERATIONS = 'BASIC_OPERATIONS',
   REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS',
+  PROVERB_SENTENCE_FINDER = 'PROVERB_SENTENCE_FINDER',
   
   // --- NEW ACTIVITIES ---
   FAMILY_RELATIONS = 'FAMILY_RELATIONS',
   LOGIC_DEDUCTION = 'LOGIC_DEDUCTION',
   NUMBER_BOX_LOGIC = 'NUMBER_BOX_LOGIC',
   MAP_INSTRUCTION = 'MAP_INSTRUCTION',
+  CODE_READING = 'CODE_READING',
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -213,7 +215,6 @@ export interface User {
     subscriptionPlan: SubscriptionPlan;
 }
 
-// ... (Geri kalan tipler aynı kalır)
 export interface FeedbackItem {
     id: string;
     userId?: string;
@@ -303,7 +304,6 @@ export interface BaseActivityData {
     imageBase64?: string;
 }
 
-// ... (Diğer tüm arayüzler aynı)
 // --- NEW ACTIVITY DATA TYPES ---
 
 export interface FamilyRelationsData extends BaseActivityData {
@@ -419,6 +419,11 @@ export interface BackwardSpellingData extends BaseActivityData {
         imagePrompt?: string;
         imageBase64?: string;
     }[];
+}
+
+export interface CodeReadingData extends BaseActivityData {
+    keyMap: { symbol: string; value: string; color?: string }[];
+    codesToSolve: { sequence: string[]; answer: string }[];
 }
 
 // --- DYSCALCULIA SUPPORT TYPES (Consolidated) ---
@@ -947,7 +952,8 @@ export type SingleWorksheetData =
   | FamilyRelationsData
   | LogicDeductionData
   | NumberBoxLogicData
-  | MapInstructionData;
+  | MapInstructionData
+  | CodeReadingData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

@@ -1,11 +1,4 @@
 
-// Tüm online (AI) içerik oluşturucuları buradan dışa aktarılır.
-export * from './logicProblems';
-export * from './mathGeometry';
-export * from './mathLogicGames';
-export * from './memoryAttention';
-export * from './perceptualSkills'; 
-export * from './readingComprehension';
-export * from './wordGames';
+// ... existing exports
 export * from './dyslexiaSupport';
-export * from './newActivities';
+// Ensure generateCodeReadingFromAI is exported from dyslexiaSupport.ts

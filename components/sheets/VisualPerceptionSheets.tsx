@@ -73,6 +73,30 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
     </div>
 );
 
+export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="grid grid-cols-1 gap-6">
+            {(data.groups || []).map((group, index) => (
+                <div key={index} className="bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm flex items-center justify-between">
+                    <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded text-xl font-bold tracking-wider min-w-[100px] text-center">
+                        {group.words[0]}
+                    </div>
+                    <div className="flex-1 flex justify-around px-8">
+                        {/* Shuffle distractors and the correct answer for display */}
+                        {[...group.distractors, group.words[1]].sort().map((option, optIndex) => (
+                            <div key={optIndex} className="flex items-center gap-2 cursor-pointer">
+                                <div className="w-6 h-6 border-2 border-zinc-300 rounded-full"></div>
+                                <span className="text-lg font-mono">{option}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
 export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
     const gridDim = data.gridDim;
     const cellSize = 30;
@@ -125,30 +149,6 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
         </div>
     );
 };
-
-export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 gap-6">
-            {(data.groups || []).map((group, index) => (
-                <div key={index} className="bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm flex items-center justify-between">
-                    <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded text-xl font-bold tracking-wider min-w-[100px] text-center">
-                        {group.words[0]}
-                    </div>
-                    <div className="flex-1 flex justify-around px-8">
-                        {/* Shuffle distractors and the correct answer for display */}
-                        {[...group.distractors, group.words[1]].sort().map((option, optIndex) => (
-                            <div key={optIndex} className="flex items-center gap-2 cursor-pointer">
-                                <div className="w-6 h-6 border-2 border-zinc-300 rounded-full"></div>
-                                <span className="text-lg font-mono">{option}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    </div>
-);
 
 export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }) => (
     <div>
@@ -505,3 +505,5 @@ export const StarHuntSheet: React.FC<{ data: StarHuntData }> = ({ data }) => (
         <p className="text-center mt-4">Toplam Yıldız Hedefi: {data.targetCount}</p>
     </div>
 );
+
+export const RomanNumeralConnectSheet = AbcConnectSheet;
