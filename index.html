@@ -162,12 +162,12 @@
   */
   .worksheet-page {
       background-color: white !important; /* Always white like paper */
-      color: black !important;
+      color: #000000 !important; /* Always black text */
       border: none !important;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
       margin: 0 auto 3rem auto !important;
       position: relative;
-      overflow: hidden; /* For screen, hide overflow. Content continues on next page logic handled by data mapping */
+      overflow: hidden; 
       font-size: var(--worksheet-font-size, 16px) !important;
   }
 
@@ -179,15 +179,44 @@
       width: 100%;
   }
 
-  /* Force elements inside worksheet to respect print colors */
-  .worksheet-page * {
-      color: black !important;
-      border-color: #000 !important;
+  /* 
+     SMART COLOR RESET FOR WORKSHEET
+     Ensure content is readable (dark text on white) even if app is in Dark Mode,
+     BUT preserve intentional colors (red answers, blue highlights).
+  */
+  
+  /* 1. Reset generic text colors that might be white in dark mode */
+  .worksheet-page .text-white, 
+  .worksheet-page .text-zinc-100,
+  .worksheet-page .text-zinc-200,
+  .worksheet-page .dark\:text-white,
+  .worksheet-page .dark\:text-zinc-100,
+  .worksheet-page .dark\:text-zinc-200,
+  .worksheet-page .dark\:text-zinc-300,
+  .worksheet-page .dark\:text-zinc-400 {
+      color: #111827 !important; /* Zinc-900 */
+  }
+
+  /* 2. Reset backgrounds that might be dark */
+  .worksheet-page .bg-zinc-800,
+  .worksheet-page .bg-zinc-900,
+  .worksheet-page .dark\:bg-zinc-800,
+  .worksheet-page .dark\:bg-zinc-900,
+  .worksheet-page .dark\:bg-zinc-700 {
+      background-color: white !important;
+      border-color: #e5e7eb !important; /* Light border for structure */
+  }
+
+  /* 3. Ensure borders are visible */
+  .worksheet-page .border-zinc-700,
+  .worksheet-page .dark\:border-zinc-700,
+  .worksheet-page .dark\:border-zinc-600 {
+      border-color: #374151 !important; /* Zinc-700 */
   }
   
   /* Soft overrides for visual cues inside worksheet */
   .worksheet-page .bg-indigo-50, .worksheet-page .bg-zinc-50 { background-color: #f3f4f6 !important; }
-  .worksheet-page .text-indigo-600 { color: #000 !important; font-weight: bold; }
+  .worksheet-page .text-indigo-600 { color: #4f46e5 !important; font-weight: bold; }
 
   /* Animation utils */
   @keyframes mixedFlip { 0% { transform: rotateY(0deg); fill: var(--text-primary); } 50% { transform: rotateY(180deg); fill: var(--accent-color); } 100% { transform: rotateY(360deg); fill: var(--text-primary); } }

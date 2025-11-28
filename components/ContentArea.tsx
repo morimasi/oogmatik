@@ -181,7 +181,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = getBreadcrumbs();
 
   return (
-    <main id="tour-content" ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-zinc-200 dark:bg-zinc-900 scroll-smooth print:overflow-visible print:h-auto print:block print:w-full print:bg-white">
+    <main id="tour-content" ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-[var(--bg-primary)] scroll-smooth print:overflow-visible print:h-auto print:block print:w-full print:bg-white transition-colors duration-300">
       
       {/* Breadcrumbs */}
       <nav className="mb-4 flex items-center text-sm text-zinc-500 print:hidden" aria-label="Breadcrumb">
