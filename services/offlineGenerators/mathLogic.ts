@@ -864,33 +864,32 @@ export const generateOfflineColumnOddOneOutSentence = async (options: GeneratorO
 };
 export const generateOfflinePunctuationMaze = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
     const { worksheetCount, difficulty } = options;
-    const settings = getDifficultySettings(difficulty);
-    const rows = settings.mazeComplexity, cols = settings.mazeComplexity;
     
     return Array.from({length: worksheetCount}, () => {
-        const maze = generateMaze(Math.floor(rows/2), Math.floor(cols/2));
-        const rules = [];
-        for(let r=0; r<maze.length; r++) {
-            for(let c=0; c<maze[r].length; c++) {
-                const isPath = maze[r][c] === 0;
-                const text = isPath ? "Doğru Kural" : "Yanlış Kural"; 
-                if (rules.length < 10) rules.push({ id: rules.length+1, text, isCorrect: isPath });
-            }
-        }
+        // Rules for Comma (Virgül) - Turkish
+        const commaRules = [
+            {id: 1, text: 'Eş görevli kelimeler arasına konur.', isCorrect: true},
+            {id: 2, text: 'Sıralı cümleleri ayırmak için kullanılır.', isCorrect: true},
+            {id: 3, text: 'Hitap sözlerinden sonra konur.', isCorrect: true},
+            {id: 4, text: 'Özneyi vurgulamak için kullanılır.', isCorrect: true},
+            {id: 5, text: 'Ara sözlerin başına ve sonuna konur.', isCorrect: true},
+            {id: 6, text: 'Cümle bittiğinde sonuna konur.', isCorrect: false}, // Nokta
+            {id: 7, text: 'Soru bildiren cümlelerde kullanılır.', isCorrect: false}, // Soru işareti
+            {id: 8, text: 'Korku ve heyecan bildiren cümlelerde.', isCorrect: false}, // Ünlem
+            {id: 9, text: 'Saat ve dakika arasına konur.', isCorrect: false}, // Nokta (TR)
+            {id: 10, text: 'Tarihlerin yazılışında gün, ay, yıl arasına.', isCorrect: false} // Nokta veya Eğik çizgi
+        ];
+
+        // Select and shuffle rules
+        const selectedRules = shuffle(commaRules).slice(0, 8);
+
         return {
-            title: 'Noktalama Labirenti (Hızlı Mod)',
-            prompt: 'Doğru kuralları takip ederek çıkışa ulaş.',
-            punctuationMark: '.',
-            rules: shuffle([
-                {id: 1, text: 'Cümlenin sonuna konur.', isCorrect: true},
-                {id: 2, text: 'Soru cümlelerinde kullanılır.', isCorrect: false},
-                {id: 3, text: 'Sıra sayılarından sonra konur.', isCorrect: true},
-                {id: 4, text: 'Seslenme bildiren kelimeden sonra kullanılır.', isCorrect: false},
-                {id: 5, text: 'Tarihlerin yazılışında gün, ay ve yılı ayırır.', isCorrect: true},
-                {id: 6, text: 'Sevinç, şaşkınlık gibi duyguları anlatır.', isCorrect: false}
-            ]),
-            instruction: 'Labirenti çöz.',
-            pedagogicalNote: 'Noktalama kuralları.',
+            title: 'Noktalama Labirenti (Virgül) (Hızlı Mod)',
+            prompt: 'Virgülün doğru kullanıldığı kuralları takip ederek labirentten çık.',
+            punctuationMark: ',',
+            rules: selectedRules,
+            instruction: 'Doğru kuralları takip ederek çıkışa ulaş.',
+            pedagogicalNote: "Bu etkinlik, öğrencinin 'Virgül' noktalama işaretinin kullanım kuralları hakkındaki bilgisini pekiştirirken, aynı zamanda mantıksal çıkarım, analitik düşünme ve problem çözme becerilerini geliştirir. Labirent formatı, soyut kuralları görsel-uzamsal bir bağlamda ele almayı teşvik ederek öğrenmeyi daha ilgi çekici ve kalıcı hale getirir. Öğrencinin dikkatini ve odaklanma yeteneğini artırır.",
             imagePrompt: 'Labirent'
         };
     });

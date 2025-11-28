@@ -18,7 +18,7 @@ const PEDAGOGICAL_PROMPT = `
 5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
     - **Stil:** "Flat Vector Art Style", "Educational Illustration", "Clean Lines", "Vibrant Colors", "Minimalist Design".
     - **Detay:** Asla "bir şekil" deme. "Turuncu renkli, köşeleri yuvarlatılmış, içinde yıldız deseni olan sevimli bir beşgen vektörü" de.
-    - **Amaç:** Görsel, soruyu çözmek için gerekli ipuçlarını net bir şekilde barındırmalı ve çocukların ilgisini çekmeli.
+    - **Amaç:** Görsel, soruyu çözmek için gerekli ipuçlarını net bir şekilde barındırmalı ve çocukların ilgisini çekecek, pozitif, renkli ve net görseller üretmektir. Korkutucu veya karanlık öğelerden kaçın.
 6.  **İçerik:**
     - Asla tekrar yapma.
     - "Lorem ipsum" yasak.
@@ -163,11 +163,19 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
 export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `
-    "${difficulty}" seviyesinde "Noktalama Labirenti".
-    Bir noktalama işareti seç (örn: Nokta, Virgül, Ünlem).
-    Bu işaretin kullanımıyla ilgili 8 kural yaz (bazıları doğru, bazıları yanlış).
-    Doğru kurallar labirentin çıkış yolunu göstersin.
-    Görselde labirent teması ve noktalama işaretleri kullan.
+    "${difficulty}" seviyesinde "Noktalama Labirenti" oluştur.
+    Odaklanılacak İşaret: VİRGÜL (,).
+    
+    GÖREV:
+    1. Virgülün kullanımıyla ilgili 5 DOĞRU kural/örnek cümle yaz.
+    2. Virgülün YANLIŞ kullanıldığı veya başka işaretlere ait 5 kural/örnek cümle yaz.
+    
+    ÇIKTI FORMATI:
+    - rules: {id, text, isCorrect} dizisi.
+    - pedagogicalNote: "Bu etkinlik, öğrencinin 'Virgül' noktalama işaretinin kullanım kuralları hakkındaki bilgisini pekiştirirken, aynı zamanda mantıksal çıkarım, analitik düşünme ve problem çözme becerilerini geliştirir. Labirent formatı, soyut kuralları görsel-uzamsal bir bağlamda ele almayı teşvik ederek öğrenmeyi daha ilgi çekici ve kalıcı hale getirir. Öğrencinin dikkatini ve odaklanma yeteneğini artırır."
+    - imagePrompt: "Maze puzzle illustration with comma symbol, flat vector style, educational colors."
+    - title: "Noktalama Labirenti (Virgül)"
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
