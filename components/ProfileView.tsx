@@ -9,15 +9,15 @@ import { worksheetService } from '../services/worksheetService';
 import { ShareModal } from './ShareModal';
 
 const StatCard: React.FC<{ icon: string; label: string; value: string | number; color: string; trend?: string }> = ({ icon, label, value, color, trend }) => (
-    <div className="bg-white dark:bg-zinc-800 p-5 rounded-xl border border-zinc-100 dark:border-zinc-700 shadow-sm flex items-center gap-4 hover:shadow-md transition-all transform hover:-translate-y-1">
+    <div className="bg-[var(--bg-paper)] p-5 rounded-xl border border-[var(--border-color)] shadow-sm flex items-center gap-4 hover:shadow-md transition-all transform hover:-translate-y-1">
         <div className={`w-14 h-14 rounded-2xl ${color} flex items-center justify-center text-white text-2xl shadow-lg`}>
             <i className={icon}></i>
         </div>
         <div className="flex-1">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wide">{label}</p>
+            <p className="text-xs text-zinc-500 font-bold uppercase tracking-wide">{label}</p>
             <div className="flex items-end gap-2">
-                <p className="text-2xl font-black text-zinc-800 dark:text-zinc-100">{value}</p>
-                {trend && <span className="text-[10px] font-bold text-green-500 bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded mb-1">{trend}</span>}
+                <p className="text-2xl font-black text-[var(--text-primary)]">{value}</p>
+                {trend && <span className="text-[10px] font-bold text-green-500 bg-green-100 px-1.5 py-0.5 rounded mb-1">{trend}</span>}
             </div>
         </div>
     </div>
@@ -26,47 +26,44 @@ const StatCard: React.FC<{ icon: string; label: string; value: string | number; 
 const TabButton: React.FC<{ active: boolean; onClick: () => void; label: string; icon: string }> = ({ active, onClick, label, icon }) => (
     <button
         onClick={onClick}
-        className={`relative pb-4 px-6 text-sm font-bold flex items-center gap-2 transition-all ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200'}`}
+        className={`relative pb-4 px-6 text-sm font-bold flex items-center gap-2 transition-all ${active ? 'text-[var(--accent-color)]' : 'text-zinc-500 hover:text-[var(--text-primary)]'}`}
     >
         <i className={icon}></i> {label}
-        {active && <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-full animate-in fade-in zoom-in duration-200"></div>}
+        {active && <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--accent-color)] rounded-t-full animate-in fade-in zoom-in duration-200"></div>}
     </button>
 );
 
 const LoadingSkeleton: React.FC = () => (
     <div className="space-y-6 animate-pulse">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="h-24 bg-zinc-100 dark:bg-zinc-700 rounded-xl"></div>
-            <div className="h-24 bg-zinc-100 dark:bg-zinc-700 rounded-xl"></div>
-            <div className="h-24 bg-zinc-100 dark:bg-zinc-700 rounded-xl"></div>
+            <div className="h-24 bg-[var(--bg-inset)] rounded-xl"></div>
+            <div className="h-24 bg-[var(--bg-inset)] rounded-xl"></div>
+            <div className="h-24 bg-[var(--bg-inset)] rounded-xl"></div>
         </div>
-        <div className="h-64 bg-zinc-100 dark:bg-zinc-700 rounded-xl"></div>
+        <div className="h-64 bg-[var(--bg-inset)] rounded-xl"></div>
     </div>
 );
 
 interface ProfileViewProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
-    targetUser?: User; // Optional: If provided, displays this user's profile
+    targetUser?: User; 
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivity, targetUser }) => {
     const { user: authUser, updateUser, updatePassword, logout } = useAuth();
     
-    // Determine the effective user to display
     const user = targetUser || authUser;
     const isReadOnly = !!targetUser && targetUser.id !== authUser?.id;
 
     const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'evaluations' | 'settings'>('overview');
     
-    // Data states
     const [assessments, setAssessments] = useState<SavedAssessment[]>([]);
     const [worksheets, setWorksheets] = useState<SavedWorksheet[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
     
-    // Settings State
     const [editName, setEditName] = useState('');
     const [passwords, setPasswords] = useState({ new: '', confirm: '' });
     const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -74,8 +71,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
     const [isChangingAvatar, setIsChangingAvatar] = useState(false);
     const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
     
-    // Sharing State
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false); // Sadece PDF Kaydet butonunu tetikleyen modal
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false); 
     
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -120,7 +116,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
         }
         
         const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
-
         const mostUsedCategory = sortedCategories.length > 0 ? sortedCategories[0][0] : 'Yok';
 
         return {
@@ -189,7 +184,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                 return;
             }
 
-            if (file.size > 5 * 1024 * 1024) { // 5MB Limit
+            if (file.size > 5 * 1024 * 1024) { 
                 showMessage('error', 'Resim boyutu çok büyük (Max: 5MB).');
                 return;
             }
@@ -248,7 +243,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
     if (!user) return null;
 
     return (
-        <div className="bg-zinc-50 dark:bg-zinc-900 min-h-full p-4 md:p-8 overflow-y-auto">
+        <div className="bg-transparent min-h-full p-4 md:p-8 overflow-y-auto">
             
             <div className="max-w-5xl mx-auto">
                 {message && (
@@ -260,35 +255,32 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
 
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h2 className="text-2xl font-black text-zinc-800 dark:text-zinc-100 tracking-tight">
+                        <h2 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
                             {isReadOnly ? `${user.name} Profili` : 'Profilim'}
                         </h2>
-                        <p className="text-zinc-500 dark:text-zinc-400 text-sm">Hesap ayarları ve istatistikler</p>
+                        <p className="text-[var(--text-secondary)] text-sm">Hesap ayarları ve istatistikler</p>
                     </div>
-                    <button onClick={onBack} className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-all text-sm font-bold shadow-sm text-zinc-600 dark:text-zinc-300">
+                    <button onClick={onBack} className="flex items-center gap-2 px-5 py-2.5 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl hover:bg-[var(--bg-inset)] transition-all text-sm font-bold shadow-sm text-[var(--text-secondary)]">
                         <i className="fa-solid fa-arrow-left"></i> Geri
                     </button>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden mb-8 relative">
-                    <div className="h-48 bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 relative overflow-hidden">
+                <div className="bg-[var(--bg-paper)] rounded-3xl shadow-xl border border-[var(--border-color)] overflow-hidden mb-8 relative">
+                    <div className="h-48 bg-gradient-to-r from-amber-600 via-orange-600 to-yellow-600 relative overflow-hidden">
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
-                        <div className="absolute bottom-4 right-4 flex gap-2">
-                            {user.subscriptionPlan === 'pro' && <span className="px-3 py-1 bg-amber-400 text-amber-900 text-xs font-black rounded-full uppercase tracking-widest shadow-lg">PRO Üye</span>}
-                        </div>
                     </div>
                     
                     <div className="px-8 pb-8">
                         <div className="flex flex-col md:flex-row items-start md:items-end -mt-20 gap-6 mb-8">
                             <div className="relative group">
-                                <div className="w-40 h-40 rounded-full p-1.5 bg-white dark:bg-zinc-800 ring-4 ring-white dark:ring-zinc-800 shadow-2xl overflow-hidden">
-                                    <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full bg-zinc-100 object-cover" />
+                                <div className="w-40 h-40 rounded-full p-1.5 bg-[var(--bg-paper)] ring-4 ring-[var(--bg-paper)] shadow-2xl overflow-hidden">
+                                    <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full bg-zinc-800 object-cover" />
                                 </div>
                                 {!isReadOnly && (
                                     <button 
                                         onClick={handleAvatarClick}
                                         disabled={isChangingAvatar}
-                                        className="absolute bottom-2 right-2 w-10 h-10 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-all hover:scale-110 cursor-pointer z-10 border-2 border-white dark:border-zinc-700"
+                                        className="absolute bottom-2 right-2 w-10 h-10 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[var(--accent-color)] transition-all hover:scale-110 cursor-pointer z-10 border-2 border-white"
                                         title="Profil Resmini Değiştir"
                                     >
                                         <i className={`fa-solid ${isChangingAvatar ? 'fa-circle-notch fa-spin' : 'fa-camera'}`}></i>
@@ -306,8 +298,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             <div className="flex-1 w-full pt-2 md:pt-0">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                                     <div>
-                                        <h1 className="text-4xl font-black text-zinc-900 dark:text-white mb-1">{user.name}</h1>
-                                        <p className="text-zinc-500 dark:text-zinc-400 font-medium flex items-center gap-2">
+                                        <h1 className="text-4xl font-black text-[var(--text-primary)] mb-1">{user.name}</h1>
+                                        <p className="text-[var(--text-secondary)] font-medium flex items-center gap-2">
                                             <i className="fa-solid fa-envelope"></i> {user.email}
                                         </p>
                                     </div>
@@ -315,7 +307,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                         <div className="flex gap-3">
                                             <button 
                                                 onClick={() => { logout(); onBack(); }} 
-                                                className="px-5 py-2.5 text-rose-600 bg-rose-50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-900/30 rounded-xl font-bold text-sm hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors flex items-center gap-2"
+                                                className="px-5 py-2.5 text-rose-400 bg-rose-900/10 border border-rose-900/30 rounded-xl font-bold text-sm hover:bg-rose-900/30 transition-colors flex items-center gap-2"
                                             >
                                                 <i className="fa-solid fa-arrow-right-from-bracket"></i> Çıkış Yap
                                             </button>
@@ -325,7 +317,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             </div>
                         </div>
 
-                        <div className="flex gap-2 overflow-x-auto border-b border-zinc-100 dark:border-zinc-700">
+                        <div className="flex gap-2 overflow-x-auto border-b border-[var(--border-color)]">
                             <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} label="Genel Bakış" icon="fa-solid fa-chart-pie" />
                             <TabButton active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} label="İstatistikler" icon="fa-solid fa-chart-simple" />
                             <TabButton active={activeTab === 'evaluations'} onClick={() => setActiveTab('evaluations')} label="Değerlendirmeler" icon="fa-solid fa-clipboard-check" />
@@ -340,45 +332,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             {activeTab === 'overview' && statsData && (
                                 <div className="space-y-8">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <StatCard icon="fa-solid fa-layer-group" label="Toplam Etkinlik" value={statsData.totalActivities} color="bg-gradient-to-br from-blue-400 to-blue-600" />
-                                        <StatCard icon="fa-solid fa-crown" label="Seviye" value={statsData.level} color="bg-gradient-to-br from-amber-400 to-orange-500" />
-                                        <StatCard icon="fa-solid fa-star" label="En Sevilen Kategori" value={statsData.mostUsedCategory} color="bg-gradient-to-br from-emerald-400 to-green-600" />
+                                        <StatCard icon="fa-solid fa-layer-group" label="Toplam Etkinlik" value={statsData.totalActivities} color="bg-gradient-to-br from-blue-600 to-blue-800" />
+                                        <StatCard icon="fa-solid fa-crown" label="Seviye" value={statsData.level} color="bg-gradient-to-br from-amber-500 to-orange-600" />
+                                        <StatCard icon="fa-solid fa-star" label="En Sevilen Kategori" value={statsData.mostUsedCategory} color="bg-gradient-to-br from-emerald-500 to-green-700" />
                                     </div>
                                     
-                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                                      <h3 className="text-lg font-bold mb-6 text-zinc-800 dark:text-zinc-100 flex items-center gap-2"><i className="fa-solid fa-bolt text-yellow-500"></i> Seviye İlerlemesi</h3>
+                                    <div className="bg-[var(--bg-paper)] p-6 rounded-2xl border border-[var(--border-color)] shadow-sm">
+                                      <h3 className="text-lg font-bold mb-6 text-[var(--text-primary)] flex items-center gap-2"><i className="fa-solid fa-bolt text-yellow-500"></i> Seviye İlerlemesi</h3>
                                       <div className="relative pt-2 px-2">
                                           <div className="flex mb-2 items-center justify-between">
-                                              <div><span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">Sonraki Seviye: {statsData.level + 1}</span></div>
-                                              <div className="text-right"><span className="text-xs font-semibold inline-block text-indigo-600">{statsData.xp}% / 100 XP</span></div>
+                                              <div><span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-black bg-[var(--accent-color)]">Sonraki Seviye: {statsData.level + 1}</span></div>
+                                              <div className="text-right"><span className="text-xs font-semibold inline-block text-[var(--text-primary)]">{statsData.xp}% / 100 XP</span></div>
                                           </div>
-                                          <div className="overflow-hidden h-4 mb-4 text-xs flex rounded-full bg-indigo-100 dark:bg-zinc-700"><div style={{ width: `${statsData.xp}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-1000 ease-out"></div></div>
+                                          <div className="overflow-hidden h-4 mb-4 text-xs flex rounded-full bg-[var(--bg-inset)]"><div style={{ width: `${statsData.xp}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-[var(--accent-color)] transition-all duration-1000 ease-out"></div></div>
                                       </div>
-                                    </div>
-
-                                    {/* Recent Activity Card */}
-                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center justify-between">
-                                        <div>
-                                            <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-100 mb-1">Son Etkinlik</h3>
-                                            {user.lastActiveActivity ? (
-                                                <>
-                                                    <p className="text-indigo-600 dark:text-indigo-400 font-medium">{user.lastActiveActivity.title}</p>
-                                                    <p className="text-xs text-zinc-500">{new Date(user.lastActiveActivity.date).toLocaleString('tr-TR')}</p>
-                                                </>
-                                            ) : (
-                                                <p className="text-zinc-500">Henüz etkinlik kaydı yok.</p>
-                                            )}
-                                        </div>
-                                        <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                                            <i className="fa-solid fa-clock-rotate-left"></i>
-                                        </div>
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'stats' && statsData && (
-                                <div className="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                                    <h3 className="text-xl font-bold mb-6 text-zinc-800 dark:text-zinc-100">Kategori Dağılımı</h3>
+                                <div className="bg-[var(--bg-paper)] p-8 rounded-2xl border border-[var(--border-color)] shadow-sm">
+                                    <h3 className="text-xl font-bold mb-6 text-[var(--text-primary)]">Kategori Dağılımı</h3>
                                     {statsData.categoryCounts.length > 0 ? (
                                         <div className="space-y-4">
                                             {statsData.categoryCounts.map(([category, count]) => {
@@ -386,10 +360,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                                 return (
                                                     <div key={category}>
                                                         <div className="flex justify-between text-sm font-bold mb-1">
-                                                            <span className="text-zinc-700 dark:text-zinc-300">{category}</span>
+                                                            <span className="text-[var(--text-secondary)]">{category}</span>
                                                             <span className="text-zinc-500">{count} adet</span>
                                                         </div>
-                                                        <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-3"><div className="bg-indigo-500 h-3 rounded-full" style={{ width: `${percentage}%` }}></div></div>
+                                                        <div className="w-full bg-[var(--bg-inset)] rounded-full h-3"><div className="bg-[var(--accent-color)] h-3 rounded-full" style={{ width: `${percentage}%` }}></div></div>
                                                     </div>
                                                 );
                                             })}
@@ -401,32 +375,32 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             )}
 
                             {activeTab === 'evaluations' && (
-                                 <div className="bg-white dark:bg-zinc-800 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+                                 <div className="bg-[var(--bg-paper)] rounded-3xl border border-[var(--border-color)] shadow-sm overflow-hidden">
                                      {assessments.length === 0 ? (
                                          <div className="p-16 text-center flex flex-col items-center justify-center">
-                                             <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mb-4"><i className="fa-solid fa-clipboard-list text-4xl text-zinc-300 dark:text-zinc-500"></i></div>
-                                             <h3 className="text-lg font-bold text-zinc-600 dark:text-zinc-300">Değerlendirme Yok</h3>
+                                             <div className="w-20 h-20 bg-[var(--bg-inset)] rounded-full flex items-center justify-center mb-4"><i className="fa-solid fa-clipboard-list text-4xl text-zinc-500"></i></div>
+                                             <h3 className="text-lg font-bold text-[var(--text-secondary)]">Değerlendirme Yok</h3>
                                              <p className="text-zinc-400 max-w-xs mx-auto mt-2">Henüz öğrenci değerlendirmesi yapılmamış.</p>
                                          </div>
                                      ) : (
                                          <div className="overflow-x-auto">
                                              <table className="w-full text-left text-sm">
-                                                 <thead className="bg-zinc-50 dark:bg-zinc-900/50">
+                                                 <thead className="bg-[var(--bg-inset)]">
                                                     <tr>
-                                                        <th className="p-4 font-semibold text-zinc-500">Öğrenci</th>
-                                                        <th className="p-4 font-semibold text-zinc-500">Sınıf</th>
-                                                        <th className="p-4 font-semibold text-zinc-500">Tarih</th>
+                                                        <th className="p-4 font-semibold text-zinc-400">Öğrenci</th>
+                                                        <th className="p-4 font-semibold text-zinc-400">Sınıf</th>
+                                                        <th className="p-4 font-semibold text-zinc-400">Tarih</th>
                                                         <th className="p-4"></th>
                                                     </tr>
                                                  </thead>
-                                                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
+                                                 <tbody className="divide-y divide-[var(--border-color)]">
                                                     {assessments.map(a => (
-                                                        <tr key={a.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-                                                            <td className="p-4 font-medium text-zinc-800 dark:text-zinc-100">{a.studentName}</td>
-                                                            <td className="p-4 text-zinc-500">{a.grade}</td>
-                                                            <td className="p-4 text-zinc-500">{new Date(a.createdAt).toLocaleDateString('tr-TR')}</td>
+                                                        <tr key={a.id} className="hover:bg-[var(--bg-inset)]">
+                                                            <td className="p-4 font-medium text-[var(--text-primary)]">{a.studentName}</td>
+                                                            <td className="p-4 text-zinc-400">{a.grade}</td>
+                                                            <td className="p-4 text-zinc-400">{new Date(a.createdAt).toLocaleDateString('tr-TR')}</td>
                                                             <td className="p-4 text-right">
-                                                                <button onClick={() => setSelectedAssessment(a)} className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full hover:bg-indigo-100">Raporu Görüntüle</button>
+                                                                <button onClick={() => setSelectedAssessment(a)} className="px-3 py-1 bg-[var(--accent-color)] text-black text-xs font-bold rounded-full hover:bg-[var(--accent-hover)]">Raporu Görüntüle</button>
                                                             </td>
                                                         </tr>
                                                     ))}
@@ -439,16 +413,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
 
                             {activeTab === 'settings' && !isReadOnly && (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    <div className="bg-white dark:bg-zinc-800 p-8 rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-700">
-                                        <h3 className="text-xl font-bold mb-6 text-zinc-800 dark:text-zinc-100 flex items-center gap-2"><i className="fa-solid fa-user-pen text-indigo-500"></i> Kişisel Bilgiler</h3>
+                                    <div className="bg-[var(--bg-paper)] p-8 rounded-3xl shadow-sm border border-[var(--border-color)]">
+                                        <h3 className="text-xl font-bold mb-6 text-[var(--text-primary)] flex items-center gap-2"><i className="fa-solid fa-user-pen text-[var(--accent-color)]"></i> Kişisel Bilgiler</h3>
                                         <form onSubmit={handleUpdateProfile} className="space-y-5">
                                             <div>
-                                                <label className="block font-medium text-sm mb-1 text-zinc-600 dark:text-zinc-300">Ad Soyad</label>
-                                                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-3 border border-zinc-200 dark:border-zinc-600 rounded-xl bg-zinc-50 dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                                                <label className="block font-medium text-sm mb-1 text-[var(--text-secondary)]">Ad Soyad</label>
+                                                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-3 border border-[var(--border-color)] rounded-xl bg-[var(--bg-inset)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent-color)] outline-none" />
                                             </div>
                                              <div>
-                                                <label className="block font-medium text-sm mb-1 text-zinc-600 dark:text-zinc-300">E-posta</label>
-                                                <input type="email" value={user.email} disabled className="w-full p-3 border border-zinc-200 dark:border-zinc-600 rounded-xl bg-zinc-100 dark:bg-zinc-700/50 opacity-70" />
+                                                <label className="block font-medium text-sm mb-1 text-[var(--text-secondary)]">E-posta</label>
+                                                <input type="email" value={user.email} disabled className="w-full p-3 border border-[var(--border-color)] rounded-xl bg-[var(--bg-inset)] opacity-70" />
                                             </div>
                                             <button type="submit" disabled={isSavingProfile} className="w-full py-3 bg-zinc-800 hover:bg-zinc-900 text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                                                 {isSavingProfile ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
@@ -456,16 +430,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                             </button>
                                         </form>
                                     </div>
-                                    <div className="bg-white dark:bg-zinc-800 p-8 rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-700">
-                                        <h3 className="text-xl font-bold mb-6 text-zinc-800 dark:text-zinc-100 flex items-center gap-2"><i className="fa-solid fa-lock text-indigo-500"></i> Şifre Değiştir</h3>
+                                    <div className="bg-[var(--bg-paper)] p-8 rounded-3xl shadow-sm border border-[var(--border-color)]">
+                                        <h3 className="text-xl font-bold mb-6 text-[var(--text-primary)] flex items-center gap-2"><i className="fa-solid fa-lock text-[var(--accent-color)]"></i> Şifre Değiştir</h3>
                                         <form onSubmit={handleUpdatePassword} className="space-y-5">
                                             <div>
-                                                <label className="block font-medium text-sm mb-1 text-zinc-600 dark:text-zinc-300">Yeni Şifre</label>
-                                                <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({...p, new: e.target.value}))} className="w-full p-3 border border-zinc-200 dark:border-zinc-600 rounded-xl bg-zinc-50 dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="En az 6 karakter" />
+                                                <label className="block font-medium text-sm mb-1 text-[var(--text-secondary)]">Yeni Şifre</label>
+                                                <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({...p, new: e.target.value}))} className="w-full p-3 border border-[var(--border-color)] rounded-xl bg-[var(--bg-inset)] focus:ring-2 focus:ring-[var(--accent-color)] outline-none" placeholder="En az 6 karakter" />
                                             </div>
                                              <div>
-                                                <label className="block font-medium text-sm mb-1 text-zinc-600 dark:text-zinc-300">Yeni Şifre (Tekrar)</label>
-                                                <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({...p, confirm: e.target.value}))} className="w-full p-3 border border-zinc-200 dark:border-zinc-600 rounded-xl bg-zinc-50 dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Şifreyi onayla" />
+                                                <label className="block font-medium text-sm mb-1 text-[var(--text-secondary)]">Yeni Şifre (Tekrar)</label>
+                                                <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({...p, confirm: e.target.value}))} className="w-full p-3 border border-[var(--border-color)] rounded-xl bg-[var(--bg-inset)] focus:ring-2 focus:ring-[var(--accent-color)] outline-none" placeholder="Şifreyi onayla" />
                                             </div>
                                             <button type="submit" disabled={isSavingPassword} className="w-full py-3 bg-zinc-800 hover:bg-zinc-900 text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                                                  {isSavingPassword ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-key"></i>}
@@ -481,22 +455,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
             </div>
 
             {selectedAssessment && (
-                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 print:p-0 print:block" onClick={() => setSelectedAssessment(null)}>
-                    {/* The modal container needs a class to identify it for printing overrides */}
-                    <div className="printable-content bg-white dark:bg-zinc-800 w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 relative print:max-h-none print:w-full print:shadow-none print:rounded-none" onClick={e => e.stopPropagation()}>
-                        <header className="p-4 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center no-print">
+                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 print:p-0 print:bg-white print:block" onClick={() => setSelectedAssessment(null)}>
+                    {/* The modal container for the report - "printable-content" class ensures this div is visible during print */}
+                    <div className="printable-content bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative print:max-h-none print:w-full print:h-auto print:shadow-none print:rounded-none print:border-none print:overflow-visible" onClick={e => e.stopPropagation()}>
+                        
+                        <header className="p-4 bg-zinc-100 border-b border-zinc-200 flex justify-between items-center no-print">
                             <div>
-                                <h3 className="font-bold text-lg text-zinc-800 dark:text-zinc-100">{selectedAssessment.studentName} Raporu</h3>
+                                <h3 className="font-bold text-lg text-zinc-900">{selectedAssessment.studentName} Raporu</h3>
                                 <p className="text-xs text-zinc-500">{new Date(selectedAssessment.createdAt).toLocaleDateString('tr-TR')}</p>
                             </div>
-                            <button onClick={() => setSelectedAssessment(null)} className="w-8 h-8 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center"><i className="fa-solid fa-times"></i></button>
+                            <button onClick={() => setSelectedAssessment(null)} className="w-8 h-8 rounded-full hover:bg-zinc-200 flex items-center justify-center text-black"><i className="fa-solid fa-times"></i></button>
                         </header>
                         
                         {/* TOOLBAR FOR REPORT ACTIONS */}
-                        <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 no-print">
+                        <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 border-b border-zinc-200 no-print">
                             <button 
                                 onClick={() => setIsShareModalOpen(true)} 
-                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all shadow-sm"
+                                className="flex items-center gap-2 px-4 py-2 bg-white text-zinc-700 border border-zinc-300 rounded-lg text-sm font-bold hover:bg-zinc-100 transition-all shadow-sm"
                             >
                                 <i className="fa-solid fa-share-nodes text-blue-500"></i> Paylaş
                             </button>
@@ -504,49 +479,43 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                 onClick={handlePrintReport} 
                                 className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
                             >
-                                <i className="fa-solid fa-file-pdf"></i> PDF Kaydet
-                            </button>
-                            <button 
-                                onClick={handlePrintReport} 
-                                className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
-                            >
-                                <i className="fa-solid fa-print"></i> Yazdır
+                                <i className="fa-solid fa-print"></i> Yazdır / PDF
                             </button>
                         </div>
 
                         {/* REPORT CONTENT - Updated for print compatibility */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar assessment-report-container print:overflow-visible">
-                            <div className="hidden print:block mb-8 border-b-2 border-zinc-800 pb-4">
-                                <h1 className="text-3xl font-black">Bursa Disleksi AI - Öğrenci Değerlendirme Raporu</h1>
-                                <div className="flex justify-between mt-4"><p><strong>Öğrenci:</strong> {selectedAssessment.studentName}</p><p><strong>Tarih:</strong> {new Date(selectedAssessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
+                        <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar assessment-report-container print:overflow-visible print:bg-white text-black">
+                            <div className="mb-8 border-b-2 border-zinc-800 pb-4">
+                                <h1 className="text-3xl font-black text-black">Bursa Disleksi AI - Değerlendirme Raporu</h1>
+                                <div className="flex justify-between mt-4 text-black"><p><strong>Öğrenci:</strong> {selectedAssessment.studentName}</p><p><strong>Tarih:</strong> {new Date(selectedAssessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
                             </div>
                             
-                            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-indigo-900 dark:text-indigo-100 text-sm leading-relaxed break-inside-avoid">
+                            <div className="bg-indigo-50 p-4 rounded-xl text-indigo-900 text-sm leading-relaxed border border-indigo-100 break-inside-avoid print:border-black print:bg-white print:text-black">
                                 <h4 className="font-bold mb-2">Genel Özet</h4>
                                 {selectedAssessment.report.overallSummary}
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
-                                <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px] bg-white dark:bg-zinc-800 break-inside-avoid">
-                                    <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Risk Analizi</h4>
+                                <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px] bg-white break-inside-avoid print:border-black">
+                                    <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2 print:text-black">Risk Analizi</h4>
                                     {selectedAssessment.report.chartData && <RadarChart data={selectedAssessment.report.chartData} />}
                                 </div>
                                 <div className="space-y-3 break-inside-avoid">
                                     {Object.entries(selectedAssessment.report.scores).map(([key, value]) => {
                                         const score = value as number;
                                         return (
-                                            <div key={key} className="p-3 rounded-lg border border-zinc-100 dark:border-zinc-700 flex items-center justify-between bg-white dark:bg-zinc-800">
-                                                <span className="capitalize font-bold text-sm text-zinc-700 dark:text-zinc-300">
+                                            <div key={key} className="p-3 rounded-lg border border-zinc-200 flex items-center justify-between bg-white print:border-black">
+                                                <span className="capitalize font-bold text-sm text-zinc-700 print:text-black">
                                                     {key === 'reading' ? 'Okuma' : key === 'math' ? 'Matematik' : key === 'attention' ? 'Dikkat' : key === 'cognitive' ? 'Bellek' : 'Yazma'}
                                                 </span>
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-24 h-2 bg-zinc-200 dark:bg-zinc-600 rounded-full overflow-hidden">
+                                                    <div className="w-24 h-2 bg-zinc-200 rounded-full overflow-hidden print:border print:border-black">
                                                         <div 
-                                                            className={`h-full rounded-full ${score > 70 ? 'bg-red-500' : score > 40 ? 'bg-yellow-500' : 'bg-green-500'}`} 
+                                                            className={`h-full rounded-full ${score > 70 ? 'bg-red-500' : score > 40 ? 'bg-yellow-500' : 'bg-green-500'} print:bg-black`} 
                                                             style={{ width: `${score}%` }}
                                                         ></div>
                                                     </div>
-                                                    <span className={`font-bold text-xs w-8 text-right ${score > 70 ? 'text-red-500' : score > 40 ? 'text-yellow-500' : 'text-green-500'}`}>{score}</span>
+                                                    <span className="font-bold text-xs w-8 text-right text-black">{score}</span>
                                                 </div>
                                             </div>
                                         );
@@ -555,33 +524,33 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             </div>
                             
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
-                                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800 break-inside-avoid">
-                                    <h4 className="font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
-                                    <ul className="list-disc list-inside text-sm space-y-1 text-green-900 dark:text-green-100">
+                                <div className="p-4 bg-green-50 rounded-xl border border-green-200 break-inside-avoid print:bg-white print:border-black">
+                                    <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2 print:text-black"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
+                                    <ul className="list-disc list-inside text-sm space-y-1 text-green-900 print:text-black">
                                         {selectedAssessment.report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
-                                <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800 break-inside-avoid">
-                                    <h4 className="font-bold text-rose-700 dark:text-rose-300 mb-2 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
-                                    <ul className="list-disc list-inside text-sm space-y-1 text-rose-900 dark:text-rose-100">
+                                <div className="p-4 bg-rose-50 rounded-xl border border-rose-200 break-inside-avoid print:bg-white print:border-black">
+                                    <h4 className="font-bold text-rose-800 mb-2 flex items-center gap-2 print:text-black"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
+                                    <ul className="list-disc list-inside text-sm space-y-1 text-rose-900 print:text-black">
                                         {selectedAssessment.report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
                             </div>
                             
-                             <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg break-inside-avoid">
+                             <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg break-inside-avoid print:bg-white print:text-black print:border print:border-black print:shadow-none">
                                 <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-road"></i> Önerilen Yol Haritası</h4>
                                 <div className="space-y-4">
                                     {selectedAssessment.report.roadmap.map((item, idx) => (
-                                        <div key={idx} onClick={() => onSelectActivity(item.activityId as ActivityType)} className="bg-zinc-700/50 hover:bg-zinc-700 border border-zinc-600 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all cursor-pointer group break-inside-avoid">
+                                        <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-600 print:bg-white print:border-black print:text-black">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-zinc-100">{idx + 1}</div>
+                                                <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white print:bg-black print:text-white">{idx + 1}</div>
                                                 <div>
-                                                    <h5 className="font-bold text-indigo-300">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
-                                                    <p className="text-xs text-zinc-400">{item.reason}</p>
+                                                    <h5 className="font-bold text-indigo-300 print:text-black">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
+                                                    <p className="text-xs text-zinc-300 print:text-black">{item.reason}</p>
                                                 </div>
                                             </div>
-                                            <span className="text-xs font-bold bg-zinc-900 px-3 py-1 rounded-full text-zinc-400 border border-zinc-600 whitespace-nowrap">{item.frequency}</span>
+                                            <span className="text-xs font-bold bg-zinc-900 px-3 py-1 rounded-full text-zinc-400 border border-zinc-600 whitespace-nowrap print:bg-white print:text-black print:border-black">{item.frequency}</span>
                                         </div>
                                     ))}
                                 </div>

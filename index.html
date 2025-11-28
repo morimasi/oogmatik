@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -38,31 +39,18 @@
                 800: '#92400e',
                 900: '#78350f',
                 950: '#451a03',
-            },
-            zinc: {
-                50: '#fafafa',
-                100: '#f4f4f5',
-                200: '#e4e4e7',
-                300: '#d4d4d8',
-                400: '#a1a1aa',
-                500: '#71717a',
-                600: '#52525b',
-                700: '#3f3f46',
-                800: '#27272a',
-                900: '#18181b',
-                950: '#09090b',
             }
         },
         boxShadow: {
             'paper': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.02)',
-            'paper-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0,0,0,0.02)',
+            'paper-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255,255,255,0.05)',
         }
       }
     }
   }
 </script>
 <style>
-  /* --- GLOBAL VARIABLES (Base Anthracite Gold) --- */
+  /* --- GLOBAL VARIABLES --- */
   :root {
     --ui-font: 'OpenDyslexic';
     --ui-spacing: normal;
@@ -70,18 +58,19 @@
     --ui-line-height: 1.6;
     --ui-saturation: 100%;
 
-    /* Default Theme: Anthracite & Gold */
-    --bg-primary: #18181b; /* Zinc 900 */
-    --bg-secondary: #27272a; /* Zinc 800 */
-    --bg-paper: #27272a;
-    --bg-inset: #3f3f46;
-    --text-primary: #fbbf24; /* Amber 400 */
-    --text-secondary: #d4d4d8; /* Zinc 300 */
-    --text-muted: #a1a1aa;
-    --border-color: #3f3f46;
-    --panel-bg: rgba(39, 39, 42, 0.95);
+    /* DEFAULT ANTHRACITE & GOLD (Professional Warm Dark) */
+    --bg-primary: #1c1917; /* Stone 900 - Warm dark grey */
+    --bg-secondary: #292524; /* Stone 800 */
+    --bg-paper: #292524; /* Cards */
+    --bg-inset: #44403c; /* Inputs */
+    --text-primary: #fbbf24; /* Amber 400 - Gold Text */
+    --text-secondary: #f5f5f4; /* Stone 100 - White text */
+    --text-muted: #a8a29e; /* Stone 400 */
+    --border-color: #57534e; /* Stone 600 */
+    --panel-bg: rgba(28, 25, 23, 0.95); /* Transparent Stone */
     --pattern-color: rgba(251, 191, 36, 0.05); /* Gold dots */
     --accent-color: #f59e0b; /* Amber 500 */
+    --accent-hover: #d97706; /* Amber 600 */
   }
 
   /* 
@@ -98,7 +87,7 @@
   body {
     font-size: calc(16px * var(--ui-scale));
     background-color: var(--bg-primary);
-    color: var(--text-primary);
+    color: var(--text-secondary); /* Default text white for readability */
     transition: background-color 0.4s ease, color 0.3s ease, border-color 0.3s ease;
     
     background-image: 
@@ -128,269 +117,319 @@
      THEME DEFINITIONS - ALL ANTHRACITE & GOLD VARIATIONS
      ========================================================================== */
 
-  /* 1. KOYU / DARK (Zinc & Amber) */
+  /* 1. KOYU / DARK (Zinc & Gold) */
   html.dark, .theme-dark {
       --bg-primary: #09090b; /* Zinc 950 */
       --bg-secondary: #18181b; /* Zinc 900 */
       --bg-paper: #18181b;
       --bg-inset: #27272a;
-      --text-primary: #fbbf24; /* Amber 400 */
-      --text-secondary: #e4e4e7;
-      --text-muted: #71717a;
-      --border-color: #27272a;
-      --panel-bg: rgba(24, 24, 27, 0.95);
-      --pattern-color: rgba(251, 191, 36, 0.05);
-      --accent-color: #d97706;
-  }
-
-  /* 2. ANTRASİT (Slate & Gold) */
-  .theme-anthracite {
-      --bg-primary: #0f172a; /* Slate 900 */
-      --bg-secondary: #1e293b; /* Slate 800 */
-      --bg-paper: #1e293b;
-      --bg-inset: #334155;
       --text-primary: #fcd34d; /* Amber 300 */
-      --text-secondary: #e2e8f0;
-      --text-muted: #64748b;
-      --border-color: #334155;
-      --panel-bg: rgba(30, 41, 59, 0.95);
+      --text-secondary: #fafafa; 
+      --text-muted: #a1a1aa;
+      --border-color: #3f3f46;
+      --panel-bg: rgba(24, 24, 27, 0.95);
       --pattern-color: rgba(252, 211, 77, 0.05);
       --accent-color: #f59e0b;
   }
 
-  /* 3. ALTIN (Stone & Metallic Gold) */
-  .theme-anthracite-gold {
-      --bg-primary: #1c1917; /* Stone 900 */
-      --bg-secondary: #292524; /* Stone 800 */
-      --bg-paper: #292524;
-      --bg-inset: #44403c;
-      --text-primary: #ffd700; /* Pure Gold */
-      --text-secondary: #e7e5e4;
-      --text-muted: #78716c;
-      --border-color: #44403c;
-      --panel-bg: rgba(41, 37, 36, 0.95);
-      --pattern-color: rgba(255, 215, 0, 0.08);
-      --accent-color: #ca8a04;
+  /* 2. ANTRASİT (Stone & Amber) - Default */
+  .theme-anthracite {
+      /* Uses Root variables */
   }
 
-  /* 4. CYBER (Black & Neon Yellow) */
-  .theme-anthracite-cyber {
+  /* 3. ALTIN (Pure Black & Metallic Gold) */
+  .theme-anthracite-gold {
       --bg-primary: #000000;
       --bg-secondary: #111111;
       --bg-paper: #0a0a0a;
-      --bg-inset: #222222;
-      --text-primary: #ffff00; /* Neon Yellow */
-      --text-secondary: #fef08a;
-      --text-muted: #666666;
+      --bg-inset: #262626;
+      --text-primary: #ffd700; /* Pure Gold */
+      --text-secondary: #ffffff;
+      --text-muted: #737373;
+      --border-color: #404040;
+      --panel-bg: rgba(10, 10, 10, 0.98);
+      --pattern-color: rgba(255, 215, 0, 0.1);
+      --accent-color: #ffd700;
+      --accent-hover: #eab308;
+  }
+
+  /* 4. CYBER (Dark Grey & Neon Yellow) */
+  .theme-anthracite-cyber {
+      --bg-primary: #121212;
+      --bg-secondary: #1e1e1e;
+      --bg-paper: #1e1e1e;
+      --bg-inset: #2d2d2d;
+      --text-primary: #faff00; /* Neon Yellow */
+      --text-secondary: #ffffff;
+      --text-muted: #a3a3a3;
       --border-color: #333333;
-      --panel-bg: rgba(10, 10, 10, 0.95);
-      --pattern-color: rgba(255, 255, 0, 0.1);
-      --accent-color: #eab308;
+      --panel-bg: rgba(30, 30, 30, 0.95);
+      --pattern-color: rgba(250, 255, 0, 0.08);
+      --accent-color: #facc15;
   }
 
-  /* 5. BUMBLEBEE (Zinc & Bright Yellow) */
+  /* 5. BUMBLEBEE (Charcoal & Bright Yellow) */
   .theme-anthracite-bumblebee {
-      --bg-primary: #18181b;
-      --bg-secondary: #27272a;
-      --bg-paper: #27272a;
-      --bg-inset: #3f3f46;
-      --text-primary: #facc15; /* Yellow 400 */
-      --text-secondary: #fef9c3;
-      --text-muted: #a1a1aa;
-      --border-color: #3f3f46;
-      --panel-bg: rgba(39, 39, 42, 0.95);
-      --pattern-color: rgba(250, 204, 21, 0.08);
+      --bg-primary: #1f2937; /* Gray 800 */
+      --bg-secondary: #374151; /* Gray 700 */
+      --bg-paper: #374151;
+      --bg-inset: #4b5563;
+      --text-primary: #fde047; /* Yellow 300 */
+      --text-secondary: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-color: #4b5563;
+      --panel-bg: rgba(55, 65, 81, 0.95);
+      --pattern-color: rgba(253, 224, 71, 0.08);
       --accent-color: #eab308;
   }
 
-  /* 6. TAŞ (Neutral Gray & Pale Gold) */
+  /* 6. TAŞ (Neutral Grey & Pale Gold) */
   .theme-anthracite-stone {
       --bg-primary: #262626; /* Neutral 800 */
       --bg-secondary: #404040; /* Neutral 700 */
       --bg-paper: #404040;
       --bg-inset: #52525b;
       --text-primary: #fde68a; /* Amber 200 */
-      --text-secondary: #d4d4d8;
-      --text-muted: #a3a3a3;
+      --text-secondary: #f5f5f5;
+      --text-muted: #d4d4d4;
       --border-color: #525252;
       --panel-bg: rgba(64, 64, 64, 0.95);
-      --pattern-color: rgba(253, 230, 138, 0.05);
+      --pattern-color: rgba(253, 230, 138, 0.06);
       --accent-color: #fbbf24;
   }
 
-  /* 7. BAL (Warm Dark & Honey) */
+  /* 7. BAL (Dark Brown & Honey) */
   .theme-anthracite-honey {
-      --bg-primary: #272320; /* Very Dark Brown/Grey */
-      --bg-secondary: #3f3833;
-      --bg-paper: #3f3833;
-      --bg-inset: #595048;
-      --text-primary: #ffedd5; /* Orange 100 */
-      --text-secondary: #fbbf24; /* Amber 400 */
-      --text-muted: #9a8478;
-      --border-color: #595048;
-      --panel-bg: rgba(63, 56, 51, 0.95);
+      --bg-primary: #19120e; /* Very dark warm brown */
+      --bg-secondary: #271c19;
+      --bg-paper: #271c19;
+      --bg-inset: #43302b;
+      --text-primary: #fbbf24; /* Amber 400 */
+      --text-secondary: #fff7ed; /* Orange 50 */
+      --text-muted: #a8a29e;
+      --border-color: #574540;
+      --panel-bg: rgba(39, 28, 25, 0.95);
       --pattern-color: rgba(251, 191, 36, 0.08);
       --accent-color: #d97706;
   }
 
-  /* 8. ONİKS (Deepest Blue & Champagne) */
+  /* 8. ONİKS (Deep Slate & Champagne) */
   .theme-anthracite-onyx {
-      --bg-primary: #020617; /* Slate 950 */
-      --bg-secondary: #0f172a; /* Slate 900 */
-      --bg-paper: #0f172a;
-      --bg-inset: #1e293b;
-      --text-primary: #fef3c7; /* Amber 100 */
-      --text-secondary: #cbd5e1;
-      --text-muted: #64748b;
-      --border-color: #1e293b;
-      --panel-bg: rgba(15, 23, 42, 0.95);
-      --pattern-color: rgba(254, 243, 199, 0.05);
-      --accent-color: #b45309;
+      --bg-primary: #0f172a; /* Slate 900 */
+      --bg-secondary: #1e293b; /* Slate 800 */
+      --bg-paper: #1e293b;
+      --bg-inset: #334155;
+      --text-primary: #fcd34d; /* Amber 300 */
+      --text-secondary: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --panel-bg: rgba(30, 41, 59, 0.95);
+      --pattern-color: rgba(252, 211, 77, 0.06);
+      --accent-color: #fbbf24;
   }
 
-  /* --- FORCED ANTHRACITE/GOLD OVERRIDES --- */
+  /* 
+     --- CSS OVERRIDES FOR TAILWIND CLASSES --- 
+     Forces specific Tailwind classes to use our variables for global consistency.
+  */
   
-  /* Arkaplanlar */
-  .bg-white, .bg-zinc-50, .bg-gray-50 { background-color: var(--bg-paper) !important; color: var(--text-primary) !important; }
-  .bg-zinc-100, .bg-gray-100 { background-color: var(--bg-inset) !important; color: var(--text-secondary) !important; }
-  .bg-zinc-800, .bg-zinc-900 { background-color: var(--bg-primary) !important; }
-  
-  /* Metin Renkleri - Her şeyi Gold/Sarı yap */
-  .text-zinc-900, .text-gray-900, .text-slate-900 { color: var(--text-primary) !important; }
-  .text-zinc-800, .text-gray-800, .text-slate-800 { color: var(--text-primary) !important; }
-  .text-zinc-700, .text-gray-700, .text-slate-700 { color: var(--text-secondary) !important; }
-  .text-zinc-600, .text-gray-600 { color: var(--text-secondary) !important; }
-  .text-zinc-500, .text-gray-500 { color: var(--text-muted) !important; }
-  
-  /* Mavi/Indigo/Mor butonları Gold/Amber yap */
-  .bg-indigo-600, .bg-blue-600, .bg-violet-600, .bg-emerald-600 {
+  /* Backgrounds */
+  .bg-white, .bg-zinc-50, .bg-gray-50, .bg-slate-50 { 
+      background-color: var(--bg-paper) !important; 
+      color: var(--text-secondary) !important; 
+      border-color: var(--border-color) !important;
+  }
+  .bg-zinc-100, .bg-gray-100, .bg-slate-100, .bg-zinc-50\/50, .bg-zinc-100\/50 { 
+      background-color: var(--bg-inset) !important; 
+      color: var(--text-secondary) !important; 
+  }
+  .bg-zinc-800, .bg-zinc-900, .dark\:bg-zinc-800 {
+      background-color: var(--bg-secondary) !important;
+  }
+
+  /* Text Colors */
+  .text-zinc-900, .text-gray-900, .text-slate-900, .text-black, .dark\:text-white, .dark\:text-zinc-100 { 
+      color: var(--text-primary) !important; 
+  }
+  .text-zinc-800, .text-gray-800, .text-zinc-700, .text-gray-700 { 
+      color: var(--text-secondary) !important; 
+  }
+  .text-zinc-600, .text-zinc-500, .text-gray-600, .text-gray-500 { 
+      color: var(--text-muted) !important; 
+  }
+  .text-indigo-600, .text-blue-600, .text-violet-600, .dark\:text-indigo-400 {
+      color: var(--text-primary) !important; /* Make links/highlights Gold */
+  }
+
+  /* Borders */
+  .border-zinc-200, .border-gray-200, .border-zinc-300, .border-zinc-100, .dark\:border-zinc-700 {
+      border-color: var(--border-color) !important;
+  }
+
+  /* Buttons & Accents - Force Gold/Amber */
+  .bg-indigo-600, .bg-blue-600, .bg-violet-600, .bg-emerald-600, .bg-zinc-900, .bg-zinc-800 {
       background-color: var(--accent-color) !important;
-      color: #000000 !important; /* Gold üzeri siyah yazı daha okunur */
+      color: #000000 !important; /* Black text on Gold button for contrast */
+      font-weight: 700 !important;
   }
-  .bg-indigo-700, .bg-blue-700:hover, .bg-indigo-600:hover {
-      background-color: #b45309 !important; /* Darker Amber on hover */
+  .bg-indigo-600:hover, .bg-blue-600:hover {
+      background-color: var(--accent-hover) !important;
   }
-  .text-indigo-600, .text-blue-600, .text-violet-600 {
-      color: var(--text-primary) !important;
-  }
-  .bg-indigo-50, .bg-blue-50, .bg-emerald-50, .bg-rose-50, .bg-amber-50 {
+  
+  /* Light Accents (e.g. bg-indigo-50) -> Darker Inset with Gold Border */
+  .bg-indigo-50, .bg-blue-50, .bg-emerald-50, .bg-rose-50, .bg-amber-50, .bg-sky-50 {
       background-color: var(--bg-inset) !important;
       color: var(--text-primary) !important;
-      border-color: var(--border-color) !important;
+      border: 1px solid var(--border-color) !important;
   }
-  .bg-indigo-100, .bg-blue-100 {
-      background-color: rgba(251, 191, 36, 0.2) !important; /* Transparent Gold */
-      color: var(--text-primary) !important;
-  }
-
-  /* Kenarlıklar */
-  .border-zinc-200, .border-gray-200, .border-zinc-300, .border-gray-300 {
-      border-color: var(--border-color) !important;
+  
+  /* Specific Icons */
+  .text-indigo-500, .text-blue-500, .text-green-500 {
+      color: var(--accent-color) !important;
   }
 
-  /* UI Elements using Theme Variables */
+  /* UI Structure */
   aside, header {
       background-color: var(--panel-bg) !important;
       border-color: var(--border-color) !important;
-      color: var(--text-primary) !important;
       backdrop-filter: blur(12px);
   }
 
   *:focus-visible {
-    outline: 3px solid var(--text-primary) !important;
+    outline: 2px solid var(--text-primary) !important;
     outline-offset: 2px !important;
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; border: 2px solid transparent; background-clip: content-box; }
-  ::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--accent-color); }
 
-  /* --- WORKSHEET DYNAMICS (KAĞIT) --- */
-  .worksheet-page .grid, .worksheet-page .flex, .worksheet-page .space-y-4 > * + * { gap: var(--worksheet-gap, 1rem) !important; }
-  .worksheet-page .dynamic-grid { display: grid; grid-template-columns: repeat(var(--dynamic-cols, 1), minmax(0, 1fr)) !important; gap: 1rem; }
-
-  @keyframes mixedFlip {
-    0% { transform: rotateY(0deg); fill: var(--text-primary); }
-    15% { transform: rotateY(180deg); fill: var(--accent-color); }
-    100% { transform: rotateY(360deg); fill: var(--text-primary); }
-  }
-  .dyslexia-flip { animation: mixedFlip 8s infinite ease-in-out; display: inline-block; }
-
-  /* --- PAPER SIMULATION (Protected White Area) --- */
-  /* Ekranda kağıt hala beyaz görünmeli mi? Kullanıcı "Tüm temalar antrasit" dedi. 
-     Kağıdın kendisi de koyu olsun, yazı gold olsun. Baskıda beyaza dönecek. */
+  /* Worksheet Preview (On Screen) */
   .worksheet-page {
       background-color: var(--bg-paper) !important;
-      color: var(--text-primary) !important; 
+      color: var(--text-secondary) !important;
       border: 1px solid var(--border-color) !important;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
   }
   
-  /* Worksheet içindeki metinler de Gold */
-  .worksheet-page .text-zinc-800, .worksheet-page .text-zinc-900 { color: var(--text-primary) !important; }
-  .worksheet-page .bg-zinc-100 { background-color: var(--bg-inset) !important; }
-  .worksheet-page .border-zinc-300 { border-color: var(--border-color) !important; }
+  /* Animations */
+  @keyframes mixedFlip {
+    0% { transform: rotateY(0deg); fill: var(--text-primary); }
+    50% { transform: rotateY(180deg); fill: var(--accent-color); }
+    100% { transform: rotateY(360deg); fill: var(--text-primary); }
+  }
+  .dyslexia-flip { animation: mixedFlip 8s infinite ease-in-out; display: inline-block; }
+  .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
   /* ==========================================================================
-     PROFESSIONAL PRINT SYSTEM v2.0 (FORCE WHITE ON PAPER)
+     PROFESSIONAL PRINT SYSTEM v3.0 (CLEAN & WYSIWYG)
      ========================================================================== */
   @media print {
-    @page { size: A4 portrait; margin: 1cm; }
-    html, body, #root, main, .h-screen {
-      height: auto !important; min-height: auto !important; overflow: visible !important;
-      position: static !important; display: block !important; 
-      background-color: white !important; color: black !important;
-      margin: 0 !important; padding: 0 !important; width: 100% !important;
+    @page { 
+        size: A4 portrait; 
+        margin: 1cm; 
     }
-    /* Baskıda tüm renkleri beyaza/siyaha zorla */
+    
+    /* Reset Root */
+    html, body, #root {
+      height: auto !important; 
+      min-height: auto !important; 
+      overflow: visible !important;
+      position: static !important; 
+      display: block !important; 
+      background-color: white !important; 
+      color: black !important;
+      margin: 0 !important; 
+      padding: 0 !important; 
+      width: 100% !important;
+      font-size: 12pt !important; /* Standard print size */
+    }
+
+    /* Force Color Accuracy */
     * { 
-        background-color: transparent !important; 
-        color: black !important; 
+        -webkit-print-color-adjust: exact !important; 
+        print-color-adjust: exact !important; 
         box-shadow: none !important; 
         text-shadow: none !important; 
-        border-color: #000 !important;
+    }
+
+    /* Hide UI Elements */
+    header, aside, nav, 
+    .no-print, .print\:hidden, 
+    button:not(.worksheet-page button), /* Hide buttons unless they are part of content (rare) */
+    .toolbar-container, 
+    .global-search, 
+    .modal-close-btn, 
+    .toast-message,
+    .tour-overlay,
+    .fixed { 
+        display: none !important; 
     }
     
-    header, aside, nav, .no-print, .print\:hidden, button:not(.worksheet-page button), .toolbar-container, .global-search, .modal-backdrop, .modal-close-btn, .toast-message { display: none !important; }
-    
-    .printable-area, .printable-area * { visibility: visible !important; }
-    
+    /* Reveal Content */
+    .printable-area, .printable-content, .printable-content-parent { 
+        visibility: visible !important; 
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        opacity: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Worksheet Page Formatting */
     .worksheet-page { 
         background-color: white !important; 
         color: black !important; 
         border: none !important;
-        margin: 0 0 20px 0 !important; 
+        margin: 0 0 0 0 !important; 
+        padding: 0 !important;
         width: 100% !important; 
-        break-after: page !important; 
+        min-height: auto !important;
         page-break-after: always !important; 
+        break-after: page !important; 
+        box-shadow: none !important;
     }
     
-    /* Semantic Colors for Print (If wanted, or just black) */
-    .text-red-500, .text-rose-600 { color: #dc2626 !important; }
-    .text-green-500, .text-emerald-600 { color: #16a34a !important; }
-    .text-blue-500, .text-indigo-600 { color: #2563eb !important; }
+    /* Content Within Worksheet */
+    .worksheet-page * {
+        color: black !important;
+        border-color: #000 !important; /* Force black borders */
+    }
     
-    /* Restore borders for grids in print */
-    .border, .border-2, .border-4 { border-color: #000 !important; }
+    /* Ensure Grid/Flex Layouts Print Correctly */
+    .grid, .flex {
+        display: grid !important; /* or flex, keep original display */
+        break-inside: avoid !important;
+    }
+    
+    /* Remove Dark Mode Effects for Print */
+    .bg-zinc-800, .bg-zinc-900, .bg-black {
+        background-color: transparent !important;
+        color: black !important;
+    }
+    .text-white, .text-zinc-200 {
+        color: black !important;
+    }
+    
+    /* Fix Modal Printing (Assessment Report) */
+    .fixed.inset-0 {
+        position: static !important;
+        background: none !important;
+        display: block !important;
+    }
+    .printable-content {
+        max-width: 100% !important;
+        max-height: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
   }
-
-  /* --- UI ANIMATIONS --- */
-  button, a { transition: all 0.2s ease-in-out; }
-  button:not(:disabled):active { transform: translateY(0) scale(0.98); }
-  
-  .sidebar-activity-item-active { 
-      background-color: var(--bg-inset) !important; 
-      color: var(--text-primary) !important; 
-      font-weight: 600; 
-      position: relative; 
-      overflow: hidden; 
-      border-left: 4px solid var(--accent-color);
-  }
-
-  .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 <script type="importmap">
 {

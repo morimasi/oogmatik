@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
@@ -56,14 +57,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       onTransitionEnd={handleTransitionEnd}
     >
       <div 
-        className={`bg-white dark:bg-zinc-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transition-all duration-300 ease-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        className={`bg-[var(--bg-paper)] rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transition-all duration-300 ease-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         onClick={e => e.stopPropagation()}
       >
-        <header className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
-          <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-200">{title}</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700"><i className="fa-solid fa-times"></i></button>
+        <header className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">{title}</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-inset)]"><i className="fa-solid fa-times"></i></button>
         </header>
-        <div className="p-6 overflow-y-auto space-y-4 text-zinc-600 dark:text-zinc-300 custom-scrollbar">{children}</div>
+        <div className="p-6 overflow-y-auto space-y-4 text-[var(--text-secondary)] custom-scrollbar">{children}</div>
       </div>
     </div>
   );
@@ -276,7 +277,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
-      <header className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-700/50 shadow-sm z-10 print:hidden">
+      <header className="relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-3 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
@@ -290,80 +291,79 @@ const AppContent: React.FC = () => {
                 <GlobalSearch onSelectActivity={handleSelectActivity} />
              </div>
              
-             <div className="flex items-center gap-1 border-r border-zinc-300 dark:border-zinc-700 pr-2 mx-1">
-                <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Nasıl Kullanılır?">
+             <div className="flex items-center gap-1 border-r border-zinc-700 pr-2 mx-1">
+                <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-400 hover:text-[var(--accent-color)] transition-colors rounded-md" title="Nasıl Kullanılır?">
                     <i className="fa-solid fa-question-circle fa-lg"></i>
                 </button>
-                <button onClick={() => setOpenModal('developer')} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Geliştirici İletişim">
+                <button onClick={() => setOpenModal('developer')} className="p-2 text-zinc-400 hover:text-[var(--accent-color)] transition-colors rounded-md" title="Geliştirici İletişim">
                     <i className="fa-solid fa-laptop-code fa-lg"></i>
                 </button>
-                <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="Hakkımızda">
+                <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-400 hover:text-[var(--accent-color)] transition-colors rounded-md" title="Hakkımızda">
                     <i className="fa-solid fa-circle-info fa-lg"></i>
                 </button>
-                <button onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 transition-colors rounded-md" title="İletişim / Hata Bildir">
+                <button onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-400 hover:text-[var(--accent-color)] transition-colors rounded-md" title="İletişim / Hata Bildir">
                     <i className="fa-solid fa-headset fa-lg"></i>
                 </button>
              </div>
              
+             {/* Updated Evaluation Button - Gold Theme */}
              <button 
-                onClick={() => setCurrentView('assessment')} // Assesment Module
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:shadow-amber-500/20 hover:scale-105 transition-all border border-yellow-400"
+                onClick={() => setCurrentView('assessment')} 
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-black rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:shadow-amber-500/30 hover:scale-105 transition-all border border-yellow-300"
                 title="Öğrenme Güçlüğü Analizi"
              >
                  <i className="fa-solid fa-user-doctor"></i> Değerlendirme
              </button>
 
-             <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block"></div>
+             <div className="h-6 w-px bg-zinc-700 mx-1 hidden sm:block"></div>
 
              <div className="flex items-center gap-2">
              
-                {/* Favorites Button - Always visible */}
-                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-500 hover:text-red-500 transition-colors rounded-md relative group" title="Favoriler">
+                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-400 hover:text-red-500 transition-colors rounded-md relative group" title="Favoriler">
                     <i className="fa-solid fa-heart fa-lg"></i>
-                    <span className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-zinc-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">Favoriler</span>
                 </button>
 
              {user ? (
                  <>
                     {user.role === 'admin' && (
-                        <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-600 hover:bg-purple-50 rounded-md relative" title="Yönetici Paneli">
+                        <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-400 hover:bg-purple-900/20 rounded-md relative" title="Yönetici Paneli">
                             <i className="fa-solid fa-shield-halved fa-lg"></i>
                         </button>
                     )}
                     
-                    <button id="tour-messages-btn" onClick={() => setCurrentView('messages')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md relative" title="Mesajlar">
+                    <button id="tour-messages-btn" onClick={() => setCurrentView('messages')} className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors rounded-md relative" title="Mesajlar">
                         <i className="fa-solid fa-envelope fa-lg"></i>
                         {unreadCount > 0 && (
-                            <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-white dark:border-zinc-900">
+                            <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-black">
                                 {unreadCount}
                             </span>
                         )}
                     </button>
 
-                    <button id="tour-shared-btn" onClick={() => setCurrentView('shared')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Paylaşılanlar">
+                    <button id="tour-shared-btn" onClick={() => setCurrentView('shared')} className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors rounded-md" title="Paylaşılanlar">
                         <i className="fa-solid fa-share-nodes fa-lg"></i>
                     </button>
 
-                    <button id="tour-archive-btn" onClick={() => setCurrentView('savedList')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Arşiv">
+                    <button id="tour-archive-btn" onClick={() => setCurrentView('savedList')} className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors rounded-md" title="Arşiv">
                         <i className="fa-solid fa-box-archive fa-lg"></i>
                     </button>
-                    <button id="tour-history-btn" onClick={() => setOpenModal('history')} className="p-2 text-zinc-500 hover:text-indigo-500 transition-colors rounded-md" title="Geçmiş">
+                    <button id="tour-history-btn" onClick={() => setOpenModal('history')} className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors rounded-md" title="Geçmiş">
                         <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
                     </button>
                     
                     <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
-                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
+                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-zinc-700 shadow-sm" />
                     </button>
                  </>
              ) : (
-                 <button onClick={() => setIsAuthModalOpen(true)} className="ml-2 px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 transition-colors shadow-sm">
+                 <button onClick={() => setIsAuthModalOpen(true)} className="ml-2 px-4 py-2 bg-[var(--accent-color)] text-black rounded-lg font-bold text-sm hover:bg-[var(--accent-hover)] transition-colors shadow-sm">
                      Giriş Yap
                  </button>
              )}
              </div>
              
-             <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
-             <button onClick={() => setOpenModal('settings')} className="text-zinc-500 hover:text-indigo-500 p-2"><i className="fa-solid fa-gear fa-lg"></i></button>
+             <div className="h-6 w-px bg-zinc-700 mx-1"></div>
+             <button onClick={() => setOpenModal('settings')} className="text-zinc-400 hover:text-[var(--accent-color)] p-2"><i className="fa-solid fa-gear fa-lg"></i></button>
           </div>
         </div>
       </header>
@@ -404,7 +404,6 @@ const AppContent: React.FC = () => {
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       
-      {/* SETTINGS MODAL */}
       <SettingsModal 
           isOpen={openModal === 'settings'} 
           onClose={() => setOpenModal(null)}
@@ -423,20 +422,20 @@ const AppContent: React.FC = () => {
           ) : (
               <div className="space-y-3">
                   {historyItems.map((item) => (
-                      <div key={item.id} className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg flex justify-between items-center hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                      <div key={item.id} className="p-3 border border-[var(--border-color)] rounded-lg flex justify-between items-center hover:bg-[var(--bg-inset)] transition-colors">
                           <div className="flex items-center gap-3">
-                               <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                               <div className="w-10 h-10 rounded-full bg-[var(--bg-primary)] text-[var(--accent-color)] flex items-center justify-center">
                                    <i className="fa-solid fa-file-pen"></i>
                                 </div>
                                <div>
-                                  <p className="font-bold text-sm text-zinc-800 dark:text-zinc-200">{item.title}</p>
+                                  <p className="font-bold text-sm text-[var(--text-primary)]">{item.title}</p>
                                   <div className="flex items-center gap-2 text-xs text-zinc-500">
                                       <span><i className="fa-regular fa-calendar mr-1"></i>{new Date(item.timestamp).toLocaleDateString('tr-TR')}</span>
                                       <span><i className="fa-regular fa-clock mr-1"></i>{new Date(item.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}</span>
                                   </div>
                                </div>
                           </div>
-                          <button onClick={() => { loadSavedWorksheet(item as any); setOpenModal(null); }} className="px-3 py-1.5 text-xs font-bold bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 transition-colors">
+                          <button onClick={() => { loadSavedWorksheet(item as any); setOpenModal(null); }} className="px-3 py-1.5 text-xs font-bold bg-[var(--bg-inset)] text-[var(--text-primary)] rounded-md hover:bg-[var(--bg-secondary)] transition-colors">
                               Tekrar Aç
                           </button>
                       </div>
@@ -448,51 +447,48 @@ const AppContent: React.FC = () => {
       <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">
         <div className="text-center space-y-4">
             <DyslexiaLogo className="h-12 w-auto mx-auto mb-4" />
-            <p className="text-zinc-600 dark:text-zinc-300">
+            <p>
                 Bursa Disleksi Ai, disleksi ve öğrenme güçlüğü yaşayan bireylerin eğitimine destek olmak amacıyla geliştirilmiş yapay zeka destekli bir platformdur.
             </p>
-            <p className="text-zinc-600 dark:text-zinc-300">
+            <p>
                 Eğitmenler ve aileler için özelleştirilebilir, eğlenceli ve bilimsel temelli etkinlikler sunarak öğrenme sürecini kolaylaştırmayı hedefler.
             </p>
-            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700">
-                <p className="text-xs text-zinc-400">Versiyon 1.0.0</p>
-                <p className="text-xs text-zinc-400">© 2024 Bursa Disleksi</p>
+            <div className="pt-4 border-t border-[var(--border-color)]">
+                <p className="text-xs text-zinc-500">Versiyon 1.0.0</p>
+                <p className="text-xs text-zinc-500">© 2024 Bursa Disleksi</p>
             </div>
         </div>
       </Modal>
 
       <Modal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} title="Geliştirici İletişim">
         <div className="text-center space-y-6">
-            {/* Intro */}
             <div>
-                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-3">Uygulama Geliştiricisi</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                    Uygulama ile ilgili her türlü soru, öneri veya geri bildiriminiz için bizimle iletişime geçebilirsiniz. Gelişimimize katkıda bulunduğunuz için teşekkür ederiz.
+                <h3 className="text-xl font-bold mb-3 text-[var(--text-primary)]">Uygulama Geliştiricisi</h3>
+                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                    Uygulama ile ilgili her türlü soru, öneri veya geri bildiriminiz için bizimle iletişime geçebilirsiniz.
                 </p>
             </div>
 
-            {/* Contact Info Box */}
-            <div className="bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 space-y-3">
+            <div className="bg-[var(--bg-inset)] p-4 rounded-xl border border-[var(--border-color)] space-y-3">
                 <div className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">E-posta</span>
-                    <a href="mailto:morimasi@gmail.com" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">morimasi@gmail.com</a>
+                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">E-posta</span>
+                    <a href="mailto:morimasi@gmail.com" className="text-[var(--accent-color)] font-bold hover:underline">morimasi@gmail.com</a>
                 </div>
                 <div className="flex justify-center gap-3 flex-wrap">
-                    <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 px-3 py-1 rounded-full text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                    <span className="bg-[var(--bg-primary)] border border-[var(--border-color)] px-3 py-1 rounded-full text-sm font-medium">
                         <i className="fa-brands fa-instagram mr-1"></i> @bbmaltunel
                     </span>
-                    <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 px-3 py-1 rounded-full text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                    <span className="bg-[var(--bg-primary)] border border-[var(--border-color)] px-3 py-1 rounded-full text-sm font-medium">
                         <i className="fa-brands fa-x-twitter mr-1"></i> @barismutlualtunel
                     </span>
                 </div>
             </div>
 
-            {/* Pitch / CTA */}
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-6 rounded-xl shadow-lg text-white relative overflow-hidden">
+            <div className="bg-gradient-to-br from-yellow-600 to-amber-700 p-6 rounded-xl shadow-lg text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
                 <div className="relative z-10">
                     <h4 className="font-bold text-lg mb-2">Dijital Eğitim Materyali Projeleriniz İçin</h4>
-                    <p className="text-sm text-indigo-100 leading-relaxed">
+                    <p className="text-sm text-yellow-100 leading-relaxed">
                         Belirlediğiniz bir alanda, istediğiniz mantıklı işlevlere sahip özgür, güvenli ve eğitsel dijital ürün çözümleri için lütfen iletişime geçiniz.
                     </p>
                 </div>

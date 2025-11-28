@@ -33,10 +33,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             {data.map((sheetData, index) => (
                 <div 
                     key={index} 
-                    className="worksheet-page bg-white shadow-sm mx-auto mb-8 relative print:shadow-none print:mb-0 print:border-0 print:mx-0 print:w-full print:h-auto print:break-after-page"
+                    className="worksheet-page bg-white shadow-sm mx-auto mb-8 relative print:shadow-none print:mb-0 print:border-0 print:mx-0 print:w-full print:h-auto print:break-after-page break-after-page print:block"
                     style={{ 
                         padding: `${settings.margin}px`,
-                        minHeight: '297mm' /* A4 Height Visual Guide */
+                        minHeight: '297mm' /* A4 Height Visual Guide on Screen */
                     }}
                 >
                     <div className="printable-content-wrapper h-full flex flex-col justify-between">
@@ -44,9 +44,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                             <RenderSheet activityType={activityType} data={sheetData} />
                         </div>
                         
-                        {/* Footer Logo */}
-                        <div className="mt-8 pt-4 border-t border-zinc-100 flex justify-between items-center text-xs text-zinc-300 print:text-zinc-400">
-                            <span>Bursa Disleksi AI</span>
+                        {/* Footer Logo - Visible on Print */}
+                        <div className="mt-8 pt-4 border-t border-zinc-300 flex justify-between items-center text-xs text-zinc-400 print:text-black">
+                            <span className="font-bold">Bursa Disleksi AI</span>
                             <span>Sayfa {index + 1} / {data.length}</span>
                         </div>
                     </div>
