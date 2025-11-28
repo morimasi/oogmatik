@@ -256,22 +256,42 @@ export const generateCoordinateCipherFromAI = async (options: GeneratorOptions):
 };
 
 export const generateWordConnectFromAI = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
+    const { topic, difficulty, worksheetCount, itemCount } = options;
     const prompt = `
-    '${topic}' temalı, "${difficulty}" seviyesinde Kelime Bağlama.
-    **İngilizce** 'imagePrompt' ekle. Ana görsel için de.
+    "${difficulty}" seviyesinde, '${topic || 'Genel'}' temalı "Kelime Bağlama" (Eşleştirme) etkinliği.
+    ${itemCount || 5} adet kelime çifti oluştur (Eş anlamlı, Zıt anlamlı veya İlişkili kavramlar).
+    
+    ÖNEMLİ: Her kelime için o kelimeyi temsil eden basit bir "imagePrompt" (ikon tanımı) ekle.
+    Çıktı formatı: "word" (kelime), "pairId" (eşleşme ID'si), "x" (0=sol sütun, 1=sağ sütun), "y" (sıra), "imagePrompt" (ikon).
+    Renkleri çiftlere göre eşleştir.
+    
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
+    
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            gridDim: { type: Type.INTEGER },
-            points: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, pairId: { type: Type.INTEGER }, x: { type: Type.INTEGER }, y: { type: Type.INTEGER }, color: { type: Type.STRING } }, required: ['word', 'pairId', 'x', 'y'] } }
+            imagePrompt: { type: Type.STRING }, // Main header image
+            gridDim: { type: Type.INTEGER }, // Not strictly needed for this layout but nice to have
+            points: { 
+                type: Type.ARRAY, 
+                items: { 
+                    type: Type.OBJECT, 
+                    properties: { 
+                        word: { type: Type.STRING }, 
+                        imagePrompt: { type: Type.STRING }, 
+                        pairId: { type: Type.INTEGER }, 
+                        x: { type: Type.INTEGER }, 
+                        y: { type: Type.INTEGER }, 
+                        color: { type: Type.STRING } 
+                    }, 
+                    required: ['word', 'pairId', 'x', 'y'] 
+                } 
+            }
         },
         required: ['title', 'instruction', 'points', 'pedagogicalNote', 'imagePrompt']
     };

@@ -476,31 +476,70 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
     return results;
 };
 
+// --- UPDATED WORD CONNECT GENERATOR ---
 export const generateOfflineWordConnect = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount, difficulty } = options;
     const results: WordConnectData[] = [];
-    const pairsPool = [...TR_VOCAB.synonyms, ...TR_VOCAB.antonyms];
+    
+    // Choose pool based on difficulty or random mix
+    let pairsPool: {word: string, match: string}[] = [];
+    
+    if (difficulty === 'Başlangıç') {
+        // Simple associations
+        pairsPool = [
+            {word: 'Güneş', match: 'Sıcak'}, {word: 'Kar', match: 'Soğuk'}, {word: 'Arı', match: 'Bal'},
+            {word: 'İnek', match: 'Süt'}, {word: 'Tavuk', match: 'Yumurta'}, {word: 'Fırça', match: 'Boya'},
+            {word: 'Kalem', match: 'Kağıt'}, {word: 'Çekiç', match: 'Çivi'}, {word: 'Gemi', match: 'Deniz'}
+        ];
+    } else {
+        // Synonyms or Antonyms
+        const pool = Math.random() > 0.5 ? TR_VOCAB.synonyms : TR_VOCAB.antonyms;
+        pairsPool = pool.map(p => ({word: p.word, match: (p as any).synonym || (p as any).antonym}));
+    }
 
     for(let i = 0; i < worksheetCount; i++) {
-        const selectedPairs = getRandomItems(pairsPool, itemCount || 8);
+        const count = itemCount || 6;
+        const selectedPairs = getRandomItems(pairsPool, count);
         const points: any[] = [];
-        const colors = getRandomItems(COLORS, selectedPairs.length);
+        const colors = getRandomItems(CONNECT_COLORS, count);
 
-        selectedPairs.forEach((pair: any, idx) => {
-            points.push({ word: pair.word, pairId: idx, x: 0, y: idx, color: colors[idx].css });
-            points.push({ word: pair.synonym || pair.antonym, pairId: idx, x: 1, y: idx, color: colors[idx].css });
+        // Prepare shuffle for right column
+        const rightSideIndices = shuffle(Array.from({length: count}, (_, k) => k));
+
+        selectedPairs.forEach((pair, idx) => {
+            // Left Side (x=0)
+            // Note: We use EMOJI_MAP to try and find an icon for the word
+            // Or just pass the word as imagePrompt and let frontend handle it if AI mode
+            // For offline, let's try to map known emojis
+            const leftIcon = EMOJI_MAP[pair.word] || EMOJI_MAP[Object.keys(EMOJI_MAP).find(k => EMOJI_MAP[k] === pair.word) || ''] || pair.word;
+            const rightIcon = EMOJI_MAP[pair.match] || EMOJI_MAP[Object.keys(EMOJI_MAP).find(k => EMOJI_MAP[k] === pair.match) || ''] || pair.match;
+
+            points.push({ 
+                word: pair.word, 
+                pairId: idx, 
+                x: 0, 
+                y: idx, 
+                color: colors[idx % colors.length],
+                imagePrompt: leftIcon // In offline mode, this acts as a hint or emoji if available
+            });
+            
+            // Right Side (x=1) - randomized position
+            points.push({ 
+                word: pair.match, 
+                pairId: idx, 
+                x: 1, 
+                y: rightSideIndices[idx], 
+                color: colors[idx % colors.length],
+                imagePrompt: rightIcon
+            });
         });
         
-        const rightPoints = points.filter(p => p.x === 1);
-        const shuffledRightY = shuffle(rightPoints.map(p => p.y));
-        rightPoints.forEach((p, idx) => p.y = shuffledRightY[idx]);
-
         results.push({
             title: "Kelime Bağlama (Hızlı Mod)",
-            instruction: "İlişkili kelimeleri çizgilerle birleştir.",
-            pedagogicalNote: "Anlamsal ilişkilendirme ve görsel eşleştirme.",
-            imagePrompt: 'Bağlantı',
-            gridDim: 10,
+            instruction: "Sol sütundaki kelimeleri sağ sütundaki eşleriyle (eş/zıt anlam veya ilişki) çizgilerle birleştir.",
+            pedagogicalNote: "Anlamsal ilişkilendirme, kelime dağarcığı ve görsel eşleştirme becerisi.",
+            imagePrompt: 'Bağlantı', // Cover image
+            gridDim: 1, // Logic handled by column layout in frontend
             points
         });
     }

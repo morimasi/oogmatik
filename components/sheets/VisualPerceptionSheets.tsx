@@ -415,6 +415,69 @@ export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConn
     );
 };
 
+// Enhanced WordConnectSheet with professional cards
+export const WordConnectSheet: React.FC<{ data: WordConnectData }> = ({ data }) => {
+    // Separate points into Left and Right columns
+    const leftPoints = (data.points || []).filter(p => p.x === 0).sort((a, b) => a.y - b.y);
+    const rightPoints = (data.points || []).filter(p => p.x === 1).sort((a, b) => a.y - b.y);
+
+    return (
+        <div>
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            
+            <div className="flex justify-between items-stretch gap-12 mt-8 relative max-w-4xl mx-auto">
+                {/* Visual Connection Guide (Dotted Line in Center) */}
+                <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+                    <div className="h-full border-r-2 border-dashed border-zinc-200"></div>
+                </div>
+
+                {/* Left Column */}
+                <div className="flex-1 space-y-6">
+                    {leftPoints.map((point, i) => (
+                        <div key={i} className="flex items-center group relative h-20">
+                            {/* Card Content */}
+                            <div className="flex-1 bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 rounded-xl p-3 flex items-center shadow-sm hover:border-indigo-400 hover:shadow-md transition-all">
+                                {point.imagePrompt && (
+                                    <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-700 rounded-lg flex items-center justify-center mr-4 text-2xl">
+                                        <ImageDisplay base64={point.imagePrompt.length > 50 ? point.imagePrompt : undefined} description={point.word} className="w-full h-full object-contain" />
+                                        {/* Fallback for short emoji prompts handled by ImageDisplay internally or here */}
+                                        {point.imagePrompt.length <= 50 && point.imagePrompt}
+                                    </div>
+                                )}
+                                <span className="font-bold text-lg text-zinc-700 dark:text-zinc-200">{point.word}</span>
+                            </div>
+                            
+                            {/* Connection Point (Right side of Left Col) */}
+                            <div className="w-6 h-6 bg-white border-4 border-zinc-300 rounded-full absolute -right-3 z-10 group-hover:border-indigo-500 transition-colors"></div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Right Column */}
+                <div className="flex-1 space-y-6">
+                    {rightPoints.map((point, i) => (
+                        <div key={i} className="flex items-center group relative h-20">
+                            {/* Connection Point (Left side of Right Col) */}
+                            <div className="w-6 h-6 bg-white border-4 border-zinc-300 rounded-full absolute -left-3 z-10 group-hover:border-indigo-500 transition-colors"></div>
+
+                            {/* Card Content */}
+                            <div className="flex-1 bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 rounded-xl p-3 flex items-center flex-row-reverse shadow-sm hover:border-indigo-400 hover:shadow-md transition-all ml-4">
+                                {point.imagePrompt && (
+                                    <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-700 rounded-lg flex items-center justify-center ml-4 text-2xl">
+                                        <ImageDisplay base64={point.imagePrompt.length > 50 ? point.imagePrompt : undefined} description={point.word} className="w-full h-full object-contain" />
+                                        {point.imagePrompt.length <= 50 && point.imagePrompt}
+                                    </div>
+                                )}
+                                <span className="font-bold text-lg text-zinc-700 dark:text-zinc-200">{point.word}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Fallbacks for others to ensure no broken imports, enhanced with header
 const createSimpleSheet = (compName: string) => ({ data }: { data: any }) => (
   <div>
@@ -423,7 +486,6 @@ const createSimpleSheet = (compName: string) => ({ data }: { data: any }) => (
   </div>
 );
 
-export const WordConnectSheet = createSimpleSheet('Kelime Bağlama');
 export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
