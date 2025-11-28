@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
@@ -5,6 +6,8 @@ import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
+import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -38,6 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   isLoading,
   onAddToHistory
 }) => {
+  const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
 
   const handleGenerate = async (options: GeneratorOptions) => {
@@ -93,8 +97,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         if (result) {
             setWorksheetData(result);
             onAddToHistory(selectedActivity, result);
-            // Fire and forget stats increment to not block UI
+            
+            // Fire and forget stats increments
             statsService.incrementUsage(selectedActivity).catch(console.error);
+            if (user) {
+                const act = getActivityById(selectedActivity);
+                authService.recordActivityGeneration(user.id, selectedActivity, act ? act.title : selectedActivity).catch(console.error);
+            }
         }
 
     } catch (e: any) {
@@ -111,7 +120,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const currentActivity = getActivityById(selectedActivity);
 
-  // Optimization: Memoize categorization to avoid recalculation on every render
   const categorizedActivities = useMemo(() => {
       return ACTIVITY_CATEGORIES.map(category => ({
           ...category,

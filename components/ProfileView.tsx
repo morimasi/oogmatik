@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { SavedAssessment, SavedWorksheet, ActivityType } from '../types';
+import { SavedAssessment, SavedWorksheet, ActivityType, User } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { RadarChart } from './RadarChart';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
@@ -45,10 +46,16 @@ const LoadingSkeleton: React.FC = () => (
 interface ProfileViewProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
+    targetUser?: User; // Optional: If provided, displays this user's profile
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivity }) => {
-    const { user, updateUser, updatePassword, logout } = useAuth();
+export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivity, targetUser }) => {
+    const { user: authUser, updateUser, updatePassword, logout } = useAuth();
+    
+    // Determine the effective user to display
+    const user = targetUser || authUser;
+    const isReadOnly = !!targetUser && targetUser.id !== authUser?.id;
+
     const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'evaluations' | 'settings'>('overview');
     
     // Data states
@@ -123,6 +130,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
 
 
     const handleUpdateProfile = async (e: React.FormEvent) => {
+        if (isReadOnly) return;
         e.preventDefault();
         if (!editName.trim()) return;
         setIsSavingProfile(true);
@@ -137,6 +145,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
     };
 
     const handleUpdatePassword = async (e: React.FormEvent) => {
+        if (isReadOnly) return;
         e.preventDefault();
         if (passwords.new.length < 6) {
             showMessage('error', 'Şifre en az 6 karakter olmalıdır.');
@@ -159,12 +168,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
     };
 
     const handleAvatarClick = () => {
+        if (isReadOnly) return;
         if (fileInputRef.current) {
             fileInputRef.current.click();
         }
     };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (isReadOnly) return;
         try {
             const file = event.target.files?.[0];
             if (!file) return;
@@ -220,7 +231,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
 
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h2 className="text-2xl font-black text-zinc-800 dark:text-zinc-100 tracking-tight">Profilim</h2>
+                        <h2 className="text-2xl font-black text-zinc-800 dark:text-zinc-100 tracking-tight">
+                            {isReadOnly ? `${user.name} Profili` : 'Profilim'}
+                        </h2>
                         <p className="text-zinc-500 dark:text-zinc-400 text-sm">Hesap ayarları ve istatistikler</p>
                     </div>
                     <button onClick={onBack} className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-all text-sm font-bold shadow-sm text-zinc-600 dark:text-zinc-300">
@@ -242,14 +255,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                 <div className="w-40 h-40 rounded-full p-1.5 bg-white dark:bg-zinc-800 ring-4 ring-white dark:ring-zinc-800 shadow-2xl overflow-hidden">
                                     <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full bg-zinc-100 object-cover" />
                                 </div>
-                                <button 
-                                    onClick={handleAvatarClick}
-                                    disabled={isChangingAvatar}
-                                    className="absolute bottom-2 right-2 w-10 h-10 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-all hover:scale-110 cursor-pointer z-10 border-2 border-white dark:border-zinc-700"
-                                    title="Profil Resmini Değiştir"
-                                >
-                                    <i className={`fa-solid ${isChangingAvatar ? 'fa-circle-notch fa-spin' : 'fa-camera'}`}></i>
-                                </button>
+                                {!isReadOnly && (
+                                    <button 
+                                        onClick={handleAvatarClick}
+                                        disabled={isChangingAvatar}
+                                        className="absolute bottom-2 right-2 w-10 h-10 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-600 transition-all hover:scale-110 cursor-pointer z-10 border-2 border-white dark:border-zinc-700"
+                                        title="Profil Resmini Değiştir"
+                                    >
+                                        <i className={`fa-solid ${isChangingAvatar ? 'fa-circle-notch fa-spin' : 'fa-camera'}`}></i>
+                                    </button>
+                                )}
                                 <input 
                                     type="file" 
                                     ref={fileInputRef} 
@@ -267,14 +282,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                             <i className="fa-solid fa-envelope"></i> {user.email}
                                         </p>
                                     </div>
-                                    <div className="flex gap-3">
-                                        <button 
-                                            onClick={() => { logout(); onBack(); }} 
-                                            className="px-5 py-2.5 text-rose-600 bg-rose-50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-900/30 rounded-xl font-bold text-sm hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors flex items-center gap-2"
-                                        >
-                                            <i className="fa-solid fa-arrow-right-from-bracket"></i> Çıkış Yap
-                                        </button>
-                                    </div>
+                                    {!isReadOnly && (
+                                        <div className="flex gap-3">
+                                            <button 
+                                                onClick={() => { logout(); onBack(); }} 
+                                                className="px-5 py-2.5 text-rose-600 bg-rose-50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-900/30 rounded-xl font-bold text-sm hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors flex items-center gap-2"
+                                            >
+                                                <i className="fa-solid fa-arrow-right-from-bracket"></i> Çıkış Yap
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -283,7 +300,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} label="Genel Bakış" icon="fa-solid fa-chart-pie" />
                             <TabButton active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} label="İstatistikler" icon="fa-solid fa-chart-simple" />
                             <TabButton active={activeTab === 'evaluations'} onClick={() => setActiveTab('evaluations')} label="Değerlendirmeler" icon="fa-solid fa-clipboard-check" />
-                            <TabButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} label="Ayarlar" icon="fa-solid fa-sliders" />
+                            {!isReadOnly && <TabButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} label="Ayarlar" icon="fa-solid fa-sliders" />}
                         </div>
                     </div>
                 </div>
@@ -298,6 +315,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                         <StatCard icon="fa-solid fa-crown" label="Seviye" value={statsData.level} color="bg-gradient-to-br from-amber-400 to-orange-500" />
                                         <StatCard icon="fa-solid fa-star" label="En Sevilen Kategori" value={statsData.mostUsedCategory} color="bg-gradient-to-br from-emerald-400 to-green-600" />
                                     </div>
+                                    
                                     <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
                                       <h3 className="text-lg font-bold mb-6 text-zinc-800 dark:text-zinc-100 flex items-center gap-2"><i className="fa-solid fa-bolt text-yellow-500"></i> Seviye İlerlemesi</h3>
                                       <div className="relative pt-2 px-2">
@@ -307,6 +325,24 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                           </div>
                                           <div className="overflow-hidden h-4 mb-4 text-xs flex rounded-full bg-indigo-100 dark:bg-zinc-700"><div style={{ width: `${statsData.xp}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-1000 ease-out"></div></div>
                                       </div>
+                                    </div>
+
+                                    {/* Recent Activity Card */}
+                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center justify-between">
+                                        <div>
+                                            <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-100 mb-1">Son Etkinlik</h3>
+                                            {user.lastActiveActivity ? (
+                                                <>
+                                                    <p className="text-indigo-600 dark:text-indigo-400 font-medium">{user.lastActiveActivity.title}</p>
+                                                    <p className="text-xs text-zinc-500">{new Date(user.lastActiveActivity.date).toLocaleString('tr-TR')}</p>
+                                                </>
+                                            ) : (
+                                                <p className="text-zinc-500">Henüz etkinlik kaydı yok.</p>
+                                            )}
+                                        </div>
+                                        <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                            <i className="fa-solid fa-clock-rotate-left"></i>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -341,7 +377,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                          <div className="p-16 text-center flex flex-col items-center justify-center">
                                              <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mb-4"><i className="fa-solid fa-clipboard-list text-4xl text-zinc-300 dark:text-zinc-500"></i></div>
                                              <h3 className="text-lg font-bold text-zinc-600 dark:text-zinc-300">Değerlendirme Yok</h3>
-                                             <p className="text-zinc-400 max-w-xs mx-auto mt-2">Henüz öğrenci değerlendirmesi yapmadınız.</p>
+                                             <p className="text-zinc-400 max-w-xs mx-auto mt-2">Henüz öğrenci değerlendirmesi yapılmamış.</p>
                                          </div>
                                      ) : (
                                          <div className="overflow-x-auto">
@@ -372,7 +408,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                  </div>
                             )}
 
-                            {activeTab === 'settings' && (
+                            {activeTab === 'settings' && !isReadOnly && (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                     <div className="bg-white dark:bg-zinc-800 p-8 rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-700">
                                         <h3 className="text-xl font-bold mb-6 text-zinc-800 dark:text-zinc-100 flex items-center gap-2"><i className="fa-solid fa-user-pen text-indigo-500"></i> Kişisel Bilgiler</h3>

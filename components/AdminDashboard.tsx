@@ -1,9 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
-import { User, FeedbackItem, Message, ActivityStats, UserRole } from '../types';
+import { User, FeedbackItem, Message, ActivityStats, UserRole, ActivityType } from '../types';
 import { authService } from '../services/authService';
 import { messagingService } from '../services/messagingService';
 import { statsService } from '../services/statsService';
 import { useAuth } from '../context/AuthContext';
+import { ProfileView } from './ProfileView';
+import { SavedWorksheetsView } from './SavedWorksheetsView';
+import { FavoritesSection } from './FavoritesSection';
 
 interface AdminDashboardProps {
     onBack: () => void;
@@ -26,6 +30,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const [feedbacksPage, setFeedbacksPage] = useState(0);
     const [usersCount, setUsersCount] = useState(0);
     const [feedbacksCount, setFeedbacksCount] = useState(0);
+
+    // Inspector Mode State
+    const [inspectingUser, setInspectingUser] = useState<User | null>(null);
+    const [inspectView, setInspectView] = useState<'profile' | 'archive' | 'favorites'>('profile');
 
     // Stats Tab States
     const [sortConfig, setSortConfig] = useState<{ key: keyof ActivityStats; direction: 'asc' | 'desc' }>({ key: 'generationCount', direction: 'desc' });
@@ -57,16 +65,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     
     // Initial load and tab change effect
     useEffect(() => {
-        loadData(activeTab);
-    }, [activeTab]);
+        if (!inspectingUser) {
+            loadData(activeTab);
+        }
+    }, [activeTab, inspectingUser]);
 
     // Pagination change effect
     useEffect(() => {
-        if(activeTab === 'users') loadData('users');
+        if(activeTab === 'users' && !inspectingUser) loadData('users');
     }, [usersPage]);
 
     useEffect(() => {
-        if(activeTab === 'feedbacks') loadData('feedbacks');
+        if(activeTab === 'feedbacks' && !inspectingUser) loadData('feedbacks');
     }, [feedbacksPage]);
 
     // --- USER ACTIONS ---
@@ -132,6 +142,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
 
     if (!user || user.role !== 'admin') return <div className="p-8 text-center text-red-600">Yetkisiz Erişim</div>;
 
+    // --- INSPECTOR MODE RENDER ---
+    if (inspectingUser) {
+        return (
+            <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
+                <div className="bg-zinc-800 text-white p-4 flex justify-between items-center shadow-md">
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => { setInspectingUser(null); setInspectView('profile'); }} className="hover:bg-zinc-700 p-2 rounded-lg transition-colors">
+                            <i className="fa-solid fa-arrow-left"></i> Geri
+                        </button>
+                        <div className="flex items-center gap-3 border-l border-zinc-600 pl-4">
+                            <img src={inspectingUser.avatar} className="w-10 h-10 rounded-full border-2 border-zinc-500" />
+                            <div>
+                                <h3 className="font-bold text-sm">{inspectingUser.name}</h3>
+                                <p className="text-xs text-zinc-400">Yönetici İncelemesi</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={() => setInspectView('profile')} className={`px-4 py-2 rounded-lg text-sm font-bold ${inspectView === 'profile' ? 'bg-indigo-600 text-white' : 'bg-zinc-700 text-zinc-300'}`}>Profil</button>
+                        <button onClick={() => setInspectView('archive')} className={`px-4 py-2 rounded-lg text-sm font-bold ${inspectView === 'archive' ? 'bg-indigo-600 text-white' : 'bg-zinc-700 text-zinc-300'}`}>Arşiv</button>
+                        <button onClick={() => setInspectView('favorites')} className={`px-4 py-2 rounded-lg text-sm font-bold ${inspectView === 'favorites' ? 'bg-indigo-600 text-white' : 'bg-zinc-700 text-zinc-300'}`}>Favoriler</button>
+                    </div>
+                </div>
+                
+                <div className="flex-1 overflow-hidden">
+                    {inspectView === 'profile' && (
+                        <ProfileView 
+                            onBack={() => { setInspectingUser(null); }} 
+                            onSelectActivity={() => {}} 
+                            targetUser={inspectingUser}
+                        />
+                    )}
+                    {inspectView === 'archive' && (
+                        <div className="h-full p-4 overflow-y-auto">
+                            <SavedWorksheetsView 
+                                onLoad={() => {}} 
+                                onBack={() => setInspectView('profile')} 
+                                targetUserId={inspectingUser.id}
+                            />
+                        </div>
+                    )}
+                    {inspectView === 'favorites' && (
+                        <div className="h-full p-4 overflow-y-auto">
+                            <FavoritesSection 
+                                onSelectActivity={() => {}} 
+                                targetUserId={inspectingUser.id}
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
             <header className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 p-4 flex justify-between items-center">
@@ -160,8 +224,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                 <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 sticky top-0">
                                     <tr>
                                         <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Kullanıcı</th>
-                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">E-posta</th>
-                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Rol</th>
+                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Üretim</th>
+                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Son Etkinlik</th>
                                         <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Plan</th>
                                         <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Durum</th>
                                         <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400 text-right">İşlemler</th>
@@ -172,18 +236,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                         <tr key={u.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30">
                                             <td className="p-4 flex items-center gap-3">
                                                 <img src={u.avatar} alt="" className="w-8 h-8 rounded-full bg-zinc-200" />
-                                                <span className="font-medium text-zinc-900 dark:text-zinc-100">{u.name}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                                                        {u.name}
+                                                        {u.role === 'admin' && <span className="bg-purple-100 text-purple-700 text-[10px] px-1 rounded">ADMIN</span>}
+                                                    </span>
+                                                    <span className="text-xs text-zinc-500">{u.email}</span>
+                                                </div>
                                             </td>
-                                            <td className="p-4 text-zinc-600 dark:text-zinc-400">{u.email}</td>
-                                            <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>{u.role}</span></td>
+                                            <td className="p-4">
+                                                <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">{u.worksheetCount}</span>
+                                            </td>
+                                            <td className="p-4">
+                                                {u.lastActiveActivity ? (
+                                                    <div className="flex flex-col">
+                                                        <span className="text-zinc-700 dark:text-zinc-300 font-medium">{u.lastActiveActivity.title}</span>
+                                                        <span className="text-xs text-zinc-500">{new Date(u.lastActiveActivity.date).toLocaleDateString()}</span>
+                                                    </div>
+                                                ) : <span className="text-zinc-400">-</span>}
+                                            </td>
                                             <td className="p-4 text-zinc-600 dark:text-zinc-400 capitalize">{u.subscriptionPlan}</td>
                                             <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-bold ${u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{u.status}</span></td>
                                             <td className="p-4 text-right space-x-2">
                                                 {u.id !== user.id && (
                                                     <>
-                                                        <button onClick={() => handleSetRole(u.id, u.role)} className="text-purple-600 hover:text-purple-800" title={u.role === 'admin' ? 'Yönetici Yetkisini Al' : 'Yönetici Yap'}><i className={`fa-solid ${u.role === 'admin' ? 'fa-user-slash' : 'fa-user-shield'}`}></i></button>
-                                                        <button onClick={() => handleToggleStatus(u.id, u.status)} className="text-amber-600 hover:text-amber-800" title={u.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}><i className={`fa-solid ${u.status === 'active' ? 'fa-ban' : 'fa-check'}`}></i></button>
-                                                        <button onClick={() => handleDeleteUser(u.id)} className="text-red-600 hover:text-red-800" title="Sil"><i className="fa-solid fa-trash"></i></button>
+                                                        <button onClick={() => setInspectingUser(u)} className="text-blue-600 hover:text-blue-800 bg-blue-50 p-2 rounded-lg" title="Detaylı İncele"><i className="fa-solid fa-eye"></i></button>
+                                                        <button onClick={() => handleSetRole(u.id, u.role)} className="text-purple-600 hover:text-purple-800 p-2 rounded-lg hover:bg-purple-50" title={u.role === 'admin' ? 'Yönetici Yetkisini Al' : 'Yönetici Yap'}><i className={`fa-solid ${u.role === 'admin' ? 'fa-user-slash' : 'fa-user-shield'}`}></i></button>
+                                                        <button onClick={() => handleToggleStatus(u.id, u.status)} className="text-amber-600 hover:text-amber-800 p-2 rounded-lg hover:bg-amber-50" title={u.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}><i className={`fa-solid ${u.status === 'active' ? 'fa-ban' : 'fa-check'}`}></i></button>
+                                                        <button onClick={() => handleDeleteUser(u.id)} className="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50" title="Sil"><i className="fa-solid fa-trash"></i></button>
                                                     </>
                                                 )}
                                             </td>

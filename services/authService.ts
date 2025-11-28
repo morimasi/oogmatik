@@ -1,9 +1,10 @@
+
 import { auth, db } from './firebaseClient';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile as updateAuthProfile } from "firebase/auth";
 import * as firestore from "firebase/firestore";
-import { User, UserRole, UserStatus } from '../types';
+import { User, UserRole, UserStatus, ActivityType } from '../types';
 
-const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc } = firestore;
+const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 
 const ADMIN_EMAILS = ['morimasi@gmail.com', 'meliksahterdek@gmail.com'];
 
@@ -18,7 +19,9 @@ const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => (
     lastLogin: docData.lastLogin || new Date().toISOString(),
     worksheetCount: docData.worksheetCount || 0,
     status: docData.status || 'active',
-    subscriptionPlan: docData.subscriptionPlan || 'free'
+    subscriptionPlan: docData.subscriptionPlan || 'free',
+    favorites: docData.favorites || [],
+    lastActiveActivity: docData.lastActiveActivity || undefined
 });
 
 export const authService = {
@@ -74,7 +77,8 @@ export const authService = {
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
                 status: 'active',
                 subscriptionPlan: 'free',
-                worksheetCount: 0
+                worksheetCount: 0,
+                favorites: []
             };
 
             await setDoc(doc(db, "users", user.uid), newUserProfile);
@@ -129,11 +133,29 @@ export const authService = {
         if (updates.name) dbUpdates.name = updates.name;
         if (updates.avatar) dbUpdates.avatar = updates.avatar;
         if (updates.worksheetCount !== undefined) dbUpdates.worksheetCount = updates.worksheetCount;
+        if (updates.favorites) dbUpdates.favorites = updates.favorites;
 
         await updateDoc(userDocRef, dbUpdates);
         
         const updatedSnap = await getDoc(userDocRef);
         return mapDbUserToAppUser(updatedSnap.data(), userId, auth.currentUser?.email || '');
+    },
+
+    // Yeni Metot: Kullanıcının aktivite istatistiklerini güncelle
+    recordActivityGeneration: async (userId: string, activityId: string, activityTitle: string): Promise<void> => {
+        try {
+            const userDocRef = doc(db, "users", userId);
+            await updateDoc(userDocRef, {
+                worksheetCount: increment(1),
+                lastActiveActivity: {
+                    id: activityId,
+                    title: activityTitle,
+                    date: new Date().toISOString()
+                }
+            });
+        } catch (e) {
+            console.error("Failed to record activity generation for user", e);
+        }
     },
 
     updatePassword: async (newPassword: string): Promise<void> => {
@@ -154,7 +176,6 @@ export const authService = {
             const users: User[] = [];
             querySnapshot.forEach((doc) => {
                 if (doc.id !== currentUserId) {
-                    // FIX: Cast doc.data() to any to access its properties.
                     const data = doc.data() as any;
                     if (data.status !== 'suspended') {
                         users.push(mapDbUserToAppUser(data, doc.id, data.email));
@@ -169,14 +190,11 @@ export const authService = {
     },
 
     getAllUsers: async (page: number, pageSize: number): Promise<{ users: User[], count: number | null }> => {
-        // Firestore pagination requires cursors, for simplicity we fetch a larger limit here
-        // or implement proper cursor-based pagination if needed later.
         try {
             const q = query(collection(db, "users"), orderBy("createdAt", "desc"), limit(100));
             const querySnapshot = await getDocs(q);
             const users: User[] = [];
             querySnapshot.forEach((doc) => {
-                // FIX: Cast doc.data() to any to access its properties.
                 const data = doc.data() as any;
                 users.push(mapDbUserToAppUser(data, doc.id, data.email));
             });
@@ -189,7 +207,6 @@ export const authService = {
 
     deleteUser: async (userId: string): Promise<void> => {
         await deleteDoc(doc(db, "users", userId));
-        // Note: This only deletes the Firestore doc. Deleting Auth user requires Admin SDK.
     },
 
     toggleUserStatus: async (userId: string, currentStatus: string): Promise<void> => {

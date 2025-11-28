@@ -1,3 +1,4 @@
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -216,6 +217,12 @@ export interface User {
     worksheetCount: number;
     status: UserStatus;
     subscriptionPlan: SubscriptionPlan;
+    favorites?: ActivityType[];
+    lastActiveActivity?: {
+        id: string;
+        title: string;
+        date: string;
+    };
 }
 
 export interface FeedbackItem {
@@ -307,758 +314,193 @@ export interface BaseActivityData {
     imageBase64?: string;
 }
 
-// --- NEW ACTIVITY DATA TYPES ---
-
-export interface FamilyRelationsData extends BaseActivityData {
-    leftColumn: { text: string, id: number }[];
-    rightColumn: { text: string, id: number }[];
-}
-
-export interface LogicDeductionData extends BaseActivityData {
-    questions: {
-        riddle: string;
-        options: string[];
-        answerIndex: number;
-        correctLetter: string; 
-    }[];
-    scoringText?: string;
-}
-
-export interface NumberBoxLogicData extends BaseActivityData {
-    puzzles: {
-        box1: number[];
-        box2: number[];
-        questions: {
-            text: string;
-            options: string[];
-            correctAnswer: string;
-        }[];
-    }[];
-}
-
-export interface MapInstructionData extends BaseActivityData {
-    mapSvg: string; // Or specialized structure
-    instructions: string[];
-    cities: {name: string, x: number, y: number}[];
-}
-
-export interface AttentionDevelopmentData extends BaseActivityData {
-    puzzles: {
-        riddle: string;
-        boxes: {
-            label?: string; // e.g. "Sol Kutu", "Sağ Kutu"
-            numbers: number[];
-        }[];
-        options: string[]; // e.g. "5", "8", "10"
-        answer: string;
-    }[];
-}
-
-export interface AttentionFocusData extends BaseActivityData {
-    puzzles: {
-        riddle: string;
-        boxes: {
-            title?: string;
-            items: string[];
-        }[];
-        options: string[];
-        answer: string;
-    }[];
-}
-
-// --- MIND GAMES (Akıl Oyunları 3-4) ---
-export type MindGamePuzzleType = 'shape_math' | 'matrix_logic' | 'number_pyramid' | 'hexagon_logic' | 'function_machine';
-
-export interface MindGamePuzzle {
-    type: MindGamePuzzleType;
-    // For Shape Math (Triangle/Square/Circle)
-    shape?: 'triangle' | 'square' | 'circle';
-    numbers?: (number | string)[]; // Corners/Outer + Center. Last one might be '?'
-    
-    // For Matrix Logic
-    grid?: (number | string | null)[][]; 
-    
-    // For Function Machine
-    input?: number;
-    output?: number | string;
-    rule?: string; 
-
-    question?: string;
-    answer: string;
-    hint?: string;
-    imagePrompt?: string; 
-}
-
-export interface MindGamesData extends BaseActivityData {
-    puzzles: MindGamePuzzle[];
-}
-
-// --- MIND GAMES (5-6. Sınıf) ---
-export type MindGame56PuzzleType = 'word_problem' | 'number_sequence' | 'visual_logic' | 'cipher';
-
-export interface MindGame56Puzzle {
-    type: MindGame56PuzzleType;
-    title: string;
-    question: string;
-    imagePrompt?: string;
-    imageBase64?: string;
-    options?: string[];
-    answer: string;
-    hint?: string;
-}
-
-export interface MindGames56Data extends BaseActivityData {
-    puzzles: MindGame56Puzzle[];
-}
-
-
-// --- DYSLEXIA SUPPORT TYPES ---
-export interface ReadingFlowData extends BaseActivityData {
-    prompt: string;
-    text: {
-        paragraphs: {
-            sentences: {
-                syllables: { text: string; color: string }[];
-            }[];
-        }[];
-    };
-    readingSpeedTarget?: string;
-}
-
-export interface LetterDiscriminationData extends BaseActivityData {
-    prompt: string;
-    targetLetters: string[];
-    rows: {
-        letters: string[];
-        targetCount: number;
-    }[];
-}
-
-export interface RapidNamingData extends BaseActivityData {
-    prompt: string;
-    grid: {
-        items: { type: 'color' | 'icon' | 'number' | 'letter'; value: string; label: string }[];
-    };
-    type: 'color' | 'object' | 'number' | 'letter';
-}
-
-export interface PhonologicalAwarenessData extends BaseActivityData {
-    prompt: string;
-    exercises: {
-        type: 'syllable-counting' | 'rhyming';
-        question: string;
-        word: string;
-        imagePrompt?: string;
-        imageBase64?: string;
-        options: number[] | string[];
-        answer: number | string;
-    }[];
-}
-
-export interface MirrorLettersData extends BaseActivityData {
-    targetPair: string;
-    rows: {
-        items: { letter: string; isMirrored: boolean; rotation: number }[];
-    }[];
-}
-
-export interface SyllableTrainData extends BaseActivityData {
-    trains: {
-        word: string;
-        syllables: string[];
-        imagePrompt?: string;
-        imageBase64?: string;
-    }[];
-}
-
-export interface VisualTrackingLineData extends BaseActivityData {
-    paths: {
-        id: number;
-        color: string;
-        d: string;
-        startLabel: string;
-        endLabel: string;
-        startImage?: string;
-        endImage?: string;
-    }[];
-    width: number;
-    height: number;
-}
-
-export interface BackwardSpellingData extends BaseActivityData {
-    items: {
-        reversed: string;
-        correct: string;
-        imagePrompt?: string;
-        imageBase64?: string;
-    }[];
-}
-
-export interface CodeReadingData extends BaseActivityData {
-    keyMap: { symbol: string; value: string; color?: string }[];
-    codesToSolve: { sequence: string[]; answer: string }[];
-}
-
-export interface AttentionToQuestionData extends BaseActivityData {
-    subType: 'letter-cancellation' | 'path-finding' | 'visual-logic';
-    // For Letter Cancellation
-    grid?: string[][];
-    targetChars?: string[]; // Chars to cross out
-    password?: string;
-    // For Path Finding
-    pathGrid?: string[][]; // Icons/shapes grid codes (e.g. 'star-filled', 'star-outline')
-    correctPath?: {r: number, c: number}[];
-    // For Visual Logic
-    logicItems?: {
-        id: number;
-        shapes: { color: string, type: string, connectedTo?: number[] }[]; // Abstract representation of pentagons/shapes
-        isOdd: boolean;
-        correctAnswer: string;
-    }[];
-}
-
-// --- DYSCALCULIA SUPPORT TYPES (Consolidated) ---
-export type VisualMathType = 'dots' | 'objects' | 'fingers' | 'shapes' | 'number-line' | 'mixed' | 'ten-frame' | 'domino' | 'number-line-advanced' | 'estimation-jar' | 'spatial-cubes' | 'number-bond' | 'dice' | 'blocks';
-
-export interface DyscalculiaCommonData extends BaseActivityData {
-    layout: 'grid' | 'list' | 'visual';
-}
-
-export interface NumberSenseData extends DyscalculiaCommonData {
-    exercises: {
-        type: 'number-line' | 'comparison' | 'ordering' | 'missing';
-        values: number[];
-        target?: number;
-        visualType?: VisualMathType;
-        step?: number; 
-    }[];
-}
-
-export interface VisualArithmeticData extends DyscalculiaCommonData {
-    problems: {
-        num1: number;
-        num2: number;
-        operator: '+' | '-' | 'x' | '÷' | 'group';
-        answer: number;
-        visualType: VisualMathType;
-        imagePrompt?: string;
-        imageBase64?: string;
-    }[];
-}
-
-export interface SpatialGridData extends DyscalculiaCommonData {
-    gridSize: number;
-    cubeData?: number[][]; 
-    tasks: {
-        type: 'position' | 'direction' | 'copy' | 'path' | 'count-cubes';
-        grid: (string | null)[][];
-        instruction: string;
-        target?: {r: number, c: number};
-    }[];
-}
-
-export interface ConceptMatchData extends DyscalculiaCommonData {
-    pairs: {
-        item1: string | number; 
-        item2: string | number;
-        type: 'symbol' | 'time' | 'fraction' | 'measurement' | 'geometry';
-        imagePrompt1?: string;
-        imageBase64_1?: string;
-        imagePrompt2?: string;
-        imageBase64_2?: string;
-    }[];
-}
-
-export interface EstimationData extends DyscalculiaCommonData {
-    items: {
-        count: number;
-        visualType: VisualMathType;
-        options: number[]; 
-        imagePrompt?: string;
-        imageBase64?: string;
-    }[];
-}
-
-// --- 1. Find The Difference & Word Comparison ---
-export interface FindTheDifferenceData extends BaseActivityData {
-  rows: {
-    items: string[];
-    correctIndex: number;
-    visualDistractionLevel: 'low' | 'medium' | 'high'; 
-  }[];
-}
-
-export interface WordComparisonData extends BaseActivityData {
-    box1Title: string;
-    box2Title: string;
-    wordList1: string[];
-    wordList2: string[];
-    correctDifferences: string[]; 
-}
-
-// --- 2. Shape & Object Matching ---
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon' | 'cube' | 'sphere' | 'pyramid' | 'cone' | 'heart' | 'cloud' | 'moon';
 
-export interface ShapeMatchingData extends BaseActivityData {
-    leftColumn: { id: number | string; shapes: ShapeType[]; color?: string }[];
-    rightColumn: { id: string; shapes: ShapeType[]; color?: string }[];
-    complexity: number; 
-}
-
-export interface FindIdenticalWordData extends BaseActivityData {
-    groups: {
-        words: [string, string]; 
-        distractors: string[]; 
-    }[];
-}
-
-// --- 3. Drawing & Copying Skills ---
-export interface GridDrawingData extends BaseActivityData {
-    gridDim: number;
-    drawings: {
-        lines: [number, number][][]; 
-        complexityLevel: string; 
-    }[];
-}
-
-export interface SymmetryDrawingData extends BaseActivityData {
-    gridDim: number;
-    dots: { x: number; y: number; color?: string }[];
-    lines?: { x1: number; y1: number; x2: number; y2: number }[];
-    axis: 'vertical' | 'horizontal';
-    isMirrorImage: boolean; 
-}
-
-export interface MatchstickSymmetryData extends BaseActivityData {
-    puzzles: {
-      id: number;
-      lines: { x1: number; y1: number; x2: number; y2: number; color?: string }[];
-      axis: 'vertical' | 'horizontal';
-    }[];
-}
-
-// --- 4. Visual Discrimination & Logic ---
-export interface SymbolCipherData extends BaseActivityData {
-    cipherKey: { shape: ShapeType; letter: string; color?: string }[];
-    wordsToSolve: { shapeSequence: ShapeType[]; wordLength: number; answer: string }[];
-}
-
-export interface VisualOddOneOutData extends BaseActivityData {
-    rows: {
-        items: {
-            segments: boolean[]; 
-            rotation?: number;
-        }[];
-        correctIndex: number;
-        reason: string; 
-    }[];
-}
-
-export interface VisualOddOneOutThemedData extends BaseActivityData {
-    rows: {
-        theme: string;
-        items: {
-            description: string;
-            imagePrompt?: string;
-            imageBase64?: string;
-            isOdd: boolean;
-        }[];
-    }[];
-}
-
-// --- 5. Spatial Relations & Scanning ---
-export interface BlockPaintingData extends BaseActivityData {
-    grid: { rows: number; cols: number };
-    targetPattern: number[][]; 
-    shapes: {
-        id: number;
-        color: string; 
-        pattern: number[][]; 
-        count: number; 
-    }[];
-}
-
-export interface ShapeCountingData extends BaseActivityData {
-    figures: {
-        svgPaths: { d: string; fill: string; stroke?: string }[];
-        targetShape: ShapeType | 'triangle';
-        correctCount: number;
-    }[];
-}
-
-export interface DotPaintingData extends BaseActivityData {
-    prompt1: string;
-    prompt2: string; 
-    svgViewBox: string;
-    gridPaths: string[];
-    dots: {
-        cx: number;
-        cy: number;
-        color: string;
-    }[];
-    hiddenImageName: string; 
-}
-
-export interface StarHuntData extends BaseActivityData {
-    grid: (ShapeType | 'star' | 'question' | null)[][];
-    targetCount: number;
-}
-
-// --- 6. Connecting & Maze ---
-export interface AbcConnectData extends BaseActivityData {
-    puzzles: {
-        id: number;
-        gridDim: number;
-        points: {
-            label: string;
-            x: number;
-            y: number;
-            color?: string;
-        }[];
-        paths?: { x: number; y: number }[][]; 
-    }[];
-}
-
-export interface WordConnectData extends BaseActivityData {
-    gridDim: number;
-    points: {
-        word: string;
-        pairId: number;
-        x: number;
-        y: number;
-        color?: string;
-    }[];
-}
-
-export interface CoordinateCipherData extends BaseActivityData {
-    grid: string[][];
-    wordsToFind: string[];
-    cipherCoordinates: string[];
-    decodedMessage: string;
-}
-
-export interface ProfessionConnectData extends BaseActivityData {
-    gridDim: number;
-    points: {
-        label: string;
-        imageDescription: string;
-        imagePrompt?: string;
-        imageBase64?: string;
-        x: number;
-        y: number;
-        pairId: number;
-    }[];
-}
-
-export interface FindDifferentStringData extends BaseActivityData {
-    rows: {
-        items: string[];
-        correctIndex: number;
-    }[];
-}
-
-export interface PunctuationColoringData extends BaseActivityData {
-    sentences: {
-        text: string;
-        color: string;
-        correctMark: string;
-    }[];
-}
-
-export interface SynonymAntonymColoringData extends BaseActivityData {
-    colorKey: {
-        text: string;
-        color: string;
-    }[];
-    wordsOnImage: {
-        word: string;
-        x: number;
-        y: number;
-    }[];
-}
-
-export interface StoryAnalysisData extends BaseActivityData { story: string; imageBase64?: string; analysisQuestions: { type: 'tema' | 'karakter' | 'sebep-sonuç' | 'çıkarım'; question: string; }[]; }
-export interface ProverbSearchData extends BaseActivityData { grid: string[][]; proverb: string; meaning: string; }
-export interface TargetSearchData extends BaseActivityData { grid: string[][]; target: string; distractor: string; }
-export interface ShapeNumberPatternData extends BaseActivityData { patterns: { shapes: { type: 'triangle'; numbers: (number | string)[]; }[]; }[]; }
-
-// --- MATH & LOGIC GAMES ---
-export interface MathPuzzleObject { name: string; imagePrompt?: string; imageBase64?: string; }
-export interface MathPuzzleItem { problem: string; question: string; answer: string; objects?: MathPuzzleObject[]; }
-export interface MathPuzzleData extends BaseActivityData { puzzles: MathPuzzleItem[]; }
+// --- MATH & LOGIC DATA TYPES ---
 export interface NumberPatternData extends BaseActivityData { patterns: { sequence: string; answer: string; }[]; }
+export interface ShapeNumberPatternData extends BaseActivityData { patterns: { shapes: { type: string; numbers: (string|number)[]; }[] }[]; }
+export interface MathPuzzleData extends BaseActivityData { puzzles: { problem: string; question: string; answer: string; objects?: { name: string; imageBase64?: string; }[]; }[]; }
+export interface FutoshikiData extends BaseActivityData { puzzles: { size: number; numbers: (number | null)[][]; constraints: { row1: number; col1: number; row2: number; col2: number; symbol: string; }[]; units?: (string|null)[][]; }[]; }
+export interface NumberPyramidData extends BaseActivityData { pyramids: { title?: string; rows: (number | null)[][]; }[]; }
+export interface NumberCapsuleData extends BaseActivityData { puzzles: { title?: string; grid: (number|null)[][]; capsules: { cells: {row: number; col: number}[]; sum: number; }[]; numbersToUse: string; }[]; }
+export interface OddEvenSudokuData extends BaseActivityData { puzzles: { title?: string; grid: (number|null)[][]; constrainedCells?: {row: number; col: number}[]; shadedCells?: {row: number; col: number}[]; numbersToUse: string; }[]; }
+export interface RomanNumeralConnectData extends BaseActivityData { puzzles: { title?: string; gridDim: number; points: { label: string; x: number; y: number; }[]; }[]; }
+export interface RomanNumeralStarHuntData extends BaseActivityData { grid: (string | null)[][]; starCount: number; prompt?: string; }
+export interface RoundingConnectData extends BaseActivityData { numbers: { value: number; group: number; x: number; y: number; text?: string; }[]; example?: string; prompt?: string; }
+export interface ArithmeticConnectData extends BaseActivityData { expressions: { text: string; value: number; group: number; x: number; y: number; }[]; example?: string; prompt?: string; }
+export interface RomanNumeralMultiplicationData extends BaseActivityData { puzzles: { row1: string; row2: string; col1: string; col2: string; results: { r1c1: string | null; r1c2: string | null; r2c1: string | null; r2c2: string | null; }; }[]; }
+export interface KendokuData extends BaseActivityData { puzzles: { size: number; grid: (number|null)[][]; cages: { cells: {row: number; col: number}[]; operation: string; target: number; }[]; }[]; }
+export interface OperationSquareFillInData extends BaseActivityData { puzzles: { grid: (string|null)[][]; numbersToUse: number[]; results: number[]; }[]; }
+export interface MultiplicationWheelData extends BaseActivityData { puzzles: { outerNumbers: (number|null)[]; innerResult: number; }[]; }
+export interface TargetNumberData extends BaseActivityData { puzzles: { target: number; givenNumbers: number[]; }[]; }
+export interface ShapeSudokuData extends BaseActivityData { puzzles: { grid: (string|null)[][]; shapesToUse: {shape: string; label: string}[]; }[]; }
+export interface VisualNumberPatternData extends BaseActivityData { puzzles: { items: { number: number; color: string; size: number; }[]; rule: string; answer: number; }[]; }
+export interface LogicGridPuzzleData extends BaseActivityData { clues: string[]; people: string[]; categories: { title: string; items: { name: string; imageDescription: string; imagePrompt: string; imageBase64?: string; }[]; }[]; }
 export interface OddOneOutData extends BaseActivityData { groups: { words: string[]; }[]; }
-export interface FutoshikiData extends BaseActivityData { prompt: string; puzzles: { size: number; numbers: (number | null)[][]; units?: (string | null)[][]; constraints: { row1: number; col1: number; row2: number; col2: number; symbol: '>' | '<'; }[]; }[]; }
-export interface NumberPyramidData extends BaseActivityData { prompt: string; pyramids: { title: string; rows: (number | null)[][]; }[]; }
-export interface NumberCapsuleData extends BaseActivityData { prompt: string; puzzles: { title: string; numbersToUse: string; grid: (number | null)[][]; capsules: { cells: { row: number; col: number }[]; sum: number; }[]; }[]; }
-export interface OddEvenSudokuData extends BaseActivityData { prompt: string; puzzles: { title: string; numbersToUse: string; grid: (number | null)[][]; constrainedCells?: { row: number; col: number }[]; shadedCells?: { row: number; col: number }[]; }[]; }
-export interface RomanNumeralConnectData extends BaseActivityData { prompt: string; puzzles: { title: string; gridDim: number; points: { label: string; x: number; y: number; }[]; }[]; }
-export interface RomanNumeralStarHuntData extends BaseActivityData { prompt: string; grid: (string | null)[][]; starCount: number; }
-export interface RoundingConnectData extends BaseActivityData { prompt: string; example: string; numbers: { value: number; group: number; x: number; y: number; }[]; }
-export interface RomanNumeralMultiplicationData extends BaseActivityData { prompt: string; puzzles: { row1: (string | number | null); row2: (string | number | null); col1: (string | number | null); col2: (string | number | null); results: { r1c1: (string | number | null); r1c2: (string | number | null); r2c1: (string | number | null); r2c2: (string | number | null); } }[]; }
-export interface ArithmeticConnectData extends BaseActivityData { prompt: string; example: string; expressions: { text: string; value: number; group: number; x: number; y: number; }[]; }
-export interface RomanArabicMatchConnectData extends BaseActivityData { prompt: string; gridDim: number; points: { label: string; pairId: number; x: number; y: number; }[]; }
-export interface KendokuData extends BaseActivityData { prompt: string; puzzles: { size: number; grid: (number | null)[][]; cages: { cells: { row: number; col: number }[]; operation: '+' | '−' | '×' | '÷'; target: number; }[]; }[]; }
-export interface OperationSquareFillInData extends BaseActivityData { prompt: string; puzzles: { grid: (string | null)[][]; numbersToUse?: number[]; results?: (number | null)[]; }[]; }
-export interface MultiplicationWheelData extends BaseActivityData { prompt: string; puzzles: { outerNumbers: (number | null)[]; innerResult: number; }[]; }
-export interface TargetNumberData extends BaseActivityData { prompt: string; puzzles: { target: number; givenNumbers: number[]; }[]; }
-export interface ShapeSudokuData extends BaseActivityData { prompt: string; puzzles: { grid: (ShapeType | null)[][]; shapesToUse: { shape: ShapeType; label: string; }[]; }[]; }
-export interface WeightConnectDataPoint { label: string; pairId: number; x: number; y: number; imagePrompt?: string; imageBase64?: string; }
-export interface WeightConnectData extends BaseActivityData { prompt: string; gridDim: number; points: WeightConnectDataPoint[]; }
-export interface ResfebeClue { type: 'text' | 'image'; value: string; imageBase64?: string; }
+export interface ShapeCountingData extends BaseActivityData { figures: { svgPaths: { d: string; fill: string; stroke?: string; }[]; targetShape: string; correctCount: number; }[]; }
+export interface ThematicOddOneOutData extends BaseActivityData { theme: string; rows: { words: { text: string; imagePrompt?: string; imageBase64?: string; }[]; oddWord: string; }[]; sentencePrompt: string; prompt?: string; }
+export interface ThematicOddOneOutSentenceData extends BaseActivityData { rows: { words: string[]; oddWord: string; }[]; sentencePrompt: string; prompt?: string; }
+export interface ColumnOddOneOutSentenceData extends BaseActivityData { columns: { words: string[]; oddWord: string; }[]; sentencePrompt: string; prompt?: string; }
+export interface PunctuationMazeData extends BaseActivityData { punctuationMark: string; rules: { id: number; text: string; isCorrect: boolean; isPath?: boolean; }[]; prompt?: string; }
+export interface PunctuationPhoneNumberData extends BaseActivityData { clues: { id: number; text: string; }[]; solution: { punctuationMark: string; number: number; }[]; prompt?: string; }
+export interface BasicOperationsData extends BaseActivityData { operations: { num1: number; num2: number; num3?: number; operator: string; answer: number; remainder?: number; }[]; isVertical?: boolean; }
+export interface RealLifeProblemData extends BaseActivityData { problems: { text: string; solution: string; operationHint: string; imagePrompt: string; imageBase64?: string; }[]; }
+export interface RomanArabicMatchConnectData extends BaseActivityData { gridDim: number; points: { label: string; pairId: number; x: number; y: number; }[]; prompt?: string; }
+export interface WeightConnectData extends BaseActivityData { gridDim: number; points: { label: string; pairId: number; x: number; y: number; imagePrompt?: string; }[]; prompt?: string; }
+export interface LengthConnectData extends BaseActivityData { gridDim: number; points: { label: string; pairId: number; x: number; y: number; imagePrompt?: string; }[]; prompt?: string; }
+
+// --- VISUAL PERCEPTION DATA TYPES ---
+export interface FindTheDifferenceData extends BaseActivityData { rows: { items: string[]; correctIndex: number; visualDistractionLevel: 'low' | 'medium' | 'high'; }[]; }
+export interface WordComparisonData extends BaseActivityData { box1Title: string; box2Title: string; wordList1: string[]; wordList2: string[]; correctDifferences: string[]; }
+export interface ShapeMatchingData extends BaseActivityData { leftColumn: { id: number|string; shapes: ShapeType[]; color: string; }[]; rightColumn: { id: number|string; shapes: ShapeType[]; color: string; }[]; complexity: number; }
+export interface FindIdenticalWordData extends BaseActivityData { groups: { words: [string, string]; distractors: string[]; }[]; }
+export interface GridDrawingData extends BaseActivityData { gridDim: number; drawings: { lines: [number, number][][]; complexityLevel: string; }[]; }
+export interface SymbolCipherData extends BaseActivityData { cipherKey: { shape: string; letter: string; color: string; }[]; wordsToSolve: { shapeSequence: string[]; wordLength: number; answer: string; }[]; }
+export interface BlockPaintingData extends BaseActivityData { grid: { rows: number; cols: number; }; targetPattern: number[][]; shapes: { id: number; color: string; pattern: number[][]; count: number; }[]; }
+export interface VisualOddOneOutData extends BaseActivityData { rows: { items: { segments: boolean[]; rotation?: number; }[]; correctIndex: number; reason: string; }[]; }
+export interface SymmetryDrawingData extends BaseActivityData { gridDim: number; dots: { x: number; y: number; color: string; }[]; axis: 'vertical' | 'horizontal'; isMirrorImage: boolean; }
+export interface FindDifferentStringData extends BaseActivityData { rows: { items: string[]; correctIndex: number; }[]; }
+export interface DotPaintingData extends BaseActivityData { prompt1: string; prompt2: string; svgViewBox: string; gridPaths: string[]; dots: { cx: number; cy: number; color: string; }[]; hiddenImageName: string; }
+export interface AbcConnectData extends BaseActivityData { puzzles: { id: number; gridDim: number; points: { label: string; x: number; y: number; color?: string; imagePrompt?: string; }[]; }[]; }
+export interface CoordinateCipherData extends BaseActivityData { grid: string[][]; wordsToFind: string[]; cipherCoordinates: string[]; decodedMessage: string; }
+export interface WordConnectData extends BaseActivityData { gridDim: number; points: { word: string; pairId: number; x: number; y: number; color: string; }[]; }
+export interface ProfessionConnectData extends BaseActivityData { gridDim: number; points: { label: string; imageDescription: string; imagePrompt: string; x: number; y: number; pairId: number; }[]; }
+export interface MatchstickSymmetryData extends BaseActivityData { puzzles: { id: number; axis: string; lines: { x1: number; y1: number; x2: number; y2: number; color: string; }[]; }[]; }
+export interface VisualOddOneOutThemedData extends BaseActivityData { rows: { theme: string; items: { description: string; imagePrompt: string; isOdd: boolean; imageBase64?: string; }[]; }[]; }
+export interface PunctuationColoringData extends BaseActivityData { sentences: { text: string; color: string; correctMark: string; }[]; }
+export interface SynonymAntonymColoringData extends BaseActivityData { colorKey: { text: string; color: string; }[]; wordsOnImage: { word: string; x: number; y: number; }[]; }
+export interface StarHuntData extends BaseActivityData { grid: (string | null)[][]; targetCount: number; }
+
+// --- WORD GAMES DATA TYPES ---
+export interface WordSearchData extends BaseActivityData { grid: string[][]; words: string[]; hiddenMessage?: string; followUpQuestion?: string; writingPrompt?: string; theme?: string; prompt?: string; }
+export interface WordSearchWithPasswordData extends BaseActivityData { grid: string[][]; words: string[]; passwordCells: { row: number; col: number; }[]; prompt?: string; }
+export interface LetterGridWordFindData extends BaseActivityData { grid: string[][]; words: string[]; writingPrompt: string; prompt?: string; }
+export interface ThematicWordSearchColorData extends WordSearchData {}
+export interface SynonymWordSearchData extends BaseActivityData { grid: string[][]; wordsToMatch: { word: string; synonym: string; }[]; prompt?: string; }
+export interface SynonymSearchAndStoryData extends BaseActivityData { grid: string[][]; wordTable: { word: string; synonym: string; }[]; storyPrompt: string; prompt?: string; }
+export interface AnagramsData extends BaseActivityData { anagrams: { word: string; scrambled: string; imageBase64: string; }[]; sentencePrompt: string; prompt?: string; }
+export interface SpellingCheckData extends BaseActivityData { checks: { correct: string; options: string[]; imageBase64?: string; imagePrompt: string; }[]; }
+export interface LetterBridgeData extends BaseActivityData { pairs: { word1: string; word2: string; }[]; followUpPrompt: string; }
+export interface WordLadderData extends BaseActivityData { theme: string; ladders: { startWord: string; endWord: string; steps: number; }[]; }
+export interface WordFormationData extends BaseActivityData { sets: { letters: string[]; jokerCount: number; }[]; mysteryWordChallenge?: { prompt: string; solution: string; }; }
+export interface ReverseWordData extends BaseActivityData { words: string[]; funFact: string; }
+export interface WordGroupingData extends BaseActivityData { words: { text: string; imageBase64?: string; imagePrompt: string; }[]; categoryNames: string[]; }
+export interface MiniWordGridData extends BaseActivityData { prompt: string; puzzles: { grid: string[][]; start: { row: number; col: number; }; }[]; }
+export interface PasswordFinderData extends BaseActivityData { prompt: string; words: { word: string; passwordLetter: string; isProperNoun: boolean; }[]; passwordLength: number; }
+export interface SyllableCompletionData extends BaseActivityData { prompt: string; theme: string; wordParts: { first: string; second: string; }[]; syllables: string[]; storyTemplate?: string; storyPrompt: string; }
+export interface SpiralPuzzleData extends BaseActivityData { theme: string; prompt: string; clues: string[]; grid: string[][]; wordStarts: { id: number; row: number; col: number; }[]; passwordPrompt: string; }
+export interface PunctuationSpiralPuzzleData extends SpiralPuzzleData {}
+export interface CrosswordClue { id: number; direction: 'across'|'down'; text: string; start: { row: number; col: number; }; word: string; imageBase64?: string; }
+export interface CrosswordData extends BaseActivityData { theme: string; prompt: string; grid: (string|null)[][]; clues: CrosswordClue[]; passwordCells?: { row: number; col: number; }[]; passwordLength?: number; passwordPrompt?: string; }
+export interface JumbledWordStoryData extends BaseActivityData { theme: string; prompt: string; puzzles: { jumbled: string[]; word: string; }[]; storyPrompt: string; }
+export interface HomonymSentenceData extends BaseActivityData { prompt: string; items: { word: string; meaning1: string; meaning2: string; imageBase64_1?: string; imageBase64_2?: string; }[]; }
+export interface WordGridPuzzleData extends BaseActivityData { theme: string; prompt: string; wordList: string[]; grid: (string|null)[][]; unusedWordPrompt: string; }
+export interface HomonymImageMatchData extends BaseActivityData { prompt: string; leftImages: { id: number; word: string; imageBase64: string; }[]; rightImages: { id: number; word: string; imageBase64: string; }[]; wordScramble: { letters: string[]; word: string; }; }
+export interface AntonymFlowerPuzzleData extends BaseActivityData { prompt: string; puzzles: { centerWord: string; antonym: string; petalLetters: string[]; }[]; passwordLength: number; }
+export interface SynonymAntonymGridData extends BaseActivityData { prompt: string; antonyms: { word: string; }[]; synonyms: { word: string; }[]; grid: string[][]; }
+export interface ResfebeClue { type: 'text'|'image'; value: string; imageBase64?: string; imagePrompt?: string; }
+export interface AntonymResfebeData extends BaseActivityData { prompt: string; puzzles: { word: string; antonym: string; clues: ResfebeClue[]; imagePrompt?: string; }[]; antonymsPrompt: string; }
+export interface SynonymMatchingPatternData extends BaseActivityData { theme: string; prompt: string; pairs: { word: string; synonym: string; }[]; }
+export interface MissingPartsData extends BaseActivityData { prompt: string; leftParts: { id: number; text: string; }[]; rightParts: { id: number; text: string; }[]; givenParts: { word: string; parts: string[]; }[]; }
+export interface WordWebData extends BaseActivityData { prompt: string; wordsToFind: string[]; grid: string[][]; keyWordPrompt: string; }
+export interface SyllableWordSearchData extends BaseActivityData { prompt: string; syllablesToCombine: string[]; wordsToCreate: { syllable1: string; syllable2: string; answer: string; }[]; wordsToFindInSearch: string[]; grid: string[][]; passwordPrompt: string; }
+export interface WordWebWithPasswordData extends BaseActivityData { prompt: string; words: string[]; grid: string[][]; passwordColumnIndex: number; }
+export interface WordPlacementPuzzleData extends BaseActivityData { prompt: string; grid: (string|null)[][]; wordGroups: { length: number; words: string[]; }[]; unusedWordPrompt: string; }
+export interface PositionalAnagramData extends BaseActivityData { prompt: string; puzzles: { id: number; scrambled: string; answer: string; }[]; }
+export interface ImageAnagramSortData extends BaseActivityData { prompt: string; cards: { imageDescription: string; imageBase64?: string; imagePrompt?: string; scrambledWord: string; correctWord: string; }[]; }
+export interface AnagramImageMatchData extends BaseActivityData { prompt: string; wordBank: string[]; puzzles: { imageDescription: string; imageBase64?: string; imagePrompt?: string; partialAnswer: string; correctWord: string; }[]; }
 export interface ResfebeData extends BaseActivityData { prompt: string; puzzles: { clues: ResfebeClue[]; answer: string; }[]; }
-export interface WordWebData extends BaseActivityData { prompt: string; wordsToFind: string[]; grid: (string | null)[][]; keyWordPrompt: string; }
-export interface LengthConnectDataPoint { label: string; pairId: number; x: number; y: number; imagePrompt?: string; imageBase64?: string; }
-export interface LengthConnectData extends BaseActivityData { prompt: string; gridDim: number; points: LengthConnectDataPoint[]; }
-export interface VisualNumberPatternData extends BaseActivityData { prompt: string; puzzles: { items: { number: number; color: string; size: number; }[]; rule: string; answer: number; }[]; }
-export interface MissingPartsData extends BaseActivityData { prompt: string; leftParts: { id: number; text: string }[]; rightParts: { id: number; text: string }[]; givenParts: { word: string; parts: string[] }[]; }
-export interface LogicGridPuzzleData extends BaseActivityData { prompt: string; clues: string[]; people: string[]; categories: { title: string; items: { name: string; imageDescription: string; imagePrompt?: string; imageBase64?: string; }[]; }[]; }
-export interface ThematicOddOneOutWord { text: string; imagePrompt?: string; imageBase64?: string; }
-export interface ThematicOddOneOutData extends BaseActivityData { prompt: string; theme: string; rows: { words: ThematicOddOneOutWord[]; oddWord: string; }[]; sentencePrompt: string; }
-export interface ThematicOddOneOutSentenceData extends BaseActivityData { prompt: string; rows: { words: string[]; oddWord: string; }[]; sentencePrompt: string; }
-export interface ColumnOddOneOutSentenceData extends BaseActivityData { prompt: string; columns: { words: string[]; oddWord: string; }[]; sentencePrompt: string; }
-export interface PunctuationMazeData extends BaseActivityData { prompt: string; punctuationMark: string; rules: { id: number; text: string; isCorrect: boolean; }[]; }
-export interface PunctuationPhoneNumberData extends BaseActivityData { prompt: string; instruction: string; clues: { id: number; text: string; }[]; solution: { punctuationMark: string; number: number; }[]; }
 
-// --- NEW MATH MODULES ---
-export interface BasicOperationsData extends BaseActivityData {
-    operations: {
-        num1: number;
-        num2: number;
-        num3?: number; 
-        operator: '+' | '-' | 'x' | '÷';
-        answer: number;
-        remainder?: number; 
-    }[];
-    isVertical: boolean;
-}
+// --- MEMORY & ATTENTION DATA TYPES ---
+export interface WordMemoryItem { text: string; imagePrompt?: string; }
+export interface WordMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; wordsToMemorize: WordMemoryItem[]; testWords: WordMemoryItem[]; }
+export interface VisualMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; itemsToMemorize: { description: string; imagePrompt?: string; }[]; testItems: { description: string; imagePrompt?: string; }[]; }
+export interface NumberSearchData extends BaseActivityData { numbers: number[]; range: { start: number; end: number; }; }
+export interface FindDuplicateData extends BaseActivityData { rows: string[][]; }
+export interface LetterGridTestData extends BaseActivityData { grid: string[][]; targetLetters: string[]; }
+export interface FindLetterPairData extends BaseActivityData { grid: string[][]; targetPair: string; }
+export interface TargetSearchData extends BaseActivityData { grid: string[][]; target: string; distractor: string; }
+export interface ColorWheelMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; items: { name: string; color: string; imagePrompt?: string; }[]; }
+export interface ImageComprehensionData extends BaseActivityData { memorizeTitle: string; testTitle: string; sceneDescription: string; imageBase64?: string; questions: string[]; }
+export interface CharacterMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; charactersToMemorize: { description: string; imageBase64?: string; imagePrompt?: string; }[]; testCharacters: { description: string; imageBase64?: string; imagePrompt?: string; }[]; }
+export interface StroopTestData extends BaseActivityData { items: { text: string; color: string; }[]; }
+export interface ChaoticNumberSearchData extends BaseActivityData { prompt: string; numbers: { value: number; x: number; y: number; size: number; rotation: number; color: string; }[]; range: { start: number; end: number; }; }
 
-export interface RealLifeProblemData extends BaseActivityData {
-    problems: {
-        text: string;
-        imagePrompt?: string;
-        imageBase64?: string;
-        solution?: string;
-        operationHint?: string; 
-    }[];
-}
+// --- DYSLEXIA SUPPORT DATA TYPES ---
+export interface ReadingFlowData extends BaseActivityData { prompt?: string; text: { paragraphs: { sentences: { syllables: { text: string; color: string; }[] }[] }[] }; }
+export interface LetterDiscriminationData extends BaseActivityData { targetLetters: string[]; rows: { letters: string[]; targetCount: number; }[]; prompt?: string; }
+export interface RapidNamingData extends BaseActivityData { grid: { items: { type: 'icon'|'color'|'number'; value: string; label: string; }[] }; type: 'color'|'object'|'number'; prompt?: string; }
+export interface PhonologicalAwarenessData extends BaseActivityData { exercises: { type: string; question: string; word: string; options: (string|number)[]; answer: string|number; }[]; prompt?: string; }
+export interface MirrorLettersData extends BaseActivityData { targetPair: string; rows: { items: { letter: string; isMirrored: boolean; rotation: number; }[] }[]; }
+export interface SyllableTrainData extends BaseActivityData { trains: { word: string; syllables: string[]; }[]; }
+export interface VisualTrackingLineData extends BaseActivityData { width: number; height: number; paths: { id: number; color: string; d: string; startLabel: string; endLabel: string; }[]; }
+export interface BackwardSpellingData extends BaseActivityData { items: { reversed: string; correct: string; }[]; }
+export interface CodeReadingData extends BaseActivityData { keyMap: { symbol: string; value: string; color: string; }[]; codesToSolve: { sequence: string[]; answer: string; }[]; }
+export interface AttentionToQuestionData extends BaseActivityData { subType: 'letter-cancellation'|'path-finding'|'visual-logic'; grid?: string[][]; targetChars?: string[]; password?: string; pathGrid?: string[][]; logicItems?: { id: number; isOdd: boolean; correctAnswer: string; shapes: any[]; }[]; }
+export interface AttentionDevelopmentData extends BaseActivityData { puzzles: { riddle: string; boxes: { label: string; numbers: number[]; }[]; options: string[]; answer: string; }[]; }
+export interface AttentionFocusData extends BaseActivityData { puzzles: { riddle: string; boxes: { title?: string; items: string[]; }[]; options: string[]; answer: string; }[]; }
 
-// Other Exports
-export interface WordSearchData extends BaseActivityData { grid: string[][]; words: string[]; hiddenMessage?: string; followUpQuestion?: string; writingPrompt?: string; }
-export interface AnagramItem { word: string; scrambled: string; imageBase64?: string; }
-export interface AnagramsData extends BaseActivityData { prompt: string; anagrams: AnagramItem[]; sentencePrompt: string; }
+// --- READING COMPREHENSION DATA TYPES ---
 export interface MultipleChoiceStoryQuestion { type: 'multiple-choice'; question: string; options: string[]; answerIndex: number; }
 export interface OpenEndedStoryQuestion { type: 'open-ended'; question: string; }
 export type StoryQuestion = MultipleChoiceStoryQuestion | OpenEndedStoryQuestion;
-export interface StoryData extends BaseActivityData { story: string; imageBase64?: string; mainIdea: string; characters: string[]; setting: string; questions: StoryQuestion[]; }
-export interface StroopTestData extends BaseActivityData { items: { text: string; color: string; }[]; }
-export interface SpellingCheckItem { correct: string; options: string[]; imagePrompt?: string; imageBase64?: string; }
-export interface SpellingCheckData extends BaseActivityData { checks: SpellingCheckItem[]; }
-export interface LetterGridTestData extends BaseActivityData { grid: string[][]; targetLetters: string[]; }
-export interface NumberSearchData extends BaseActivityData { numbers: (number | string)[]; range: { start: number; end: number; } }
-export interface WordMemoryItem { text: string; imagePrompt?: string; imageBase64?: string; }
-export interface WordMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; wordsToMemorize: WordMemoryItem[]; testWords: WordMemoryItem[]; }
-export interface StoryCreationPromptData extends BaseActivityData { prompt: string; keywords: string[]; imageBase64?: string; }
-export interface WordsInStoryData extends BaseActivityData { story: string; questions: { word: string; question: string; }[]; imagePrompt?: string; imageBase64?: string; }
-export interface ProverbFillData extends BaseActivityData { proverbs: { start: string; end: string; full: string; }[]; meaning: string; usagePrompt: string; imagePrompt?: string; imageBase64?: string; }
-export interface LetterBridgeData extends BaseActivityData { pairs: { word1: string; word2: string; }[]; followUpPrompt?: string; }
-export interface FindDuplicateData extends BaseActivityData { rows: string[][]; }
-export interface WordLadderData extends BaseActivityData { theme?: string; ladders: { startWord: string; endWord: string; steps: number; }[]; }
-export interface WordFormationData extends BaseActivityData { sets: { letters: string[]; jokerCount: number; }[]; mysteryWordChallenge?: { prompt: string; solution: string; }; }
-export interface ReverseWordData extends BaseActivityData { words: string[]; funFact?: string; }
-export interface FindLetterPairData extends BaseActivityData { grid: string[][]; targetPair: string; }
-export interface WordGroupItem { text: string; imagePrompt?: string; imageBase64?: string; }
-export interface WordGroupingData extends BaseActivityData { words: WordGroupItem[]; categoryNames: string[]; }
-export interface VisualMemoryItem { description: string; imagePrompt?: string; imageBase64?: string; }
-export interface VisualMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; itemsToMemorize: VisualMemoryItem[]; testItems: VisualMemoryItem[]; }
-export interface ColorWheelObject { name: string; color: string; imagePrompt?: string; imageBase64?: string; }
-export interface ColorWheelMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; items: ColorWheelObject[]; }
-export interface ImageComprehensionData extends BaseActivityData { memorizeTitle: string; testTitle: string; sceneDescription: string; imageBase64?: string; questions: string[]; }
-export interface CharacterObject { description: string; imageBase64?: string; }
-export interface CharacterMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; charactersToMemorize: CharacterObject[]; testCharacters: CharacterObject[]; }
-export interface StorySequencingData extends BaseActivityData { prompt: string; panels: { id: string; description: string; imageBase64?: string; }[]; }
-export interface ChaoticNumberSearchData extends BaseActivityData { prompt: string; numbers: { value: number; x: number; y: number; size: number; rotation: number; color: string; }[]; range: { start: number; end: number; } }
-export interface MiniWordGridData extends BaseActivityData { prompt: string; puzzles: { grid: string[][]; start: { row: number; col: number }; }[]; }
-export interface PasswordFinderData extends BaseActivityData { prompt: string; words: { word: string; passwordLetter: string; isProperNoun: boolean; }[]; passwordLength: number; }
-export interface SyllableCompletionData extends BaseActivityData { prompt: string; theme: string; wordParts: { first: string; second: string; }[]; syllables: string[]; storyTemplate?: string; storyPrompt: string; }
-export interface SynonymWordSearchData extends BaseActivityData { prompt: string; wordsToMatch: { word: string; synonym: string; }[]; grid: string[][]; }
-export interface SpiralPuzzleData extends BaseActivityData { prompt: string; theme: string; clues: string[]; grid: string[][]; wordStarts: { id: number; row: number; col: number; }[]; passwordPrompt: string; }
-export interface CrosswordClue { id: number; direction: 'across' | 'down'; text: string; start: { row: number; col: number }; word: string; imageBase64?: string; }
-export interface CrosswordData extends BaseActivityData { prompt: string; theme: string; grid: (string | null)[][]; clues: CrosswordClue[]; passwordCells: { row: number; col: number; }[]; passwordLength: number; passwordPrompt: string; }
-export interface JumbledWordStoryData extends BaseActivityData { prompt: string; theme: string; puzzles: { jumbled: string[]; word: string; }[]; storyPrompt: string; }
-export interface HomonymSentenceItem { word: string; meaning1: string; imageBase64_1?: string; meaning2: string; meaning2_text?:string; imageBase64_2?: string; } 
-export interface HomonymSentenceData extends BaseActivityData { prompt: string; items: HomonymSentenceItem[]; }
-export interface WordGridPuzzleData extends BaseActivityData { prompt: string; theme: string; wordList: string[]; grid: (string | null)[][]; unusedWordPrompt: string; }
-export interface ProverbSayingSortData extends BaseActivityData { prompt: string; items: { text: string; type: 'atasözü' | 'özdeyiş'; }[]; }
-export interface HomonymImageMatchData extends BaseActivityData { prompt: string; leftImages: { id: number; word: string; imageBase64?: string }[]; rightImages: { id: number; word: string; imageBase64?: string }[]; wordScramble: { letters: string[]; word: string; }; }
-export interface AntonymFlowerPuzzleData extends BaseActivityData { prompt: string; puzzles: { centerWord: string; antonym: string; petalLetters: string[]; }[]; passwordLength: number; }
+export interface StoryData extends BaseActivityData { story: string; mainIdea: string; characters: string[]; setting: string; questions: StoryQuestion[]; }
+export interface StoryAnalysisData extends BaseActivityData { story: string; analysisQuestions: { type: string; question: string; }[]; }
+export interface StoryCreationPromptData extends BaseActivityData { prompt: string; keywords: string[]; }
+export interface WordsInStoryData extends BaseActivityData { story: string; questions: { word: string; question: string; }[]; }
+export interface StorySequencingData extends BaseActivityData { prompt: string; panels: { id: string; description: string; imageBase64?: string; imagePrompt?: string; }[]; }
+export interface ProverbFillData extends BaseActivityData { proverbs: { start: string; end: string; full: string; }[]; meaning: string; usagePrompt: string; }
+export interface ProverbSayingSortData extends BaseActivityData { prompt: string; items: { text: string; type: 'atasözü'|'özdeyiş'; }[]; }
 export interface ProverbWordChainData extends BaseActivityData { prompt: string; wordCloud: { word: string; color: string; }[]; solutions: string[]; }
-export interface SynonymAntonymGridData extends BaseActivityData { prompt: string; antonyms: { word: string }[]; synonyms: { word: string }[]; grid: string[][]; nuanceQuestion?: { sentence: string; word: string; options: string[]; }; }
-export interface AntonymResfebeData extends BaseActivityData { prompt: string; puzzles: { word: string; antonym: string; imageBase64?: string; clues: { type: 'text' | 'image'; value: string; }[]; }[]; antonymsPrompt: string; }
-export interface ThematicWordSearchColorData extends BaseActivityData { prompt: string; theme: string; words: string[]; grid: string[][]; }
-export interface ProverbSentenceFinderData extends BaseActivityData { prompt: string; wordCloud: { word: string; color: string; }[]; solutions: string[]; }
-export interface SynonymSearchAndStoryData extends BaseActivityData { prompt: string; wordTable: { word: string; synonym: string; }[]; grid: string[][]; storyPrompt: string; }
-export interface PunctuationSpiralPuzzleData extends BaseActivityData { prompt: string; theme: string; clues: string[]; grid: string[][]; wordStarts: { id: number; row: number; col: number; }[]; passwordPrompt: string; }
-export interface SynonymMatchingPatternData extends BaseActivityData { prompt: string; theme: string; pairs: { word: string; synonym: string; }[]; }
-export interface ImageAnagramSortData extends BaseActivityData { prompt: string; cards: { imageDescription: string; imageBase64?: string; scrambledWord: string; correctWord: string; }[]; }
-export interface AnagramImageMatchData extends BaseActivityData { prompt: string; wordBank: string[]; puzzles: { imageDescription: string; imageBase64?: string; partialAnswer: string; correctWord: string; }[]; }
-export interface SyllableWordSearchData extends BaseActivityData { prompt: string; syllablesToCombine: string[]; wordsToCreate: { syllable1: string; syllable2: string; answer: string; }[]; wordsToFindInSearch: string[]; grid: string[][]; passwordPrompt: string; }
-export interface WordSearchWithPasswordData extends BaseActivityData { prompt: string; grid: string[][]; words: string[]; passwordCells: { row: number; col: number; }[]; }
-export interface WordWebWithPasswordData extends BaseActivityData { prompt: string; words: string[]; grid: (string | null)[][]; passwordColumnIndex: number; }
-export interface LetterGridWordFindData extends BaseActivityData { prompt: string; words: string[]; grid: string[][]; writingPrompt: string; }
-export interface WordPlacementPuzzleData extends BaseActivityData { prompt: string; grid: (string | null)[][]; wordGroups: { length: number; words: string[]; }[]; unusedWordPrompt: string; }
-export interface PositionalAnagramData extends BaseActivityData { prompt: string; puzzles: { id: number; scrambled: string; answer: string; }[]; }
-export interface ReadingFlowData extends BaseActivityData { prompt: string; text: { paragraphs: { sentences: { syllables: { text: string; color: string }[]; }[]; }[]; }; readingSpeedTarget?: string; }
-export interface LetterDiscriminationData extends BaseActivityData { prompt: string; targetLetters: string[]; rows: { letters: string[]; targetCount: number; }[]; }
-export interface RapidNamingData extends BaseActivityData { prompt: string; grid: { items: { type: 'color' | 'icon' | 'number' | 'letter'; value: string; label: string }[]; }; type: 'color' | 'object' | 'number' | 'letter'; }
-export interface PhonologicalAwarenessData extends BaseActivityData { prompt: string; exercises: { type: 'syllable-counting' | 'rhyming'; question: string; word: string; imagePrompt?: string; imageBase64?: string; options: number[] | string[]; answer: number | string; }[]; }
-export interface MirrorLettersData extends BaseActivityData { targetPair: string; rows: { items: { letter: string; isMirrored: boolean; rotation: number }[]; }[]; }
-export interface SyllableTrainData extends BaseActivityData { trains: { word: string; syllables: string[]; imagePrompt?: string; imageBase64?: string; }[]; }
-export interface VisualTrackingLineData extends BaseActivityData { paths: { id: number; color: string; d: string; startLabel: string; endLabel: string; startImage?: string; endImage?: string; }[]; width: number; height: number; }
-export interface BackwardSpellingData extends BaseActivityData { items: { reversed: string; correct: string; imagePrompt?: string; imageBase64?: string; }[]; }
+export interface ProverbSentenceFinderData extends ProverbWordChainData {}
+export interface ProverbSearchData extends BaseActivityData { grid: string[][]; proverb: string; meaning: string; }
+
+// --- NEW ACTIVITY TYPES ---
+export interface FamilyRelationsData extends BaseActivityData { leftColumn: { text: string; id: number; }[]; rightColumn: { text: string; id: number; }[]; }
+export interface LogicDeductionData extends BaseActivityData { questions: { riddle: string; options: string[]; answerIndex: number; correctLetter: string; }[]; scoringText?: string; }
+export interface NumberBoxLogicData extends BaseActivityData { puzzles: { box1: number[]; box2: number[]; questions: { text: string; options: string[]; correctAnswer: string; }[]; }[]; }
+export interface MapInstructionData extends BaseActivityData { mapSvg?: string; cities: { name: string; x: number; y: number; }[]; instructions: string[]; }
+export interface MindGamesData extends BaseActivityData { puzzles: { type: string; shape?: string; numbers?: (number|string)[]; grid?: (number|string|null)[][]; input?: number; output?: string; rule?: string; question?: string; answer: string; hint?: string; imagePrompt: string; imageBase64?: string; }[]; }
+export interface MindGames56Data extends BaseActivityData { puzzles: { type: string; title: string; question: string; answer: string; hint?: string; imagePrompt: string; imageBase64?: string; }[]; }
+
+// --- DYSCALCULIA SPECIFIC TYPES ---
+export interface NumberSenseData extends BaseActivityData { layout: 'list'|'visual'; exercises: { type: string; values: number[]; target: number; visualType: string; step?: number; }[]; }
+export interface VisualArithmeticData extends BaseActivityData { layout: 'visual'; problems: { num1: number; num2: number; operator: string; answer: number; visualType: VisualMathType; imagePrompt: string; }[]; }
+export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 'mixed' | 'blocks' | 'number-line-advanced' | 'estimation-jar';
+export interface SpatialGridData extends BaseActivityData { layout: 'grid'; gridSize: number; cubeData?: number[][]; tasks: { type: string; grid: any; instruction: string; target: { r: number; c: number; }; }[]; }
+export interface ConceptMatchData extends BaseActivityData { layout: 'list'|'visual'; pairs: { item1: string; item2: string; type: string; imagePrompt1?: string; }[]; }
+export interface EstimationData extends BaseActivityData { layout: 'visual'; items: { count: number; visualType: string; options: number[]; imagePrompt: string; }[]; }
 
 export type SingleWorksheetData = 
-  | FindTheDifferenceData
-  | WordComparisonData
-  | ShapeMatchingData
-  | FindIdenticalWordData
-  | GridDrawingData
-  | SymbolCipherData
-  | BlockPaintingData
-  | VisualOddOneOutData
-  | SymmetryDrawingData
-  | FindDifferentStringData
-  | DotPaintingData
-  | AbcConnectData
-  | WordConnectData
-  | CoordinateCipherData
-  | ProfessionConnectData
-  | MatchstickSymmetryData
-  | VisualOddOneOutThemedData
-  | PunctuationColoringData
-  | SynonymAntonymColoringData
-  | StarHuntData
-  | WordSearchData 
-  | AnagramsData
-  | MathPuzzleData 
-  | StoryData 
-  | StroopTestData
-  | NumberPatternData
-  | SpellingCheckData
-  | LetterGridTestData
-  | NumberSearchData
-  | WordMemoryData
-  | StoryCreationPromptData
-  | WordsInStoryData
-  | OddOneOutData
-  | ProverbFillData
-  | LetterBridgeData
-  | FindDuplicateData
-  | WordLadderData
-  | WordFormationData
-  | ReverseWordData
-  | FindLetterPairData
-  | WordGroupingData
-  | VisualMemoryData
-  | StoryAnalysisData
-  | ProverbSearchData
-  | TargetSearchData
-  | ShapeNumberPatternData
-  | ColorWheelMemoryData
-  | ImageComprehensionData
-  | CharacterMemoryData
-  | StorySequencingData
-  | ChaoticNumberSearchData
-  | MiniWordGridData
-  | ShapeCountingData
-  | PasswordFinderData
-  | SyllableCompletionData
-  | SynonymWordSearchData
-  | SpiralPuzzleData
-  | CrosswordData
-  | JumbledWordStoryData
-  | HomonymSentenceData
-  | WordGridPuzzleData
-  | ProverbSayingSortData
-  | HomonymImageMatchData
-  | AntonymFlowerPuzzleData
-  | ProverbWordChainData
-  | ThematicOddOneOutData
-  | SynonymAntonymGridData
-  | PunctuationMazeData
-  | AntonymResfebeData
-  | ThematicWordSearchColorData
-  | ThematicOddOneOutSentenceData
-  | ProverbSentenceFinderData
-  | SynonymSearchAndStoryData
-  | ColumnOddOneOutSentenceData
-  | PunctuationPhoneNumberData
-  | PunctuationSpiralPuzzleData
-  | SynonymMatchingPatternData
-  | FutoshikiData
-  | NumberPyramidData
-  | NumberCapsuleData
-  | OddEvenSudokuData
-  | RomanNumeralConnectData
-  | RomanNumeralStarHuntData
-  | RoundingConnectData
-  | RomanNumeralMultiplicationData
-  | ArithmeticConnectData
-  | RomanArabicMatchConnectData
-  | KendokuData
-  | OperationSquareFillInData
-  | MultiplicationWheelData
-  | TargetNumberData
-  | ShapeSudokuData
-  | WeightConnectData
-  | ResfebeData
-  | WordWebData
-  | LengthConnectData
-  | VisualNumberPatternData
-  | MissingPartsData
-  | LogicGridPuzzleData
-  | ImageAnagramSortData
-  | AnagramImageMatchData
-  | SyllableWordSearchData
-  | WordSearchWithPasswordData
-  | WordWebWithPasswordData
-  | LetterGridWordFindData
-  | WordPlacementPuzzleData
-  | PositionalAnagramData
-  | ReadingFlowData
-  | LetterDiscriminationData
-  | RapidNamingData
-  | PhonologicalAwarenessData
-  | MirrorLettersData
-  | SyllableTrainData
-  | VisualTrackingLineData
-  | BackwardSpellingData
-  | BasicOperationsData
-  | RealLifeProblemData
-  | NumberSenseData
-  | VisualArithmeticData
-  | SpatialGridData
-  | ConceptMatchData
-  | EstimationData
-  | FamilyRelationsData
-  | LogicDeductionData
-  | NumberBoxLogicData
-  | MapInstructionData
-  | CodeReadingData
-  | AttentionToQuestionData
-  | AttentionDevelopmentData
-  | AttentionFocusData
-  | MindGamesData
-  | MindGames56Data;
+    | NumberPatternData | ShapeNumberPatternData | MathPuzzleData | FutoshikiData | NumberPyramidData | NumberCapsuleData | OddEvenSudokuData 
+    | RomanNumeralConnectData | RomanNumeralStarHuntData | RoundingConnectData | ArithmeticConnectData | RomanNumeralMultiplicationData 
+    | KendokuData | OperationSquareFillInData | MultiplicationWheelData | TargetNumberData | ShapeSudokuData | VisualNumberPatternData 
+    | LogicGridPuzzleData | OddOneOutData | ShapeCountingData | ThematicOddOneOutData | ThematicOddOneOutSentenceData | ColumnOddOneOutSentenceData 
+    | PunctuationMazeData | PunctuationPhoneNumberData | BasicOperationsData | RealLifeProblemData | RomanArabicMatchConnectData | WeightConnectData 
+    | LengthConnectData | FindTheDifferenceData | WordComparisonData | ShapeMatchingData | FindIdenticalWordData | GridDrawingData | SymbolCipherData 
+    | BlockPaintingData | VisualOddOneOutData | SymmetryDrawingData | FindDifferentStringData | DotPaintingData | AbcConnectData | CoordinateCipherData 
+    | WordConnectData | ProfessionConnectData | MatchstickSymmetryData | VisualOddOneOutThemedData | PunctuationColoringData | SynonymAntonymColoringData 
+    | StarHuntData | StoryData | StoryAnalysisData | StoryCreationPromptData | WordsInStoryData | StorySequencingData | ProverbFillData | ProverbSayingSortData 
+    | ProverbWordChainData | ProverbSentenceFinderData | ProverbSearchData | WordSearchData | WordSearchWithPasswordData | LetterGridWordFindData 
+    | ThematicWordSearchColorData | SynonymWordSearchData | SynonymSearchAndStoryData | AnagramsData | SpellingCheckData | LetterBridgeData | WordLadderData 
+    | WordFormationData | ReverseWordData | WordGroupingData | MiniWordGridData | PasswordFinderData | SyllableCompletionData | SpiralPuzzleData 
+    | PunctuationSpiralPuzzleData | CrosswordData | JumbledWordStoryData | HomonymSentenceData | WordGridPuzzleData | HomonymImageMatchData 
+    | AntonymFlowerPuzzleData | SynonymAntonymGridData | AntonymResfebeData | SynonymMatchingPatternData | MissingPartsData | WordWebData 
+    | SyllableWordSearchData | WordWebWithPasswordData | WordPlacementPuzzleData | PositionalAnagramData | ImageAnagramSortData | AnagramImageMatchData 
+    | ResfebeData | WordMemoryData | VisualMemoryData | NumberSearchData | FindDuplicateData | LetterGridTestData | FindLetterPairData | TargetSearchData 
+    | ColorWheelMemoryData | ImageComprehensionData | CharacterMemoryData | StroopTestData | ChaoticNumberSearchData | ReadingFlowData | LetterDiscriminationData 
+    | RapidNamingData | PhonologicalAwarenessData | MirrorLettersData | SyllableTrainData | VisualTrackingLineData | BackwardSpellingData | CodeReadingData 
+    | AttentionToQuestionData | AttentionDevelopmentData | AttentionFocusData | NumberSenseData | VisualArithmeticData | SpatialGridData | ConceptMatchData 
+    | EstimationData | FamilyRelationsData | LogicDeductionData | NumberBoxLogicData | MapInstructionData | MindGamesData | MindGames56Data;
 
-export type WorksheetData = SingleWorksheetData[] | null;
+export type WorksheetData = SingleWorksheetData[];
 
 export interface SavedWorksheet {
   id: string;
   userId: string;
   name: string;
   activityType: ActivityType;
-  worksheetData: SingleWorksheetData[];
+  worksheetData: SingleWorksheetData[]; 
   createdAt: string;
   icon: string;
   category: {

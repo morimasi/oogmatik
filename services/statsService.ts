@@ -1,7 +1,10 @@
+
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { ActivityType, ActivityStats, Activity } from '../types';
 import { ACTIVITIES } from '../constants';
+import { authService } from './authService';
+import { auth } from './firebaseClient';
 
 const { collection, doc, setDoc, getDocs, updateDoc, increment, getDoc } = firestore;
 
@@ -13,10 +16,9 @@ export const statsService = {
             const stats: ActivityStats[] = [];
             
             querySnapshot.forEach((doc) => {
-                // FIX: Cast doc.data() to any to access its properties.
                 const data = doc.data() as any;
                 stats.push({
-                    activityId: doc.id as ActivityType, // Doc ID is activityId
+                    activityId: doc.id as ActivityType, 
                     title: data.title,
                     generationCount: data.generationCount,
                     lastGenerated: data.lastGenerated,
@@ -65,7 +67,6 @@ export const statsService = {
             stats = await statsService.getAllStats();
         }
         
-        // İstatistiklere göre sırala (En çok üretilen en üstte)
         const sortedStats = stats.sort((a, b) => b.generationCount - a.generationCount).slice(0, limit);
         
         const result: (Activity & { stats: ActivityStats })[] = [];
@@ -115,7 +116,7 @@ export const statsService = {
         return result;
     },
 
-    // --- FAVORITES (LOCAL STORAGE) ---
+    // --- FAVORITES (LOCAL STORAGE & FIREBASE SYNC) ---
     getFavorites: (): ActivityType[] => {
         try {
             if (typeof window === 'undefined') return [];
@@ -128,6 +129,13 @@ export const statsService = {
             const favs = statsService.getFavorites();
             const newFavs = favs.includes(id) ? favs.filter(f => f !== id) : [...favs, id];
             localStorage.setItem('user_favorites', JSON.stringify(newFavs));
+            
+            // Sync with Firebase if user is logged in
+            const currentUser = auth.currentUser;
+            if (currentUser) {
+                authService.updateProfile(currentUser.uid, { favorites: newFavs }).catch(console.error);
+            }
+            
             return newFavs;
         } catch { return []; }
     },

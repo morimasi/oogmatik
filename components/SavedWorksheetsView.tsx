@@ -1,5 +1,6 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
-import { SavedWorksheet, User } from '../types';
+import { SavedWorksheet } from '../types';
 import { ACTIVITIES } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import { worksheetService } from '../services/worksheetService';
@@ -8,11 +9,12 @@ import { ShareModal } from './ShareModal';
 interface SavedWorksheetsViewProps {
   onLoad: (worksheet: SavedWorksheet) => void;
   onBack: () => void;
+  targetUserId?: string; // Optional: If provided, loads this user's data instead of current auth user
 }
 
 const PAGE_SIZE = 10;
 
-export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack }) => {
+export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
   const { user } = useAuth();
   const [worksheets, setWorksheets] = useState<SavedWorksheet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,19 +26,23 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
   const [selectedWorksheetToShare, setSelectedWorksheetToShare] = useState<SavedWorksheet | null>(null);
   const [isSharing, setIsSharing] = useState(false);
 
+  // Determine which user ID to use
+  const effectiveUserId = targetUserId || user?.id;
+  const isReadOnly = !!targetUserId && targetUserId !== user?.id;
+
   useEffect(() => {
-      if (user) {
+      if (effectiveUserId) {
           loadWorksheets();
       } else {
           setLoading(false);
       }
-  }, [user, page]);
+  }, [effectiveUserId, page]);
 
   const loadWorksheets = async () => {
-      if (!user) return;
+      if (!effectiveUserId) return;
       setLoading(true);
       try {
-          const { items, count } = await worksheetService.getUserWorksheets(user.id, page, PAGE_SIZE);
+          const { items, count } = await worksheetService.getUserWorksheets(effectiveUserId, page, PAGE_SIZE);
           setWorksheets(items);
           setCount(count || 0);
       } catch (e) {
@@ -47,6 +53,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
   };
 
   const handleDelete = async (id: string) => {
+      if (isReadOnly) return;
       if (confirm('Bu etkinliği silmek istediğinizden emin misiniz?')) {
           await worksheetService.deleteWorksheet(id);
           loadWorksheets();
@@ -114,12 +121,14 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
   return (
     <div className="bg-white dark:bg-zinc-800/50 rounded-xl shadow-sm p-4 sm:p-6 md:p-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-700">
-        <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">Kaydedilmiş Etkinlikler</h2>
+        <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">
+            {isReadOnly ? 'Kullanıcı Arşivi' : 'Kaydedilmiş Etkinlikler'}
+        </h2>
         <button 
           onClick={onBack}
           className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm font-semibold rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 flex items-center gap-2 shrink-0"
         >
-          <i className="fa-solid fa-plus"></i>Yeni Etkinlik Oluştur
+          {isReadOnly ? <><i className="fa-solid fa-arrow-left"></i> Geri Dön</> : <><i className="fa-solid fa-plus"></i>Yeni Etkinlik Oluştur</>}
         </button>
       </div>
 
@@ -130,7 +139,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
           <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-700/50 rounded-full flex items-center justify-center mb-4 mx-auto">
             <i className="fa-solid fa-folder-open fa-2x text-zinc-400 dark:text-zinc-500"></i>
           </div>
-          <p className="text-zinc-500 dark:text-zinc-400">Henüz kaydedilmiş bir etkinlik bulunmuyor.</p>
+          <p className="text-zinc-500 dark:text-zinc-400">Bu bölümde henüz kaydedilmiş bir etkinlik yok.</p>
         </div>
       ) : (
         <>
@@ -176,15 +185,19 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                         <div className="flex items-center justify-end gap-2">
-                                                            <button onClick={() => onLoad(ws)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" title="Yükle">
-                                                                <i className="fa-solid fa-upload"></i>
+                                                            <button onClick={() => onLoad(ws)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" title="Görüntüle">
+                                                                <i className="fa-solid fa-eye"></i>
                                                             </button>
-                                                            <button onClick={() => handleShareClick(ws)} className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" title="Paylaş">
-                                                                <i className="fa-solid fa-share-nodes"></i>
-                                                            </button>
-                                                            <button onClick={() => handleDelete(ws.id)} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Sil">
-                                                                <i className="fa-solid fa-trash-alt"></i>
-                                                            </button>
+                                                            {!isReadOnly && (
+                                                                <>
+                                                                    <button onClick={() => handleShareClick(ws)} className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" title="Paylaş">
+                                                                        <i className="fa-solid fa-share-nodes"></i>
+                                                                    </button>
+                                                                    <button onClick={() => handleDelete(ws.id)} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Sil">
+                                                                        <i className="fa-solid fa-trash-alt"></i>
+                                                                    </button>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
