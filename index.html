@@ -399,87 +399,61 @@
   .worksheet-page .text-rose-600 { color: #e11d48 !important; }
   .worksheet-page .bg-indigo-100 { background-color: #e0e7ff !important; }
   
-  /* --- PRINT STYLES --- */
+  /* ==========================================================================
+     PROFESSIONAL PRINT SYSTEM (REBUILT)
+     ========================================================================== */
   @media print {
+    /* 1. Page Setup */
     @page { 
       size: A4 portrait; 
-      margin: 0; /* REMOVE DEFAULT MARGINS to prevent top whitespace */
+      margin: 10mm; /* Standart temiz marj */
     }
     
-    /* 1. Global Reset for Print */
-    *, *::before, *::after {
-        box-shadow: none !important;
-        text-shadow: none !important;
-        transition: none !important;
-        animation: none !important;
-        filter: none !important;
-        opacity: 1 !important;
-        
-        /* FORCE COLOR PRINTING */
+    /* 2. Global Reset for Print */
+    html, body {
+        width: 100%;
+        height: auto;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background-color: white !important;
+        color: black !important;
+        /* Ensure background colors/graphics are printed */
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    /* 2. Hide Everything by Default */
-    body {
-        visibility: hidden !important;
-        background-color: white !important;
+    /* 3. Hide EVERYTHING by default */
+    body * {
+        visibility: hidden;
+    }
+
+    /* 4. Display ONLY the designated printable content */
+    .printable-content,
+    .printable-content * {
+        visibility: visible !important;
+    }
+
+    /* 5. Positioning Strategy: Absolute Top-Left */
+    /* This pulls the content out of any nested structure (modals, flex containers)
+       and places it squarely on the printed page. */
+    .printable-content {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
-    }
-
-    /* 3. Hide all non-printable elements explicitly */
-    #root > * {
-       display: none !important;
-    }
-
-    nav, header, footer, button, .no-print, .recharts-wrapper {
-        display: none !important;
-    }
-    
-    /* 4. Show Report Container ONLY */
-    #printable-report-content {
-        display: block !important;
-        visibility: visible !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 10mm !important; /* Add padding inside the content, not page */
-        background-color: white !important;
-        color: black !important;
+        background: white !important;
         z-index: 9999 !important;
-        height: auto !important;
-        overflow: visible !important;
-    }
-
-    #printable-report-content * {
-        visibility: visible !important;
-        position: static !important; /* Reset position for children to flow naturally */
-        overflow: visible !important; /* Allow charts to be seen */
-    }
-
-    /* 5. Show Worksheets ONLY */
-    .printable-area {
         display: block !important;
-        visibility: visible !important;
-        position: absolute !important;
-        top: 0;
-        left: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    
-    .printable-area * {
-        visibility: visible !important;
+        /* Reset specific app layout constraints */
+        max-height: none !important; 
+        overflow: visible !important;
+        transform: none !important;
     }
 
-    /* 6. Page Break Handling */
+    /* 6. Clean Page Breaks */
     .break-inside-avoid {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
@@ -489,23 +463,60 @@
         break-after: page;
         page-break-after: always;
     }
+
+    /* 7. Force Light Mode Styles (Override Dark Mode) */
+    /* If app is in dark mode, these overrides ensure print is white/black */
+    .printable-content .bg-zinc-800,
+    .printable-content .dark\:bg-zinc-800,
+    .printable-content .dark\:bg-zinc-900,
+    .printable-content .dark\:bg-zinc-700 {
+        background-color: white !important;
+        border-color: #ddd !important;
+        color: black !important;
+    }
+
+    .printable-content .text-zinc-100,
+    .printable-content .dark\:text-zinc-100,
+    .printable-content .dark\:text-zinc-200,
+    .printable-content .text-white {
+        color: black !important;
+    }
+
+    /* Maintain Semantic Colors (Success/Error/Warning) but ensure visibility */
+    .printable-content .bg-indigo-50, 
+    .printable-content .dark\:bg-indigo-900\/20 {
+        background-color: #f0f5ff !important; /* Very light blue */
+        border: 1px solid #c7d2fe !important;
+        color: #1e3a8a !important;
+    }
     
-    /* 7. Specific Fixes */
-    /* Ensure text colors are maintained if they are important (like red for risk) */
-    .text-red-500 { color: #ef4444 !important; }
-    .text-green-500 { color: #22c55e !important; }
-    .text-yellow-500 { color: #eab308 !important; }
-    .bg-indigo-50 { background-color: #eef2ff !important; }
-    
-    /* Force Light Mode Look on Print */
-    .dark\:bg-zinc-800 { background-color: white !important; border-color: #e5e7eb !important; }
-    .dark\:text-zinc-100 { color: #18181b !important; }
-    .dark\:text-zinc-200 { color: #3f3f46 !important; }
-    .dark\:border-zinc-700 { border-color: #e5e7eb !important; }
-    
-    /* Hide scrollbars */
+    .printable-content .bg-green-50 {
+        background-color: #f0fdf4 !important;
+        border: 1px solid #bbf7d0 !important;
+        color: #14532d !important;
+    }
+
+    .printable-content .bg-rose-50 {
+        background-color: #fff1f2 !important;
+        border: 1px solid #fecdd3 !important;
+        color: #881337 !important;
+    }
+
+    /* Hide scrollbars during print */
     ::-webkit-scrollbar {
         display: none;
+    }
+    
+    /* Remove shadows for cleaner print */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    /* Ensure charts/graphs are visible */
+    svg, img {
+        break-inside: avoid;
+        max-width: 100% !important;
     }
   }
 

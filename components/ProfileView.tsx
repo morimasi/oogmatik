@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { SavedAssessment, SavedWorksheet, ActivityType, User } from '../types';
@@ -514,7 +513,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                         </div>
 
                         {/* REPORT CONTENT - Added explicit classes for print safety */}
-                        <div id="printable-report-content" className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar assessment-report-container print:overflow-visible print:block print:w-full print:h-auto">
+                        <div id="printable-report-content" className="printable-content flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar assessment-report-container">
                             <div className="hidden print:block mb-8 border-b-2 border-zinc-800 pb-4">
                                 <h1 className="text-3xl font-black">Bursa Disleksi AI - Öğrenci Değerlendirme Raporu</h1>
                                 <div className="flex justify-between mt-4"><p><strong>Öğrenci:</strong> {selectedAssessment.studentName}</p><p><strong>Tarih:</strong> {new Date(selectedAssessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
@@ -556,19 +555,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
                                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800 break-inside-avoid">
                                     <h4 className="font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
-                                    <ul className="list-disc list-inside text-sm space-y-1 text-green-900 dark:text-green-100 print:text-black">
+                                    <ul className="list-disc list-inside text-sm space-y-1 text-green-900 dark:text-green-100">
                                         {selectedAssessment.report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
                                 <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800 break-inside-avoid">
                                     <h4 className="font-bold text-rose-700 dark:text-rose-300 mb-2 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
-                                    <ul className="list-disc list-inside text-sm space-y-1 text-rose-900 dark:text-rose-100 print:text-black">
+                                    <ul className="list-disc list-inside text-sm space-y-1 text-rose-900 dark:text-rose-100">
                                         {selectedAssessment.report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
                             </div>
                             
-                             <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg break-inside-avoid no-print-bg-force">
+                             <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg break-inside-avoid">
                                 <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-road"></i> Önerilen Yol Haritası</h4>
                                 <div className="space-y-4">
                                     {selectedAssessment.report.roadmap.map((item, idx) => (
