@@ -6,21 +6,17 @@ import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
 // --- HELPER: SMART EMOJI FINDER ---
 const findEmojiForDescription = (desc: string): string | null => {
     if (!desc) return null;
-    // Safely handle non-string input
     const safeDesc = String(desc);
     const lowerDesc = safeDesc.toLocaleLowerCase('tr');
     
-    // 1. Check direct mapping in EMOJI_MAP keys or values
     if (EMOJI_MAP[safeDesc]) return EMOJI_MAP[safeDesc]; 
     
-    // 2. Reverse lookup: Check if description matches any mapped value
     for (const [emoji, name] of Object.entries(EMOJI_MAP)) {
         if (lowerDesc.includes(name.toLocaleLowerCase('tr')) || name.toLocaleLowerCase('tr').includes(lowerDesc)) {
             return emoji;
         }
     }
     
-    // 3. Expanded Heuristics for common terms not in map
     const commonMap: Record<string, string> = {
         'elma': '🍎', 'kedi': '🐱', 'köpek': '🐶', 'araba': '🚗', 'yıldız': '⭐',
         'kalem': '✏️', 'kitap': '📚', 'top': '⚽', 'balık': '🐟', 'kuş': '🐦',
@@ -104,10 +100,9 @@ const useTTS = () => {
     return { speak, cancel, isSpeaking };
 };
 
-// Enhanced ImageDisplay with robust Fallback & SVG Support
+// Enhanced ImageDisplay with Professional SVG Handling
 export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string | number; className?: string }) => {
     
-    // Explicitly handle non-primitive descriptions
     let safeDesc = '';
     try {
         if (description !== null && description !== undefined) {
@@ -118,22 +113,33 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
     }
 
     // 1. Try rendering SVG Code (AI Generated)
-    // Check for standard SVG tag start
     if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
-        // Clean up markdown if present
-        const cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
+        // Clean up markdown and Prepare SVG for responsive display
+        let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
         
+        // Remove fixed width/height attributes to allow CSS scaling
+        cleanSvg = cleanSvg.replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '');
+        
+        // Ensure preserveAspectRatio is set for proper centering
+        if (!cleanSvg.includes('preserveAspectRatio')) {
+            cleanSvg = cleanSvg.replace('<svg', '<svg preserveAspectRatio="xMidYMid meet"');
+        }
+        
+        // Ensure width and height are set to 100% in style or attributes if stripped
+        cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%;"');
+
         return (
             <div 
-                className={`${className} flex items-center justify-center rounded-xl overflow-hidden relative group`}
+                className={`${className} flex items-center justify-center rounded-xl overflow-hidden relative group bg-white dark:bg-zinc-800/30`}
                 title={safeDesc || 'Görsel'}
                 role="img"
                 aria-label={safeDesc}
             >
-                {/* Background for transparency in SVG */}
-                <div className="absolute inset-0 bg-zinc-50/50 dark:bg-zinc-800/50 -z-10"></div>
+                {/* Subtle pattern background for vector art */}
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] -z-10"></div>
+                
                 <div 
-                    className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:drop-shadow-sm transition-transform duration-300 hover:scale-105"
+                    className="w-full h-full p-2 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:drop-shadow-sm transition-transform duration-300 hover:scale-105"
                     dangerouslySetInnerHTML={{ __html: cleanSvg }}
                 />
             </div>
@@ -141,7 +147,6 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
     }
 
     // 2. Try rendering Base64 Image (Legacy/Uploads)
-    // Checks if it starts with data URI or looks like raw base64 (long string)
     if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
         const src = base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
         return (
@@ -177,12 +182,10 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
     return (
         <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all ${className} ${emojiIcon ? 'bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700' : `border-2 ${colorClass}`}`}>
             {emojiIcon ? (
-                // Emoji High-Res Representation
                 <div className="text-5xl md:text-6xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={cleanDescription}>
                     {emojiIcon}
                 </div>
             ) : (
-                // Colorful Text Avatar
                 <div className="flex flex-col items-center justify-center h-full w-full animate-in fade-in duration-500">
                     <span className="text-4xl font-black opacity-80 mb-1">{initial}</span>
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 px-1 truncate max-w-full">{cleanDescription}</span>
@@ -197,7 +200,6 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
 
     return (
         <div className="mb-8 text-center print:mb-6 break-inside-avoid relative group">
-            {/* Main Title Area */}
             <div className="flex items-center justify-center gap-3 mb-3">
                 <h3 className="text-3xl font-black text-zinc-800 dark:text-zinc-100 font-dyslexic tracking-tight">{title}</h3>
                 <button 
@@ -209,25 +211,20 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 </button>
             </div>
             
-            {/* Instruction Bubble */}
             <div className="inline-block px-6 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-full border border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm">
                 <p className="text-lg font-medium text-indigo-700 dark:text-indigo-300">{instruction}</p>
             </div>
             
-            {/* Main Activity Image - ONLY renders if imageBase64 is present */}
             {data?.imageBase64 && (
                 <div className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-white dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300">
                     <ImageDisplay 
                         base64={data.imageBase64} 
                         description={data.imagePrompt || title} 
-                        className="w-full h-64 object-contain bg-transparent" 
+                        className="w-full h-64 object-contain bg-white dark:bg-zinc-800/50" 
                     />
-                    {/* Decorative Shine */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                 </div>
             )}
 
-            {/* Pedagogical Note */}
             {note && (
                 <div className="print:hidden">
                     <div 

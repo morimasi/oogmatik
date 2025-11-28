@@ -50,21 +50,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 // Prompt Zenginleştirme: Profesyonel SVG Sanat Yönetmenliği
                 const enhancedPrompt = `${prompt}
                 
-                [SİSTEM TALİMATI - PROFESYONEL VEKTÖR İLLÜSTRASYON MODU]
-                1. Random Seed: ${uniqueSeed}. Önceki cevapları tekrar etme.
-                2. GÖRSEL ALANLARI ('imagePrompt' veya 'imageBase64'):
-                   - Bu alanlar için harici resim üretilmeyecektir.
-                   - Bunun yerine, bu alanlara doğrudan PROFESYONEL BİR SVG KODU yazmalısın.
-                   
-                   **SVG TASARIM KURALLARI (Sanat Yönetmeni Modu):**
-                   - STİL: "Modern Flat Vector Art" (Düz Vektör Sanatı).
-                   - YAP: <svg viewBox="0 0 512 512" ...> kullan.
-                   - YAP: Nesnelere derinlik katmak için basit bir "Gölge" (koyu ton) ve "Işık Parlaması" (açık ton/beyaz) ekle.
-                   - RENK PALETİ: Canlı, pozitif eğitim renkleri kullan (Amber-500, Indigo-600, Emerald-500, Rose-500 tonları). Siyah kontur (stroke) yerine renk farklarını kullan.
-                   - KOMPOZİSYON: Nesne 512x512 alanın merkezine tam oturmalı, kenarlardan taşmamalı.
-                   - ÖRNEK: Bir elma için sadece kırmızı bir daire değil; sapı, yaprağı, üzerindeki ışık yansıması ve altındaki hafif gölgesiyle tam bir illüstrasyon çiz.
-                   
-                   - ALTERNATİF: Eğer nesne çok soyutsa veya SVG çok karmaşık olacaksa, o zaman yüksek kaliteli, ilgili bir EMOJİ kullan.
+                [SİSTEM TALİMATI - ART DIRECTOR MODU]
+                Sen dünya standartlarında bir "Vektör İllüstratörü" ve "Eğitim Materyali Tasarımcısı"sın.
+                
+                GÖREVİN: 
+                Şemadaki 'imagePrompt' veya 'imageBase64' alanları için harici resim oluşturmak yerine, doğrudan PROFESYONEL SVG KODU yazacaksın.
+
+                **SVG TASARIM KURALLARI (Kesinlikle Uygula):**
+                1.  **CANVAS:** Her zaman <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"> kullan.
+                2.  **STİL:** "Modern Flat 2.0" tarzı. Siyah dış çizgiler (stroke) KULLANMA. Şekilleri renkli dolgularla (fill) oluştur.
+                3.  **RENK PALETİ:** Sadece şu profesyonel eğitim renklerini kullan:
+                    - Ana Renkler: #4F46E5 (Indigo), #EF4444 (Rose), #F59E0B (Amber), #10B981 (Emerald), #3B82F6 (Blue).
+                    - Detay Renkleri: #1F2937 (Koyu Gri - Göz/Detay için), #F3F4F6 (Açık Gri - Arka plan vurgusu).
+                4.  **DERİNLİK (Işık ve Gölge):**
+                    - Her ana şeklin üzerine bir "Highlight" (Parlama) ekle: Beyaz renk (#FFFFFF) ve opacity="0.2".
+                    - Her ana şeklin altına veya yanına bir "Shadow" (Gölge) ekle: Siyah renk (#000000) ve opacity="0.15".
+                5.  **KOMPOZİSYON:**
+                    - Nesneyi tam ortaya (center) yerleştir.
+                    - Kenarlardan en az 20px boşluk bırak (padding).
+                    - Arka plana, nesneyi vurgulayan soluk, pastel tonlu, soyut bir daire veya "blob" ekle.
+                6.  **KOD YAPISI:** Karmaşık path'ler yerine mümkün olduğunca <circle>, <rect rx="20"> (yuvarlak köşe), <ellipse> gibi geometrik şekillerle kompozisyon kur. Bu daha temiz görünür.
+
+                **ÖRNEK SENARYO:**
+                Eğer "Elma" istenirse: Sadece kırmızı bir daire çizme. 
+                - Arkaya soluk yeşil bir daire koy.
+                - Kırmızı gövdeyi çiz (hafif kalp şeklinde path).
+                - Üstüne beyaz, yarım ay şeklinde bir parlama (highlight) ekle.
+                - Altına koyu kırmızı/siyah bir gölge (shadow) ekle.
+                - Kahverengi sap ve yeşil yaprak ekle.
+
+                Eğer nesne çok karmaşıksa (örneğin "insan yüzü"), stilize ve minimalist (ikonik) çalış. Gerçekçi olmaya çalışma.
+                Eğer SVG çizimi imkansızsa, en yüksek kalitede, ilgili bir EMOJİ döndür.
                 `;
 
                 const textResponse = await ai.models.generateContent({
@@ -73,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     config: {
                         responseMimeType: "application/json",
                         responseSchema: schema,
-                        temperature: 0.85,
+                        temperature: 0.75, // Biraz daha yaratıcılık ama kontrollü (0.85'ten düşürüldü)
                         topP: 0.95,
                         topK: 40
                     },
@@ -106,10 +122,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         if (!data) return res.status(500).json({ error: "Yapay zeka yanıt vermedi." });
-
-        // Adım 2: Görsel Üretimi (Imagen) - DEVRE DIŞI BIRAKILDI
-        // Maliyeti düşürmek ve hızı artırmak için görsel üretimi kaldırıldı. 
-        // Yapay zeka artık doğrudan Profesyonel SVG kodu veya Emoji döndürüyor.
         
         return res.status(200).json(data);
 
