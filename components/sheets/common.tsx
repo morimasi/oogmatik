@@ -104,7 +104,7 @@ const useTTS = () => {
     return { speak, cancel, isSpeaking };
 };
 
-// Enhanced ImageDisplay with robust Fallback
+// Enhanced ImageDisplay with robust Fallback & SVG Support
 export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string | number; className?: string }) => {
     
     // Explicitly handle non-primitive descriptions
@@ -117,11 +117,26 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
         safeDesc = '';
     }
 
-    // 1. Try rendering Base64 Image
-    if (base64 && typeof base64 === 'string' && base64.length > 100) { 
+    // 1. Try rendering SVG Code (AI Generated)
+    if (base64 && typeof base64 === 'string' && base64.trim().startsWith('<svg')) {
+        return (
+            <div 
+                className={`${className} flex items-center justify-center bg-white/50 dark:bg-zinc-800/50 rounded-lg shadow-sm overflow-hidden [&>svg]:w-full [&>svg]:h-full`}
+                dangerouslySetInnerHTML={{ __html: base64 }}
+                title={safeDesc || 'Görsel'}
+                role="img"
+                aria-label={safeDesc}
+            />
+        );
+    }
+
+    // 2. Try rendering Base64 Image (Legacy/Uploads)
+    // Checks if it starts with data URI or looks like raw base64 (long string)
+    if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
+        const src = base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
         return (
             <img 
-                src={`data:image/png;base64,${base64}`} 
+                src={src} 
                 alt={safeDesc || 'Görsel'} 
                 className={`${className} object-contain rounded-lg shadow-sm bg-white/50 dark:bg-zinc-800/50 transition-all duration-300 hover:scale-[1.02]`} 
                 loading="lazy" 
@@ -129,11 +144,23 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
         );
     }
     
+    // 3. AI generated Emoji fallback (Stored in base64 field sometimes)
+    if (base64 && typeof base64 === 'string' && base64.length < 10 && base64.trim().length > 0) {
+         return (
+            <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all ${className} bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700`}>
+                <div className="text-5xl md:text-6xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={safeDesc}>
+                    {base64}
+                </div>
+            </div>
+         );
+    }
+    
     const cleanDescription = (safeDesc.trim().length > 0) ? safeDesc : 'Görsel';
-    // 2. Smart Emoji/Icon Fallback
+    
+    // 4. Smart Emoji/Icon Fallback (Local dictionary)
     const emojiIcon = findEmojiForDescription(cleanDescription);
     
-    // 3. Deterministic Color Avatar Fallback
+    // 5. Deterministic Color Avatar Fallback
     const colorClass = stringToColor(cleanDescription);
     const initial = cleanDescription.charAt(0).toUpperCase();
     
