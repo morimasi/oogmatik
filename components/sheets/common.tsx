@@ -118,7 +118,8 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
         let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
         
         // CRITICAL: Remove fixed width/height attributes to allow CSS scaling
-        cleanSvg = cleanSvg.replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '');
+        // Regex updated to avoid matching 'stroke-width' or similar partial matches
+        cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
         
         // Ensure preserveAspectRatio is set for proper centering
         if (!cleanSvg.includes('preserveAspectRatio')) {

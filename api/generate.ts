@@ -26,7 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
         }
         
-        const apiKey = process.env.API_KEY;
+        // Öncelik process.env.API_KEY, yoksa hardcoded yeni anahtar kullanılır.
+        const apiKey = process.env.API_KEY || "AIzaSyDlJLU4r8nX5PSKZ6R9WllteGXVbQgvcGs";
         
         if (!apiKey) {
             console.error("API_KEY bulunamadı.");
@@ -39,14 +40,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // MODEL SEÇİM STRATEJİSİ (Sıfır Maliyet / Hız Odaklı)
         // Görsel üretimi (Imagen) kapalı olduğu için en hızlı metin modeli yeterlidir.
         // Flash modeli hem kod (SVG) yazabilir hem de mantıksal kurgu yapabilir.
-        let selectedModel = model || "gemini-1.5-flash-latest"; 
+        // Guidelines update: Use gemini-2.5-flash for basic text tasks.
+        let selectedModel = model || "gemini-2.5-flash"; 
 
         // Adım 1: İçerik ve Görsel Kodu Üretimi (Tek Seferde)
         let data;
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
-                const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-                
                 // Prompt Zenginleştirme: Profesyonel SVG Sanat Yönetmenliği
                 const enhancedPrompt = `${prompt}
                 
