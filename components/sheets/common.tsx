@@ -117,7 +117,7 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
         // Clean up markdown and Prepare SVG for responsive display
         let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
         
-        // Remove fixed width/height attributes to allow CSS scaling
+        // CRITICAL: Remove fixed width/height attributes to allow CSS scaling
         cleanSvg = cleanSvg.replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '');
         
         // Ensure preserveAspectRatio is set for proper centering
@@ -125,21 +125,27 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
             cleanSvg = cleanSvg.replace('<svg', '<svg preserveAspectRatio="xMidYMid meet"');
         }
         
-        // Ensure width and height are set to 100% in style or attributes if stripped
-        cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%;"');
+        // Ensure viewbox exists if missing (basic fallback)
+        if (!cleanSvg.includes('viewBox')) {
+             cleanSvg = cleanSvg.replace('<svg', '<svg viewBox="0 0 512 512"');
+        }
+        
+        // Add container style override for SVG
+        cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
 
         return (
             <div 
-                className={`${className} flex items-center justify-center rounded-xl overflow-hidden relative group bg-white dark:bg-zinc-800/30`}
+                className={`${className} flex items-center justify-center rounded-xl overflow-hidden relative group bg-white dark:bg-zinc-800/30 transition-all`}
                 title={safeDesc || 'Görsel'}
                 role="img"
                 aria-label={safeDesc}
             >
-                {/* Subtle pattern background for vector art */}
-                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] -z-10"></div>
+                {/* Enhanced Background for Premium Feel */}
+                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#e0e7ff_1px,transparent_1px)] [background-size:20px_20px] -z-10"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-zinc-100/30 -z-10"></div>
                 
                 <div 
-                    className="w-full h-full p-2 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:drop-shadow-sm transition-transform duration-300 hover:scale-105"
+                    className="w-full h-full p-1 flex items-center justify-center [&>svg]:drop-shadow-md transition-transform duration-300 hover:scale-105"
                     dangerouslySetInnerHTML={{ __html: cleanSvg }}
                 />
             </div>

@@ -50,37 +50,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 // Prompt Zenginleştirme: Profesyonel SVG Sanat Yönetmenliği
                 const enhancedPrompt = `${prompt}
                 
-                [SİSTEM TALİMATI - ART DIRECTOR MODU]
-                Sen dünya standartlarında bir "Vektör İllüstratörü" ve "Eğitim Materyali Tasarımcısı"sın.
+                [SİSTEM TALİMATI - KREATİF DİREKTÖR MODU]
+                Sen ödüllü bir "Eğitim Materyali Tasarımcısı" ve "Kıdemli Vektör İllüstratörü"sün.
+                Amacın: Çocuklar için "Premium/Ücretli Üyelik" kalitesinde, görsel olarak zengin ve pedagojik olarak kusursuz içerikler üretmek.
                 
                 GÖREVİN: 
                 Şemadaki 'imagePrompt' veya 'imageBase64' alanları için harici resim oluşturmak yerine, doğrudan PROFESYONEL SVG KODU yazacaksın.
 
-                **SVG TASARIM KURALLARI (Kesinlikle Uygula):**
+                **SVG TASARIM KURALLARI (Stil Rehberi):**
                 1.  **CANVAS:** Her zaman <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"> kullan.
-                2.  **STİL:** "Modern Flat 2.0" tarzı. Siyah dış çizgiler (stroke) KULLANMA. Şekilleri renkli dolgularla (fill) oluştur.
-                3.  **RENK PALETİ:** Sadece şu profesyonel eğitim renklerini kullan:
+                2.  **STİL: "Modern Flat 2.0" (Düz Tasarım)**
+                    - Siyah dış çizgiler (stroke) KESİNLİKLE KULLANMA. Şekilleri renkli dolgularla (fill) oluştur.
+                    - "Kawaii" tarzı sevimli, yuvarlak hatlı çizimler yap. Sivri köşelerden kaçın (rx/ry kullan).
+                3.  **RENK PALETİ (Eğitim Dostu):**
                     - Ana Renkler: #4F46E5 (Indigo), #EF4444 (Rose), #F59E0B (Amber), #10B981 (Emerald), #3B82F6 (Blue).
-                    - Detay Renkleri: #1F2937 (Koyu Gri - Göz/Detay için), #F3F4F6 (Açık Gri - Arka plan vurgusu).
-                4.  **DERİNLİK (Işık ve Gölge):**
-                    - Her ana şeklin üzerine bir "Highlight" (Parlama) ekle: Beyaz renk (#FFFFFF) ve opacity="0.2".
-                    - Her ana şeklin altına veya yanına bir "Shadow" (Gölge) ekle: Siyah renk (#000000) ve opacity="0.15".
+                    - Ten Renkleri: #FCA5A5, #FDBA74, #A78BFA (Çeşitlilik içerir).
+                    - Arka Plan Vurgusu: Nesnenin arkasına mutlaka soluk bir daire veya organik şekil (blob) ekle (#F3F4F6 veya #E0E7FF).
+                4.  **DERİNLİK VE HACİM (Çok Önemli):**
+                    - **Highlight (Parlama):** Her ana şeklin üzerine beyaz (#FFFFFF) ve opacity="0.2" olan bir katman ekle. (Örn: Elmanın sol üst köşesine parlama).
+                    - **Shadow (Gölge):** Her ana şeklin altına veya yanına siyah (#000000) ve opacity="0.15" olan bir gölge katmanı ekle.
                 5.  **KOMPOZİSYON:**
                     - Nesneyi tam ortaya (center) yerleştir.
-                    - Kenarlardan en az 20px boşluk bırak (padding).
-                    - Arka plana, nesneyi vurgulayan soluk, pastel tonlu, soyut bir daire veya "blob" ekle.
-                6.  **KOD YAPISI:** Karmaşık path'ler yerine mümkün olduğunca <circle>, <rect rx="20"> (yuvarlak köşe), <ellipse> gibi geometrik şekillerle kompozisyon kur. Bu daha temiz görünür.
+                    - Kenarlardan en az 40px "padding" bırak. Görsel taşmamalı.
+                6.  **KOD YAPISI:**
+                    - Karmaşık 'path'ler yerine mümkün olduğunca <circle>, <rect rx="20">, <ellipse> kombinasyonları kullan.
+                    - Kod temiz ve optimize olmalı.
 
-                **ÖRNEK SENARYO:**
-                Eğer "Elma" istenirse: Sadece kırmızı bir daire çizme. 
-                - Arkaya soluk yeşil bir daire koy.
-                - Kırmızı gövdeyi çiz (hafif kalp şeklinde path).
-                - Üstüne beyaz, yarım ay şeklinde bir parlama (highlight) ekle.
-                - Altına koyu kırmızı/siyah bir gölge (shadow) ekle.
-                - Kahverengi sap ve yeşil yaprak ekle.
+                **ÖRNEK SENARYO (Elma Çizimi):**
+                - Sadece kırmızı bir daire çizip bırakma.
+                - 1. Katman: Arkaya soluk yeşil (#DCFCE7) büyük bir daire (blob).
+                - 2. Katman: Kırmızı (#EF4444) gövde (hafif kalp şeklinde path).
+                - 3. Katman: Altına koyu kırmızı (#991B1B) hilal şeklinde gölge.
+                - 4. Katman: Üstüne beyaz (#FFFFFF, op:0.3) oval parlama.
+                - 5. Katman: Kahverengi sap ve detaylı yeşil yaprak.
+                - 6. Katman: Yüze sevimli bir ifade (gözler ve gülümseme) ekle.
 
-                Eğer nesne çok karmaşıksa (örneğin "insan yüzü"), stilize ve minimalist (ikonik) çalış. Gerçekçi olmaya çalışma.
-                Eğer SVG çizimi imkansızsa, en yüksek kalitede, ilgili bir EMOJİ döndür.
+                Eğer nesne soyutsa (örneğin "Mutluluk"), bunu renkli balonlar veya gülen bir güneş ile somutlaştır.
+                Eğer SVG çizimi teknik olarak imkansızsa, en yüksek kalitede, ilgili bir EMOJİ döndür (ancak öncelik her zaman SVG'dir).
                 `;
 
                 const textResponse = await ai.models.generateContent({
@@ -89,7 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     config: {
                         responseMimeType: "application/json",
                         responseSchema: schema,
-                        temperature: 0.75, // Biraz daha yaratıcılık ama kontrollü (0.85'ten düşürüldü)
+                        temperature: 0.7, // Yaratıcılık ve tutarlılık dengesi
                         topP: 0.95,
                         topK: 40
                     },
