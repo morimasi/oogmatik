@@ -47,18 +47,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             try {
                 const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
                 
-                // Prompt Zenginleştirme: SVG ve Emoji Stratejisi
+                // Prompt Zenginleştirme: Profesyonel SVG Sanat Yönetmenliği
                 const enhancedPrompt = `${prompt}
                 
-                [SİSTEM TALİMATI - SIFIR MALİYETLİ GÖRSEL ÜRETİMİ]
+                [SİSTEM TALİMATI - PROFESYONEL VEKTÖR İLLÜSTRASYON MODU]
                 1. Random Seed: ${uniqueSeed}. Önceki cevapları tekrar etme.
                 2. GÖRSEL ALANLARI ('imagePrompt' veya 'imageBase64'):
-                   - Bu alanlar için harici bir resim üretilmeyecektir.
-                   - Bunun yerine, bu alanlara doğrudan GÖRSELİ TEMSİL EDEN KOD veya İKON yazmalısın.
-                   - TERCİH 1 (Basit Nesneler): İlgili bir EMOJİ kullan (Örn: "Elma" için "🍎").
-                   - TERCİH 2 (Karmaşık/Geometrik): Basit bir SVG KODU string'i yaz (Örn: "<svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='red'/></svg>").
-                   - SVG kodları "flat", "clean", "colorful" ve "simple" olmalı.
-                3. ANİMASYON: Video üretme. CSS animasyon sınıfları veya tanımları kullan.
+                   - Bu alanlar için harici resim üretilmeyecektir.
+                   - Bunun yerine, bu alanlara doğrudan PROFESYONEL BİR SVG KODU yazmalısın.
+                   
+                   **SVG TASARIM KURALLARI (Sanat Yönetmeni Modu):**
+                   - STİL: "Modern Flat Vector Art" (Düz Vektör Sanatı).
+                   - YAP: <svg viewBox="0 0 512 512" ...> kullan.
+                   - YAP: Nesnelere derinlik katmak için basit bir "Gölge" (koyu ton) ve "Işık Parlaması" (açık ton/beyaz) ekle.
+                   - RENK PALETİ: Canlı, pozitif eğitim renkleri kullan (Amber-500, Indigo-600, Emerald-500, Rose-500 tonları). Siyah kontur (stroke) yerine renk farklarını kullan.
+                   - KOMPOZİSYON: Nesne 512x512 alanın merkezine tam oturmalı, kenarlardan taşmamalı.
+                   - ÖRNEK: Bir elma için sadece kırmızı bir daire değil; sapı, yaprağı, üzerindeki ışık yansıması ve altındaki hafif gölgesiyle tam bir illüstrasyon çiz.
+                   
+                   - ALTERNATİF: Eğer nesne çok soyutsa veya SVG çok karmaşık olacaksa, o zaman yüksek kaliteli, ilgili bir EMOJİ kullan.
                 `;
 
                 const textResponse = await ai.models.generateContent({
@@ -103,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Adım 2: Görsel Üretimi (Imagen) - DEVRE DIŞI BIRAKILDI
         // Maliyeti düşürmek ve hızı artırmak için görsel üretimi kaldırıldı. 
-        // Yapay zeka artık doğrudan SVG kodu veya Emoji döndürüyor.
+        // Yapay zeka artık doğrudan Profesyonel SVG kodu veya Emoji döndürüyor.
         
         return res.status(200).json(data);
 

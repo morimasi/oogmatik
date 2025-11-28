@@ -118,15 +118,25 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
     }
 
     // 1. Try rendering SVG Code (AI Generated)
-    if (base64 && typeof base64 === 'string' && base64.trim().startsWith('<svg')) {
+    // Check for standard SVG tag start
+    if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
+        // Clean up markdown if present
+        const cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
+        
         return (
             <div 
-                className={`${className} flex items-center justify-center bg-white/50 dark:bg-zinc-800/50 rounded-lg shadow-sm overflow-hidden [&>svg]:w-full [&>svg]:h-full`}
-                dangerouslySetInnerHTML={{ __html: base64 }}
+                className={`${className} flex items-center justify-center rounded-xl overflow-hidden relative group`}
                 title={safeDesc || 'Görsel'}
                 role="img"
                 aria-label={safeDesc}
-            />
+            >
+                {/* Background for transparency in SVG */}
+                <div className="absolute inset-0 bg-zinc-50/50 dark:bg-zinc-800/50 -z-10"></div>
+                <div 
+                    className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:drop-shadow-sm transition-transform duration-300 hover:scale-105"
+                    dangerouslySetInnerHTML={{ __html: cleanSvg }}
+                />
+            </div>
         );
     }
 
@@ -145,7 +155,7 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
     }
     
     // 3. AI generated Emoji fallback (Stored in base64 field sometimes)
-    if (base64 && typeof base64 === 'string' && base64.length < 10 && base64.trim().length > 0) {
+    if (base64 && typeof base64 === 'string' && base64.length < 15 && base64.trim().length > 0) {
          return (
             <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all ${className} bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700`}>
                 <div className="text-5xl md:text-6xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={safeDesc}>
@@ -206,14 +216,14 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
             
             {/* Main Activity Image - ONLY renders if imageBase64 is present */}
             {data?.imageBase64 && (
-                <div className="my-6 mx-auto max-w-2xl rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300">
+                <div className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-white dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300">
                     <ImageDisplay 
                         base64={data.imageBase64} 
                         description={data.imagePrompt || title} 
-                        className="w-full h-64 object-contain bg-white dark:bg-zinc-900" 
+                        className="w-full h-64 object-contain bg-transparent" 
                     />
                     {/* Decorative Shine */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                 </div>
             )}
 
