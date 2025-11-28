@@ -78,13 +78,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             console.error("Auth operation failed:", err);
             if (isMounted.current) {
                 const errorMessage = err?.message || "Bilinmeyen bir hata oluştu.";
-                // Translate common Supabase errors
-                if (errorMessage.includes("Invalid login credentials")) {
+                // Translate common Firebase/Supabase errors
+                if (errorMessage.includes("Invalid login credentials") || errorMessage.includes("auth/invalid-credential")) {
                     setError("Hatalı e-posta veya şifre.");
                 } else if (errorMessage.includes("Email not confirmed")) {
                     setError("Lütfen e-posta adresinizi doğrulayın.");
                 } else if (errorMessage.includes("fetch failed") || errorMessage.includes("network")) {
                     setError("Ağ hatası. Sunucuya ulaşılamıyor, lütfen internetinizi kontrol edin.");
+                } else if (errorMessage.includes("identity-toolkit-api-has-not-been-used") || errorMessage.includes("auth/api-key-not-valid")) {
+                    setError("Sistem Hatası: Firebase API Anahtarı geçersiz veya Identity Toolkit servisi aktif değil. Lütfen yönetici ile iletişime geçin.");
                 } else {
                     setError(errorMessage);
                 }
