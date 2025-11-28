@@ -274,6 +274,9 @@ const AppContent: React.FC = () => {
       return <MessagesView onBack={() => setCurrentView('generator')} onRefreshNotifications={refreshNotifications} />;
   }
 
+  // Common styles for header icon buttons
+  const headerIconBtnClass = "p-2 text-zinc-400 hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] transition-all duration-300 rounded-md";
+
   return (
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
@@ -281,7 +284,8 @@ const AppContent: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-3 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
-             <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg">
+             {/* Logo Container: Increased z-index to stay on top */}
+             <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
                 <DyslexiaLogo className="h-10 w-auto" />
             </button>
           </div>
@@ -292,21 +296,20 @@ const AppContent: React.FC = () => {
              </div>
              
              <div className="flex items-center gap-1 border-r border-zinc-700 pr-2 mx-1">
-                <button onClick={() => setIsTourOpen(true)} className="p-2 text-zinc-400 hover:text-[var(--accent-color)] transition-colors rounded-md" title="Nasıl Kullanılır?">
+                <button onClick={() => setIsTourOpen(true)} className={headerIconBtnClass} title="Nasıl Kullanılır?">
                     <i className="fa-solid fa-question-circle fa-lg"></i>
                 </button>
-                <button onClick={() => setOpenModal('developer')} className="p-2 text-zinc-400 hover:text-[var(--accent-color)] transition-colors rounded-md" title="Geliştirici İletişim">
+                <button onClick={() => setOpenModal('developer')} className={headerIconBtnClass} title="Geliştirici İletişim">
                     <i className="fa-solid fa-laptop-code fa-lg"></i>
                 </button>
-                <button onClick={() => setOpenModal('about')} className="p-2 text-zinc-400 hover:text-[var(--accent-color)] transition-colors rounded-md" title="Hakkımızda">
+                <button onClick={() => setOpenModal('about')} className={headerIconBtnClass} title="Hakkımızda">
                     <i className="fa-solid fa-circle-info fa-lg"></i>
                 </button>
-                <button onClick={() => setIsFeedbackOpen(true)} className="p-2 text-zinc-400 hover:text-[var(--accent-color)] transition-colors rounded-md" title="İletişim / Hata Bildir">
+                <button onClick={() => setIsFeedbackOpen(true)} className={headerIconBtnClass} title="İletişim / Hata Bildir">
                     <i className="fa-solid fa-headset fa-lg"></i>
                 </button>
              </div>
              
-             {/* Updated Evaluation Button - Gold Theme */}
              <button 
                 onClick={() => setCurrentView('assessment')} 
                 className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-black rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:shadow-amber-500/30 hover:scale-105 transition-all border border-yellow-300"
@@ -319,19 +322,19 @@ const AppContent: React.FC = () => {
 
              <div className="flex items-center gap-2">
              
-                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-400 hover:text-red-500 transition-colors rounded-md relative group" title="Favoriler">
+                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-400 hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
                     <i className="fa-solid fa-heart fa-lg"></i>
                 </button>
 
              {user ? (
                  <>
                     {user.role === 'admin' && (
-                        <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-400 hover:bg-purple-900/20 rounded-md relative" title="Yönetici Paneli">
+                        <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-400 hover:bg-purple-900/20 rounded-md relative hover:text-white hover:drop-shadow-[0_0_5px_rgba(168,85,247,0.8)] transition-all" title="Yönetici Paneli">
                             <i className="fa-solid fa-shield-halved fa-lg"></i>
                         </button>
                     )}
                     
-                    <button id="tour-messages-btn" onClick={() => setCurrentView('messages')} className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors rounded-md relative" title="Mesajlar">
+                    <button id="tour-messages-btn" onClick={() => setCurrentView('messages')} className={headerIconBtnClass + " relative"} title="Mesajlar">
                         <i className="fa-solid fa-envelope fa-lg"></i>
                         {unreadCount > 0 && (
                             <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-black">
@@ -340,19 +343,19 @@ const AppContent: React.FC = () => {
                         )}
                     </button>
 
-                    <button id="tour-shared-btn" onClick={() => setCurrentView('shared')} className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors rounded-md" title="Paylaşılanlar">
+                    <button id="tour-shared-btn" onClick={() => setCurrentView('shared')} className={headerIconBtnClass} title="Paylaşılanlar">
                         <i className="fa-solid fa-share-nodes fa-lg"></i>
                     </button>
 
-                    <button id="tour-archive-btn" onClick={() => setCurrentView('savedList')} className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors rounded-md" title="Arşiv">
+                    <button id="tour-archive-btn" onClick={() => setCurrentView('savedList')} className={headerIconBtnClass} title="Arşiv">
                         <i className="fa-solid fa-box-archive fa-lg"></i>
                     </button>
-                    <button id="tour-history-btn" onClick={() => setOpenModal('history')} className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors rounded-md" title="Geçmiş">
+                    <button id="tour-history-btn" onClick={() => setOpenModal('history')} className={headerIconBtnClass} title="Geçmiş">
                         <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
                     </button>
                     
                     <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
-                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-zinc-700 shadow-sm" />
+                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-zinc-700 shadow-sm hover:border-[var(--accent-color)] transition-colors" />
                     </button>
                  </>
              ) : (
@@ -363,7 +366,7 @@ const AppContent: React.FC = () => {
              </div>
              
              <div className="h-6 w-px bg-zinc-700 mx-1"></div>
-             <button onClick={() => setOpenModal('settings')} className="text-zinc-400 hover:text-[var(--accent-color)] p-2"><i className="fa-solid fa-gear fa-lg"></i></button>
+             <button onClick={() => setOpenModal('settings')} className={headerIconBtnClass}><i className="fa-solid fa-gear fa-lg"></i></button>
           </div>
         </div>
       </header>

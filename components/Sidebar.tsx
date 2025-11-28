@@ -74,7 +74,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                     result = await onlineGenerator(options);
                 } catch (err: any) {
                     const msg = err.message || '';
-                    // Catch 403, 429, 503, Quota, Leaked Key, Network Error
                     if (
                         msg.includes('429') || 
                         msg.includes('503') || 
@@ -109,7 +108,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             setWorksheetData(result);
             onAddToHistory(selectedActivity, result);
             
-            // Fire and forget stats increments
             statsService.incrementUsage(selectedActivity).catch(console.error);
             if (user) {
                 const act = getActivityById(selectedActivity);
@@ -141,7 +139,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       id="tour-sidebar"
-      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md shadow-xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-zinc-200 dark:border-zinc-700 print:hidden ${
+      // Updated Classes for Theme Compatibility
+      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-[var(--bg-paper)] backdrop-blur-md shadow-xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-[var(--border-color)] print:hidden ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
       aria-label="Etkinlik Menüsü"
@@ -156,14 +155,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                 />
             ) : (
                 <>
-                    <div className="border-b p-4 dark:border-zinc-700 flex justify-between items-center bg-inherit">
+                    <div className="border-b p-4 border-[var(--border-color)] flex justify-between items-center bg-inherit">
                         <div>
-                            <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">Etkinlikler</h2>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">Bir kategori ve etkinlik seçin</p>
+                            <h2 className="text-lg font-bold text-[var(--text-primary)]">Etkinlikler</h2>
+                            <p className="text-xs text-[var(--text-muted)]">Bir kategori ve etkinlik seçin</p>
                         </div>
                          <button
                             onClick={closeSidebar}
-                            className="md:hidden text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-full w-8 h-8 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                            className="md:hidden text-[var(--text-muted)] hover:bg-[var(--bg-inset)] rounded-full w-8 h-8 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)]"
                             aria-label="Menüyü kapat"
                         >
                             <i className="fa-solid fa-times"></i>
@@ -174,14 +173,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <div key={category.id} className="py-1">
                                 <button
                                     onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
-                                    className="w-full flex items-center justify-between p-3 text-left font-semibold text-zinc-800 dark:text-zinc-200 rounded-lg hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                    // Updated Menu Button Styles
+                                    className={`w-full flex items-center justify-between p-3 text-left font-semibold text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-inset)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${openCategoryId === category.id ? 'bg-[var(--bg-inset)]' : ''}`}
                                     aria-expanded={openCategoryId === category.id}
                                 >
                                     <span>{category.title}</span>
                                     <i className={`fa-solid fa-chevron-down text-sm text-zinc-400 transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (
-                                    <ul className="sidebar-activity-list mt-1 space-y-1 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg p-2 mx-2 shadow-inner border border-zinc-100 dark:border-zinc-700/50">
+                                    // Updated Sub-menu Styles
+                                    <ul className="sidebar-activity-list mt-1 space-y-1 bg-[var(--bg-primary)] rounded-lg p-2 mx-2 shadow-inner border border-[var(--border-color)]">
                                         {category.items.map(activity => (
                                             <li key={`${activity.id}-${activity.title}`}>
                                                 <button
@@ -189,9 +190,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                         onSelectActivity(activity.id);
                                                         closeSidebar();
                                                     }}
-                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md text-zinc-800 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${selectedActivity === activity.id ? 'sidebar-activity-item-active' : ''}`}
+                                                    // Updated Activity Item Styles
+                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${
+                                                        selectedActivity === activity.id 
+                                                        ? 'bg-[var(--bg-inset)] text-[var(--text-primary)] border-l-4 border-[var(--accent-color)] font-bold' 
+                                                        : 'text-[var(--text-secondary)] hover:bg-[var(--bg-inset)] hover:text-[var(--text-primary)]'
+                                                    }`}
                                                 >
-                                                    <i className={`${activity.icon} fa-fw mr-2 text-zinc-400 dark:text-zinc-500`}></i>
+                                                    <i className={`${activity.icon} fa-fw mr-2 ${selectedActivity === activity.id ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}></i>
                                                     {activity.title}
                                                 </button>
                                             </li>

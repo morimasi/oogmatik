@@ -12,22 +12,28 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
       const positions = [];
       const textEl = textRef.current;
 
-      for (let i = 0; i < text.length; i++) {
-        const startPos = textEl.getStartPositionOfChar(i);
-        const endPos = textEl.getEndPositionOfChar(i);
-        positions.push({
-          char: text[i],
-          x: (startPos.x + endPos.x) / 2, // Horizontal center
-          y: startPos.y, // Y position
-        });
+      try {
+          for (let i = 0; i < text.length; i++) {
+            const startPos = textEl.getStartPositionOfChar(i);
+            const endPos = textEl.getEndPositionOfChar(i);
+            positions.push({
+              char: text[i],
+              x: (startPos.x + endPos.x) / 2, // Horizontal center
+              y: startPos.y, // Y position
+            });
+          }
+          setLetterData(positions);
+      } catch (e) {
+          // Fallback for environments where getStartPositionOfChar might fail or not be ready
+          console.warn("Text measurement failed, using fallback positioning");
       }
-      setLetterData(positions);
     }
   }, []);
 
   return (
     <svg 
-      viewBox="0 0 360 50" 
+      // Updated viewBox to provide more space on the left (-20)
+      viewBox="-20 0 400 50" 
       xmlns="http://www.w3.org/2000/svg" 
       className={`${className} group cursor-default`}
       style={{ perspective: '800px' }}
@@ -55,11 +61,11 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
       {/* 1. Hidden Text for Measurement */}
       <text
         ref={textRef}
-        x="40%" /* Slightly Left Aligned */
-        y="65%" 
+        x="180" /* Fixed center point within the new viewBox width */
+        y="32" 
         dominantBaseline="middle"
         textAnchor="middle"
-        fontSize="42" /* Larger Font Size */
+        fontSize="42" 
         fontWeight="800"
         fontFamily="OpenDyslexic, sans-serif"
         visibility="hidden"
@@ -86,7 +92,7 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
               y={y}
               dominantBaseline="middle"
               textAnchor="middle"
-              fontSize="42" /* Match hidden text size */
+              fontSize="42" 
               fontWeight="800"
               className={`fill-zinc-200 dark:fill-zinc-100 drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)] ${isVowel ? 'logo-letter' : ''}`}
               fontFamily="OpenDyslexic, sans-serif"
@@ -97,6 +103,22 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
           );
         })}
       </g>
+      
+      {/* Fallback if JS measurement fails or hasn't run yet */}
+      {letterData.length === 0 && (
+          <text
+            x="180"
+            y="32" 
+            dominantBaseline="middle"
+            textAnchor="middle"
+            fontSize="42" 
+            fontWeight="800"
+            className="fill-zinc-200 dark:fill-zinc-100 drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)]"
+            fontFamily="OpenDyslexic, sans-serif"
+          >
+            {text}
+          </text>
+      )}
     </svg>
   );
 };
