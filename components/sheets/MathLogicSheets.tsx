@@ -52,8 +52,7 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
 export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        {/* Using dynamic-grid here might be too small if columns > 2, so we cap it or use block for large problems */}
-        <div className="space-y-10 max-w-6xl mx-auto">
+        <div className="dynamic-grid">
             {data.problems.map((problem, index) => (
                 <div key={index} className="bg-white rounded-3xl border-2 border-zinc-300 shadow-md break-inside-avoid overflow-hidden">
                     
@@ -181,8 +180,6 @@ export const NumberPatternSheet: React.FC<{ data: NumberPatternData }> = ({ data
 );
 
 export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
-    // This component renders an SVG, so dynamic-grid might break layout if columns are small.
-    // We'll keep it as flex-col for now unless grid is explicitly safe.
     
     const renderFutoshiki = (puzzle: any) => {
         const size = puzzle.size;
@@ -213,10 +210,10 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
                 {/* Constraints */}
                 {(puzzle.constraints || []).map((con: any, i: number) => {
                     const isRow = con.row1 === con.row2;
-                    const r = con.row1;
-                    const c = Math.min(con.col1, con.col2);
                     
                     if (isRow) {
+                        const c = Math.min(con.col1, con.col2);
+                        const r = con.row1;
                         const x = c * (cellSize + gap) + cellSize + 10 + gap/2;
                         const y = r * (cellSize + gap) + 10 + cellSize/2;
                         return <text key={i} x={x} y={y + 5} textAnchor="middle" className="text-xl font-bold fill-zinc-600">{con.symbol}</text>;
@@ -236,7 +233,7 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-            <div className="flex flex-col gap-12 items-center">
+            <div className="dynamic-grid justify-items-center">
                 {(data.puzzles || []).map((puzzle, index) => (
                     <div key={index} className="break-inside-avoid">
                         {renderFutoshiki(puzzle)}
@@ -313,30 +310,31 @@ export const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data
 );
 
 export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData }> = ({ data }) => {
-    const puzzle = data.puzzles?.[0]; 
-    if (!puzzle) return <div>Veri yok</div>;
-
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-            <div className="flex justify-center">
-                <div className="grid grid-cols-6 border-4 border-zinc-900">
-                    {(puzzle.grid || []).map((row, rIndex) => (
-                        (row || []).map((cell, cIndex) => {
-                            const isConstrained = puzzle.constrainedCells?.some(c => c.row === rIndex && c.col === cIndex);
-                            const isShaded = puzzle.shadedCells?.some(c => c.row === rIndex && c.col === cIndex);
-                            
-                            const borderRight = (cIndex + 1) % 3 === 0 && cIndex !== 5 ? 'border-r-4 border-zinc-900' : 'border-r border-zinc-400';
-                            const borderBottom = (rIndex + 1) % 2 === 0 && rIndex !== 5 ? 'border-b-4 border-zinc-900' : 'border-b border-zinc-400';
-                            
-                            return (
-                                <div key={`${rIndex}-${cIndex}`} className={`w-12 h-12 flex items-center justify-center text-2xl font-bold ${borderRight} ${borderBottom} ${isConstrained || isShaded ? 'bg-zinc-300' : 'bg-white'}`}>
-                                    {cell}
-                                </div>
-                            )
-                        })
-                    ))}
-                </div>
+            <div className="dynamic-grid justify-items-center">
+                {(data.puzzles || []).map((puzzle, index) => (
+                    <div key={index} className="flex justify-center break-inside-avoid">
+                        <div className="grid grid-cols-6 border-4 border-zinc-900">
+                            {(puzzle.grid || []).map((row, rIndex) => (
+                                (row || []).map((cell, cIndex) => {
+                                    const isConstrained = puzzle.constrainedCells?.some(c => c.row === rIndex && c.col === cIndex);
+                                    const isShaded = puzzle.shadedCells?.some(c => c.row === rIndex && c.col === cIndex);
+                                    
+                                    const borderRight = (cIndex + 1) % 3 === 0 && cIndex !== 5 ? 'border-r-4 border-zinc-900' : 'border-r border-zinc-400';
+                                    const borderBottom = (rIndex + 1) % 2 === 0 && rIndex !== 5 ? 'border-b-4 border-zinc-900' : 'border-b border-zinc-400';
+                                    
+                                    return (
+                                        <div key={`${rIndex}-${cIndex}`} className={`w-12 h-12 flex items-center justify-center text-2xl font-bold ${borderRight} ${borderBottom} ${isConstrained || isShaded ? 'bg-zinc-300' : 'bg-white'}`}>
+                                            {cell}
+                                        </div>
+                                    )
+                                })
+                            ))}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );

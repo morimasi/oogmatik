@@ -51,7 +51,7 @@ export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data })
         <i className="fa-solid fa-circle-question mr-2 text-indigo-500"></i>Sorular
     </h4>
     
-    <div className="space-y-6">
+    <div className="dynamic-grid">
         {(data.questions || []).map((q, index) => {
             switch (q.type) {
                 case 'multiple-choice':
@@ -145,9 +145,9 @@ export const WordsInStorySheet: React.FC<{ data: WordsInStoryData }> = ({ data }
             <i className="fa-solid fa-pen-nib mr-2 text-emerald-500"></i>Kelime Çalışması
         </h4>
         
-        <div className="grid grid-cols-1 gap-6">
+        <div className="dynamic-grid">
             {(data.questions || []).map((item, index) => (
-                 <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-l-8 border-emerald-400 shadow-sm">
+                 <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-l-8 border-emerald-400 shadow-sm break-inside-avoid">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-3">
                         <span className="px-4 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 rounded-full font-bold text-lg">{item.word}</span>
                         <p className="text-zinc-600 dark:text-zinc-300 font-medium">{item.question}</p>
@@ -168,7 +168,7 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
             <p className="text-lg leading-relaxed tracking-wide font-dyslexic">{data.story}</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="dynamic-grid">
             {(data.analysisQuestions || []).map((q, index) => {
                 const colors = {
                     'tema': 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300',
@@ -230,9 +230,9 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
     <div>
       <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} />
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="dynamic-grid mb-8">
         {(data.panels || []).map((panel) => (
-          <div key={panel.id} className="relative bg-black p-2 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300">
+          <div key={panel.id} className="relative bg-black p-2 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300 break-inside-avoid">
             {/* Film Strip Holes */}
             <div className="flex justify-between px-1 mb-1">
                 {Array.from({length: 6}).map((_, i) => <div key={i} className="w-2 h-3 bg-white rounded-sm"></div>)}

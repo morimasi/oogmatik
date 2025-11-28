@@ -13,9 +13,9 @@ import { CONNECT_COLORS } from '../../services/offlineGenerators/helpers';
 export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-6 max-w-3xl mx-auto">
+        <div className="dynamic-grid max-w-3xl mx-auto">
             {(data.rows || []).map((row, index) => (
-                <div key={index} className="flex items-center justify-between p-6 border-2 rounded-xl bg-white dark:bg-zinc-700/50 shadow-sm hover:shadow-md transition-shadow" style={{borderColor: 'var(--worksheet-border-color)'}}>
+                <div key={index} className="flex items-center justify-between p-6 border-2 rounded-xl bg-white dark:bg-zinc-700/50 shadow-sm hover:shadow-md transition-shadow break-inside-avoid" style={{borderColor: 'var(--worksheet-border-color)'}}>
                     <div className="w-8 h-8 flex items-center justify-center bg-zinc-200 dark:bg-zinc-600 rounded-full font-bold mr-4">{index + 1}</div>
                     <div className="flex-1 flex justify-around">
                         {(row.items || []).map((item, itemIndex) => (
@@ -106,9 +106,9 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
 export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 gap-6">
+        <div className="dynamic-grid">
             {(data.groups || []).map((group, index) => (
-                <div key={index} className="bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm flex items-center justify-between">
+                <div key={index} className="bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm flex items-center justify-between break-inside-avoid">
                     <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded text-xl font-bold tracking-wider min-w-[100px] text-center">
                         {group.words[0]}
                     </div>
@@ -263,9 +263,9 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
 export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-6">
+        <div className="dynamic-grid">
              {data.rows.map((row, i) => (
-                 <div key={i} className="flex justify-around p-4 border rounded-lg bg-white">
+                 <div key={i} className="flex justify-around p-4 border rounded-lg bg-white break-inside-avoid">
                      {row.items.map((item, j) => (
                          <div key={j} className="flex flex-col gap-2 items-center cursor-pointer hover:bg-zinc-50 p-2 rounded">
                              <SegmentDisplay segments={item.segments} />
@@ -305,9 +305,9 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
 export const FindDifferentStringSheet: React.FC<{ data: FindDifferentStringData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-4 font-mono text-lg">
+        <div className="dynamic-grid font-mono text-lg">
             {data.rows.map((row, i) => (
-                <div key={i} className="flex justify-between p-3 bg-zinc-50 rounded border">
+                <div key={i} className="flex justify-between p-3 bg-zinc-50 rounded border break-inside-avoid">
                     {row.items.map((item, j) => (
                         <span key={j} className="cursor-pointer hover:text-indigo-600 hover:font-bold transition-all">{item}</span>
                     ))}
@@ -561,9 +561,9 @@ export const MatchstickSymmetrySheet: React.FC<{ data: MatchstickSymmetryData }>
 export const VisualOddOneOutThemedSheet: React.FC<{ data: VisualOddOneOutThemedData }> = ({ data }) => (
     <div>
          <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-         <div className="space-y-6">
+         <div className="dynamic-grid">
              {data.rows.map((row, i) => (
-                 <div key={i} className="border p-4 rounded bg-white">
+                 <div key={i} className="border p-4 rounded bg-white break-inside-avoid">
                      <h4 className="text-sm text-zinc-400 mb-2">{row.theme}</h4>
                      <div className="flex justify-around">
                          {row.items.map((item, j) => (

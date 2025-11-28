@@ -261,11 +261,11 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
-        <div className="space-y-8">
+        <div className="dynamic-grid">
             {data.exercises.map((ex, idx) => {
                 if (ex.type === 'missing' && ex.visualType === 'number-line-advanced') {
                     return (
-                        <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border-2 border-zinc-200">
+                        <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border-2 border-zinc-200 break-inside-avoid">
                             <div className="flex items-center justify-between relative h-16 px-8">
                                 <div className="absolute left-0 right-0 top-1/2 h-1 bg-black -z-10"></div>
                                 {ex.values.map((val, i) => (
@@ -288,7 +288,7 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                 
                 if (ex.type === 'comparison' && ex.visualType === 'ten-frame') {
                     return (
-                        <div key={idx} className="flex items-center justify-around p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2">
+                        <div key={idx} className="flex items-center justify-around p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 break-inside-avoid">
                             <div className="flex flex-col items-center gap-2">
                                 <TenFrame count={ex.values[0]} />
                                 <div className="w-10 h-10 border-2 border-dashed border-zinc-300 rounded flex items-center justify-center"></div>
@@ -318,12 +318,12 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="dynamic-grid">
             {data.problems.map((prob, idx) => {
                 const visual = prob.visualType || 'objects';
                 
                 return (
-                    <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 shadow-sm flex flex-col items-center gap-4">
+                    <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 shadow-sm flex flex-col items-center gap-4 break-inside-avoid">
                         {/* Visual Representation Area */}
                         <div className="flex items-center gap-4">
                             {/* Part 1 */}
@@ -412,9 +412,9 @@ export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) 
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
-        <div className="flex flex-col items-center gap-12">
+        <div className="dynamic-grid justify-items-center">
             {data.tasks.map((task, idx) => (
-                <div key={idx} className="w-full flex flex-col items-center">
+                <div key={idx} className="w-full flex flex-col items-center break-inside-avoid">
                     {/* Task specific rendering */}
                     
                     {task.type === 'count-cubes' && data.cubeData && (
@@ -477,7 +477,7 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 max-w-4xl mx-auto">
+        <div className="dynamic-grid max-w-4xl mx-auto">
             {data.pairs.map((pair, idx) => {
                 // Safe handling for visual codes (e.g. PIE:3:4)
                 const safeItem1 = String(pair.item1 || '');
@@ -514,7 +514,7 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
                 }
 
                 return (
-                    <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-700/50 rounded-xl border shadow-sm">
+                    <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-zinc-700/50 rounded-xl border shadow-sm break-inside-avoid">
                         {/* Left Side (Item 1) */}
                         <div className="flex-1 flex justify-center">
                             {visualComponent ? visualComponent : (
@@ -544,9 +544,9 @@ export const EstimationSheet: React.FC<{ data: EstimationData }> = ({ data }) =>
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="dynamic-grid">
             {data.items.map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center gap-6 p-6 bg-white dark:bg-zinc-700/50 rounded-2xl shadow-sm border-2 border-zinc-200">
+                <div key={idx} className="flex flex-col items-center gap-6 p-6 bg-white dark:bg-zinc-700/50 rounded-2xl shadow-sm border-2 border-zinc-200 break-inside-avoid">
                     <div className="relative">
                         {/* Custom Estimation Jar Component Logic can be ported here if complex, using simple dots for now */}
                         <div className="w-48 h-64 border-4 border-zinc-300 rounded-2xl bg-white relative overflow-hidden shadow-inner">
