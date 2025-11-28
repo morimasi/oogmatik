@@ -75,7 +75,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
     const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
     
     // Sharing State
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false); // Sadece PDF Kaydet butonunu tetikleyen modal
     
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -503,7 +503,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                 onClick={handlePrintReport} 
                                 className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
                             >
-                                <i className="fa-solid fa-print"></i> Yazdır / PDF
+                                <i className="fa-solid fa-file-pdf"></i> PDF Kaydet
+                            </button>
+                            <button 
+                                onClick={handlePrintReport} 
+                                className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                            >
+                                <i className="fa-solid fa-print"></i> Yazdır
                             </button>
                         </div>
 
@@ -549,14 +555,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
                                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800 break-inside-avoid">
-                                    <h4 className="font-bold text-green-700 mb-2 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
-                                    <ul className="list-disc list-inside text-sm space-y-1">
+                                    <h4 className="font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
+                                    <ul className="list-disc list-inside text-sm space-y-1 text-green-900 dark:text-green-100 print:text-black">
                                         {selectedAssessment.report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
                                 <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800 break-inside-avoid">
-                                    <h4 className="font-bold text-rose-700 mb-2 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
-                                    <ul className="list-disc list-inside text-sm space-y-1">
+                                    <h4 className="font-bold text-rose-700 dark:text-rose-300 mb-2 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
+                                    <ul className="list-disc list-inside text-sm space-y-1 text-rose-900 dark:text-rose-100 print:text-black">
                                         {selectedAssessment.report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
                                     </ul>
                                 </div>
