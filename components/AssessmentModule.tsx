@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { assessmentService } from '../services/assessmentService';
 import { ShareModal } from './ShareModal';
 import { TR_VOCAB, getRandomItems, getRandomInt, shuffle } from '../services/offlineGenerators/helpers';
+import { AssessmentReportViewer } from './AssessmentReportViewer';
 
 interface AssessmentModuleProps {
     onBack: () => void;
@@ -16,8 +17,7 @@ interface AssessmentModuleProps {
 
 const steps = ['Giriş', 'Profil', 'Okuma', 'Matematik', 'Dikkat', 'Görsel', 'Bellek', 'Gözlem', 'Analiz', 'Sonuç'];
 
-// --- VISUAL ASSETS ---
-
+// ... (VISUAL ASSETS code remains same)
 // Professional Matrix Cell Renderer (Raven's Style 2.0)
 const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, className = "" }) => {
     if (!item) return <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-dashed border-zinc-300 dark:border-zinc-600 flex items-center justify-center relative overflow-hidden`}><div className="absolute inset-0 bg-zinc-50 dark:bg-zinc-900 opacity-50"></div><span className="text-4xl text-zinc-400 font-bold relative z-10">?</span></div>;
@@ -60,8 +60,7 @@ const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, classNa
     );
 };
 
-// --- DYNAMIC TEST GENERATORS ---
-
+// ... (DYNAMIC TEST GENERATORS code remains same: generateReadingTest, generateMathTest, etc.)
 // 1. Reading: Dynamic Pseudoword & Sentence Generator (Improved)
 const generateReadingTest = (grade: number) => {
     const items = [];
@@ -298,6 +297,7 @@ const generateMemoryTest = (grade: number) => {
 };
 
 // --- COMPONENTS ---
+// ... (TestProgress, ObservationList, TransitionScreen code remains same)
 const TestProgress = ({ current, total, label }: { current: number; total: number; label: string }) => {
     const progress = total <= 1 ? 100 : Math.min(100, Math.max(0, ((current + 1) / total) * 100));
     return (
@@ -367,7 +367,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     
     const [saving, setSaving] = useState(false);
     const [savedSuccess, setSavedSuccess] = useState(false);
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     
     const [profile, setProfile] = useState<AssessmentProfile>({
         studentName: '',
@@ -380,12 +379,24 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const [report, setReport] = useState<AssessmentReport | null>(null);
     const [feedbackState, setFeedbackState] = useState<'none' | 'correct' | 'wrong'>('none');
 
+    // History View State
+    const [showHistory, setShowHistory] = useState(false);
+    const [historyList, setHistoryList] = useState<SavedAssessment[]>([]);
+    const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
+
     const [testState, setTestState] = useState({
         score: 0, total: 0, startTime: 0, items: [] as any[], currentIndex: 0,
         attentionState: [] as { char: string; isSelected: boolean; isCorrectTarget: boolean }[],
         targetChar: '', // For attention test instruction
         answers: [] as boolean[]
     });
+
+    // Load History
+    useEffect(() => {
+        if (showHistory && user) {
+            assessmentService.getUserAssessments(user.id).then(setHistoryList);
+        }
+    }, [showHistory, user]);
 
     const startTestPhase = useCallback((items: any[], isAttention = false, attentionTarget = '') => {
         setFeedbackState('none');
@@ -512,7 +523,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             const result = await generateAssessmentReport(profile);
             if (result) {
                 setReport(result);
-                if (user) assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, result).catch(console.error);
+                // Auto-save on generation if user exists
+                // if (user) assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, result).catch(console.error);
                 setCurrentStep(9);
             }
         } catch (error) {
@@ -542,21 +554,40 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         } catch (e) { alert('Hata oluştu.'); } finally { setSaving(false); }
     };
 
-    const handleManualShare = async (receiverId: string) => {
-        if (!user || !report) return;
-        try {
-            await assessmentService.shareAssessment({
-                id: 'temp', userId: user.id, studentName: profile.studentName, gender: profile.gender, age: profile.age, grade: profile.grade, report: report, createdAt: new Date().toISOString()
-            }, user.id, user.name, receiverId);
-            alert('Paylaşıldı.'); setIsShareModalOpen(false);
-        } catch (e) { alert('Hata oluştu.'); }
-    };
-
-    const handlePrint = () => { window.print(); };
+    if (showHistory) {
+        return (
+            <>
+                <div className="flex flex-col h-full bg-white dark:bg-zinc-900 p-6 overflow-y-auto">
+                    <div className="flex justify-between items-center mb-6 border-b pb-4">
+                        <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Değerlendirme Geçmişi</h2>
+                        <button onClick={() => setShowHistory(false)} className="text-sm font-bold text-zinc-500 hover:text-zinc-800 flex items-center gap-2"><i className="fa-solid fa-arrow-left"></i> Geri Dön</button>
+                    </div>
+                    {historyList.length === 0 ? (
+                        <p className="text-center text-zinc-500 mt-10">Kayıtlı değerlendirme bulunamadı.</p>
+                    ) : (
+                        <div className="space-y-3">
+                            {historyList.map(item => (
+                                <div key={item.id} className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl flex justify-between items-center border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedAssessment(item)}>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold"><i className="fa-solid fa-file-medical"></i></div>
+                                        <div>
+                                            <h4 className="font-bold text-zinc-900 dark:text-zinc-100">{item.studentName}</h4>
+                                            <p className="text-xs text-zinc-500">{new Date(item.createdAt).toLocaleDateString()} - {item.grade}</p>
+                                        </div>
+                                    </div>
+                                    <button className="text-indigo-600 font-bold text-sm">Görüntüle</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <AssessmentReportViewer assessment={selectedAssessment} onClose={() => setSelectedAssessment(null)} user={user} />
+            </>
+        );
+    }
 
     return (
         <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 font-sans">
-            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleManualShare} />
             
             <div className="px-4 py-3 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-20 flex justify-between items-center sticky top-0 no-print shrink-0">
                 <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 font-bold text-sm flex items-center"><i className="fa-solid fa-arrow-left mr-2"></i>Çıkış</button>
@@ -592,7 +623,10 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                             </div>
                             <h2 className="text-3xl md:text-4xl font-black mb-4 text-zinc-800 dark:text-zinc-100">Bilişsel Değerlendirme</h2>
                             <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-300 mb-8 max-w-md">Öğrencinin Okuma, Matematik, Dikkat ve Görsel Algı becerilerini analiz ederek kişiselleştirilmiş eğitim rotası oluşturun.</p>
-                            <button onClick={() => setCurrentStep(1)} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold rounded-2xl shadow-lg flex items-center gap-3">Analizi Başlat <i className="fa-solid fa-arrow-right"></i></button>
+                            <div className="flex gap-4">
+                                <button onClick={() => setCurrentStep(1)} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold rounded-2xl shadow-lg flex items-center gap-3">Analizi Başlat <i className="fa-solid fa-arrow-right"></i></button>
+                                {user && <button onClick={() => setShowHistory(true)} className="px-6 py-3 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200 text-lg font-bold rounded-2xl shadow-sm hover:bg-zinc-50">Geçmiş Raporlar</button>}
+                            </div>
                         </div>
                     )}
 
@@ -772,86 +806,25 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         </div>
                     )}
 
-                    {/* STEP 9: REPORT DISPLAY (Standard Layout) */}
+                    {/* STEP 9: REPORT DISPLAY - Replaced by Reusable Component wrapper to save space and consistency */}
                     {currentStep === 9 && report && (
-                        <div className="flex flex-col h-full animate-in zoom-in duration-500 bg-white dark:bg-zinc-900">
-                            {/* Toolbar */}
-                            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm sticky top-0 z-30 no-print shrink-0">
-                                <div>
-                                    <h3 className="text-lg md:text-xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                                        <i className="fa-solid fa-file-medical text-indigo-500"></i>
-                                        {profile.studentName}
-                                    </h3>
-                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Bilişsel Değerlendirme Raporu • {new Date().toLocaleDateString('tr-TR')}</p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    {user && (
-                                        <>
-                                            <button onClick={handleManualSave} disabled={saving} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${savedSuccess ? 'bg-green-100 text-green-700' : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-700'}`}>
-                                                {saving ? <i className="fa-solid fa-spinner fa-spin"></i> : savedSuccess ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>}
-                                                <span className="hidden sm:inline">{savedSuccess ? 'Kaydedildi' : 'Kaydet'}</span>
-                                            </button>
-                                            <button onClick={() => setIsShareModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all"><i className="fa-solid fa-share-nodes"></i><span className="hidden sm:inline">Paylaş</span></button>
-                                        </>
-                                    )}
-                                    <div className="h-8 w-px bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
-                                    <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"><i className="fa-solid fa-print"></i><span>Yazdır / PDF</span></button>
-                                </div>
-                            </div>
-                            
-                            {/* Report Content */}
-                            <div className="assessment-report-container flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
-                                <div className="hidden print:block mb-8 border-b-2 border-zinc-800 pb-4">
-                                    <h1 className="text-3xl font-black">Bursa Disleksi AI - Öğrenci Değerlendirme Raporu</h1>
-                                    <div className="flex justify-between mt-4"><p><strong>Öğrenci:</strong> {profile.studentName}</p><p><strong>Tarih:</strong> {new Date().toLocaleDateString('tr-TR')}</p></div>
-                                </div>
-                                <div className="bg-gradient-to-r from-indigo-50 to-white dark:from-indigo-900/20 dark:to-zinc-800 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-800 shadow-sm mb-8">
-                                    <h4 className="text-indigo-900 dark:text-indigo-100 font-bold mb-3 flex items-center gap-2"><i className="fa-solid fa-clipboard-check"></i> Genel Değerlendirme</h4>
-                                    <p className="text-zinc-800 dark:text-zinc-200 leading-relaxed text-lg">{report.overallSummary}</p>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 break-inside-avoid">
-                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center">
-                                        <h4 className="font-bold text-zinc-500 text-sm uppercase tracking-widest mb-6">Beceriler Analizi</h4>
-                                        <div className="w-full max-w-xs">{report.chartData && <RadarChart data={report.chartData} />}</div>
-                                    </div>
-                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col justify-center space-y-5">
-                                        {Object.entries(report.scores).map(([key, value]) => {
-                                            const score = value as number;
-                                            const label = key === 'reading' ? 'Okuma' : key === 'math' ? 'Matematik' : key === 'attention' ? 'Dikkat' : key === 'cognitive' ? 'İşleyen Bellek' : 'Yazma';
-                                            const color = score < 30 ? 'bg-green-500' : score < 70 ? 'bg-yellow-500' : 'bg-red-500';
-                                            return (
-                                                <div key={key}>
-                                                    <div className="flex justify-between mb-1"><span className="font-bold text-zinc-700 dark:text-zinc-300 text-sm">{label}</span><span className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">{score}/100 Risk</span></div>
-                                                    <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-3 overflow-hidden"><div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }}></div></div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 break-inside-avoid">
-                                    <div className="bg-emerald-50 dark:bg-emerald-900/10 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
-                                        <h4 className="font-bold text-emerald-800 dark:text-emerald-300 mb-4 flex items-center gap-2 text-lg"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
-                                        <ul className="space-y-3">{report.analysis.strengths.map((s, i) => <li key={i} className="flex items-start gap-3 text-emerald-900 dark:text-emerald-100"><i className="fa-solid fa-check mt-1 text-emerald-500"></i><span>{s}</span></li>)}</ul>
-                                    </div>
-                                    <div className="bg-rose-50 dark:bg-rose-900/10 p-6 rounded-2xl border border-rose-100 dark:border-rose-800/30">
-                                        <h4 className="font-bold text-rose-800 dark:text-rose-300 mb-4 flex items-center gap-2 text-lg"><i className="fa-solid fa-chart-line"></i> Gelişim Alanları</h4>
-                                        <ul className="space-y-3">{report.analysis.weaknesses.map((s, i) => <li key={i} className="flex items-start gap-3 text-rose-900 dark:text-rose-100"><i className="fa-solid fa-arrow-trend-up mt-1 text-rose-500"></i><span>{s}</span></li>)}</ul>
-                                    </div>
-                                </div>
-                                <div className="bg-zinc-900 text-white p-8 rounded-3xl shadow-xl break-inside-avoid">
-                                    <div className="flex items-center gap-3 mb-6 border-b border-zinc-700 pb-4"><div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center"><i className="fa-solid fa-route text-xl"></i></div><h4 className="text-xl font-bold">Önerilen Eğitim Planı</h4></div>
-                                    <div className="space-y-4">{report.roadmap.map((item, idx) => (
-                                        <div key={idx} onClick={() => onSelectActivity(item.activityId as ActivityType)} className="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 p-4 rounded-xl flex items-center gap-4 transition-all cursor-pointer group">
-                                            <span className="font-mono text-2xl font-bold text-zinc-600 group-hover:text-indigo-400 transition-colors">0{idx+1}</span>
-                                            <div className="flex-1"><h5 className="font-bold text-lg text-indigo-300 group-hover:text-white transition-colors mb-1">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5><p className="text-sm text-zinc-400">{item.reason}</p></div>
-                                            <div className="px-4 py-2 bg-zinc-900 rounded-lg text-xs font-bold text-zinc-300 uppercase tracking-wider border border-zinc-700">{item.frequency}</div>
-                                            <i className="fa-solid fa-chevron-right text-zinc-600 group-hover:text-white transition-colors"></i>
-                                        </div>
-                                    ))}</div>
-                                </div>
-                                <div className="hidden print:block mt-8 pt-4 border-t border-zinc-300 text-center text-xs text-zinc-500">Bu rapor Bursa Disleksi AI tarafından otomatik olarak oluşturulmuştur.</div>
-                            </div>
-                        </div>
+                        <AssessmentReportViewer 
+                            assessment={{
+                                id: 'new_report',
+                                userId: user?.id || 'guest',
+                                studentName: profile.studentName,
+                                gender: profile.gender,
+                                age: profile.age,
+                                grade: profile.grade,
+                                report: report,
+                                createdAt: new Date().toISOString()
+                            } as SavedAssessment} 
+                            onClose={() => setCurrentStep(0)} 
+                            user={user}
+                            onManualSave={handleManualSave}
+                            isSaving={saving}
+                            isSaved={savedSuccess}
+                        />
                     )}
                 </div>
             </div>

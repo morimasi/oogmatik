@@ -285,7 +285,7 @@ const AppContent: React.FC = () => {
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-3 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
              {/* Logo Container: Increased z-index to stay on top */}
-             <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50 ml-6">
+             <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
                 <DyslexiaLogo className="h-10 w-auto" />
             </button>
           </div>
