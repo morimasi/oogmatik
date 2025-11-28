@@ -96,7 +96,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
     <div ref={searchContainerRef} className="relative">
       <button
         onClick={() => setIsOpen(true)}
-        className="text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
+        className="text-zinc-400 hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] transition-all duration-300 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
         aria-label="Arama yap"
         title="Etkinlik Ara"
       >
