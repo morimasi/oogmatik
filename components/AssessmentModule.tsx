@@ -589,7 +589,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 font-sans">
             <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleManualShare} />
             
-            <div className="px-4 py-4 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-20 flex justify-between items-center sticky top-0">
+            <div className="px-4 py-4 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-20 flex justify-between items-center sticky top-0 no-print">
                 <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 transition-colors font-bold text-sm flex items-center">
                     <i className="fa-solid fa-arrow-left mr-2"></i>Çıkış
                 </button>
@@ -609,7 +609,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start md:items-center">
-                <div className="w-full max-w-3xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative min-h-[550px] transition-all">
+                <div className="w-full max-w-3xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative min-h-[550px] transition-all printable-area-assessment">
                     
                     {feedbackState !== 'none' && (
                         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-zinc-900/80 backdrop-blur-[2px] transition-all duration-200 animate-in fade-in">
@@ -879,98 +879,178 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     )}
 
                     {currentStep === 9 && report && (
-                        <div className="flex flex-col h-full animate-in zoom-in duration-500">
-                            <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print">
+                        <div className="flex flex-col h-full animate-in zoom-in duration-500 bg-white dark:bg-zinc-900">
+                            {/* Toolbar */}
+                            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm sticky top-0 z-30 no-print">
                                 <div>
-                                    <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{profile.studentName}</h3>
-                                    <p className="text-sm text-zinc-500">Bilişsel Değerlendirme Raporu</p>
+                                    <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                                        <i className="fa-solid fa-file-medical text-indigo-500"></i>
+                                        {profile.studentName}
+                                    </h3>
+                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Bilişsel Değerlendirme Raporu • {new Date().toLocaleDateString('tr-TR')}</p>
                                 </div>
-                                <div className="flex items-center gap-2 self-end sm:self-center">
+                                
+                                <div className="flex items-center gap-3">
                                     {user && (
                                         <>
-                                            <button onClick={handleManualSave} disabled={saving} className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition-colors text-zinc-600 dark:text-white text-xs font-bold flex items-center gap-2 border border-zinc-200 dark:border-zinc-600" title="Kaydet">
-                                                {saving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
-                                                <span className="hidden sm:inline">{savedSuccess ? 'Kaydedildi!' : 'Kaydet'}</span>
+                                            <button 
+                                                onClick={handleManualSave} 
+                                                disabled={saving} 
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${savedSuccess ? 'bg-green-100 text-green-700' : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-700'}`}
+                                            >
+                                                {saving ? <i className="fa-solid fa-spinner fa-spin"></i> : savedSuccess ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>}
+                                                <span className="hidden sm:inline">{savedSuccess ? 'Kaydedildi' : 'Kaydet'}</span>
                                             </button>
-                                            <button onClick={() => setIsShareModalOpen(true)} className="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg transition-colors text-zinc-600 dark:text-white text-xs font-bold flex items-center gap-2 border border-zinc-200 dark:border-zinc-600" title="Paylaş">
+                                            
+                                            <button 
+                                                onClick={() => setIsShareModalOpen(true)} 
+                                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all"
+                                            >
                                                 <i className="fa-solid fa-share-nodes"></i>
                                                 <span className="hidden sm:inline">Paylaş</span>
                                             </button>
                                         </>
                                     )}
-                                    <button onClick={handlePrint} className="bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded-lg transition-colors text-white text-xs font-bold flex items-center gap-2 shadow-sm" title="Yazdır/PDF">
+                                    
+                                    <div className="h-8 w-px bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
+
+                                    <button 
+                                        onClick={handlePrint} 
+                                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                                    >
                                         <i className="fa-solid fa-print"></i>
-                                        <span className="hidden sm:inline">Yazdır/PDF</span>
+                                        <span>Yazdır / PDF</span>
                                     </button>
                                 </div>
                             </div>
                             
-                            <div className="assessment-report-container flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                                {savedSuccess && (
-                                    <div className="p-3 bg-green-100 border border-green-300 text-green-800 rounded-lg text-center font-bold animate-in fade-in no-print">
-                                        <i className="fa-solid fa-check-circle mr-2"></i> Rapor Başarıyla Kaydedildi!
+                            {/* Report Content */}
+                            <div className="assessment-report-container flex-1 overflow-y-auto p-8 custom-scrollbar">
+                                {/* Header for Print */}
+                                <div className="hidden print:block mb-8 border-b-2 border-zinc-800 pb-4">
+                                    <h1 className="text-3xl font-black">Bursa Disleksi AI - Öğrenci Değerlendirme Raporu</h1>
+                                    <div className="flex justify-between mt-4">
+                                        <p><strong>Öğrenci:</strong> {profile.studentName}</p>
+                                        <p><strong>Tarih:</strong> {new Date().toLocaleDateString('tr-TR')}</p>
                                     </div>
-                                )}
-                                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800 text-indigo-900 dark:text-indigo-100 text-sm leading-relaxed">
-                                    <i className="fa-solid fa-quote-left text-2xl text-indigo-200 mr-2 float-left"></i>
-                                    {report.overallSummary}
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-600 flex flex-col items-center justify-center min-h-[250px]">
-                                        <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Risk Analizi Grafiği</h4>
-                                        {report.chartData && <RadarChart data={report.chartData} />}
+
+                                {/* Overall Summary */}
+                                <div className="bg-gradient-to-r from-indigo-50 to-white dark:from-indigo-900/20 dark:to-zinc-800 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-800 shadow-sm mb-8">
+                                    <h4 className="text-indigo-900 dark:text-indigo-100 font-bold mb-3 flex items-center gap-2"><i className="fa-solid fa-clipboard-check"></i> Genel Değerlendirme</h4>
+                                    <p className="text-zinc-800 dark:text-zinc-200 leading-relaxed text-lg">
+                                        {report.overallSummary}
+                                    </p>
+                                </div>
+
+                                {/* Charts & Scores */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 break-inside-avoid">
+                                    {/* Radar Chart */}
+                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center">
+                                        <h4 className="font-bold text-zinc-500 text-sm uppercase tracking-widest mb-6">Beceriler Analizi</h4>
+                                        <div className="w-full max-w-xs">
+                                            {report.chartData && <RadarChart data={report.chartData} />}
+                                        </div>
                                     </div>
-                                    <div className="space-y-3">
+
+                                    {/* Score Bars */}
+                                    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col justify-center space-y-5">
                                         {Object.entries(report.scores).map(([key, value]) => {
                                             const score = value as number;
+                                            const getLabel = (k: string) => {
+                                                if(k==='reading') return 'Okuma Becerileri';
+                                                if(k==='math') return 'Matematiksel Düşünme';
+                                                if(k==='attention') return 'Dikkat ve Odaklanma';
+                                                if(k==='cognitive') return 'İşleyen Bellek';
+                                                if(k==='writing') return 'Yazma Becerileri';
+                                                return k;
+                                            }
+                                            const getColor = (s: number) => {
+                                                if(s < 30) return 'bg-green-500'; // Low risk
+                                                if(s < 70) return 'bg-yellow-500'; // Medium risk
+                                                return 'bg-red-500'; // High risk
+                                            }
                                             return (
-                                            <div key={key} className="bg-white dark:bg-zinc-700/30 p-3 rounded-lg border border-zinc-100 dark:border-zinc-600 flex items-center justify-between">
-                                                <span className="capitalize font-bold text-zinc-700 dark:text-zinc-300">
-                                                    {key === 'reading' ? 'Okuma' : key === 'math' ? 'Matematik' : key === 'attention' ? 'Dikkat' : key === 'cognitive' ? 'Bellek' : 'Yazma'}
-                                                </span>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-24 h-2 bg-zinc-200 dark:bg-zinc-600 rounded-full overflow-hidden">
-                                                        <div 
-                                                            className={`h-full rounded-full ${score > 70 ? 'bg-red-500' : score > 40 ? 'bg-yellow-500' : 'bg-green-500'}`} 
-                                                            style={{ width: `${score}%` }}
-                                                        ></div>
+                                                <div key={key}>
+                                                    <div className="flex justify-between mb-1">
+                                                        <span className="font-bold text-zinc-700 dark:text-zinc-300 text-sm">{getLabel(key)}</span>
+                                                        <span className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">{score}/100 Risk</span>
                                                     </div>
-                                                    <span className={`font-bold w-8 text-right ${score > 70 ? 'text-red-500' : score > 40 ? 'text-yellow-500' : 'text-green-500'}`}>{score}</span>
+                                                    <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-3 overflow-hidden">
+                                                        <div className={`h-full rounded-full ${getColor(score)}`} style={{ width: `${score}%` }}></div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )})}
+                                            );
+                                        })}
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
-                                        <h4 className="font-bold text-green-700 dark:text-green-400 mb-3 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
-                                        <ul className="list-disc list-inside text-sm text-zinc-700 dark:text-zinc-300 space-y-1">
-                                            {report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
+
+                                {/* Strengths & Weaknesses */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 break-inside-avoid">
+                                    <div className="bg-emerald-50 dark:bg-emerald-900/10 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
+                                        <h4 className="font-bold text-emerald-800 dark:text-emerald-300 mb-4 flex items-center gap-2 text-lg">
+                                            <i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler
+                                        </h4>
+                                        <ul className="space-y-3">
+                                            {report.analysis.strengths.map((s, i) => (
+                                                <li key={i} className="flex items-start gap-3 text-emerald-900 dark:text-emerald-100">
+                                                    <i className="fa-solid fa-check mt-1 text-emerald-500"></i>
+                                                    <span>{s}</span>
+                                                </li>
+                                            ))}
                                         </ul>
                                     </div>
-                                    <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-100 dark:border-rose-800">
-                                        <h4 className="font-bold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
-                                        <ul className="list-disc list-inside text-sm text-zinc-700 dark:text-zinc-300 space-y-1">
-                                            {report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
+                                    
+                                    <div className="bg-rose-50 dark:bg-rose-900/10 p-6 rounded-2xl border border-rose-100 dark:border-rose-800/30">
+                                        <h4 className="font-bold text-rose-800 dark:text-rose-300 mb-4 flex items-center gap-2 text-lg">
+                                            <i className="fa-solid fa-chart-line"></i> Gelişim Alanları
+                                        </h4>
+                                        <ul className="space-y-3">
+                                            {report.analysis.weaknesses.map((s, i) => (
+                                                <li key={i} className="flex items-start gap-3 text-rose-900 dark:text-rose-100">
+                                                    <i className="fa-solid fa-arrow-trend-up mt-1 text-rose-500"></i>
+                                                    <span>{s}</span>
+                                                </li>
+                                            ))}
                                         </ul>
                                     </div>
                                 </div>
-                                <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg">
-                                    <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-route text-indigo-400"></i> Kişiselleştirilmiş Yol Haritası</h4>
+
+                                {/* Roadmap */}
+                                <div className="bg-zinc-900 text-white p-8 rounded-3xl shadow-xl break-inside-avoid">
+                                    <div className="flex items-center gap-3 mb-6 border-b border-zinc-700 pb-4">
+                                        <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center">
+                                            <i className="fa-solid fa-route text-xl"></i>
+                                        </div>
+                                        <h4 className="text-xl font-bold">Önerilen Eğitim Planı</h4>
+                                    </div>
+                                    
                                     <div className="space-y-4">
                                         {report.roadmap.map((item, idx) => (
-                                            <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-zinc-700 transition-colors group cursor-pointer" onClick={() => onSelectActivity(item.activityId as ActivityType)}>
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold">{idx + 1}</div>
-                                                    <div>
-                                                        <h5 className="font-bold text-indigo-300 group-hover:text-white transition-colors">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
-                                                        <p className="text-xs text-zinc-400">{item.reason}</p>
-                                                    </div>
+                                            <div 
+                                                key={idx} 
+                                                onClick={() => onSelectActivity(item.activityId as ActivityType)}
+                                                className="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 p-4 rounded-xl flex items-center gap-4 transition-all cursor-pointer group"
+                                            >
+                                                <span className="font-mono text-2xl font-bold text-zinc-600 group-hover:text-indigo-400 transition-colors">0{idx+1}</span>
+                                                <div className="flex-1">
+                                                    <h5 className="font-bold text-lg text-indigo-300 group-hover:text-white transition-colors mb-1">
+                                                        {ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}
+                                                    </h5>
+                                                    <p className="text-sm text-zinc-400">{item.reason}</p>
                                                 </div>
-                                                <span className="text-xs font-bold bg-zinc-900 px-3 py-1 rounded-full text-zinc-400 border border-zinc-600 whitespace-nowrap">{item.frequency}</span>
+                                                <div className="px-4 py-2 bg-zinc-900 rounded-lg text-xs font-bold text-zinc-300 uppercase tracking-wider border border-zinc-700">
+                                                    {item.frequency}
+                                                </div>
+                                                <i className="fa-solid fa-chevron-right text-zinc-600 group-hover:text-white transition-colors"></i>
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                                
+                                {/* Footer for Print */}
+                                <div className="hidden print:block mt-8 pt-4 border-t border-zinc-300 text-center text-xs text-zinc-500">
+                                    Bu rapor Bursa Disleksi AI tarafından otomatik olarak oluşturulmuştur.
                                 </div>
                             </div>
                         </div>
