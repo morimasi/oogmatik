@@ -301,13 +301,13 @@ const generateMemoryTest = (grade: number) => {
 const TestProgress = ({ current, total, label }: { current: number; total: number; label: string }) => {
     const progress = total <= 1 ? 100 : Math.min(100, Math.max(0, ((current + 1) / total) * 100));
     return (
-        <div className="w-full mb-6 px-4">
-            <div className="flex justify-between text-xs font-bold uppercase text-zinc-400 mb-2 tracking-widest">
+        <div className="w-full mb-4 px-4">
+            <div className="flex justify-between text-[10px] font-bold uppercase text-zinc-400 mb-1 tracking-widest">
                 <span className="flex items-center gap-2"><i className="fa-solid fa-list-check"></i> {label}</span>
                 <span>{current + 1} / {total}</span>
             </div>
-            <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-2 overflow-hidden">
-                <div className="bg-indigo-500 h-2 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
+            <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-1.5 overflow-hidden">
+                <div className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
             </div>
         </div>
     );
@@ -330,9 +330,9 @@ const ObservationList = ({ observations, setProfile }: { observations: string[],
             {items.map((obs, i) => (
                 <button key={i} onClick={() => {
                     setProfile(p => ({...p, observations: p.observations.includes(obs) ? p.observations.filter(o=>o!==obs) : [...p.observations, obs]}))
-                }} className={`p-4 text-left border-2 rounded-xl transition-all flex items-center gap-3 ${observations.includes(obs) ? 'bg-indigo-50 border-indigo-500 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-200' : 'bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 hover:border-indigo-200'}`}>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${observations.includes(obs) ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-zinc-300'}`}>
-                        {observations.includes(obs) && <i className="fa-solid fa-check text-xs"></i>}
+                }} className={`p-3 text-left border-2 rounded-xl transition-all flex items-center gap-3 ${observations.includes(obs) ? 'bg-indigo-50 border-indigo-500 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-200' : 'bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 hover:border-indigo-200'}`}>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${observations.includes(obs) ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-zinc-300'}`}>
+                        {observations.includes(obs) && <i className="fa-solid fa-check text-[10px]"></i>}
                     </div>
                     <span className="text-sm font-medium">{obs}</span>
                 </button>
@@ -342,12 +342,12 @@ const ObservationList = ({ observations, setProfile }: { observations: string[],
 };
 
 const TransitionScreen = ({ message, icon = "fa-spinner" }: { message: string, icon?: string }) => (
-    <div className="flex flex-col items-center justify-center h-full p-12 animate-in fade-in duration-500">
-        <div className="w-24 h-24 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mb-6 shadow-lg relative">
-            <i className={`fa-solid ${icon} text-5xl text-indigo-600 dark:text-indigo-400 ${icon === 'fa-spinner' ? 'fa-spin' : 'animate-bounce'}`}></i>
+    <div className="flex flex-col items-center justify-center h-full p-8 animate-in fade-in duration-500">
+        <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mb-6 shadow-lg relative">
+            <i className={`fa-solid ${icon} text-4xl text-indigo-600 dark:text-indigo-400 ${icon === 'fa-spinner' ? 'fa-spin' : 'animate-bounce'}`}></i>
         </div>
-        <h3 className="text-3xl font-bold text-zinc-800 dark:text-zinc-100 mb-3 text-center">Harika Gidiyorsun!</h3>
-        <p className="text-zinc-500 dark:text-zinc-400 font-medium text-xl text-center max-w-md">{message}</p>
+        <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2 text-center">Harika Gidiyorsun!</h3>
+        <p className="text-zinc-500 dark:text-zinc-400 font-medium text-lg text-center max-w-sm">{message}</p>
     </div>
 );
 
@@ -558,26 +558,26 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 font-sans">
             <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleManualShare} />
             
-            <div className="px-4 py-4 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-20 flex justify-between items-center sticky top-0 no-print">
+            <div className="px-4 py-3 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-20 flex justify-between items-center sticky top-0 no-print shrink-0">
                 <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 font-bold text-sm flex items-center"><i className="fa-solid fa-arrow-left mr-2"></i>Çıkış</button>
                 <div className="flex items-center gap-1 md:gap-2 overflow-x-auto no-scrollbar">
                     {steps.map((s, i) => (
                         <div key={i} className="flex items-center">
-                            <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${i === currentStep ? 'bg-indigo-600 scale-125' : i < currentStep ? 'bg-green-500' : 'bg-zinc-300 dark:bg-zinc-600'} transition-all`} title={s}></div>
-                            {i < steps.length - 1 && <div className={`w-4 md:w-8 h-0.5 ${i < currentStep ? 'bg-green-500' : 'bg-zinc-200 dark:bg-zinc-700'}`}></div>}
+                            <div className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full ${i === currentStep ? 'bg-indigo-600 scale-125' : i < currentStep ? 'bg-green-500' : 'bg-zinc-300 dark:bg-zinc-600'} transition-all`} title={s}></div>
+                            {i < steps.length - 1 && <div className={`w-4 md:w-6 h-0.5 ${i < currentStep ? 'bg-green-500' : 'bg-zinc-200 dark:bg-zinc-700'}`}></div>}
                         </div>
                     ))}
                 </div>
                 <div className="w-16"></div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start md:items-center">
-                <div className="w-full max-w-3xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative min-h-[550px] transition-all printable-area-assessment">
+            <div className="flex-1 overflow-hidden p-4 md:p-6 flex justify-center items-start md:items-center">
+                <div className="w-full max-w-4xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative h-full max-h-full transition-all printable-area-assessment">
                     
                     {feedbackState !== 'none' && (
                         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-zinc-900/80 backdrop-blur-[2px] transition-all animate-in fade-in">
-                            <div className={`w-32 h-32 rounded-full flex items-center justify-center shadow-2xl scale-110 ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-6xl text-white`}></i>
+                            <div className={`w-24 h-24 rounded-full flex items-center justify-center shadow-2xl scale-110 ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-5xl text-white`}></i>
                             </div>
                         </div>
                     )}
@@ -586,21 +586,21 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
                     {/* STEP 0: INTRO */}
                     {currentStep === 0 && (
-                        <div className="p-10 text-center flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white dark:from-zinc-800 dark:to-zinc-900">
-                            <div className="w-28 h-28 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-8 shadow-xl animate-pulse">
-                                <i className="fa-solid fa-brain text-6xl text-indigo-600 dark:text-indigo-400"></i>
+                        <div className="p-6 md:p-10 text-center flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white dark:from-zinc-800 dark:to-zinc-900 overflow-y-auto">
+                            <div className="w-24 h-24 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-6 shadow-xl animate-pulse">
+                                <i className="fa-solid fa-brain text-5xl text-indigo-600 dark:text-indigo-400"></i>
                             </div>
-                            <h2 className="text-4xl font-black mb-4 text-zinc-800 dark:text-zinc-100">Bilişsel Değerlendirme</h2>
-                            <p className="text-lg text-zinc-600 dark:text-zinc-300 mb-8 max-w-md">Öğrencinin Okuma, Matematik, Dikkat ve Görsel Algı becerilerini analiz ederek kişiselleştirilmiş eğitim rotası oluşturun.</p>
-                            <button onClick={() => setCurrentStep(1)} className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold rounded-2xl shadow-lg flex items-center gap-3">Analizi Başlat <i className="fa-solid fa-arrow-right"></i></button>
+                            <h2 className="text-3xl md:text-4xl font-black mb-4 text-zinc-800 dark:text-zinc-100">Bilişsel Değerlendirme</h2>
+                            <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-300 mb-8 max-w-md">Öğrencinin Okuma, Matematik, Dikkat ve Görsel Algı becerilerini analiz ederek kişiselleştirilmiş eğitim rotası oluşturun.</p>
+                            <button onClick={() => setCurrentStep(1)} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold rounded-2xl shadow-lg flex items-center gap-3">Analizi Başlat <i className="fa-solid fa-arrow-right"></i></button>
                         </div>
                     )}
 
                     {/* STEP 1: PROFILE */}
                     {currentStep === 1 && (
-                        <div className="p-4 sm:p-8 flex flex-col flex-1 max-w-lg mx-auto w-full">
+                        <div className="p-6 md:p-8 flex flex-col flex-1 max-w-lg mx-auto w-full overflow-y-auto">
                             <h3 className="text-2xl font-bold mb-6 text-center text-zinc-800 dark:text-zinc-100">Öğrenci Profili</h3>
-                            <div className="space-y-6">
+                            <div className="space-y-6 flex-1">
                                 <div>
                                     <label className="block font-bold mb-2">Cinsiyet</label>
                                     <div className="flex gap-4">
@@ -616,12 +616,12 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                     <label className="block font-bold mb-3 text-lg">Sınıf</label>
                                     <div className="grid grid-cols-3 gap-3">
                                         {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf'].map(g => (
-                                            <button key={g} onClick={() => setProfile({...profile, grade: g})} className={`p-4 border-2 rounded-xl font-bold text-sm ${profile.grade === g ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-zinc-200'}`}>{g}</button>
+                                            <button key={g} onClick={() => setProfile({...profile, grade: g})} className={`p-3 border-2 rounded-xl font-bold text-xs md:text-sm ${profile.grade === g ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-zinc-200'}`}>{g}</button>
                                         ))}
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-auto pt-6">
+                            <div className="mt-6 pt-6 border-t dark:border-zinc-700">
                                 <input type="text" value={profile.studentName} onChange={e => setProfile({...profile, studentName: e.target.value})} className="w-full p-3 border-2 rounded-xl bg-white dark:bg-zinc-700 placeholder:text-zinc-400 outline-none mb-4" placeholder="Öğrenci Adı Soyadı" />
                                 <button onClick={() => { if(!profile.studentName) return; triggerTransition('Okuma Testi Hazırlanıyor...', 2); }} className="py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md">Devam Et</button>
                             </div>
@@ -631,24 +631,24 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     {/* STEP 2: READING */}
                     {currentStep === 2 && isTestReady() && (
                         <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
+                            <div className="pt-6"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
+                            <div className="p-6 md:p-8 text-center flex-1 flex flex-col items-center justify-center overflow-y-auto">
                                 {currentItem?.subtype === 'lexical' ? (
                                     <>
-                                        <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest"><i className="fa-solid fa-font mr-2"></i>Bu kelime gerçek mi?</h3>
-                                        <div className="text-5xl md:text-7xl font-black mb-12 p-10 bg-white dark:bg-zinc-700 border-4 border-zinc-100 dark:border-zinc-600 rounded-3xl w-full max-w-md shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic">{currentItem?.q}</div>
-                                        <div className="flex gap-6 w-full max-w-md">
-                                            <button onClick={() => handleAnswer(currentItem?.isReal === false, 'reading', 'Okuma')} className="flex-1 p-5 bg-rose-50 text-rose-600 font-black rounded-2xl border-b-4 border-rose-200 shadow-sm active:scale-95"><i className="fa-solid fa-xmark mr-2"></i> HAYIR</button>
-                                            <button onClick={() => handleAnswer(currentItem?.isReal === true, 'reading', 'Okuma')} className="flex-1 p-5 bg-emerald-50 text-emerald-600 font-black rounded-2xl border-b-4 border-emerald-200 shadow-sm active:scale-95"><i className="fa-solid fa-check mr-2"></i> EVET</button>
+                                        <h3 className="text-sm md:text-base font-bold text-zinc-400 mb-4 uppercase tracking-widest"><i className="fa-solid fa-font mr-2"></i>Bu kelime gerçek mi?</h3>
+                                        <div className="text-4xl md:text-6xl font-black mb-8 p-8 bg-white dark:bg-zinc-700 border-4 border-zinc-100 dark:border-zinc-600 rounded-3xl w-full max-w-md shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic">{currentItem?.q}</div>
+                                        <div className="flex gap-4 w-full max-w-md">
+                                            <button onClick={() => handleAnswer(currentItem?.isReal === false, 'reading', 'Okuma')} className="flex-1 p-4 bg-rose-50 text-rose-600 font-black rounded-2xl border-b-4 border-rose-200 shadow-sm active:scale-95 text-lg"><i className="fa-solid fa-xmark mr-2"></i> HAYIR</button>
+                                            <button onClick={() => handleAnswer(currentItem?.isReal === true, 'reading', 'Okuma')} className="flex-1 p-4 bg-emerald-50 text-emerald-600 font-black rounded-2xl border-b-4 border-emerald-200 shadow-sm active:scale-95 text-lg"><i className="fa-solid fa-check mr-2"></i> EVET</button>
                                         </div>
                                     </>
                                 ) : (
                                     <>
-                                        <h3 className="text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest">Cümleyi Tamamla</h3>
-                                        <div className="text-2xl md:text-3xl font-bold mb-12 p-8 bg-sky-50 dark:bg-sky-900/20 border-2 border-sky-100 rounded-2xl w-full max-w-2xl text-zinc-800 dark:text-zinc-100 font-dyslexic">{currentItem?.q}</div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
+                                        <h3 className="text-sm md:text-base font-bold text-zinc-400 mb-4 uppercase tracking-widest">Cümleyi Tamamla</h3>
+                                        <div className="text-xl md:text-2xl font-bold mb-8 p-6 bg-sky-50 dark:bg-sky-900/20 border-2 border-sky-100 rounded-2xl w-full max-w-2xl text-zinc-800 dark:text-zinc-100 font-dyslexic leading-relaxed">{currentItem?.q}</div>
+                                        <div className="grid grid-cols-1 gap-3 w-full max-w-md">
                                             {currentItem?.opts?.map((opt: string, i: number) => (
-                                                <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'reading', 'Okuma')} className="p-4 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl text-lg font-bold hover:border-sky-500 hover:text-sky-600 shadow-sm active:scale-95">{opt}</button>
+                                                <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'reading', 'Okuma')} className="p-3 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl text-lg font-bold hover:border-sky-500 hover:text-sky-600 shadow-sm active:scale-95">{opt}</button>
                                             ))}
                                         </div>
                                     </>
@@ -660,12 +660,12 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     {/* STEP 3: MATH */}
                     {currentStep === 3 && isTestReady() && (
                         <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" /></div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <div className="text-4xl md:text-6xl font-bold mb-10 text-indigo-900 dark:text-indigo-200 font-mono bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-2xl border-2 border-indigo-100 w-full max-w-lg">{currentItem?.q}</div>
-                                <div className="grid grid-cols-3 gap-4 w-full max-w-lg">
+                            <div className="pt-6"><TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" /></div>
+                            <div className="p-6 md:p-8 text-center flex-1 flex flex-col items-center justify-center overflow-y-auto">
+                                <div className="text-3xl md:text-5xl font-bold mb-8 text-indigo-900 dark:text-indigo-200 font-mono bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-2xl border-2 border-indigo-100 w-full max-w-md">{currentItem?.q}</div>
+                                <div className="grid grid-cols-3 gap-3 w-full max-w-md">
                                     {currentItem?.opts?.map((opt: number, i:number) => (
-                                        <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'math', 'Matematik')} className="p-6 bg-white dark:bg-zinc-700 border-2 border-zinc-200 text-3xl font-bold rounded-2xl hover:border-indigo-500 hover:text-indigo-600 shadow-sm active:scale-95">{opt}</button>
+                                        <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'math', 'Matematik')} className="p-4 bg-white dark:bg-zinc-700 border-2 border-zinc-200 text-2xl font-bold rounded-2xl hover:border-indigo-500 hover:text-indigo-600 shadow-sm active:scale-95">{opt}</button>
                                     ))}
                                 </div>
                             </div>
@@ -675,21 +675,21 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     {/* STEP 4: ATTENTION (Grid) */}
                     {currentStep === 4 && isTestReady(true) && (
                         <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-6 px-6 flex justify-between items-center border-b pb-4 border-zinc-100 dark:border-zinc-700">
-                                <div><h3 className="font-bold text-lg">Dikkat Testi</h3><p className="text-xs text-zinc-500">Sadece "<span className="font-bold text-indigo-600">{testState.targetChar}</span>" harflerini işaretle.</p></div>
+                            <div className="pt-4 px-6 flex justify-between items-center border-b pb-3 border-zinc-100 dark:border-zinc-700 shrink-0">
+                                <div><h3 className="font-bold text-base md:text-lg">Dikkat Testi</h3><p className="text-xs text-zinc-500">Sadece "<span className="font-bold text-indigo-600">{testState.targetChar}</span>" harflerini işaretle.</p></div>
                                 <button onClick={() => {
                                     let score = 0, total = 0;
                                     testState.attentionState.forEach(i => { if(i.isCorrectTarget) total++; if(i.isSelected && i.isCorrectTarget) score++; if(i.isSelected && !i.isCorrectTarget) score-=0.5; });
                                     const acc = total > 0 ? (Math.max(0,score)/total)*100 : 0;
                                     setProfile(p => ({...p, testResults: {...p.testResults, 'attention': {id:'attention', name:'Dikkat', score: Math.max(0,score), total, accuracy: acc, duration: 60, timestamp: Date.now()}}}));
                                     triggerTransition("Görsel Mantık Testi Hazırlanıyor...", 5);
-                                }} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-full shadow-md">Tamamla</button>
+                                }} className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-full shadow-md">Tamamla</button>
                             </div>
-                            <div className="p-4 flex-1 flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/30">
-                                <div className="grid grid-cols-6 gap-2 md:gap-4">
+                            <div className="p-4 flex-1 flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/30 overflow-y-auto">
+                                <div className="grid grid-cols-6 gap-2 md:gap-3 p-2">
                                     {testState.attentionState.map((item, i) => (
                                         <button key={i} onClick={() => setTestState(p => { const n = [...p.attentionState]; n[i].isSelected = !n[i].isSelected; return {...p, attentionState: n}; })} 
-                                            className={`w-10 h-10 md:w-14 md:h-14 rounded-lg text-2xl md:text-3xl font-bold flex items-center justify-center font-dyslexic shadow-sm border transition-all ${item.isSelected ? 'bg-indigo-600 text-white border-indigo-600 scale-110' : 'bg-white dark:bg-zinc-800 border-zinc-200 text-zinc-400 hover:border-indigo-300'}`}>
+                                            className={`w-9 h-9 md:w-12 md:h-12 rounded-lg text-xl md:text-2xl font-bold flex items-center justify-center font-dyslexic shadow-sm border transition-all ${item.isSelected ? 'bg-indigo-600 text-white border-indigo-600 scale-110' : 'bg-white dark:bg-zinc-800 border-zinc-200 text-zinc-400 hover:border-indigo-300'}`}>
                                             {item.char}
                                         </button>
                                     ))}
@@ -701,18 +701,18 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     {/* STEP 5: VISUAL (Raven's Matrices) */}
                     {currentStep === 5 && isTestReady() && (
                         <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Mantık (Matris)" /></div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                                <h3 className="text-zinc-500 font-bold mb-4 uppercase tracking-wider text-xs">Eksik Parçayı Bul</h3>
-                                <div className="mb-8 grid grid-cols-2 gap-4 p-6 bg-zinc-100 dark:bg-zinc-900 rounded-2xl shadow-inner border-2 border-zinc-200 dark:border-zinc-700 max-w-md w-full">
+                            <div className="pt-6"><TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Mantık (Matris)" /></div>
+                            <div className="p-4 md:p-8 text-center flex-1 flex flex-col items-center justify-center overflow-y-auto">
+                                <h3 className="text-zinc-500 font-bold mb-3 uppercase tracking-wider text-xs">Eksik Parçayı Bul</h3>
+                                <div className="mb-6 grid grid-cols-2 gap-3 p-4 bg-zinc-100 dark:bg-zinc-900 rounded-2xl shadow-inner border-2 border-zinc-200 dark:border-zinc-700 max-w-sm w-full">
                                     {currentItem?.grid?.map((item: any, i: number) => (
                                         <MatrixCell key={i} item={item} className="w-full aspect-square rounded-lg shadow-sm" />
                                     ))}
-                                    <div className="w-full aspect-square bg-white dark:bg-zinc-800 border-2 border-dashed border-indigo-400 rounded-lg flex items-center justify-center"><span className="text-4xl font-bold text-indigo-300">?</span></div>
+                                    <div className="w-full aspect-square bg-white dark:bg-zinc-800 border-2 border-dashed border-indigo-400 rounded-lg flex items-center justify-center"><span className="text-3xl font-bold text-indigo-300">?</span></div>
                                 </div>
-                                <div className="flex gap-4 justify-center w-full max-w-2xl flex-wrap">
+                                <div className="flex gap-3 justify-center w-full max-w-xl flex-wrap">
                                     {currentItem?.opts?.map((opt: any, i:number) => (
-                                        <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'visual', 'Görsel Algı')} className="w-20 h-20 md:w-24 md:h-24 hover:scale-105 transition-transform focus:outline-none">
+                                        <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'visual', 'Görsel Algı')} className="w-16 h-16 md:w-20 md:h-20 hover:scale-105 transition-transform focus:outline-none">
                                             <MatrixCell item={opt} className="w-full h-full rounded-xl shadow-md hover:border-indigo-500 hover:ring-2 hover:ring-indigo-300" />
                                         </button>
                                     ))}
@@ -724,13 +724,13 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     {/* STEP 6: MEMORY (Digit Span Backwards) */}
                     {currentStep === 6 && isTestReady() && (
                         <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-8"><TestProgress current={testState.currentIndex} total={testState.total} label="İşleyen Bellek (Geriye Sayı)" /></div>
-                            <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
+                            <div className="pt-6"><TestProgress current={testState.currentIndex} total={testState.total} label="İşleyen Bellek (Geriye Sayı)" /></div>
+                            <div className="p-6 md:p-8 text-center flex-1 flex flex-col items-center justify-center overflow-y-auto">
                                 {memoryPhase === 'show' ? (
                                     <div className="animate-in zoom-in duration-300">
-                                        <h3 className="text-lg font-bold text-zinc-400 mb-8 uppercase tracking-widest">Sayıları Aklında Tut</h3>
+                                        <h3 className="text-base md:text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest">Sayıları Aklında Tut</h3>
                                         {currentDigitIndex < currentItem.sequence.length ? (
-                                            <div className="text-9xl font-black text-indigo-600 dark:text-indigo-400 transition-all scale-110">
+                                            <div className="text-6xl md:text-8xl font-black text-indigo-600 dark:text-indigo-400 transition-all scale-110">
                                                 {currentItem.sequence[currentDigitIndex]}
                                             </div>
                                         ) : (
@@ -738,19 +738,19 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-300 w-full max-w-sm">
-                                        <h3 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-100"><i className="fa-solid fa-rotate-left mr-2 text-indigo-500"></i>Sayıları TERSTEN Yaz</h3>
-                                        <div className="mb-6 h-16 w-full bg-zinc-100 dark:bg-zinc-700 rounded-xl flex items-center justify-center text-3xl font-mono tracking-widest border-2 border-indigo-200">
+                                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-300 w-full max-w-xs">
+                                        <h3 className="text-lg md:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-100"><i className="fa-solid fa-rotate-left mr-2 text-indigo-500"></i>Sayıları TERSTEN Yaz</h3>
+                                        <div className="mb-6 h-14 w-full bg-zinc-100 dark:bg-zinc-700 rounded-xl flex items-center justify-center text-2xl font-mono tracking-widest border-2 border-indigo-200">
                                             {userMemoryInput}
-                                            <span className="animate-pulse w-2 h-8 bg-indigo-500 ml-1"></span>
+                                            <span className="animate-pulse w-2 h-6 bg-indigo-500 ml-1"></span>
                                         </div>
-                                        <div className="grid grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-3 gap-2">
                                             {[1,2,3,4,5,6,7,8,9].map(n => (
-                                                <button key={n} onClick={() => setUserMemoryInput(p => p + n)} className="h-16 bg-white dark:bg-zinc-800 rounded-xl border-b-4 border-zinc-200 dark:border-zinc-700 text-2xl font-bold active:border-b-0 active:translate-y-1 transition-all shadow-sm">{n}</button>
+                                                <button key={n} onClick={() => setUserMemoryInput(p => p + n)} className="h-14 bg-white dark:bg-zinc-800 rounded-xl border-b-4 border-zinc-200 dark:border-zinc-700 text-xl font-bold active:border-b-0 active:translate-y-1 transition-all shadow-sm">{n}</button>
                                             ))}
-                                            <button onClick={() => setUserMemoryInput(p => p.slice(0,-1))} className="h-16 bg-rose-50 text-rose-600 rounded-xl border-b-4 border-rose-200 font-bold active:border-b-0 active:translate-y-1"><i className="fa-solid fa-delete-left"></i></button>
-                                            <button onClick={() => setUserMemoryInput(p => p + '0')} className="h-16 bg-white dark:bg-zinc-800 rounded-xl border-b-4 border-zinc-200 text-2xl font-bold active:border-b-0 active:translate-y-1">0</button>
-                                            <button onClick={() => handleAnswer(userMemoryInput === currentItem.answer, 'cognitive', 'İşleyen Bellek')} className="h-16 bg-emerald-500 text-white rounded-xl border-b-4 border-emerald-700 font-bold active:border-b-0 active:translate-y-1"><i className="fa-solid fa-check"></i></button>
+                                            <button onClick={() => setUserMemoryInput(p => p.slice(0,-1))} className="h-14 bg-rose-50 text-rose-600 rounded-xl border-b-4 border-rose-200 font-bold active:border-b-0 active:translate-y-1"><i className="fa-solid fa-delete-left"></i></button>
+                                            <button onClick={() => setUserMemoryInput(p => p + '0')} className="h-14 bg-white dark:bg-zinc-800 rounded-xl border-b-4 border-zinc-200 text-xl font-bold active:border-b-0 active:translate-y-1">0</button>
+                                            <button onClick={() => handleAnswer(userMemoryInput === currentItem.answer, 'cognitive', 'İşleyen Bellek')} className="h-14 bg-emerald-500 text-white rounded-xl border-b-4 border-emerald-700 font-bold active:border-b-0 active:translate-y-1"><i className="fa-solid fa-check"></i></button>
                                         </div>
                                     </div>
                                 )}
@@ -760,13 +760,13 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
                     {/* STEP 7: OBSERVATIONS */}
                     {currentStep === 7 && (
-                        <div className="p-8 flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <h3 className="text-2xl font-bold mb-2 text-center">Eğitmen Gözlemleri</h3>
-                            <p className="text-center text-zinc-500 mb-6">Lütfen öğrenciyle ilgili gözlemlediğiniz durumları işaretleyin.</p>
-                            <div className="flex-1 overflow-y-auto custom-scrollbar px-2">
+                        <div className="p-6 md:p-8 flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
+                            <h3 className="text-2xl font-bold mb-2 text-center shrink-0">Eğitmen Gözlemleri</h3>
+                            <p className="text-center text-zinc-500 mb-6 shrink-0 text-sm">Lütfen öğrenciyle ilgili gözlemlediğiniz durumları işaretleyin.</p>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar px-2 mb-4">
                                 <ObservationList observations={profile.observations} setProfile={setProfile} />
                             </div>
-                            <button onClick={() => handleReportGeneration()} className="mt-6 w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2">
+                            <button onClick={() => handleReportGeneration()} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 shrink-0">
                                 {isLoading ? <><i className="fa-solid fa-spinner fa-spin"></i> Analiz Ediliyor...</> : 'Raporu Oluştur'}
                             </button>
                         </div>
@@ -776,9 +776,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     {currentStep === 9 && report && (
                         <div className="flex flex-col h-full animate-in zoom-in duration-500 bg-white dark:bg-zinc-900">
                             {/* Toolbar */}
-                            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm sticky top-0 z-30 no-print">
+                            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm sticky top-0 z-30 no-print shrink-0">
                                 <div>
-                                    <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                                    <h3 className="text-lg md:text-xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
                                         <i className="fa-solid fa-file-medical text-indigo-500"></i>
                                         {profile.studentName}
                                     </h3>
@@ -800,7 +800,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                             </div>
                             
                             {/* Report Content */}
-                            <div className="assessment-report-container flex-1 overflow-y-auto p-8 custom-scrollbar">
+                            <div className="assessment-report-container flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                                 <div className="hidden print:block mb-8 border-b-2 border-zinc-800 pb-4">
                                     <h1 className="text-3xl font-black">Bursa Disleksi AI - Öğrenci Değerlendirme Raporu</h1>
                                     <div className="flex justify-between mt-4"><p><strong>Öğrenci:</strong> {profile.studentName}</p><p><strong>Tarih:</strong> {new Date().toLocaleDateString('tr-TR')}</p></div>

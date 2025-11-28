@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { StyleSettings } from '../types';
 
@@ -33,7 +34,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
   );
 
   return (
-    <div id="tour-toolbar" className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200 dark:border-zinc-700/50 px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 print:hidden transition-all">
+    <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-zinc-200 dark:border-zinc-700/50 px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 print:hidden transition-all duration-300">
         
         {/* Settings Group - Wraps on small screens */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -81,7 +82,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
              {/* Pedagogical Note Toggle */}
              <button
                 onClick={() => onSettingsChange({...settings, showPedagogicalNote: !settings.showPedagogicalNote})}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${settings.showPedagogicalNote ? 'bg-indigo-50 text-indigo-600' : 'bg-zinc-100 text-zinc-400'}`}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${settings.showPedagogicalNote ? 'bg-indigo-50 text-indigo-600' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-400'}`}
                 title={settings.showPedagogicalNote ? "Eğitmen Notunu Gizle" : "Eğitmen Notunu Göster"}
              >
                  <i className={`fa-solid ${settings.showPedagogicalNote ? 'fa-eye' : 'fa-eye-slash'}`}></i> Not
