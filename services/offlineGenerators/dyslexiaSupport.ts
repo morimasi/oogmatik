@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { getRandomInt, getRandomItems, COLORS, SHAPE_TYPES, shuffle, getWordsForDifficulty } from './helpers';
 
 export const generateOfflineCodeReading = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
@@ -154,6 +154,113 @@ export const generateOfflineAttentionToQuestion = async (options: GeneratorOptio
             pedagogicalNote: 'Görsel ayrım ve mantıksal çıkarım.',
             imagePrompt: 'Şekil',
             logicItems: shuffle(items)
+        };
+    });
+};
+
+export const generateOfflineAttentionDevelopment = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
+    const { worksheetCount, itemCount } = options;
+    const count = itemCount || 4;
+
+    const templates: any[] = [
+        {
+            type: 'max-min',
+            text: (isLeft: boolean, isMax: boolean) => `Aradığımız sayı ${isLeft ? 'sol' : 'sağ'} kutudadır. Bulunduğu kutudaki en ${isMax ? 'büyük' : 'küçük'} sayıdır.`,
+            logic: (box1: number[], box2: number[], isLeft: boolean, isMax: boolean) => {
+                const targetBox = isLeft ? box1 : box2;
+                return isMax ? Math.max(...targetBox) : Math.min(...targetBox);
+            }
+        },
+        {
+            type: 'odd-even-max',
+            text: (isEven: boolean, isMax: boolean) => `Aradığımız sayı ${isEven ? 'çift' : 'tek'} sayıdır. Bulunduğu kutudaki en ${isMax ? 'büyük' : 'küçük'} ${isEven ? 'çift' : 'tek'} sayıdır.`,
+            logic: (box1: number[], box2: number[], isEven: boolean, isMax: boolean) => {
+                const all = [...box1, ...box2];
+                const filtered = all.filter(n => isEven ? n % 2 === 0 : n % 2 !== 0);
+                // Fallback if no numbers match filter
+                if (filtered.length === 0) return all[0];
+                return isMax ? Math.max(...filtered) : Math.min(...filtered);
+            }
+        },
+        {
+            type: 'digit-logic',
+            text: (isTwoDigit: boolean) => `Aradığımız sayı ${isTwoDigit ? 'iki' : 'bir'} basamaklıdır. Bulunduğu kutudaki tek ${isTwoDigit ? 'iki' : 'bir'} basamaklı sayıdır.`,
+            logic: (box1: number[], box2: number[], isTwoDigit: boolean) => {
+                // This logic requires creating data that fits. 
+                // We'll filter afterwards or just pick random and fix data.
+                return 0; // Placeholder, handled in loop
+            }
+        },
+        {
+            type: 'range',
+            text: (limit: number, isLess: boolean) => `Aradığımız sayı ${limit}'den ${isLess ? 'küçüktür' : 'büyüktür'}. Bu kurala uyan tek sayıdır.`,
+            logic: (box1: number[], box2: number[], limit: number, isLess: boolean) => 0
+        }
+    ];
+
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = Array.from({ length: count }, () => {
+            const templateIdx = getRandomInt(0, 3); // Choose template
+            let box1: number[] = [], box2: number[] = [];
+            let riddle = "";
+            let answer = 0;
+
+            if (templateIdx === 0) { // Max/Min in Box
+                box1 = Array.from({length: 4}, () => getRandomInt(1, 20));
+                box2 = Array.from({length: 4}, () => getRandomInt(1, 20));
+                const isLeft = Math.random() > 0.5;
+                const isMax = Math.random() > 0.5;
+                riddle = templates[0].text(isLeft, isMax);
+                answer = templates[0].logic(box1, box2, isLeft, isMax);
+            } 
+            else if (templateIdx === 1) { // Odd/Even Max
+                // Ensure at least one odd and one even exist
+                box1 = [getRandomInt(1,10)*2, getRandomInt(1,10)*2+1, getRandomInt(1,20), getRandomInt(1,20)];
+                box2 = [getRandomInt(1,20), getRandomInt(1,20), getRandomInt(1,20), getRandomInt(1,20)];
+                const isEven = Math.random() > 0.5;
+                const isMax = Math.random() > 0.5;
+                riddle = templates[1].text(isEven, isMax);
+                answer = templates[1].logic(box1, box2, isEven, isMax);
+            }
+            else { // Range or Digits (Simplified for Range)
+                const target = getRandomInt(20, 40);
+                const others = [target + 10, target + 20, target + 5, target + 15, target + 12];
+                // Shuffle all
+                const all = shuffle([target, ...others]);
+                box1 = all.slice(0, 3);
+                box2 = all.slice(3, 6);
+                
+                const limit = target + 2; // Say 22. "Less than 24". Others are > 24.
+                riddle = templates[3].text(limit, true); // "Less than X"
+                answer = target;
+            }
+
+            // Create logical distractors
+            const options = shuffle([
+                answer.toString(),
+                (answer + 1).toString(),
+                (answer - 1).toString(),
+                box1[0].toString(),
+                box2[0].toString()
+            ].slice(0, 5));
+
+            return {
+                riddle,
+                boxes: [
+                    { label: '', numbers: box1 },
+                    { label: '', numbers: box2 }
+                ],
+                options,
+                answer: answer.toString()
+            };
+        });
+
+        return {
+            title: 'Dikkat Geliştirme (Hızlı Mod)',
+            instruction: 'İpuçlarını okuyun ve aradığımız sayıyı bulun.',
+            pedagogicalNote: 'İşitsel/Sözel dikkati sürdürme, yönerge takibi ve mantıksal eleme.',
+            imagePrompt: 'Mantık',
+            puzzles
         };
     });
 };

@@ -1,4 +1,9 @@
 
-// ... existing exports
+export * from './mathLogic';
+export * from './wordGames';
+export * from './perceptualSkills';
+export * from './memoryAttention';
+export * from './readingComprehension';
+export * from './dyscalculia';
 export * from './dyslexiaSupport';
-// Ensure generateOfflineCodeReading and generateOfflineAttentionToQuestion are exported from dyslexiaSupport.ts
+export * from './newActivities';

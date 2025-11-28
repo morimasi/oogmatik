@@ -1,7 +1,7 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -130,6 +130,66 @@ export const generateAttentionToQuestionFromAI = async (options: GeneratorOption
     
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<AttentionToQuestionData[]>;
+};
+
+export const generateAttentionDevelopmentFromAI = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    
+    const prompt = `
+    "Dikkat Geliştirme" (Mantık Bilmecesi) etkinliği.
+    ${itemCount || 4} adet soru üret.
+    
+    HER SORU İÇİN:
+    1. İki kutu (Sol/Sağ veya Kutu 1/Kutu 2) veya tek kutu içinde sayılar listesi oluştur.
+    2. Bir hedef sayıyı tanımlayan bir bilmece (riddle) yaz.
+       Örnekler:
+       - "Aradığımız sayı çift sayı değildir. Bulunduğu kutudaki en büyük sayıdır."
+       - "Aradığımız sayı 50'den küçüktür ve sağ kutudadır."
+       - "İki basamaklı değildir. Bulunduğu kutudaki en küçük sayıdır."
+    3. Seçenekleri (a, b, c, d, e) belirle.
+    
+    Zorluk: ${difficulty || 'Orta'}. Zorluk arttıkça mantık karmaşıklaşsın (basamak sayısı, tek/çift, katlar, konum).
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        riddle: { type: Type.STRING },
+                        boxes: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    label: { type: Type.STRING },
+                                    numbers: { type: Type.ARRAY, items: { type: Type.INTEGER } }
+                                },
+                                required: ['numbers']
+                            }
+                        },
+                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ['riddle', 'boxes', 'options', 'answer']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt']
+    };
+    
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionDevelopmentData[]>;
 };
 
 // Re-export placeholders or other generators if they were lost, 

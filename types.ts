@@ -118,14 +118,15 @@ export enum ActivityType {
   BASIC_OPERATIONS = 'BASIC_OPERATIONS',
   REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS',
   PROVERB_SENTENCE_FINDER = 'PROVERB_SENTENCE_FINDER',
-  
-  // --- NEW ACTIVITIES ---
   FAMILY_RELATIONS = 'FAMILY_RELATIONS',
   LOGIC_DEDUCTION = 'LOGIC_DEDUCTION',
   NUMBER_BOX_LOGIC = 'NUMBER_BOX_LOGIC',
   MAP_INSTRUCTION = 'MAP_INSTRUCTION',
   CODE_READING = 'CODE_READING',
   ATTENTION_TO_QUESTION = 'ATTENTION_TO_QUESTION',
+  
+  // --- NEW ACTIVITY ---
+  ATTENTION_DEVELOPMENT = 'ATTENTION_DEVELOPMENT',
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -338,6 +339,18 @@ export interface MapInstructionData extends BaseActivityData {
     mapSvg: string; // Or specialized structure
     instructions: string[];
     cities: {name: string, x: number, y: number}[];
+}
+
+export interface AttentionDevelopmentData extends BaseActivityData {
+    puzzles: {
+        riddle: string;
+        boxes: {
+            label?: string; // e.g. "Sol Kutu", "Sağ Kutu"
+            numbers: number[];
+        }[];
+        options: string[]; // e.g. "5", "8", "10"
+        answer: string;
+    }[];
 }
 
 // --- DYSLEXIA SUPPORT TYPES ---
@@ -973,7 +986,8 @@ export type SingleWorksheetData =
   | NumberBoxLogicData
   | MapInstructionData
   | CodeReadingData
-  | AttentionToQuestionData;
+  | AttentionToQuestionData
+  | AttentionDevelopmentData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

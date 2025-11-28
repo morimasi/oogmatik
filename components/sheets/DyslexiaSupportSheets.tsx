@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData } from '../../types';
+import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData } from '../../types';
 import { ImageDisplay, PedagogicalHeader, Shape, GridComponent } from './common';
 
 // Helper for simple sheets
@@ -341,6 +341,54 @@ export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData 
                     ))}
                 </div>
             )}
+        </div>
+    );
+};
+
+export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentData }> = ({ data }) => {
+    return (
+        <div>
+            <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {data.puzzles.map((puzzle, i) => (
+                    <div key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 shadow-sm break-inside-avoid flex flex-col h-full">
+                        {/* Riddle Text */}
+                        <div className="bg-zinc-100 dark:bg-zinc-700/50 p-4 rounded-lg mb-4 text-center border border-zinc-200 dark:border-zinc-600">
+                            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-100">{puzzle.riddle}</p>
+                        </div>
+
+                        {/* Boxes Area */}
+                        <div className="flex gap-4 justify-center mb-6 flex-1 items-center">
+                            {puzzle.boxes.map((box, bIdx) => (
+                                <div key={bIdx} className="border-2 border-zinc-800 dark:border-zinc-400 p-2 min-w-[80px] text-center bg-white dark:bg-zinc-900">
+                                    {box.label && <div className="text-xs text-zinc-400 mb-1 uppercase tracking-wider">{box.label}</div>}
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        {box.numbers.map((num, nIdx) => (
+                                            <span key={nIdx} className="text-xl font-bold font-mono px-1">{num}{nIdx < box.numbers.length-1 ? ',' : ''}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Options */}
+                        <div className="border-t pt-4 flex justify-around">
+                            {puzzle.options.map((opt, oIdx) => (
+                                <div key={oIdx} className="flex flex-col items-center gap-1 cursor-pointer group">
+                                    <div className="w-8 h-8 rounded-full border-2 border-zinc-300 group-hover:border-indigo-500 group-hover:bg-indigo-50 flex items-center justify-center font-bold text-sm text-zinc-500 group-hover:text-indigo-600 transition-all">
+                                        {String.fromCharCode(97 + oIdx)}
+                                    </div>
+                                    <span className="font-bold text-lg">{opt}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            {/* Answer Key Strip (For Print) */}
+            <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
+                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
+            </div>
         </div>
     );
 };

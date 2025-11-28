@@ -1,4 +1,11 @@
 
-// ... existing exports
+export * from './mathLogicGames';
+export * from './mathGeometry';
+export * from './logicProblems';
+export * from './wordGames';
+export * from './perceptualSkills';
+export * from './memoryAttention';
+export * from './readingComprehension';
+export * from './dyscalculia';
 export * from './dyslexiaSupport';
-// Ensure generateCodeReadingFromAI and generateAttentionToQuestionFromAI are exported from dyslexiaSupport.ts
+export * from './newActivities';

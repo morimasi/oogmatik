@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -55,6 +56,7 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.BACKWARD_SPELLING: return <DyslexiaSheets.BackwardSpellingSheet {...props} />;
         case ActivityType.CODE_READING: return <DyslexiaSheets.CodeReadingSheet {...props} />;
         case ActivityType.ATTENTION_TO_QUESTION: return <DyslexiaSheets.AttentionToQuestionSheet {...props} />;
+        case ActivityType.ATTENTION_DEVELOPMENT: return <DyslexiaSheets.AttentionDevelopmentSheet {...props} />;
 
         // --- Math & Logic ---
         case ActivityType.BASIC_OPERATIONS: return <MathLogicSheets.BasicOperationsSheet {...props} />;
