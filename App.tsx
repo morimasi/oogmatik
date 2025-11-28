@@ -281,21 +281,22 @@ const AppContent: React.FC = () => {
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
       <header className="relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 print:hidden">
-        <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
+        <div className="w-full px-2 sm:px-4 py-2 flex justify-between items-center">
           <div className="flex items-center">
-            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-3 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
-             {/* Logo Container: Increased z-index to stay on top */}
-             <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
-                <DyslexiaLogo className="h-10 w-auto" />
+            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-2 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
+             {/* Logo Container: Adjusted for tighter alignment */}
+             <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-2 pl-0 pr-2 py-1 rounded-lg relative z-50 group">
+                <DyslexiaLogo className="h-8 sm:h-10 w-auto pointer-events-none transition-transform group-hover:scale-105" />
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
              <div id="tour-search">
                 <GlobalSearch onSelectActivity={handleSelectActivity} />
              </div>
              
-             <div className="flex items-center gap-1 border-r border-zinc-700 pr-2 mx-1">
+             {/* Hidden on smaller screens to save space */}
+             <div className="hidden lg:flex items-center gap-1 border-r border-zinc-700 pr-2 mx-1">
                 <button onClick={() => setIsTourOpen(true)} className={headerIconBtnClass} title="Nasıl Kullanılır?">
                     <i className="fa-solid fa-question-circle fa-lg"></i>
                 </button>
@@ -315,12 +316,12 @@ const AppContent: React.FC = () => {
                 className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-black rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:shadow-amber-500/30 hover:scale-105 transition-all border border-yellow-300"
                 title="Öğrenme Güçlüğü Analizi"
              >
-                 <i className="fa-solid fa-user-doctor"></i> Değerlendirme
+                 <i className="fa-solid fa-user-doctor"></i> <span className="hidden md:inline">Değerlendirme</span>
              </button>
 
              <div className="h-6 w-px bg-zinc-700 mx-1 hidden sm:block"></div>
 
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-1 sm:gap-2">
              
                 <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-400 hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
                     <i className="fa-solid fa-heart fa-lg"></i>
@@ -355,11 +356,11 @@ const AppContent: React.FC = () => {
                     </button>
                     
                     <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
-                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-zinc-700 shadow-sm hover:border-[var(--accent-color)] transition-colors" />
+                        <img src={user.avatar} alt={user.name} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-zinc-700 shadow-sm hover:border-[var(--accent-color)] transition-colors" />
                     </button>
                  </>
              ) : (
-                 <button onClick={() => setIsAuthModalOpen(true)} className="ml-2 px-4 py-2 bg-[var(--accent-color)] text-black rounded-lg font-bold text-sm hover:bg-[var(--accent-hover)] transition-colors shadow-sm">
+                 <button onClick={() => setIsAuthModalOpen(true)} className="ml-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-[var(--accent-color)] text-black rounded-lg font-bold text-xs sm:text-sm hover:bg-[var(--accent-hover)] transition-colors shadow-sm whitespace-nowrap">
                      Giriş Yap
                  </button>
              )}
