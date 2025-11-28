@@ -959,8 +959,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.REAL_LIFE_MATH_PROBLEMS,
       ActivityType.LOGIC_DEDUCTION,
       ActivityType.NUMBER_BOX_LOGIC,
-      ActivityType.MAP_INSTRUCTION,
-      ActivityType.ATTENTION_DEVELOPMENT
+      ActivityType.MAP_INSTRUCTION
     ]
   },
   {
@@ -1050,7 +1049,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.VISUAL_TRACKING_LINES,
       ActivityType.BACKWARD_SPELLING,
       ActivityType.CODE_READING,
-      ActivityType.ATTENTION_TO_QUESTION
+      ActivityType.ATTENTION_TO_QUESTION,
+      ActivityType.ATTENTION_DEVELOPMENT
     ]
   }
 ];
