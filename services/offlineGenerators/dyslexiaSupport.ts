@@ -1,329 +1,391 @@
-
-import { GeneratorOptions, AttentionFocusData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, ImageInterpretationTFData, HeartOfSkyData } from '../../types';
+import { GeneratorOptions, AttentionFocusData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
-// 1. Reading Flow (Okuma Akışı)
-export const generateOfflineReadingFlow = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
-    const { worksheetCount, difficulty } = options;
-    const sentences = [
-        "Ali topu attı.",
-        "Ayşe okula gitti.",
-        "Kedi süt içti.",
-        "Güneş bugün çok parlak.",
-        "Bahçede renkli çiçekler açtı.",
-        "Kitap okumayı çok seviyorum."
-    ]; 
+// --- Helper for creating random visual tracking paths ---
+const generatePaths = (count: number, width: number, height: number) => {
+    const paths = [];
+    const colors = ['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
+    const startYStep = height / (count + 1);
+    
+    for(let i=0; i<count; i++) {
+        const startY = startYStep * (i + 1);
+        const endY = getRandomInt(20, height - 20); // Random end Y
+        
+        // Simple cubic bezier curve
+        const cp1x = width * 0.33;
+        const cp1y = startY + getRandomInt(-50, 50);
+        const cp2x = width * 0.66;
+        const cp2y = endY + getRandomInt(-50, 50);
+        
+        const d = `M 20 ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${width-20} ${endY}`;
+        
+        paths.push({
+            id: i,
+            color: colors[i % colors.length],
+            d,
+            startLabel: (i + 1).toString(),
+            endLabel: String.fromCharCode(65 + i), // A, B, C...
+            startImage: '',
+            endImage: ''
+        });
+    }
+    return paths;
+};
+
+// 1. Attention Focus (Mevcut olan korunuyor)
+export const generateOfflineAttentionFocus = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    const count = itemCount || 4;
+
+    // FIX: Define a type for the items in the pool to resolve 'unknown' type errors.
+    interface ItemPoolItem {
+        name: string;
+        color: string;
+        feature: string;
+        type: 'meyve' | 'sebze';
+    }
+
+    const itemPool: { fruit: ItemPoolItem[], veg: ItemPoolItem[] } = {
+        fruit: [
+            { name: 'Limon', color: 'sarı', feature: 'ekşi', type: 'meyve' },
+            { name: 'Çilek', color: 'kırmızı', feature: 'tatlı', type: 'meyve' },
+            { name: 'Muz', color: 'sarı', feature: 'uzun', type: 'meyve' },
+            { name: 'Karpuz', color: 'yeşil', feature: 'büyük', type: 'meyve' },
+            { name: 'Kiraz', color: 'kırmızı', feature: 'saplı', type: 'meyve' },
+            { name: 'Armut', color: 'yeşil', feature: 'sulu', type: 'meyve' }
+        ],
+        veg: [
+            { name: 'Biber', color: 'yeşil', feature: 'acı', type: 'sebze' },
+            { name: 'Domates', color: 'kırmızı', feature: 'yuvarlak', type: 'sebze' },
+            { name: 'Havuç', color: 'turuncu', feature: 'uzun', type: 'sebze' },
+            { name: 'Patlıcan', color: 'mor', feature: 'uzun', type: 'sebze' }
+        ]
+    };
 
     return Array.from({ length: worksheetCount }, () => {
-        // Construct paragraphs from random words or predefined sentences
-        const paragraphText = sentences.slice(0, 3).join(' '); // Simple structure
-        
+        const puzzles = Array.from({ length: count }, () => {
+            const cat = Math.random() > 0.5 ? 'fruit' : 'veg';
+            const items = shuffle(itemPool[cat]);
+            const target = items[0];
+            const clueItem = items[1];
+            
+            const clueDesc = `${clueItem.color} renkli ${clueItem.type}nin`;
+            const targetDesc = `${target.color} renklidir`;
+            const riddle = `Aradığımız yiyecek, ${clueDesc} bulunduğu kutudadır. Bulunduğu kutudaki ${targetDesc}.`;
+            
+            const box1 = shuffle([target.name, clueItem.name, 'Elma', 'Soğan']);
+            const box2 = shuffle(['Ispanak', 'Pırasa', 'Kavun', 'İncir']);
+            
+            return {
+                riddle,
+                boxes: [{ items: box1 }, { items: box2 }],
+                options: shuffle([target.name, clueItem.name, 'Elma', 'Kavun']),
+                answer: target.name
+            };
+        });
+
         return {
-            title: "Okuma Akışı (Hızlı Mod)",
-            prompt: "Metni okuyun.",
-            instruction: "Renkli heceleri takip ederek metni akıcı bir şekilde oku.",
-            pedagogicalNote: "Heceleme ve görsel takip becerisi.",
-            imagePrompt: "Okuma",
-            text: {
-                paragraphs: [{
-                    sentences: paragraphText.split('.').filter(s=>s.trim()).map(s => ({
-                        syllables: s.trim().split(' ').flatMap(word => 
-                            simpleSyllabify(word).map((syl, i) => ({
-                                text: syl,
-                                color: i % 2 === 0 ? '#000000' : '#FF0000' // Alternating black/red
-                            }))
-                        )
-                    }))
-                }]
-            }
+            title: `Dikkatini Ver (${difficulty})`,
+            instruction: "İpuçlarını okuyun ve doğru cevabı bulun.",
+            pedagogicalNote: "Mantıksal çıkarım.",
+            imagePrompt: "Dedektif",
+            puzzles
         };
     });
 };
 
-// 2. Letter Discrimination (Harf Ayırt Etme)
-export const generateOfflineLetterDiscrimination = async (options: GeneratorOptions): Promise<LetterDiscriminationData[]> => {
-    const { worksheetCount, targetLetters } = options;
-    const targets = targetLetters ? targetLetters.split(',').map(s=>s.trim()) : ['b', 'd'];
-    const distractors = ['p', 'q', 'h', 'l', 'k']; // Common distractors
+// 2. Code Reading
+export const generateOfflineCodeReading = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
+    const { worksheetCount, itemCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const symbols = ['arrow-up', 'arrow-down', 'arrow-left', 'arrow-right', 'triangle', 'square', 'circle', 'star'];
+        const values = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        
+        const selectedSymbols = getRandomItems(symbols, 5);
+        const selectedValues = getRandomItems(values, 5);
+        
+        const keyMap = selectedSymbols.map((sym, i) => ({
+            symbol: sym,
+            value: selectedValues[i],
+            color: COLORS[i % COLORS.length].css
+        }));
+        
+        const codesToSolve = Array.from({ length: itemCount || 5 }, () => {
+            const seqLength = getRandomInt(3, 5);
+            const sequenceIndices = Array.from({length: seqLength}, () => getRandomInt(0, 4));
+            const sequence = sequenceIndices.map(i => keyMap[i].symbol);
+            const answer = sequenceIndices.map(i => keyMap[i].value).join('');
+            return { sequence, answer };
+        });
 
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Harf Ayırt Etme (Hızlı Mod)",
-        prompt: "Hedef harfleri bulun.",
-        instruction: `Aşağıdaki satırlarda "${targets.join(' ve ')}" harflerini bul ve daire içine al.`,
-        pedagogicalNote: "Görsel ayrıştırma ve dikkat.",
-        imagePrompt: "Harfler",
-        targetLetters: targets,
-        rows: Array.from({length: 6}, () => {
-            const rowChars = Array.from({length: 10}, () => Math.random() > 0.3 ? getRandomItems(distractors, 1)[0] : getRandomItems(targets, 1)[0]);
-            return {
-                letters: rowChars,
-                targetCount: rowChars.filter(c => targets.includes(c)).length
-            };
-        })
-    }));
+        return {
+            title: 'Kod Okuma (Hızlı Mod)',
+            instruction: 'Sembollerin karşılıklarını anahtardan bularak şifreyi çözün.',
+            pedagogicalNote: 'Sembolik kodlama ve dikkati sürdürme.',
+            imagePrompt: 'Şifre',
+            keyMap,
+            codesToSolve
+        };
+    });
 };
 
-// 3. Rapid Naming (Hızlı İsimlendirme)
+// 3. Attention To Question
+export const generateOfflineAttentionToQuestion = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
+    const { worksheetCount, subType } = options;
+    const type = subType || 'letter-cancellation';
+    
+    return Array.from({ length: worksheetCount }, () => {
+        if (type === 'letter-cancellation') {
+            const word = getRandomItems(['DİKKAT', 'BAŞARI', 'OKUL', 'ZEKA'], 1)[0];
+            const targetChars = ['X', 'Q', 'W'];
+            const size = 10;
+            const grid = Array.from({length: size}, () => Array.from({length: size}, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
+            
+            // Embed targets
+            for(let i=0; i<15; i++) {
+                grid[getRandomInt(0, size-1)][getRandomInt(0, size-1)] = getRandomItems(targetChars, 1)[0];
+            }
+            
+            return {
+                title: 'Harf Eleme (Hızlı Mod)',
+                instruction: 'Belirtilen harflerin üzerini çizin.',
+                pedagogicalNote: 'Seçici dikkat.',
+                imagePrompt: 'Harf',
+                subType: 'letter-cancellation',
+                grid,
+                targetChars,
+                password: word
+            };
+        } else if (type === 'path-finding') {
+            return {
+                title: 'Yol Takibi (Hızlı Mod)',
+                instruction: 'Yıldızları takip ederek çıkışa ulaş.',
+                pedagogicalNote: 'Görsel takip.',
+                imagePrompt: 'Labirent',
+                subType: 'path-finding',
+                pathGrid: [
+                    ['start', 'star', 'empty', 'empty'],
+                    ['empty', 'star', 'star', 'empty'],
+                    ['empty', 'empty', 'star', 'end']
+                ]
+            };
+        } else {
+            return {
+                title: 'Görsel Mantık (Hızlı Mod)',
+                instruction: 'Farklı olan şekli bul.',
+                pedagogicalNote: 'Görsel ayrım.',
+                imagePrompt: 'Şekil',
+                subType: 'visual-logic',
+                logicItems: [{id: 1, isOdd: false, correctAnswer: '', shapes: []}]
+            };
+        }
+    });
+};
+
+// 4. Attention Development
+export const generateOfflineAttentionDevelopment = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
+    const { worksheetCount, itemCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = Array.from({ length: itemCount || 4 }, () => {
+            const n1 = getRandomInt(10, 50);
+            const n2 = getRandomInt(10, 50);
+            return {
+                riddle: 'Sol kutudaki en büyük sayıyı bul.',
+                boxes: [
+                    { label: 'Sol', numbers: [n1, n1-5, n1+2, n1-10] },
+                    { label: 'Sağ', numbers: [n2, n2+5, n2-2, n2+10] }
+                ],
+                options: [(n1+2).toString(), n1.toString(), (n1-5).toString()],
+                answer: (n1+2).toString()
+            };
+        });
+        return {
+            title: 'Dikkat Geliştirme (Hızlı Mod)',
+            instruction: 'Soruyu dikkatlice oku ve cevabı bul.',
+            pedagogicalNote: 'Yönerge takibi ve sayısal dikkat.',
+            imagePrompt: 'Dikkat',
+            puzzles
+        };
+    });
+};
+
+// 5. Reading Flow
+export const generateOfflineReadingFlow = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
+    const { worksheetCount } = options;
+    const text = "Ali okula gitti. Okulda arkadaşları ile oynadı. Derslerini dikkatle dinledi. Öğretmeni onu tebrik etti. Akşam eve mutlu döndü.";
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const paragraphs = text.split('. ').filter(s => s).map(sent => ({
+            sentences: [{
+                syllables: simpleSyllabify(sent).map((s, i) => ({
+                    text: s,
+                    color: i % 2 === 0 ? '#000' : '#4F46E5' // Alternating black/blue
+                }))
+            }]
+        }));
+
+        return {
+            title: 'Okuma Akışı (Hızlı Mod)',
+            instruction: 'Renkli heceleri takip ederek metni okuyun.',
+            // FIX: Added missing 'prompt' property
+            prompt: 'Renkli heceleri takip ederek metni okuyun.',
+            pedagogicalNote: 'Okuma hızını ve takibini kolaylaştırır.',
+            imagePrompt: 'Kitap',
+            text: { paragraphs }
+        };
+    });
+};
+
+// 6. Letter Discrimination
+export const generateOfflineLetterDiscrimination = async (options: GeneratorOptions): Promise<LetterDiscriminationData[]> => {
+    const { worksheetCount, targetLetters } = options;
+    const targets = targetLetters ? targetLetters.split(',') : ['b', 'd'];
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const rows = Array.from({ length: 8 }, () => {
+            const letters = Array.from({ length: 15 }, () => Math.random() > 0.5 ? targets[0] : targets[1]);
+            return {
+                letters,
+                targetCount: letters.filter(l => l === targets[0]).length
+            };
+        });
+
+        return {
+            title: 'Harf Ayırt Etme (Hızlı Mod)',
+            instruction: `Sadece "${targets[0]}" harflerini bul ve daire içine al.`,
+            // FIX: Added missing 'prompt' property
+            prompt: `Sadece "${targets[0]}" harflerini bul.`,
+            pedagogicalNote: 'Benzer harfleri ayırt etme (b/d/p/q).',
+            imagePrompt: 'Harfler',
+            targetLetters: targets,
+            rows
+        };
+    });
+};
+
+// 7. Rapid Naming
 export const generateOfflineRapidNaming = async (options: GeneratorOptions): Promise<RapidNamingData[]> => {
-    const { worksheetCount, contentType } = options;
-    const type = contentType || 'object'; // color, object, number, letter
+    const { worksheetCount, type } = options; // type: 'color', 'object', 'number'
     
     return Array.from({ length: worksheetCount }, () => {
         let items: any[] = [];
-        if (type === 'color') {
-            const colors = ['Kırmızı', 'Mavi', 'Sarı', 'Yeşil', 'Siyah'];
-            items = Array.from({length: 20}, () => {
-                const c = getRandomItems(colors, 1)[0];
-                return { type: 'color', value: c, label: c };
+        if (type === 'number') {
+            const nums = ['2', '4', '6', '8', '9'];
+            items = Array.from({ length: 25 }, () => {
+                const val = getRandomItems(nums, 1)[0];
+                return { type: 'number', value: val, label: val };
             });
-        } else {
-            // Objects
-            const objs = ['Elma', 'Top', 'Ev', 'Araba', 'Kedi'];
-            items = Array.from({length: 20}, () => {
+        } else if (type === 'color') {
+            const colors = ['red', 'blue', 'green', 'yellow', 'black'];
+            items = Array.from({ length: 25 }, () => {
+                const c = getRandomItems(colors, 1)[0];
+                return { type: 'color', value: c, label: '' };
+            });
+        } else { // Object (Default)
+            const objs = ['star', 'heart', 'circle', 'square'];
+            items = Array.from({ length: 25 }, () => {
                 const o = getRandomItems(objs, 1)[0];
-                return { type: 'icon', value: o, label: o }; // Frontend needs to map label to icon
+                return { type: 'icon', value: o, label: o === 'star' ? '⭐' : o === 'heart' ? '❤️' : o === 'circle' ? '⚫' : '🟦' };
             });
         }
 
         return {
-            title: "Hızlı İsimlendirme (Hızlı Mod)",
-            prompt: "Hızlıca isimlendirin.",
-            instruction: "Soldan sağa doğru nesnelerin isimlerini en hızlı şekilde söyle.",
-            pedagogicalNote: "Otomatikleşmiş isimlendirme hızı (RAN).",
-            imagePrompt: "Kronometre",
-            type: type,
-            grid: { items }
+            title: 'Hızlı İsimlendirme (Hızlı Mod)',
+            instruction: 'Soldan sağa doğru olabildiğince hızlı bir şekilde isimlendirin.',
+            // FIX: Added missing 'prompt' property
+            prompt: 'Hızlıca isimlendir.',
+            pedagogicalNote: 'Otomatikleşmiş isimlendirme hızı (RAN).',
+            imagePrompt: 'Saat',
+            grid: { items },
+            type: (type as any) || 'object'
         };
     });
 };
 
-// 4. Phonological Awareness (Fonolojik Farkındalık)
+// 8. Phonological Awareness
 export const generateOfflinePhonologicalAwareness = async (options: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Sesleri Duy (Hızlı Mod)",
-        prompt: "Soruları cevaplayın.",
-        instruction: "Soruları cevapla.",
-        pedagogicalNote: "Ses ve hece farkındalığı.",
-        imagePrompt: "Kulak",
+    return Array.from({ length: options.worksheetCount }, () => ({
+        title: 'Fonolojik Farkındalık (Hızlı Mod)',
+        instruction: 'Soruları cevaplayın.',
+        // FIX: Added missing 'prompt' property
+        prompt: 'Soruları cevaplayın.',
+        pedagogicalNote: 'Ses ve hece farkındalığı.',
+        imagePrompt: 'Kulak',
         exercises: [
-            { type: 'syllable-counting', question: 'Kaç heceli?', word: 'Kalemlik', options: ['2', '3', '4'], answer: '3', imagePrompt: 'Kalemlik' },
-            { type: 'rhyming', question: 'Hangisi kafiyeli?', word: 'Masa', options: ['Kasa', 'Sandalye', 'Tabak'], answer: 'Kasa', imagePrompt: 'Masa' },
-            { type: 'syllable-counting', question: 'Kaç heceli?', word: 'Araba', options: ['2', '3', '4'], answer: '3', imagePrompt: 'Araba' },
-            { type: 'rhyming', question: 'Hangisi kafiyeli?', word: 'Bal', options: ['Şal', 'Süt', 'Çay'], answer: 'Şal', imagePrompt: 'Bal' }
+            { type: 'syllable-counting', question: 'Bu kelime kaç hecelidir?', word: 'Kaplumbağa', options: [3, 4, 5], answer: 4 },
+            { type: 'rhyming', question: 'Hangi kelime bununla kafiyelidir?', word: 'Masa', options: ['Kasa', 'Sandalye', 'Kalem'], answer: 'Kasa' },
+            { type: 'syllable-counting', question: 'Bu kelime kaç hecelidir?', word: 'Bilgisayar', options: [3, 4, 5], answer: 4 },
+            { type: 'rhyming', question: 'Hangi kelime bununla kafiyelidir?', word: 'Gül', options: ['Bülbül', 'Ağaç', 'Yaprak'], answer: 'Bülbül' }
         ]
     }));
 };
 
-// 5. Mirror Letters (Ayna Harfler)
+// 9. Mirror Letters
 export const generateOfflineMirrorLetters = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Ayna Harfler (Hızlı Mod)",
-        instruction: "Ters (ayna) duran harfleri bul ve işaretle.",
-        pedagogicalNote: "Yön algısı ve görsel ayrım.",
-        imagePrompt: "Ayna",
-        targetPair: "b-d",
-        rows: Array.from({length: 5}, () => ({
-            items: Array.from({length: 6}, () => ({
-                letter: Math.random() > 0.5 ? 'b' : 'd',
-                isMirrored: Math.random() > 0.7,
-                rotation: 0
-            }))
+    return Array.from({ length: options.worksheetCount }, () => ({
+        title: 'Ayna Harfler (Hızlı Mod)',
+        instruction: 'Ters duran harfleri bul ve işaretle.',
+        pedagogicalNote: 'Uzamsal yönelim ve harf tanıma.',
+        imagePrompt: 'Ayna',
+        targetPair: 'b-d',
+        rows: Array.from({ length: 5 }, () => ({
+            items: Array.from({ length: 6 }, () => {
+                const isMirrored = Math.random() > 0.7;
+                return {
+                    letter: getRandomItems(['b', 'd', 'p', 'q'], 1)[0],
+                    isMirrored,
+                    rotation: isMirrored ? 180 : 0
+                };
+            })
         }))
     }));
 };
 
-// 6. Syllable Train (Hece Treni)
+// 10. Syllable Train
 export const generateOfflineSyllableTrain = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
-    const { worksheetCount } = options;
-    const words = ['Bilgisayar', 'Televizyon', 'Helikopter', 'Kütüphane'];
-    
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Hece Treni (Hızlı Mod)",
-        instruction: "Vagonlardaki heceleri birleştirip kelimeyi oku.",
-        pedagogicalNote: "Heceleme ve sentez.",
-        imagePrompt: "Tren",
-        trains: words.map(w => ({
+    return Array.from({ length: options.worksheetCount }, () => {
+        const words = ['Araba', 'Kelebek', 'Televizyon', 'Bilgisayar'];
+        const trains = words.map(w => ({
             word: w,
-            syllables: simpleSyllabify(w),
-            imagePrompt: w
-        }))
-    }));
+            syllables: simpleSyllabify(w)
+        }));
+        return {
+            title: 'Hece Treni (Hızlı Mod)',
+            instruction: 'Vagonlardaki heceleri birleştir ve kelimeyi oku.',
+            pedagogicalNote: 'Heceleme ve kelime oluşturma.',
+            imagePrompt: 'Tren',
+            trains
+        };
+    });
 };
 
-// 7. Visual Tracking Lines (Gözle Takip)
+// 11. Visual Tracking Lines
 export const generateOfflineVisualTrackingLines = async (options: GeneratorOptions): Promise<VisualTrackingLineData[]> => {
     const { worksheetCount } = options;
-    // Simple straight/curved lines logic for offline is hard to randomize well without SVG lib logic
-    // Returning a static placeholder structure that Frontend renders
     return Array.from({ length: worksheetCount }, () => ({
-        title: "Gözle Takip (Hızlı Mod)",
-        instruction: "Çizgileri gözünle takip et ve hangi harfin hangi sayıya gittiğini bul.",
-        pedagogicalNote: "Göz takibi ve dikkat sürdürme.",
-        imagePrompt: "Yollar",
-        width: 300,
-        height: 300,
-        paths: [
-            { id: 1, color: 'red', d: 'M 10 10 C 100 10, 10 100, 100 100', startLabel: 'A', endLabel: '1' },
-            { id: 2, color: 'blue', d: 'M 10 50 L 100 50', startLabel: 'B', endLabel: '2' },
-            { id: 3, color: 'green', d: 'M 10 90 C 50 90, 50 10, 100 10', startLabel: 'C', endLabel: '3' }
-        ]
+        title: 'Gözle Takip Çizgileri (Hızlı Mod)',
+        instruction: 'Çizgileri gözünle takip et ve nereye gittiğini bul.',
+        pedagogicalNote: 'Göz kaslarını güçlendirme ve görsel takip.',
+        imagePrompt: 'Yol',
+        width: 500,
+        height: 400,
+        paths: generatePaths(5, 500, 400)
     }));
 };
 
-// 8. Backward Spelling (Ters Harf)
+// 12. Backward Spelling
 export const generateOfflineBackwardSpelling = async (options: GeneratorOptions): Promise<BackwardSpellingData[]> => {
     const { worksheetCount } = options;
-    const words = ['Elma', 'Kitap', 'Kalem', 'Masa'];
+    const words = ['Kedi', 'Masa', 'Kitap', 'Okul', 'Elma'];
+    
     return Array.from({ length: worksheetCount }, () => ({
-        title: "Tersten Okuma (Hızlı Mod)",
-        instruction: "Tersten yazılmış kelimeleri düzelt.",
-        pedagogicalNote: "Görsel işlemleme ve kelime tanıma.",
-        imagePrompt: "Ters",
+        title: 'Ters Harfler (Hızlı Mod)',
+        instruction: 'Tersten yazılmış kelimeleri düzelt.',
+        pedagogicalNote: 'Ortografik farkındalık.',
+        imagePrompt: 'Harf',
         items: words.map(w => ({
-            correct: w,
-            reversed: w.split('').reverse().join('').toLowerCase(),
-            imagePrompt: w
+            reversed: w.split('').reverse().join(''),
+            correct: w
         }))
-    }));
-};
-
-// 9. Code Reading (Kod Okuma)
-export const generateOfflineCodeReading = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
-    const { worksheetCount } = options;
-    const keyMap = [
-        { symbol: '★', value: 'A', color: 'red' },
-        { symbol: '♦', value: 'L', color: 'blue' },
-        { symbol: '●', value: 'İ', color: 'green' }
-    ];
-    
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Kod Okuma (Hızlı Mod)",
-        instruction: "Sembolleri harflerle eşleştirip şifreyi çöz.",
-        pedagogicalNote: "Sembolik kodlama ve dikkat.",
-        imagePrompt: "Şifre",
-        keyMap: keyMap,
-        codesToSolve: [
-            { sequence: ['★', '♦', '●'], answer: 'ALİ' },
-            { sequence: ['♦', '★', '♦', '★'], answer: 'LALA' }
-        ]
-    }));
-};
-
-// 10. Attention To Question (Soruya Dikkat)
-export const generateOfflineAttentionToQuestion = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Soruya Dikkat (Hızlı Mod)",
-        instruction: "Yönergeyi dikkatlice oku ve uygula.",
-        pedagogicalNote: "Yönerge takibi ve görsel dikkat.",
-        imagePrompt: "Dikkat",
-        subType: 'visual-logic',
-        logicItems: [
-            { id: 1, shapes: [{color: 'red', type: 'circle'}], isOdd: false, correctAnswer: 'Kırmızı Daire' },
-            { id: 2, shapes: [{color: 'blue', type: 'square'}], isOdd: true, correctAnswer: 'Mavi Kare' }
-        ]
-    }));
-};
-
-// 11. Attention Development (Dikkat Geliştirme)
-export const generateOfflineAttentionDevelopment = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Dikkat Geliştirme (Hızlı Mod)",
-        instruction: "İpuçlarına göre doğru sayıyı bul.",
-        pedagogicalNote: "Mantıksal çıkarım ve dikkat.",
-        imagePrompt: "Büyüteç",
-        puzzles: [
-            {
-                riddle: "Sol kutudaki en büyük sayı hangisi?",
-                boxes: [{ label: 'Sol', numbers: [5, 12, 8] }, { label: 'Sağ', numbers: [3, 9, 15] }],
-                options: ['5', '12', '8', '15'],
-                answer: '12'
-            }
-        ]
-    }));
-};
-
-// 12. Attention Focus (Dikkatini Ver)
-export const generateOfflineAttentionFocus = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Dikkatini Ver (Hızlı Mod)",
-        instruction: "Sadece 'Kırmızı' olanları bul.",
-        pedagogicalNote: "Seçici dikkat.",
-        imagePrompt: "Odak",
-        puzzles: [
-            {
-                riddle: "Kırmızı olanları işaretle",
-                boxes: [{ title: 'Liste', items: ['Kırmızı Elma', 'Yeşil Elma', 'Kırmızı Top'] }],
-                options: ['Kırmızı Elma', 'Kırmızı Top'],
-                answer: '2'
-            }
-        ]
-    }));
-};
-
-// 13. Image Interpretation TF
-export const generateOfflineImageInterpretationTF = async (options: GeneratorOptions): Promise<ImageInterpretationTFData[]> => {
-    const { worksheetCount } = options;
-    
-    const scenarios = [
-        {
-            title: "Oyun Hamuru Zamanı",
-            sceneDescription: "Üç çocuk masada oyun hamuru ile oynuyor.",
-            imagePrompt: "Çocuklar Oyun Hamuru",
-            items: [
-                { text: "Çocuklar masada oturuyor.", isCorrect: true },
-                { text: "Çocuklar oyun hamurları ile oynuyor.", isCorrect: true },
-                { text: "Çocuklar ayakta duruyor.", isCorrect: false },
-                { text: "Masada hiç oyuncak yok.", isCorrect: false }
-            ]
-        },
-        {
-            title: "Parkta Eğlence",
-            sceneDescription: "Parkta kaydıraktan kayan bir çocuk ve salıncakta sallanan bir kız var.",
-            imagePrompt: "Park Kaydırak Salıncak",
-            items: [
-                { text: "Parkta iki çocuk var.", isCorrect: true },
-                { text: "Bir çocuk kaydıraktan kayıyor.", isCorrect: true },
-                { text: "Parkta havuz var.", isCorrect: false },
-                { text: "Çocuklar top oynuyor.", isCorrect: false }
-            ]
-        }
-    ];
-
-    return Array.from({ length: worksheetCount }, () => {
-        const scenario = getRandomItems(scenarios, 1)[0];
-        return {
-            title: scenario.title,
-            instruction: "Resme bak ve cümlelerin doğru mu yanlış mı olduğuna karar ver.",
-            pedagogicalNote: "Görsel yorumlama ve okuduğunu anlama.",
-            imagePrompt: scenario.imagePrompt,
-            sceneDescription: scenario.sceneDescription,
-            items: scenario.items
-        };
-    });
-};
-
-// 14. Heart of Sky (Gökyüzünün Kalbi) - Offline Stub
-export const generateOfflineHeartOfSky = async (options: GeneratorOptions): Promise<HeartOfSkyData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Gökyüzünün Kalbi (Hızlı Mod)",
-        instruction: "Hikayeyi oku ve soruları cevapla.",
-        pedagogicalNote: "Okuduğunu anlama ve görselleştirme.",
-        imagePrompt: "Kurbağa ve Nilüfer",
-        theme: "Doğa",
-        scenes: [
-            {
-                title: "Varki ve Nilüfer",
-                text: "Minik kurbağa Varki, göletteki büyük nilüfer yaprağının üzerinde oturuyordu. Akşam olmuştu.",
-                visualDescription: "Kurbağa nilüfer yaprağında.",
-                imagePrompt: "Kurbağa",
-                question: "Varki nerede oturuyordu?"
-            }
-        ]
     }));
 };
