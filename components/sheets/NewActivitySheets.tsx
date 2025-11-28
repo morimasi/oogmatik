@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData } from '../../types';
-import { PedagogicalHeader, GridComponent } from './common';
+import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData, MindGames56Data } from '../../types';
+import { PedagogicalHeader, GridComponent, ImageDisplay } from './common';
 
 // --- TURKEY MAP COMPONENT ---
 const TurkeyMapSVG = ({ cities }: { cities: { name: string, x: number, y: number }[] }) => {
@@ -285,6 +285,67 @@ export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
                     </div>
                 </div>
             ))}
+        </div>
+    </div>
+);
+
+export const MindGames56Sheet: React.FC<{ data: MindGames56Data }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
+        
+        <div className="space-y-6">
+            {data.puzzles.map((puzzle, idx) => (
+                <div key={idx} className="bg-white dark:bg-zinc-800 rounded-2xl border-l-8 border-indigo-500 shadow-md p-6 break-inside-avoid">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shrink-0">
+                            {idx + 1}
+                        </div>
+                        <h4 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">{puzzle.title}</h4>
+                    </div>
+
+                    {/* Layout Logic */}
+                    <div className="flex flex-col md:flex-row gap-6">
+                        {/* Left: Content */}
+                        <div className="flex-1 space-y-4">
+                            <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-line text-base leading-relaxed">
+                                {puzzle.question}
+                            </p>
+                            
+                            {puzzle.hint && (
+                                <div className="inline-block px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 text-xs rounded-full border border-amber-200 dark:border-amber-800 font-medium">
+                                    <i className="fa-solid fa-lightbulb mr-1"></i> İpucu: {puzzle.hint}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Right: Visual & Input */}
+                        <div className="w-full md:w-1/3 flex flex-col items-center gap-4">
+                            {puzzle.imagePrompt && (
+                                <div className="w-full h-32 bg-zinc-100 dark:bg-zinc-900 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700">
+                                     <ImageDisplay base64={puzzle.imageBase64} description={puzzle.title} className="w-full h-full object-contain" />
+                                </div>
+                            )}
+                            
+                            <div className="w-full p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-600 text-center">
+                                <p className="text-xs font-bold text-zinc-400 uppercase mb-2">Cevap</p>
+                                <div className="h-8 border-b-2 border-zinc-400 dark:border-zinc-500 w-3/4 mx-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        {/* Answer Key for Print */}
+        <div className="mt-8 pt-6 border-t-2 border-zinc-200 dark:border-zinc-700 hidden print:block">
+            <h5 className="text-xs font-bold text-zinc-400 uppercase mb-2">Cevap Anahtarı</h5>
+            <div className="flex flex-wrap gap-4">
+                {data.puzzles.map((p, i) => (
+                    <div key={i} className="text-xs text-zinc-500">
+                        <span className="font-bold">{i+1}.</span> {p.answer}
+                    </div>
+                ))}
+            </div>
         </div>
     </div>
 );
