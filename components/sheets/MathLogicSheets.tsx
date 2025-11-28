@@ -674,28 +674,57 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
     </div>
 );
 
-export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex justify-center mb-6">
-            <div className="px-6 py-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-full text-indigo-800 dark:text-indigo-200 font-bold text-xl">
-                Hedef İşaret: <span className="text-3xl ml-2">{data.punctuationMark}</span>
-            </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {data.rules.map((rule, index) => (
-                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 hover:border-indigo-400 cursor-pointer transition-all relative overflow-hidden group">
-                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-zinc-300 group-hover:border-indigo-500"></div>
-                    <p className="font-medium text-zinc-700 dark:text-zinc-200 pr-6">{rule.text}</p>
+const MazeGrid = ({ rules }: { rules: {id: number, text: string, isPath: boolean}[] }) => {
+    // 5x5 Grid
+    const size = 5;
+    
+    return (
+        <div className="grid grid-cols-5 gap-1 bg-zinc-200 p-2 border-2 border-zinc-800 rounded-lg shadow-md">
+            {rules.map((cell, idx) => (
+                <div key={idx} className={`relative w-full aspect-square border-2 ${cell.isPath ? 'bg-white' : 'bg-white'} p-1 flex items-center justify-center text-center text-[10px] sm:text-xs transition-colors hover:bg-indigo-50`}>
+                    {idx === 0 && <span className="absolute top-0 left-0 bg-green-500 text-white text-[8px] px-1 rounded-br z-10">GİRİŞ</span>}
+                    {idx === 24 && <span className="absolute bottom-0 right-0 bg-red-500 text-white text-[8px] px-1 rounded-tl z-10">ÇIKIŞ</span>}
+                    
+                    {/* Visual Walls for visual maze structure if path logic provided more detail, otherwise just text blocks */}
+                    <span className="line-clamp-4 font-medium text-zinc-700">{cell.text}</span>
                 </div>
             ))}
         </div>
+    );
+};
+
+export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ data }) => (
+    <div>
+        {/* Pass data to header so it can render the SVG if available in imagePrompt */}
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        
+        <div className="flex justify-center mb-6">
+            <div className="px-6 py-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-full text-indigo-800 dark:text-indigo-200 font-bold text-xl border border-indigo-200">
+                Hedef İşaret: <span className="text-4xl ml-2 align-middle">{data.punctuationMark}</span>
+            </div>
+        </div>
+        
+        {/* Render Actual Maze Grid if possible, else fallback to cards */}
+        {data.rules.length >= 25 ? (
+            <div className="max-w-lg mx-auto">
+                <MazeGrid rules={data.rules as any} />
+            </div>
+        ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {data.rules.map((rule, index) => (
+                    <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 hover:border-indigo-400 cursor-pointer transition-all relative overflow-hidden group shadow-sm">
+                        <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-zinc-300 group-hover:border-indigo-500"></div>
+                        <p className="font-medium text-zinc-700 dark:text-zinc-200 pr-6">{rule.text}</p>
+                    </div>
+                ))}
+            </div>
+        )}
     </div>
 );
 
 export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumberData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="flex-1 w-full space-y-4">
                 {data.clues.map((clue, index) => (

@@ -43,6 +43,17 @@ const hasBorrow = (n1: number, n2: number): boolean => {
     return false;
 };
 
+// --- SVG GENERATOR FOR MAZE ---
+const generateSimpleMazeSVG = () => {
+    // Generate a visual representation of a maze for the header
+    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="100" height="100" fill="#f0f9ff" stroke="#3b82f6" stroke-width="2"/>
+      <path d="M 10 10 L 40 10 L 40 40 L 70 40 L 70 10 L 90 10 L 90 90 L 60 90 L 60 60 L 30 60 L 30 90 L 10 90 Z" fill="none" stroke="#60a5fa" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="10" cy="10" r="5" fill="#22c55e" />
+      <circle cx="90" cy="90" r="5" fill="#ef4444" />
+    </svg>`;
+};
+
 export const generateOfflineBasicOperations = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
     const { selectedOperations, num1Digits, num2Digits, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
     
@@ -862,38 +873,70 @@ export const generateOfflineColumnOddOneOutSentence = async (options: GeneratorO
         imagePrompt: 'Sütun'
     }];
 };
+
+// --- UPDATED MAZE GENERATOR ---
 export const generateOfflinePunctuationMaze = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount } = options;
     
+    // Correct/Incorrect rules for Comma (Virgül)
+    const correctRules = [
+        "Eş görevli kelimeler arası",
+        "Sıralı cümleleri ayırmak",
+        "Hitap sözlerinden sonra",
+        "Özneyi vurgulamak",
+        "Ara sözlerin başına/sonuna",
+        "Kesirleri ayırmak",
+        "Anlam karışıklığını gidermek"
+    ];
+    
+    const incorrectRules = [
+        "Cümle sonuna",
+        "Soru cümlelerine",
+        "Korku bildiren cümlelere",
+        "Saat ve dakika arasına",
+        "Tarihlerin arasına",
+        "Özel isimden sonra",
+        "Satır sonu heceyi ayırmak"
+    ];
+
     return Array.from({length: worksheetCount}, () => {
-        // Rules for Comma (Virgül) - Turkish
-        const commaRules = [
-            {id: 1, text: 'Eş görevli kelimeler arasına konur.', isCorrect: true},
-            {id: 2, text: 'Sıralı cümleleri ayırmak için kullanılır.', isCorrect: true},
-            {id: 3, text: 'Hitap sözlerinden sonra konur.', isCorrect: true},
-            {id: 4, text: 'Özneyi vurgulamak için kullanılır.', isCorrect: true},
-            {id: 5, text: 'Ara sözlerin başına ve sonuna konur.', isCorrect: true},
-            {id: 6, text: 'Cümle bittiğinde sonuna konur.', isCorrect: false}, // Nokta
-            {id: 7, text: 'Soru bildiren cümlelerde kullanılır.', isCorrect: false}, // Soru işareti
-            {id: 8, text: 'Korku ve heyecan bildiren cümlelerde.', isCorrect: false}, // Ünlem
-            {id: 9, text: 'Saat ve dakika arasına konur.', isCorrect: false}, // Nokta (TR)
-            {id: 10, text: 'Tarihlerin yazılışında gün, ay, yıl arasına.', isCorrect: false} // Nokta veya Eğik çizgi
+        // Generate a 5x5 grid based path
+        const gridSize = 5;
+        const grid: {id: number, text: string, isCorrect: boolean, isPath: boolean}[] = [];
+        
+        // 1. Create Path (Simple Zig-Zag or Random Walk for 5x5)
+        // Path: (0,0) -> (0,1) -> (1,1) -> (1,2) -> (2,2) -> (3,2) -> (3,3) -> (4,3) -> (4,4)
+        const pathCoords = [
+            0, 1, 6, 7, 8, 13, 18, 19, 24 // Indices for a simple path
         ];
 
-        // Select and shuffle rules
-        const selectedRules = shuffle(commaRules).slice(0, 8);
+        // 2. Fill Grid
+        for(let i=0; i < gridSize * gridSize; i++) {
+            const isPath = pathCoords.includes(i);
+            const text = isPath 
+                ? getRandomItems(correctRules, 1)[0] 
+                : getRandomItems(incorrectRules, 1)[0];
+            
+            grid.push({
+                id: i,
+                text: text,
+                isCorrect: isPath,
+                isPath: isPath
+            });
+        }
 
         return {
-            title: 'Noktalama Labirenti (Virgül) (Hızlı Mod)',
+            title: 'Noktalama Labirenti (Virgül)',
             prompt: 'Virgülün doğru kullanıldığı kuralları takip ederek labirentten çık.',
             punctuationMark: ',',
-            rules: selectedRules,
+            rules: grid, 
             instruction: 'Doğru kuralları takip ederek çıkışa ulaş.',
             pedagogicalNote: "Bu etkinlik, öğrencinin 'Virgül' noktalama işaretinin kullanım kuralları hakkındaki bilgisini pekiştirirken, aynı zamanda mantıksal çıkarım, analitik düşünme ve problem çözme becerilerini geliştirir. Labirent formatı, soyut kuralları görsel-uzamsal bir bağlamda ele almayı teşvik ederek öğrenmeyi daha ilgi çekici ve kalıcı hale getirir. Öğrencinin dikkatini ve odaklanma yeteneğini artırır.",
-            imagePrompt: 'Labirent'
+            imagePrompt: generateSimpleMazeSVG() // Using SVG Generator for visual header
         };
     });
 };
+
 export const generateOfflinePunctuationPhoneNumber = async (options: GeneratorOptions): Promise<PunctuationPhoneNumberData[]> => {
     return Array.from({length: options.worksheetCount}, () => {
         const targetNum = getRandomInt(1000000, 9999999).toString();
