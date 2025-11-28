@@ -8,7 +8,7 @@ import * as firestore from "firebase/firestore";
 // Ancak, kullanıcı ortam değişkenlerini ayarlamadıysa uygulamanın çökmemesi için geçici bir fallback eklenmiştir.
 // Bu anahtarın Firebase projesinde Auth için yetkili olduğundan emin olun.
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY || "AIzaSyDlJLU4r8nX5PSKZ6R9WllteGXVbQgvcGs", 
+  apiKey: process.env.FIREBASE_API_KEY || "AIzaSyDEnRDzfZ65myaEFTXVjdYu6tyKyFhXP3w", 
   authDomain: "ooggen-08916543-87358.firebaseapp.com",
   projectId: "ooggen-08916543-87358",
   storageBucket: "ooggen-08916543-87358.firebasestorage.app",
