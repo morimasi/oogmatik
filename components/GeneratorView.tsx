@@ -56,7 +56,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             default:
                 return [
                     { key: 'difficulty', label: 'Zorluk Seviyesi', type: 'select', defaultValue: 'Orta', options: ['Başlangıç', 'Orta', 'Zor', 'Uzman'], width: 'half' },
-                    { key: 'itemCount', label: 'Öğe Sayısı', type: 'number', defaultValue: 10, min: 1, max: 20, width: 'half' },
+                    { key: 'itemCount', label: 'Öğe Sayısı', type: 'number', defaultValue: 10, min: 1, max: 50, width: 'half' },
                     { key: 'topic', label: 'Konu (İsteğe Bağlı)', type: 'text', placeholder: 'Örn: Uzay, Doğa...', width: 'full' }
                 ];
         }
@@ -114,16 +114,19 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             </p>
                         </div>
 
-                        <div className="col-span-2 sm:col-span-1">
-                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Sayfa Sayısı</label>
+                        <div className="col-span-2 sm:col-span-1 p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg border border-emerald-100 dark:border-emerald-800">
+                            <label className="block text-sm font-bold text-emerald-800 dark:text-emerald-200 mb-1">
+                                <i className="fa-solid fa-copy mr-1"></i> Adet (Varyasyon)
+                            </label>
                             <input
                                 type="number"
                                 min="1"
-                                max="5"
+                                max="50"
                                 value={options.worksheetCount}
                                 onChange={(e) => handleChange('worksheetCount', parseInt(e.target.value))}
-                                className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full p-2 border border-emerald-300 dark:border-emerald-700 rounded-md bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-center"
                             />
+                            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">Kaç adet farklı çalışma üretilsin?</p>
                         </div>
 
                         {fields.map((field, idx) => (

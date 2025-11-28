@@ -17,46 +17,70 @@ interface WorksheetProps {
 }
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
-    if (!data || !activityType) return null;
+    if (!data || !activityType || data.length === 0) return null;
 
-    // We define the CSS variables at the root of the worksheet container.
-    // These will cascade down to all child elements.
+    // --- SMART GRID LOGIC ---
+    // If we have multiple items (e.g. 4 puzzles), the Column Slider should arrange THESE items.
+    // In that case, the items themselves shouldn't be grid-ified internally (set inner cols to 1).
+    // If we have only 1 item, the Column Slider should arrange the content INSIDE that item.
+    const isMultiItem = data.length > 1;
+    const outerCols = isMultiItem ? settings.columns : 1;
+    const innerCols = isMultiItem ? 1 : settings.columns;
+
     const containerStyle = {
         '--worksheet-font-size': `${settings.fontSize}px`,
         '--worksheet-border-color': settings.borderColor,
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-margin': `${settings.margin}px`,
         '--worksheet-gap': `${settings.gap}px`,
-        '--dynamic-cols': settings.columns,
+        
+        // This controls internal component grids
+        '--dynamic-cols': innerCols,
+        
+        // This controls the show/hide of pedagogical notes
         '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none'
     } as React.CSSProperties;
 
+    const outerGridStyle = {
+        display: 'grid',
+        gridTemplateColumns: `repeat(${outerCols}, 1fr)`,
+        gap: `${settings.gap}px`,
+        width: '100%'
+    };
+
     return (
         <div className="w-full flex flex-col items-center bg-transparent" style={containerStyle}>
-            {data.map((sheetData, index) => (
-                <div 
-                    key={index} 
-                    className="worksheet-page"
-                    style={{ 
-                        width: '210mm',
-                        minHeight: '297mm', // Allow it to grow on screen if content overflows, but base is A4
-                        padding: `var(--worksheet-margin)`,
-                        fontSize: `var(--worksheet-font-size)`
-                    }}
-                >
-                    <div className="h-full flex flex-col justify-between">
-                        <div className="flex-1 w-full">
-                            <RenderSheet activityType={activityType} data={sheetData} />
-                        </div>
+            <div 
+                className="worksheet-page"
+                style={{ 
+                    width: '210mm',
+                    minHeight: '297mm', // Allows growing for many items
+                    height: 'auto', // Important for bulk content
+                    padding: `var(--worksheet-margin)`,
+                    fontSize: `var(--worksheet-font-size)`
+                }}
+            >
+                <div className="h-full flex flex-col justify-between">
+                    <div className="flex-1 w-full">
                         
-                        {/* Footer Logo - Visible on Print and Screen */}
-                        <div className="mt-auto pt-4 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50">
-                            <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
-                            <span>Sayfa {index + 1} / {data.length}</span>
+                        {/* THE OUTER GRID: Positions the distinct generated activities */}
+                        <div style={outerGridStyle}>
+                            {data.map((sheetData, index) => (
+                                <div key={index} className="break-inside-avoid border-b-2 border-transparent pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
+                                    <RenderSheet activityType={activityType} data={sheetData} />
+                                </div>
+                            ))}
                         </div>
+
+                    </div>
+                    
+                    {/* Footer Logo - Visible on Print and Screen */}
+                    <div className="mt-auto pt-8 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50 break-before-avoid">
+                        <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
+                        <span>{data.length > 1 ? `${data.length} Çalışma` : 'Sayfa 1 / 1'}</span>
                     </div>
                 </div>
-            ))}
+            </div>
         </div>
     );
 };
