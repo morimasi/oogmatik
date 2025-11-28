@@ -1,4 +1,6 @@
 
+import { Type } from "@google/genai";
+import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
@@ -228,29 +230,124 @@ export const generateOfflineAttentionToQuestion = async (options: GeneratorOptio
     });
 };
 
-// 4. Attention Development
+// 4. Attention Development (Geliştirilmiş - Profesyonel Mantık)
 export const generateOfflineAttentionDevelopment = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
-    const { worksheetCount, itemCount } = options;
+    const { worksheetCount, itemCount, difficulty, concept } = options;
+    const isVerbal = concept === 'verbal';
+    const count = itemCount || 4;
+
+    // Word Pools for Verbal Logic
+    const colors = ['kırmızı', 'mavi', 'yeşil', 'sarı', 'mor', 'turuncu'];
+    const objects = ['kalem', 'defter', 'silgi', 'çanta', 'kitap', 'masa'];
+    const animals = ['kedi', 'köpek', 'kuş', 'balık', 'tavşan', 'kaplumbağa'];
+
     return Array.from({ length: worksheetCount }, () => {
-        const puzzles = Array.from({ length: itemCount || 4 }, () => {
-            const n1 = getRandomInt(10, 50);
-            const n2 = getRandomInt(10, 50);
-            return {
-                riddle: 'Sol kutudaki en büyük sayıyı bul.',
-                boxes: [
-                    { label: 'Sol', numbers: [n1, n1-5, n1+2, n1-10] },
-                    { label: 'Sağ', numbers: [n2, n2+5, n2-2, n2+10] }
-                ],
-                options: [(n1+2).toString(), n1.toString(), (n1-5).toString()],
-                answer: (n1+2).toString()
-            };
+        const puzzles = Array.from({ length: count }, () => {
+            // === NUMERIC LOGIC GENERATOR ===
+            if (!isVerbal) {
+                // 1. Generate Content First (Answer)
+                const answer = getRandomInt(10, 99);
+                
+                // 2. Create Box Contents (Target Box and Distractor Box)
+                const isLeftBoxTarget = Math.random() > 0.5;
+                const targetBoxName = isLeftBoxTarget ? "Sol" : "Sağ";
+                const otherBoxName = isLeftBoxTarget ? "Sağ" : "Sol";
+                
+                // Fill Target Box with Answer + Distractors
+                const targetDistractors = [answer + getRandomInt(1, 5), answer - getRandomInt(1, 5), getRandomInt(10, 99)];
+                const targetBoxNumbers = shuffle([answer, ...targetDistractors]);
+                
+                // Fill Other Box with random numbers
+                const otherBoxNumbers = Array.from({ length: 4 }, () => getRandomInt(10, 99));
+
+                // 3. Generate Riddle based on Difficulty
+                let riddle = "";
+                
+                if (difficulty === 'Başlangıç') {
+                    // Direct Identification
+                    riddle = `Aradığımız sayı ${targetBoxName} kutudadır. Bu kutudaki ${answer} sayısıdır.`;
+                } else if (difficulty === 'Orta') {
+                    // One Condition + One Negation
+                    const isEven = answer % 2 === 0;
+                    const compVal = answer - 5;
+                    riddle = `Aradığım sayı ${targetBoxName} kutuda saklanıyor. Bu sayı ${isEven ? 'çift' : 'tek'} bir sayıdır ve ${compVal}'ten büyüktür. Sakın ${otherBoxName} kutudaki sayılara bakma!`;
+                } else if (difficulty === 'Zor') {
+                    // Comparative Logic
+                    const maxInOther = Math.max(...otherBoxNumbers);
+                    const relation = answer > maxInOther ? "büyüktür" : "küçüktür";
+                    riddle = `Gizli sayı ${targetBoxName} kutudadır. Bu sayı, ${otherBoxName} kutudaki en büyük sayıdan daha ${relation}. Ayrıca bu sayının birler basamağı ${answer % 10} rakamıdır.`;
+                } else { // Uzman
+                    // Complex Narrative + Math Operation
+                    const sumDigits = Math.floor(answer / 10) + (answer % 10);
+                    riddle = `Bir dedektif gibi iz sür. Şüpheli sayı ${targetBoxName} kutuda gizleniyor. Eğer bu sayının rakamlarını toplarsan ${sumDigits} elde edersin. Ayrıca bu sayı ${otherBoxName} kutudaki hiç bir sayıya eşit değildir. Dikkatli ol, yanlış kutuya bakma!`;
+                }
+
+                // 4. Generate Options
+                const correct = answer.toString();
+                const wrong1 = targetDistractors[0].toString();
+                const wrong2 = otherBoxNumbers[0].toString();
+                
+                return {
+                    riddle,
+                    boxes: [
+                        { label: isLeftBoxTarget ? 'Sol' : 'Sağ', numbers: isLeftBoxTarget ? targetBoxNumbers : otherBoxNumbers },
+                        { label: isLeftBoxTarget ? 'Sağ' : 'Sol', numbers: isLeftBoxTarget ? otherBoxNumbers : targetBoxNumbers }
+                    ],
+                    options: shuffle([correct, wrong1, wrong2]),
+                    answer: correct
+                };
+            } 
+            // === VERBAL LOGIC GENERATOR ===
+            else {
+                // Similar structure for words
+                const targetObj = getRandomItems(objects, 1)[0];
+                const targetColor = getRandomItems(colors, 1)[0];
+                const answer = `${targetColor} ${targetObj}`; // e.g. "mavi kalem"
+                
+                const targetBoxName = "A";
+                const otherBoxName = "B";
+                
+                // Distractors
+                const d1 = `${targetColor} ${getRandomItems(objects.filter(o=>o!==targetObj), 1)[0]}`; // Same color, diff object
+                const d2 = `${getRandomItems(colors.filter(c=>c!==targetColor), 1)[0]} ${targetObj}`; // Diff color, same object
+                const d3 = `${getRandomItems(colors, 1)[0]} ${getRandomItems(animals, 1)[0]}`; // Completely diff
+                
+                const targetBoxItems = shuffle([answer, d1, getRandomItems(objects, 1)[0]]);
+                const otherBoxItems = shuffle([d2, d3, getRandomItems(objects, 1)[0]]);
+                
+                let riddle = "";
+                if (difficulty === 'Başlangıç') {
+                    riddle = `A kutusundaki ${targetColor} renkli ${targetObj}i bul.`;
+                } else {
+                    riddle = `Aradığım nesne A kutusundadır. Rengi ${targetColor}dir ama bir ${d1.split(' ')[1]} değildir. B kutusundaki ${d2} ile karıştırma.`;
+                }
+
+                return {
+                    riddle,
+                    boxes: [
+                        { label: 'Kutu A', numbers: [], items: targetBoxItems }, // Using extended type in frontend if needed, otherwise string array mapping
+                        { label: 'Kutu B', numbers: [], items: otherBoxItems }
+                    ],
+                    options: shuffle([answer, d1, d2]),
+                    answer
+                };
+            }
         });
+
         return {
-            title: 'Dikkat Geliştirme (Hızlı Mod)',
-            instruction: 'Soruyu dikkatlice oku ve cevabı bul.',
-            pedagogicalNote: 'Yönerge takibi ve sayısal dikkat.',
+            title: `Dikkat Geliştirme (${difficulty}) - ${isVerbal ? 'Sözel' : 'Sayısal'}`,
+            instruction: 'Metni dikkatlice oku, ipuçlarını takip et ve doğru cevabı bul.',
+            pedagogicalNote: 'İşleyen bellek (working memory) ve yönerge takibi becerilerini geliştirir.',
             imagePrompt: 'Dikkat',
-            puzzles
+            puzzles: puzzles.map(p => ({
+                ...p,
+                boxes: p.boxes.map(b => ({
+                    ...b,
+                    // If verbal, put items in numbers array as strings (frontend handles diverse types or cast)
+                    // For safety in current types, we ensure frontend creates string representation
+                    numbers: b.numbers.length > 0 ? b.numbers : b.items as any 
+                }))
+            }))
         };
     });
 };
@@ -431,3 +528,259 @@ export const generateOfflineBackwardSpelling = async (options: GeneratorOptions)
         }))
     }));
 };
+
+// AI Generator for Code Reading (Symbol Decoding)
+export const generateCodeReadingFromAI = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
+    const { worksheetCount, symbolType, codeLength, itemCount } = options;
+    
+    const prompt = `
+    Kod Okuma (Şifre Çözme) etkinliği.
+    Sembol Tipi: ${symbolType || 'arrows'} (Oklar, Şekiller veya Renkler).
+    Kod Uzunluğu: ${codeLength || 4} karakter.
+    Soru Sayısı: ${itemCount || 5}.
+    
+    KURALLAR:
+    - Bir "Anahtar" (Key Map) oluştur: Sembol -> Değer (Harf veya Sayı).
+    - Anahtarı kullanarak anlamlı veya anlamsız kısa kodlar oluştur.
+    - Semboller: 'arrow-up', 'arrow-down', 'triangle', 'square', 'red', 'blue' gibi tanımlayıcı stringler kullan.
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            keyMap: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { symbol: { type: Type.STRING }, value: { type: Type.STRING }, color: { type: Type.STRING } },
+                    required: ['symbol', 'value']
+                }
+            },
+            codesToSolve: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        sequence: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ['sequence', 'answer']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'keyMap', 'codesToSolve', 'pedagogicalNote', 'imagePrompt']
+    };
+    
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<CodeReadingData[]>;
+};
+
+export const generateAttentionToQuestionFromAI = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
+    const { worksheetCount, subType } = options;
+    
+    const prompt = `
+    "Soruya Dikkat" başlığı altında bir dikkat ve görsel algı etkinliği üret.
+    Alt Tip: ${subType || 'letter-cancellation'}
+    
+    Eğer 'letter-cancellation' (Harf Eleme) ise:
+    - Bir kelime/şifre seç. 
+    - Harflerden oluşan bir ızgara (grid) oluştur.
+    - Bazı harfleri "targetChars" (üzeri çizilecekler) olarak belirle.
+    - Kalan harfler sırayla okunduğunda şifreyi oluştursun.
+    
+    Eğer 'path-finding' (Yol Takibi) ise:
+    - Bir ızgara dolusu sembol ('star-outline', 'star-filled' gibi).
+    - Başlangıçtan bitişe giden doğru bir yolu (correctPath) koordinat olarak ver.
+    
+    Eğer 'visual-logic' (Görsel Mantık) ise:
+    - Beşgen (pentagon) şekilleri düşün. Köşelerinde renkli noktalar ve içlerinde çizgiler var.
+    - 4 adet şekil üret. 3 tanesi aynı kurala uysun, 1 tanesi farklı olsun (isOdd).
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            subType: { type: Type.STRING, enum: ['letter-cancellation', 'path-finding', 'visual-logic'] },
+            // Letter Cancellation Props
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            targetChars: { type: Type.ARRAY, items: { type: Type.STRING } },
+            password: { type: Type.STRING },
+            // Path Finding Props
+            pathGrid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            correctPath: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: {r: {type: Type.NUMBER}, c: {type: Type.NUMBER}} } },
+            // Visual Logic Props
+            logicItems: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.NUMBER },
+                        isOdd: { type: Type.BOOLEAN },
+                        correctAnswer: { type: Type.STRING },
+                        shapes: { 
+                            type: Type.ARRAY, 
+                            items: { 
+                                type: Type.OBJECT, 
+                                properties: { color: { type: Type.STRING }, type: { type: Type.STRING }, connectedTo: { type: Type.ARRAY, items: { type: Type.NUMBER } } } 
+                            } 
+                        }
+                    }
+                }
+            }
+        },
+        required: ['title', 'instruction', 'subType', 'pedagogicalNote', 'imagePrompt']
+    };
+    
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionToQuestionData[]>;
+};
+
+export const generateAttentionDevelopmentFromAI = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    
+    const prompt = `
+    "Dikkat Geliştirme" (Mantık Bilmecesi) etkinliği.
+    ${itemCount || 4} adet soru üret.
+    
+    HER SORU İÇİN:
+    1. İki kutu (Sol/Sağ) içinde rastgele sayılar oluştur.
+    2. Bir hedef sayıyı tanımlayan KARMAŞIK ve ÇELDİRİCİ bir bilmece (riddle) yaz.
+    
+    Zorluk Seviyesi: ${difficulty || 'Orta'}
+    
+    METİN KURALLARI:
+    - Metinler uzun olsun (en az 2-3 cümle).
+    - Çeldirici ifadeler kullan (Örn: "En büyük sayı değildir ama en küçük de değildir.", "Diğer kutudaki sayılarla karıştırma.", "Tek sayıları hemen ele.").
+    - Matematiksel terimler ekle: "Bir deste", "düzine", "rakamları toplamı", "çift sayı", "5'in katı".
+    - Örnek: "Aradığımız sayı sol kutuda saklanıyor. Bu sayı bir deste gülden fazladır ama 50'ye ulaşamaz. Çift bir sayıdır ve kutudaki en büyük sayı değildir."
+    
+    3. Seçenekleri (a, b, c, d, e) belirle.
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        riddle: { type: Type.STRING },
+                        boxes: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    label: { type: Type.STRING },
+                                    numbers: { type: Type.ARRAY, items: { type: Type.INTEGER } }
+                                },
+                                required: ['numbers']
+                            }
+                        },
+                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ['riddle', 'boxes', 'options', 'answer']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt']
+    };
+    
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionDevelopmentData[]>;
+};
+
+export const generateAttentionFocusFromAI = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    const count = itemCount || 4;
+
+    const prompt = `
+    "Dikkatini Ver" (Mantıksal Bulmaca) etkinliği. 
+    Bu etkinlikte öğrenci, verilen ipuçlarını kullanarak doğru nesneyi bulmalıdır.
+    
+    HER SORU İÇİN:
+    1. İki veya üç liste/kutu oluştur (Örn: "Meyveler", "Sebzeler" veya "Yazlık", "Kışlık" kıyafetler).
+    2. Her kutuda 4-5 öğe olsun.
+    3. Hedef bir öğe seç.
+    4. Bu hedefi tarif eden MANTIKLI ve ELEME GEREKTİREN bir bilmece yaz.
+       - Konum ipucu: "Aradığımız şey X ile aynı kutudadır."
+       - Olumsuzlama ipucu: "Y değildir", "Rengi kırmızı değildir."
+       - Özellik ipucu: "Z harfi ile başlar", "Ekşidir".
+    
+    Zorluk Seviyesi: ${difficulty}.
+    - Başlangıç: Kısa, net ipuçları.
+    - Orta/Zor: Daha dolaylı ipuçları (Örn: "Çekirdekli bir meyvenin olmadığı kutudadır.").
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        riddle: { type: Type.STRING },
+                        boxes: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    title: { type: Type.STRING }, // e.g. "Kutu 1" or empty
+                                    items: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                },
+                                required: ['items']
+                            }
+                        },
+                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ['riddle', 'boxes', 'options', 'answer']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt']
+    };
+
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionFocusData[]>;
+};
+
+// Re-export placeholders to prevent errors
+export const generateReadingFlowFromAI = async (o: GeneratorOptions): Promise<ReadingFlowData[]> => [];
+export const generateLetterDiscriminationFromAI = async (o: GeneratorOptions): Promise<LetterDiscriminationData[]> => [];
+export const generateRapidNamingFromAI = async (o: GeneratorOptions): Promise<RapidNamingData[]> => [];
+export const generatePhonologicalAwarenessFromAI = async (o: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => [];
+export const generateMirrorLettersFromAI = async (o: GeneratorOptions): Promise<MirrorLettersData[]> => [];
+export const generateSyllableTrainFromAI = async (o: GeneratorOptions): Promise<SyllableTrainData[]> => [];
+export const generateVisualTrackingLinesFromAI = async (o: GeneratorOptions): Promise<VisualTrackingLineData[]> => [];
+export const generateBackwardSpellingFromAI = async (o: GeneratorOptions): Promise<BackwardSpellingData[]> => [];

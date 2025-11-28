@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Activity, GeneratorOptions, ActivityType } from '../types';
 import { statsService } from '../services/statsService';
@@ -44,6 +45,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'subType', label: 'Alt Tip', type: 'select', defaultValue: 'letter-cancellation', options: ['letter-cancellation', 'path-finding', 'visual-logic'], width: 'full' },
                     { key: 'gridSize', label: 'Izgara Boyutu (Sadece Harf)', type: 'number', defaultValue: 10, min: 5, max: 15, width: 'half' },
                     { key: 'itemCount', label: 'Soru Sayısı', type: 'number', defaultValue: 4, min: 1, max: 10, width: 'half' }
+                ];
+            case 'ATTENTION_DEVELOPMENT':
+                return [
+                    { key: 'difficulty', label: 'Zorluk Seviyesi', type: 'select', defaultValue: 'Orta', options: ['Başlangıç', 'Orta', 'Zor', 'Uzman'], width: 'half' },
+                    { key: 'concept', label: 'Konsept', type: 'select', defaultValue: 'numeric', options: ['numeric', 'verbal'], width: 'half' },
+                    { key: 'itemCount', label: 'Soru Sayısı', type: 'number', defaultValue: 4, min: 1, max: 6, width: 'full' }
                 ];
             // ... (other specific fields can be added here)
             default:
@@ -129,7 +136,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                         className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
                                     >
                                         {field.options?.map((opt: string) => (
-                                            <option key={opt} value={opt}>{opt === 'letter-cancellation' ? 'Harf Eleme (Şifre)' : opt === 'path-finding' ? 'Yol Takibi (Yıldız)' : opt === 'visual-logic' ? 'Görsel Mantık (Şekil)' : opt}</option>
+                                            <option key={opt} value={opt}>{opt === 'letter-cancellation' ? 'Harf Eleme (Şifre)' : opt === 'path-finding' ? 'Yol Takibi (Yıldız)' : opt === 'visual-logic' ? 'Görsel Mantık (Şekil)' : opt === 'numeric' ? 'Sayısal Mantık' : opt === 'verbal' ? 'Sözel Mantık' : opt}</option>
                                         ))}
                                     </select>
                                 ) : (
