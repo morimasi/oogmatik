@@ -47,10 +47,16 @@ const hasBorrow = (n1: number, n2: number): boolean => {
 const generateSimpleMazeSVG = () => {
     // Generate a visual representation of a maze for the header
     return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="0" width="100" height="100" fill="#f0f9ff" stroke="#3b82f6" stroke-width="2"/>
-      <path d="M 10 10 L 40 10 L 40 40 L 70 40 L 70 10 L 90 10 L 90 90 L 60 90 L 60 60 L 30 60 L 30 90 L 10 90 Z" fill="none" stroke="#60a5fa" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="10" cy="10" r="5" fill="#22c55e" />
-      <circle cx="90" cy="90" r="5" fill="#ef4444" />
+      <defs>
+        <pattern id="gridPattern" width="10" height="10" patternUnits="userSpaceOnUse">
+          <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="100" height="100" fill="white"/>
+      <rect width="100" height="100" fill="url(#gridPattern)"/>
+      <path d="M 10 10 L 40 10 L 40 40 L 70 40 L 70 10 L 90 10 L 90 90 L 60 90 L 60 60 L 30 60 L 30 90 L 10 90" fill="none" stroke="#60a5fa" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 2"/>
+      <circle cx="10" cy="10" r="4" fill="#22c55e" stroke="white" stroke-width="1"/>
+      <circle cx="10" cy="90" r="4" fill="#ef4444" stroke="white" stroke-width="1"/>
     </svg>`;
 };
 
@@ -419,7 +425,6 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
 
         results.push({ 
             title: `Futoşiki (${difficulty})`, 
-            prompt: isLength ? 'Uzunlukları büyüktür/küçüktür sembollerine göre sıralayın.' : 'Büyüktür/küçüktür sembollerine göre sayıları yerleştirin.', 
             instruction: "Her satır ve sütunda öğeler bir kez bulunmalı. > ve < işaretlerine dikkat et.",
             pedagogicalNote: "Mantıksal çıkarım ve sayısal ilişki analizi.",
             imagePrompt: 'Mantık',
@@ -472,7 +477,7 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
         if (op === 'multiplication') instr = "Altındaki iki sayıyı çarpıp üstteki kutuya yaz.";
         if (op === 'division') instr = "Üstteki sayı, alttaki iki sayının çarpımıdır (veya bölme ilişkisi kur).";
 
-        results.push({ title: `İşlem Piramidi (${difficulty})`, prompt: 'İşlemleri tamamla.', instruction: instr, pedagogicalNote: "İşlem akıcılığı ve parça-bütün ilişkisi.", imagePrompt: 'Piramit', pyramids });
+        results.push({ title: `İşlem Piramidi (${difficulty})`, instruction: instr, pedagogicalNote: "İşlem akıcılığı ve parça-bütün ilişkisi.", imagePrompt: 'Piramit', pyramids });
     }
     return results;
 }
@@ -525,7 +530,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
         });
         
         const instr = variant === 'shaded' ? "Gölgeli alanlara sadece çift sayı yazabilirsin." : "Gri kutulara çift sayı gelmelidir.";
-        results.push({title: 'Sudoku Varyasyonu (Hızlı Mod)', prompt: 'Kurallara uygun doldur.', instruction: instr, pedagogicalNote: "Kategorizasyon ve mantıksal kısıtlama yönetimi.", imagePrompt: 'Sudoku', puzzles});
+        results.push({title: 'Sudoku Varyasyonu (Hızlı Mod)', instruction: instr, pedagogicalNote: "Kategorizasyon ve mantıksal kısıtlama yönetimi.", imagePrompt: 'Sudoku', puzzles});
     }
     return results;
 }
@@ -584,7 +589,6 @@ export const generateOfflineRomanNumeralMultiplication = async (options: Generat
         });
         results.push({
             title: 'İşlem Karesi (Romen Rakamlı) (Hızlı Mod)',
-            prompt: 'Çarpma işlemi yaparak işlem karesindeki boşlukları doldurun.',
             instruction: "Satır ve sütun başlıklarını çarpıp sonuçları ilgili kutulara yazın.",
             pedagogicalNote: "Romen rakamları ile çarpma işlemi pratiği.",
             imagePrompt: 'Romen Rakamı',
@@ -655,7 +659,6 @@ export const generateOfflineKendoku = async (options: GeneratorOptions): Promise
 
         results.push({
             title: 'Kendoku (Hızlı Mod)',
-            prompt: 'İşlem ipuçlarını kullanarak mantık bulmacasını çözün.',
             instruction: "Kafeslerin sol üstündeki sayı ve işleme göre kutuları doldur. Her satır ve sütunda rakamlar bir kez kullanılmalı.",
             pedagogicalNote: "Aritmetik işlem yeteneği ve problem çözme stratejileri.",
             imagePrompt: 'Mantık',
@@ -720,7 +723,6 @@ export const generateOfflineOperationSquareFillIn = async (options: GeneratorOpt
          });
          results.push({
              title: 'İşlem Karesi (Hızlı Mod)',
-             prompt: 'Verilen sayıları yerleştir.',
              instruction: "Sonuçları tutturmak için kutulara uygun sayıları yaz.",
              pedagogicalNote: "Denklem çözme ve aritmetik akıl yürütme.",
              imagePrompt: 'İşlem',
@@ -740,7 +742,7 @@ export const generateOfflineMultiplicationWheel = async (options: GeneratorOptio
              const outerMasked: (number|null)[] = outer.map(n => Math.random() > 0.4 ? n : null);
              return { outerNumbers: outerMasked, innerResult: center };
          });
-         results.push({title: 'Çarpım Çarkı (Hızlı Mod)', prompt: 'Merkezdeki sayıyla çarpıp dışarı yazın.', imagePrompt: 'Çark', instruction: '', pedagogicalNote: '', puzzles});
+         results.push({title: 'Çarpım Çarkı (Hızlı Mod)', imagePrompt: 'Çark', instruction: '', pedagogicalNote: '', puzzles});
      }
      return results;
 }
@@ -776,7 +778,7 @@ export const generateOfflineVisualNumberPattern = async (options: GeneratorOptio
             }));
             return { items, rule: `Sayılar ${step} artıyor.`, answer: start + 4 * step };
         });
-        results.push({ title: 'Görsel Sayı Örüntüsü (Hızlı Mod)', prompt: 'Görsel dizideki kuralı bulup eksik sayıyı tamamlayın.', instruction: "Sayı, renk ve boyut değişimindeki kuralı bulup bir sonraki adımı tahmin et.", pedagogicalNote: "Çoklu değişkenli örüntü tanıma becerisi.", imagePrompt: 'Örüntü', puzzles });
+        results.push({ title: 'Görsel Sayı Örüntüsü (Hızlı Mod)', instruction: "Sayı, renk ve boyut değişimindeki kuralı bulup bir sonraki adımı tahmin et.", pedagogicalNote: "Çoklu değişkenli örüntü tanıma becerisi.", imagePrompt: 'Örüntü', puzzles });
     }
     return results;
 }
@@ -802,7 +804,6 @@ export const generateOfflineLogicGridPuzzle = async (options: GeneratorOptions):
 
         results.push({ 
             title: 'Mantık Tablosu (Hızlı Mod)', 
-            prompt: 'Verilen ipuçlarını kullanarak kimin hangi hayvana sahip olduğunu ve hangi rengi sevdiğini bulun.',
             instruction: "Tabloda 'Evet' için ✔, 'Hayır' için ✘ işareti koyarak ilerle.",
             pedagogicalNote: "Sistematik düşünme, eleme ve çıkarım yapma becerileri.",
             imagePrompt: 'Mantık',
@@ -1083,7 +1084,6 @@ export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptio
         }
         results.push({
             title: 'Romen Rakamı Bağlama (Hızlı Mod)',
-            prompt: 'Aynı Romen rakamlarını birleştirin.',
             instruction: "Aynı Romen rakamlarını birbirine bağlayın.",
             pedagogicalNote: "Romen rakamlarını tanıma ve uzamsal planlama.",
             imagePrompt: 'Romen Rakamı',

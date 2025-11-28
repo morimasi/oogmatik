@@ -1,3 +1,4 @@
+
 import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, GeneratorOptions, MindGamesData, MindGames56Data } from '../../types';
 import { getRandomItems, getRandomInt, shuffle } from './helpers';
 
@@ -196,13 +197,13 @@ export const generateOfflineMindGames = async (options: GeneratorOptions): Promi
                 const n2 = getRandomInt(2, 10 * multiplier);
                 const n3 = getRandomInt(2, 10 * multiplier);
                 const center = n1 + n2 + n3;
-                return { type: 'shape_math' as const, shape: 'triangle' as const, numbers: [n1, n2, n3, '?'], answer: center.toString(), hint: "Köşeleri topla." };
+                return { type: 'shape_math' as const, shape: 'triangle' as const, numbers: [n1, n2, n3, '?'], answer: center.toString(), hint: "Köşeleri topla.", imagePrompt: 'Üçgen' };
             } 
             else if (typeRoll < 0.5) { // Matrix Logic
                 const k = getRandomInt(2, 4);
                 const r1 = [getRandomInt(2, 8), getRandomInt(2, 8), getRandomInt(2, 8)];
                 const r2 = r1.map(n => n * k);
-                return { type: 'matrix_logic' as const, grid: [r1, [r2[0], '?', r2[2]]] as any, answer: r2[1].toString(), hint: `Alt satır, üstün ${k} katıdır.` };
+                return { type: 'matrix_logic' as const, grid: [r1, [r2[0], '?', r2[2]]] as any, answer: r2[1].toString(), hint: `Alt satır, üstün ${k} katıdır.`, imagePrompt: 'Matris' };
             }
             else if (typeRoll < 0.75) { // Hexagon Logic
                 const center = getRandomInt(20, 50);
@@ -213,14 +214,14 @@ export const generateOfflineMindGames = async (options: GeneratorOptions): Promi
                 const hiddenIdx = getRandomInt(0, 5);
                 const ans = nums[hiddenIdx];
                 nums[hiddenIdx] = '?' as any;
-                return { type: 'hexagon_logic' as const, numbers: nums, answer: ans.toString(), hint: "Karşılıklı sayılar ortayı verir." };
+                return { type: 'hexagon_logic' as const, numbers: nums, answer: ans.toString(), hint: "Karşılıklı sayılar ortayı verir.", imagePrompt: 'Altıgen' };
             }
             else { // Function Machine
                 const factor = getRandomInt(2, 5);
                 const add = getRandomInt(1, 10);
                 const input = getRandomInt(5, 15);
                 const output = input * factor + add;
-                return { type: 'function_machine' as const, input: input, output: '?', rule: `x ${factor} + ${add}`, answer: output.toString(), hint: `Sayıyı ${factor} ile çarp, ${add} ekle.` };
+                return { type: 'function_machine' as const, input: input, output: '?', rule: `x ${factor} + ${add}`, answer: output.toString(), hint: `Sayıyı ${factor} ile çarp, ${add} ekle.`, imagePrompt: 'Fonksiyon' };
             }
         });
 
@@ -254,7 +255,8 @@ export const generateOfflineMindGames56 = async (options: GeneratorOptions): Pro
                 title: 'Paylaşım Problemi',
                 question: `Açelya ile Görkem birlikte ${a_g} tane; Esra ile Açelya ${e_a} tane; Esra ile Görkem ise ${e_g} tane portakal yemiştir. Üçü birlikte toplam kaç portakal yemiştir?`,
                 answer: answer.toString(),
-                hint: 'Tüm verileri alt alta toplayıp ne elde ettiğine bak.'
+                hint: 'Tüm verileri alt alta toplayıp ne elde ettiğine bak.',
+                imagePrompt: 'Portakal'
             };
         },
         // Cipher: Non-standard operation (Nasıl Bir İlişki Var?)
@@ -269,7 +271,8 @@ export const generateOfflineMindGames56 = async (options: GeneratorOptions): Pro
                 title: 'Sıradışı İşlem',
                 question: `Aşağıdaki işlemlerde '⌾' sembolü gizli bir kurala göre işlem yapmaktadır:\n- ${n1} ⌾ ${n2} = ${String(n1+n2) + String(n2-n1)}\n- ${n3} ⌾ ${n4} = ${String(n3+n4) + String(n4-n3)}\nBu kurala göre, 7 ⌾ 9 işleminin sonucu kaçtır?`,
                 answer: String(7+9) + String(9-7),
-                hint: 'Sayıları toplayıp başa, farkını alıp sona yaz.'
+                hint: 'Sayıları toplayıp başa, farkını alıp sona yaz.',
+                imagePrompt: 'İşlem'
             };
         },
         // Number Sequence: Fibonacci-like
@@ -285,7 +288,8 @@ export const generateOfflineMindGames56 = async (options: GeneratorOptions): Pro
                 title: 'Örüntü Sorusu',
                 question: `Aşağıdaki sayı dizisinin kuralını bulun ve bir sonraki sayıyı yazın:\n${sequence.slice(0, 5).join(', ')}, ?`,
                 answer: sequence[5].toString(),
-                hint: 'Her sayı, kendinden önceki iki sayının toplamıdır.'
+                hint: 'Her sayı, kendinden önceki iki sayının toplamıdır.',
+                imagePrompt: 'Örüntü'
             };
         }
     ];
