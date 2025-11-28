@@ -1,8 +1,16 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
+
+const PEDAGOGICAL_PROMPT = `
+EĞİTİMSEL İÇERİK KURALLARI:
+1. Çıktı JSON formatında olmalı.
+2. "pedagogicalNote": Bilişsel beceri açıklaması.
+3. "instruction": Net yönerge.
+4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
+5. İçerik dolu ve gerçekçi olmalı.
+`;
 
 // --- Helper for creating random visual tracking paths ---
 const generatePaths = (count: number, width: number, height: number) => {

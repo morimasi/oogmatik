@@ -73,14 +73,25 @@ const Sidebar: React.FC<SidebarProps> = ({
                 try {
                     result = await onlineGenerator(options);
                 } catch (err: any) {
-                    if (err.message && (err.message.includes('429') || err.message.includes('503') || err.message.includes('quota') || err.message.includes('kotası') || err.message.includes('fetch'))) {
-                         console.warn("AI Quota exceeded or Network Error. Switching to Fast Mode automatically.");
+                    const msg = err.message || '';
+                    // Catch 403, 429, 503, Quota, Leaked Key, Network Error
+                    if (
+                        msg.includes('429') || 
+                        msg.includes('503') || 
+                        msg.includes('403') || 
+                        msg.includes('quota') || 
+                        msg.includes('kotası') || 
+                        msg.includes('fetch') ||
+                        msg.includes('leaked') || 
+                        msg.includes('PERMISSION_DENIED')
+                    ) {
+                         console.warn("AI Service Error (Quota/Network/Key). Switching to Fast Mode automatically.");
                          try {
                              result = await runOfflineGenerator();
-                             setError("Bilgi: Yapay zeka servisi şu an çok yoğun olduğu için etkinlik 'Hızlı Mod' ile oluşturuldu.");
+                             setError("Bilgi: Yapay zeka servisi şu an yanıt vermediği için (Kota/Erişim) etkinlik 'Hızlı Mod' ile oluşturuldu.");
                              setTimeout(() => setError(null), 5000);
                          } catch (offlineErr: any) {
-                              throw new Error("Yapay zeka kotası dolu ve Hızlı Mod sırasında da bir hata oluştu: " + offlineErr.message);
+                              throw new Error("Yapay zeka servisine erişilemedi ve Hızlı Mod sırasında da bir hata oluştu: " + offlineErr.message);
                          }
                     } else {
                         throw err;

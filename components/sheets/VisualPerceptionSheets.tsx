@@ -4,17 +4,11 @@ import {
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
     GeneratorOptions
 } from '../../types';
-import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay } from './common';
+// FIX: Import PedagogicalHeader from common module
+import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay, PedagogicalHeader } from './common';
 import { CONNECT_COLORS } from '../../services/offlineGenerators/helpers';
 
-// Helper for pedagogical note display
-const PedagogicalHeader: React.FC<{ title: string; instruction: string; note?: string }> = ({ title, instruction, note }) => (
-    <div className="mb-6 text-center">
-        <h3 className="text-2xl font-bold mb-2 text-zinc-800 dark:text-zinc-100">{title}</h3>
-        <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2">{instruction}</p>
-        {note && <p className="text-xs text-zinc-500 dark:text-zinc-400 italic border-t border-zinc-200 dark:border-zinc-700 pt-2 mt-2 inline-block px-4">Eğitmen Notu: {note}</p>}
-    </div>
-);
+// FIX: Remove local definition of PedagogicalHeader to use the imported one.
 
 export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => (
     <div>
@@ -196,7 +190,8 @@ export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }
             <div className="flex flex-wrap justify-center gap-4">
                 {(data.cipherKey || []).map((item, i) => (
                     <div key={i} className="flex flex-col items-center bg-white dark:bg-zinc-700 p-2 rounded shadow-sm w-16">
-                        <div className="mb-2 transform scale-75"><ShapeDisplay shapes={[item.shape]} /></div>
+                        {/* FIX: Cast string to ShapeType */}
+                        <div className="mb-2 transform scale-75"><ShapeDisplay shapes={[item.shape as ShapeType]} /></div>
                         <span className="font-bold text-xl border-t w-full text-center pt-1">{item.letter.toUpperCase()}</span>
                     </div>
                 ))}
@@ -209,7 +204,8 @@ export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }
                  <div key={index} className="flex flex-wrap justify-center gap-2 p-4 border-b border-dashed border-zinc-300">
                      {puzzle.shapeSequence.map((shape, sIdx) => (
                          <div key={sIdx} className="flex flex-col items-center gap-2">
-                             <div className="p-2 bg-white border rounded"><ShapeDisplay shapes={[shape]} /></div>
+                             {/* FIX: Cast string to ShapeType */}
+                             <div className="p-2 bg-white border rounded"><ShapeDisplay shapes={[shape as ShapeType]} /></div>
                              <div className="w-12 h-12 border-2 border-zinc-400 rounded bg-zinc-50 dark:bg-zinc-900/50"></div>
                          </div>
                      ))}
@@ -423,6 +419,7 @@ export const WordConnectSheet: React.FC<{ data: WordConnectData }> = ({ data }) 
 
     return (
         <div>
+            {/* FIX: Pass 'data' prop to PedagogicalHeader */}
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
             
             <div className="flex justify-between items-stretch gap-12 mt-8 relative max-w-4xl mx-auto">

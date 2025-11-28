@@ -259,6 +259,15 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                                 </div>
                             )}
 
+                            {(error.includes('403') || error.includes('leaked') || error.includes('PERMISSION_DENIED')) && (
+                                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 text-sm text-left mb-6">
+                                    <p className="font-bold text-amber-800 dark:text-amber-200 mb-1"><i className="fa-solid fa-key mr-2"></i>API Anahtarı Sorunu</p>
+                                    <p className="text-zinc-600 dark:text-zinc-400">
+                                        Sunucudaki API anahtarı geçersiz veya engellenmiş. Lütfen Vercel ayarlarını kontrol edin veya <strong>Hızlı Mod</strong> ile devam edin.
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="flex flex-col gap-3">
                                 <button 
                                     onClick={onBackToGenerator}

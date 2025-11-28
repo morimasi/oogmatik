@@ -5,7 +5,7 @@ import {
     NumberCapsuleData, OddEvenSudokuData, RomanNumeralStarHuntData, RoundingConnectData, ArithmeticConnectData, RomanNumeralMultiplicationData,
     KendokuData, OperationSquareFillInData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
     LogicGridPuzzleData, MultiplicationWheelData, ShapeNumberPatternData, ShapeCountingData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData,
-    BasicOperationsData, RealLifeProblemData
+    BasicOperationsData, RealLifeProblemData, ShapeType
 } from '../../types';
 import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, PedagogicalHeader } from './common';
 
@@ -536,14 +536,16 @@ export const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) 
                         {(puzzle.grid || []).map((row, r) => 
                             row.map((shape, c) => (
                                 <div key={`${r}-${c}`} className={`w-16 h-16 flex items-center justify-center border border-zinc-400 ${(c+1)%2===0 && c!==3 ? 'border-r-4 border-zinc-800' : ''} ${(r+1)%2===0 && r!==3 ? 'border-b-4 border-zinc-800' : ''} bg-white`}>
-                                    {shape ? <Shape name={shape} className="w-10 h-10" /> : ''}
+                                    {/* FIX: Cast string to ShapeType */}
+                                    {shape ? <Shape name={shape as ShapeType} className="w-10 h-10" /> : ''}
                                 </div>
                             ))
                         )}
                     </div>
                     <div className="flex gap-4 p-2 bg-zinc-100 rounded-lg">
                         <span className="font-bold text-sm self-center">Kullanılacaklar:</span>
-                        {puzzle.shapesToUse.map((s, i) => <Shape key={i} name={s.shape} className="w-8 h-8" />)}
+                        {/* FIX: Cast string to ShapeType */}
+                        {puzzle.shapesToUse.map((s, i) => <Shape key={i} name={s.shape as ShapeType} className="w-8 h-8" />)}
                     </div>
                 </div>
             ))}
