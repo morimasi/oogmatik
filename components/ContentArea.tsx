@@ -186,7 +186,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = getBreadcrumbs();
 
   return (
-    <main id="tour-content" ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent scroll-smooth">
+    <main id="tour-content" ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent scroll-smooth print:overflow-visible print:h-auto print:block">
       
       {/* Breadcrumbs */}
       <nav className="mb-4 flex items-center text-sm text-zinc-500 dark:text-zinc-400 print:hidden" aria-label="Breadcrumb">
@@ -303,7 +303,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
             
             {worksheetData && (
-                <div className="fade-in">
+                <div className="fade-in printable-content-parent">
                   <Worksheet activityType={activityType} data={worksheetData} settings={styleSettings} />
                 </div>
             )}

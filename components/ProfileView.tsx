@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { SavedAssessment, SavedWorksheet, ActivityType, User } from '../types';
@@ -481,7 +482,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
 
             {selectedAssessment && (
                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 print:p-0 print:block" onClick={() => setSelectedAssessment(null)}>
-                    <div className="bg-white dark:bg-zinc-800 w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 relative print:max-h-none print:w-full print:shadow-none print:rounded-none" onClick={e => e.stopPropagation()}>
+                    {/* The modal container needs a class to identify it for printing overrides */}
+                    <div className="printable-content bg-white dark:bg-zinc-800 w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300 relative print:max-h-none print:w-full print:shadow-none print:rounded-none" onClick={e => e.stopPropagation()}>
                         <header className="p-4 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center no-print">
                             <div>
                                 <h3 className="font-bold text-lg text-zinc-800 dark:text-zinc-100">{selectedAssessment.studentName} Raporu</h3>
@@ -512,8 +514,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             </button>
                         </div>
 
-                        {/* REPORT CONTENT - Added explicit classes for print safety */}
-                        <div id="printable-report-content" className="printable-content flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar assessment-report-container">
+                        {/* REPORT CONTENT - Updated for print compatibility */}
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar assessment-report-container print:overflow-visible">
                             <div className="hidden print:block mb-8 border-b-2 border-zinc-800 pb-4">
                                 <h1 className="text-3xl font-black">Bursa Disleksi AI - Öğrenci Değerlendirme Raporu</h1>
                                 <div className="flex justify-between mt-4"><p><strong>Öğrenci:</strong> {selectedAssessment.studentName}</p><p><strong>Tarih:</strong> {new Date(selectedAssessment.createdAt).toLocaleDateString('tr-TR')}</p></div>

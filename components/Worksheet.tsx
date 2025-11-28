@@ -20,7 +20,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     if (!data || !activityType) return null;
 
     return (
-        <div className="worksheet-container" style={{
+        <div className="worksheet-container w-full" style={{
             fontFamily: 'var(--ui-font)',
             '--worksheet-font-size': `${settings.fontSize}px`,
             '--worksheet-border-color': settings.borderColor,
@@ -31,10 +31,24 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none'
         } as React.CSSProperties}>
             {data.map((sheetData, index) => (
-                <div key={index} className="worksheet-page p-8 bg-white shadow-sm mx-auto mb-8 print:mb-0 print:shadow-none break-after-page min-h-[297mm] relative" style={{ padding: `${settings.margin}px` }}>
-                    <RenderSheet activityType={activityType} data={sheetData} />
-                    <div className="absolute bottom-4 right-4 text-xs text-zinc-300 print:text-zinc-400">
-                        Bursa Disleksi AI
+                <div 
+                    key={index} 
+                    className="worksheet-page bg-white shadow-sm mx-auto mb-8 relative print:shadow-none print:mb-0 print:border-0 print:mx-0 print:w-full print:h-auto print:break-after-page"
+                    style={{ 
+                        padding: `${settings.margin}px`,
+                        minHeight: '297mm' /* A4 Height Visual Guide */
+                    }}
+                >
+                    <div className="printable-content-wrapper h-full flex flex-col justify-between">
+                        <div className="flex-1">
+                            <RenderSheet activityType={activityType} data={sheetData} />
+                        </div>
+                        
+                        {/* Footer Logo */}
+                        <div className="mt-8 pt-4 border-t border-zinc-100 flex justify-between items-center text-xs text-zinc-300 print:text-zinc-400">
+                            <span>Bursa Disleksi AI</span>
+                            <span>Sayfa {index + 1} / {data.length}</span>
+                        </div>
                     </div>
                 </div>
             ))}

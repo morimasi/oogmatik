@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
@@ -148,10 +147,23 @@ const AppContent: React.FC = () => {
   useEffect(() => {
       try {
           const root = document.documentElement;
-          const themesToRemove = ['dark', 'theme-pastel', 'theme-contrast', 'theme-sepia', 'theme-purple', 'theme-orange', 'theme-maroon', 'theme-anthracite', 'theme-anthracite-gold', 'theme-anthracite-cyber', 'theme-anthracite-bumblebee', 'theme-anthracite-stone', 'theme-anthracite-honey', 'theme-anthracite-onyx'];
+          // Clean up old theme classes
+          const themesToRemove = [
+              'dark', 
+              'theme-anthracite', 
+              'theme-anthracite-gold', 
+              'theme-anthracite-cyber', 
+              'theme-anthracite-bumblebee', 
+              'theme-anthracite-stone', 
+              'theme-anthracite-honey', 
+              'theme-anthracite-onyx'
+          ];
           root.classList.remove(...themesToRemove);
+          
+          // Apply new theme class
           if (theme === 'dark') root.classList.add('dark');
           else if (theme !== 'light') root.classList.add(`theme-${theme}`);
+          
           localStorage.setItem('app-theme', theme);
       } catch (e) {
           console.error("Theme application failed:", e);
@@ -295,7 +307,7 @@ const AppContent: React.FC = () => {
              
              <button 
                 onClick={() => setCurrentView('assessment')} // Assesment Module
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black rounded-full text-xs font-bold shadow-md hover:shadow-lg hover:shadow-amber-500/20 hover:scale-105 transition-all border border-yellow-400"
                 title="Öğrenme Güçlüğü Analizi"
              >
                  <i className="fa-solid fa-user-doctor"></i> Değerlendirme
