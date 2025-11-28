@@ -1,11 +1,10 @@
 
 import React from 'react';
-import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData } from '../../types';
+import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData, MindGames56Data } from '../../types';
 import { PedagogicalHeader, GridComponent } from './common';
 
 // --- TURKEY MAP COMPONENT ---
 const TurkeyMapSVG = ({ cities }: { cities: { name: string, x: number, y: number }[] }) => {
-    // A simplified SVG path for Turkey's outline
     const simplifiedPath = "M426 116 l -25 -20 l -45 -4 l -30 18 l -35 2 l -26 -16 l -30 5 l -22 18 l -33 -1 l -20 12 l -15 28 l -38 10 l -14 22 l -28 6 l -8 18 l 10 20 l 25 10 l 18 -8 l 40 2 l 30 20 l 55 8 l 40 -12 l 30 -25 l 15 -30 l 10 -40 Z";
 
     return (
@@ -139,32 +138,23 @@ export const MapInstructionSheet: React.FC<{ data: MapInstructionData }> = ({ da
     </div>
 );
 
-// --- VISUAL COMPONENTS FOR MIND GAMES ---
-
 const HexagonPuzzle = ({ numbers }: { numbers: (number|string)[] }) => {
-    // Numbers array: [Top-Left, Top-Right, Right, Bottom-Right, Bottom-Left, Left, Center]
     const center = numbers[6];
     const outers = numbers.slice(0, 6);
-    
     return (
         <div className="relative w-56 h-56 flex items-center justify-center">
             <svg viewBox="0 0 200 200" className="w-full h-full overflow-visible">
-                 {/* Connections */}
                  {outers.map((_, i) => {
-                     const angle = i * 60 - 90; // Start top
+                     const angle = i * 60 - 90;
                      const rad = angle * Math.PI / 180;
                      const cx = 100 + 70 * Math.cos(rad);
                      const cy = 100 + 70 * Math.sin(rad);
                      return <line key={i} x1="100" y1="100" x2={cx} y2={cy} stroke="#cbd5e1" strokeWidth="2" />;
                  })}
-                 
-                 {/* Central Hexagon */}
                  <polygon points="100,60 135,80 135,120 100,140 65,120 65,80" fill="#f0f9ff" stroke="#0284c7" strokeWidth="3" />
                  <text x="100" y="105" textAnchor="middle" className="text-2xl font-bold fill-sky-700" dominantBaseline="middle">{center}</text>
-                 
-                 {/* Outer Circles */}
                  {outers.map((val, i) => {
-                     const angle = i * 60 - 90; // Start top
+                     const angle = i * 60 - 90;
                      const rad = angle * Math.PI / 180;
                      const cx = 100 + 70 * Math.cos(rad);
                      const cy = 100 + 70 * Math.sin(rad);
@@ -190,7 +180,6 @@ const FunctionMachine = ({ input, output, rule }: { input: number, output: strin
                 {input}
             </div>
         </div>
-        
         <div className="flex-1 flex flex-col items-center px-2 relative">
             <div className="absolute top-1/2 left-0 w-full h-1 bg-zinc-300 -z-10"></div>
             <div className="px-4 py-3 bg-zinc-800 text-white rounded-lg text-sm font-mono shadow-lg z-10 flex flex-col items-center">
@@ -199,7 +188,6 @@ const FunctionMachine = ({ input, output, rule }: { input: number, output: strin
             </div>
             <i className="fa-solid fa-chevron-right absolute right-0 top-1/2 -translate-y-1/2 text-zinc-400"></i>
         </div>
-        
         <div className="flex flex-col items-center">
              <span className="text-xs font-bold text-zinc-400 uppercase mb-2">Çıkış</span>
              <div className={`w-16 h-16 bg-white rounded-full border-4 flex items-center justify-center text-2xl font-bold shadow-sm ${output === '?' ? 'border-rose-400 text-rose-600 border-dashed' : 'border-indigo-400 text-indigo-700'}`}>
@@ -212,16 +200,13 @@ const FunctionMachine = ({ input, output, rule }: { input: number, output: strin
 export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
-        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {data.puzzles.map((puzzle, idx) => (
                 <div key={idx} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center break-inside-avoid relative overflow-hidden min-h-[300px]">
                     <div className="absolute top-0 left-0 bg-zinc-100 dark:bg-zinc-700 px-4 py-1 rounded-br-xl text-xs font-bold text-zinc-500 border-b border-r border-zinc-200">
                         #{idx + 1}
                     </div>
-                    
                     <div className="flex-1 flex items-center justify-center w-full my-4">
-                        {/* 1. Shape Math (Triangle) */}
                         {puzzle.type === 'shape_math' && puzzle.shape === 'triangle' && (
                             <div className="relative w-64 h-56">
                                 <svg viewBox="0 0 100 86" className="w-full h-full overflow-visible">
@@ -236,21 +221,16 @@ export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
                                             <text x={pos.x} y={pos.y} dominantBaseline="central" textAnchor="middle" className="text-xs font-bold fill-zinc-800 dark:fill-zinc-200">{pos.val}</text>
                                         </g>
                                     ))}
-                                    
                                     <circle cx="50" cy="50" r="16" fill="#e0e7ff" stroke="#4f46e5" strokeWidth="2" className="dark:fill-indigo-900 dark:stroke-indigo-500"/>
                                     <text x="50" y="50" dominantBaseline="central" textAnchor="middle" className="text-lg font-bold fill-indigo-800 dark:fill-indigo-200">{puzzle.numbers?.[3] || '?'}</text>
                                 </svg>
                             </div>
                         )}
-
-                        {/* 2. Matrix Logic */}
                         {puzzle.type === 'matrix_logic' && puzzle.grid && (
                              <div className="bg-zinc-100 dark:bg-zinc-900 p-2 rounded-lg border-2 border-zinc-300 dark:border-zinc-600">
                                  <GridComponent grid={puzzle.grid as any} cellClassName="w-16 h-16 text-2xl font-bold flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-600" showLetters={false} />
                              </div>
                         )}
-
-                        {/* 3. Number Pyramid */}
                         {puzzle.type === 'number_pyramid' && puzzle.numbers && (
                              <div className="flex flex-col items-center gap-2">
                                 <div className="w-16 h-16 border-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-xl rounded-lg shadow-sm text-indigo-700 dark:text-indigo-300">
@@ -267,21 +247,53 @@ export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
                                 </div>
                              </div>
                         )}
-                        
-                        {/* 4. Hexagon Logic */}
                         {puzzle.type === 'hexagon_logic' && puzzle.numbers && (
                             <HexagonPuzzle numbers={puzzle.numbers} />
                         )}
-
-                        {/* 5. Function Machine */}
                         {puzzle.type === 'function_machine' && (
                             <FunctionMachine input={puzzle.input || 0} output={puzzle.output || '?'} rule={puzzle.rule} />
                         )}
                     </div>
-                    
                     <div className="text-center w-full bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-700 mt-auto">
                         {puzzle.question && <p className="text-sm font-semibold mb-1 text-zinc-700 dark:text-zinc-300">{puzzle.question}</p>}
                         {puzzle.hint && <p className="text-xs text-zinc-500 dark:text-zinc-400 italic"><i className="fa-solid fa-lightbulb text-yellow-500 mr-1"></i>{puzzle.hint}</p>}
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+export const MindGames56Sheet: React.FC<{ data: MindGames56Data }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
+        <div className="grid grid-cols-1 gap-8">
+            {data.puzzles.map((puzzle, idx) => (
+                <div key={idx} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-start break-inside-avoid relative">
+                    <div className="absolute top-4 right-4 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 px-3 py-1 rounded-full text-xs font-bold uppercase">
+                        {puzzle.type === 'word_problem' ? 'Problem' : puzzle.type === 'cipher' ? 'Şifre' : 'Mantık'}
+                    </div>
+                    <h4 className="font-bold text-lg text-zinc-800 dark:text-zinc-100 mb-3 flex items-center gap-2">
+                        <span className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">{idx + 1}</span>
+                        {puzzle.title}
+                    </h4>
+                    
+                    <div className="bg-zinc-50 dark:bg-zinc-900/50 p-6 rounded-lg w-full mb-4 border border-zinc-100 dark:border-zinc-700/50">
+                        <p className="text-base md:text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 whitespace-pre-line font-medium">
+                            {puzzle.question}
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 w-full items-start sm:items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-zinc-500 uppercase">Cevap:</span>
+                            <div className="w-32 h-10 border-b-2 border-dashed border-zinc-400 dark:border-zinc-500"></div>
+                        </div>
+                        {puzzle.hint && (
+                            <div className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded border border-amber-200 dark:border-amber-800/50 max-w-md">
+                                <i className="fa-solid fa-lightbulb mr-1"></i> İpucu: {puzzle.hint}
+                            </div>
+                        )}
                     </div>
                 </div>
             ))}

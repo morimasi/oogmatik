@@ -1,3 +1,4 @@
+
 import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, GeneratorOptions, MindGamesData, MindGames56Data } from '../../types';
 import { getRandomItems, getRandomInt, shuffle } from './helpers';
 
@@ -13,7 +14,7 @@ export const generateOfflineFamilyRelations = async (options: GeneratorOptions):
         { def: "Annemin erkek kardeşidir.", term: "dayı" },
         { def: "Babamın erkek kardeşidir.", term: "amca" },
         { def: "Babamın babasıdır.", term: "dede" },
-        { def: "Annemin babasıdır.", term: "büyükbaba" }, // or dede
+        { def: "Annemin babasıdır.", term: "büyükbaba" },
         { def: "Amcamın karısıdır.", term: "yenge" },
         { def: "Dayımın çocuğudur.", term: "kuzen" },
         { def: "Halamın kocasıdır.", term: "enişte" },
@@ -22,7 +23,6 @@ export const generateOfflineFamilyRelations = async (options: GeneratorOptions):
 
     return Array.from({ length: worksheetCount }, () => {
         const selection = getRandomItems(allRelations, Math.min(count, allRelations.length));
-        // Left is definitions, Right is terms (shuffled)
         const leftColumn = selection.map((item, i) => ({ text: item.def, id: i }));
         const rightColumn = shuffle(selection.map((item, i) => ({ text: item.term, id: i })));
 
@@ -45,7 +45,7 @@ export const generateOfflineLogicDeduction = async (options: GeneratorOptions): 
         {
             category: "Kıyafet",
             context: "denize girerken giyilen giysinin bulunduğu kutudadır.",
-            negation: "vücudumuzun üst kısmına giydiğimiz bir giyecektir.", // Trick part
+            negation: "vücudumuzun üst kısmına giydiğimiz bir giyecektir.",
             answer: "mayo",
             distractors: ["etek", "kazak", "şort", "gömlek"]
         },
@@ -74,10 +74,9 @@ export const generateOfflineLogicDeduction = async (options: GeneratorOptions): 
 
     return Array.from({ length: worksheetCount }, () => {
         const questions = Array.from({ length: count }).map((_, i) => {
-            // Generate dynamic riddle
             const t = templates[i % templates.length];
             const opts = shuffle([t.answer, ...getRandomItems(t.distractors, 4)]);
-            const correctLetter = String.fromCharCode(97 + opts.indexOf(t.answer)); // a, b, c, d, e
+            const correctLetter = String.fromCharCode(97 + opts.indexOf(t.answer));
 
             return {
                 riddle: `Aradığımız ${t.category.toLowerCase()} ${t.context} Bu ${t.category.toLowerCase()} ${t.negation} Bu ${t.category.toLowerCase()} aşağıdakilerden hangisi olabilir?`,
@@ -110,13 +109,11 @@ export const generateOfflineNumberBoxLogic = async (options: GeneratorOptions): 
             const box1 = Array.from({ length: 4 }, () => getRandomInt(1, maxVal));
             const box2 = Array.from({ length: 4 }, () => getRandomInt(1, maxVal));
             
-            // Ensure uniqueness in boxes for clarity
             while(new Set(box1).size !== box1.length) box1[0] = getRandomInt(1, maxVal);
             while(new Set(box2).size !== box2.length) box2[0] = getRandomInt(1, maxVal);
 
             const max1 = Math.max(...box1);
             const min1 = Math.min(...box1);
-            const even1 = box1.filter(n => n % 2 === 0);
             
             const questions = [
                 {
@@ -147,9 +144,6 @@ export const generateOfflineNumberBoxLogic = async (options: GeneratorOptions): 
 export const generateOfflineMapInstruction = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
     const { worksheetCount, itemCount } = options;
     
-    // Simplified Representation of Turkey Map regions/cities for offline coordinates
-    // This will be used by the SVG renderer to place dots or regions.
-    // For offline generator, we just provide the text instructions.
     const cities = [
         { name: "İstanbul", x: 20, y: 15 }, { name: "Ankara", x: 45, y: 30 }, { name: "İzmir", x: 10, y: 40 },
         { name: "Antalya", x: 30, y: 65 }, { name: "Adana", x: 55, y: 60 }, { name: "Erzurum", x: 80, y: 25 },
@@ -174,14 +168,13 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
             instruction: "Haritayı incele ve aşağıdaki yönergeleri sırasıyla uygula.",
             pedagogicalNote: "Mekansal algı, yön kavramları ve işitsel/görsel dikkat.",
             imagePrompt: "Türkiye Haritası",
-            mapSvg: "TURKEY_MAP_PLACEHOLDER", // Frontend will render the actual SVG
+            mapSvg: "TURKEY_MAP_PLACEHOLDER",
             cities,
             instructions: getRandomItems(instructions, itemCount || 8)
         };
     });
 };
 
-// --- MIND GAMES (3-4. Sınıf) ---
 export const generateOfflineMindGames = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 4;
@@ -191,20 +184,20 @@ export const generateOfflineMindGames = async (options: GeneratorOptions): Promi
             const typeRoll = Math.random();
             const multiplier = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 4);
             
-            if (typeRoll < 0.25) { // Shape Math
+            if (typeRoll < 0.25) { 
                 const n1 = getRandomInt(2, 10 * multiplier);
                 const n2 = getRandomInt(2, 10 * multiplier);
                 const n3 = getRandomInt(2, 10 * multiplier);
                 const center = n1 + n2 + n3;
                 return { type: 'shape_math' as const, shape: 'triangle' as const, numbers: [n1, n2, n3, '?'], answer: center.toString(), hint: "Köşeleri topla." };
             } 
-            else if (typeRoll < 0.5) { // Matrix Logic
+            else if (typeRoll < 0.5) { 
                 const k = getRandomInt(2, 4);
                 const r1 = [getRandomInt(2, 8), getRandomInt(2, 8), getRandomInt(2, 8)];
                 const r2 = r1.map(n => n * k);
                 return { type: 'matrix_logic' as const, grid: [r1, [r2[0], '?', r2[2]]] as any, answer: r2[1].toString(), hint: `Alt satır, üstün ${k} katıdır.` };
             }
-            else if (typeRoll < 0.75) { // Hexagon Logic
+            else if (typeRoll < 0.75) { 
                 const center = getRandomInt(20, 50);
                 const p1 = getRandomInt(1, center-1);
                 const p2 = getRandomInt(1, center-1);
@@ -215,7 +208,7 @@ export const generateOfflineMindGames = async (options: GeneratorOptions): Promi
                 nums[hiddenIdx] = '?' as any;
                 return { type: 'hexagon_logic' as const, numbers: nums, answer: ans.toString(), hint: "Karşılıklı sayılar ortayı verir." };
             }
-            else { // Function Machine
+            else { 
                 const factor = getRandomInt(2, 5);
                 const add = getRandomInt(1, 10);
                 const input = getRandomInt(5, 15);
@@ -234,45 +227,38 @@ export const generateOfflineMindGames = async (options: GeneratorOptions): Promi
     });
 };
 
-
-// --- MIND GAMES (5-6. Sınıf) ---
 export const generateOfflineMindGames56 = async (options: GeneratorOptions): Promise<MindGames56Data[]> => {
-    const { worksheetCount, itemCount, difficulty } = options;
+    const { worksheetCount, itemCount } = options;
     const count = itemCount || 4;
 
     const puzzleGenerators = [
-        // Word Problem: System of Equations (Portakal Sayısı)
         () => {
             const a_g = getRandomInt(8, 15);
             const e_a = getRandomInt(8, 15);
             const e_g = getRandomInt(5, a_g - 1);
             const total = (a_g + e_a + e_g);
-            if (total % 2 !== 0) return null; // Ensure solvable with integer
-            const answer = total / 2;
+            const answer = total / 2; 
             return {
                 type: 'word_problem' as const,
                 title: 'Paylaşım Problemi',
                 question: `Açelya ile Görkem birlikte ${a_g} tane; Esra ile Açelya ${e_a} tane; Esra ile Görkem ise ${e_g} tane portakal yemiştir. Üçü birlikte toplam kaç portakal yemiştir?`,
-                answer: answer.toString(),
+                answer: answer.toFixed(0),
                 hint: 'Tüm verileri alt alta toplayıp ne elde ettiğine bak.'
             };
         },
-        // Cipher: Non-standard operation (Nasıl Bir İlişki Var?)
         () => {
-            const n1 = getRandomInt(1, 9);
+            const n1 = getRandomInt(2, 9);
             const n2 = getRandomInt(n1, 9);
-            const n3 = getRandomInt(1, 9);
+            const n3 = getRandomInt(2, 9);
             const n4 = getRandomInt(n3, 9);
-            
             return {
                 type: 'cipher' as const,
                 title: 'Sıradışı İşlem',
-                question: `Aşağıdaki işlemlerde '⌾' sembolü gizli bir kurala göre işlem yapmaktadır:\n- ${n1} ⌾ ${n2} = ${String(n1+n2) + String(n2-n1)}\n- ${n3} ⌾ ${n4} = ${String(n3+n4) + String(n4-n3)}\nBu kurala göre, 7 ⌾ 9 işleminin sonucu kaçtır?`,
-                answer: String(7+9) + String(9-7),
+                question: `Aşağıdaki işlemlerde '⌾' sembolü gizli bir kurala göre işlem yapmaktadır:\n${n1} ⌾ ${n2} = ${String(n1+n2) + String(Math.abs(n1-n2))}\n${n3} ⌾ ${n4} = ${String(n3+n4) + String(Math.abs(n3-n4))}\nBu kurala göre, 7 ⌾ 9 işleminin sonucu kaçtır?`,
+                answer: String(7+9) + String(Math.abs(7-9)), // 162
                 hint: 'Sayıları toplayıp başa, farkını alıp sona yaz.'
             };
         },
-        // Number Sequence: Fibonacci-like
         () => {
             const start1 = getRandomInt(1, 5);
             const start2 = getRandomInt(start1, 7);
@@ -282,7 +268,7 @@ export const generateOfflineMindGames56 = async (options: GeneratorOptions): Pro
             }
             return {
                 type: 'number_sequence' as const,
-                title: 'Örüntü Sorusu',
+                title: 'Fibonacci Benzeri Dizi',
                 question: `Aşağıdaki sayı dizisinin kuralını bulun ve bir sonraki sayıyı yazın:\n${sequence.slice(0, 5).join(', ')}, ?`,
                 answer: sequence[5].toString(),
                 hint: 'Her sayı, kendinden önceki iki sayının toplamıdır.'
@@ -295,7 +281,7 @@ export const generateOfflineMindGames56 = async (options: GeneratorOptions): Pro
         for(let i=0; i<count; i++) {
             const gen = puzzleGenerators[i % puzzleGenerators.length];
             const puzzle = gen();
-            if(puzzle) puzzles.push(puzzle);
+            puzzles.push(puzzle);
         }
 
         return {

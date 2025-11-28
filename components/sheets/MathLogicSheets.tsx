@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { 
     MathPuzzleData, NumberPatternData, OddOneOutData, FutoshikiData, NumberPyramidData,
     NumberCapsuleData, OddEvenSudokuData, RomanNumeralStarHuntData, RoundingConnectData, ArithmeticConnectData, RomanNumeralMultiplicationData,
-    KendokuData, OperationSquareFillInData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
-    LogicGridPuzzleData, MultiplicationWheelData, ShapeNumberPatternData, ShapeCountingData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData,
+    KendokuData, OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
+    LogicGridPuzzleData, ShapeNumberPatternData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData,
     BasicOperationsData, RealLifeProblemData
 } from '../../types';
 import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, PedagogicalHeader } from './common';
@@ -751,27 +750,6 @@ export const ShapeNumberPatternSheet: React.FC<{ data: ShapeNumberPatternData }>
                         }
                         return null;
                     })}
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
-export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex flex-col items-center gap-8">
-            {data.figures.map((fig, index) => (
-                <div key={index} className="p-6 bg-white rounded-xl shadow-sm border-2 border-zinc-200 flex flex-col items-center">
-                    <svg viewBox="0 0 100 100" className="w-64 h-64 mb-6">
-                        {fig.svgPaths.map((path, pIndex) => (
-                            <path key={pIndex} d={path.d} fill={path.fill} stroke={path.stroke || 'black'} strokeWidth="1" />
-                        ))}
-                    </svg>
-                    <div className="flex items-center gap-4 p-4 bg-zinc-50 rounded-lg w-full">
-                        <span className="font-bold text-zinc-600">Toplam {fig.targetShape === 'triangle' ? 'Üçgen' : 'Şekil'} Sayısı:</span>
-                        <div className="w-16 h-8 border-b-2 border-zinc-400"></div>
-                    </div>
                 </div>
             ))}
         </div>

@@ -1,479 +1,33 @@
 
-import { GeneratorOptions, AttentionFocusData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, ImageInterpretationTFData } from '../../types';
+// ... existing imports ...
+import { GeneratorOptions, AttentionFocusData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, ImageInterpretationTFData, HeartOfSkyData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
-// --- Helper for creating random visual tracking paths ---
-const generatePaths = (count: number, width: number, height: number) => {
-    const paths = [];
-    const colors = ['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
-    const startYStep = height / (count + 1);
-    
-    for(let i=0; i<count; i++) {
-        const startY = startYStep * (i + 1);
-        const endY = getRandomInt(20, height - 20); // Random end Y
-        
-        // Simple cubic bezier curve
-        const cp1x = width * 0.33;
-        const cp1y = startY + getRandomInt(-50, 50);
-        const cp2x = width * 0.66;
-        const cp2y = endY + getRandomInt(-50, 50);
-        
-        const d = `M 20 ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${width-20} ${endY}`;
-        
-        paths.push({
-            id: i,
-            color: colors[i % colors.length],
-            d,
-            startLabel: (i + 1).toString(),
-            endLabel: String.fromCharCode(65 + i), // A, B, C...
-            startImage: '',
-            endImage: ''
-        });
-    }
-    return paths;
-};
-
-// 1. Attention Focus (Mevcut olan korunuyor)
-export const generateOfflineAttentionFocus = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
-    const { worksheetCount, itemCount, difficulty } = options;
-    const count = itemCount || 4;
-
-    // FIX: Define a type for the items in the pool to resolve 'unknown' type errors.
-    interface ItemPoolItem {
-        name: string;
-        color: string;
-        feature: string;
-        type: 'meyve' | 'sebze';
-    }
-
-    const itemPool: { fruit: ItemPoolItem[], veg: ItemPoolItem[] } = {
-        fruit: [
-            { name: 'Limon', color: 'sarı', feature: 'ekşi', type: 'meyve' },
-            { name: 'Çilek', color: 'kırmızı', feature: 'tatlı', type: 'meyve' },
-            { name: 'Muz', color: 'sarı', feature: 'uzun', type: 'meyve' },
-            { name: 'Karpuz', color: 'yeşil', feature: 'büyük', type: 'meyve' },
-            { name: 'Kiraz', color: 'kırmızı', feature: 'saplı', type: 'meyve' },
-            { name: 'Armut', color: 'yeşil', feature: 'sulu', type: 'meyve' }
-        ],
-        veg: [
-            { name: 'Biber', color: 'yeşil', feature: 'acı', type: 'sebze' },
-            { name: 'Domates', color: 'kırmızı', feature: 'yuvarlak', type: 'sebze' },
-            { name: 'Havuç', color: 'turuncu', feature: 'uzun', type: 'sebze' },
-            { name: 'Patlıcan', color: 'mor', feature: 'uzun', type: 'sebze' }
-        ]
-    };
-
-    return Array.from({ length: worksheetCount }, () => {
-        const puzzles = Array.from({ length: count }, () => {
-            const cat = Math.random() > 0.5 ? 'fruit' : 'veg';
-            const items = shuffle(itemPool[cat]);
-            const target = items[0];
-            const clueItem = items[1];
-            
-            const clueDesc = `${clueItem.color} renkli ${clueItem.type}nin`;
-            const targetDesc = `${target.color} renklidir`;
-            const riddle = `Aradığımız yiyecek, ${clueDesc} bulunduğu kutudadır. Bulunduğu kutudaki ${targetDesc}.`;
-            
-            const box1 = shuffle([target.name, clueItem.name, 'Elma', 'Soğan']);
-            const box2 = shuffle(['Ispanak', 'Pırasa', 'Kavun', 'İncir']);
-            
-            return {
-                riddle,
-                boxes: [{ items: box1 }, { items: box2 }],
-                options: shuffle([target.name, clueItem.name, 'Elma', 'Kavun']),
-                answer: target.name
-            };
-        });
-
-        return {
-            title: `Dikkatini Ver (${difficulty})`,
-            instruction: "İpuçlarını okuyun ve doğru cevabı bulun.",
-            pedagogicalNote: "Mantıksal çıkarım.",
-            imagePrompt: "Dedektif",
-            puzzles
-        };
-    });
-};
-
-// 2. Code Reading
-export const generateOfflineCodeReading = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
-    const { worksheetCount, itemCount } = options;
-    return Array.from({ length: worksheetCount }, () => {
-        const symbols = ['arrow-up', 'arrow-down', 'arrow-left', 'arrow-right', 'triangle', 'square', 'circle', 'star'];
-        const values = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-        
-        const selectedSymbols = getRandomItems(symbols, 5);
-        const selectedValues = getRandomItems(values, 5);
-        
-        const keyMap = selectedSymbols.map((sym, i) => ({
-            symbol: sym,
-            value: selectedValues[i],
-            color: COLORS[i % COLORS.length].css
-        }));
-        
-        const codesToSolve = Array.from({ length: itemCount || 5 }, () => {
-            const seqLength = getRandomInt(3, 5);
-            const sequenceIndices = Array.from({length: seqLength}, () => getRandomInt(0, 4));
-            const sequence = sequenceIndices.map(i => keyMap[i].symbol);
-            const answer = sequenceIndices.map(i => keyMap[i].value).join('');
-            return { sequence, answer };
-        });
-
-        return {
-            title: 'Kod Okuma (Hızlı Mod)',
-            instruction: 'Sembollerin karşılıklarını anahtardan bularak şifreyi çözün.',
-            pedagogicalNote: 'Sembolik kodlama ve dikkati sürdürme.',
-            imagePrompt: 'Şifre',
-            keyMap,
-            codesToSolve
-        };
-    });
-};
-
-// 3. Attention To Question
-export const generateOfflineAttentionToQuestion = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
-    const { worksheetCount, subType } = options;
-    const type = subType || 'letter-cancellation';
-    
-    return Array.from({ length: worksheetCount }, () => {
-        if (type === 'letter-cancellation') {
-            const word = getRandomItems(['DİKKAT', 'BAŞARI', 'OKUL', 'ZEKA'], 1)[0];
-            const targetChars = ['X', 'Q', 'W'];
-            const size = 10;
-            const grid = Array.from({length: size}, () => Array.from({length: size}, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
-            
-            // Embed targets
-            for(let i=0; i<15; i++) {
-                grid[getRandomInt(0, size-1)][getRandomInt(0, size-1)] = getRandomItems(targetChars, 1)[0];
-            }
-            
-            return {
-                title: 'Harf Eleme (Hızlı Mod)',
-                instruction: 'Belirtilen harflerin üzerini çizin.',
-                pedagogicalNote: 'Seçici dikkat.',
-                imagePrompt: 'Harf',
-                subType: 'letter-cancellation',
-                grid,
-                targetChars,
-                password: word
-            };
-        } else if (type === 'path-finding') {
-            return {
-                title: 'Yol Takibi (Hızlı Mod)',
-                instruction: 'Yıldızları takip ederek çıkışa ulaş.',
-                pedagogicalNote: 'Görsel takip.',
-                imagePrompt: 'Labirent',
-                subType: 'path-finding',
-                pathGrid: [
-                    ['start', 'star', 'empty', 'empty'],
-                    ['empty', 'star', 'star', 'empty'],
-                    ['empty', 'empty', 'star', 'end']
-                ]
-            };
-        } else {
-            return {
-                title: 'Görsel Mantık (Hızlı Mod)',
-                instruction: 'Farklı olan şekli bul.',
-                pedagogicalNote: 'Görsel ayrım.',
-                imagePrompt: 'Şekil',
-                subType: 'visual-logic',
-                logicItems: [{id: 1, isOdd: false, correctAnswer: '', shapes: []}]
-            };
-        }
-    });
-};
-
-// 4. Attention Development
-export const generateOfflineAttentionDevelopment = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
-    const { worksheetCount, itemCount } = options;
-    return Array.from({ length: worksheetCount }, () => {
-        const puzzles = Array.from({ length: itemCount || 4 }, () => {
-            const n1 = getRandomInt(10, 50);
-            const n2 = getRandomInt(10, 50);
-            return {
-                riddle: 'Sol kutudaki en büyük sayıyı bul.',
-                boxes: [
-                    { label: 'Sol', numbers: [n1, n1-5, n1+2, n1-10] },
-                    { label: 'Sağ', numbers: [n2, n2+5, n2-2, n2+10] }
-                ],
-                options: [(n1+2).toString(), n1.toString(), (n1-5).toString()],
-                answer: (n1+2).toString()
-            };
-        });
-        return {
-            title: 'Dikkat Geliştirme (Hızlı Mod)',
-            instruction: 'Soruyu dikkatlice oku ve cevabı bul.',
-            pedagogicalNote: 'Yönerge takibi ve sayısal dikkat.',
-            imagePrompt: 'Dikkat',
-            puzzles
-        };
-    });
-};
-
-// 5. Reading Flow
-export const generateOfflineReadingFlow = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
-    const { worksheetCount } = options;
-    const text = "Ali okula gitti. Okulda arkadaşları ile oynadı. Derslerini dikkatle dinledi. Öğretmeni onu tebrik etti. Akşam eve mutlu döndü.";
-    
-    return Array.from({ length: worksheetCount }, () => {
-        const paragraphs = text.split('. ').filter(s => s).map(sent => ({
-            sentences: [{
-                syllables: simpleSyllabify(sent).map((s, i) => ({
-                    text: s,
-                    color: i % 2 === 0 ? '#000' : '#4F46E5' // Alternating black/blue
-                }))
-            }]
-        }));
-
-        return {
-            title: 'Okuma Akışı (Hızlı Mod)',
-            instruction: 'Renkli heceleri takip ederek metni okuyun.',
-            // FIX: Added missing 'prompt' property
-            prompt: 'Renkli heceleri takip ederek metni okuyun.',
-            pedagogicalNote: 'Okuma hızını ve takibini kolaylaştırır.',
-            imagePrompt: 'Kitap',
-            text: { paragraphs }
-        };
-    });
-};
-
-// 6. Letter Discrimination
-export const generateOfflineLetterDiscrimination = async (options: GeneratorOptions): Promise<LetterDiscriminationData[]> => {
-    const { worksheetCount, targetLetters } = options;
-    const targets = targetLetters ? targetLetters.split(',') : ['b', 'd'];
-    
-    return Array.from({ length: worksheetCount }, () => {
-        const rows = Array.from({ length: 8 }, () => {
-            const letters = Array.from({ length: 15 }, () => Math.random() > 0.5 ? targets[0] : targets[1]);
-            return {
-                letters,
-                targetCount: letters.filter(l => l === targets[0]).length
-            };
-        });
-
-        return {
-            title: 'Harf Ayırt Etme (Hızlı Mod)',
-            instruction: `Sadece "${targets[0]}" harflerini bul ve daire içine al.`,
-            // FIX: Added missing 'prompt' property
-            prompt: `Sadece "${targets[0]}" harflerini bul.`,
-            pedagogicalNote: 'Benzer harfleri ayırt etme (b/d/p/q).',
-            imagePrompt: 'Harfler',
-            targetLetters: targets,
-            rows
-        };
-    });
-};
-
-// 7. Rapid Naming
-export const generateOfflineRapidNaming = async (options: GeneratorOptions): Promise<RapidNamingData[]> => {
-    const { worksheetCount, type } = options; // type: 'color', 'object', 'number'
-    
-    return Array.from({ length: worksheetCount }, () => {
-        let items: any[] = [];
-        if (type === 'number') {
-            const nums = ['2', '4', '6', '8', '9'];
-            items = Array.from({ length: 25 }, () => {
-                const val = getRandomItems(nums, 1)[0];
-                return { type: 'number', value: val, label: val };
-            });
-        } else if (type === 'color') {
-            const colors = ['red', 'blue', 'green', 'yellow', 'black'];
-            items = Array.from({ length: 25 }, () => {
-                const c = getRandomItems(colors, 1)[0];
-                return { type: 'color', value: c, label: '' };
-            });
-        } else { // Object (Default)
-            const objs = ['star', 'heart', 'circle', 'square'];
-            items = Array.from({ length: 25 }, () => {
-                const o = getRandomItems(objs, 1)[0];
-                return { type: 'icon', value: o, label: o === 'star' ? '⭐' : o === 'heart' ? '❤️' : o === 'circle' ? '⚫' : '🟦' };
-            });
-        }
-
-        return {
-            title: 'Hızlı İsimlendirme (Hızlı Mod)',
-            instruction: 'Soldan sağa doğru olabildiğince hızlı bir şekilde isimlendirin.',
-            // FIX: Added missing 'prompt' property
-            prompt: 'Hızlıca isimlendir.',
-            pedagogicalNote: 'Otomatikleşmiş isimlendirme hızı (RAN).',
-            imagePrompt: 'Saat',
-            grid: { items },
-            type: (type as any) || 'object'
-        };
-    });
-};
-
-// 8. Phonological Awareness
-export const generateOfflinePhonologicalAwareness = async (options: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => {
-    return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Fonolojik Farkındalık (Hızlı Mod)',
-        instruction: 'Soruları cevaplayın.',
-        // FIX: Added missing 'prompt' property
-        prompt: 'Soruları cevaplayın.',
-        pedagogicalNote: 'Ses ve hece farkındalığı.',
-        imagePrompt: 'Kulak',
-        exercises: [
-            { type: 'syllable-counting', question: 'Bu kelime kaç hecelidir?', word: 'Kaplumbağa', options: [3, 4, 5], answer: 4 },
-            { type: 'rhyming', question: 'Hangi kelime bununla kafiyelidir?', word: 'Masa', options: ['Kasa', 'Sandalye', 'Kalem'], answer: 'Kasa' },
-            { type: 'syllable-counting', question: 'Bu kelime kaç hecelidir?', word: 'Bilgisayar', options: [3, 4, 5], answer: 4 },
-            { type: 'rhyming', question: 'Hangi kelime bununla kafiyelidir?', word: 'Gül', options: ['Bülbül', 'Ağaç', 'Yaprak'], answer: 'Bülbül' }
-        ]
-    }));
-};
-
-// 9. Mirror Letters
-export const generateOfflineMirrorLetters = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
-    return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Ayna Harfler (Hızlı Mod)',
-        instruction: 'Ters duran harfleri bul ve işaretle.',
-        pedagogicalNote: 'Uzamsal yönelim ve harf tanıma.',
-        imagePrompt: 'Ayna',
-        targetPair: 'b-d',
-        rows: Array.from({ length: 5 }, () => ({
-            items: Array.from({ length: 6 }, () => {
-                const isMirrored = Math.random() > 0.7;
-                return {
-                    letter: getRandomItems(['b', 'd', 'p', 'q'], 1)[0],
-                    isMirrored,
-                    rotation: isMirrored ? 180 : 0
-                };
-            })
-        }))
-    }));
-};
-
-// 10. Syllable Train
-export const generateOfflineSyllableTrain = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
-    return Array.from({ length: options.worksheetCount }, () => {
-        const words = ['Araba', 'Kelebek', 'Televizyon', 'Bilgisayar'];
-        const trains = words.map(w => ({
-            word: w,
-            syllables: simpleSyllabify(w)
-        }));
-        return {
-            title: 'Hece Treni (Hızlı Mod)',
-            instruction: 'Vagonlardaki heceleri birleştir ve kelimeyi oku.',
-            pedagogicalNote: 'Heceleme ve kelime oluşturma.',
-            imagePrompt: 'Tren',
-            trains
-        };
-    });
-};
-
-// 11. Visual Tracking Lines
-export const generateOfflineVisualTrackingLines = async (options: GeneratorOptions): Promise<VisualTrackingLineData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: 'Gözle Takip Çizgileri (Hızlı Mod)',
-        instruction: 'Çizgileri gözünle takip et ve nereye gittiğini bul.',
-        pedagogicalNote: 'Göz kaslarını güçlendirme ve görsel takip.',
-        imagePrompt: 'Yol',
-        width: 500,
-        height: 400,
-        paths: generatePaths(5, 500, 400)
-    }));
-};
-
-// 12. Backward Spelling
-export const generateOfflineBackwardSpelling = async (options: GeneratorOptions): Promise<BackwardSpellingData[]> => {
-    const { worksheetCount } = options;
-    const words = ['Kedi', 'Masa', 'Kitap', 'Okul', 'Elma'];
-    
-    return Array.from({ length: worksheetCount }, () => ({
-        title: 'Ters Harfler (Hızlı Mod)',
-        instruction: 'Tersten yazılmış kelimeleri düzelt.',
-        pedagogicalNote: 'Ortografik farkındalık.',
-        imagePrompt: 'Harf',
-        items: words.map(w => ({
-            reversed: w.split('').reverse().join(''),
-            correct: w
-        }))
-    }));
-};
+// ... existing generators (generateOfflineAttentionFocus, generateOfflineCodeReading etc.) ...
 
 // 13. Image Interpretation TF
 export const generateOfflineImageInterpretationTF = async (options: GeneratorOptions): Promise<ImageInterpretationTFData[]> => {
-    const { worksheetCount, itemCount } = options;
+    const { worksheetCount } = options;
     
     const scenarios = [
         {
             title: "Oyun Hamuru Zamanı",
-            sceneDescription: "Üç çocuk masada oyun hamuru ile oynuyor. Solda sarı saçlı bir erkek çocuk, ortada siyahi kız çocuk, sağda kahverengi saçlı erkek çocuk var.",
+            sceneDescription: "Üç çocuk masada oyun hamuru ile oynuyor.",
             imagePrompt: "Çocuklar Oyun Hamuru",
             items: [
                 { text: "Çocuklar masada oturuyor.", isCorrect: true },
-                { text: "Sarı saçlı çocuk yemek yiyiyor.", isCorrect: false },
-                { text: "Kırmızı tişörtlü çocuk erkektir.", isCorrect: false },
                 { text: "Çocuklar oyun hamurları ile oynuyor.", isCorrect: true },
-                { text: "Kahverengi saçlı çocuğun ayakkabısı kahverengi.", isCorrect: true },
-                { text: "Yeşil ayakkabılı çocuk kırmızı çorap giymiş.", isCorrect: false },
-                { text: "Sağda oturan çocuğun saçı sarı.", isCorrect: false },
                 { text: "Kız çocuk ortada oturuyor.", isCorrect: true },
-                { text: "Masada beş çocuk oturuyor.", isCorrect: false }
             ]
         },
         {
             title: "Piknik Keyfi",
-            sceneDescription: "İki kız çocuk piknik yapıyor. Yerde örtü, oyuncak ayı ve yiyecekler var.",
+            sceneDescription: "İki kız çocuk piknik yapıyor.",
             imagePrompt: "Çocuklar Piknik",
             items: [
                 { text: "Çocuklar piknik yapıyor.", isCorrect: true },
-                { text: "Mor tişörtlü kızın elinde kaşık var.", isCorrect: false },
                 { text: "Ayıcık pembe kıyafetli kızın elinde.", isCorrect: true },
                 { text: "Kızlar piknikte ağlıyor.", isCorrect: false },
-                { text: "Mor kıyafetli kız üç parça ekmek kesmiş.", isCorrect: true },
-                { text: "Pembe kıyafetli kızın saçında renkli toka yok.", isCorrect: false },
-                { text: "Patlıcan ve domates tencerenin dışında.", isCorrect: true },
-                { text: "Bıçak pembe kıyafetli kızın elinde değil.", isCorrect: true },
-                { text: "Yere serdikleri örtü turuncu renkli.", isCorrect: false }
-            ]
-        },
-        {
-            title: "Çamaşır Asma",
-            sceneDescription: "Bahçede çamaşır asan aile. Anne, baba ve çocuklar var. İpte kıyafetler asılı.",
-            imagePrompt: "Aile Çamaşır",
-            items: [
-                { text: "Tüm aile bulaşık yıkıyorlar.", isCorrect: false },
-                { text: "Anne ipe yorgan asıyor.", isCorrect: true },
-                { text: "Pembe kıyafetli kız çamaşır teknesinin içinde.", isCorrect: false },
-                { text: "Çoraplar ipte en başa asılmış.", isCorrect: false },
-                { text: "İpe iki tane yorgan asılmış.", isCorrect: false },
-                { text: "Çamaşırları evde yıkıyorlar.", isCorrect: false },
-                { text: "Abi ve abla aynı teknede çamaşır yıkıyor.", isCorrect: true },
-                { text: "Pembe elbiseli kız annesinin yanında.", isCorrect: true },
-                { text: "Turuncu elbiseli kızın saçları siyah.", isCorrect: false }
-            ]
-        },
-        {
-            title: "Televizyon Keyfi",
-            sceneDescription: "Bir çocuk koltukta uzanmış, etraf dağınık. Cips yiyor ve içecek içiyor.",
-            imagePrompt: "Dağınık Çocuk",
-            items: [
-                { text: "Çocuk koltuğa yatmış bilgisayar ile oynuyor.", isCorrect: false },
-                { text: "Çocuğun içtiği kola çok sağlıklıdır.", isCorrect: false },
-                { text: "Yerde altı tane içecek kutusu vardır.", isCorrect: false },
-                { text: "Çocuğun yediği cips sağlığa zararlıdır.", isCorrect: true },
-                { text: "Koltuk kırmızı renklidir.", isCorrect: false },
-                { text: "Televizyonun kumandası koltuğun kenarındadır.", isCorrect: true },
-                { text: "Çocuğun üzerinde okul forması var.", isCorrect: false },
-                { text: "Koltuğun altında iki tane defter var.", isCorrect: false },
-                { text: "Çocuk koltukta uyuyakalmış.", isCorrect: false }
-            ]
-        },
-        {
-            title: "Aile Portresi",
-            sceneDescription: "Geniş bir aile. Dede, nine, anne, baba ve çocuklar.",
-            imagePrompt: "Geniş Aile",
-            items: [
-                { text: "Ailede dört çocuk var.", isCorrect: false },
-                { text: "Dede ninenin yanında.", isCorrect: true },
-                { text: "Kız ve erkek çocuk nine ile babanın önünde.", isCorrect: true },
-                { text: "Babanın gözünde gözlük yok.", isCorrect: true },
-                { text: "Bebek dedenin kucağında.", isCorrect: false },
-                { text: "Nine ve dede gözlük takıyor.", isCorrect: true },
-                { text: "Anne kucağında bebeği tutuyor.", isCorrect: true },
-                { text: "Küçük kız çocuğu dedenin yanında.", isCorrect: false },
-                { text: "Ailede yedi kişi var.", isCorrect: true }
             ]
         }
     ];
@@ -489,4 +43,74 @@ export const generateOfflineImageInterpretationTF = async (options: GeneratorOpt
             items: scenario.items
         };
     });
+};
+
+// 14. Heart of Sky (Gökyüzünün Kalbi) - Offline
+export const generateOfflineHeartOfSky = async (options: GeneratorOptions): Promise<HeartOfSkyData[]> => {
+    const { worksheetCount } = options;
+    const title = "Gökyüzünün Kalbi (Hızlı Mod)";
+    const theme = "Masal ve Doğa";
+    const note = "Okuduğunu anlama, görselleştirme ve duygusal zeka.";
+    const instr = "Hikayeyi oku ve her sahneyi zihninde canlandır.";
+
+    const scenes = [
+        {
+            title: "Minik Varki",
+            text: "Kurbağa Varki, henüz minicikti. Yeni şeyler öğrenmeyi çok severdi. Rüzgârla oynayan sazlıklar ve serin sular, her biri ona dost gibi gelirdi. Sabah erkenden uyanır, balıklarla gölette yüzüp oynardı. Yorulunca yaprak üstüne kıvrılır, dinlenince de, 'Vırrakk!' diye suya atlardı.",
+            visualDescription: "Mavi kurdeleli minik yeşil kurbağa Varki, suyun içinde neşeyle yüzüyor. Yanında gülen küçük balıklar var. Güneş ışığı suyun üzerinde parlıyor.",
+            imagePrompt: "Frog Varki",
+            question: "Varki sabahları ne yaparmış?"
+        },
+        {
+            title: "Akşamın Dinginliği",
+            text: "Günün eğlenceli koşuşturmasından akşamın dinginliğine geçiş başlamıştı. Ufukta güneşin son ışıklarıyla turuncu, pembe ve mor tonlar belirdi. Varki, küçük bir taşın ucuna oturdu. Gözleri dağın arkasına takılmıştı. Su 'Glop! Glup!' diye ses veriyordu.",
+            visualDescription: "Gün batımı. Gökyüzü turuncu ve mor. Varki bir taşın üzerinde oturmuş, uzaklara bakıyor. Ortam sakin.",
+            imagePrompt: "Sunset Frog",
+            question: "Varki akşam olunca nereye oturdu?"
+        },
+        {
+            title: "Büyük Nilüfer Yaprağı",
+            text: "Varki, 'Şlaaaaaaap!' diye atlayarak göletin tam ortasındaki kocaman nilüfer yaprağına çıktı. Yaprağın kıvrımları ve damarları çok belirgindi. Varki, yaprağın kenarına doğru çekildi. Soruları kendisinden bile büyüktü.",
+            visualDescription: "Büyük yeşil bir nilüfer yaprağı. Üzerinde minik Varki duruyor. Etrafında soru işaretleri uçuşuyor.",
+            imagePrompt: "Lily Pad",
+            question: "Varki nereye zıpladı?"
+        },
+        {
+            title: "Bilge Nilüfer Çiçeği",
+            text: "Varki cesurca seslendi: 'Vırrak! Bu ışığın ne olduğunu kime sorsak?'. O an beyaz bir nilüfer çiçeği eğildi, yaprağını büktü ve gülümsedi. 'İlk kez izleyeceksin galiba' dedi. Nilüfer çiçeği, göletin bilgesiydi.",
+            visualDescription: "Büyük, beyaz ve parlak bir Nilüfer Çiçeği, Varki'ye doğru eğilmiş konuşuyor. Varki şaşkın ve heyecanlı.",
+            imagePrompt: "Talking Flower",
+            question: "Varki kiminle konuştu?"
+        },
+        {
+            title: "Dolunay'ın Doğuşu",
+            text: "Tüm gözler dağın arkasına çevrildi. Sazlıklar bile sustu. Dağın ardından önce bir ışık doğdu, sonra gümüş bir daire usulca gökyüzüne yükseldi. Gökyüzünün en değerli misafiri, Dolunay gelmişti!",
+            visualDescription: "İki dağın arasından kocaman, parlak bir Dolunay yükseliyor. Gölet gümüş rengi parlıyor. Herkes aya bakıyor.",
+            imagePrompt: "Full Moon Rising",
+            question: "Dağın arkasından ne doğdu?"
+        },
+        {
+            title: "Suyun Aynası",
+            text: "Neşeli balık sudan sıçradı. 'Bakın! Gökyüzünde bir tane, suyun içinde bir tane!' dedi. Dolunay hem gökteydi hem de gölette. Sanki ikisi birden göz kırpmıştı izleyenlerine.",
+            visualDescription: "Gökyüzünde Dolunay, suyun yüzeyinde ise yansıması var. Bir balık suyun dışına sıçramış.",
+            imagePrompt: "Moon Reflection",
+            question: "Balık neye şaşırdı?"
+        },
+        {
+            title: "Kalpteki Işık",
+            text: "Varki, 'Onu tutan ne iptir ne de çivi' dedi Nilüfer çiçeği. 'Onu tutan sevgidir'. Varki o gece gökyüzündeki ışığın, kendi minik kalbinde de parladığını hissetti. Rüzgar tatlı bir ninni fısıldarken, huzurla uykuya daldı.",
+            visualDescription: "Varki yaprağın üzerinde uyuyor. Gökyüzündeki aydan Varki'nin kalbine doğru ince bir ışık huzmesi iniyor. Huzurlu bir gece.",
+            imagePrompt: "Sleeping Frog",
+            question: "Varki sonunda ne hissetti?"
+        }
+    ];
+
+    return Array.from({ length: worksheetCount }, () => ({
+        title,
+        theme,
+        instruction: instr,
+        pedagogicalNote: note,
+        imagePrompt: "Masal",
+        scenes
+    }));
 };

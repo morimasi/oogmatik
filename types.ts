@@ -130,8 +130,8 @@ export enum ActivityType {
   MIND_GAMES = 'MIND_GAMES',
   MIND_GAMES_56 = 'MIND_GAMES_56',
   
-  // NEW
   IMAGE_INTERPRETATION_TF = 'IMAGE_INTERPRETATION_TF',
+  HEART_OF_SKY = 'HEART_OF_SKY', // NEW ACTIVITY
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -524,6 +524,18 @@ export interface AttentionToQuestionData extends BaseActivityData {
 export interface ImageInterpretationTFData extends BaseActivityData {
     items: { text: string; isCorrect: boolean }[];
     sceneDescription?: string;
+}
+
+export interface HeartOfSkyData extends BaseActivityData {
+    scenes: {
+        title: string;
+        text: string;
+        visualDescription: string;
+        imagePrompt: string;
+        imageBase64?: string;
+        question?: string;
+    }[];
+    theme: string;
 }
 
 // --- DYSCALCULIA SUPPORT TYPES (Consolidated) ---
@@ -1059,7 +1071,8 @@ export type SingleWorksheetData =
   | AttentionFocusData
   | MindGamesData
   | MindGames56Data
-  | ImageInterpretationTFData;
+  | ImageInterpretationTFData
+  | HeartOfSkyData; // Added new type
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

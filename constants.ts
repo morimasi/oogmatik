@@ -152,6 +152,7 @@ export const ACTIVITIES: Activity[] = [
     { id: ActivityType.ATTENTION_DEVELOPMENT, title: 'Dikkat Geliştirme', description: 'Mantıksal çıkarım ve dikkat.', icon: 'fa-solid fa-brain' },
     { id: ActivityType.ATTENTION_FOCUS, title: 'Dikkatini Ver', description: 'İpuçlarını takip ederek doğru nesneyi bul.', icon: 'fa-solid fa-eye' },
     { id: ActivityType.IMAGE_INTERPRETATION_TF, title: 'Resim Yorumlama (D-Y)', description: 'Görsele bakarak cümlelerin doğruluğunu kontrol et.', icon: 'fa-solid fa-photo-film' },
+    { id: ActivityType.HEART_OF_SKY, title: 'Gökyüzünün Kalbi', description: 'Varki ve Dolunay masalı ile okuduğunu anlama ve görselleştirme.', icon: 'fa-solid fa-frog' },
 
     // --- DİSKALKULİ ---
     { id: ActivityType.NUMBER_SENSE, title: 'Sayı Hissi', description: 'Miktar ve sayı kavramı çalışmaları.', icon: 'fa-solid fa-1' },
@@ -265,7 +266,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
             ActivityType.PHONOLOGICAL_AWARENESS, ActivityType.MIRROR_LETTERS, ActivityType.SYLLABLE_TRAIN, 
             ActivityType.VISUAL_TRACKING_LINES, ActivityType.BACKWARD_SPELLING, ActivityType.CODE_READING, 
             ActivityType.ATTENTION_TO_QUESTION, ActivityType.ATTENTION_DEVELOPMENT, ActivityType.ATTENTION_FOCUS,
-            ActivityType.IMAGE_INTERPRETATION_TF
+            ActivityType.IMAGE_INTERPRETATION_TF, ActivityType.HEART_OF_SKY
         ]
     },
     {
