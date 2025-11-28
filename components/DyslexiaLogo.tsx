@@ -32,8 +32,8 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
 
   return (
     <svg 
-      // Updated viewBox: expanded left (negative x) to prevent 'B' cutoff and accommodate shift
-      viewBox="-80 0 450 55" 
+      // Updated viewBox: Adjusted to start at 0 and cover the text width more tightly
+      viewBox="0 0 350 55" 
       xmlns="http://www.w3.org/2000/svg" 
       className={`${className} group cursor-default`}
       style={{ perspective: '800px' }}
@@ -58,13 +58,13 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
         `}
       </style>
       
-      {/* 1. Hidden Text for Measurement */}
+      {/* 1. Hidden Text for Measurement - Aligned left (start) at x=0 */}
       <text
         ref={textRef}
-        x="120" /* Shifted from 180 to 120 for left alignment */
-        y="32" 
+        x="0"
+        y="35" 
         dominantBaseline="middle"
-        textAnchor="middle"
+        textAnchor="start"
         fontSize="42" 
         fontWeight="800"
         fontFamily="OpenDyslexic, sans-serif"
@@ -107,10 +107,10 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
       {/* Fallback if JS measurement fails or hasn't run yet */}
       {letterData.length === 0 && (
           <text
-            x="120" /* Match the measurement text x */
-            y="32" 
+            x="0"
+            y="35" 
             dominantBaseline="middle"
-            textAnchor="middle"
+            textAnchor="start"
             fontSize="42" 
             fontWeight="800"
             className="fill-zinc-200 dark:fill-zinc-100 drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)]"

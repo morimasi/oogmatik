@@ -281,7 +281,7 @@ const AppContent: React.FC = () => {
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
       <header className="relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 print:hidden">
-        <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+        <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-3 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
              {/* Logo Container: Increased z-index to stay on top */}
