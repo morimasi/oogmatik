@@ -27,7 +27,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             '--worksheet-border-width': `${settings.borderWidth}px`,
             '--worksheet-margin': `${settings.margin}px`,
             '--worksheet-gap': `${settings.gap}px`,
-            '--dynamic-cols': settings.columns
+            '--dynamic-cols': settings.columns,
+            '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none'
         } as React.CSSProperties}>
             {data.map((sheetData, index) => (
                 <div key={index} className="worksheet-page p-8 bg-white shadow-sm mx-auto mb-8 print:mb-0 print:shadow-none break-after-page min-h-[297mm] relative" style={{ padding: `${settings.margin}px` }}>
