@@ -147,7 +147,7 @@ export const generateAttentionDevelopmentFromAI = async (options: GeneratorOptio
     
     METİN KURALLARI:
     - Metinler uzun olsun (en az 2-3 cümle).
-    - Çeldirici ifadeler kullan (Örn: "En büyük sayı değildir ama en küçük de değildir.", "Sakın sağ kutuya bakma!", "Tek sayıları hemen ele.").
+    - Çeldirici ifadeler kullan (Örn: "En büyük sayı değildir ama en küçük de değildir.", "Diğer kutudaki sayılarla karıştırma.", "Tek sayıları hemen ele.").
     - Matematiksel terimler ekle: "Bir deste", "düzine", "rakamları toplamı", "çift sayı", "5'in katı".
     - Örnek: "Aradığımız sayı sol kutuda saklanıyor. Bu sayı bir deste gülden fazladır ama 50'ye ulaşamaz. Çift bir sayıdır ve kutudaki en büyük sayı değildir."
     

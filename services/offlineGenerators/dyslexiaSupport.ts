@@ -203,7 +203,7 @@ export const generateOfflineAttentionDevelopment = async (options: GeneratorOpti
                 const notProp = isEven ? "tek sayı değildir" : "çift sayı değildir";
                 const rangeHint = answerNum > 10 ? "bir desteden (10) fazladır" : "bir desteden (10) azdır";
                 
-                riddle = `Dikkatli bak! Aradığımız sayı ${boxName} sayılardan biridir. Bu sayı ${notProp}. Aynı zamanda ${rangeHint}. Sakın diğer kutuya bakma!`;
+                riddle = `Dikkatli bak! Aradığımız sayı ${boxName} sayılardan biridir. Bu sayı ${notProp}. Aynı zamanda ${rangeHint}.`;
             }
             else { // Zor ve Uzman
                 // Complex logic, "Not the biggest", neighbor logic or math
