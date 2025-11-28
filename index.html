@@ -401,7 +401,7 @@
   
   /* --- PRINT STYLES --- */
   @media print {
-    @page { size: A4 portrait; margin: 10mm; }
+    @page { size: A4 portrait; margin: 5mm; }
     
     /* 1. Global Reset for Print */
     *, *::before, *::after {
@@ -462,10 +462,47 @@
         left: 0 !important;
         width: 100% !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 5mm !important; /* Minimal padding */
         background-color: white !important;
         z-index: 2147483647 !important; /* Max Z-Index */
         display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+    
+    /* Optimize Report Content Spacing */
+    .assessment-report-container .space-y-6 > * + * {
+        margin-top: 1rem !important; /* Reduce vertical gaps */
+    }
+    
+    .assessment-report-container .p-6,
+    .assessment-report-container .p-4 {
+        padding: 1rem !important; /* Reduce inner padding */
+    }
+    
+    .assessment-report-container .mb-8 {
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Ensure charts fit */
+    .assessment-report-container svg {
+        max-height: 200px !important;
+        width: auto !important;
+    }
+    
+    /* Clean backgrounds */
+    .assessment-report-container .bg-zinc-800,
+    .assessment-report-container .bg-indigo-50,
+    .assessment-report-container .bg-emerald-50,
+    .assessment-report-container .bg-rose-50 {
+        background-color: transparent !important;
+        border: 1px solid #ddd !important;
+        color: black !important;
+    }
+    
+    .assessment-report-container * {
+        color: black !important;
+        -webkit-text-fill-color: black !important;
     }
 
     /* 5. VISIBILITY FOR WORKSHEETS */
