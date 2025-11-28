@@ -404,28 +404,29 @@
   @media print {
     @page { size: A4 portrait; margin: 10mm; }
     
-    html, body { 
-      width: 100%; 
-      height: 100% !important; 
-      margin: 0 !important;
-      padding: 0 !important;
-      background-color: white !important; 
-      color: black !important; 
-      -webkit-print-color-adjust: exact !important; 
-      print-color-adjust: exact !important; 
-      font-size: 11pt !important;
-      overflow: visible !important;
+    /* RESET EVERYTHING */
+    html, body {
+        height: 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        color: black !important;
+        overflow: visible !important;
     }
-    
-    /* Global Hide */
-    #root > *, header, aside, #tour-toolbar, .tour-overlay, button, .tour-highlight, .no-print, #tour-sidebar, .reading-ruler { 
-        display: none !important; 
+
+    /* 1. HIDE EVERYTHING by default using visibility */
+    body * {
+        visibility: hidden;
     }
+
+    /* 2. SPECIFICALLY SHOW REPORT OR WORKSHEET */
     
-    /* --- WORKSHEET PRINTING --- */
-    /* Only show content area if it's the target */
-    .printable-area, .printable-document { 
-        display: block !important; 
+    /* CASE A: Worksheet Pages */
+    .printable-area, 
+    .printable-area * {
+        visibility: visible;
+    }
+    .printable-area {
         position: absolute;
         top: 0;
         left: 0;
@@ -433,66 +434,57 @@
         margin: 0;
         padding: 0;
     }
-
     .worksheet-page { 
-        width: 100% !important; 
-        max-width: none !important; 
-        margin: 0 !important; 
-        padding: 0 !important;
-        border: none !important; 
-        box-shadow: none !important; 
-        page-break-after: always !important;
-        break-after: page !important;
-        break-inside: avoid !important;
-    }
-    
-    .worksheet-page:last-child { 
-        page-break-after: auto !important;
-    }
-
-    /* --- REPORT PRINTING --- */
-    /* Only show report container if it exists */
-    .assessment-report-container {
-      display: block !important;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: auto !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      border: none !important;
-      box-shadow: none !important;
-      background-color: white !important;
-      color: black !important;
-      overflow: visible !important;
-      z-index: 9999;
-    }
-
-    /* Report specific resets */
-    .assessment-report-container * {
-        color: black !important;
-        background-color: transparent !important;
-        border-color: #ccc !important;
+        break-after: page;
+        page-break-after: always;
         box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* CASE B: Assessment Report Modal */
+    .assessment-report-container,
+    .assessment-report-container * {
+        visibility: visible !important;
+        color: black !important; /* Ensure readable text */
+    }
+
+    .assessment-report-container {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        background-color: white !important;
+        z-index: 99999 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important; /* Force block layout */
+    }
+
+    /* Common Hides */
+    .no-print, 
+    button, 
+    nav, 
+    header, 
+    aside,
+    .fixed {
+        display: none !important; 
+    }
+
+    /* Ensure backgrounds print for charts/graphs */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     
-    /* Ensure elements don't split weirdly */
+    /* Prevent page breaks inside critical elements */
     .break-inside-avoid {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
     }
-    
-    /* Restore some visual structure for report charts/tables */
-    .assessment-report-container .bg-indigo-50,
-    .assessment-report-container .bg-green-50,
-    .assessment-report-container .bg-rose-50,
-    .assessment-report-container .bg-zinc-800 {
-        background-color: #f9fafb !important;
-        border: 1px solid #e5e7eb !important;
-    }
-    
-    img { max-height: 150px !important; }
   }
 
   /* --- UI ENHANCEMENTS --- */
