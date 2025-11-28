@@ -325,15 +325,15 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
   /* ==========================================================================
-     PROFESSIONAL PRINT SYSTEM v3.0 (CLEAN & WYSIWYG)
+     PROFESSIONAL PRINT SYSTEM v4.0 (INK SAVER & HIGH CONTRAST)
      ========================================================================== */
   @media print {
     @page { 
         size: A4 portrait; 
-        margin: 1cm; 
+        margin: 0.5cm; /* Minimize margin as requested */
     }
     
-    /* Reset Root */
+    /* Reset Root & Force White Background/Black Text */
     html, body, #root {
       height: auto !important; 
       min-height: auto !important; 
@@ -341,25 +341,50 @@
       position: static !important; 
       display: block !important; 
       background-color: white !important; 
+      background-image: none !important; /* Remove patterns */
       color: black !important;
       margin: 0 !important; 
       padding: 0 !important; 
       width: 100% !important;
-      font-size: 12pt !important; /* Standard print size */
+      font-size: 12pt !important;
     }
 
-    /* Force Color Accuracy */
+    /* Force Color Accuracy for Strokes but enforce B&W Text */
     * { 
         -webkit-print-color-adjust: exact !important; 
         print-color-adjust: exact !important; 
         box-shadow: none !important; 
         text-shadow: none !important; 
+        background-color: transparent !important; /* Default transparent */
+        color: black !important; /* Default black text */
+    }
+
+    /* Overwrite specific background utility classes used in components to be WHITE */
+    .bg-white, .bg-zinc-50, .bg-zinc-100, .bg-zinc-200, .bg-zinc-800, .bg-zinc-900,
+    [class*="bg-indigo-"], [class*="bg-rose-"], [class*="bg-emerald-"], [class*="bg-blue-"], 
+    [class*="bg-amber-"], [class*="bg-purple-"], [class*="bg-sky-"], [class*="bg-orange-"] {
+        background-color: white !important;
+        color: black !important;
+        border-color: black !important;
+    }
+
+    /* Ensure Borders are Black (since backgrounds are removed) */
+    .border, .border-2, .border-4, [class*="border-"] {
+        border-color: black !important;
+    }
+
+    /* Specific Text Color Overrides */
+    .text-white, .text-zinc-200, .text-indigo-600, .text-indigo-500,
+    .dark\:text-white, .dark\:text-zinc-100,
+    [class*="text-"] {
+        color: black !important;
+        -webkit-text-fill-color: black !important;
     }
 
     /* Hide UI Elements */
     header, aside, nav, 
     .no-print, .print\:hidden, 
-    button:not(.worksheet-page button), /* Hide buttons unless they are part of content (rare) */
+    button:not(.worksheet-page button), 
     .toolbar-container, 
     .global-search, 
     .modal-close-btn, 
@@ -386,9 +411,9 @@
     .worksheet-page { 
         background-color: white !important; 
         color: black !important; 
-        border: none !important;
+        border: none !important; /* Remove outer border for print if preferred */
         margin: 0 0 0 0 !important; 
-        padding: 0 !important;
+        padding: 0 !important; /* User asked to minimize spaces */
         width: 100% !important; 
         min-height: auto !important;
         page-break-after: always !important; 
@@ -396,28 +421,18 @@
         box-shadow: none !important;
     }
     
-    /* Content Within Worksheet */
-    .worksheet-page * {
-        color: black !important;
-        border-color: #000 !important; /* Force black borders */
+    /* SVG Text handling */
+    svg text {
+        fill: black !important;
     }
     
     /* Ensure Grid/Flex Layouts Print Correctly */
     .grid, .flex {
-        display: grid !important; /* or flex, keep original display */
+        display: grid !important; /* or flex */
         break-inside: avoid !important;
     }
     
-    /* Remove Dark Mode Effects for Print */
-    .bg-zinc-800, .bg-zinc-900, .bg-black {
-        background-color: transparent !important;
-        color: black !important;
-    }
-    .text-white, .text-zinc-200 {
-        color: black !important;
-    }
-    
-    /* Fix Modal Printing (Assessment Report) */
+    /* Fix Modal Printing */
     .fixed.inset-0 {
         position: static !important;
         background: none !important;
