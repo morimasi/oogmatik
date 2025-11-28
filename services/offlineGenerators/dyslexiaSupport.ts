@@ -1,3 +1,4 @@
+
 import { GeneratorOptions, AttentionFocusData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
@@ -37,7 +38,6 @@ export const generateOfflineAttentionFocus = async (options: GeneratorOptions): 
     const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 4;
 
-    // FIX: Define a type for the items in the pool to resolve 'unknown' type errors.
     interface ItemPoolItem {
         name: string;
         color: string;
@@ -227,7 +227,6 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
         return {
             title: 'Okuma Akışı (Hızlı Mod)',
             instruction: 'Renkli heceleri takip ederek metni okuyun.',
-            // FIX: Added missing 'prompt' property
             prompt: 'Renkli heceleri takip ederek metni okuyun.',
             pedagogicalNote: 'Okuma hızını ve takibini kolaylaştırır.',
             imagePrompt: 'Kitap',
@@ -253,7 +252,6 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
         return {
             title: 'Harf Ayırt Etme (Hızlı Mod)',
             instruction: `Sadece "${targets[0]}" harflerini bul ve daire içine al.`,
-            // FIX: Added missing 'prompt' property
             prompt: `Sadece "${targets[0]}" harflerini bul.`,
             pedagogicalNote: 'Benzer harfleri ayırt etme (b/d/p/q).',
             imagePrompt: 'Harfler',
@@ -292,7 +290,6 @@ export const generateOfflineRapidNaming = async (options: GeneratorOptions): Pro
         return {
             title: 'Hızlı İsimlendirme (Hızlı Mod)',
             instruction: 'Soldan sağa doğru olabildiğince hızlı bir şekilde isimlendirin.',
-            // FIX: Added missing 'prompt' property
             prompt: 'Hızlıca isimlendir.',
             pedagogicalNote: 'Otomatikleşmiş isimlendirme hızı (RAN).',
             imagePrompt: 'Saat',
@@ -307,7 +304,6 @@ export const generateOfflinePhonologicalAwareness = async (options: GeneratorOpt
     return Array.from({ length: options.worksheetCount }, () => ({
         title: 'Fonolojik Farkındalık (Hızlı Mod)',
         instruction: 'Soruları cevaplayın.',
-        // FIX: Added missing 'prompt' property
         prompt: 'Soruları cevaplayın.',
         pedagogicalNote: 'Ses ve hece farkındalığı.',
         imagePrompt: 'Kulak',

@@ -26,13 +26,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
         }
         
-        // --- KESİN ÇÖZÜM: API ANAHTARI ---
-        // API anahtarı güvenli bir şekilde environment variable'dan alınmalıdır.
         const apiKey = process.env.API_KEY;
         
         if (!apiKey) {
             console.error("API_KEY bulunamadı.");
-            return res.status(500).json({ error: 'Sunucuda API anahtarı yapılandırılmamış.' });
+            return res.status(500).json({ error: 'Sunucuda API anahtarı yapılandırılmamış. Lütfen Vercel ayarlarını kontrol edin.' });
         }
 
         const ai = new GoogleGenAI({ apiKey });
@@ -45,11 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let data;
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
-                // Yapay zekanın her seferinde farklı çıktı üretmesini sağlamak için benzersiz bir bağlam ekliyoruz.
                 const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-                
-                // Changed visual style instruction to allow variety: drawing, cartoon, vector.
-                // Added strict instruction to ALWAYS generate imagePrompt for every possible item to ensure visual richness.
                 const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Benzersiz ol. Random Seed: ${uniqueSeed}.\n2. GÖRSEL ZORUNLULUĞU: Şema içinde 'imagePrompt' alanı tanımlı olan HER ÖĞE için MUTLAKA dolu ve detaylı bir İngilizce görsel betimlemesi yaz. Asla boş bırakma. Bu betimlemeler bir eylem ve bağlam içermelidir (Örn: 'kedi' yerine 'yumakla oynayan sevimli bir kedi').\n3. GÖRSEL STİLİ: Betimlemelere şu stillerden uygun olanı ekle: 'Cute colorful vector art style', 'Children book illustration style', 'Vibrant cartoon style'. Amaç çocukların ilgisini çekecek, pozitif, renkli ve net görseller üretmektir. Korkutucu veya karanlık öğelerden kaçın.]`;
 
                 const textResponse = await ai.models.generateContent({
@@ -65,10 +59,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const jsonText = textResponse.text;
                 if (!jsonText) throw new Error("Yapay zekadan boş bir metin yanıtı alındı.");
                 
+                // Cleanup markdown JSON code blocks if present
                 const cleanedJsonText = jsonText.replace(/^```json\s*|```\s*$/g, '').trim();
-                data = JSON.parse(cleanedJsonText);
+                
+                try {
+                    data = JSON.parse(cleanedJsonText);
+                } catch (parseError) {
+                    console.error("JSON Parse Error on AI Response:", cleanedJsonText);
+                    throw new Error("Yapay zeka yanıtı geçerli bir JSON formatında değildi.");
+                }
+                
                 break;
             } catch (error: any) {
+                console.error(`Attempt ${attempt + 1} failed:`, error);
                 if (error.status === 429) throw error;
                 if (attempt < maxRetries - 1) await sleep(1000);
                 else throw error;
@@ -103,13 +106,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             
             await Promise.all(chunk.map(async ({ obj, imagePrompt }) => {
                 try {
-                    // YENİ: Imagen modeli ile görsel üretimi
                     const imageResponse = await ai.models.generateImages({
-                        model: 'imagen-4.0-generate-001', // Yüksek kaliteli model
+                        model: 'imagen-4.0-generate-001', 
                         prompt: imagePrompt,
                         config: {
                             numberOfImages: 1,
-                            outputMimeType: 'image/png', // PNG şeffaflık için daha iyi
+                            outputMimeType: 'image/png', 
                             aspectRatio: '1:1'
                         },
                     });
@@ -126,7 +128,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 } catch (imgError) {
                     console.warn("Görsel oluşturulamadı (Imagen), metin korunuyor:", imgError);
                     obj['imageBase64'] = '';
-                    // imagePrompt silinmez ki frontend fallback olarak kullanabilsin
                 }
             }));
         }
@@ -138,10 +139,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let statusCode = 500;
         let errorMessage = "Sunucu hatası.";
 
-        if (error instanceof Error && 'status' in error) {
-            const apiError = error as { status: number; message: string };
-            statusCode = apiError.status || 500;
-            errorMessage = apiError.message;
+        if (error instanceof Error) {
+             // Check for specific Google GenAI error properties if available
+            if ('status' in error) {
+                statusCode = (error as any).status || 500;
+            }
+            errorMessage = error.message;
             
             if (statusCode === 429) {
                 errorMessage = "API kotası aşıldı (429). Lütfen 'Hızlı Mod'u deneyin.";

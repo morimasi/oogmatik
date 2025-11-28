@@ -258,8 +258,7 @@ export const generateAttentionFocusFromAI = async (options: GeneratorOptions): P
     return generateWithSchema(prompt, schema) as Promise<AttentionFocusData[]>;
 };
 
-// Re-export placeholders or other generators if they were lost, 
-// to prevent "export not found" errors if they are referenced elsewhere.
+// Re-export placeholders to prevent errors
 export const generateReadingFlowFromAI = async (o: GeneratorOptions): Promise<ReadingFlowData[]> => [];
 export const generateLetterDiscriminationFromAI = async (o: GeneratorOptions): Promise<LetterDiscriminationData[]> => [];
 export const generateRapidNamingFromAI = async (o: GeneratorOptions): Promise<RapidNamingData[]> => [];

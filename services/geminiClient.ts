@@ -18,12 +18,18 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Sunucu Hatası (Raw):", errorText);
+            
+            let errorMessage = `API hatası: ${response.status}`;
             try {
-                const errorData = await response.json();
-                throw new Error(`API hatası: ${response.status} - ${errorData.error || 'Bilinmeyen API hatası'}`);
+                const errorJson = JSON.parse(errorText);
+                if (errorJson.error) errorMessage += ` - ${errorJson.error}`;
             } catch (e) {
-                 throw new Error(`API hatası: ${response.status} - Sunucudan beklenmedik bir yanıt alındı. Lütfen internet bağlantınızı kontrol edin.`);
+                // Not JSON, likely an HTML error page from Vercel or network issue
+                errorMessage += ` - Sunucudan beklenmedik bir yanıt alındı. Detay: ${errorText.substring(0, 100)}...`;
             }
+            throw new Error(errorMessage);
         }
         
         try {
