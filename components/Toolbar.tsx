@@ -38,13 +38,14 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
         
         {/* Settings Group - Wraps on small screens */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+             {/* Updated Scale Slider */}
              <CompactSlider 
                 icon="fa-magnifying-glass" 
-                title="Yakınlaştırma" 
-                min={8} max={32} 
-                value={settings.fontSize} 
-                onChange={(v: number) => onSettingsChange({...settings, fontSize: v})}
-                displayValue={`${Math.round(settings.fontSize / 16 * 100)}%`}
+                title="Ölçek / Zoom" 
+                min={0.5} max={1.5} step={0.1}
+                value={settings.scale} 
+                onChange={(v: number) => onSettingsChange({...settings, scale: v})}
+                displayValue={`${Math.round(settings.scale * 100)}%`}
              />
              
              <div className="h-3 w-px bg-zinc-300 dark:bg-zinc-700 hidden sm:block"></div>

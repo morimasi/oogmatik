@@ -41,6 +41,14 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none'
     } as React.CSSProperties;
 
+    // Style for scaling the content inside the A4 page
+    const scalerStyle: React.CSSProperties = {
+        transform: `scale(${settings.scale})`,
+        transformOrigin: 'top center',
+        width: `${100 / settings.scale}%`, // Increases width so when scaled down it fills the A4 width
+        marginBottom: `${(1 - settings.scale) * 100}%` // Optional: Helps spacing in some views
+    };
+
     const outerGridStyle = {
         display: 'grid',
         gridTemplateColumns: `repeat(${outerCols}, 1fr)`,
@@ -61,7 +69,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                 }}
             >
                 <div className="h-full flex flex-col justify-between">
-                    <div className="flex-1 w-full">
+                    {/* The Scaler Wrapper */}
+                    <div className="flex-1 w-full" style={scalerStyle}>
                         
                         {/* THE OUTER GRID: Positions the distinct generated activities */}
                         <div style={outerGridStyle}>
