@@ -3,8 +3,8 @@ import React from 'react';
 import { 
     MathPuzzleData, NumberPatternData, OddOneOutData, FutoshikiData, NumberPyramidData,
     NumberCapsuleData, OddEvenSudokuData, RomanNumeralStarHuntData, RoundingConnectData, ArithmeticConnectData, RomanNumeralMultiplicationData,
-    KendokuData, OperationSquareFillInData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
-    LogicGridPuzzleData, MultiplicationWheelData, ShapeNumberPatternData, ShapeCountingData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData,
+    KendokuData, OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
+    LogicGridPuzzleData, ShapeNumberPatternData, ShapeCountingData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData,
     BasicOperationsData, RealLifeProblemData, ShapeType
 } from '../../types';
 import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, PedagogicalHeader } from './common';
@@ -12,10 +12,10 @@ import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, Pedagog
 export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        {/* Updated to 5 columns for A4 fit */}
-        <div className="grid grid-cols-5 gap-3 mt-4">
+        {/* Updated to use dynamic-grid class which maps to toolbar settings */}
+        <div className="dynamic-grid mt-4">
             {data.operations.map((op, index) => (
-                <div key={index} className="p-3 bg-white dark:bg-zinc-700/50 rounded-lg border-2 border-zinc-300 dark:border-zinc-600 shadow-sm flex flex-col items-end justify-center text-xl font-mono font-bold break-inside-avoid relative overflow-hidden">
+                <div key={index} className="p-3 bg-zinc-50 border-2 border-zinc-800 rounded-lg shadow-sm flex flex-col items-end justify-center text-xl font-mono font-bold break-inside-avoid relative overflow-hidden">
                     {/* Dikey İşlem Formatı */}
                     <div className="tracking-wide mr-2">{op.num1}</div>
                     
@@ -31,10 +31,10 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
                     )}
                     
                     {/* İşlem Çizgisi */}
-                    <div className="w-full border-b-2 border-zinc-800 dark:border-zinc-200 my-1"></div>
+                    <div className="w-full border-b-2 border-black my-1"></div>
                     
                     {/* Sonuç Alanı */}
-                    <div className="h-8 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded border border-dashed border-zinc-300"></div>
+                    <div className="h-8 w-full bg-white rounded border border-dashed border-zinc-400"></div>
                     
                     {/* Kalanlı Bölme Alanı */}
                     {op.remainder !== undefined && (
@@ -52,18 +52,19 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
 export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        {/* Using dynamic-grid here might be too small if columns > 2, so we cap it or use block for large problems */}
         <div className="space-y-10 max-w-6xl mx-auto">
             {data.problems.map((problem, index) => (
-                <div key={index} className="bg-white dark:bg-zinc-700/50 rounded-3xl border-2 border-zinc-300 dark:border-zinc-600 shadow-md break-inside-avoid overflow-hidden">
+                <div key={index} className="bg-white rounded-3xl border-2 border-zinc-300 shadow-md break-inside-avoid overflow-hidden">
                     
                     {/* SORU BAŞLIĞI VE METNİ */}
-                    <div className="bg-zinc-50 dark:bg-zinc-800/50 p-6 border-b-2 border-zinc-200 dark:border-zinc-600 flex gap-6 items-start">
+                    <div className="bg-zinc-50 p-6 border-b-2 border-zinc-200 flex gap-6 items-start">
                         <div className="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-2xl shadow-lg transform -rotate-3">
                             {index + 1}
                         </div>
                         <div className="flex-1">
                             <h4 className="font-bold text-zinc-400 text-xs uppercase tracking-widest mb-2">Problem</h4>
-                            <p className="text-xl font-medium leading-relaxed text-zinc-800 dark:text-zinc-100 font-dyslexic">
+                            <p className="text-xl font-medium leading-relaxed text-zinc-800 font-dyslexic">
                                 {problem.text}
                             </p>
                         </div>
@@ -75,64 +76,58 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                     </div>
 
                     {/* PROBLEM ÇÖZME STRATEJİSİ ALANI (4'lü Matris) */}
-                    <div className="grid grid-cols-2 divide-x-2 divide-zinc-200 dark:divide-zinc-600 border-b-2 border-zinc-200 dark:border-zinc-600">
+                    <div className="grid grid-cols-2 divide-x-2 divide-zinc-200 border-b-2 border-zinc-200">
                         
                         {/* ADIM 1: ANLAMA */}
-                        <div className="p-4 min-h-[180px]">
-                            <div className="flex items-center gap-2 mb-3 text-emerald-600 dark:text-emerald-400">
+                        <div className="p-4 min-h-[150px]">
+                            <div className="flex items-center gap-2 mb-3 text-emerald-600">
                                 <i className="fa-solid fa-magnifying-glass-chart text-lg"></i>
                                 <h5 className="font-bold text-sm uppercase">1. Problemi Anlama</h5>
                             </div>
                             <div className="space-y-4">
                                 <div>
                                     <span className="text-xs font-bold text-zinc-400 block mb-1">Verilenler:</span>
-                                    <div className="w-full border-b border-zinc-300 dark:border-zinc-500 border-dashed h-6"></div>
-                                    <div className="w-full border-b border-zinc-300 dark:border-zinc-500 border-dashed h-6 mt-2"></div>
-                                </div>
-                                <div>
-                                    <span className="text-xs font-bold text-zinc-400 block mb-1">İstenen:</span>
-                                    <div className="w-full border-b border-zinc-300 dark:border-zinc-500 border-dashed h-6"></div>
+                                    <div className="w-full border-b border-zinc-300 border-dashed h-6"></div>
+                                    <div className="w-full border-b border-zinc-300 border-dashed h-6 mt-2"></div>
                                 </div>
                             </div>
                         </div>
 
                         {/* ADIM 2: PLANLAMA */}
-                        <div className="p-4 min-h-[180px]">
-                            <div className="flex items-center gap-2 mb-3 text-amber-600 dark:text-amber-400">
+                        <div className="p-4 min-h-[150px]">
+                            <div className="flex items-center gap-2 mb-3 text-amber-600">
                                 <i className="fa-solid fa-pencil-ruler text-lg"></i>
-                                <h5 className="font-bold text-sm uppercase">2. Plan Yapma (Şekil Çiz)</h5>
+                                <h5 className="font-bold text-sm uppercase">2. Plan Yapma</h5>
                             </div>
-                            <div className="w-full h-32 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-600 flex items-center justify-center">
+                            <div className="w-full h-24 bg-zinc-50 rounded-lg border border-zinc-200 flex items-center justify-center">
                                 <span className="text-xs text-zinc-300 font-medium italic">Şekil veya şema alanı</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 divide-x-2 divide-zinc-200 dark:divide-zinc-600">
+                    <div className="grid grid-cols-2 divide-x-2 divide-zinc-200">
                         
                         {/* ADIM 3: UYGULAMA */}
-                        <div className="p-4 min-h-[180px]">
-                            <div className="flex items-center gap-2 mb-3 text-indigo-600 dark:text-indigo-400">
+                        <div className="p-4 min-h-[150px]">
+                            <div className="flex items-center gap-2 mb-3 text-indigo-600">
                                 <i className="fa-solid fa-calculator text-lg"></i>
                                 <h5 className="font-bold text-sm uppercase">3. Planı Uygulama</h5>
                             </div>
-                            <div className="w-full h-full bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] opacity-50 min-h-[120px] border border-zinc-100 rounded"></div>
+                            <div className="w-full h-full min-h-[100px] border border-zinc-100 rounded"></div>
                         </div>
 
                         {/* ADIM 4: KONTROL */}
-                        <div className="p-4 min-h-[180px] bg-zinc-50/50 dark:bg-zinc-800/30 flex flex-col justify-between">
+                        <div className="p-4 min-h-[150px] bg-zinc-50/50 flex flex-col justify-between">
                             <div>
-                                <div className="flex items-center gap-2 mb-3 text-rose-600 dark:text-rose-400">
+                                <div className="flex items-center gap-2 mb-3 text-rose-600">
                                     <i className="fa-solid fa-clipboard-check text-lg"></i>
-                                    <h5 className="font-bold text-sm uppercase">4. Değerlendirme</h5>
+                                    <h5 className="font-bold text-sm uppercase">4. Sonuç</h5>
                                 </div>
-                                <p className="text-xs text-zinc-500 mb-2">Sonucun mantıklı mı? Sağlamasını yap.</p>
-                                <div className="w-full border-b border-zinc-300 dark:border-zinc-500 border-dashed h-8"></div>
                             </div>
                             
-                            <div className="mt-4 pt-4 border-t-2 border-zinc-200 dark:border-zinc-600 flex items-center justify-between">
-                                <span className="font-black text-lg text-zinc-800 dark:text-zinc-100">SONUÇ:</span>
-                                <div className="w-24 h-10 border-2 border-zinc-800 dark:border-zinc-200 rounded bg-white dark:bg-zinc-700"></div>
+                            <div className="mt-4 pt-4 border-t-2 border-zinc-200 flex items-center justify-between">
+                                <span className="font-black text-lg text-zinc-800">SONUÇ:</span>
+                                <div className="w-24 h-10 border-2 border-zinc-800 rounded bg-white"></div>
                             </div>
                         </div>
                     </div>
@@ -140,31 +135,19 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                 </div>
             ))}
         </div>
-        
-        {/* Answer Key (Upside down at bottom) */}
-        <div className="mt-16 pt-6 border-t-2 border-zinc-200 dark:border-zinc-700 print:block hidden">
-            <p className="text-xs font-bold text-zinc-400 uppercase mb-2 text-center">Cevap Anahtarı</p>
-            <div className="flex justify-center gap-6 flex-wrap transform rotate-180 opacity-60">
-                {data.problems.map((p, i) => (
-                    <div key={i} className="text-xs border border-zinc-300 px-3 py-1 rounded bg-zinc-50">
-                        <strong>{i+1}.</strong> {p.solution}
-                    </div>
-                ))}
-            </div>
-        </div>
     </div>
 );
 
 export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-lg border flex flex-col" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
+                <div key={index} className="p-4 bg-white rounded-lg border-2 flex flex-col break-inside-avoid" style={{borderColor: 'var(--worksheet-border-color)'}}>
                     {(puzzle.objects && puzzle.objects.length > 0) && (
                         <div className="flex justify-center gap-4 mb-4 border-b pb-2">
                             {(puzzle.objects || []).map(obj => (
-                                <div key={obj.name} className="flex flex-col items-center text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                                <div key={obj.name} className="flex flex-col items-center text-xs font-semibold text-zinc-600">
                                     <ImageDisplay base64={obj.imageBase64} description={obj.name} className="w-12 h-12" />
                                     <span>{obj.name}</span>
                                 </div>
@@ -172,7 +155,7 @@ export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) =>
                         </div>
                     )}
                     <p className="font-semibold text-2xl text-center mb-3 flex-grow">{puzzle.problem}</p>
-                    <p className="text-sm text-center text-zinc-500 dark:text-zinc-400 mb-4">{puzzle.question}</p>
+                    <p className="text-sm text-center text-zinc-500 mb-4">{puzzle.question}</p>
                     <div className="flex items-center justify-center mt-auto">
                         <span className="font-bold text-lg">Cevap:</span>
                         <div className="w-24 h-10 ml-2 border-b-2 border-dotted border-zinc-500"></div>
@@ -186,11 +169,11 @@ export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) =>
 export const NumberPatternSheet: React.FC<{ data: NumberPatternData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || "Aşağıdaki sayı dizilerindeki kuralı bul ve '?' yerine gelmesi gereken sayıyı yaz."} note={data.pedagogicalNote} />
-        <div className="space-y-6">
+        <div className="dynamic-grid">
             {(data.patterns || []).map((pattern, index) => (
-                <div key={index} className="flex items-center justify-center gap-4 p-4 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm">
+                <div key={index} className="flex items-center justify-center gap-4 p-4 bg-zinc-50 rounded-lg shadow-sm border border-zinc-200">
                     <p className="font-mono text-xl tracking-wider">{pattern.sequence}</p>
-                    <div className="w-20 h-10 border-2 border-zinc-300 rounded-md"></div>
+                    <div className="w-20 h-10 border-2 border-zinc-300 rounded-md bg-white"></div>
                 </div>
             ))}
         </div>
@@ -198,10 +181,13 @@ export const NumberPatternSheet: React.FC<{ data: NumberPatternData }> = ({ data
 );
 
 export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
+    // This component renders an SVG, so dynamic-grid might break layout if columns are small.
+    // We'll keep it as flex-col for now unless grid is explicitly safe.
+    
     const renderFutoshiki = (puzzle: any) => {
         const size = puzzle.size;
         const cellSize = 50;
-        const gap = 15; // Space for inequalities
+        const gap = 15; 
         const totalSize = size * cellSize + (size - 1) * gap;
         const isLengthVariant = 'units' in puzzle;
         
@@ -231,17 +217,14 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
                     const c = Math.min(con.col1, con.col2);
                     
                     if (isRow) {
-                        // Horizontal constraint
                         const x = c * (cellSize + gap) + cellSize + 10 + gap/2;
                         const y = r * (cellSize + gap) + 10 + cellSize/2;
                         return <text key={i} x={x} y={y + 5} textAnchor="middle" className="text-xl font-bold fill-zinc-600">{con.symbol}</text>;
                     } else {
-                         // Vertical constraint (assuming col1=col2)
                          const cr = Math.min(con.row1, con.row2);
                          const cc = con.col1;
                          const x = cc * (cellSize + gap) + 10 + cellSize/2;
                          const y = cr * (cellSize + gap) + cellSize + 10 + gap/2;
-                         // Rotate symbol for vertical? > becomes v, < becomes ^
                          const sym = con.symbol === '>' ? 'v' : '^';
                          return <text key={i} x={x} y={y + 5} textAnchor="middle" className="text-xl font-bold fill-zinc-600">{sym}</text>;
                     }
@@ -253,9 +236,9 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col gap-12 items-center">
                 {(data.puzzles || []).map((puzzle, index) => (
-                    <div key={index}>
+                    <div key={index} className="break-inside-avoid">
                         {renderFutoshiki(puzzle)}
                     </div>
                 ))}
@@ -268,13 +251,11 @@ export const NumberPyramidSheet: React.FC<{ data: NumberPyramidData }> = ({ data
     return (
         <div>
              <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 justify-items-center">
+            <div className="dynamic-grid justify-items-center">
                 {(data.pyramids || []).map((pyramid: any, index: number) => (
-                    <div key={index} className="flex flex-col items-center">
+                    <div key={index} className="flex flex-col items-center break-inside-avoid">
                         <h4 className="font-semibold mb-4">{pyramid.title}</h4>
                         <div className="flex flex-col items-center gap-1">
-                            {/* Reverse rows to render top-down if data is bottom-up, or ensure data is top-down. 
-                                Offline generator returns top-down visual order. */}
                             {pyramid.rows.map((row: (number|null)[], rIndex: number) => (
                                 <div key={rIndex} className="flex gap-1">
                                     {row.map((cell: any, cIndex: any) => (
@@ -292,86 +273,14 @@ export const NumberPyramidSheet: React.FC<{ data: NumberPyramidData }> = ({ data
     );
 };
 
-export const KendokuSheet: React.FC<{ data: KendokuData }> = ({ data }) => {
-    return (
-        <div>
-             <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-             <div className="flex flex-wrap justify-center gap-8">
-                {(data.puzzles || []).map((puzzle, index) => (
-                    <CagedGridSvg key={index} size={puzzle.size} cages={puzzle.cages} gridData={puzzle.grid} />
-                ))}
-            </div>
-        </div>
-    );
-};
-
-export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData }> = ({ data }) => {
-    const puzzle = data.puzzles?.[0]; // Get the puzzle once safely.
-    if (!puzzle) {
-        return (
-            <div>
-                <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-                <p className="text-center text-zinc-500">Sudoku verisi yüklenemedi.</p>
-            </div>
-        );
-    }
-
-    return (
-        <div>
-            <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-            <div className="flex justify-center">
-                <div className="grid grid-cols-6 border-4 border-zinc-900 dark:border-zinc-400">
-                    {/* Now puzzle is guaranteed to exist */}
-                    {(puzzle.grid || []).map((row, rIndex) => (
-                        (row || []).map((cell, cIndex) => {
-                            const isConstrained = puzzle.constrainedCells?.some(c => c.row === rIndex && c.col === cIndex);
-                            const isShaded = puzzle.shadedCells?.some(c => c.row === rIndex && c.col === cIndex);
-                            
-                            // 2x3 blocks for 6x6
-                            const borderRight = (cIndex + 1) % 3 === 0 && cIndex !== 5 ? 'border-r-4 border-zinc-900' : 'border-r border-zinc-400';
-                            const borderBottom = (rIndex + 1) % 2 === 0 && rIndex !== 5 ? 'border-b-4 border-zinc-900' : 'border-b border-zinc-400';
-                            
-                            return (
-                                <div key={`${rIndex}-${cIndex}`} className={`w-12 h-12 flex items-center justify-center text-2xl font-bold ${borderRight} ${borderBottom} ${isConstrained || isShaded ? 'bg-zinc-300 dark:bg-zinc-600' : 'bg-white'}`}>
-                                    {cell}
-                                </div>
-                            )
-                        })
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export const OperationSquareSheet: React.FC<{ data: OperationSquareFillInData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-        <div className="flex flex-col gap-8 items-center">
-             {data.puzzles.map((puzzle, idx) => (
-                 <div key={idx} className="flex flex-col items-center gap-4">
-                    <GridComponent grid={puzzle.grid} cellClassName="w-14 h-14 text-xl font-bold" />
-                    {'numbersToUse' in puzzle && (
-                        <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-300">
-                            <span className="font-bold mr-2">Kullanılacak Sayılar:</span>
-                            {(puzzle as OperationSquareFillInData['puzzles'][0]).numbersToUse.join(', ')}
-                        </div>
-                    )}
-                 </div>
-             ))}
-        </div>
-    </div>
-);
-
 export const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="relative bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200">
+                <div key={index} className="relative bg-white p-6 rounded-xl border-2 border-zinc-200 break-inside-avoid">
                     <h4 className="text-center font-bold mb-4">{puzzle.title}</h4>
                     <div className="grid grid-cols-4 gap-2 mx-auto w-max relative">
-                        {/* Draw capsules using absolute positioning or clever borders? Let's use svg overlay or simplistic borders */}
                         {(puzzle.grid || []).map((row, r) => 
                             row.map((cell, c) => (
                                 <div key={`${r}-${c}`} className="w-12 h-12 border border-zinc-300 flex items-center justify-center text-xl">
@@ -379,14 +288,11 @@ export const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data
                                 </div>
                             ))
                         )}
-                        
-                        {/* Overlay Capsules */}
                         <svg className="absolute inset-0 w-full h-full pointer-events-none">
                             {puzzle.capsules.map((cap, i) => {
-                                // Very basic visual approximation: connecting cells with lines and label
                                 const first = cap.cells[0];
                                 const last = cap.cells[cap.cells.length-1];
-                                const x1 = first.col * 56 + 24; // 48px + gap
+                                const x1 = first.col * 56 + 24; 
                                 const y1 = first.row * 56 + 24;
                                 const x2 = last.col * 56 + 24;
                                 const y2 = last.row * 56 + 24;
@@ -405,6 +311,36 @@ export const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data
         </div>
     </div>
 );
+
+export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData }> = ({ data }) => {
+    const puzzle = data.puzzles?.[0]; 
+    if (!puzzle) return <div>Veri yok</div>;
+
+    return (
+        <div>
+            <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
+            <div className="flex justify-center">
+                <div className="grid grid-cols-6 border-4 border-zinc-900">
+                    {(puzzle.grid || []).map((row, rIndex) => (
+                        (row || []).map((cell, cIndex) => {
+                            const isConstrained = puzzle.constrainedCells?.some(c => c.row === rIndex && c.col === cIndex);
+                            const isShaded = puzzle.shadedCells?.some(c => c.row === rIndex && c.col === cIndex);
+                            
+                            const borderRight = (cIndex + 1) % 3 === 0 && cIndex !== 5 ? 'border-r-4 border-zinc-900' : 'border-r border-zinc-400';
+                            const borderBottom = (rIndex + 1) % 2 === 0 && rIndex !== 5 ? 'border-b-4 border-zinc-900' : 'border-b border-zinc-400';
+                            
+                            return (
+                                <div key={`${rIndex}-${cIndex}`} className={`w-12 h-12 flex items-center justify-center text-2xl font-bold ${borderRight} ${borderBottom} ${isConstrained || isShaded ? 'bg-zinc-300' : 'bg-white'}`}>
+                                    {cell}
+                                </div>
+                            )
+                        })
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export const RomanNumeralStarHuntSheet: React.FC<{ data: RomanNumeralStarHuntData }> = ({ data }) => (
     <div>
@@ -443,9 +379,9 @@ export const RoundingConnectSheet: React.FC<{ data: RoundingConnectData | Arithm
 export const RomanNumeralMultiplicationSheet: React.FC<{ data: RomanNumeralMultiplicationData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="flex justify-center">
+                <div key={index} className="flex justify-center break-inside-avoid">
                     <table className="border-collapse border-2 border-zinc-800">
                         <tbody>
                             <tr>
@@ -471,12 +407,44 @@ export const RomanNumeralMultiplicationSheet: React.FC<{ data: RomanNumeralMulti
     </div>
 );
 
+export const KendokuSheet: React.FC<{ data: KendokuData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <div className="dynamic-grid justify-items-center">
+            {(data.puzzles || []).map((puzzle, index) => (
+                <div key={index} className="break-inside-avoid">
+                    <CagedGridSvg size={puzzle.size} cages={puzzle.cages} gridData={puzzle.grid} />
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+export const OperationSquareSheet: React.FC<{ data: OperationSquareFillInData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
+        <div className="dynamic-grid justify-items-center">
+            {(data.puzzles || []).map((puzzle, index) => (
+                <div key={index} className="p-4 bg-white rounded-lg border-2 border-zinc-200 break-inside-avoid">
+                    <GridComponent grid={puzzle.grid} cellClassName="w-12 h-12 text-xl font-bold" />
+                    <div className="mt-4 text-center p-2 bg-zinc-100 rounded">
+                        <span className="font-bold text-sm text-zinc-500 block mb-1">Kullanılacak Sayılar:</span>
+                        <div className="flex gap-2 justify-center">
+                            {puzzle.numbersToUse.map(n => <span key={n} className="px-2 py-1 bg-white border rounded font-bold">{n}</span>)}
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
 export const MultiplicationWheelSheet: React.FC<{ data: MultiplicationWheelData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
+        <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="relative w-64 h-64">
+                <div key={index} className="relative w-64 h-64 break-inside-avoid">
                     {/* Outer Circle */}
                     <div className="absolute inset-0 rounded-full border-4 border-zinc-300 bg-white flex items-center justify-center">
                         {/* Inner Circle */}
@@ -517,9 +485,9 @@ export const MultiplicationWheelSheet: React.FC<{ data: MultiplicationWheelData 
 export const TargetNumberSheet: React.FC<{ data: TargetNumberData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-300 shadow-sm flex flex-col items-center">
+                <div key={index} className="p-6 bg-white rounded-xl border-2 border-zinc-300 shadow-sm flex flex-col items-center break-inside-avoid">
                     <div className="w-20 h-20 rounded-full bg-indigo-500 text-white flex items-center justify-center text-3xl font-bold mb-4 border-4 border-indigo-200">
                         {puzzle.target}
                     </div>
@@ -540,7 +508,7 @@ export const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) 
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="flex flex-col items-center gap-8">
             {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="flex flex-col items-center gap-4">
+                <div key={index} className="flex flex-col items-center gap-4 break-inside-avoid">
                     <div className="grid grid-cols-4 border-4 border-zinc-800">
                         {(puzzle.grid || []).map((row, r) => 
                             row.map((shape, c) => (
@@ -563,9 +531,9 @@ export const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) 
 export const VisualNumberPatternSheet: React.FC<{ data: VisualNumberPatternData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-        <div className="space-y-8">
+        <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border shadow-sm flex items-center justify-between">
+                <div key={index} className="p-4 bg-white rounded-xl border shadow-sm flex items-center justify-between break-inside-avoid">
                     <div className="flex gap-4">
                         {puzzle.items.map((item, i) => (
                             <div key={i} className="flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 border-zinc-300 font-bold text-xl shadow-inner" 
@@ -594,12 +562,12 @@ export const VisualNumberPatternSheet: React.FC<{ data: VisualNumberPatternData 
 export const OddOneOutSheet: React.FC<{ data: OddOneOutData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
-        <div className="space-y-6">
+        <div className="dynamic-grid">
             {data.groups.map((group, index) => (
-                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-600">
+                <div key={index} className="p-4 bg-white rounded-xl shadow-sm border border-zinc-200 break-inside-avoid">
                     <div className="flex flex-wrap justify-around gap-4">
                         {group.words.map((word, wIndex) => (
-                            <div key={wIndex} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg font-medium cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors">
+                            <div key={wIndex} className="px-4 py-2 bg-zinc-100 rounded-lg font-medium cursor-pointer hover:bg-indigo-100 transition-colors">
                                 {word}
                             </div>
                         ))}
@@ -613,10 +581,10 @@ export const OddOneOutSheet: React.FC<{ data: OddOneOutData }> = ({ data }) => (
 export const ThematicOddOneOutSheet: React.FC<{ data: ThematicOddOneOutData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
-        <div className="mb-4 text-center font-bold text-indigo-600 dark:text-indigo-400">Tema: {data.theme}</div>
-        <div className="space-y-6">
+        <div className="mb-4 text-center font-bold text-indigo-600">Tema: {data.theme}</div>
+        <div className="dynamic-grid">
             {data.rows.map((row, index) => (
-                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-600 flex flex-wrap justify-around gap-4">
+                <div key={index} className="p-4 bg-white rounded-xl shadow-sm border border-zinc-200 flex flex-wrap justify-around gap-4 break-inside-avoid">
                     {row.words.map((word, wIndex) => (
                         <div key={wIndex} className="flex flex-col items-center gap-2 p-2 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
                             {word.imagePrompt && <ImageDisplay base64={word.imageBase64} description={word.text} className="w-20 h-20 object-contain" />}
@@ -632,24 +600,24 @@ export const ThematicOddOneOutSheet: React.FC<{ data: ThematicOddOneOutData }> =
 export const ThematicOddOneOutSentenceSheet: React.FC<{ data: ThematicOddOneOutSentenceData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-6">
+        <div className="dynamic-grid">
             {data.rows.map((row, index) => (
-                <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-600">
+                <div key={index} className="p-4 bg-white rounded-xl shadow-sm border border-zinc-200 break-inside-avoid">
                     <div className="flex flex-wrap justify-around gap-4 mb-4">
                         {row.words.map((word, wIndex) => (
-                            <div key={wIndex} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg font-medium cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors">
+                            <div key={wIndex} className="px-4 py-2 bg-zinc-100 rounded-lg font-medium cursor-pointer hover:bg-indigo-100 transition-colors">
                                 {word}
                             </div>
                         ))}
                     </div>
                     <div className="w-full border-t border-dashed border-zinc-300 pt-2">
                         <p className="text-xs text-zinc-400 mb-1">Cümle:</p>
-                        <div className="h-8 bg-zinc-50 dark:bg-zinc-900/50 rounded border-b border-zinc-300 dark:border-zinc-600"></div>
+                        <div className="h-8 bg-zinc-50 rounded border-b border-zinc-300"></div>
                     </div>
                 </div>
             ))}
         </div>
-        <div className="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-center text-indigo-800 dark:text-indigo-200 font-medium">
+        <div className="mt-6 p-4 bg-indigo-50 rounded-lg text-center text-indigo-800 font-medium break-inside-avoid">
             {data.sentencePrompt}
         </div>
     </div>
@@ -660,16 +628,16 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {data.columns.map((col, index) => (
-                <div key={index} className="flex flex-col gap-3 p-4 bg-white dark:bg-zinc-700/50 rounded-xl border border-zinc-200 dark:border-zinc-600">
+                <div key={index} className="flex flex-col gap-3 p-4 bg-white rounded-xl border border-zinc-200 break-inside-avoid">
                     {col.words.map((word, wIndex) => (
-                        <div key={wIndex} className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded text-center font-medium cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors">
+                        <div key={wIndex} className="p-2 bg-zinc-100 rounded text-center font-medium cursor-pointer hover:bg-rose-100 transition-colors">
                             {word}
                         </div>
                     ))}
                 </div>
             ))}
         </div>
-        <div className="p-4 border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 dark:bg-zinc-800/30">
+        <div className="p-4 border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 break-inside-avoid">
             <p className="text-center text-zinc-500 mb-4">{data.sentencePrompt}</p>
             <div className="space-y-4">
                 {Array.from({length: data.columns.length}).map((_, i) => (
@@ -718,7 +686,7 @@ export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ 
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
             
             <div className="flex justify-center mb-6">
-                <div className="px-6 py-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-full text-indigo-800 dark:text-indigo-200 font-bold text-xl border border-indigo-200">
+                <div className="px-6 py-3 bg-indigo-100 rounded-full text-indigo-800 font-bold text-xl border border-indigo-200">
                     Hedef İşaret: <span className="text-4xl ml-2 align-middle">{data.punctuationMark}</span>
                 </div>
             </div>
@@ -735,17 +703,17 @@ export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ 
 
                 {/* Right: The Question List */}
                 <div className="w-full md:w-1/2">
-                    <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
-                        <div className="bg-zinc-50 dark:bg-zinc-900 px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
-                            <h4 className="font-bold text-zinc-700 dark:text-zinc-300 uppercase text-sm tracking-wider">Kurallar Listesi</h4>
+                    <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+                        <div className="bg-zinc-50 px-4 py-3 border-b border-zinc-200">
+                            <h4 className="font-bold text-zinc-700 uppercase text-sm tracking-wider">Kurallar Listesi</h4>
                         </div>
-                        <ul className="divide-y divide-zinc-100 dark:divide-zinc-700 max-h-[500px] overflow-y-auto">
+                        <ul className="divide-y divide-zinc-100 max-h-[500px] overflow-y-auto">
                             {data.rules.map((rule) => (
-                                <li key={rule.id} className="p-3 flex gap-3 items-start hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-xs flex items-center justify-center mt-0.5">
+                                <li key={rule.id} className="p-3 flex gap-3 items-start hover:bg-zinc-50 transition-colors">
+                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center mt-0.5">
                                         {rule.id}
                                     </span>
-                                    <span className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">{rule.text}</span>
+                                    <span className="text-sm text-zinc-600 leading-relaxed">{rule.text}</span>
                                 </li>
                             ))}
                         </ul>
@@ -762,13 +730,13 @@ export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumbe
         <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="flex-1 w-full space-y-4">
                 {data.clues.map((clue, index) => (
-                    <div key={index} className="flex items-center gap-4 p-3 bg-white dark:bg-zinc-700/50 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-600">
-                        <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-bold text-zinc-500">{clue.id}</div>
-                        <p className="text-zinc-700 dark:text-zinc-200">{clue.text}</p>
+                    <div key={index} className="flex items-center gap-4 p-3 bg-white rounded-lg shadow-sm border border-zinc-200">
+                        <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-500">{clue.id}</div>
+                        <p className="text-zinc-700">{clue.text}</p>
                     </div>
                 ))}
             </div>
-            <div className="w-full md:w-1/3 bg-zinc-800 p-6 rounded-3xl shadow-xl text-center">
+            <div className="w-full md:w-1/3 bg-zinc-800 p-6 rounded-3xl shadow-xl text-center break-inside-avoid">
                 <div className="bg-white w-full h-16 mb-6 rounded-lg flex items-center justify-center text-3xl font-mono tracking-widest border-4 border-zinc-300">
                     {/* Placeholder for digits */}
                     _______
@@ -791,22 +759,22 @@ export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumbe
 export const ShapeNumberPatternSheet: React.FC<{ data: ShapeNumberPatternData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-8">
+        <div className="dynamic-grid space-y-8">
             {data.patterns.map((pattern, pIndex) => (
-                <div key={pIndex} className="flex flex-wrap justify-center gap-8 md:gap-16 p-6 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-600">
+                <div key={pIndex} className="flex flex-wrap justify-center gap-8 md:gap-16 p-6 bg-white rounded-xl shadow-sm border border-zinc-200 break-inside-avoid">
                     {pattern.shapes.map((shape, sIndex) => {
                         if (shape.type === 'triangle') {
                             return (
                                 <div key={sIndex} className="relative w-32 h-28">
                                     <svg viewBox="0 0 100 86" className="w-full h-full overflow-visible">
-                                        <polygon points="50,0 100,86 0,86" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-800 dark:text-zinc-200" />
-                                        <circle cx="15" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                        <polygon points="50,0 100,86 0,86" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-800" />
+                                        <circle cx="15" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800" />
                                         <text x="15" y="86" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{shape.numbers[0]}</text>
                                         
-                                        <circle cx="85" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                        <circle cx="85" cy="86" r="12" fill="white" stroke="currentColor" className="text-zinc-800" />
                                         <text x="85" y="86" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{shape.numbers[1]}</text>
                                         
-                                        <circle cx="50" cy="10" r="12" fill="white" stroke="currentColor" className="text-zinc-800 dark:text-zinc-200" />
+                                        <circle cx="50" cy="10" r="12" fill="white" stroke="currentColor" className="text-zinc-800" />
                                         <text x="50" y="10" dominantBaseline="central" textAnchor="middle" className="text-xs font-bold">{shape.numbers[2]}</text>
                                     </svg>
                                 </div>
@@ -825,7 +793,7 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex flex-col items-center gap-8">
             {data.figures.map((fig, index) => (
-                <div key={index} className="p-6 bg-white rounded-xl shadow-sm border-2 border-zinc-200 flex flex-col items-center">
+                <div key={index} className="p-6 bg-white rounded-xl shadow-sm border-2 border-zinc-200 flex flex-col items-center break-inside-avoid">
                     <svg viewBox="0 0 100 100" className="w-64 h-64 mb-6">
                         {fig.svgPaths.map((path, pIndex) => (
                             <path key={pIndex} d={path.d} fill={path.fill} stroke={path.stroke || 'black'} strokeWidth="1" />
@@ -847,13 +815,13 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-1 space-y-6">
-                <div className="bg-amber-50 dark:bg-amber-900/20 p-5 rounded-xl border-l-4 border-amber-400">
-                    <h4 className="font-bold text-amber-800 dark:text-amber-200 mb-3 uppercase text-sm tracking-wider">İpuçları</h4>
+                <div className="bg-amber-50 p-5 rounded-xl border-l-4 border-amber-400">
+                    <h4 className="font-bold text-amber-800 mb-3 uppercase text-sm tracking-wider">İpuçları</h4>
                     <ul className="space-y-2 text-sm">
                         {data.clues.map((clue, i) => (
                             <li key={i} className="flex gap-2">
                                 <span className="font-bold text-amber-600">{i+1}.</span>
-                                <span className="text-zinc-700 dark:text-zinc-300">{clue}</span>
+                                <span className="text-zinc-700">{clue}</span>
                             </li>
                         ))}
                     </ul>
@@ -865,7 +833,7 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
                             <h5 className="font-bold text-xs uppercase text-zinc-400 mb-2">{cat.title}</h5>
                             <div className="flex gap-2 flex-wrap">
                                 {cat.items.map((item, j) => (
-                                    <div key={j} className="flex items-center gap-1 bg-white dark:bg-zinc-800 px-2 py-1 rounded border shadow-sm text-xs">
+                                    <div key={j} className="flex items-center gap-1 bg-white px-2 py-1 rounded border shadow-sm text-xs">
                                         {item.imagePrompt && <div className="w-4 h-4 bg-zinc-200 rounded-full overflow-hidden"><ImageDisplay base64={item.imageBase64} className="w-full h-full object-cover" /></div>}
                                         <span>{item.name}</span>
                                     </div>
@@ -877,13 +845,13 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
             </div>
 
             <div className="lg:col-span-2 overflow-x-auto">
-                <table className="border-collapse w-full bg-white dark:bg-zinc-800 text-sm">
+                <table className="border-collapse w-full bg-white text-sm">
                     <thead>
                         <tr>
-                            <th className="border p-2 bg-zinc-100 dark:bg-zinc-900"></th>
+                            <th className="border p-2 bg-zinc-100"></th>
                             {data.categories.map((cat, i) => 
                                 cat.items.map((item, j) => (
-                                    <th key={`${i}-${j}`} className="border p-2 bg-zinc-50 dark:bg-zinc-900 min-w-[30px] writing-vertical text-xs rotate-180 h-24">
+                                    <th key={`${i}-${j}`} className="border p-2 bg-zinc-50 min-w-[30px] writing-vertical text-xs rotate-180 h-24">
                                         <span className="block transform rotate-90 whitespace-nowrap">{item.name}</span>
                                     </th>
                                 ))
@@ -893,7 +861,7 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
                     <tbody>
                         {data.people.map((person, pIdx) => (
                             <tr key={pIdx}>
-                                <td className="border p-2 font-bold bg-zinc-50 dark:bg-zinc-900">{person}</td>
+                                <td className="border p-2 font-bold bg-zinc-50">{person}</td>
                                 {data.categories.map((cat, i) => 
                                     cat.items.map((item, j) => (
                                         <td key={`${i}-${j}`} className="border p-2 text-center hover:bg-zinc-100 cursor-pointer w-10 h-10"></td>

@@ -181,7 +181,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = getBreadcrumbs();
 
   return (
-    <main id="tour-content" ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-transparent scroll-smooth print:overflow-visible print:h-auto print:block print:w-full">
+    <main id="tour-content" ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-zinc-200 dark:bg-zinc-900 scroll-smooth print:overflow-visible print:h-auto print:block print:w-full print:bg-white">
       
       {/* Breadcrumbs */}
       <nav className="mb-4 flex items-center text-sm text-zinc-500 print:hidden" aria-label="Breadcrumb">
@@ -203,7 +203,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {currentView === 'generator' ? (
         <>
             {activityType && worksheetData && (
-                <div className="mb-6 fade-in print:hidden">
+                <div className="mb-6 fade-in print:hidden sticky top-0 z-20">
                     <Toolbar 
                         settings={styleSettings} 
                         onSettingsChange={onStyleChange} 
@@ -213,7 +213,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         onDownloadPDF={handleDownloadPDF}
                     />
                     {error && error.startsWith("Bilgi:") && (
-                        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200 rounded-lg text-sm border border-blue-200 dark:border-blue-800 flex items-center animate-pulse">
+                        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200 rounded-lg text-sm border border-blue-200 dark:border-blue-800 flex items-center animate-pulse">
                             <i className="fa-solid fa-circle-info mr-2"></i>
                             {error}
                         </div>
@@ -222,7 +222,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
             
             {isLoading && (
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full items-center justify-center">
                     <div className="text-center mb-8">
                         <p className="text-lg font-semibold text-[var(--accent-color)] animate-pulse">
                             <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>
@@ -259,7 +259,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
 
             {!isLoading && !error && !worksheetData && (
-                 <div className="flex flex-col items-center h-full relative min-h-[500px] animate-in fade-in duration-500 w-full">
+                 <div className="flex flex-col items-center h-full relative min-h-[500px] animate-in fade-in duration-500 w-full justify-center">
                     <div className="absolute inset-0 overflow-hidden -z-10">
                         <i className="fa-solid fa-lightbulb text-zinc-500/10 absolute text-8xl" style={{ top: '15%', left: '10%', animation: 'float 8s ease-in-out infinite' }}></i>
                         <i className="fa-solid fa-book-open text-zinc-500/10 absolute text-7xl" style={{ top: '60%', left: '5%', animation: 'float 12s ease-in-out infinite 2s' }}></i>
@@ -279,7 +279,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
             
             {worksheetData && (
-                <div className="fade-in printable-content-parent">
+                <div className="fade-in printable-content-parent flex justify-center">
                   <Worksheet activityType={activityType} data={worksheetData} settings={styleSettings} />
                 </div>
             )}

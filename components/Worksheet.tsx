@@ -19,34 +19,39 @@ interface WorksheetProps {
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
     if (!data || !activityType) return null;
 
+    // We define the CSS variables at the root of the worksheet container.
+    // These will cascade down to all child elements.
+    const containerStyle = {
+        '--worksheet-font-size': `${settings.fontSize}px`,
+        '--worksheet-border-color': settings.borderColor,
+        '--worksheet-border-width': `${settings.borderWidth}px`,
+        '--worksheet-margin': `${settings.margin}px`,
+        '--worksheet-gap': `${settings.gap}px`,
+        '--dynamic-cols': settings.columns,
+        '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none'
+    } as React.CSSProperties;
+
     return (
-        <div className="worksheet-container w-full" style={{
-            fontFamily: 'var(--ui-font)',
-            '--worksheet-font-size': `${settings.fontSize}px`,
-            '--worksheet-border-color': settings.borderColor,
-            '--worksheet-border-width': `${settings.borderWidth}px`,
-            '--worksheet-margin': `${settings.margin}px`,
-            '--worksheet-gap': `${settings.gap}px`,
-            '--dynamic-cols': settings.columns,
-            '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none'
-        } as React.CSSProperties}>
+        <div className="w-full flex flex-col items-center bg-transparent" style={containerStyle}>
             {data.map((sheetData, index) => (
                 <div 
                     key={index} 
-                    className="worksheet-page bg-white shadow-sm mx-auto mb-8 relative print:shadow-none print:mb-0 print:border-0 print:mx-0 print:w-full print:h-auto print:break-after-page break-after-page print:block"
+                    className="worksheet-page"
                     style={{ 
-                        padding: `${settings.margin}px`,
-                        minHeight: '297mm' /* A4 Height Visual Guide on Screen */
+                        width: '210mm',
+                        minHeight: '297mm', // Allow it to grow on screen if content overflows, but base is A4
+                        padding: `var(--worksheet-margin)`,
+                        fontSize: `var(--worksheet-font-size)`
                     }}
                 >
-                    <div className="printable-content-wrapper h-full flex flex-col justify-between">
-                        <div className="flex-1">
+                    <div className="h-full flex flex-col justify-between">
+                        <div className="flex-1 w-full">
                             <RenderSheet activityType={activityType} data={sheetData} />
                         </div>
                         
-                        {/* Footer Logo - Visible on Print */}
-                        <div className="mt-8 pt-4 border-t border-zinc-300 flex justify-between items-center text-xs text-zinc-400 print:text-black">
-                            <span className="font-bold">Bursa Disleksi AI</span>
+                        {/* Footer Logo - Visible on Print and Screen */}
+                        <div className="mt-auto pt-4 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50">
+                            <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
                             <span>Sayfa {index + 1} / {data.length}</span>
                         </div>
                     </div>
