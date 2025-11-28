@@ -124,9 +124,10 @@ export enum ActivityType {
   MAP_INSTRUCTION = 'MAP_INSTRUCTION',
   CODE_READING = 'CODE_READING',
   ATTENTION_TO_QUESTION = 'ATTENTION_TO_QUESTION',
+  ATTENTION_DEVELOPMENT = 'ATTENTION_DEVELOPMENT',
   
   // --- NEW ACTIVITY ---
-  ATTENTION_DEVELOPMENT = 'ATTENTION_DEVELOPMENT',
+  ATTENTION_FOCUS = 'ATTENTION_FOCUS',
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -349,6 +350,18 @@ export interface AttentionDevelopmentData extends BaseActivityData {
             numbers: number[];
         }[];
         options: string[]; // e.g. "5", "8", "10"
+        answer: string;
+    }[];
+}
+
+export interface AttentionFocusData extends BaseActivityData {
+    puzzles: {
+        riddle: string;
+        boxes: {
+            title?: string;
+            items: string[];
+        }[];
+        options: string[];
         answer: string;
     }[];
 }
@@ -987,7 +1000,8 @@ export type SingleWorksheetData =
   | MapInstructionData
   | CodeReadingData
   | AttentionToQuestionData
-  | AttentionDevelopmentData;
+  | AttentionDevelopmentData
+  | AttentionFocusData;
 
 export type WorksheetData = SingleWorksheetData[] | null;
 

@@ -1,7 +1,7 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 EĞİTİMSEL İÇERİK KURALLARI:
@@ -193,6 +193,69 @@ export const generateAttentionDevelopmentFromAI = async (options: GeneratorOptio
     
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<AttentionDevelopmentData[]>;
+};
+
+export const generateAttentionFocusFromAI = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    const count = itemCount || 4;
+
+    const prompt = `
+    "Dikkatini Ver" (Mantıksal Bulmaca) etkinliği. 
+    Bu etkinlikte öğrenci, verilen ipuçlarını kullanarak doğru nesneyi bulmalıdır.
+    
+    HER SORU İÇİN:
+    1. İki veya üç liste/kutu oluştur (Örn: "Meyveler", "Sebzeler" veya "Yazlık", "Kışlık" kıyafetler).
+    2. Her kutuda 4-5 öğe olsun.
+    3. Hedef bir öğe seç.
+    4. Bu hedefi tarif eden MANTIKLI ve ELEME GEREKTİREN bir bilmece yaz.
+       - Konum ipucu: "Aradığımız şey X ile aynı kutudadır."
+       - Olumsuzlama ipucu: "Y değildir", "Rengi kırmızı değildir."
+       - Özellik ipucu: "Z harfi ile başlar", "Ekşidir".
+    
+    Zorluk Seviyesi: ${difficulty}.
+    - Başlangıç: Kısa, net ipuçları.
+    - Orta/Zor: Daha dolaylı ipuçları (Örn: "Çekirdekli bir meyvenin olmadığı kutudadır.").
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet üret.
+    `;
+
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        riddle: { type: Type.STRING },
+                        boxes: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    title: { type: Type.STRING }, // e.g. "Kutu 1" or empty
+                                    items: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                },
+                                required: ['items']
+                            }
+                        },
+                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ['riddle', 'boxes', 'options', 'answer']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt']
+    };
+
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionFocusData[]>;
 };
 
 // Re-export placeholders or other generators if they were lost, 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData } from '../../types';
+import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData } from '../../types';
 import { ImageDisplay, PedagogicalHeader, Shape, GridComponent } from './common';
 
 // Helper for simple sheets
@@ -379,6 +379,54 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
                                         {String.fromCharCode(97 + oIdx)}
                                     </div>
                                     <span className="font-bold text-lg">{opt}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            {/* Answer Key Strip (For Print) */}
+            <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
+                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
+            </div>
+        </div>
+    );
+};
+
+export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ data }) => {
+    return (
+        <div>
+            <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {data.puzzles.map((puzzle, i) => (
+                    <div key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 shadow-md break-inside-avoid flex flex-col h-full relative">
+                        {/* Riddle Box */}
+                        <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg mb-4 text-center border border-amber-200 dark:border-amber-800">
+                            <p className="text-lg font-medium text-amber-900 dark:text-amber-100 font-dyslexic">{puzzle.riddle}</p>
+                        </div>
+
+                        {/* List Boxes */}
+                        <div className="flex gap-4 justify-center mb-6 flex-1 items-stretch">
+                            {puzzle.boxes.map((box, bIdx) => (
+                                <div key={bIdx} className="border-2 border-zinc-800 dark:border-zinc-300 p-3 min-w-[100px] text-center bg-white dark:bg-zinc-900 flex flex-col">
+                                    {box.title && <div className="text-xs text-zinc-500 mb-2 uppercase tracking-wider font-bold border-b pb-1">{box.title}</div>}
+                                    <ul className="flex flex-col gap-1 text-base font-bold text-zinc-800 dark:text-zinc-200">
+                                        {box.items.map((item, nIdx) => (
+                                            <li key={nIdx} className="py-1">{item}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Options */}
+                        <div className="border-t border-zinc-200 dark:border-zinc-700 pt-4 flex flex-wrap justify-center gap-4">
+                            {puzzle.options.map((opt, oIdx) => (
+                                <div key={oIdx} className="flex items-center gap-2 cursor-pointer group bg-zinc-50 dark:bg-zinc-700/50 px-3 py-1 rounded-full border border-transparent hover:border-indigo-300 transition-all">
+                                    <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-600 group-hover:bg-indigo-500 group-hover:text-white flex items-center justify-center font-bold text-xs text-zinc-600 dark:text-zinc-300 transition-colors">
+                                        {String.fromCharCode(97 + oIdx)}
+                                    </div>
+                                    <span className="font-bold text-sm">{opt}</span>
                                 </div>
                             ))}
                         </div>

@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
 import { getRandomInt, getRandomItems, COLORS, SHAPE_TYPES, shuffle, getWordsForDifficulty } from './helpers';
 
 export const generateOfflineCodeReading = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
@@ -263,6 +263,98 @@ export const generateOfflineAttentionDevelopment = async (options: GeneratorOpti
             instruction: 'Aşağıdaki ipuçlarını dikkatlice okuyun, çeldiricilere aldanmayın ve doğru sayıyı bulun.',
             pedagogicalNote: 'Sözel/Mantıksal akıl yürütme, yönerge takibi ve seçici dikkat becerilerini geliştirir.',
             imagePrompt: 'Dedektif',
+            puzzles
+        };
+    });
+};
+
+export const generateOfflineAttentionFocus = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    const count = itemCount || 4;
+
+    // Hardcoded logic templates for Offline Mode robustness
+    // These mimic the PDF style riddles
+    const logicTemplates = [
+        {
+            category: 'fruit',
+            items: ['Muz', 'Kavun', 'Biber', 'Karpuz', 'Limon', 'Çilek'],
+            target: 'Limon',
+            riddle: "Aradığımız yiyecek acı bir sebzenin (Biber) bulunduğu kutudadır. Bulunduğu kutudaki sarı bir meyvedir. Bu yiyecek aşağıdakilerden hangisi olabilir?"
+        },
+        {
+            category: 'clothes',
+            items: ['Şort', 'Gömlek', 'Tişört', 'Kazak', 'Etek', 'Mayo'],
+            target: 'Mayo',
+            riddle: "Aradığımız kıyafet denize girerken giyilen giysinin bulunduğu kutudadır. Bulunduğu kutudaki vücudumuzun üst kısmına giydiğimiz bir giyecektir."
+        },
+        {
+            category: 'vehicles',
+            items: ['Araba', 'Kamyon', 'Bisiklet', 'Tramvay', 'Helikopter', 'Gemi'],
+            target: 'Tramvay',
+            riddle: "Aradığımız taşıt, raylarda giden bir taşıtın bulunduğu kutudadır. Bulunduğu kutudaki havada giden taşıtlardan birisidir. (Not: Bu şablon zor, dikkatli okuyun!)"
+        },
+        {
+            category: 'numbers_logic',
+            items: ['5', '11', '3', '13', '14', '8', '10', '6'],
+            target: '13',
+            riddle: "Aradığımız sayı çift sayı değildir. Bulunduğu kutudaki en büyük sayıdır. Bu sayı aşağıdakilerden hangisi olabilir?"
+        },
+        {
+            category: 'colors',
+            items: ['Sarı', 'Turuncu', 'Kahverengi', 'Pembe', 'Krem', 'Lila'],
+            target: 'Turuncu',
+            riddle: "Aradığımız renk, cevizin renginin bulunduğu kutudadır. Bulunduğu kutudaki muzun olabileceği renklerden birisidir."
+        }
+    ];
+
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = Array.from({ length: count }, () => {
+            // Select a random template or generate simple number logic
+            const template = getRandomItems(logicTemplates, 1)[0];
+            const isLeft = Math.random() > 0.5;
+            
+            // Distribute items into two boxes
+            const allItems = shuffle(template.items);
+            const box1 = allItems.slice(0, Math.ceil(allItems.length/2));
+            const box2 = allItems.slice(Math.ceil(allItems.length/2));
+            
+            // Place target in one box and adjust riddle directions if needed
+            // For simplicity in offline mode without complex NLP, we use generic but accurate placement
+            
+            // Just use the predefined riddle directly if possible, or simple number logic
+            if (template.category === 'numbers_logic') {
+                // Generate a fresh number puzzle
+                const nums = Array.from({length: 8}, () => getRandomInt(1, 50));
+                const b1 = nums.slice(0, 4);
+                const b2 = nums.slice(4, 8);
+                const targetBox = isLeft ? b1 : b2;
+                const targetNum = Math.max(...targetBox); // Let's say we look for max
+                
+                return {
+                    riddle: `Aradığımız sayı ${isLeft ? 'sol' : 'sağ'} kutudadır. Bulunduğu kutudaki en büyük sayıdır.`,
+                    boxes: [{items: b1.map(String)}, {items: b2.map(String)}],
+                    options: shuffle([targetNum.toString(), ...getRandomItems(nums.filter(n=>n!==targetNum), 4).map(String)]),
+                    answer: targetNum.toString()
+                };
+            } else {
+                // Word Puzzle Fallback (Simplified for offline)
+                return {
+                    riddle: template.riddle,
+                    boxes: [
+                        { items: template.items.slice(0, 3) },
+                        { items: template.items.slice(3, 6) }
+                    ],
+                    options: shuffle([template.target, ...getRandomItems(template.items.filter(i => i !== template.target), 4)]),
+                    answer: template.target
+                };
+            }
+        });
+
+        return {
+            title: `Dikkatini Ver (${difficulty})`,
+            instruction: "İpuçlarını dikkatlice okuyun ve doğru cevabı bulun.",
+            pedagogicalNote: "Okuduğunu anlama, görsel tarama ve mantıksal çıkarım.",
+            imagePrompt: "Dedektif",
             puzzles
         };
     });

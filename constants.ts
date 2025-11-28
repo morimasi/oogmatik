@@ -853,6 +853,12 @@ export const ACTIVITIES: Activity[] = [
     description: 'Görsel dikkat, yönerge takibi ve şifre çözme egzersizleri.',
     icon: 'fa-solid fa-eye-low-vision',
   },
+  {
+    id: ActivityType.ATTENTION_FOCUS,
+    title: 'Dikkatini Ver',
+    description: 'İpuçlarını takip ederek doğru kutuyu ve nesneyi bulma.',
+    icon: 'fa-solid fa-magnifying-glass-location',
+  },
 ];
 
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
@@ -1050,7 +1056,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.BACKWARD_SPELLING,
       ActivityType.CODE_READING,
       ActivityType.ATTENTION_TO_QUESTION,
-      ActivityType.ATTENTION_DEVELOPMENT
+      ActivityType.ATTENTION_DEVELOPMENT,
+      ActivityType.ATTENTION_FOCUS
     ]
   }
 ];

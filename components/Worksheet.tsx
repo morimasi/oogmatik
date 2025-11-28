@@ -57,6 +57,7 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.CODE_READING: return <DyslexiaSheets.CodeReadingSheet {...props} />;
         case ActivityType.ATTENTION_TO_QUESTION: return <DyslexiaSheets.AttentionToQuestionSheet {...props} />;
         case ActivityType.ATTENTION_DEVELOPMENT: return <DyslexiaSheets.AttentionDevelopmentSheet {...props} />;
+        case ActivityType.ATTENTION_FOCUS: return <DyslexiaSheets.AttentionFocusSheet {...props} />;
 
         // --- Math & Logic ---
         case ActivityType.BASIC_OPERATIONS: return <MathLogicSheets.BasicOperationsSheet {...props} />;
