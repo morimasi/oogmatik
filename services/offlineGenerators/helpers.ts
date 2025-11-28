@@ -201,3 +201,86 @@ export const generateMaze = (r: number, c: number) => Array(r).fill(Array(c).fil
 export const generateLatinSquare = (n: number) => Array(n).fill(Array(n).fill(1));
 export const generateRandomPattern = (dim: number, den: number) => [];
 export const generateSudokuGrid = (n: number, d: string) => Array(n).fill(Array(n).fill(null));
+
+// --- MAZE PATH GENERATOR ---
+export const generateMazePath = (rows: number, cols: number): { grid: number[][], pathIds: number[], distractorIds: number[] } => {
+    // 1. Initialize Grid
+    const grid: number[][] = Array.from({ length: rows }, () => Array(cols).fill(0));
+    const path: {r: number, c: number}[] = [];
+    const pathIds: number[] = [];
+    const distractorIds: number[] = [];
+    
+    // 2. Generate a simple path from Top-Left to Bottom-Right
+    // Simple Greedy algorithm with randomness
+    let currR = 0;
+    let currC = 0;
+    let step = 1;
+    
+    // Assign ID 1 to start
+    grid[0][0] = step;
+    path.push({r: 0, c: 0});
+    pathIds.push(step);
+    
+    while(currR < rows - 1 || currC < cols - 1) {
+        step++;
+        const moves = [];
+        if (currR < rows - 1) moves.push({r: currR+1, c: currC});
+        if (currC < cols - 1) moves.push({r: currR, c: currC+1});
+        // Sometimes go backwards or sideways to make it maze-like? For simplicity, forward only for guaranteed solution.
+        // To make it maze-like, we can add a few random deviations but let's stick to simple path for worksheet.
+        
+        const next = getRandomItems(moves, 1)[0];
+        if(!next) break; // Should not happen
+        
+        currR = next.r;
+        currC = next.c;
+        grid[currR][currC] = step;
+        path.push({r: currR, c: currC});
+        pathIds.push(step);
+    }
+    
+    // 3. Fill the rest of the grid with unique IDs for distractors
+    // Start numbering distractors after the max path ID to ensure uniqueness, 
+    // OR just fill empty spots with random numbers not in path.
+    // Better: Number ALL cells sequentially 1..N, but path is a specific sequence of those numbers?
+    // User wants: "Follow the rule".
+    // So Grid shows IDs (1..36).
+    // Questions list: 1. Rule (Correct), 2. Rule (Incorrect).
+    // So we need to assign a Rule ID to each cell.
+    
+    let counter = 1;
+    const finalGrid: number[][] = [];
+    
+    for(let r=0; r<rows; r++) {
+        const row: number[] = [];
+        for(let c=0; c<cols; c++) {
+            const id = counter++;
+            row.push(id);
+            // Check if this coord was on the generated spatial path
+            // The path array holds coordinates.
+            const isOnPath = path.some(p => p.r === r && p.c === c);
+            
+            if (isOnPath) {
+                // If it is START or END or Middle path, it needs a CORRECT rule.
+                // We will map these IDs to "Correct" list later.
+                // But wait, pathIds list above has sequential steps (1,2,3..) which is not what we want.
+                // We want cell IDs (1..36) to be correct/incorrect.
+            } else {
+                distractorIds.push(id);
+            }
+        }
+        finalGrid.push(row);
+    }
+    
+    // Re-calculate path IDs based on the cell ID (counter)
+    const finalPathIds = path.map(p => {
+        // Calculate ID: row * cols + col + 1
+        return (p.r * cols) + p.c + 1;
+    });
+
+    return {
+        grid: finalGrid,
+        pathIds: finalPathIds,
+        distractorIds
+    };
+};

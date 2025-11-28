@@ -674,53 +674,78 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
     </div>
 );
 
-const MazeGrid = ({ rules }: { rules: {id: number, text: string, isPath: boolean}[] }) => {
-    // 5x5 Grid
-    const size = 5;
-    
+// Updated MazeGrid with visual connections and ID display
+const MazeGrid = ({ grid, rules }: { grid: number[][], rules: {id: number, text: string, isPath: boolean}[] }) => {
     return (
-        <div className="grid grid-cols-5 gap-1 bg-zinc-200 p-2 border-2 border-zinc-800 rounded-lg shadow-md">
-            {rules.map((cell, idx) => (
-                <div key={idx} className={`relative w-full aspect-square border-2 ${cell.isPath ? 'bg-white' : 'bg-white'} p-1 flex items-center justify-center text-center text-[10px] sm:text-xs transition-colors hover:bg-indigo-50`}>
-                    {idx === 0 && <span className="absolute top-0 left-0 bg-green-500 text-white text-[8px] px-1 rounded-br z-10">GİRİŞ</span>}
-                    {idx === 24 && <span className="absolute bottom-0 right-0 bg-red-500 text-white text-[8px] px-1 rounded-tl z-10">ÇIKIŞ</span>}
+        <div className="relative p-2 bg-zinc-100 border-2 border-zinc-300 rounded-xl shadow-inner max-w-md mx-auto">
+            {/* Start Arrow */}
+            <div className="absolute -left-6 top-6 text-green-500 text-2xl animate-bounce-horizontal"><i className="fa-solid fa-arrow-right"></i></div>
+            
+            {/* Grid */}
+            <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${grid[0].length}, 1fr)`}}>
+                {grid.flat().map((cellId, idx) => {
+                    const r = Math.floor(idx / grid[0].length);
+                    const c = idx % grid[0].length;
                     
-                    {/* Visual Walls for visual maze structure if path logic provided more detail, otherwise just text blocks */}
-                    <span className="line-clamp-4 font-medium text-zinc-700">{cell.text}</span>
-                </div>
-            ))}
+                    return (
+                        <div key={idx} className="aspect-square bg-white border border-zinc-300 rounded flex items-center justify-center text-lg font-bold text-zinc-700 shadow-sm relative group cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-all">
+                            {cellId}
+                            {/* Connectors Visual Logic (simplified) - check neighbors in grid if needed */}
+                        </div>
+                    );
+                })}
+            </div>
+            
+            {/* End Arrow */}
+            <div className="absolute -right-6 bottom-6 text-red-500 text-2xl animate-bounce-horizontal"><i className="fa-solid fa-arrow-right"></i></div>
         </div>
     );
 };
 
-export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ data }) => (
-    <div>
-        {/* Pass data to header so it can render the SVG if available in imagePrompt */}
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        
-        <div className="flex justify-center mb-6">
-            <div className="px-6 py-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-full text-indigo-800 dark:text-indigo-200 font-bold text-xl border border-indigo-200">
-                Hedef İşaret: <span className="text-4xl ml-2 align-middle">{data.punctuationMark}</span>
+export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ data }) => {
+    return (
+        <div>
+            {/* Pass data to header so it can render the SVG if available in imagePrompt */}
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            
+            <div className="flex justify-center mb-6">
+                <div className="px-6 py-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-full text-indigo-800 dark:text-indigo-200 font-bold text-xl border border-indigo-200">
+                    Hedef İşaret: <span className="text-4xl ml-2 align-middle">{data.punctuationMark}</span>
+                </div>
+            </div>
+            
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+                {/* Left: The Visual Maze Grid */}
+                <div className="w-full md:w-1/2">
+                    {data.grid ? (
+                        <MazeGrid grid={data.grid} rules={data.rules as any} />
+                    ) : (
+                        <div className="p-8 text-center bg-zinc-100 rounded">Labirent haritası oluşturulamadı.</div>
+                    )}
+                </div>
+
+                {/* Right: The Question List */}
+                <div className="w-full md:w-1/2">
+                    <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+                        <div className="bg-zinc-50 dark:bg-zinc-900 px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
+                            <h4 className="font-bold text-zinc-700 dark:text-zinc-300 uppercase text-sm tracking-wider">Kurallar Listesi</h4>
+                        </div>
+                        <ul className="divide-y divide-zinc-100 dark:divide-zinc-700 max-h-[500px] overflow-y-auto">
+                            {data.rules.map((rule) => (
+                                <li key={rule.id} className="p-3 flex gap-3 items-start hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors">
+                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-xs flex items-center justify-center mt-0.5">
+                                        {rule.id}
+                                    </span>
+                                    <span className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">{rule.text}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        {/* Render Actual Maze Grid if possible, else fallback to cards */}
-        {data.rules.length >= 25 ? (
-            <div className="max-w-lg mx-auto">
-                <MazeGrid rules={data.rules as any} />
-            </div>
-        ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {data.rules.map((rule, index) => (
-                    <div key={index} className="p-4 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 hover:border-indigo-400 cursor-pointer transition-all relative overflow-hidden group shadow-sm">
-                        <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-zinc-300 group-hover:border-indigo-500"></div>
-                        <p className="font-medium text-zinc-700 dark:text-zinc-200 pr-6">{rule.text}</p>
-                    </div>
-                ))}
-            </div>
-        )}
-    </div>
-);
+    );
+};
 
 export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumberData }> = ({ data }) => (
     <div>

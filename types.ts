@@ -341,7 +341,7 @@ export interface ShapeCountingData extends BaseActivityData { figures: { svgPath
 export interface ThematicOddOneOutData extends BaseActivityData { theme: string; rows: { words: { text: string; imagePrompt?: string; imageBase64?: string; }[]; oddWord: string; }[]; sentencePrompt: string; prompt?: string; }
 export interface ThematicOddOneOutSentenceData extends BaseActivityData { rows: { words: string[]; oddWord: string; }[]; sentencePrompt: string; prompt?: string; }
 export interface ColumnOddOneOutSentenceData extends BaseActivityData { columns: { words: string[]; oddWord: string; }[]; sentencePrompt: string; prompt?: string; }
-export interface PunctuationMazeData extends BaseActivityData { punctuationMark: string; rules: { id: number; text: string; isCorrect: boolean; isPath?: boolean; }[]; prompt?: string; }
+export interface PunctuationMazeData extends BaseActivityData { punctuationMark: string; grid?: number[][]; rules: { id: number; text: string; isCorrect: boolean; isPath?: boolean; }[]; prompt?: string; }
 export interface PunctuationPhoneNumberData extends BaseActivityData { clues: { id: number; text: string; }[]; solution: { punctuationMark: string; number: number; }[]; prompt?: string; }
 export interface BasicOperationsData extends BaseActivityData { operations: { num1: number; num2: number; num3?: number; operator: string; answer: number; remainder?: number; }[]; isVertical?: boolean; }
 export interface RealLifeProblemData extends BaseActivityData { problems: { text: string; solution: string; operationHint: string; imagePrompt: string; imageBase64?: string; }[]; }
