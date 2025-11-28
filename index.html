@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -427,8 +426,9 @@
         background: white !important;
     }
 
-    /* 2. Hide standard UI elements explicitly using display:none */
-    #root > *:not(.print-force-visible),
+    /* 2. Hide standard UI elements explicitly using display:none 
+       NOTE: Do NOT hide #root or its direct children with display:none as it removes them from DOM 
+    */
     nav, header, footer, button, .no-print,
     .recharts-wrapper /* Hide charts interactivity wrappers if needed, but we keep svg visible */
     {
