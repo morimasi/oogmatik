@@ -26,6 +26,7 @@ const initialStyleSettings: StyleSettings = {
     columns: 1,
     gap: 16,
     showPedagogicalNote: true,
+    orientation: 'portrait',
 };
 
 const initialUiSettings: UiSettings = {

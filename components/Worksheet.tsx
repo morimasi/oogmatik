@@ -19,13 +19,10 @@ interface WorksheetProps {
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
     if (!data || !activityType || data.length === 0) return null;
 
-    // --- SMART GRID LOGIC ---
-    // If we have multiple items (e.g. 4 puzzles), the Column Slider should arrange THESE items.
-    // In that case, the items themselves shouldn't be grid-ified internally (set inner cols to 1).
-    // If we have only 1 item, the Column Slider should arrange the content INSIDE that item.
     const isMultiItem = data.length > 1;
     const outerCols = isMultiItem ? settings.columns : 1;
     const innerCols = isMultiItem ? 1 : settings.columns;
+    const isLandscape = settings.orientation === 'landscape';
 
     const containerStyle = {
         '--worksheet-font-size': `${settings.fontSize}px`,
@@ -33,20 +30,19 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-margin': `${settings.margin}px`,
         '--worksheet-gap': `${settings.gap}px`,
-        
-        // This controls internal component grids
         '--dynamic-cols': innerCols,
-        
-        // This controls the show/hide of pedagogical notes
-        '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none'
+        '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
+        // Dynamic Print Variables for index.html to pick up if used via inline styles
+        '--print-width': isLandscape ? '297mm' : '210mm',
+        '--print-height': isLandscape ? '210mm' : '297mm'
     } as React.CSSProperties;
 
-    // Style for scaling the content inside the A4 page
+    // Style for scaling the content inside the page
     const scalerStyle: React.CSSProperties = {
         transform: `scale(${settings.scale})`,
         transformOrigin: 'top center',
-        width: `${100 / settings.scale}%`, // Increases width so when scaled down it fills the A4 width
-        marginBottom: `${(1 - settings.scale) * 100}%` // Optional: Helps spacing in some views
+        width: `${100 / settings.scale}%`, 
+        marginBottom: `${(1 - settings.scale) * 100}%`
     };
 
     const outerGridStyle = {
@@ -58,21 +54,30 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
     return (
         <div className="w-full flex flex-col items-center bg-transparent" style={containerStyle}>
+            {/* Inject dynamic print styles for page size */}
+            <style>{`
+                @media print {
+                    @page { size: ${settings.orientation}; margin: 0; }
+                    body {
+                        --print-width: ${isLandscape ? '297mm' : '210mm'};
+                        --print-height: ${isLandscape ? '210mm' : '297mm'};
+                    }
+                }
+            `}</style>
+
             <div 
                 className="worksheet-page"
                 style={{ 
-                    width: '210mm',
-                    minHeight: '297mm', // Allows growing for many items
-                    height: 'auto', // Important for bulk content
+                    width: isLandscape ? '297mm' : '210mm',
+                    minHeight: isLandscape ? '210mm' : '297mm',
+                    height: 'auto',
                     padding: `var(--worksheet-margin)`,
                     fontSize: `var(--worksheet-font-size)`
                 }}
             >
                 <div className="h-full flex flex-col justify-between">
-                    {/* The Scaler Wrapper with class for Print Override */}
                     <div className="flex-1 w-full worksheet-scaler" style={scalerStyle}>
                         
-                        {/* THE OUTER GRID: Positions the distinct generated activities */}
                         <div style={outerGridStyle}>
                             {data.map((sheetData, index) => (
                                 <div key={index} className="break-inside-avoid border-b-2 border-transparent pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
@@ -83,7 +88,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
                     </div>
                     
-                    {/* Footer Logo - Visible on Print and Screen */}
                     <div className="mt-auto pt-8 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50 break-before-avoid">
                         <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
                         <span>{data.length > 1 ? `${data.length} Çalışma` : 'Sayfa 1'}</span>

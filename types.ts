@@ -161,13 +161,14 @@ export interface UiSettings {
 
 export interface StyleSettings {
   fontSize: number;
-  scale: number; // New Scale Property
+  scale: number;
   borderColor: string;
   borderWidth: number;
   margin: number;
   columns: number;
   gap: number;
   showPedagogicalNote: boolean;
+  orientation: 'portrait' | 'landscape';
 }
 
 export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment' | 'favorites';

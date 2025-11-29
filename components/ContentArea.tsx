@@ -74,6 +74,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const { user } = useAuth();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
+    const [isPreviewMode, setIsPreviewMode] = useState(false); // State for Preview/Zen Mode
     const mainRef = useRef<HTMLDivElement>(null);
 
     // Scroll to top when view changes
@@ -82,6 +83,17 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             mainRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }, [currentView, activityType]);
+
+    // Keyboard listener for ESC to exit preview mode
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isPreviewMode) {
+                setIsPreviewMode(false);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isPreviewMode]);
 
     const generateAutoName = () => {
         if (!activityType) return 'Kaydedilmiş Etkinlik';
@@ -181,29 +193,35 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = getBreadcrumbs();
 
   return (
-    <main id="tour-content" ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-[var(--bg-primary)] scroll-smooth print:overflow-visible print:h-auto print:block print:w-full print:bg-white transition-colors duration-300">
+    <main 
+        id="tour-content" 
+        ref={mainRef} 
+        className={`flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-[var(--bg-primary)] scroll-smooth print:overflow-visible print:h-auto print:block print:w-full print:bg-white transition-colors duration-300 ${isPreviewMode ? 'fixed inset-0 z-50 !p-0 bg-zinc-900 flex flex-col items-center justify-center' : ''}`}
+    >
       
-      {/* Breadcrumbs */}
-      <nav className="mb-4 flex items-center text-sm text-zinc-500 print:hidden" aria-label="Breadcrumb">
-        <ol className="flex items-center space-x-2">
-            {breadcrumbs.map((crumb, idx) => (
-                <li key={idx} className="flex items-center">
-                    {idx > 0 && <i className="fa-solid fa-chevron-right text-[10px] mx-2 opacity-50"></i>}
-                    <span 
-                        onClick={() => { if(idx === 0) onBackToGenerator(); }}
-                        className={`${idx === breadcrumbs.length - 1 ? "font-bold text-[var(--accent-color)]" : "hover:text-[var(--text-primary)] cursor-pointer"}`}
-                    >
-                        {crumb}
-                    </span>
-                </li>
-            ))}
-        </ol>
-      </nav>
+      {/* Breadcrumbs - Hide in Preview Mode */}
+      {!isPreviewMode && (
+          <nav className="mb-4 flex items-center text-sm text-zinc-500 print:hidden" aria-label="Breadcrumb">
+            <ol className="flex items-center space-x-2">
+                {breadcrumbs.map((crumb, idx) => (
+                    <li key={idx} className="flex items-center">
+                        {idx > 0 && <i className="fa-solid fa-chevron-right text-[10px] mx-2 opacity-50"></i>}
+                        <span 
+                            onClick={() => { if(idx === 0) onBackToGenerator(); }}
+                            className={`${idx === breadcrumbs.length - 1 ? "font-bold text-[var(--accent-color)]" : "hover:text-[var(--text-primary)] cursor-pointer"}`}
+                        >
+                            {crumb}
+                        </span>
+                    </li>
+                ))}
+            </ol>
+          </nav>
+      )}
 
       {currentView === 'generator' ? (
         <>
             {activityType && worksheetData && (
-                <div className="mb-6 fade-in print:hidden sticky top-0 z-20">
+                <div className={`mb-6 fade-in print:hidden sticky top-0 z-20 ${isPreviewMode ? 'absolute bottom-4 left-1/2 transform -translate-x-1/2 w-auto' : ''}`}>
                     <Toolbar 
                         settings={styleSettings} 
                         onSettingsChange={onStyleChange} 
@@ -211,8 +229,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         onFeedback={onFeedback}
                         onShare={handleShare}
                         onDownloadPDF={handleDownloadPDF}
+                        onTogglePreview={() => setIsPreviewMode(!isPreviewMode)}
+                        isPreviewMode={isPreviewMode}
                     />
-                    {error && error.startsWith("Bilgi:") && (
+                    {error && error.startsWith("Bilgi:") && !isPreviewMode && (
                         <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200 rounded-lg text-sm border border-blue-200 dark:border-blue-800 flex items-center animate-pulse">
                             <i className="fa-solid fa-circle-info mr-2"></i>
                             {error}
@@ -279,7 +299,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
             
             {worksheetData && (
-                <div className="fade-in printable-content-parent flex justify-center">
+                <div className={`fade-in printable-content-parent flex justify-center ${isPreviewMode ? 'h-full items-center overflow-auto' : ''}`}>
                   <Worksheet activityType={activityType} data={worksheetData} settings={styleSettings} />
                 </div>
             )}

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -8,337 +7,140 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome 6.5.1 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:wght@400;600&family=Comic+Neue:wght@400;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- OpenDyslexic CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.css">
+    <!-- Global Print Styles -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;800&family=Lexend:wght@400;600;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+      
+      /* OpenDyslexic Font Face */
+      @font-face {
+        font-family: 'OpenDyslexic';
+        src: url('https://cdn.jsdelivr.net/npm/opendyslexic@2.1.0/opentype/OpenDyslexic-Regular.otf');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'OpenDyslexic';
+        src: url('https://cdn.jsdelivr.net/npm/opendyslexic@2.1.0/opentype/OpenDyslexic-Bold.otf');
+        font-weight: bold;
+        font-style: normal;
+      }
 
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: {
-      extend: {
-        fontFamily: {
-          sans: ['var(--ui-font)', 'sans-serif'],
-          serif: ['var(--ui-font)', 'serif'],
-          mono: ['var(--ui-font)', 'monospace'],
-          dyslexic: ['OpenDyslexic', 'sans-serif']
-        },
-        colors: {
-            brand: {
-                50: '#fffbeb',
-                100: '#fef3c7',
-                200: '#fde68a',
-                300: '#fcd34d',
-                400: '#fbbf24',
-                500: '#f59e0b',
-                600: '#d97706',
-                700: '#b45309',
-                800: '#92400e',
-                900: '#78350f',
-                950: '#451a03',
-            }
-        },
-        boxShadow: {
-            'paper': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.02)',
-            'paper-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255,255,255,0.05)',
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f4f4f5;
+        --bg-paper: #ffffff;
+        --bg-inset: #f4f4f5;
+        --text-primary: #18181b;
+        --text-secondary: #71717a;
+        --text-muted: #a1a1aa;
+        --border-color: #e4e4e7;
+        --accent-color: #4f46e5;
+        --accent-hover: #4338ca;
+        --pattern-color: #e4e4e7;
+        
+        --ui-font: 'OpenDyslexic', sans-serif;
+        --ui-scale: 1;
+        --ui-spacing: normal;
+        --ui-line-height: 1.6;
+        --ui-saturation: 100%;
+      }
+
+      /* Dark Theme Variables */
+      .dark {
+        --bg-primary: #18181b;
+        --bg-secondary: #27272a;
+        --bg-paper: #27272a;
+        --bg-inset: #18181b;
+        --text-primary: #f4f4f5;
+        --text-secondary: #a1a1aa;
+        --text-muted: #52525b;
+        --border-color: #3f3f46;
+        --accent-color: #818cf8;
+        --accent-hover: #6366f1;
+        --pattern-color: #27272a;
+      }
+
+      body {
+        font-family: var(--ui-font);
+        font-size: calc(16px * var(--ui-scale));
+        letter-spacing: var(--ui-spacing);
+        line-height: var(--ui-line-height);
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Prevent body scroll, handle in app */
+      }
+
+      /* Image Saturation Filter */
+      img, svg {
+        filter: saturate(var(--ui-saturation));
+      }
+
+      /* Print Specific Styles */
+      @media print {
+        @page {
+          margin: 0;
+        }
+        body {
+          background: white;
+          color: black;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          overflow: visible;
+        }
+        .no-print, header, aside, .tour-overlay {
+          display: none !important;
+        }
+        .printable-area {
+          padding: 0 !important;
+          margin: 0 !important;
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+          background: white !important;
+        }
+        /* Ensure background colors and images are printed */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
       }
-    }
-  }
-</script>
-<style>
-  /* --- GLOBAL VARIABLES --- */
-  :root {
-    --ui-font: 'OpenDyslexic';
-    --ui-spacing: normal;
-    --ui-scale: 1;
-    --ui-line-height: 1.6;
-    --ui-saturation: 100%;
 
-    /* DEFAULT ANTHRACITE & GOLD (Professional Warm Dark) */
-    --bg-primary: #1c1917; /* Stone 900 - Warm dark grey */
-    --bg-secondary: #292524; /* Stone 800 */
-    --bg-paper: #292524; /* Cards */
-    --bg-inset: #44403c; /* Inputs */
-    --text-primary: #fbbf24; /* Amber 400 - Gold Text */
-    --text-secondary: #f5f5f4; /* Stone 100 - White text */
-    --text-muted: #a8a29e; /* Stone 400 */
-    --border-color: #57534e; /* Stone 600 */
-    --panel-bg: rgba(28, 25, 23, 0.95); /* Transparent Stone */
-    --pattern-color: rgba(251, 191, 36, 0.05); /* Gold dots */
-    --accent-color: #f59e0b; /* Amber 500 */
-    --accent-hover: #d97706; /* Amber 600 */
-  }
-
-  /* 
-     --- UNIVERSAL FONT ENFORCEMENT ---
-  */
-  :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not(i) {
-    font-family: var(--ui-font), sans-serif !important;
-  }
-
-  button, input, textarea, select, optgroup, label, ::placeholder {
-      font-family: var(--ui-font), sans-serif !important;
-  }
-
-  body {
-    font-size: calc(16px * var(--ui-scale));
-    background-color: var(--bg-primary);
-    color: var(--text-secondary); /* Default text white for readability */
-    transition: background-color 0.4s ease, color 0.3s ease, border-color 0.3s ease;
-    
-    background-image: 
-        radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px),
-        radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px);
-    background-size: 32px 32px;
-    background-position: 0 0, 16px 16px;
-  }
-
-  /* --- ICON PROTECTION --- */
-  .fa, .fas, .far, .fal, .fab, .fa-solid, .fa-regular, .fa-brands, i[class*="fa-"] {
-      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
-      font-weight: 900; 
-      font-style: normal;
-      font-variant: normal;
-      line-height: 1;
-      text-rendering: auto;
-  }
-  .fa-brands, .fab { font-weight: 400; }
-  .fa-regular, .far { font-weight: 400; }
-
-  html {
-      filter: saturate(var(--ui-saturation));
-  }
-
-  /* ==========================================================================
-     THEME DEFINITIONS
-     ========================================================================== */
-  html.dark, .theme-dark {
-      --bg-primary: #09090b; /* Zinc 950 */
-      --bg-secondary: #18181b; /* Zinc 900 */
-      --bg-paper: #18181b;
-      --bg-inset: #27272a;
-      --text-primary: #fcd34d; /* Amber 300 */
-      --text-secondary: #fafafa; 
-      --text-muted: #a1a1aa;
-      --border-color: #3f3f46;
-      --panel-bg: rgba(24, 24, 27, 0.95);
-      --pattern-color: rgba(252, 211, 77, 0.05);
-      --accent-color: #f59e0b;
-  }
-  .theme-anthracite { /* Uses Root variables */ }
-  .theme-anthracite-gold { --bg-primary: #000000; --bg-secondary: #111111; --bg-paper: #0a0a0a; --bg-inset: #262626; --text-primary: #ffd700; --text-secondary: #ffffff; --text-muted: #737373; --border-color: #404040; --panel-bg: rgba(10, 10, 10, 0.98); --pattern-color: rgba(255, 215, 0, 0.1); --accent-color: #ffd700; --accent-hover: #eab308; }
-  .theme-anthracite-cyber { --bg-primary: #121212; --bg-secondary: #1e1e1e; --bg-paper: #1e1e1e; --bg-inset: #2d2d2d; --text-primary: #faff00; --text-secondary: #ffffff; --text-muted: #a3a3a3; --border-color: #333333; --panel-bg: rgba(30, 30, 30, 0.95); --pattern-color: rgba(250, 255, 0, 0.08); --accent-color: #facc15; }
-  .theme-anthracite-bumblebee { --bg-primary: #1f2937; --bg-secondary: #374151; --bg-paper: #374151; --bg-inset: #4b5563; --text-primary: #fde047; --text-secondary: #f9fafb; --text-muted: #9ca3af; --border-color: #4b5563; --panel-bg: rgba(55, 65, 81, 0.95); --pattern-color: rgba(253, 224, 71, 0.08); --accent-color: #eab308; }
-  .theme-anthracite-stone { --bg-primary: #262626; --bg-secondary: #404040; --bg-paper: #404040; --bg-inset: #52525b; --text-primary: #fde68a; --text-secondary: #f5f5f5; --text-muted: #d4d4d4; --border-color: #525252; --panel-bg: rgba(64, 64, 64, 0.95); --pattern-color: rgba(253, 230, 138, 0.06); --accent-color: #fbbf24; }
-  .theme-anthracite-honey { --bg-primary: #19120e; --bg-secondary: #271c19; --bg-paper: #271c19; --bg-inset: #43302b; --text-primary: #fbbf24; --text-secondary: #fff7ed; --text-muted: #a8a29e; --border-color: #574540; --panel-bg: rgba(39, 28, 25, 0.95); --pattern-color: rgba(251, 191, 36, 0.08); --accent-color: #d97706; }
-  .theme-anthracite-onyx { --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-paper: #1e293b; --bg-inset: #334155; --text-primary: #fcd34d; --text-secondary: #f8fafc; --text-muted: #94a3b8; --border-color: #334155; --panel-bg: rgba(30, 41, 59, 0.95); --pattern-color: rgba(252, 211, 77, 0.06); --accent-color: #fbbf24; }
-
-  /* CSS OVERRIDES */
-  .bg-white, .bg-zinc-50, .bg-gray-50, .bg-slate-50 { background-color: var(--bg-paper) !important; color: var(--text-secondary) !important; border-color: var(--border-color) !important; }
-  .bg-zinc-100, .bg-gray-100, .bg-slate-100, .bg-zinc-50\/50, .bg-zinc-100\/50 { background-color: var(--bg-inset) !important; color: var(--text-secondary) !important; }
-  .bg-zinc-800, .bg-zinc-900, .dark\:bg-zinc-800 { background-color: var(--bg-secondary) !important; }
-  .text-zinc-900, .text-gray-900, .text-slate-900, .text-black, .dark\:text-white, .dark\:text-zinc-100 { color: var(--text-primary) !important; }
-  .text-zinc-800, .text-gray-800, .text-zinc-700, .text-gray-700 { color: var(--text-secondary) !important; }
-  .text-zinc-600, .text-zinc-500, .text-gray-600, .text-gray-500 { color: var(--text-muted) !important; }
-  .text-indigo-600, .text-blue-600, .text-violet-600, .dark\:text-indigo-400 { color: var(--text-primary) !important; }
-  .border-zinc-200, .border-gray-200, .border-zinc-300, .border-zinc-100, .dark\:border-zinc-700 { border-color: var(--border-color) !important; }
-  .bg-indigo-600, .bg-blue-600, .bg-violet-600, .bg-emerald-600, .bg-zinc-900, .bg-zinc-800 { background-color: var(--accent-color) !important; color: #000000 !important; font-weight: 700 !important; }
-  .bg-indigo-600:hover, .bg-blue-600:hover { background-color: var(--accent-hover) !important; }
-  .bg-indigo-50, .bg-blue-50, .bg-emerald-50, .bg-rose-50, .bg-amber-50, .bg-sky-50 { background-color: var(--bg-inset) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; }
-  .text-indigo-500, .text-blue-500, .text-green-500 { color: var(--accent-color) !important; }
-  aside, header { background-color: var(--panel-bg) !important; border-color: var(--border-color) !important; backdrop-filter: blur(12px); }
-  *:focus-visible { outline: 2px solid var(--text-primary) !important; outline-offset: 2px !important; border-radius: 4px; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: var(--bg-primary); }
-  ::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background-color: var(--accent-color); }
-
-  /* 
-     --- A4 PAPER SIMULATION FOR SCREEN & PRINT ---
-  */
-  .worksheet-page {
-      background-color: white !important; /* Always white like paper */
-      color: #000000 !important; /* Always black text */
-      border: none !important;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
-      margin: 0 auto 3rem auto !important;
-      position: relative;
-      /* removed overflow: hidden to allow flow */
-      font-size: var(--worksheet-font-size, 16px) !important;
-  }
-
-  /* Dynamic Grid System for Worksheets */
-  .dynamic-grid {
-      display: grid !important;
-      grid-template-columns: repeat(var(--dynamic-cols, 1), minmax(0, 1fr)) !important;
-      gap: var(--worksheet-gap, 16px) !important;
-      width: 100%;
-  }
-
-  /* 
-     ==========================================================================
-     STRICT BLACK & WHITE WORKSHEET OVERRIDES (v3.0)
-     Forces all boxes, tables, texts to be Black/White/Grey inside .worksheet-page
-     regardless of the global theme.
-     ==========================================================================
-  */
-  
-  /* 1. RESET BACKGROUNDS: Force all standard backgrounds to white */
-  .worksheet-page .bg-white,
-  .worksheet-page .bg-zinc-50, .worksheet-page .bg-zinc-100, .worksheet-page .bg-zinc-200,
-  .worksheet-page .bg-gray-50, .worksheet-page .bg-gray-100,
-  .worksheet-page .bg-slate-50, .worksheet-page .bg-slate-100,
-  /* Dark mode overrides */
-  .worksheet-page .bg-zinc-700, .worksheet-page .dark\:bg-zinc-700,
-  .worksheet-page .bg-zinc-800, .worksheet-page .dark\:bg-zinc-800,
-  .worksheet-page .bg-zinc-900, .worksheet-page .dark\:bg-zinc-900,
-  .worksheet-page .dark\:bg-zinc-700\/50, .worksheet-page .dark\:bg-zinc-800\/50,
-  .worksheet-page .dark\:bg-zinc-900\/50 {
-      background-color: #ffffff !important;
-      color: #000000 !important;
-  }
-
-  /* 2. RESET TEXT: Force text to black */
-  .worksheet-page .text-white, .worksheet-page .dark\:text-white,
-  .worksheet-page .text-zinc-50, .worksheet-page .text-zinc-100, .worksheet-page .text-zinc-200,
-  .worksheet-page .text-gray-100,
-  .worksheet-page .dark\:text-zinc-100, .worksheet-page .dark\:text-zinc-200, .worksheet-page .dark\:text-zinc-300,
-  .worksheet-page .text-zinc-800, .worksheet-page .text-zinc-900,
-  .worksheet-page .dark\:text-indigo-400, .worksheet-page .dark\:text-indigo-300 {
-      color: #000000 !important;
-  }
-  
-  .worksheet-page .text-zinc-300, .worksheet-page .text-zinc-400,
-  .worksheet-page .text-zinc-500, .worksheet-page .text-zinc-600 {
-      color: #404040 !important; /* Make muted text legible dark grey */
-  }
-
-  /* 3. BORDERS: Ensure borders are visible (Black/Dark Grey) */
-  /* Since we removed dark backgrounds, boxes need borders to be seen */
-  .worksheet-page .border-zinc-200, .worksheet-page .border-zinc-300,
-  .worksheet-page .border-zinc-600, .worksheet-page .border-zinc-700, .worksheet-page .border-zinc-800,
-  .worksheet-page .dark\:border-zinc-600, .worksheet-page .dark\:border-zinc-700 {
-      border-color: #000000 !important;
-      border-width: 2px !important; /* Enforce visible border thickness */
-  }
-  
-  /* 4. SPECIFIC COMPONENT FIXES */
-  /* Fix specific card styles that rely on bg colors */
-  .worksheet-page div[class*="bg-zinc-800"],
-  .worksheet-page div[class*="bg-zinc-900"] {
-      border: 2px solid #000000 !important;
-      background-color: #ffffff !important;
-  }
-
-  /* Tinted backgrounds can stay light grey/tinted for contrast but ensuring text is black */
-  .worksheet-page .bg-indigo-50, .worksheet-page .dark\:bg-indigo-900\/20,
-  .worksheet-page .bg-emerald-50, .worksheet-page .dark\:bg-emerald-900\/20,
-  .worksheet-page .bg-amber-50, .worksheet-page .dark\:bg-amber-900\/20,
-  .worksheet-page .bg-rose-50, .worksheet-page .dark\:bg-rose-900\/20 {
-      background-color: #f3f4f6 !important; /* Neutral light grey instead of color tint for printing */
-      color: #000000 !important;
-      border: 1px solid #000000 !important;
-  }
-  
-  /* Preserve text colors for meaning if needed, but ensure they are dark enough */
-  .worksheet-page .text-indigo-600, .worksheet-page .text-indigo-700 { color: #000000 !important; font-weight: bold !important; }
-  .worksheet-page .text-rose-600 { color: #000000 !important; text-decoration: underline !important; }
-  .worksheet-page .text-emerald-600 { color: #000000 !important; font-style: italic !important; }
-
-  /* 
-     Animation utils 
-  */
-  @keyframes mixedFlip { 0% { transform: rotateY(0deg); fill: var(--text-primary); } 50% { transform: rotateY(180deg); fill: var(--accent-color); } 100% { transform: rotateY(360deg); fill: var(--text-primary); } }
-  .dyslexia-flip { animation: mixedFlip 8s infinite ease-in-out; display: inline-block; }
-  .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* ==========================================================================
-     PROFESSIONAL PRINT SYSTEM v5.0
-     ========================================================================== */
-  @media print {
-    @page { 
-        size: A4 portrait; 
-        margin: 0; /* Let component padding handle margins */
-    }
-    
-    html, body, #root {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      background: white !important;
-      color: black !important;
-      overflow: visible !important;
-    }
-
-    /* Hide non-printable elements */
-    header, aside, nav, .no-print, .print\:hidden, button, .toolbar-container, .modal-close-btn, .toast-message, .tour-overlay { 
-        display: none !important; 
-    }
-    
-    /* Worksheet specific print styles */
-    .printable-content-parent {
-        display: block !important;
-        width: 100% !important;
-        height: auto !important;
-    }
-
-    .worksheet-page { 
-        width: 210mm !important;
-        min-height: 297mm !important;
-        height: auto !important; /* Allow growing for multi-page */
-        margin: 0 !important;
-        padding: var(--worksheet-margin, 1cm) !important;
-        box-shadow: none !important;
-        background: white !important;
-        overflow: visible !important; /* Allow overflow content to flow naturally to next page */
-        display: block !important;
-        page-break-after: always;
-    }
-    
-    /* CRITICAL: Disable Transform Scaling in Print to allow natural multi-page flow */
-    .worksheet-scaler {
-        transform: none !important;
-        width: 100% !important;
-        height: auto !important;
-        margin-bottom: 0 !important;
-    }
-    
-    /* Ensure grids and layouts work */
-    .dynamic-grid {
-        display: grid !important;
-    }
-
-    /* Prevent breaking inside cards/puzzles */
-    .break-inside-avoid {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-    }
-  }
-</style>
-<script type="importmap">
+      /* Custom Scrollbar */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: var(--text-muted);
+      }
+    </style>
+  <script type="importmap">
 {
   "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.13",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
     "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-    "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.6",
-    "vite": "https://aistudiocdn.com/vite@^7.2.2",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-    "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/"
+    "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
   }
 }
 </script>
 </head>
-  <body class="antialiased transition-colors duration-300 overflow-hidden">
-    <div id="root" class="h-screen flex flex-col print:h-auto print:block"></div>
+  <body>
+    <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

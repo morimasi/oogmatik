@@ -9,9 +9,11 @@ interface ToolbarProps {
   onFeedback?: () => void;
   onShare?: () => void;
   onDownloadPDF?: () => void;
+  onTogglePreview: () => void;
+  isPreviewMode: boolean;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, onFeedback, onShare, onDownloadPDF }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, onFeedback, onShare, onDownloadPDF, onTogglePreview, isPreviewMode }) => {
   const handlePrint = () => {
     window.print();
   };
@@ -38,6 +40,24 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
         
         {/* Settings Group - Wraps on small screens */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+             {/* Orientation Toggle */}
+             <div className="flex items-center bg-zinc-100 dark:bg-zinc-700 rounded-lg p-1 mr-2">
+                <button 
+                    onClick={() => onSettingsChange({...settings, orientation: 'portrait'})}
+                    className={`p-1.5 rounded-md transition-all ${settings.orientation === 'portrait' ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
+                    title="Dikey (Portrait)"
+                >
+                    <i className="fa-regular fa-file"></i>
+                </button>
+                <button 
+                    onClick={() => onSettingsChange({...settings, orientation: 'landscape'})}
+                    className={`p-1.5 rounded-md transition-all ${settings.orientation === 'landscape' ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
+                    title="Yatay (Landscape)"
+                >
+                    <i className="fa-regular fa-file fa-rotate-90"></i>
+                </button>
+            </div>
+
              {/* Updated Scale Slider */}
              <CompactSlider 
                 icon="fa-magnifying-glass" 
@@ -92,6 +112,15 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
       
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
+            {/* Preview Mode Button */}
+            <button 
+                onClick={onTogglePreview} 
+                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isPreviewMode ? 'bg-indigo-600 text-white' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700'}`}
+                title="Önizleme / Zen Modu"
+            >
+                <i className={`fa-solid ${isPreviewMode ? 'fa-compress' : 'fa-expand'}`}></i>
+            </button>
+
             <button 
                 onClick={onFeedback} 
                 className="px-3 py-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 dark:text-rose-400 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5" 
