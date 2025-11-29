@@ -119,7 +119,6 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
         let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
         
         // CRITICAL: Remove fixed width/height attributes to allow CSS scaling
-        // Regex updated to avoid matching 'stroke-width' or similar partial matches
         cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
         
         // Ensure preserveAspectRatio is set for proper centering
@@ -217,9 +216,9 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
     return (
         <div className="mb-8 text-center print:mb-6 break-inside-avoid relative group">
             
-            {/* Student Info Strip (Visible in Print) */}
-            <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-300 pb-2 text-sm font-bold text-zinc-400 uppercase tracking-widest print:flex hidden">
-                <div className="flex-1">Adı Soyadı: ...........................................</div>
+            {/* Student Info Strip (Visible Always now for WYSIWYG) */}
+            <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-300 pb-2 text-sm font-bold text-zinc-400 uppercase tracking-widest opacity-80">
+                <div className="flex-1 text-left">Adı Soyadı: ...........................................</div>
                 <div className="w-48 text-right">Tarih: ...../...../.......</div>
                 <div className="w-24 text-right">Puan: .......</div>
             </div>

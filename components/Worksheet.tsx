@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -24,6 +23,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     const outerCols = isMultiItem ? settings.columns : 1;
     const innerCols = isMultiItem ? 1 : settings.columns;
     const isLandscape = settings.orientation === 'landscape';
+    const pageWidth = isLandscape ? '297mm' : '210mm';
+    const pageHeight = isLandscape ? '210mm' : '297mm';
 
     const containerStyle = {
         '--worksheet-font-size': `${settings.fontSize}px`,
@@ -34,9 +35,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--dynamic-cols': innerCols,
         '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
         '--show-mascot': settings.showMascot ? 'block' : 'none',
-        // Dynamic Print Variables for index.html to pick up if used via inline styles
-        '--print-width': isLandscape ? '297mm' : '210mm',
-        '--print-height': isLandscape ? '210mm' : '297mm'
+        '--print-width': pageWidth,
+        '--print-height': pageHeight
     } as React.CSSProperties;
 
     // Style for scaling the content inside the page (Screen only)
@@ -63,7 +63,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                 @media print {
                     @page { 
                         size: ${settings.orientation}; 
-                        margin: 10mm; /* Small print margin for printer safety */
+                        margin: 0mm; /* We handle margins inside the container */
                     }
                     body, html {
                         height: auto !important;
@@ -78,38 +78,38 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     }
                     /* Allow the container to expand infinitely */
                     .worksheet-page {
-                        height: auto !important;
-                        min-height: 0 !important;
                         width: 100% !important;
                         max-width: none !important;
                         margin: 0 !important;
-                        padding: 0 !important;
+                        padding: 0 !important; /* Reset padding, we use inner margin */
                         box-shadow: none !important;
                         overflow: visible !important;
                         display: block !important;
-                    }
-                    /* Ensure grid items don't break awkwardly */
-                    .break-inside-avoid {
-                        break-inside: avoid !important;
-                        page-break-inside: avoid !important;
-                    }
-                    
-                    /* Convert Grid to Block for multi-page flow */
-                    .outer-grid {
-                        display: block !important;
+                        border: none !important;
+                        background: white !important;
                     }
                     
                     /* Force new page for each item in the list (except last) */
                     .worksheet-item {
+                        width: ${pageWidth} !important;
+                        min-height: ${pageHeight} !important;
+                        padding: var(--worksheet-margin) !important;
                         page-break-after: always !important;
                         break-after: page !important;
-                        margin-bottom: 0 !important;
-                        padding-bottom: 0 !important;
-                        border-bottom: none !important;
+                        page-break-inside: avoid !important;
+                        margin: 0 auto !important;
+                        display: block !important;
+                        box-sizing: border-box !important;
+                        position: relative !important;
                     }
                     .worksheet-item:last-child {
                         page-break-after: auto !important;
                         break-after: auto !important;
+                    }
+                    
+                    /* Reset outer grid to block for simple stacking */
+                    .outer-grid {
+                        display: block !important;
                     }
 
                     /* Hide UI elements */
@@ -118,14 +118,14 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             `}</style>
 
             <div 
-                className="worksheet-page bg-white text-black shadow-2xl print:shadow-none transition-all duration-300 relative"
+                className="worksheet-page shadow-2xl print:shadow-none transition-all duration-300 relative"
                 style={{ 
-                    width: isLandscape ? '297mm' : '210mm',
-                    minHeight: isLandscape ? '210mm' : '297mm',
+                    width: pageWidth,
+                    minHeight: pageHeight,
                     height: 'auto',
-                    padding: `var(--worksheet-margin)`,
+                    // Padding is applied here for screen, but applied to .worksheet-item for print (via CSS above)
+                    padding: 0, 
                     fontSize: `var(--worksheet-font-size)`,
-                    ...borderStyle
                 }}
             >
                 <div className="flex flex-col h-full relative z-10">
@@ -134,17 +134,26 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         
                         <div className="outer-grid" style={outerGridStyle}>
                             {data.map((sheetData, index) => (
-                                <div key={index} className="worksheet-item break-inside-avoid border-b-2 border-transparent pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
+                                <div 
+                                    key={index} 
+                                    className="worksheet-item relative bg-white text-black"
+                                    style={{
+                                        // For screen mode, apply styles here. Print mode overrides via CSS class.
+                                        padding: `var(--worksheet-margin)`,
+                                        minHeight: pageHeight,
+                                        ...borderStyle
+                                    }}
+                                >
                                     <RenderSheet activityType={activityType} data={sheetData} />
+                                    
+                                    <div className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black">
+                                        <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
+                                        <span>{new Date().toLocaleDateString('tr-TR')}</span>
+                                    </div>
                                 </div>
                             ))}
                         </div>
 
-                    </div>
-                    
-                    <div className="mt-8 pt-4 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50 break-before-avoid text-black print:mt-4">
-                        <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
-                        <span>{new Date().toLocaleDateString('tr-TR')}</span>
                     </div>
                 </div>
             </div>

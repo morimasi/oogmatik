@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -155,19 +154,22 @@
         background: var(--text-muted); 
       }
 
-      /* Print Specific Styles - FORCE WHITE BACKGROUND & FIX MULTI-PAGE */
+      /* Print Specific Styles - IMPROVED FOR ACCURACY */
       @media print {
         @page {
           margin: 0;
+          size: auto;
         }
         
         :root, :root.theme-light, :root.dark, :root[class*="theme-"] {
+            /* Only override structural colors, NOT content colors */
             --bg-primary: #ffffff !important;
             --bg-paper: #ffffff !important;
-            --text-primary: #000000 !important;
-            --text-secondary: #333333 !important;
-            --border-color: #000000 !important;
             --bg-inset: #ffffff !important;
+            /* Ensure text is dark enough but allow colors if defined in element styles */
+            --text-primary: #000000; 
+            --text-secondary: #333333;
+            --border-color: #000000;
         }
 
         /* RESET ALL CONTAINER CONSTRAINTS */
@@ -179,14 +181,15 @@
           position: static !important;
           display: block !important;
           background-color: white !important;
-          color: black !important;
+          /* Text color reset to black only for body to allow children to override */
+          color: black; 
           width: 100% !important;
           margin: 0 !important;
           padding: 0 !important;
         }
 
         /* Hide Non-Printable Elements */
-        .no-print, header, aside, .tour-overlay, .sticky, nav {
+        .no-print, header, aside, .tour-overlay, .sticky, nav, .fixed {
           display: none !important;
         }
 
@@ -196,6 +199,8 @@
             display: block !important;
             height: auto !important;
             overflow: visible !important;
+            box-shadow: none !important;
+            border: none !important;
         }
 
         /* Utilities */
@@ -209,7 +214,7 @@
             page-break-before: always !important;
         }
 
-        /* Force color printing */
+        /* Force color printing logic */
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
