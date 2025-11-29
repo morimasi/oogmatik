@@ -169,12 +169,13 @@
             --border-color: #000000 !important;
             --bg-inset: #ffffff !important;
         }
-        body {
+        body, html {
           background-color: white !important;
           color: black !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
-          overflow: visible;
+          overflow: visible !important;
+          height: auto !important;
         }
         .no-print, header, aside, .tour-overlay {
           display: none !important;
@@ -187,6 +188,7 @@
           overflow: visible !important;
           background: white !important;
           color: black !important;
+          display: block !important;
         }
         /* Ensure background colors and images are printed */
         * {
@@ -199,6 +201,11 @@
             color: black !important;
             border: none !important;
             box-shadow: none !important;
+        }
+        /* Important utility for breaking content */
+        .break-inside-avoid {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
         }
       }
 

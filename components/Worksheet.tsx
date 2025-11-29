@@ -37,7 +37,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--print-height': isLandscape ? '210mm' : '297mm'
     } as React.CSSProperties;
 
-    // Style for scaling the content inside the page
+    // Style for scaling the content inside the page (Screen only)
     const scalerStyle: React.CSSProperties = {
         transform: `scale(${settings.scale})`,
         transformOrigin: 'top center',
@@ -54,19 +54,50 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
     return (
         <div className="w-full flex flex-col items-center bg-transparent" style={containerStyle}>
-            {/* Inject dynamic print styles for page size */}
+            {/* Inject dynamic print styles for page size and flow control */}
             <style>{`
                 @media print {
-                    @page { size: ${settings.orientation}; margin: 0; }
-                    body {
-                        --print-width: ${isLandscape ? '297mm' : '210mm'};
-                        --print-height: ${isLandscape ? '210mm' : '297mm'};
+                    @page { 
+                        size: ${settings.orientation}; 
+                        margin: 10mm; /* Small print margin for printer safety */
                     }
+                    body, html {
+                        height: auto !important;
+                        overflow: visible !important;
+                        background: white !important;
+                    }
+                    /* Reset scaling for print to ensure natural flow */
+                    .worksheet-scaler {
+                        transform: none !important;
+                        width: 100% !important;
+                        margin-bottom: 0 !important;
+                    }
+                    /* Allow the container to expand infinitely */
+                    .worksheet-page {
+                        height: auto !important;
+                        min-height: 0 !important;
+                        width: 100% !important;
+                        max-width: none !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        overflow: visible !important;
+                        display: block !important;
+                    }
+                    /* Ensure grid items don't break awkwardly */
+                    .break-inside-avoid {
+                        break-inside: avoid !important;
+                        page-break-inside: avoid !important;
+                        display: block; /* Helps with page breaking calculations */
+                    }
+                    /* Hide UI elements */
+                    .no-print { display: none !important; }
                 }
             `}</style>
 
             <div 
-                className="worksheet-page bg-white text-black shadow-2xl print:shadow-none"
+                className="worksheet-page bg-white text-black shadow-2xl print:shadow-none transition-all duration-300"
                 style={{ 
                     width: isLandscape ? '297mm' : '210mm',
                     minHeight: isLandscape ? '210mm' : '297mm',
@@ -75,7 +106,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     fontSize: `var(--worksheet-font-size)`
                 }}
             >
-                <div className="h-full flex flex-col justify-between">
+                <div className="flex flex-col h-full">
+                    {/* Scaler Wrapper */}
                     <div className="flex-1 w-full worksheet-scaler" style={scalerStyle}>
                         
                         <div style={outerGridStyle}>
@@ -88,9 +120,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
                     </div>
                     
-                    <div className="mt-auto pt-8 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50 break-before-avoid text-black">
+                    <div className="mt-8 pt-4 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50 break-before-avoid text-black print:mt-4">
                         <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
-                        <span>{data.length > 1 ? `${data.length} Çalışma` : 'Sayfa 1'}</span>
+                        <span>{new Date().toLocaleDateString('tr-TR')}</span>
                     </div>
                 </div>
             </div>
