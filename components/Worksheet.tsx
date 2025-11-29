@@ -74,6 +74,15 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         <div className="w-full flex flex-col items-center bg-transparent" style={containerStyle}>
             {/* Inject dynamic print styles for page size and flow control */}
             <style>{`
+                /* Dynamic Grid System for Items */
+                .dynamic-grid {
+                    display: grid;
+                    grid-template-columns: repeat(var(--dynamic-cols), 1fr);
+                    gap: var(--worksheet-gap);
+                    width: 100%;
+                    align-items: start;
+                }
+
                 @media print {
                     @page { 
                         size: ${settings.orientation}; 
@@ -84,6 +93,14 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         overflow: visible !important;
                         background: white !important;
                     }
+                    
+                    /* Ensure Dynamic Grid respects column settings in Print */
+                    .dynamic-grid {
+                        display: grid !important;
+                        grid-template-columns: repeat(var(--dynamic-cols), 1fr) !important;
+                        gap: var(--worksheet-gap) !important;
+                    }
+
                     /* Reset scaling for print to ensure natural flow */
                     .worksheet-scaler {
                         transform: none !important;
@@ -143,7 +160,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     
                     /* Aggressive Color Reset for Children */
                     .worksheet-item * {
-                        background-color: white !important;
+                        background-color: transparent !important; /* Ensure background shapes are visible if needed, but remove bg colors */
                         color: black !important;
                         box-shadow: none !important;
                         text-shadow: none !important;
@@ -156,6 +173,19 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     /* Specific overrides for pedagogical header to keep it readable */
                     .pedagogical-header {
                         text-align: center !important; 
+                    }
+                    
+                    /* Force Flex/Grid Layouts to Stay Horizontal in Print */
+                    .print\\:flex-row {
+                        display: flex !important;
+                        flex-direction: row !important;
+                    }
+                    .print\\:grid-cols-2 {
+                        display: grid !important;
+                        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                    }
+                    .print\\:gap-8 {
+                        gap: 2rem !important;
                     }
                 }
             `}</style>

@@ -33,6 +33,7 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
 export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        {/* ADDED print:flex-row to force side-by-side printing */}
         <div className="flex flex-col md:flex-row print:flex-row gap-8 justify-center items-start">
             <div className="flex-1 bg-white dark:bg-zinc-700/50 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm w-full">
                 <h4 className="font-bold text-center mb-4 text-indigo-600 dark:text-indigo-400 border-b pb-2">{data.box1Title}</h4>
@@ -71,7 +72,8 @@ export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ da
 export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex justify-center gap-24 mt-8 relative">
+        {/* ADDED print:gap-16 to maintain spacing */}
+        <div className="flex justify-center gap-24 mt-8 relative print:gap-16">
              {/* Connector Lines Placeholder (Visual only, printed lines are drawn by user) */}
             <div className="absolute inset-0 flex justify-center items-center opacity-10 pointer-events-none">
                 <svg className="w-full h-full"><line x1="30%" y1="10%" x2="70%" y2="90%" stroke="black" strokeWidth="2" strokeDasharray="5,5" /></svg>
@@ -169,7 +171,8 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             <div className="space-y-12">
                 {(data.drawings || []).map((drawing, index) => (
-                    <div key={index} className="flex flex-col md:flex-row print:flex-row gap-12 items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl">
+                    // ADDED print:flex-row
+                    <div key={index} className="flex flex-col md:flex-row print:flex-row gap-12 items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl break-inside-avoid">
                         {renderGrid(drawing.lines, true)}
                         <i className="fa-solid fa-arrow-right text-3xl text-zinc-300 hidden md:block print:block"></i>
                         {renderGrid(null, false)}
@@ -222,7 +225,8 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            <div className="flex flex-col md:flex-row print:flex-row gap-12 justify-center items-center">
+            {/* ADDED print:flex-row */}
+            <div className="flex flex-col md:flex-row print:flex-row gap-12 justify-center items-center break-inside-avoid">
                 
                 {/* Target Pattern (Left Side) */}
                 <div className="flex flex-col items-center">
@@ -422,7 +426,7 @@ export const WordConnectSheet: React.FC<{ data: WordConnectData }> = ({ data }) 
             {/* FIX: Pass 'data' prop to PedagogicalHeader */}
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
             
-            <div className="flex justify-between items-stretch gap-12 mt-8 relative max-w-4xl mx-auto">
+            <div className="flex justify-between items-stretch gap-12 mt-8 relative max-w-4xl mx-auto print:gap-8">
                 {/* Visual Connection Guide (Dotted Line in Center) */}
                 <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
                     <div className="h-full border-r-2 border-dashed border-zinc-200"></div>
@@ -520,7 +524,8 @@ export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = (
 export const ProfessionConnectSheet: React.FC<{ data: ProfessionConnectData }> = ({ data }) => (
      <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 gap-12 max-w-2xl mx-auto relative">
+        {/* ADDED print:grid-cols-2 print:gap-8 */}
+        <div className="grid grid-cols-2 gap-12 max-w-2xl mx-auto relative print:grid-cols-2 print:gap-8">
             {/* Left side */}
             <div className="space-y-8">
                 {data.points.filter(p => p.x === 0).map((p, i) => (

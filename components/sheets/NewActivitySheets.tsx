@@ -24,6 +24,7 @@ const TurkeyMapSVG = ({ cities }: { cities: { name: string, x: number, y: number
 export const FamilyRelationsSheet: React.FC<{ data: FamilyRelationsData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
+        {/* ADDED print:flex-row */}
         <div className="flex flex-col md:flex-row print:flex-row justify-center gap-16 mt-8 relative">
             <div className="w-full md:w-2/5 print:w-2/5 space-y-6">
                 <h4 className="font-bold text-center border-b-2 pb-2 text-zinc-600">Tanımlar</h4>
@@ -57,6 +58,7 @@ export const LogicDeductionSheet: React.FC<{ data: LogicDeductionData }> = ({ da
                         <span className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-indigo-700">{index + 1}</span>
                         <p className="font-medium text-base pt-1 text-zinc-700">{q.riddle}</p>
                     </div>
+                    {/* ADDED print:grid-cols-2 */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 ml-11">
                         {(q.options || []).map((option, optIndex) => (
                             <div key={optIndex} className="flex items-center group cursor-pointer p-2 border rounded-lg hover:bg-zinc-50 transition-colors">
@@ -82,6 +84,7 @@ export const NumberBoxLogicSheet: React.FC<{ data: NumberBoxLogicData }> = ({ da
         <div className="space-y-12">
             {(data.puzzles || []).map((puzzle, pIdx) => (
                 <div key={pIdx} className="break-inside-avoid p-4 bg-zinc-50 rounded-xl border">
+                    {/* ADDED print:grid-cols-2 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8 mb-6">
                         <div className="p-4 border-4 border-blue-300 rounded-xl bg-blue-50 shadow-md">
                             <h4 className="font-bold text-center text-blue-800 border-b-2 border-blue-200 pb-2 mb-2">Kutu 1</h4>
@@ -120,6 +123,7 @@ export const NumberBoxLogicSheet: React.FC<{ data: NumberBoxLogicData }> = ({ da
 export const MapInstructionSheet: React.FC<{ data: MapInstructionData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
+        {/* ADDED print:grid-cols-2 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-2 gap-8 items-start">
             <div className="order-last lg:order-first print:order-first">
                 <h4 className="font-bold border-b-2 pb-2 mb-4 text-zinc-700">Yönergeler</h4>
@@ -212,7 +216,7 @@ const FunctionMachine = ({ input, output, rule }: { input: number, output: strin
 export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
-        
+        {/* ADDED print:grid-cols-2 */}
         <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
             {data.puzzles.map((puzzle, idx) => (
                 <div key={idx} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center break-inside-avoid relative overflow-hidden min-h-[300px]">
@@ -303,7 +307,7 @@ export const MindGames56Sheet: React.FC<{ data: MindGames56Data }> = ({ data }) 
                         <h4 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">{puzzle.title}</h4>
                     </div>
 
-                    {/* Layout Logic */}
+                    {/* Layout Logic - ADDED print:flex-row */}
                     <div className="flex flex-col md:flex-row print:flex-row gap-6">
                         {/* Left: Content */}
                         <div className="flex-1 space-y-4">
