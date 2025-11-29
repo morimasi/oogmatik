@@ -508,12 +508,10 @@ const AppContent: React.FC = () => {
   );
 };
 
-const App: React.FC = () => {
+export const App: React.FC = () => {
   return (
     <AuthProvider>
       <AppContent />
     </AuthProvider>
   );
 };
-
-export default App;
