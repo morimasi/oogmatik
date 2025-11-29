@@ -174,10 +174,11 @@ export interface StyleSettings {
 export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment' | 'favorites';
 
 export interface GeneratorOptions {
-    mode: 'ai' | 'fast';
+    mode: 'ai' | 'fast' | 'manual';
     difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
     worksheetCount: number;
     timestamp?: number;
+    customInput?: string | string[];
     [key: string]: any;
 }
 

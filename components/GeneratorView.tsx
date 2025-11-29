@@ -15,7 +15,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         worksheetCount: 1,
         mode: 'fast',
         difficulty: 'Orta',
-        itemCount: 10
+        itemCount: 10,
+        customInput: ''
     });
     const [isFavorite, setIsFavorite] = useState(false);
 
@@ -52,7 +53,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     { key: 'concept', label: 'Konsept', type: 'select', defaultValue: 'numeric', options: ['numeric', 'verbal'], width: 'half' },
                     { key: 'itemCount', label: 'Soru Sayısı', type: 'number', defaultValue: 4, min: 1, max: 6, width: 'full' }
                 ];
-            // ... (other specific fields can be added here)
             default:
                 return [
                     { key: 'difficulty', label: 'Zorluk Seviyesi', type: 'select', defaultValue: 'Orta', options: ['Başlangıç', 'Orta', 'Zor', 'Uzman'], width: 'half' },
@@ -94,25 +94,46 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     
                     <div className="grid grid-cols-2 gap-4">
                         <div className="col-span-2">
-                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Üretim Modu</label>
-                            <div className="flex bg-zinc-100 dark:bg-zinc-700 p-1 rounded-lg">
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Üretim Modu</label>
+                            <div className="flex bg-zinc-100 dark:bg-zinc-700 p-1 rounded-xl">
                                 <button
                                     onClick={() => handleChange('mode', 'fast')}
-                                    className={`flex-1 py-2 px-4 rounded-md text-sm font-bold transition-all ${options.mode === 'fast' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${options.mode === 'fast' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
                                 >
                                     <i className="fa-solid fa-bolt mr-2"></i>Hızlı
                                 </button>
                                 <button
                                     onClick={() => handleChange('mode', 'ai')}
-                                    className={`flex-1 py-2 px-4 rounded-md text-sm font-bold transition-all ${options.mode === 'ai' ? 'bg-white dark:bg-zinc-600 text-purple-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${options.mode === 'ai' ? 'bg-white dark:bg-zinc-600 text-purple-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
                                 >
                                     <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>Yapay Zeka
                                 </button>
+                                <button
+                                    onClick={() => handleChange('mode', 'manual')}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${options.mode === 'manual' ? 'bg-white dark:bg-zinc-600 text-emerald-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
+                                >
+                                    <i className="fa-solid fa-keyboard mr-2"></i>Manuel
+                                </button>
                             </div>
-                            <p className="text-xs text-zinc-400 mt-1 ml-1">
-                                {options.mode === 'fast' ? 'Şablon tabanlı, anında üretim.' : 'Yapay zeka ile özgün ve yaratıcı içerik.'}
+                            <p className="text-xs text-zinc-400 mt-2 ml-1">
+                                {options.mode === 'fast' ? 'Şablon tabanlı, anında üretim.' : options.mode === 'ai' ? 'Yapay zeka ile özgün ve yaratıcı içerik.' : 'Kendi kelime veya sayılarınızı girerek içerik oluşturun.'}
                             </p>
                         </div>
+
+                        {options.mode === 'manual' && (
+                            <div className="col-span-2 animate-in fade-in slide-in-from-top-2">
+                                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                                    <i className="fa-solid fa-list-ul mr-1 text-emerald-500"></i> İçerik Girişi
+                                </label>
+                                <textarea
+                                    className="w-full p-4 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-emerald-500 outline-none h-32 resize-none font-mono text-sm"
+                                    placeholder="Kelimeleri veya sayıları virgül ile ayırarak giriniz.&#10;Örnek: Elma, Armut, Kiraz, Kavun"
+                                    value={options.customInput}
+                                    onChange={(e) => handleChange('customInput', e.target.value)}
+                                ></textarea>
+                                <p className="text-xs text-zinc-400 mt-1">Öğeler virgül (,) veya yeni satır ile ayrılmalıdır.</p>
+                            </div>
+                        )}
 
                         <div className="col-span-2 sm:col-span-1 p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg border border-emerald-100 dark:border-emerald-800">
                             <label className="block text-sm font-bold text-emerald-800 dark:text-emerald-200 mb-1">
@@ -129,7 +150,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">Kaç adet farklı çalışma üretilsin?</p>
                         </div>
 
-                        {fields.map((field, idx) => (
+                        {options.mode !== 'manual' && fields.map((field, idx) => (
                             <div key={idx} className={`col-span-2 ${field.width === 'half' ? 'sm:col-span-1' : ''}`}>
                                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{field.label}</label>
                                 {field.type === 'select' ? (
@@ -162,7 +183,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             <div className="p-6 border-t border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
                 <button
                     onClick={() => onGenerate(options)}
-                    disabled={isLoading}
+                    disabled={isLoading || (options.mode === 'manual' && (!options.customInput || options.customInput.trim().length < 2))}
                     className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/30 transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     {isLoading ? (

@@ -4,11 +4,12 @@ import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAl
 import { PROVERBS } from '../../data/sentences';
 
 export const generateOfflineWordSearch = async (options: GeneratorOptions & { words?: string[] }): Promise<WordSearchData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount, words } = options;
+    const { topic, itemCount, difficulty, worksheetCount, words, customInput, mode } = options;
     const results: WordSearchData[] = [];
     
     const settings = getDifficultySettings(difficulty);
-    const size = options.gridSize || settings.gridSize;
+    // Increase grid size if manual words are long
+    let size = options.gridSize || settings.gridSize;
     
     // 0: E, 1: S, 2: SE, 3: N, 4: W, 5: SW, 6: NW, 7: NE
     let directions: number[] = [];
@@ -20,15 +21,36 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
     // Case handling
     const isUpperCase = options.case !== 'lower';
 
+    // MANUAL INPUT HANDLING
+    let manualWords: string[] = [];
+    if (mode === 'manual' && customInput) {
+        if (typeof customInput === 'string') {
+            manualWords = customInput.split(/[\n,]+/).map(w => w.trim().toLocaleLowerCase('tr').replace(/ /g, '')).filter(w => w.length > 1);
+        } else if (Array.isArray(customInput)) {
+            manualWords = customInput.map(w => w.trim().toLocaleLowerCase('tr').replace(/ /g, '')).filter(w => w.length > 1);
+        }
+        // Adjust grid size based on longest word
+        const longest = Math.max(...manualWords.map(w => w.length));
+        if (longest > size) size = longest + 2;
+        if (manualWords.length > size) size = Math.max(size, Math.ceil(Math.sqrt(manualWords.length * 2)) + 2);
+    }
+
     for (let i = 0; i < worksheetCount; i++) {
-        const availableWords = getWordsForDifficulty(difficulty, topic);
-        let sheetWords = words 
-            ? words.map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''))
-            : getRandomItems(availableWords, itemCount || 10).map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''));
+        let sheetWords: string[] = [];
+        
+        if (mode === 'manual' && manualWords.length > 0) {
+            sheetWords = manualWords;
+        } else {
+            const availableWords = getWordsForDifficulty(difficulty, topic);
+            sheetWords = words 
+                ? words.map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''))
+                : getRandomItems(availableWords, itemCount || 10).map(w => w.toLocaleLowerCase('tr').replace(/ /g, ''));
+        }
             
         // Sort by length descending to place longer words first
         sheetWords.sort((a, b) => b.length - a.length);
 
+        // Grid Generation Logic
         const grid: string[][] = Array.from({ length: size }, () => Array(size).fill(''));
         const placedWords: string[] = [];
         
@@ -36,7 +58,7 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
             if (word.length > size) return;
             let placed = false;
             let attempts = 0;
-            while (!placed && attempts < 100) {
+            while (!placed && attempts < 150) {
                 const dir = getRandomItems(directions, 1)[0];
                 const dr = [0, 1, 1, -1, 0, 1, -1, -1];
                 const dc = [1, 0, 1, 0, -1, -1, -1, 1];
@@ -84,7 +106,7 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
         const finalWords = placedWords.map(w => isUpperCase ? w.toUpperCase() : w);
 
         results.push({ 
-            title: `Kelime Bulmaca (${difficulty})`, 
+            title: `Kelime Bulmaca ${mode === 'manual' ? '(Özel)' : `(${difficulty})`}`, 
             instruction: "Listelenen kelimeleri tablonun içinde bul ve işaretle.",
             pedagogicalNote: "Görsel tarama, şekil-zemin algısı ve seçici dikkat becerilerini destekler.",
             imagePrompt: 'Kelime Bulmaca',
