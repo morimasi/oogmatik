@@ -290,20 +290,34 @@
 
     .worksheet-page { 
         width: 210mm !important;
-        height: 297mm !important;
+        min-height: 297mm !important;
+        height: auto !important; /* Allow growing */
         margin: 0 !important;
         padding: var(--worksheet-margin, 1cm) !important;
         box-shadow: none !important;
-        break-after: page !important; 
-        page-break-after: always !important;
         background: white !important;
-        overflow: visible !important; /* Allow overflow content to flow naturally if needed */
+        overflow: visible !important; /* Allow overflow content to flow naturally */
         display: block !important;
+        page-break-after: always;
+    }
+    
+    /* CRITICAL: Disable Transform Scaling in Print to allow natural flow */
+    .worksheet-scaler {
+        transform: none !important;
+        width: 100% !important;
+        height: auto !important;
+        margin-bottom: 0 !important;
     }
     
     /* Ensure grids and layouts work */
     .dynamic-grid {
         display: grid !important;
+    }
+
+    /* Prevent breaking inside cards/puzzles */
+    .break-inside-avoid {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
   }
 </style>

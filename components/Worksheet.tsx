@@ -69,8 +69,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                 }}
             >
                 <div className="h-full flex flex-col justify-between">
-                    {/* The Scaler Wrapper */}
-                    <div className="flex-1 w-full" style={scalerStyle}>
+                    {/* The Scaler Wrapper with class for Print Override */}
+                    <div className="flex-1 w-full worksheet-scaler" style={scalerStyle}>
                         
                         {/* THE OUTER GRID: Positions the distinct generated activities */}
                         <div style={outerGridStyle}>
@@ -86,7 +86,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     {/* Footer Logo - Visible on Print and Screen */}
                     <div className="mt-auto pt-8 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50 break-before-avoid">
                         <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
-                        <span>{data.length > 1 ? `${data.length} Çalışma` : 'Sayfa 1 / 1'}</span>
+                        <span>{data.length > 1 ? `${data.length} Çalışma` : 'Sayfa 1'}</span>
                     </div>
                 </div>
             </div>
