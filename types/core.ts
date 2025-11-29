@@ -169,12 +169,11 @@ export interface StyleSettings {
   gap: number;
   showPedagogicalNote: boolean;
   orientation: 'portrait' | 'landscape';
-  // New Visual Settings
   showMascot: boolean;
   themeBorder: 'none' | 'simple' | 'math' | 'verbal' | 'stars' | 'geo';
 }
 
-export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment' | 'favorites';
+export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment' | 'favorites' | 'workbook';
 
 export interface GeneratorOptions {
     mode: 'ai' | 'fast' | 'manual';
@@ -322,3 +321,22 @@ export interface BaseActivityData {
 }
 
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon' | 'cube' | 'sphere' | 'pyramid' | 'cone' | 'heart' | 'cloud' | 'moon';
+
+// --- NEW TYPES FOR WORKBOOK ---
+export interface CollectionItem {
+    id: string;
+    activityType: ActivityType;
+    data: any; // SingleWorksheetData
+    settings: StyleSettings;
+    title: string;
+}
+
+export interface WorkbookSettings {
+    title: string;
+    studentName: string;
+    schoolName: string;
+    year: string;
+    teacherNote: string;
+    theme: 'modern' | 'classic' | 'fun' | 'minimal';
+    coverImage?: string; 
+}

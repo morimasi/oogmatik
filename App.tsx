@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -82,6 +82,7 @@ const tourSteps: TourStep[] = [
     { targetId: 'tour-search', title: 'Hızlı Arama', content: 'Yüzlerce etkinlik arasında kaybolmayın. Aradığınız bir etkinliğe buradan hızlıca ulaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-content', title: 'İçerik Alanı', content: 'Seçtiğiniz etkinlik ayarları ve ürettiğiniz çalışma kağıtlarınız bu ana alanda görüntülenir.', position: 'left' },
     { targetId: 'tour-toolbar', title: 'Araç Çubuğu', content: 'Etkinlik oluşturulduktan sonra, bu araç çubuğu belirir. Yazdırma, kaydetme, paylaşma ve görünüm ayarlarını (ölçek, kenar boşluğu vb.) buradan yapabilirsiniz.', position: 'bottom' },
+    { targetId: 'tour-workbook-btn', title: 'Çalışma Kitapçığı', content: 'Buradan farklı etkinlikleri biriktirip, tek seferde basabileceğiniz bir kitapçık oluşturabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-favorites-btn', title: 'Favoriler', content: 'En çok kullanılan etkinliklere buradan hızlıca ulaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-archive-btn', title: 'Arşiv', content: 'Kaydettiğiniz tüm etkinliklere buradan ulaşabilir, tekrar açabilir veya arkadaşlarınızla paylaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-profile-btn', title: 'Profiliniz', content: 'Hesap bilgilerinizi, istatistiklerinizi ve değerlendirme raporlarınızı yönetmek için profilinize gidin.', position: 'bottom' },
@@ -107,6 +108,17 @@ const AppContent: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isTourOpen, setIsTourOpen] = useState(false);
   
+  // Workbook State
+  const [workbookItems, setWorkbookItems] = useState<CollectionItem[]>([]);
+  const [workbookSettings, setWorkbookSettings] = useState<WorkbookSettings>({
+      title: 'Çalışma Kitapçığı',
+      studentName: '',
+      schoolName: '',
+      year: new Date().getFullYear().toString(),
+      teacherNote: '',
+      theme: 'modern'
+  });
+  
   const [theme, setTheme] = useState<AppTheme>(() => {
       try {
           const storedTheme = localStorage.getItem('app-theme');
@@ -130,7 +142,6 @@ const AppContent: React.FC = () => {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-      // Firebase is auto-initialized
       console.log("🔥 Firebase başlatıldı.");
   }, []);
 
@@ -160,32 +171,21 @@ const AppContent: React.FC = () => {
   useEffect(() => {
       try {
           const root = document.documentElement;
-          // List of ALL possible theme classes to remove
           const themesToRemove = [
-              'theme-light',
-              'dark', 
-              'theme-anthracite', 
-              'theme-anthracite-gold', 
-              'theme-anthracite-cyber', 
-              'theme-anthracite-bumblebee', 
-              'theme-anthracite-stone', 
-              'theme-anthracite-honey', 
-              'theme-anthracite-onyx'
+              'theme-light', 'dark', 'theme-anthracite', 'theme-anthracite-gold', 
+              'theme-anthracite-cyber', 'theme-anthracite-bumblebee', 'theme-anthracite-stone', 
+              'theme-anthracite-honey', 'theme-anthracite-onyx'
           ];
           root.classList.remove(...themesToRemove);
-          
-          // Apply new theme class
           if (theme === 'dark') {
               root.classList.add('dark');
           } else if (theme === 'light') {
               root.classList.add('theme-light');
           } else if (theme === 'anthracite') {
-              // Default root variables are anthracite, so no class needed, or explicit class if preferred
-              // root.classList.add('theme-anthracite');
+              // Default
           } else {
               root.classList.add(`theme-${theme}`);
           }
-          
           localStorage.setItem('app-theme', theme);
       } catch (e) {
           console.error("Theme application failed:", e);
@@ -263,7 +263,7 @@ const AppContent: React.FC = () => {
             data,
             activity.icon,
             { id: category.id, title: category.title },
-            styleSettings // Save current style settings including scale
+            styleSettings 
         );
         alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
     } catch (e: any) {
@@ -289,6 +289,27 @@ const AppContent: React.FC = () => {
     if (isSidebarOpen) setIsSidebarOpen(false);
   };
 
+  const handleAddToWorkbook = () => {
+        if (selectedActivity && worksheetData) {
+            // Flatten the worksheetData array into individual pages
+            const newItems: CollectionItem[] = worksheetData.map(sheet => ({
+                id: crypto.randomUUID(),
+                activityType: selectedActivity,
+                data: sheet,
+                settings: { ...styleSettings }, // Snapshot settings
+                title: sheet.title || ACTIVITIES.find(a => a.id === selectedActivity)?.title || 'Etkinlik'
+            }));
+            setWorkbookItems(prev => [...prev, ...newItems]);
+            
+            // Visual feedback
+            const btn = document.getElementById('add-to-wb-btn');
+            if(btn) {
+                btn.classList.add('scale-125', 'bg-green-500', 'text-white');
+                setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
+            }
+        }
+  };
+
   if (currentView === 'admin') {
       return (
           <Suspense fallback={<LoadingSpinner />}>
@@ -311,7 +332,6 @@ const AppContent: React.FC = () => {
       );
   }
 
-  // Common styles for header icon buttons (using theme vars)
   const headerIconBtnClass = "p-2 text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:drop-shadow-[0_0_5px_rgba(251,191,36,0.5)] transition-all duration-300 rounded-md";
 
   return (
@@ -321,7 +341,6 @@ const AppContent: React.FC = () => {
         <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] mr-3 p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars fa-lg"></i></button>
-             {/* Logo Container: Increased z-index to stay on top */}
              <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
                 <DyslexiaLogo className="h-10 w-auto" />
             </button>
@@ -359,6 +378,15 @@ const AppContent: React.FC = () => {
 
              <div className="flex items-center gap-2">
              
+                <button id="tour-workbook-btn" onClick={() => setCurrentView('workbook')} className="relative p-2 text-[var(--text-secondary)] hover:text-emerald-500 hover:drop-shadow-[0_0_5px_rgba(16,185,129,0.8)] transition-all rounded-md group" title="Çalışma Kitapçığı">
+                    <i className="fa-solid fa-book-open-reader fa-lg"></i>
+                    {workbookItems.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-bold px-1.5 rounded-full border border-black min-w-[18px] text-center">
+                            {workbookItems.length}
+                        </span>
+                    )}
+                </button>
+
                 <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-[var(--text-secondary)] hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
                     <i className="fa-solid fa-heart fa-lg"></i>
                 </button>
@@ -436,6 +464,11 @@ const AppContent: React.FC = () => {
           onFeedback={() => setIsFeedbackOpen(true)}
           onOpenAuth={() => setIsAuthModalOpen(true)}
           onSelectActivity={handleSelectActivity}
+          workbookItems={workbookItems}
+          setWorkbookItems={setWorkbookItems}
+          workbookSettings={workbookSettings}
+          setWorkbookSettings={setWorkbookSettings}
+          onAddToWorkbook={handleAddToWorkbook}
         />
       </div>
       

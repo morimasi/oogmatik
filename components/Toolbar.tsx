@@ -11,16 +11,30 @@ interface ToolbarProps {
   onDownloadPDF?: () => void;
   onTogglePreview: () => void;
   isPreviewMode: boolean;
+  onAddToWorkbook?: () => void;
+  workbookItemCount?: number;
+  onViewWorkbook?: () => void;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, onFeedback, onShare, onDownloadPDF, onTogglePreview, isPreviewMode }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ 
+    settings, 
+    onSettingsChange, 
+    onSave, 
+    onFeedback, 
+    onShare, 
+    onDownloadPDF, 
+    onTogglePreview, 
+    isPreviewMode,
+    onAddToWorkbook,
+    workbookItemCount = 0,
+    onViewWorkbook
+}) => {
   const [showVisualMenu, setShowVisualMenu] = useState(false);
 
   const handlePrint = () => {
     window.print();
   };
 
-  // Compact Slider Component Helper
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
       <div className="flex items-center gap-1.5 group" title={title}>
           <i className={`fa-solid ${icon} text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors text-xs w-4 text-center`}></i>
@@ -40,9 +54,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
   return (
     <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 print:hidden transition-all duration-300 relative">
         
-        {/* Settings Group - Wraps on small screens */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-             {/* Orientation Toggle */}
              <div className="flex items-center bg-[var(--bg-inset)] rounded-lg p-1 mr-2">
                 <button 
                     onClick={() => onSettingsChange({...settings, orientation: 'portrait'})}
@@ -60,7 +72,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
                 </button>
             </div>
 
-             {/* Updated Scale Slider */}
              <CompactSlider 
                 icon="fa-magnifying-glass" 
                 title="Ölçek / Zoom" 
@@ -92,7 +103,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
 
              <div className="h-3 w-px bg-zinc-600 hidden sm:block"></div>
 
-             {/* Pedagogical Note Toggle */}
              <button
                 onClick={() => onSettingsChange({...settings, showPedagogicalNote: !settings.showPedagogicalNote})}
                 className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${settings.showPedagogicalNote ? 'bg-indigo-500/20 text-indigo-300' : 'bg-[var(--bg-inset)] text-[var(--text-muted)]'}`}
@@ -101,7 +111,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
                  <i className={`fa-solid ${settings.showPedagogicalNote ? 'fa-eye' : 'fa-eye-slash'}`}></i> Not
              </button>
 
-             {/* Visual Settings Dropdown Trigger */}
              <div className="relative">
                  <button
                     onClick={() => setShowVisualMenu(!showVisualMenu)}
@@ -143,7 +152,30 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
       
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
-            {/* Preview Mode Button */}
+            {onAddToWorkbook && (
+                <button 
+                    id="add-to-wb-btn"
+                    onClick={onAddToWorkbook}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg transition-all bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50 hover:text-emerald-300 relative"
+                    title="Kitapçığa Ekle"
+                >
+                    <i className="fa-solid fa-plus-circle"></i>
+                </button>
+            )}
+            
+            {onViewWorkbook && (
+                <button 
+                    onClick={onViewWorkbook}
+                    className="px-3 py-1.5 bg-[var(--bg-inset)] border border-[var(--border-color)] rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 hover:bg-[var(--bg-paper)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    title="Kitapçığı Görüntüle"
+                >
+                    <i className="fa-solid fa-book-open"></i>
+                    {workbookItemCount > 0 && <span className="bg-emerald-500 text-white rounded-full px-1.5 text-[9px]">{workbookItemCount}</span>}
+                </button>
+            )}
+
+            <div className="w-px h-4 bg-zinc-600 mx-1"></div>
+
             <button 
                 onClick={onTogglePreview} 
                 className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isPreviewMode ? 'bg-[var(--accent-color)] text-black' : 'text-[var(--text-muted)] hover:bg-[var(--bg-inset)]'}`}

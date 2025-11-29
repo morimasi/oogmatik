@@ -1,6 +1,6 @@
 
 import React, { memo, useState, useRef, useEffect } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View } from '../types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
@@ -12,6 +12,7 @@ import { AssessmentModule } from './AssessmentModule';
 import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { worksheetService } from '../services/worksheetService';
+import { WorkbookView } from './WorkbookView';
 
 
 interface ContentAreaProps {
@@ -28,16 +29,20 @@ interface ContentAreaProps {
   onFeedback: () => void;
   onOpenAuth: () => void;
   onSelectActivity?: (activityType: ActivityType) => void;
+  // Workbook Props
+  workbookItems: CollectionItem[];
+  setWorkbookItems: React.Dispatch<React.SetStateAction<CollectionItem[]>>;
+  workbookSettings: WorkbookSettings;
+  setWorkbookSettings: React.Dispatch<React.SetStateAction<WorkbookSettings>>;
+  onAddToWorkbook: () => void;
 }
 
-// Extracted component to prevent re-definition on every render
 const LandingText = memo(() => {
     const text = "Her şey tersti sen farkında olana kadar...";
     return (
         <h2 className="text-3xl font-bold mb-2 text-[var(--text-primary)] leading-normal text-center max-w-2xl mx-auto">
             {text.split('').map((char, i) => {
                 if (char === ' ') return <span key={i}> </span>;
-                // Apply animation to 'e', 'a', 'o', 'b', 'd', 'p'
                 const isAnimated = ['e', 'a', 'ı', 'i', 'o', 'ö', 'u', 'ü', 'b', 'd', 'p'].includes(char.toLowerCase()) && Math.random() > 0.3;
                 const delay = Math.random() * -5;
                 const duration = 4 + Math.random() * 4;
@@ -69,22 +74,25 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onLoadSaved,
   onFeedback,
   onOpenAuth,
-  onSelectActivity
+  onSelectActivity,
+  workbookItems,
+  setWorkbookItems,
+  workbookSettings,
+  setWorkbookSettings,
+  onAddToWorkbook
 }) => {
     const { user } = useAuth();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
-    const [isPreviewMode, setIsPreviewMode] = useState(false); // State for Preview/Zen Mode
+    const [isPreviewMode, setIsPreviewMode] = useState(false);
     const mainRef = useRef<HTMLDivElement>(null);
 
-    // Scroll to top when view changes
     useEffect(() => {
         if (mainRef.current) {
             mainRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }, [currentView, activityType]);
 
-    // Keyboard listener for ESC to exit preview mode
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape' && isPreviewMode) {
@@ -182,6 +190,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         if (currentView === 'shared') return ['Ana Sayfa', 'Paylaşılanlar'];
         if (currentView === 'assessment') return ['Ana Sayfa', 'Değerlendirme'];
         if (currentView === 'favorites') return ['Ana Sayfa', 'Favoriler'];
+        if (currentView === 'workbook') return ['Ana Sayfa', 'Çalışma Kitapçığı'];
         if (currentView === 'generator' && activityType) {
             const act = ACTIVITIES.find(a => a.id === activityType);
             const cat = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType || '' as ActivityType));
@@ -199,7 +208,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         className={`flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 printable-area relative bg-[var(--bg-primary)] scroll-smooth print:overflow-visible print:h-auto print:block print:w-full print:bg-white transition-colors duration-300 ${isPreviewMode ? 'fixed inset-0 z-50 !p-0 bg-zinc-900 flex flex-col items-center justify-center' : ''}`}
     >
       
-      {/* Breadcrumbs - Hide in Preview Mode */}
       {!isPreviewMode && (
           <nav className="mb-4 flex items-center text-sm text-[var(--text-secondary)] print:hidden" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2">
@@ -231,6 +239,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         onDownloadPDF={handleDownloadPDF}
                         onTogglePreview={() => setIsPreviewMode(!isPreviewMode)}
                         isPreviewMode={isPreviewMode}
+                        onAddToWorkbook={onAddToWorkbook}
+                        workbookItemCount={workbookItems.length}
                     />
                     {error && error.startsWith("Bilgi:") && !isPreviewMode && (
                         <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200 rounded-lg text-sm border border-blue-200 dark:border-blue-800 flex items-center animate-pulse">
@@ -326,6 +336,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               onSelectActivity={(id) => {
                   if (onSelectActivity) onSelectActivity(id);
               }}
+              onBack={onBackToGenerator}
+          />
+      ) : currentView === 'workbook' ? (
+          <WorkbookView 
+              items={workbookItems}
+              setItems={setWorkbookItems}
+              settings={workbookSettings}
+              setSettings={setWorkbookSettings}
               onBack={onBackToGenerator}
           />
       ) : null}
