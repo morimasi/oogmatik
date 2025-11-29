@@ -180,103 +180,78 @@
   }
 
   /* 
-     SMART COLOR RESET FOR WORKSHEET (v2.0)
-     Ensures worksheet content has a light background and dark text, regardless of the app theme.
+     ==========================================================================
+     STRICT BLACK & WHITE WORKSHEET OVERRIDES (v3.0)
+     Forces all boxes, tables, texts to be Black/White/Grey inside .worksheet-page
+     regardless of the global theme.
+     ==========================================================================
   */
   
-  /* 1. Force light backgrounds on common container elements */
+  /* 1. RESET BACKGROUNDS: Force all standard backgrounds to white */
   .worksheet-page .bg-white,
-  .worksheet-page .dark\\:bg-zinc-800,
-  .worksheet-page .dark\\:bg-zinc-900,
-  .worksheet-page .dark\\:bg-zinc-700,
-  .worksheet-page .dark\\:bg-zinc-800\\/50,
-  .worksheet-page .bg-zinc-800,
-  .worksheet-page .bg-zinc-900 {
-      background-color: white !important;
-  }
-  
-  /* 2. Force slightly off-white for inset/alternate backgrounds */
-  .worksheet-page .bg-zinc-50, .worksheet-page .bg-gray-50, .worksheet-page .bg-slate-50,
-  .worksheet-page .bg-zinc-100, .worksheet-page .bg-gray-100, .worksheet-page .bg-slate-100,
-  .worksheet-page .bg-zinc-50\\/50, .worksheet-page .bg-zinc-100\\/50,
-  .worksheet-page .dark\\:bg-zinc-700\\/50,
-  .worksheet-page .dark\\:bg-zinc-900\\/50 {
-      background-color: #f9fafb !important; /* zinc-50 */
+  .worksheet-page .bg-zinc-50, .worksheet-page .bg-zinc-100, .worksheet-page .bg-zinc-200,
+  .worksheet-page .bg-gray-50, .worksheet-page .bg-gray-100,
+  .worksheet-page .bg-slate-50, .worksheet-page .bg-slate-100,
+  /* Dark mode overrides */
+  .worksheet-page .bg-zinc-700, .worksheet-page .dark\:bg-zinc-700,
+  .worksheet-page .bg-zinc-800, .worksheet-page .dark\:bg-zinc-800,
+  .worksheet-page .bg-zinc-900, .worksheet-page .dark\:bg-zinc-900,
+  .worksheet-page .dark\:bg-zinc-700\/50, .worksheet-page .dark\:bg-zinc-800\/50,
+  .worksheet-page .dark\:bg-zinc-900\/50 {
+      background-color: #ffffff !important;
+      color: #000000 !important;
   }
 
-  /* 3. Force dark text colors on common text elements */
-  .worksheet-page .text-black,
-  .worksheet-page .text-zinc-900, .worksheet-page .text-gray-900, .worksheet-page .text-slate-900,
-  .worksheet-page .text-zinc-800, .worksheet-page .text-gray-800,
-  .worksheet-page .text-zinc-700, .worksheet-page .text-gray-700,
-  .worksheet-page .dark\\:text-white,
-  .worksheet-page .dark\\:text-zinc-100,
-  .worksheet-page .dark\\:text-zinc-200 {
-      color: #18181b !important; /* zinc-900 */
+  /* 2. RESET TEXT: Force text to black */
+  .worksheet-page .text-white, .worksheet-page .dark\:text-white,
+  .worksheet-page .text-zinc-50, .worksheet-page .text-zinc-100, .worksheet-page .text-zinc-200,
+  .worksheet-page .text-gray-100,
+  .worksheet-page .dark\:text-zinc-100, .worksheet-page .dark\:text-zinc-200, .worksheet-page .dark\:text-zinc-300,
+  .worksheet-page .text-zinc-800, .worksheet-page .text-zinc-900,
+  .worksheet-page .dark\:text-indigo-400, .worksheet-page .dark\:text-indigo-300 {
+      color: #000000 !important;
   }
   
-  /* 4. Force muted text colors to be a readable dark gray */
-  .worksheet-page .text-zinc-600, .worksheet-page .text-gray-600,
-  .worksheet-page .text-zinc-500, .worksheet-page .text-gray-500,
-  .worksheet-page .text-white, /* Handle cases where text-white is used for muted text on dark bg */
-  .worksheet-page .dark\\:text-zinc-300,
-  .worksheet-page .dark\\:text-zinc-400,
-  .worksheet-page .dark\\:text-zinc-500 {
-      color: #52525b !important; /* zinc-600 */
+  .worksheet-page .text-zinc-300, .worksheet-page .text-zinc-400,
+  .worksheet-page .text-zinc-500, .worksheet-page .text-zinc-600 {
+      color: #404040 !important; /* Make muted text legible dark grey */
+  }
+
+  /* 3. BORDERS: Ensure borders are visible (Black/Dark Grey) */
+  /* Since we removed dark backgrounds, boxes need borders to be seen */
+  .worksheet-page .border-zinc-200, .worksheet-page .border-zinc-300,
+  .worksheet-page .border-zinc-600, .worksheet-page .border-zinc-700, .worksheet-page .border-zinc-800,
+  .worksheet-page .dark\:border-zinc-600, .worksheet-page .dark\:border-zinc-700 {
+      border-color: #000000 !important;
+      border-width: 2px !important; /* Enforce visible border thickness */
   }
   
-  /* 5. Ensure borders are visible */
-  .worksheet-page .border-zinc-700, .worksheet-page .dark\\:border-zinc-700,
-  .worksheet-page .border-zinc-600, .worksheet-page .dark\\:border-zinc-600,
-  .worksheet-page .border-zinc-800, .worksheet-page .dark\\:border-zinc-800,
-  .worksheet-page .border-black, .worksheet-page .dark\\:border-white {
-      border-color: #3f3f46 !important; /* zinc-700 */
+  /* 4. SPECIFIC COMPONENT FIXES */
+  /* Fix specific card styles that rely on bg colors */
+  .worksheet-page div[class*="bg-zinc-800"],
+  .worksheet-page div[class*="bg-zinc-900"] {
+      border: 2px solid #000000 !important;
+      background-color: #ffffff !important;
+  }
+
+  /* Tinted backgrounds can stay light grey/tinted for contrast but ensuring text is black */
+  .worksheet-page .bg-indigo-50, .worksheet-page .dark\:bg-indigo-900\/20,
+  .worksheet-page .bg-emerald-50, .worksheet-page .dark\:bg-emerald-900\/20,
+  .worksheet-page .bg-amber-50, .worksheet-page .dark\:bg-amber-900\/20,
+  .worksheet-page .bg-rose-50, .worksheet-page .dark\:bg-rose-900\/20 {
+      background-color: #f3f4f6 !important; /* Neutral light grey instead of color tint for printing */
+      color: #000000 !important;
+      border: 1px solid #000000 !important;
   }
   
-  .worksheet-page .border-zinc-400, .worksheet-page .border-zinc-500 {
-      border-color: #a1a1aa !important; /* zinc-400 */
-  }
-  
-  .worksheet-page .border-zinc-300,
-  .worksheet-page .border-zinc-200,
-  .worksheet-page .border-zinc-100 {
-      border-color: #e4e4e7 !important; /* zinc-200 */
-  }
-  
-  /* 6. Preserve intentional color highlights (but ensure they are light) */
-  .worksheet-page .bg-indigo-50,
-  .worksheet-page .dark\\:bg-indigo-900\\/20,
-  .worksheet-page .dark\\:bg-indigo-900\\/30 { background-color: #eef2ff !important; }
+  /* Preserve text colors for meaning if needed, but ensure they are dark enough */
+  .worksheet-page .text-indigo-600, .worksheet-page .text-indigo-700 { color: #000000 !important; font-weight: bold !important; }
+  .worksheet-page .text-rose-600 { color: #000000 !important; text-decoration: underline !important; }
+  .worksheet-page .text-emerald-600 { color: #000000 !important; font-style: italic !important; }
 
-  .worksheet-page .bg-rose-50,
-  .worksheet-page .dark\\:bg-rose-900\\/20 { background-color: #fff1f2 !important; }
-
-  .worksheet-page .bg-emerald-50,
-  .worksheet-page .dark\\:bg-emerald-900\\/10,
-  .worksheet-page .dark\\:bg-emerald-900\\/20 { background-color: #ecfdf5 !important; }
-
-  .worksheet-page .bg-amber-50,
-  .worksheet-page .dark\\:bg-amber-900\\/30 { background-color: #fffbeb !important; }
-
-  .worksheet-page .bg-amber-100 { background-color: #fef3c7 !important; }
-  .worksheet-page .bg-amber-200 { background-color: #fde68a !important; }
-
-  .worksheet-page .bg-sky-50 { background-color: #f0f9ff !important; }
-  .worksheet-page .bg-blue-50 { background-color: #eff6ff !important; }
-
-  /* 7. Preserve intentional text colors */
-  .worksheet-page .text-indigo-600, .worksheet-page .dark\\:text-indigo-400 { color: #4f46e5 !important; }
-  .worksheet-page .text-indigo-700 { color: #4338ca !important; }
-  .worksheet-page .text-indigo-800 { color: #3730a3 !important; }
-  .worksheet-page .text-rose-600 { color: #e11d48 !important; }
-  .worksheet-page .text-emerald-600 { color: #059669 !important; }
-  .worksheet-page .text-amber-700 { color: #b45309 !important; }
-  .worksheet-page .text-sky-700 { color: #0369a1 !important; }
-  .worksheet-page .text-red-500 { color: #ef4444 !important; }
-  .worksheet-page .text-blue-700 { color: #1d4ed8 !important; }
-  .worksheet-page .text-yellow-500 { color: #eab308 !important; }
-  
-  /* Animation utils */
+  /* 
+     Animation utils 
+  */
   @keyframes mixedFlip { 0% { transform: rotateY(0deg); fill: var(--text-primary); } 50% { transform: rotateY(180deg); fill: var(--accent-color); } 100% { transform: rotateY(360deg); fill: var(--text-primary); } }
   .dyslexia-flip { animation: mixedFlip 8s infinite ease-in-out; display: inline-block; }
   .fade-in { animation: fadeIn 0.4s ease-out forwards; }
