@@ -16,6 +16,8 @@ interface SavedWorksheetsViewProps {
 
 const PAGE_SIZE = 10;
 
+type GroupType = { title: string; items: (SavedWorksheet | SavedAssessment)[] };
+
 export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
   const { user } = useAuth();
   const [worksheets, setWorksheets] = useState<SavedWorksheet[]>([]);
@@ -84,7 +86,6 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
 
   const groupedItems = useMemo(() => {
     // 1. Group Worksheets
-    type GroupType = { title: string; items: (SavedWorksheet | SavedAssessment)[] };
     const grouped = worksheets.reduce((acc: Record<string, GroupType>, ws) => {
       const categoryId = ws.category?.id || 'uncategorized';
       const categoryTitle = ws.category?.title || 'Kategorisiz';
@@ -172,7 +173,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
       ) : (
         <>
             <div className="space-y-2">
-                {groupedItems.map(([categoryId, group]) => (
+                {groupedItems.map(([categoryId, group]: [string, GroupType]) => (
                     <div key={categoryId} className="border-b border-zinc-200 dark:border-zinc-700 last:border-b-0">
                         <button 
                             onClick={() => toggleCategory(categoryId)}

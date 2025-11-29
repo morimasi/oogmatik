@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { SavedWorksheet, SavedAssessment } from '../types';
 import { ACTIVITIES } from '../constants';
@@ -11,6 +12,8 @@ interface SharedWorksheetsViewProps {
 }
 
 const PAGE_SIZE = 10;
+
+type GroupType = { title: string; items: SavedWorksheet[] };
 
 export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoad, onBack }) => {
   const { user } = useAuth();
@@ -59,7 +62,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
 
   const groupedData = useMemo(() => {
     // Group Worksheets
-    const grouped = sharedWorksheets.reduce((acc: Record<string, { title: string; items: SavedWorksheet[] }>, ws) => {
+    const grouped = sharedWorksheets.reduce((acc: Record<string, GroupType>, ws) => {
       const categoryId = ws.category?.id || 'uncategorized';
       const categoryTitle = ws.category?.title || 'Kategorisiz';
       
@@ -68,7 +71,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
       }
       acc[categoryId].items.push(ws);
       return acc;
-    }, {} as Record<string, { title: string; items: SavedWorksheet[] }>);
+    }, {} as Record<string, GroupType>);
 
     // Add Assessments as a specific group if exists (only on first page for simplicity)
     if (page === 0 && sharedAssessments.length > 0) {
@@ -86,12 +89,12 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                 sharedBy: a.sharedBy,
                 sharedByName: a.sharedByName,
                 sharedWith: a.sharedWith
-            }))
+            })) as SavedWorksheet[] // Cast to satisfy type, although structure slightly differs
         };
     }
 
     // Sort items within each group by date (newest first)
-    Object.values(grouped).forEach((group: { title: string; items: SavedWorksheet[] }) => {
+    Object.values(grouped).forEach((group: GroupType) => {
       group.items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     });
 
@@ -145,7 +148,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
       ) : (
         <>
             <div className="space-y-2">
-                {groupedData.map(([categoryId, group]) => (
+                {groupedData.map(([categoryId, group]: [string, GroupType]) => (
                     <div key={categoryId} className="border-b border-zinc-200 dark:border-zinc-700 last:border-b-0">
                         <button 
                             onClick={() => toggleCategory(categoryId)}

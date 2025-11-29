@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
@@ -9,13 +9,15 @@ import GlobalSearch from './components/GlobalSearch';
 import { FeedbackModal } from './components/FeedbackModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthModal } from './components/AuthModal';
-import { ProfileView } from './components/ProfileView';
-import { AdminDashboard } from './components/AdminDashboard';
-import { MessagesView } from './components/MessagesView';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
+
+// Lazy Loaded Components
+const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const MessagesView = lazy(() => import('./components/MessagesView').then(module => ({ default: module.MessagesView })));
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
@@ -82,6 +84,12 @@ const tourSteps: TourStep[] = [
     { targetId: 'tour-archive-btn', title: 'Arşiv', content: 'Kaydettiğiniz tüm etkinliklere buradan ulaşabilir, tekrar açabilir veya arkadaşlarınızla paylaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-profile-btn', title: 'Profiliniz', content: 'Hesap bilgilerinizi, istatistiklerinizi ve değerlendirme raporlarınızı yönetmek için profilinize gidin.', position: 'bottom' },
 ];
+
+const LoadingSpinner = () => (
+    <div className="flex h-full w-full items-center justify-center text-indigo-500">
+        <i className="fa-solid fa-circle-notch fa-spin text-3xl"></i>
+    </div>
+);
 
 const AppContent: React.FC = () => {
   const { user, logout } = useAuth();
@@ -280,13 +288,25 @@ const AppContent: React.FC = () => {
   };
 
   if (currentView === 'admin') {
-      return <AdminDashboard onBack={() => setCurrentView('generator')} />;
+      return (
+          <Suspense fallback={<LoadingSpinner />}>
+              <AdminDashboard onBack={() => setCurrentView('generator')} />
+          </Suspense>
+      );
   }
   if (currentView === 'profile') {
-      return <ProfileView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} />;
+      return (
+          <Suspense fallback={<LoadingSpinner />}>
+              <ProfileView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} />
+          </Suspense>
+      );
   }
   if (currentView === 'messages') {
-      return <MessagesView onBack={() => setCurrentView('generator')} onRefreshNotifications={refreshNotifications} />;
+      return (
+          <Suspense fallback={<LoadingSpinner />}>
+              <MessagesView onBack={() => setCurrentView('generator')} onRefreshNotifications={refreshNotifications} />
+          </Suspense>
+      );
   }
 
   // Common styles for header icon buttons (using theme vars)
