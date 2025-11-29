@@ -201,7 +201,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       
       {/* Breadcrumbs - Hide in Preview Mode */}
       {!isPreviewMode && (
-          <nav className="mb-4 flex items-center text-sm text-zinc-500 print:hidden" aria-label="Breadcrumb">
+          <nav className="mb-4 flex items-center text-sm text-[var(--text-secondary)] print:hidden" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2">
                 {breadcrumbs.map((crumb, idx) => (
                     <li key={idx} className="flex items-center">
@@ -290,7 +290,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             <i className="fa-solid fa-wand-magic-sparkles text-5xl text-[var(--accent-color)]"></i>
                         </div>
                         <LandingText />
-                        <p className="mt-6 text-zinc-400 text-lg leading-relaxed">
+                        <p className="mt-6 text-[var(--text-muted)] text-lg leading-relaxed">
                             Eğitimi kişiselleştirmek hiç bu kadar kolay olmamıştı.<br/>
                             <strong>Disleksi</strong>, <strong>Diskalkuli</strong> ve <strong>Dikkat Eksikliği</strong> için özel olarak tasarlanmış materyaller üretin.
                         </p>

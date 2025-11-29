@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -26,17 +27,23 @@
       }
 
       :root {
-        --bg-primary: #ffffff;
-        --bg-secondary: #f4f4f5;
-        --bg-paper: #ffffff;
-        --bg-inset: #f4f4f5;
-        --text-primary: #18181b;
-        --text-secondary: #71717a;
-        --text-muted: #a1a1aa;
-        --border-color: #e4e4e7;
-        --accent-color: #4f46e5;
-        --accent-hover: #4338ca;
-        --pattern-color: #e4e4e7;
+        /* Anthracite & Gold Theme Configuration */
+        --bg-primary: #222226;      /* Main Background (Anthracite) */
+        --bg-secondary: #1a1a1d;    /* Secondary/Darker Background */
+        --bg-paper: #2d2d32;        /* Cards/Panels (Lighter Anthracite) */
+        --bg-inset: #18181b;        /* Input fields/Deep Backgrounds */
+        
+        --panel-bg: rgba(45, 45, 50, 0.85); /* Semi-transparent panel background */
+
+        --text-primary: #fefce8;    /* Main Text (Off-white/Pale Yellow) */
+        --text-secondary: #d4d4d8;  /* Secondary Text (Light Gray) */
+        --text-muted: #a1a1aa;      /* Muted Text */
+        
+        --border-color: #3f3f46;    /* Borders */
+        
+        --accent-color: #fbbf24;    /* Primary Accent (Gold / Amber 400) */
+        --accent-hover: #f59e0b;    /* Accent Hover (Amber 500) */
+        --pattern-color: #3f3f46;
         
         --ui-font: 'OpenDyslexic', sans-serif;
         --ui-scale: 1;
@@ -45,27 +52,12 @@
         --ui-saturation: 100%;
       }
 
-      /* Dark Theme Variables */
-      .dark {
-        --bg-primary: #18181b;
-        --bg-secondary: #27272a;
-        --bg-paper: #27272a;
-        --bg-inset: #18181b;
-        --text-primary: #f4f4f5;
-        --text-secondary: #a1a1aa;
-        --text-muted: #52525b;
-        --border-color: #3f3f46;
-        --accent-color: #818cf8;
-        --accent-hover: #6366f1;
-        --pattern-color: #27272a;
-      }
-
       body {
         font-family: var(--ui-font);
         font-size: calc(16px * var(--ui-scale));
         letter-spacing: var(--ui-spacing);
         line-height: var(--ui-line-height);
-        background-color: var(--bg-secondary);
+        background-color: var(--bg-primary);
         color: var(--text-primary);
         margin: 0;
         padding: 0;
@@ -77,14 +69,38 @@
         filter: saturate(var(--ui-saturation));
       }
 
-      /* Print Specific Styles */
+      /* Scrollbar Styling for Dark Theme */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg-inset); 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-color); 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted); 
+      }
+
+      /* Print Specific Styles - FORCE WHITE BACKGROUND */
       @media print {
         @page {
           margin: 0;
         }
+        :root {
+            /* Reset variables for print context */
+            --bg-primary: #ffffff !important;
+            --bg-paper: #ffffff !important;
+            --text-primary: #000000 !important;
+            --text-secondary: #333333 !important;
+            --border-color: #000000 !important;
+        }
         body {
-          background: white;
-          color: black;
+          background-color: white !important;
+          color: black !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           overflow: visible;
@@ -99,15 +115,23 @@
           height: auto !important;
           overflow: visible !important;
           background: white !important;
+          color: black !important;
         }
         /* Ensure background colors and images are printed */
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
+        /* Specific overrides for worksheet */
+        .worksheet-page {
+            background-color: white !important;
+            color: black !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
       }
 
-      /* Custom Scrollbar */
+      /* Custom Scrollbar Utility */
       .custom-scrollbar::-webkit-scrollbar {
         width: 8px;
         height: 8px;

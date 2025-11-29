@@ -139,7 +139,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       id="tour-sidebar"
-      // Updated Classes for Theme Compatibility
       className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-[var(--bg-paper)] backdrop-blur-md shadow-xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-[var(--border-color)] print:hidden ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
@@ -173,15 +172,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <div key={category.id} className="py-1">
                                 <button
                                     onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
-                                    // Updated Menu Button Styles
+                                    // Menu Button
                                     className={`w-full flex items-center justify-between p-3 text-left font-semibold text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-inset)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${openCategoryId === category.id ? 'bg-[var(--bg-inset)]' : ''}`}
                                     aria-expanded={openCategoryId === category.id}
                                 >
                                     <span>{category.title}</span>
-                                    <i className={`fa-solid fa-chevron-down text-sm text-zinc-400 transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
+                                    <i className={`fa-solid fa-chevron-down text-sm text-[var(--text-muted)] transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (
-                                    // Updated Sub-menu Styles
+                                    // Sub-menu
                                     <ul className="sidebar-activity-list mt-1 space-y-1 bg-[var(--bg-primary)] rounded-lg p-2 mx-2 shadow-inner border border-[var(--border-color)]">
                                         {category.items.map(activity => (
                                             <li key={`${activity.id}-${activity.title}`}>
@@ -190,7 +189,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                         onSelectActivity(activity.id);
                                                         closeSidebar();
                                                     }}
-                                                    // Updated Activity Item Styles
+                                                    // Activity Item
                                                     className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${
                                                         selectedActivity === activity.id 
                                                         ? 'bg-[var(--bg-inset)] text-[var(--text-primary)] border-l-4 border-[var(--accent-color)] font-bold' 

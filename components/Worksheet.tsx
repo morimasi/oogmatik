@@ -26,7 +26,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
     const containerStyle = {
         '--worksheet-font-size': `${settings.fontSize}px`,
-        '--worksheet-border-color': settings.borderColor,
+        '--worksheet-border-color': settings.borderColor, // Usually black/gray for print
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-margin': `${settings.margin}px`,
         '--worksheet-gap': `${settings.gap}px`,
@@ -66,7 +66,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             `}</style>
 
             <div 
-                className="worksheet-page"
+                className="worksheet-page bg-white text-black shadow-2xl print:shadow-none"
                 style={{ 
                     width: isLandscape ? '297mm' : '210mm',
                     minHeight: isLandscape ? '210mm' : '297mm',
@@ -88,7 +88,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
                     </div>
                     
-                    <div className="mt-auto pt-8 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50 break-before-avoid">
+                    <div className="mt-auto pt-8 border-t-2 border-zinc-200 w-full flex justify-between items-center text-[10px] opacity-50 break-before-avoid text-black">
                         <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
                         <span>{data.length > 1 ? `${data.length} Çalışma` : 'Sayfa 1'}</span>
                     </div>

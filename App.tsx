@@ -64,7 +64,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       >
         <header className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
           <h2 className="text-xl font-bold text-[var(--text-primary)]">{title}</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-inset)]"><i className="fa-solid fa-times"></i></button>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-inset)] transition-colors"><i className="fa-solid fa-times"></i></button>
         </header>
         <div className="p-6 overflow-y-auto space-y-4 text-[var(--text-secondary)] custom-scrollbar">{children}</div>
       </div>
@@ -280,8 +280,8 @@ const AppContent: React.FC = () => {
       return <MessagesView onBack={() => setCurrentView('generator')} onRefreshNotifications={refreshNotifications} />;
   }
 
-  // Common styles for header icon buttons
-  const headerIconBtnClass = "p-2 text-zinc-400 hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] transition-all duration-300 rounded-md";
+  // Common styles for header icon buttons (using theme vars)
+  const headerIconBtnClass = "p-2 text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:drop-shadow-[0_0_5px_rgba(251,191,36,0.5)] transition-all duration-300 rounded-md";
 
   return (
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
@@ -289,7 +289,7 @@ const AppContent: React.FC = () => {
       <header className="relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 print:hidden">
         <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
-            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-500 mr-3 p-2"><i className="fa-solid fa-bars fa-lg"></i></button>
+            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] mr-3 p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars fa-lg"></i></button>
              {/* Logo Container: Increased z-index to stay on top */}
              <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
                 <DyslexiaLogo className="h-10 w-auto" />
@@ -301,7 +301,7 @@ const AppContent: React.FC = () => {
                 <GlobalSearch onSelectActivity={handleSelectActivity} />
              </div>
              
-             <div className="flex items-center gap-1 border-r border-zinc-700 pr-2 mx-1">
+             <div className="flex items-center gap-1 border-r border-[var(--border-color)] pr-2 mx-1">
                 <button onClick={() => setIsTourOpen(true)} className={headerIconBtnClass} title="Nasıl Kullanılır?">
                     <i className="fa-solid fa-question-circle fa-lg"></i>
                 </button>
@@ -318,17 +318,17 @@ const AppContent: React.FC = () => {
              
              <button 
                 onClick={() => setCurrentView('assessment')} 
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full text-xs font-extrabold shadow-md hover:shadow-indigo-500/30 hover:scale-105 transition-all border border-indigo-500"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[var(--accent-color)] text-black rounded-full text-xs font-extrabold shadow-md hover:shadow-[var(--accent-color)]/30 hover:scale-105 transition-all border border-[var(--accent-hover)]"
                 title="Öğrenme Güçlüğü Analizi"
              >
                  <i className="fa-solid fa-user-doctor"></i> Değerlendirme
              </button>
 
-             <div className="h-6 w-px bg-zinc-700 mx-1 hidden sm:block"></div>
+             <div className="h-6 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
 
              <div className="flex items-center gap-2">
              
-                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-zinc-400 hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
+                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-[var(--text-secondary)] hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
                     <i className="fa-solid fa-heart fa-lg"></i>
                 </button>
 
@@ -361,17 +361,17 @@ const AppContent: React.FC = () => {
                     </button>
                     
                     <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
-                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-zinc-700 shadow-sm hover:border-[var(--accent-color)] transition-colors" />
+                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-[var(--border-color)] shadow-sm hover:border-[var(--accent-color)] transition-colors bg-zinc-800" />
                     </button>
                  </>
              ) : (
-                 <button onClick={() => setIsAuthModalOpen(true)} className="ml-2 px-5 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-lg font-black text-sm hover:bg-zinc-100 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                 <button onClick={() => setIsAuthModalOpen(true)} className="ml-2 px-5 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg font-black text-sm hover:bg-[var(--bg-inset)] transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]">
                      Giriş Yap
                  </button>
              )}
              </div>
              
-             <div className="h-6 w-px bg-zinc-700 mx-1"></div>
+             <div className="h-6 w-px bg-[var(--border-color)] mx-1"></div>
              <button onClick={() => setOpenModal('settings')} className={headerIconBtnClass}><i className="fa-solid fa-gear fa-lg"></i></button>
           </div>
         </div>
