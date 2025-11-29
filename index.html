@@ -27,22 +27,22 @@
       }
 
       :root {
-        /* Anthracite & Gold Theme Configuration */
-        --bg-primary: #222226;      /* Main Background (Anthracite) */
-        --bg-secondary: #1a1a1d;    /* Secondary/Darker Background */
-        --bg-paper: #2d2d32;        /* Cards/Panels (Lighter Anthracite) */
-        --bg-inset: #18181b;        /* Input fields/Deep Backgrounds */
+        /* Default Theme (Anthracite Base) */
+        --bg-primary: #222226;
+        --bg-secondary: #1a1a1d;
+        --bg-paper: #2d2d32;
+        --bg-inset: #18181b;
         
-        --panel-bg: rgba(45, 45, 50, 0.85); /* Semi-transparent panel background */
+        --panel-bg: rgba(45, 45, 50, 0.95);
 
-        --text-primary: #fefce8;    /* Main Text (Off-white/Pale Yellow) */
-        --text-secondary: #d4d4d8;  /* Secondary Text (Light Gray) */
-        --text-muted: #a1a1aa;      /* Muted Text */
+        --text-primary: #fefce8;    
+        --text-secondary: #d4d4d8;  
+        --text-muted: #a1a1aa;      
         
-        --border-color: #3f3f46;    /* Borders */
+        --border-color: #3f3f46;    
         
-        --accent-color: #fbbf24;    /* Primary Accent (Gold / Amber 400) */
-        --accent-hover: #f59e0b;    /* Accent Hover (Amber 500) */
+        --accent-color: #fbbf24;    /* Default Gold */
+        --accent-hover: #f59e0b;    
         --pattern-color: #3f3f46;
         
         --ui-font: 'OpenDyslexic', sans-serif;
@@ -50,6 +50,75 @@
         --ui-spacing: normal;
         --ui-line-height: 1.6;
         --ui-saturation: 100%;
+      }
+
+      /* --- THEME OVERRIDES --- */
+
+      /* Light Theme */
+      :root.theme-light {
+        --bg-primary: #f8fafc;
+        --bg-secondary: #f1f5f9;
+        --bg-paper: #ffffff;
+        --bg-inset: #f1f5f9;
+        --panel-bg: rgba(255, 255, 255, 0.95);
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --border-color: #e2e8f0;
+        --accent-color: #4f46e5; /* Indigo */
+        --accent-hover: #4338ca;
+        --pattern-color: #e2e8f0;
+      }
+
+      /* Standard Dark Theme (Zinc) */
+      :root.dark {
+        --bg-primary: #18181b;
+        --bg-secondary: #09090b;
+        --bg-paper: #27272a;
+        --bg-inset: #09090b;
+        --panel-bg: rgba(39, 39, 42, 0.95);
+        --text-primary: #f4f4f5;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --border-color: #3f3f46;
+        --accent-color: #818cf8; /* Indigo-400 */
+        --accent-hover: #6366f1;
+        --pattern-color: #27272a;
+      }
+
+      /* Anthracite Variations (Accent Color Changes) */
+      :root.theme-anthracite-gold {
+        --accent-color: #fbbf24; 
+        --accent-hover: #f59e0b;
+      }
+      
+      :root.theme-anthracite-cyber {
+        --accent-color: #22d3ee; /* Cyan */
+        --accent-hover: #06b6d4;
+      }
+
+      :root.theme-anthracite-bumblebee {
+        --accent-color: #facc15; /* Yellow */
+        --accent-hover: #eab308;
+      }
+
+      :root.theme-anthracite-stone {
+        --bg-primary: #1c1917;
+        --bg-paper: #292524;
+        --accent-color: #d6d3d1; /* Stone */
+        --accent-hover: #a8a29e;
+      }
+
+      :root.theme-anthracite-honey {
+        --accent-color: #f59e0b; /* Amber */
+        --accent-hover: #d97706;
+      }
+
+      :root.theme-anthracite-onyx {
+        --bg-primary: #09090b;
+        --bg-paper: #18181b;
+        --accent-color: #e4e4e7; /* Zinc-200 */
+        --accent-hover: #d4d4d8;
       }
 
       body {
@@ -61,7 +130,8 @@
         color: var(--text-primary);
         margin: 0;
         padding: 0;
-        overflow: hidden; /* Prevent body scroll, handle in app */
+        overflow: hidden; 
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       /* Image Saturation Filter */
@@ -69,7 +139,7 @@
         filter: saturate(var(--ui-saturation));
       }
 
-      /* Scrollbar Styling for Dark Theme */
+      /* Scrollbar Styling */
       ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -90,13 +160,14 @@
         @page {
           margin: 0;
         }
-        :root {
+        :root, :root.theme-light, :root.dark, :root[class*="theme-"] {
             /* Reset variables for print context */
             --bg-primary: #ffffff !important;
             --bg-paper: #ffffff !important;
             --text-primary: #000000 !important;
             --text-secondary: #333333 !important;
             --border-color: #000000 !important;
+            --bg-inset: #ffffff !important;
         }
         body {
           background-color: white !important;

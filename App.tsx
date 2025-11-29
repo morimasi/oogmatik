@@ -150,8 +150,9 @@ const AppContent: React.FC = () => {
   useEffect(() => {
       try {
           const root = document.documentElement;
-          // Clean up old theme classes
+          // List of ALL possible theme classes to remove
           const themesToRemove = [
+              'theme-light',
               'dark', 
               'theme-anthracite', 
               'theme-anthracite-gold', 
@@ -164,8 +165,16 @@ const AppContent: React.FC = () => {
           root.classList.remove(...themesToRemove);
           
           // Apply new theme class
-          if (theme === 'dark') root.classList.add('dark');
-          else if (theme !== 'light') root.classList.add(`theme-${theme}`);
+          if (theme === 'dark') {
+              root.classList.add('dark');
+          } else if (theme === 'light') {
+              root.classList.add('theme-light');
+          } else if (theme === 'anthracite') {
+              // Default root variables are anthracite, so no class needed, or explicit class if preferred
+              // root.classList.add('theme-anthracite');
+          } else {
+              root.classList.add(`theme-${theme}`);
+          }
           
           localStorage.setItem('app-theme', theme);
       } catch (e) {
