@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -19,9 +20,12 @@ interface WorksheetProps {
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
     if (!data || !activityType || data.length === 0) return null;
 
-    const isMultiItem = data.length > 1;
-    const outerCols = isMultiItem ? settings.columns : 1;
-    const innerCols = isMultiItem ? 1 : settings.columns;
+    // WYSIWYG Fix: 
+    // Always stack multiple worksheets vertically (outerCols = 1) to match print behavior.
+    // Use the settings.columns slider to control the internal column layout (innerCols).
+    const outerCols = 1;
+    const innerCols = settings.columns;
+    
     const isLandscape = settings.orientation === 'landscape';
     const pageWidth = isLandscape ? '297mm' : '210mm';
     const pageHeight = isLandscape ? '210mm' : '297mm';
@@ -155,6 +159,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                                         // For screen mode, apply styles here. Print mode overrides via CSS class.
                                         padding: `var(--worksheet-margin)`,
                                         minHeight: pageHeight,
+                                        marginBottom: '20px', // Visual gap between pages on screen
                                         ...borderStyle
                                     }}
                                 >

@@ -216,8 +216,8 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
     return (
         <div className="mb-8 text-center print:mb-6 break-inside-avoid relative group">
             
-            {/* Student Info Strip (Visible Always now for WYSIWYG) */}
-            <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-300 pb-2 text-sm font-bold text-zinc-400 uppercase tracking-widest opacity-80">
+            {/* Student Info Strip (Consistent with Print Output) */}
+            <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest">
                 <div className="flex-1 text-left">Adı Soyadı: ...........................................</div>
                 <div className="w-48 text-right">Tarih: ...../...../.......</div>
                 <div className="w-24 text-right">Puan: .......</div>
