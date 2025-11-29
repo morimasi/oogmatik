@@ -167,7 +167,7 @@
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
       margin: 0 auto 3rem auto !important;
       position: relative;
-      overflow: hidden; 
+      /* removed overflow: hidden to allow flow */
       font-size: var(--worksheet-font-size, 16px) !important;
   }
 
@@ -291,17 +291,17 @@
     .worksheet-page { 
         width: 210mm !important;
         min-height: 297mm !important;
-        height: auto !important; /* Allow growing */
+        height: auto !important; /* Allow growing for multi-page */
         margin: 0 !important;
         padding: var(--worksheet-margin, 1cm) !important;
         box-shadow: none !important;
         background: white !important;
-        overflow: visible !important; /* Allow overflow content to flow naturally */
+        overflow: visible !important; /* Allow overflow content to flow naturally to next page */
         display: block !important;
         page-break-after: always;
     }
     
-    /* CRITICAL: Disable Transform Scaling in Print to allow natural flow */
+    /* CRITICAL: Disable Transform Scaling in Print to allow natural multi-page flow */
     .worksheet-scaler {
         transform: none !important;
         width: 100% !important;
