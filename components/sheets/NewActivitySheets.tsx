@@ -24,8 +24,8 @@ const TurkeyMapSVG = ({ cities }: { cities: { name: string, x: number, y: number
 export const FamilyRelationsSheet: React.FC<{ data: FamilyRelationsData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
-        <div className="flex justify-center gap-16 mt-8 relative">
-            <div className="w-2/5 space-y-6">
+        <div className="flex flex-col md:flex-row print:flex-row justify-center gap-16 mt-8 relative">
+            <div className="w-full md:w-2/5 print:w-2/5 space-y-6">
                 <h4 className="font-bold text-center border-b-2 pb-2 text-zinc-600">Tanımlar</h4>
                 {(data.leftColumn || []).map(item => (
                     <div key={item.id} className="flex items-center gap-4 p-3 border-2 border-zinc-200 rounded-lg bg-white shadow-sm h-16 justify-between">
@@ -34,7 +34,7 @@ export const FamilyRelationsSheet: React.FC<{ data: FamilyRelationsData }> = ({ 
                     </div>
                 ))}
             </div>
-            <div className="w-2/5 space-y-6">
+            <div className="w-full md:w-2/5 print:w-2/5 space-y-6">
                 <h4 className="font-bold text-center border-b-2 pb-2 text-zinc-600">Akrabalar</h4>
                  {(data.rightColumn || []).map(item => (
                     <div key={item.id} className="flex items-center gap-4 p-3 border-2 border-zinc-200 rounded-lg bg-white shadow-sm h-16">
@@ -57,7 +57,7 @@ export const LogicDeductionSheet: React.FC<{ data: LogicDeductionData }> = ({ da
                         <span className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-indigo-700">{index + 1}</span>
                         <p className="font-medium text-base pt-1 text-zinc-700">{q.riddle}</p>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 ml-11">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 ml-11">
                         {(q.options || []).map((option, optIndex) => (
                             <div key={optIndex} className="flex items-center group cursor-pointer p-2 border rounded-lg hover:bg-zinc-50 transition-colors">
                                 <div className="w-5 h-5 border-2 border-zinc-300 rounded-full mr-3 group-hover:border-indigo-500"></div>
@@ -82,7 +82,7 @@ export const NumberBoxLogicSheet: React.FC<{ data: NumberBoxLogicData }> = ({ da
         <div className="space-y-12">
             {(data.puzzles || []).map((puzzle, pIdx) => (
                 <div key={pIdx} className="break-inside-avoid p-4 bg-zinc-50 rounded-xl border">
-                    <div className="grid grid-cols-2 gap-8 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8 mb-6">
                         <div className="p-4 border-4 border-blue-300 rounded-xl bg-blue-50 shadow-md">
                             <h4 className="font-bold text-center text-blue-800 border-b-2 border-blue-200 pb-2 mb-2">Kutu 1</h4>
                             <div className="grid grid-cols-2 gap-2 text-center text-3xl font-bold text-blue-900">
@@ -120,8 +120,8 @@ export const NumberBoxLogicSheet: React.FC<{ data: NumberBoxLogicData }> = ({ da
 export const MapInstructionSheet: React.FC<{ data: MapInstructionData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <div className="order-last lg:order-first">
+        <div className="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-2 gap-8 items-start">
+            <div className="order-last lg:order-first print:order-first">
                 <h4 className="font-bold border-b-2 pb-2 mb-4 text-zinc-700">Yönergeler</h4>
                 <ul className="space-y-3">
                     {(data.instructions || []).map((inst, i) => (
@@ -213,7 +213,7 @@ export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
             {data.puzzles.map((puzzle, idx) => (
                 <div key={idx} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center break-inside-avoid relative overflow-hidden min-h-[300px]">
                     <div className="absolute top-0 left-0 bg-zinc-100 dark:bg-zinc-700 px-4 py-1 rounded-br-xl text-xs font-bold text-zinc-500 border-b border-r border-zinc-200">
@@ -304,7 +304,7 @@ export const MindGames56Sheet: React.FC<{ data: MindGames56Data }> = ({ data }) 
                     </div>
 
                     {/* Layout Logic */}
-                    <div className="flex flex-col md:flex-row gap-6">
+                    <div className="flex flex-col md:flex-row print:flex-row gap-6">
                         {/* Left: Content */}
                         <div className="flex-1 space-y-4">
                             <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-line text-base leading-relaxed">
@@ -319,7 +319,7 @@ export const MindGames56Sheet: React.FC<{ data: MindGames56Data }> = ({ data }) 
                         </div>
 
                         {/* Right: Visual & Input */}
-                        <div className="w-full md:w-1/3 flex flex-col items-center gap-4">
+                        <div className="w-full md:w-1/3 print:w-1/3 flex flex-col items-center gap-4">
                             {puzzle.imagePrompt && (
                                 <div className="w-full h-32 bg-zinc-100 dark:bg-zinc-900 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700">
                                      <ImageDisplay base64={puzzle.imageBase64} description={puzzle.title} className="w-full h-full object-contain" />

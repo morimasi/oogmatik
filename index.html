@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -160,11 +161,15 @@
         /* Content Styling: Force White BG, Black Text, No Shadows */
         .worksheet-page, .worksheet-item, .printable-content-parent, 
         div, span, p, td, th, li, h1, h2, h3, h4, h5, h6 {
-            background-color: white !important;
-            background: white !important;
+            background-color: transparent !important;
             color: black !important;
             box-shadow: none !important;
             text-shadow: none !important;
+        }
+        
+        /* Background fix for main containers */
+        .worksheet-item, .worksheet-page {
+             background-color: white !important;
         }
 
         /* Exceptions: Elements that MUST be filled (like black dots or grid cells that denote 'walls') */
@@ -207,13 +212,31 @@
             visibility: visible !important;
             display: block !important;
         }
-      }
+        
+        /* FORCE DESKTOP-LIKE LAYOUTS IN PRINT */
+        /* This counters Tailwind switching to mobile view on narrow paper widths */
+        .print\:grid-cols-2 {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+        .print\:grid-cols-3 {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+        .print\:flex-row {
+            display: flex !important;
+            flex-direction: row !important;
+        }
+        .print\:gap-8 {
+            gap: 2rem !important;
+        }
+    }
 
-      /* Custom Scrollbar Utility */
-      .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-      .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
+    /* Custom Scrollbar Utility */
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
     </style>
   <script type="importmap">
 {

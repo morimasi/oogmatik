@@ -33,7 +33,7 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
 export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex flex-col md:flex-row gap-8 justify-center items-start">
+        <div className="flex flex-col md:flex-row print:flex-row gap-8 justify-center items-start">
             <div className="flex-1 bg-white dark:bg-zinc-700/50 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-600 shadow-sm w-full">
                 <h4 className="font-bold text-center mb-4 text-indigo-600 dark:text-indigo-400 border-b pb-2">{data.box1Title}</h4>
                 <ul className="space-y-2 text-center">
@@ -43,7 +43,7 @@ export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ da
                 </ul>
             </div>
             
-            <div className="hidden md:flex flex-col justify-center self-center text-zinc-300">
+            <div className="hidden md:flex print:flex flex-col justify-center self-center text-zinc-300">
                 <i className="fa-solid fa-right-left text-4xl"></i>
             </div>
 
@@ -169,9 +169,9 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             <div className="space-y-12">
                 {(data.drawings || []).map((drawing, index) => (
-                    <div key={index} className="flex flex-col md:flex-row gap-12 items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl">
+                    <div key={index} className="flex flex-col md:flex-row print:flex-row gap-12 items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl">
                         {renderGrid(drawing.lines, true)}
-                        <i className="fa-solid fa-arrow-right text-3xl text-zinc-300 hidden md:block"></i>
+                        <i className="fa-solid fa-arrow-right text-3xl text-zinc-300 hidden md:block print:block"></i>
                         {renderGrid(null, false)}
                     </div>
                 ))}
@@ -222,7 +222,7 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            <div className="flex flex-col md:flex-row gap-12 justify-center items-center">
+            <div className="flex flex-col md:flex-row print:flex-row gap-12 justify-center items-center">
                 
                 {/* Target Pattern (Left Side) */}
                 <div className="flex flex-col items-center">
@@ -236,7 +236,7 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
                     </div>
                 </div>
 
-                <div className="text-zinc-300 hidden md:block">
+                <div className="text-zinc-300 hidden md:block print:block">
                     <i className="fa-solid fa-arrow-right text-4xl"></i>
                 </div>
                 

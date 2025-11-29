@@ -75,7 +75,7 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                     </div>
 
                     {/* PROBLEM ÇÖZME STRATEJİSİ ALANI (4'lü Matris) */}
-                    <div className="grid grid-cols-2 divide-x-2 divide-zinc-200 border-b-2 border-zinc-200">
+                    <div className="grid grid-cols-2 print:grid-cols-2 divide-x-2 divide-zinc-200 border-b-2 border-zinc-200">
                         
                         {/* ADIM 1: ANLAMA */}
                         <div className="p-4 min-h-[150px]">
@@ -104,7 +104,7 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 divide-x-2 divide-zinc-200">
+                    <div className="grid grid-cols-2 print:grid-cols-2 divide-x-2 divide-zinc-200">
                         
                         {/* ADIM 3: UYGULAMA */}
                         <div className="p-4 min-h-[150px]">
