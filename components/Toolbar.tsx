@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSettings } from '../types';
 
 interface ToolbarProps {
@@ -14,6 +14,8 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, onFeedback, onShare, onDownloadPDF, onTogglePreview, isPreviewMode }) => {
+  const [showVisualMenu, setShowVisualMenu] = useState(false);
+
   const handlePrint = () => {
     window.print();
   };
@@ -36,7 +38,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
   );
 
   return (
-    <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 print:hidden transition-all duration-300">
+    <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 print:hidden transition-all duration-300 relative">
         
         {/* Settings Group - Wraps on small screens */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -90,16 +92,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
 
              <div className="h-3 w-px bg-zinc-600 hidden sm:block"></div>
 
-             <CompactSlider 
-                icon="fa-arrows-left-right-to-line" 
-                title="Öğe Aralığı (Gap)" 
-                min={8} max={48} step={4} 
-                value={settings.gap} 
-                onChange={(v: number) => onSettingsChange({...settings, gap: v})}
-             />
-
-             <div className="h-3 w-px bg-zinc-600 hidden sm:block"></div>
-
              {/* Pedagogical Note Toggle */}
              <button
                 onClick={() => onSettingsChange({...settings, showPedagogicalNote: !settings.showPedagogicalNote})}
@@ -108,6 +100,45 @@ const Toolbar: React.FC<ToolbarProps> = ({ settings, onSettingsChange, onSave, o
              >
                  <i className={`fa-solid ${settings.showPedagogicalNote ? 'fa-eye' : 'fa-eye-slash'}`}></i> Not
              </button>
+
+             {/* Visual Settings Dropdown Trigger */}
+             <div className="relative">
+                 <button
+                    onClick={() => setShowVisualMenu(!showVisualMenu)}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    title="Görsel Ayarlar"
+                 >
+                     <i className="fa-solid fa-paintbrush"></i> Görünüm
+                 </button>
+                 
+                 {showVisualMenu && (
+                     <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 flex flex-col gap-3 animate-in fade-in zoom-in-95">
+                         <div className="flex justify-between items-center">
+                             <span className="text-xs font-bold text-[var(--text-secondary)]">Maskot</span>
+                             <div className="relative inline-block w-8 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" checked={settings.showMascot} onChange={(e) => onSettingsChange({...settings, showMascot: e.target.checked})} className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-indigo-600"/>
+                                <label className="toggle-label block overflow-hidden h-4 rounded-full bg-zinc-300 cursor-pointer"></label>
+                            </div>
+                         </div>
+                         
+                         <div>
+                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Çerçeve</span>
+                             <div className="grid grid-cols-3 gap-1">
+                                 {['none', 'simple', 'math', 'verbal', 'stars', 'geo'].map((b) => (
+                                     <button 
+                                        key={b} 
+                                        onClick={() => onSettingsChange({...settings, themeBorder: b as any})}
+                                        className={`h-8 rounded border flex items-center justify-center text-[10px] font-bold uppercase transition-all ${settings.themeBorder === b ? 'bg-[var(--accent-color)] text-black border-transparent' : 'bg-[var(--bg-inset)] text-[var(--text-muted)] border-transparent hover:bg-zinc-700'}`}
+                                     >
+                                         {b.slice(0,3)}
+                                     </button>
+                                 ))}
+                             </div>
+                         </div>
+                         <button onClick={() => setShowVisualMenu(false)} className="text-[10px] text-center text-zinc-500 hover:text-zinc-300 w-full mt-1">Kapat</button>
+                     </div>
+                 )}
+             </div>
         </div>
       
         {/* Actions Group */}

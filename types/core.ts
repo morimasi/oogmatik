@@ -169,6 +169,9 @@ export interface StyleSettings {
   gap: number;
   showPedagogicalNote: boolean;
   orientation: 'portrait' | 'landscape';
+  // New Visual Settings
+  showMascot: boolean;
+  themeBorder: 'none' | 'simple' | 'math' | 'verbal' | 'stars' | 'geo';
 }
 
 export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment' | 'favorites';

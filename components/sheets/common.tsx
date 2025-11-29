@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
+import { MascotRobot, MascotOwl, MascotCat } from '../VisualAssets';
 
 // --- HELPER: SMART EMOJI FINDER ---
 const findEmojiForDescription = (desc: string): string | null => {
@@ -205,10 +206,40 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => {
     const { speak, isSpeaking } = useTTS();
 
+    // Determine Mascot based on title keywords (heuristic)
+    const getMascot = () => {
+        const lowerTitle = title.toLowerCase();
+        if (lowerTitle.includes('matematik') || lowerTitle.includes('sayı') || lowerTitle.includes('işlem')) return <MascotRobot className="w-24 h-24" />;
+        if (lowerTitle.includes('okuma') || lowerTitle.includes('hikaye') || lowerTitle.includes('kelime')) return <MascotOwl className="w-24 h-24" />;
+        return <MascotCat className="w-24 h-24" />;
+    };
+
     return (
         <div className="mb-8 text-center print:mb-6 break-inside-avoid relative group">
-            <div className="flex items-center justify-center gap-3 mb-3">
-                <h3 className="text-3xl font-black text-zinc-800 dark:text-zinc-100 font-dyslexic tracking-tight">{title}</h3>
+            
+            {/* Student Info Strip (Visible in Print) */}
+            <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-300 pb-2 text-sm font-bold text-zinc-400 uppercase tracking-widest print:flex hidden">
+                <div className="flex-1">Adı Soyadı: ...........................................</div>
+                <div className="w-48 text-right">Tarih: ...../...../.......</div>
+                <div className="w-24 text-right">Puan: .......</div>
+            </div>
+
+            {/* Mascot Container */}
+            <div 
+                className="absolute -top-4 right-0 z-10 hidden print:block" 
+                style={{ display: 'var(--show-mascot, block)' }}
+            >
+                {getMascot()}
+                <div className="absolute -left-16 top-4 bg-white border-2 border-black rounded-xl p-2 shadow-sm text-[10px] font-bold w-16 text-center bubble-triangle">
+                    Hadi Çöz!
+                </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 mb-3 relative z-0">
+                <h3 className="text-3xl font-black text-zinc-800 dark:text-zinc-100 font-dyslexic tracking-tight relative inline-block">
+                    {title}
+                    <span className="absolute bottom-1 right-0 w-full h-2 bg-yellow-300 -z-10 opacity-50 transform -rotate-1 rounded-full"></span>
+                </h3>
                 <button 
                     onClick={() => speak(`${title}. Yönerge: ${instruction}`)}
                     className={`w-8 h-8 rounded-full flex items-center justify-center transition-all print:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${isSpeaking ? 'bg-indigo-100 text-indigo-600 animate-pulse' : 'bg-zinc-100 text-zinc-400 hover:bg-indigo-50 hover:text-indigo-500 dark:bg-zinc-800'}`}
@@ -218,8 +249,11 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 </button>
             </div>
             
-            <div className="inline-block px-6 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-full border border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm">
-                <p className="text-lg font-medium text-indigo-700 dark:text-indigo-300">{instruction}</p>
+            <div className="inline-block px-8 py-3 bg-white dark:bg-indigo-900/20 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm relative">
+                <p className="text-lg font-bold text-indigo-800 dark:text-indigo-200 font-dyslexic">{instruction}</p>
+                <div className="absolute -top-3 -left-3 text-2xl text-indigo-300">
+                    <i className="fa-solid fa-quote-left"></i>
+                </div>
             </div>
             
             {data?.imageBase64 && (

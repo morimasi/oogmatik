@@ -29,6 +29,8 @@ const initialStyleSettings: StyleSettings = {
     gap: 16,
     showPedagogicalNote: true,
     orientation: 'portrait',
+    showMascot: true,
+    themeBorder: 'simple'
 };
 
 const initialUiSettings: UiSettings = {

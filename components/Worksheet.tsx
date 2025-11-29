@@ -9,6 +9,7 @@ import * as ReadingComprehensionSheets from './sheets/ReadingComprehensionSheets
 import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 import * as DyscalculiaSheets from './sheets/DyscalculiaSheets';
 import * as NewActivitySheets from './sheets/NewActivitySheets';
+import { getBorderCSS } from './VisualAssets';
 
 interface WorksheetProps {
     activityType: ActivityType | null;
@@ -32,6 +33,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--worksheet-gap': `${settings.gap}px`,
         '--dynamic-cols': innerCols,
         '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
+        '--show-mascot': settings.showMascot ? 'block' : 'none',
         // Dynamic Print Variables for index.html to pick up if used via inline styles
         '--print-width': isLandscape ? '297mm' : '210mm',
         '--print-height': isLandscape ? '210mm' : '297mm'
@@ -51,6 +53,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         gap: `${settings.gap}px`,
         width: '100%'
     };
+
+    const borderStyle = getBorderCSS(settings.themeBorder || 'simple');
 
     return (
         <div className="w-full flex flex-col items-center bg-transparent" style={containerStyle}>
@@ -80,7 +84,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         max-width: none !important;
                         margin: 0 !important;
                         padding: 0 !important;
-                        border: none !important;
                         box-shadow: none !important;
                         overflow: visible !important;
                         display: block !important;
@@ -115,16 +118,17 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
             `}</style>
 
             <div 
-                className="worksheet-page bg-white text-black shadow-2xl print:shadow-none transition-all duration-300"
+                className="worksheet-page bg-white text-black shadow-2xl print:shadow-none transition-all duration-300 relative"
                 style={{ 
                     width: isLandscape ? '297mm' : '210mm',
                     minHeight: isLandscape ? '210mm' : '297mm',
                     height: 'auto',
                     padding: `var(--worksheet-margin)`,
-                    fontSize: `var(--worksheet-font-size)`
+                    fontSize: `var(--worksheet-font-size)`,
+                    ...borderStyle
                 }}
             >
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full relative z-10">
                     {/* Scaler Wrapper */}
                     <div className="flex-1 w-full worksheet-scaler" style={scalerStyle}>
                         
