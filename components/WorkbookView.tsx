@@ -39,7 +39,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     return (
         <div className="h-full flex flex-col bg-[var(--bg-primary)]">
             {/* Header */}
-            <div className="flex justify-between items-center mb-6 pb-4 border-b border-[var(--border-color)]">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-[var(--border-color)] px-6 pt-6 print:hidden">
                 <div className="flex items-center gap-4">
                     <button onClick={onBack} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
                         <i className="fa-solid fa-arrow-left"></i>
@@ -74,42 +74,42 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
             {/* Edit Mode */}
             {viewMode === 'edit' && (
-                <div className="flex flex-col md:flex-row gap-8 h-full overflow-hidden">
+                <div className="flex flex-col md:flex-row gap-8 h-full overflow-hidden px-6 pb-6">
                     {/* Settings Panel */}
-                    <div className="w-full md:w-1/3 overflow-y-auto pr-2">
+                    <div className="w-full md:w-1/3 overflow-y-auto pr-2 custom-scrollbar">
                         <div className="bg-[var(--bg-paper)] p-6 rounded-2xl border border-[var(--border-color)] shadow-sm space-y-4">
                             <h3 className="font-bold text-lg text-[var(--text-primary)] mb-4 border-b border-[var(--border-color)] pb-2">Kapak Ayarları</h3>
                             
                             <div>
                                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Kitapçık Başlığı</label>
-                                <input type="text" value={settings.title} onChange={e => setSettings({...settings, title: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)]" />
+                                <input type="text" value={settings.title} onChange={e => setSettings({...settings, title: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
                             </div>
                             
                             <div>
                                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Öğrenci Adı</label>
-                                <input type="text" value={settings.studentName} onChange={e => setSettings({...settings, studentName: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)]" />
+                                <input type="text" value={settings.studentName} onChange={e => setSettings({...settings, studentName: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Okul / Kurum</label>
-                                <input type="text" value={settings.schoolName} onChange={e => setSettings({...settings, schoolName: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)]" />
+                                <input type="text" value={settings.schoolName} onChange={e => setSettings({...settings, schoolName: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Eğitim Yılı</label>
-                                <input type="text" value={settings.year} onChange={e => setSettings({...settings, year: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)]" />
+                                <input type="text" value={settings.year} onChange={e => setSettings({...settings, year: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Eğitmen Notu</label>
-                                <textarea value={settings.teacherNote} onChange={e => setSettings({...settings, teacherNote: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] h-24 resize-none" />
+                                <textarea value={settings.teacherNote} onChange={e => setSettings({...settings, teacherNote: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Kapak Teması</label>
                                 <div className="grid grid-cols-2 gap-2">
                                     {['modern', 'classic', 'fun', 'minimal'].map(t => (
-                                        <button key={t} onClick={() => setSettings({...settings, theme: t as any})} className={`p-2 rounded border text-sm capitalize ${settings.theme === t ? 'bg-[var(--accent-color)] text-black border-transparent' : 'bg-[var(--bg-inset)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>
+                                        <button key={t} onClick={() => setSettings({...settings, theme: t as any})} className={`p-2 rounded border text-sm capitalize ${settings.theme === t ? 'bg-[var(--accent-color)] text-black border-transparent font-bold shadow-sm' : 'bg-[var(--bg-inset)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>
                                             {t}
                                         </button>
                                     ))}
@@ -119,27 +119,29 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                     </div>
 
                     {/* Items List */}
-                    <div className="flex-1 overflow-y-auto bg-[var(--bg-inset)] rounded-2xl p-4 border border-[var(--border-color)]">
+                    <div className="flex-1 overflow-y-auto bg-[var(--bg-inset)] rounded-2xl p-4 border border-[var(--border-color)] custom-scrollbar">
                         {items.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-[var(--text-muted)] opacity-50">
                                 <i className="fa-solid fa-folder-open text-6xl mb-4"></i>
-                                <p>Henüz etkinlik eklenmemiş.</p>
-                                <p className="text-sm">"Kitapçığa Ekle" butonu ile etkinlik ekleyebilirsiniz.</p>
+                                <p className="font-bold">Henüz etkinlik eklenmemiş.</p>
+                                <p className="text-sm mt-2">Etkinlik ekranlarındaki "<i className="fa-solid fa-plus-circle"></i> Kitapçığa Ekle" butonunu kullanın.</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
                                 {items.map((item, index) => (
                                     <div key={item.id} className="bg-[var(--bg-paper)] p-4 rounded-xl shadow-sm border border-[var(--border-color)] flex items-center gap-4 group hover:border-[var(--accent-color)] transition-all">
-                                        <div className="w-8 h-8 rounded-full bg-[var(--bg-inset)] flex items-center justify-center font-bold text-[var(--text-muted)] shrink-0">
+                                        <div className="w-8 h-8 rounded-full bg-[var(--bg-inset)] flex items-center justify-center font-bold text-[var(--text-muted)] shrink-0 border border-[var(--border-color)]">
                                             {index + 1}
                                         </div>
                                         <div className="flex-1">
                                             <h4 className="font-bold text-[var(--text-primary)]">{item.title}</h4>
-                                            <p className="text-xs text-[var(--text-muted)]">{item.activityType}</p>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] uppercase font-bold tracking-wider bg-[var(--bg-inset)] px-2 py-0.5 rounded text-[var(--text-muted)]">{item.activityType}</span>
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="p-2 hover:bg-[var(--bg-inset)] rounded disabled:opacity-30"><i className="fa-solid fa-arrow-up text-[var(--text-secondary)]"></i></button>
-                                            <button onClick={() => moveItem(index, 'down')} disabled={index === items.length - 1} className="p-2 hover:bg-[var(--bg-inset)] rounded disabled:opacity-30"><i className="fa-solid fa-arrow-down text-[var(--text-secondary)]"></i></button>
+                                        <div className="flex gap-2 opacity-100 sm:opacity-50 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="p-2 hover:bg-[var(--bg-inset)] rounded disabled:opacity-30 text-[var(--text-secondary)]"><i className="fa-solid fa-arrow-up"></i></button>
+                                            <button onClick={() => moveItem(index, 'down')} disabled={index === items.length - 1} className="p-2 hover:bg-[var(--bg-inset)] rounded disabled:opacity-30 text-[var(--text-secondary)]"><i className="fa-solid fa-arrow-down"></i></button>
                                             <div className="w-px bg-[var(--border-color)] mx-1"></div>
                                             <button onClick={() => handleRemoveItem(item.id)} className="p-2 hover:bg-rose-900/20 text-rose-500 rounded"><i className="fa-solid fa-trash"></i></button>
                                         </div>
@@ -153,7 +155,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
             {/* Preview Mode */}
             {viewMode === 'preview' && (
-                <div className="flex-1 overflow-auto bg-zinc-100 dark:bg-zinc-900 p-8 flex justify-center">
+                <div className="flex-1 overflow-auto bg-zinc-200 dark:bg-zinc-950 p-8 flex justify-center custom-scrollbar">
                     <Workbook items={items} settings={settings} />
                 </div>
             )}
