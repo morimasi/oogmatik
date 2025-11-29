@@ -167,10 +167,19 @@ export interface StyleSettings {
   margin: number;
   columns: number;
   gap: number;
-  showPedagogicalNote: boolean;
   orientation: 'portrait' | 'landscape';
-  showMascot: boolean;
   themeBorder: 'none' | 'simple' | 'math' | 'verbal' | 'stars' | 'geo';
+  
+  // Visibility Settings
+  showPedagogicalNote: boolean;
+  showMascot: boolean;
+  showStudentInfo: boolean; // Name/Date strip
+  showFooter: boolean; // Branding footer
+  
+  // Typography Settings
+  contentAlign: 'left' | 'center' | 'right';
+  fontWeight: 'normal' | 'bold';
+  fontStyle: 'normal' | 'italic';
 }
 
 export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment' | 'favorites' | 'workbook';

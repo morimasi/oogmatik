@@ -214,10 +214,13 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
     };
 
     return (
-        <div className="mb-8 text-center print:mb-6 break-inside-avoid relative group">
+        <div className="pedagogical-header mb-8 text-center print:mb-6 break-inside-avoid relative group">
             
-            {/* Student Info Strip (Consistent with Print Output) */}
-            <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest">
+            {/* Student Info Strip (Visibility controlled via CSS var in Worksheet.tsx) */}
+            <div 
+                className="justify-between items-center mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest hidden print:flex"
+                style={{ display: 'var(--show-student-info, flex)' }}
+            >
                 <div className="flex-1 text-left">Adı Soyadı: ...........................................</div>
                 <div className="w-48 text-right">Tarih: ...../...../.......</div>
                 <div className="w-24 text-right">Puan: .......</div>
@@ -237,7 +240,7 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
             <div className="flex items-center justify-center gap-3 mb-3 relative z-0">
                 <h3 className="text-3xl font-black text-zinc-800 dark:text-zinc-100 font-dyslexic tracking-tight relative inline-block">
                     {title}
-                    <span className="absolute bottom-1 right-0 w-full h-2 bg-yellow-300 -z-10 opacity-50 transform -rotate-1 rounded-full"></span>
+                    <span className="absolute bottom-1 right-0 w-full h-2 bg-yellow-300 -z-10 opacity-50 transform -rotate-1 rounded-full print:hidden"></span>
                 </h3>
                 <button 
                     onClick={() => speak(`${title}. Yönerge: ${instruction}`)}
@@ -248,15 +251,15 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 </button>
             </div>
             
-            <div className="inline-block px-8 py-3 bg-white dark:bg-indigo-900/20 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm relative">
-                <p className="text-lg font-bold text-indigo-800 dark:text-indigo-200 font-dyslexic">{instruction}</p>
-                <div className="absolute -top-3 -left-3 text-2xl text-indigo-300">
+            <div className="inline-block px-8 py-3 bg-white dark:bg-indigo-900/20 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm relative print:border-zinc-300">
+                <p className="text-lg font-bold text-indigo-800 dark:text-indigo-200 print:text-black font-dyslexic">{instruction}</p>
+                <div className="absolute -top-3 -left-3 text-2xl text-indigo-300 print:text-zinc-400">
                     <i className="fa-solid fa-quote-left"></i>
                 </div>
             </div>
             
             {data?.imageBase64 && (
-                <div className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-white dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300">
+                <div className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-white dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300 print:shadow-none print:border-zinc-200">
                     <ImageDisplay 
                         base64={data.imageBase64} 
                         description={data.imagePrompt || title} 

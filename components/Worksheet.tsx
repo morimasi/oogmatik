@@ -37,8 +37,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--worksheet-margin': `${settings.margin}px`,
         '--worksheet-gap': `${settings.gap}px`,
         '--dynamic-cols': innerCols,
+        
+        // Visibility Flags (CSS Vars)
         '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
         '--show-mascot': settings.showMascot ? 'block' : 'none',
+        '--show-student-info': settings.showStudentInfo ? 'flex' : 'none',
+        '--show-footer': settings.showFooter ? 'flex' : 'none',
+        
+        // Typography Settings
+        '--content-align': settings.contentAlign || 'center',
+        '--font-weight': settings.fontWeight || 'normal',
+        '--font-style': settings.fontStyle || 'normal',
+
         '--print-width': pageWidth,
         '--print-height': pageHeight
     } as React.CSSProperties;
@@ -67,7 +77,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                 @media print {
                     @page { 
                         size: ${settings.orientation}; 
-                        margin: 0mm; /* We handle margins inside the container */
+                        margin: 0mm; /* Control margins manually for precision */
                     }
                     body, html {
                         height: auto !important;
@@ -85,7 +95,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         width: 100% !important;
                         max-width: none !important;
                         margin: 0 !important;
-                        padding: 0 !important; /* Reset padding, we use inner margin */
+                        padding: 0 !important; 
                         box-shadow: none !important;
                         overflow: visible !important;
                         display: block !important;
@@ -97,7 +107,14 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     .worksheet-item {
                         width: ${pageWidth} !important;
                         min-height: ${pageHeight} !important;
-                        padding: var(--worksheet-margin) !important;
+                        
+                        /* 
+                           Minimal Reasonable Margin Logic:
+                           Ensures at least 10mm safety margin for printers, 
+                           plus any extra user margin.
+                        */
+                        padding: max(10mm, var(--worksheet-margin)) !important;
+                        
                         page-break-after: always !important;
                         break-after: page !important;
                         page-break-inside: avoid !important;
@@ -131,6 +148,14 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         box-shadow: none !important;
                         text-shadow: none !important;
                         border-color: black !important;
+                        
+                        /* Apply Typography Settings to content elements */
+                        text-align: var(--content-align);
+                    }
+                    
+                    /* Specific overrides for pedagogical header to keep it readable */
+                    .pedagogical-header {
+                        text-align: center !important; 
                     }
                 }
             `}</style>
@@ -141,7 +166,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     width: pageWidth,
                     minHeight: pageHeight,
                     height: 'auto',
-                    // Padding is applied here for screen, but applied to .worksheet-item for print (via CSS above)
                     padding: 0, 
                     fontSize: `var(--worksheet-font-size)`,
                 }}
@@ -157,15 +181,21 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                                     className="worksheet-item relative bg-white text-black"
                                     style={{
                                         // For screen mode, apply styles here. Print mode overrides via CSS class.
-                                        padding: `var(--worksheet-margin)`,
+                                        padding: `max(20px, var(--worksheet-margin))`,
                                         minHeight: pageHeight,
                                         marginBottom: '20px', // Visual gap between pages on screen
+                                        fontWeight: settings.fontWeight,
+                                        fontStyle: settings.fontStyle,
+                                        textAlign: settings.contentAlign,
                                         ...borderStyle
                                     }}
                                 >
                                     <RenderSheet activityType={activityType} data={sheetData} />
                                     
-                                    <div className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black">
+                                    <div 
+                                        className="absolute bottom-4 left-0 w-full px-8 justify-between items-center text-[10px] opacity-50 text-black print:opacity-100"
+                                        style={{ display: 'var(--show-footer, flex)' }}
+                                    >
                                         <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
                                         <span>{new Date().toLocaleDateString('tr-TR')}</span>
                                     </div>

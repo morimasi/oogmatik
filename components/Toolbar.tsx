@@ -29,7 +29,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     workbookItemCount = 0,
     onViewWorkbook
 }) => {
-  const [showVisualMenu, setShowVisualMenu] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type'>('none');
 
   const handlePrint = () => {
     window.print();
@@ -51,10 +51,22 @@ const Toolbar: React.FC<ToolbarProps> = ({
       </div>
   );
 
+  const ToggleButton = ({ icon, label, active, onClick }: { icon: string, label: string, active: boolean, onClick: () => void }) => (
+      <button 
+          onClick={onClick}
+          className={`flex items-center gap-2 w-full p-2 rounded text-xs font-medium transition-colors ${active ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-inset)]'}`}
+      >
+          <i className={`fa-solid ${icon} w-4 text-center`}></i>
+          <span className="flex-1 text-left">{label}</span>
+          {active && <i className="fa-solid fa-check text-[10px]"></i>}
+      </button>
+  );
+
   return (
     <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 print:hidden transition-all duration-300 relative">
         
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+             {/* Orientation Toggle */}
              <div className="flex items-center bg-[var(--bg-inset)] rounded-lg p-1 mr-2">
                 <button 
                     onClick={() => onSettingsChange({...settings, orientation: 'portrait'})}
@@ -84,16 +96,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
              <div className="h-3 w-px bg-zinc-600 hidden sm:block"></div>
 
              <CompactSlider 
-                icon="fa-border-all" 
-                title="Kenar Boşluğu" 
-                min={0} max={80} 
-                value={settings.margin} 
-                onChange={(v: number) => onSettingsChange({...settings, margin: v})}
-             />
-
-             <div className="h-3 w-px bg-zinc-600 hidden sm:block"></div>
-
-             <CompactSlider 
                 icon="fa-table-columns" 
                 title="Sütun Sayısı" 
                 min={1} max={6} 
@@ -101,26 +103,17 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 onChange={(v: number) => onSettingsChange({...settings, columns: v})}
              />
 
-             <div className="h-3 w-px bg-zinc-600 hidden sm:block"></div>
-
-             <button
-                onClick={() => onSettingsChange({...settings, showPedagogicalNote: !settings.showPedagogicalNote})}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${settings.showPedagogicalNote ? 'bg-indigo-500/20 text-indigo-300' : 'bg-[var(--bg-inset)] text-[var(--text-muted)]'}`}
-                title={settings.showPedagogicalNote ? "Eğitmen Notunu Gizle" : "Eğitmen Notunu Göster"}
-             >
-                 <i className={`fa-solid ${settings.showPedagogicalNote ? 'fa-eye' : 'fa-eye-slash'}`}></i> Not
-             </button>
-
+             {/* Visual Settings Dropdown */}
              <div className="relative">
                  <button
-                    onClick={() => setShowVisualMenu(!showVisualMenu)}
-                    className="flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    onClick={() => setActiveMenu(activeMenu === 'visual' ? 'none' : 'visual')}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'visual' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                     title="Görsel Ayarlar"
                  >
-                     <i className="fa-solid fa-paintbrush"></i> Görünüm
+                     <i className="fa-solid fa-paintbrush"></i> Stil
                  </button>
                  
-                 {showVisualMenu && (
+                 {activeMenu === 'visual' && (
                      <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 flex flex-col gap-3 animate-in fade-in zoom-in-95">
                          <div className="flex justify-between items-center">
                              <span className="text-xs font-bold text-[var(--text-secondary)]">Maskot</span>
@@ -144,10 +137,64 @@ const Toolbar: React.FC<ToolbarProps> = ({
                                  ))}
                              </div>
                          </div>
-                         <button onClick={() => setShowVisualMenu(false)} className="text-[10px] text-center text-zinc-500 hover:text-zinc-300 w-full mt-1">Kapat</button>
+                         
+                         <div>
+                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Kenar Boşluğu</span>
+                             <input type="range" min="0" max="80" value={settings.margin} onChange={(e) => onSettingsChange({...settings, margin: Number(e.target.value)})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
+                         </div>
                      </div>
                  )}
              </div>
+
+             {/* Typography Dropdown */}
+             <div className="relative">
+                 <button
+                    onClick={() => setActiveMenu(activeMenu === 'type' ? 'none' : 'type')}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'type' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                    title="Yazı Ayarları"
+                 >
+                     <i className="fa-solid fa-font"></i> Yazı
+                 </button>
+                 
+                 {activeMenu === 'type' && (
+                     <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 flex flex-col gap-2 animate-in fade-in zoom-in-95">
+                         <div className="flex justify-between bg-[var(--bg-inset)] p-1 rounded">
+                             <button onClick={() => onSettingsChange({...settings, fontWeight: settings.fontWeight === 'bold' ? 'normal' : 'bold'})} className={`p-1.5 rounded flex-1 ${settings.fontWeight === 'bold' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-bold"></i></button>
+                             <button onClick={() => onSettingsChange({...settings, fontStyle: settings.fontStyle === 'italic' ? 'normal' : 'italic'})} className={`p-1.5 rounded flex-1 ${settings.fontStyle === 'italic' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-italic"></i></button>
+                         </div>
+                         <div className="flex justify-between bg-[var(--bg-inset)] p-1 rounded">
+                             <button onClick={() => onSettingsChange({...settings, contentAlign: 'left'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'left' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-left"></i></button>
+                             <button onClick={() => onSettingsChange({...settings, contentAlign: 'center'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'center' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-center"></i></button>
+                             <button onClick={() => onSettingsChange({...settings, contentAlign: 'right'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'right' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-right"></i></button>
+                         </div>
+                         <div>
+                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Punto</span>
+                             <input type="range" min="12" max="32" value={settings.fontSize} onChange={(e) => onSettingsChange({...settings, fontSize: Number(e.target.value)})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
+                         </div>
+                     </div>
+                 )}
+             </div>
+
+             {/* Print Visibility Dropdown */}
+             <div className="relative">
+                 <button
+                    onClick={() => setActiveMenu(activeMenu === 'print' ? 'none' : 'print')}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'print' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                    title="Yazdırma Görünürlüğü"
+                 >
+                     <i className="fa-solid fa-eye"></i> Görünürlük
+                 </button>
+                 
+                 {activeMenu === 'print' && (
+                     <div className="absolute top-full left-0 mt-2 w-56 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-2 z-50 flex flex-col gap-1 animate-in fade-in zoom-in-95">
+                         <ToggleButton icon="fa-user-pen" label="Öğrenci Bilgi Alanı" active={settings.showStudentInfo} onClick={() => onSettingsChange({...settings, showStudentInfo: !settings.showStudentInfo})} />
+                         <ToggleButton icon="fa-graduation-cap" label="Eğitmen Notu" active={settings.showPedagogicalNote} onClick={() => onSettingsChange({...settings, showPedagogicalNote: !settings.showPedagogicalNote})} />
+                         <ToggleButton icon="fa-copyright" label="Alt Bilgi (Footer)" active={settings.showFooter} onClick={() => onSettingsChange({...settings, showFooter: !settings.showFooter})} />
+                         <ToggleButton icon="fa-otter" label="Maskot" active={settings.showMascot} onClick={() => onSettingsChange({...settings, showMascot: !settings.showMascot})} />
+                     </div>
+                 )}
+             </div>
+
         </div>
       
         {/* Actions Group */}
@@ -213,6 +260,11 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 <i className="fa-solid fa-print"></i> <span>Yazdır</span>
             </button>
         </div>
+        
+        {/* Click outside listener to close menus could be added here or handled by parent */}
+        {activeMenu !== 'none' && (
+            <div className="fixed inset-0 z-40" onClick={() => setActiveMenu('none')}></div>
+        )}
     </div>
   );
 };

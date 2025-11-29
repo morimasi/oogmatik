@@ -24,13 +24,18 @@ const initialStyleSettings: StyleSettings = {
     scale: 1, // Default scale
     borderColor: '#d4d4d8',
     borderWidth: 1,
-    margin: 32,
+    margin: 20, // Reduced default margin to reasonable 20px
     columns: 1,
     gap: 16,
     showPedagogicalNote: true,
     orientation: 'portrait',
     showMascot: true,
-    themeBorder: 'simple'
+    themeBorder: 'simple',
+    showStudentInfo: true,
+    showFooter: true,
+    contentAlign: 'center',
+    fontWeight: 'normal',
+    fontStyle: 'normal'
 };
 
 const initialUiSettings: UiSettings = {
