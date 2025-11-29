@@ -89,8 +89,26 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     .break-inside-avoid {
                         break-inside: avoid !important;
                         page-break-inside: avoid !important;
-                        display: block; /* Helps with page breaking calculations */
                     }
+                    
+                    /* Convert Grid to Block for multi-page flow */
+                    .outer-grid {
+                        display: block !important;
+                    }
+                    
+                    /* Force new page for each item in the list (except last) */
+                    .worksheet-item {
+                        page-break-after: always !important;
+                        break-after: page !important;
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                        border-bottom: none !important;
+                    }
+                    .worksheet-item:last-child {
+                        page-break-after: auto !important;
+                        break-after: auto !important;
+                    }
+
                     /* Hide UI elements */
                     .no-print { display: none !important; }
                 }
@@ -110,9 +128,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     {/* Scaler Wrapper */}
                     <div className="flex-1 w-full worksheet-scaler" style={scalerStyle}>
                         
-                        <div style={outerGridStyle}>
+                        <div className="outer-grid" style={outerGridStyle}>
                             {data.map((sheetData, index) => (
-                                <div key={index} className="break-inside-avoid border-b-2 border-transparent pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
+                                <div key={index} className="worksheet-item break-inside-avoid border-b-2 border-transparent pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
                                     <RenderSheet activityType={activityType} data={sheetData} />
                                 </div>
                             ))}

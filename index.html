@@ -155,13 +155,13 @@
         background: var(--text-muted); 
       }
 
-      /* Print Specific Styles - FORCE WHITE BACKGROUND */
+      /* Print Specific Styles - FORCE WHITE BACKGROUND & FIX MULTI-PAGE */
       @media print {
         @page {
           margin: 0;
         }
+        
         :root, :root.theme-light, :root.dark, :root[class*="theme-"] {
-            /* Reset variables for print context */
             --bg-primary: #ffffff !important;
             --bg-paper: #ffffff !important;
             --text-primary: #000000 !important;
@@ -169,43 +169,50 @@
             --border-color: #000000 !important;
             --bg-inset: #ffffff !important;
         }
-        body, html {
+
+        /* RESET ALL CONTAINER CONSTRAINTS */
+        html, body, #root, main, .h-screen, .overflow-hidden, .flex-1, .printable-area {
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow: visible !important;
+          position: static !important;
+          display: block !important;
           background-color: white !important;
           color: black !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          overflow: visible !important;
-          height: auto !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
-        .no-print, header, aside, .tour-overlay {
+
+        /* Hide Non-Printable Elements */
+        .no-print, header, aside, .tour-overlay, .sticky, nav {
           display: none !important;
         }
-        .printable-area {
-          padding: 0 !important;
-          margin: 0 !important;
-          width: 100% !important;
-          height: auto !important;
-          overflow: visible !important;
-          background: white !important;
-          color: black !important;
-          display: block !important;
+
+        /* Ensure content visibility */
+        .printable-content-parent, .worksheet-page {
+            visibility: visible !important;
+            display: block !important;
+            height: auto !important;
+            overflow: visible !important;
         }
-        /* Ensure background colors and images are printed */
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-        /* Specific overrides for worksheet */
-        .worksheet-page {
-            background-color: white !important;
-            color: black !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        /* Important utility for breaking content */
+
+        /* Utilities */
         .break-inside-avoid {
             break-inside: avoid !important;
             page-break-inside: avoid !important;
+        }
+        
+        .page-break {
+            break-before: page !important;
+            page-break-before: always !important;
+        }
+
+        /* Force color printing */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
       }
 
