@@ -101,6 +101,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         display: block !important;
                         box-sizing: border-box !important;
                         position: relative !important;
+                        
+                        /* Force B&W Content */
+                        background-color: white !important;
+                        color: black !important;
+                        box-shadow: none !important;
                     }
                     .worksheet-item:last-child {
                         page-break-after: auto !important;
@@ -114,6 +119,15 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
                     /* Hide UI elements */
                     .no-print { display: none !important; }
+                    
+                    /* Aggressive Color Reset for Children */
+                    .worksheet-item * {
+                        background-color: white !important;
+                        color: black !important;
+                        box-shadow: none !important;
+                        text-shadow: none !important;
+                        border-color: black !important;
+                    }
                 }
             `}</style>
 

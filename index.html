@@ -86,39 +86,12 @@
       }
 
       /* Anthracite Variations (Accent Color Changes) */
-      :root.theme-anthracite-gold {
-        --accent-color: #fbbf24; 
-        --accent-hover: #f59e0b;
-      }
-      
-      :root.theme-anthracite-cyber {
-        --accent-color: #22d3ee; /* Cyan */
-        --accent-hover: #06b6d4;
-      }
-
-      :root.theme-anthracite-bumblebee {
-        --accent-color: #facc15; /* Yellow */
-        --accent-hover: #eab308;
-      }
-
-      :root.theme-anthracite-stone {
-        --bg-primary: #1c1917;
-        --bg-paper: #292524;
-        --accent-color: #d6d3d1; /* Stone */
-        --accent-hover: #a8a29e;
-      }
-
-      :root.theme-anthracite-honey {
-        --accent-color: #f59e0b; /* Amber */
-        --accent-hover: #d97706;
-      }
-
-      :root.theme-anthracite-onyx {
-        --bg-primary: #09090b;
-        --bg-paper: #18181b;
-        --accent-color: #e4e4e7; /* Zinc-200 */
-        --accent-hover: #d4d4d8;
-      }
+      :root.theme-anthracite-gold { --accent-color: #fbbf24; --accent-hover: #f59e0b; }
+      :root.theme-anthracite-cyber { --accent-color: #22d3ee; --accent-hover: #06b6d4; }
+      :root.theme-anthracite-bumblebee { --accent-color: #facc15; --accent-hover: #eab308; }
+      :root.theme-anthracite-stone { --bg-primary: #1c1917; --bg-paper: #292524; --accent-color: #d6d3d1; --accent-hover: #a8a29e; }
+      :root.theme-anthracite-honey { --accent-color: #f59e0b; --accent-hover: #d97706; }
+      :root.theme-anthracite-onyx { --bg-primary: #09090b; --bg-paper: #18181b; --accent-color: #e4e4e7; --accent-hover: #d4d4d8; }
 
       body {
         font-family: var(--ui-font);
@@ -139,40 +112,31 @@
       }
 
       /* Scrollbar Styling */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: var(--bg-inset); 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: var(--border-color); 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: var(--text-muted); 
-      }
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: var(--bg-inset); }
+      ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-      /* Print Specific Styles - IMPROVED FOR ACCURACY */
+      /* Print Specific Styles - STRICT BLACK & WHITE MODE */
       @media print {
         @page {
           margin: 0;
           size: auto;
         }
         
+        /* Override Root Variables for Print */
         :root, :root.theme-light, :root.dark, :root[class*="theme-"] {
-            /* Only override structural colors, NOT content colors */
             --bg-primary: #ffffff !important;
             --bg-paper: #ffffff !important;
             --bg-inset: #ffffff !important;
-            /* Ensure text is dark enough but allow colors if defined in element styles */
-            --text-primary: #000000; 
-            --text-secondary: #333333;
-            --border-color: #000000;
+            --text-primary: #000000 !important;
+            --text-secondary: #000000 !important;
+            --text-muted: #000000 !important;
+            --border-color: #000000 !important;
+            --accent-color: #000000 !important;
         }
 
-        /* RESET ALL CONTAINER CONSTRAINTS */
+        /* Reset Main Containers */
         html, body, #root, main, .h-screen, .overflow-hidden, .flex-1, .printable-area {
           height: auto !important;
           min-height: 0 !important;
@@ -181,29 +145,53 @@
           position: static !important;
           display: block !important;
           background-color: white !important;
-          /* Text color reset to black only for body to allow children to override */
-          color: black; 
+          background: white !important;
+          color: black !important;
           width: 100% !important;
           margin: 0 !important;
           padding: 0 !important;
         }
 
-        /* Hide Non-Printable Elements */
-        .no-print, header, aside, .tour-overlay, .sticky, nav, .fixed {
+        /* Hide UI Elements */
+        .no-print, header, aside, .tour-overlay, .sticky, nav, .fixed, button {
           display: none !important;
         }
 
-        /* Ensure content visibility */
-        .printable-content-parent, .worksheet-page {
-            visibility: visible !important;
-            display: block !important;
-            height: auto !important;
-            overflow: visible !important;
+        /* Content Styling: Force White BG, Black Text, No Shadows */
+        .worksheet-page, .worksheet-item, .printable-content-parent, 
+        div, span, p, td, th, li, h1, h2, h3, h4, h5, h6 {
+            background-color: white !important;
+            background: white !important;
+            color: black !important;
             box-shadow: none !important;
-            border: none !important;
+            text-shadow: none !important;
         }
 
-        /* Utilities */
+        /* Exceptions: Elements that MUST be filled (like black dots or grid cells that denote 'walls') */
+        /* Use specific classes if needed, but generally user requested white bg */
+        
+        /* Borders: Force Black */
+        *, *::before, *::after {
+            border-color: #000000 !important;
+        }
+        
+        /* Ensure inputs/lines are visible */
+        input, textarea, hr, .border-b, .border-t, .border-l, .border-r, .border {
+             border-color: #000000 !important;
+        }
+
+        /* SVG Handling for B&W */
+        svg {
+            fill: white !important;
+            stroke: black !important;
+        }
+        
+        /* Exception for solid shapes inside SVGs (like dots in dominoes) */
+        svg circle[fill="black"], svg rect[fill="black"], svg path[fill="black"] {
+            fill: black !important;
+        }
+        
+        /* Layout Utilities */
         .break-inside-avoid {
             break-inside: avoid !important;
             page-break-inside: avoid !important;
@@ -214,28 +202,18 @@
             page-break-before: always !important;
         }
 
-        /* Force color printing logic */
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
+        /* Ensure content visibility */
+        .printable-content-parent, .worksheet-page {
+            visibility: visible !important;
+            display: block !important;
         }
       }
 
       /* Custom Scrollbar Utility */
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: var(--border-color);
-        border-radius: 4px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background-color: var(--text-muted);
-      }
+      .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
     </style>
   <script type="importmap">
 {
