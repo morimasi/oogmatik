@@ -14,6 +14,7 @@ import { ShareModal } from './ShareModal';
 import { worksheetService } from '../services/worksheetService';
 import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
+// @ts-ignore
 import html2canvas from 'html2canvas';
 
 
@@ -120,8 +121,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     // --- PANNING LOGIC ---
     const handleMouseDown = (e: React.MouseEvent) => {
+        // Only allow dragging if clicking on the background (the container)
+        // or explicitly explicitly allow it anywhere not interactive
         if (currentView !== 'generator' || !worksheetData) return;
         
+        // If in edit mode, check if we clicked an editable element first (managed by stopPropagation in EditableElement)
+        // However, if the click bubbles here, it means we clicked background or non-editable area
+        
+        // Check if the target is an input or button to avoid blocking interaction
         const target = e.target as HTMLElement;
         if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.tagName === 'TEXTAREA' || target.closest('button') || target.closest('.editable-element')) {
             return;
@@ -156,12 +163,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const elements = document.querySelectorAll('.worksheet-item');
         if (!elements || elements.length === 0) return;
 
+        // Temporarily hide UI elements or specific markers if needed before snapshot
         const editIndicators = document.querySelectorAll('.edit-handle');
         editIndicators.forEach((el: any) => el.style.display = 'none');
 
         try {
+            // Take snapshot of the first page for simplicity
             const canvas = await html2canvas(elements[0] as HTMLElement, {
-                scale: 2,
+                scale: 2, // Higher quality
                 useCORS: true, 
                 backgroundColor: null 
             });
@@ -176,6 +185,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             console.error("Snapshot failed:", err);
             alert("Ekran görüntüsü alınırken bir hata oluştu.");
         } finally {
+            // Restore indicators
             editIndicators.forEach((el: any) => el.style.display = '');
         }
     };
@@ -284,6 +294,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     <EditableContext.Provider value={{ isEditMode, zoom: viewZoom }}>
     <main className={`flex-1 flex flex-col h-full bg-[var(--bg-primary)] transition-colors duration-300 overflow-hidden`}>
       
+      {/* 1. TOP BAR (Toolbar & Breadcrumbs) - Fixed Height */}
       <div className="shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 print:hidden z-20 shadow-sm relative">
           {!isPreviewMode && (
               <nav className="mb-4 flex items-center text-sm text-[var(--text-secondary)]" aria-label="Breadcrumb">
@@ -303,6 +314,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </nav>
           )}
 
+          {/* TOOLBAR */}
           {currentView === 'generator' && activityType && worksheetData && (
                 <Toolbar 
                     settings={styleSettings} 
@@ -322,6 +334,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
       </div>
 
+      {/* 2. MAIN CONTENT AREA (Canvas) */}
       <div 
         ref={canvasRef}
         className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
@@ -331,6 +344,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
+          {/* Background Grid Pattern */}
           {currentView === 'generator' && worksheetData && (
               <div className="absolute inset-0 pointer-events-none opacity-10" 
                    style={{ 
@@ -342,12 +356,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </div>
           )}
           
+          {/* Edit Mode Overlay Info */}
           {isEditMode && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
                   <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
               </div>
           )}
 
+          {/* Zoom Controls Overlay */}
           {currentView === 'generator' && worksheetData && !isPreviewMode && (
               <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-700 p-1.5 print:hidden">
                   <button onClick={() => setViewZoom(z => Math.max(0.2, z - 0.1))} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-minus"></i></button>

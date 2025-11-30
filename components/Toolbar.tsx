@@ -72,6 +72,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 print:hidden transition-all duration-300 relative">
         
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+             {/* Orientation Toggle */}
              <div className="flex items-center bg-[var(--bg-inset)] rounded-lg p-1 mr-2">
                 <button 
                     onClick={() => onSettingsChange({...settings, orientation: 'portrait'})}
@@ -108,6 +109,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 onChange={(v: number) => onSettingsChange({...settings, columns: v})}
              />
 
+             {/* Visual Settings Dropdown */}
              <div className="relative">
                  <button
                     onClick={() => setActiveMenu(activeMenu === 'visual' ? 'none' : 'visual')}
@@ -150,6 +152,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  )}
              </div>
 
+             {/* Typography Dropdown */}
              <div className="relative">
                  <button
                     onClick={() => setActiveMenu(activeMenu === 'type' ? 'none' : 'type')}
@@ -178,6 +181,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  )}
              </div>
 
+             {/* Print Visibility Dropdown */}
              <div className="relative">
                  <button
                     onClick={() => setActiveMenu(activeMenu === 'print' ? 'none' : 'print')}
@@ -199,17 +203,19 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
         </div>
       
+        {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
+            {/* EDIT TOGGLE BUTTON */}
             {onToggleEdit && (
                 <button 
                     onClick={onToggleEdit}
-                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
-                    title={isEditMode ? "Düzenlemeyi Bitir" : "Düzenleme Modu"}
+                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-green-600 text-white border-green-600 ring-2 ring-green-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
+                    title={isEditMode ? "Düzenlemeyi Bitir ve Kaydet" : "Düzenleme Modu"}
                 >
                     {isEditMode ? (
                         <>
                             <i className="fa-solid fa-check"></i>
-                            <span className="hidden sm:inline">Bitir</span>
+                            <span className="hidden sm:inline">Kaydet ve Bitir</span>
                         </>
                     ) : (
                         <>
@@ -220,6 +226,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 </button>
             )}
 
+            {/* SNAPSHOT BUTTON */}
             {onSnapshot && (
                 <button 
                     onClick={onSnapshot}
@@ -227,12 +234,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
                     title="Ekran Görüntüsü Al"
                 >
                     <i className="fa-solid fa-camera"></i>
-                    <span className="hidden sm:inline">Görüntü Al</span>
                 </button>
             )}
-
-            {(onToggleEdit || onSnapshot) && <div className="w-px h-4 bg-zinc-600 mx-1"></div>}
-
 
             {onAddToWorkbook && (
                 <button 
@@ -296,6 +299,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             </button>
         </div>
         
+        {/* Click outside listener to close menus */}
         {activeMenu !== 'none' && (
             <div className="fixed inset-0 z-40" onClick={() => setActiveMenu('none')}></div>
         )}

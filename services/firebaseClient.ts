@@ -1,31 +1,31 @@
-
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import * as firestore from "firebase/firestore";
 
-// Firebase Config
+// Firebase Config - Hardcoded values as requested by the user
 const firebaseConfig = {
   apiKey: "AIzaSyDEnRDzfZ65myaEFTXVjdYu6tyKyFhXP3w",
   authDomain: "ooggen-08916543-87358.firebaseapp.com",
   projectId: "ooggen-08916543-87358",
-  storageBucket: "ooggen-08916543-87358.firebasestorage.app",
+  storageBucket: "ooggen-08916543-87358.appspot.com",
   messagingSenderId: "1013986256525",
   appId: "1:1013986256525:web:21ff26593d2422ad0e24c4"
 };
 
-// Firebase'i Başlat
-let app;
-try {
-    app = initializeApp(firebaseConfig);
-} catch (e) {
-    console.error("Firebase initialization failed:", e);
+// Check for incomplete configuration to provide a clear error in the console.
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.error("Firebase configuration is incomplete. Please check your environment variables.");
 }
 
-// Export auth and db, handling potential initialization failures gracefully in the app
-export const auth = app ? getAuth(app) : {} as any;
-export const db = app ? firestore.getFirestore(app) : {} as any;
+// Initialize Firebase safely for both server and HMR environments
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// Export auth and db services
+export const auth = getAuth(app);
+export const db = firestore.getFirestore(app);
 
 // Veritabanı bağlantısını kontrol etme
 export const checkDbConnection = async () => {
-    return !!app; 
+    // A simple check to see if the essential config values are present
+    return !!(firebaseConfig.apiKey && firebaseConfig.projectId); 
 };
