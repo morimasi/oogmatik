@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
     GeneratorOptions
 } from '../../types';
 import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay, PedagogicalHeader } from './common';
@@ -145,7 +145,6 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
                 ))}
                 {/* Lines */}
                 {(lines || []).map((line, index) => (
-                    // Safety check: ensure line has at least 2 points and points are defined
                     line && line.length >= 2 && line[0] && line[1] && (
                         <line
                             key={index}
@@ -494,10 +493,10 @@ export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = (
         <EditableElement className="flex justify-center">
             <table className="border-collapse border border-zinc-400 bg-white">
                 <tbody>
-                    {(data.grid || []).map((row, i) => (
+                    {data.grid.map((row, i) => (
                         <tr key={i}>
                             <td className="border border-zinc-300 p-2 font-bold bg-zinc-100 text-xs text-center">{String.fromCharCode(65+i)}</td>
-                            {row && row.map((cell, j) => (
+                            {data.grid && data.grid.length > 0 && data.grid[0] && row.map((cell, j) => (
                                 <td key={j} className="border border-zinc-300 w-10 h-10 text-center font-mono text-lg">{cell}</td>
                             ))}
                         </tr>
