@@ -11,7 +11,6 @@ import * as DyscalculiaSheets from './sheets/DyscalculiaSheets';
 import * as NewActivitySheets from './sheets/NewActivitySheets';
 import { getBorderCSS } from './VisualAssets';
 import { EditableElement, EditableText } from './Editable';
-import { useEditor } from '../context/EditorContext';
 
 interface WorksheetProps {
     activityType: ActivityType | null;
@@ -21,8 +20,6 @@ interface WorksheetProps {
 }
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
-    const { isEditMode } = useEditor(); // Access editor context for rulers
-
     if (!data || !activityType || data.length === 0) return null;
 
     // WYSIWYG Fix: 
@@ -121,35 +118,16 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 {data.map((sheetData, index) => (
                     <div 
                         key={index} 
-                        className="worksheet-item shadow-2xl print:shadow-none transition-all duration-300 ease-in-out relative group/page"
+                        className="worksheet-item shadow-2xl print:shadow-none transition-all duration-300 ease-in-out"
                         style={pageStyle}
                     >
-                        {/* EDITOR RULERS & GUIDES (Only in Edit Mode) */}
-                        {isEditMode && (
-                            <div className="absolute inset-0 pointer-events-none z-0 border border-cyan-500/20">
-                                {/* Horizontal Ruler Lines */}
-                                <div className="absolute top-0 left-0 w-full h-full" 
-                                     style={{backgroundImage: 'linear-gradient(to bottom, cyan 1px, transparent 1px)', backgroundSize: '100% 20px', opacity: 0.1}}></div>
-                                {/* Vertical Ruler Lines */}
-                                <div className="absolute top-0 left-0 w-full h-full" 
-                                     style={{backgroundImage: 'linear-gradient(to right, cyan 1px, transparent 1px)', backgroundSize: '20px 100%', opacity: 0.1}}></div>
-                                
-                                {/* Center Guides */}
-                                <div className="absolute top-0 left-1/2 w-px h-full bg-cyan-500/50"></div>
-                                <div className="absolute top-1/2 left-0 w-full h-px bg-cyan-500/50"></div>
-                                
-                                {/* Margin Guides */}
-                                <div className="absolute inset-[10mm] border border-dashed border-red-300/50"></div>
-                            </div>
-                        )}
-
                         {/* 
                            CONTENT SCALER 
                            Scales content to fit the A4 page.
                            Transform Origin: Top Left + Inverse Width Calculation ensures perfect centering and fit.
                         */}
                         <div 
-                            className="worksheet-scaler worksheet-content relative z-10"
+                            className="worksheet-scaler worksheet-content"
                             style={{
                                 transform: `scale(${settings.scale})`,
                                 transformOrigin: 'top left', 
