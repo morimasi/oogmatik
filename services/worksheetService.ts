@@ -1,4 +1,3 @@
-
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile } from '../types';
@@ -58,12 +57,11 @@ export const worksheetService = {
         studentProfile?: StudentProfile
     ): Promise<SavedWorksheet> => {
         try {
-            // Serialize worksheetData to string to avoid "Nested arrays not supported" error in Firestore
             const safeCategory = category || { id: 'uncategorized', title: 'Genel' };
             const safeIcon = icon || 'fa-solid fa-file';
             
-            // Create a clean object to avoid undefined values which Firestore rejects
-            const payload = {
+            // Create a payload object that will be sent to Firestore
+            const payload: any = {
                 userId,
                 name: name || 'Adsız Etkinlik',
                 activityType,
@@ -74,9 +72,15 @@ export const worksheetService = {
                     title: safeCategory.title || 'Genel' 
                 },
                 createdAt: new Date().toISOString(),
-                styleSettings: styleSettings, // Save the style settings
-                studentProfile: studentProfile // Save student profile
             };
+
+            // Conditionally add optional fields to avoid Firestore 'undefined' error
+            if (styleSettings) {
+                payload.styleSettings = styleSettings;
+            }
+            if (studentProfile) {
+                payload.studentProfile = studentProfile;
+            }
 
             const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
 
@@ -134,7 +138,7 @@ export const worksheetService = {
             const safeCategory = worksheet.category || { id: 'uncategorized', title: 'Genel' };
             const safeIcon = worksheet.icon || 'fa-solid fa-share';
 
-            const sharedPayload = {
+            const sharedPayload: any = {
                 userId: senderId,
                 name: worksheet.name || 'Paylaşılan Etkinlik',
                 activityType: worksheet.activityType,
@@ -148,9 +152,15 @@ export const worksheetService = {
                 sharedByName: senderName || 'Anonim',
                 sharedWith: receiverId,
                 createdAt: new Date().toISOString(),
-                styleSettings: worksheet.styleSettings, // Preserve styles when sharing
-                studentProfile: worksheet.studentProfile // Preserve student info
             };
+
+            // Conditionally add optional fields
+            if (worksheet.styleSettings) {
+                sharedPayload.styleSettings = worksheet.styleSettings;
+            }
+            if (worksheet.studentProfile) {
+                sharedPayload.studentProfile = worksheet.studentProfile;
+            }
 
             await addDoc(collection(db, "saved_worksheets"), sharedPayload);
         } catch (error) {
