@@ -145,14 +145,17 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
                 ))}
                 {/* Lines */}
                 {(lines || []).map((line, index) => (
-                    <line
-                        key={index}
-                        x1={line[0][0] * cellSize} y1={line[0][1] * cellSize}
-                        x2={line[1][0] * cellSize} y2={line[1][1] * cellSize}
-                        className="stroke-indigo-600 dark:stroke-indigo-400"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                    />
+                    // Safety check: ensure line has at least 2 points and points are defined
+                    line && line.length >= 2 && line[0] && line[1] && (
+                        <line
+                            key={index}
+                            x1={line[0][0] * cellSize} y1={line[0][1] * cellSize}
+                            x2={line[1][0] * cellSize} y2={line[1][1] * cellSize}
+                            className="stroke-indigo-600 dark:stroke-indigo-400"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                        />
+                    )
                 ))}
                 {/* Dots at intersections */}
                 {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
@@ -491,10 +494,10 @@ export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = (
         <EditableElement className="flex justify-center">
             <table className="border-collapse border border-zinc-400 bg-white">
                 <tbody>
-                    {data.grid.map((row, i) => (
+                    {(data.grid || []).map((row, i) => (
                         <tr key={i}>
                             <td className="border border-zinc-300 p-2 font-bold bg-zinc-100 text-xs text-center">{String.fromCharCode(65+i)}</td>
-                            {row.map((cell, j) => (
+                            {row && row.map((cell, j) => (
                                 <td key={j} className="border border-zinc-300 w-10 h-10 text-center font-mono text-lg">{cell}</td>
                             ))}
                         </tr>
@@ -503,7 +506,7 @@ export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = (
                 <tfoot>
                     <tr>
                         <td></td>
-                        {data.grid[0].map((_, j) => <td key={j} className="text-center text-xs font-bold p-1">{j+1}</td>)}
+                        {data.grid && data.grid.length > 0 && data.grid[0] && data.grid[0].map((_, j) => <td key={j} className="text-center text-xs font-bold p-1">{j+1}</td>)}
                     </tr>
                 </tfoot>
             </table>

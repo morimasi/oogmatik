@@ -657,6 +657,8 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
 
 // Updated MazeGrid with visual connections and ID display
 const MazeGrid = ({ grid, rules }: { grid: number[][], rules: {id: number, text: string, isPath: boolean}[] }) => {
+    // FIX: Add safety check for grid[0]
+    if (!grid || grid.length === 0 || !grid[0]) return null;
     return (
         <EditableElement className="relative p-2 bg-zinc-100 border-2 border-zinc-300 rounded-xl shadow-inner max-w-md mx-auto">
             {/* Start Arrow */}
