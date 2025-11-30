@@ -22,7 +22,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
 
     // WYSIWYG Fix: 
     // Always stack multiple worksheets vertically (outerCols = 1) to match print behavior.
-    // Use the settings.columns slider to control the internal column layout (innerCols).
     const outerCols = 1;
     const innerCols = settings.columns;
     
@@ -30,42 +29,39 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
     const pageWidth = isLandscape ? '297mm' : '210mm';
     const pageHeight = isLandscape ? '210mm' : '297mm';
 
-    const containerStyle = {
+    // Base styles applied to the A4 container
+    const pageStyle = {
+        width: pageWidth,
+        minHeight: pageHeight,
+        padding: `max(10mm, var(--worksheet-margin))`, // Ensure print safety margin
+        position: 'relative' as const,
+        backgroundColor: 'white',
+        color: 'black',
+        boxSizing: 'border-box' as const,
+        ...getBorderCSS(settings.themeBorder || 'simple')
+    };
+
+    // CSS Variables for internal content to react instantly
+    const variableStyle = {
         '--worksheet-font-size': `${settings.fontSize}px`,
-        '--worksheet-border-color': settings.borderColor, // Usually black/gray for print
+        '--worksheet-border-color': settings.borderColor,
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-margin': `${settings.margin}px`,
         '--worksheet-gap': `${settings.gap}px`,
         '--dynamic-cols': innerCols,
-        
-        // Visibility Flags (CSS Vars)
+        '--content-align': settings.contentAlign || 'center',
+        '--font-weight': settings.fontWeight || 'normal',
+        '--font-style': settings.fontStyle || 'normal',
+        // Visibility Flags
         '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
         '--show-mascot': settings.showMascot ? 'block' : 'none',
         '--show-student-info': settings.showStudentInfo ? 'flex' : 'none',
         '--show-footer': settings.showFooter ? 'flex' : 'none',
-        
-        // Typography Settings
-        '--content-align': settings.contentAlign || 'center',
-        '--font-weight': settings.fontWeight || 'normal',
-        '--font-style': settings.fontStyle || 'normal',
-
-        '--print-width': pageWidth,
-        '--print-height': pageHeight
     } as React.CSSProperties;
 
-    const outerGridStyle = {
-        display: 'grid',
-        gridTemplateColumns: `repeat(${outerCols}, 1fr)`,
-        gap: '40px', // Visual gap between pages on screen
-        width: '100%',
-        justifyItems: 'center'
-    };
-
-    const borderStyle = getBorderCSS(settings.themeBorder || 'simple');
-
     return (
-        <div className="flex flex-col items-center bg-transparent" style={containerStyle}>
-            {/* Inject dynamic print styles for page size and flow control */}
+        <div className="flex flex-col items-center bg-transparent w-full" style={variableStyle}>
+            {/* Inject dynamic print styles */}
             <style>{`
                 /* Dynamic Grid System for Items */
                 .dynamic-grid {
@@ -76,142 +72,74 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     align-items: start;
                 }
 
+                /* Content Styling based on Toolbar Settings */
+                .worksheet-content {
+                    font-size: var(--worksheet-font-size);
+                    font-weight: var(--font-weight);
+                    font-style: var(--font-style);
+                    text-align: var(--content-align);
+                }
+
                 @media print {
                     @page { 
                         size: ${settings.orientation}; 
-                        margin: 0mm; /* Control margins manually for precision */
+                        margin: 0mm; 
                     }
                     body, html {
-                        height: auto !important;
-                        overflow: visible !important;
                         background: white !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
                     }
                     
-                    /* Ensure Dynamic Grid respects column settings in Print */
-                    .dynamic-grid {
-                        display: grid !important;
-                        grid-template-columns: repeat(var(--dynamic-cols), 1fr) !important;
-                        gap: var(--worksheet-gap) !important;
-                    }
-
-                    /* Reset scaling for print to ensure natural flow */
-                    .worksheet-scaler {
-                        transform: none !important;
-                        width: 100% !important;
-                        margin-bottom: 0 !important;
-                    }
-                    /* Allow the container to expand infinitely */
-                    .worksheet-page {
-                        width: 100% !important;
-                        max-width: none !important;
-                        margin: 0 !important;
-                        padding: 0 !important; 
-                        box-shadow: none !important;
-                        overflow: visible !important;
-                        display: block !important;
-                        border: none !important;
-                        background: white !important;
-                    }
+                    /* Reset scaling for print to ensure natural flow OR keep it if user wants 'fit to page' effect */
+                    /* Currently we KEEP the scale to allow users to shrink content to fit paper */
                     
-                    /* Force new page for each item in the list (except last) */
                     .worksheet-item {
-                        width: ${pageWidth} !important;
-                        min-height: ${pageHeight} !important;
-                        
-                        /* 
-                           Minimal Reasonable Margin Logic:
-                           Ensures at least 5mm safety margin for printers, 
-                           plus any extra user margin.
-                        */
-                        padding: max(5mm, var(--worksheet-margin)) !important;
-                        
-                        page-break-after: always !important;
                         break-after: page !important;
-                        page-break-inside: avoid !important;
-                        margin: 0 auto !important;
-                        display: block !important;
-                        box-sizing: border-box !important;
-                        position: relative !important;
-                        
-                        /* Force B&W Content */
-                        background-color: white !important;
-                        color: black !important;
+                        page-break-after: always !important;
+                        margin: 0 !important;
                         box-shadow: none !important;
-                    }
-                    .worksheet-item:last-child {
-                        page-break-after: auto !important;
-                        break-after: auto !important;
+                        border: none !important; /* Remove screen helper borders if any */
                     }
                     
-                    /* Reset outer grid to block for simple stacking */
-                    .outer-grid {
-                        display: block !important;
-                    }
-
-                    /* Hide UI elements */
                     .no-print { display: none !important; }
                     
-                    /* Aggressive Color Reset for Children */
-                    .worksheet-item * {
-                        background-color: transparent !important; /* Ensure background shapes are visible if needed, but remove bg colors */
-                        color: black !important;
-                        box-shadow: none !important;
-                        text-shadow: none !important;
-                        border-color: black !important;
-                        
-                        /* Apply Typography Settings to content elements */
-                        text-align: var(--content-align);
-                    }
-                    
-                    /* Specific overrides for pedagogical header to keep it readable */
-                    .pedagogical-header {
-                        text-align: center !important; 
-                    }
-                    
-                    /* Force Flex/Grid Layouts to Stay Horizontal in Print */
-                    .print\\:flex-row {
-                        display: flex !important;
-                        flex-direction: row !important;
-                    }
+                    /* Force grid layouts */
                     .print\\:grid-cols-2 {
                         display: grid !important;
                         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                     }
-                    .print\\:gap-8 {
-                        gap: 2rem !important;
-                    }
                 }
             `}</style>
 
-            <div className="outer-grid" style={outerGridStyle}>
+            <div className="flex flex-col gap-10 w-full items-center">
                 {data.map((sheetData, index) => (
                     <div 
                         key={index} 
-                        className="worksheet-item relative bg-white text-black shadow-2xl print:shadow-none transition-shadow"
-                        style={{
-                            width: pageWidth,
-                            minHeight: pageHeight,
-                            // For screen mode, apply styles here. Print mode overrides via CSS class.
-                            padding: `max(20px, var(--worksheet-margin))`,
-                            fontSize: `var(--worksheet-font-size)`,
-                            fontWeight: settings.fontWeight,
-                            fontStyle: settings.fontStyle,
-                            textAlign: settings.contentAlign,
-                            ...borderStyle
-                        }}
+                        className="worksheet-item shadow-2xl print:shadow-none transition-all duration-300 ease-in-out"
+                        style={pageStyle}
                     >
-                        {/* Inner content scaler for density adjustments (Toolbar zoom scale) */}
-                        <div style={{
-                            transform: `scale(${settings.scale})`,
-                            transformOrigin: 'top center',
-                            width: `${100 / settings.scale}%`,
-                            height: '100%'
-                        }}>
+                        {/* 
+                           CONTENT SCALER 
+                           This wrapper scales the content (text, images, grids) 
+                           while keeping the A4 container fixed. 
+                           It allows shrinking large content to fit the page.
+                        */}
+                        <div 
+                            className="worksheet-scaler worksheet-content"
+                            style={{
+                                transform: `scale(${settings.scale})`,
+                                transformOrigin: 'top center',
+                                width: `calc(100% / ${settings.scale})`, 
+                                // height: auto is implicit, allowing content to flow
+                            }}
+                        >
                             <RenderSheet activityType={activityType} data={sheetData} />
                         </div>
                         
+                        {/* Footer stays at absolute bottom of A4 page, unaffected by content scale */}
                         <div 
-                            className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black print:opacity-100"
+                            className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black print:opacity-100 pointer-events-none"
                             style={{ display: 'var(--show-footer, flex)' }}
                         >
                             <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
