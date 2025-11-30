@@ -200,7 +200,8 @@ export const EditableText: React.FC<{
     className?: string; 
     tag?: 'p' | 'span' | 'h1' | 'h2' | 'h3' | 'h4' | 'div';
     onChange?: (val: string) => void; 
-}> = ({ value, className = "", tag = 'p', onChange }) => {
+    style?: React.CSSProperties;
+}> = ({ value, className = "", tag = 'p', onChange, style }) => {
     const { isEditMode } = useEditable();
     const [text, setText] = useState(String(value));
 
@@ -210,12 +211,13 @@ export const EditableText: React.FC<{
 
     if (!isEditMode) {
         // Safe render
-        return <Tag className={className} dangerouslySetInnerHTML={{__html: text}} />;
+        return <Tag className={className} style={style} dangerouslySetInnerHTML={{__html: text}} />;
     }
 
     return (
         <Tag
             className={`${className} outline-none border-b border-transparent hover:border-indigo-300 focus:bg-indigo-50/50 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 rounded px-1 transition-all empty:before:content-['...'] cursor-text min-w-[20px] inline-block`}
+            style={style}
             contentEditable
             suppressContentEditableWarning
             onBlur={(e: React.FocusEvent<HTMLElement>) => {

@@ -2,6 +2,7 @@
 import React from 'react';
 import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData } from '../../types';
 import { ImageDisplay, PedagogicalHeader, Shape, GridComponent } from './common';
+import { EditableElement, EditableText } from '../Editable';
 
 // Helper for simple sheets
 const SimpleSheet = ({ data, children }: { data: any, children?: React.ReactNode }) => (
@@ -13,20 +14,20 @@ const SimpleSheet = ({ data, children }: { data: any, children?: React.ReactNode
 
 export const ReadingFlowSheet: React.FC<{ data: ReadingFlowData }> = ({ data }) => (
     <SimpleSheet data={data}>
-        <div className="space-y-6 text-lg leading-loose font-dyslexic">
+        <EditableElement className="space-y-6 text-lg leading-loose font-dyslexic">
             {data.text.paragraphs.map((p, i) => (
                 <p key={i}>
                     {p.sentences.map((s, j) => (
                         <span key={j}>
                             {s.syllables.map((syl, k) => (
-                                <span key={k} style={{ color: syl.color }}>{syl.text}</span>
+                                <span key={k} style={{ color: syl.color }}><EditableText value={syl.text} tag="span" /></span>
                             ))}
                             {j < p.sentences.length - 1 && ' '}
                         </span>
                     ))}
                 </p>
             ))}
-        </div>
+        </EditableElement>
     </SimpleSheet>
 );
 
@@ -34,11 +35,11 @@ export const LetterDiscriminationSheet: React.FC<{ data: LetterDiscriminationDat
     <SimpleSheet data={data}>
         <div className="space-y-4 font-mono text-xl">
             {data.rows.map((row, i) => (
-                <div key={i} className="flex justify-center gap-2 p-2 bg-white rounded border">
+                <EditableElement key={i} className="flex justify-center gap-2 p-2 bg-white rounded border">
                     {row.letters.map((l, j) => (
-                        <span key={j} className="w-8 h-8 flex items-center justify-center">{l}</span>
+                        <span key={j} className="w-8 h-8 flex items-center justify-center"><EditableText value={l} tag="span" /></span>
                     ))}
-                </div>
+                </EditableElement>
             ))}
         </div>
     </SimpleSheet>
@@ -46,13 +47,13 @@ export const LetterDiscriminationSheet: React.FC<{ data: LetterDiscriminationDat
 
 export const RapidNamingSheet: React.FC<{ data: RapidNamingData }> = ({ data }) => (
     <SimpleSheet data={data}>
-        <div className="grid grid-cols-5 gap-4">
+        <EditableElement className="grid grid-cols-5 gap-4">
             {data.grid.items.map((item, i) => (
                 <div key={i} className="flex items-center justify-center p-4 border rounded bg-white aspect-square">
                     {item.type === 'color' ? <div className="w-full h-full rounded-full" style={{backgroundColor: item.value}}></div> : <span className="text-2xl">{item.label}</span>}
                 </div>
             ))}
-        </div>
+        </EditableElement>
     </SimpleSheet>
 );
 
@@ -60,10 +61,10 @@ export const PhonologicalAwarenessSheet: React.FC<{ data: PhonologicalAwarenessD
     <SimpleSheet data={data}>
         <div className="space-y-4">
             {data.exercises.map((ex, i) => (
-                <div key={i} className="p-4 border rounded bg-white">
-                    <p className="font-bold mb-2">{ex.question}</p>
-                    <p className="text-lg">{ex.word}</p>
-                </div>
+                <EditableElement key={i} className="p-4 border rounded bg-white">
+                    <p className="font-bold mb-2"><EditableText value={ex.question} tag="span" /></p>
+                    <p className="text-lg"><EditableText value={ex.word} tag="span" /></p>
+                </EditableElement>
             ))}
         </div>
     </SimpleSheet>
@@ -73,11 +74,11 @@ export const MirrorLettersSheet: React.FC<{ data: MirrorLettersData }> = ({ data
     <SimpleSheet data={data}>
         <div className="space-y-4">
             {data.rows.map((row, i) => (
-                <div key={i} className="flex justify-center gap-4">
+                <EditableElement key={i} className="flex justify-center gap-4">
                     {row.items.map((item, j) => (
                         <span key={j} className={`text-2xl ${item.isMirrored ? 'text-red-500' : 'text-black'}`} style={{transform: `rotate(${item.rotation}deg)`}}>{item.letter}</span>
                     ))}
-                </div>
+                </EditableElement>
             ))}
         </div>
     </SimpleSheet>
@@ -87,11 +88,11 @@ export const SyllableTrainSheet: React.FC<{ data: SyllableTrainData }> = ({ data
     <SimpleSheet data={data}>
         <div className="space-y-6">
             {data.trains.map((train, i) => (
-                <div key={i} className="flex items-center gap-2">
+                <EditableElement key={i} className="flex items-center gap-2">
                     {train.syllables.map((syl, j) => (
-                        <div key={j} className="p-4 bg-zinc-100 border-2 border-zinc-400 rounded-lg">{syl}</div>
+                        <div key={j} className="p-4 bg-zinc-100 border-2 border-zinc-400 rounded-lg"><EditableText value={syl} tag="span" /></div>
                     ))}
-                </div>
+                </EditableElement>
             ))}
         </div>
     </SimpleSheet>
@@ -99,11 +100,13 @@ export const SyllableTrainSheet: React.FC<{ data: SyllableTrainData }> = ({ data
 
 export const VisualTrackingLinesSheet: React.FC<{ data: VisualTrackingLineData }> = ({ data }) => (
     <SimpleSheet data={data}>
-        <svg viewBox={`0 0 ${data.width} ${data.height}`} className="border bg-white w-full">
-            {data.paths.map((p, i) => (
-                <path key={i} d={p.d} fill="none" stroke={p.color} strokeWidth="2" />
-            ))}
-        </svg>
+        <EditableElement>
+            <svg viewBox={`0 0 ${data.width} ${data.height}`} className="border bg-white w-full">
+                {data.paths.map((p, i) => (
+                    <path key={i} d={p.d} fill="none" stroke={p.color} strokeWidth="2" />
+                ))}
+            </svg>
+        </EditableElement>
     </SimpleSheet>
 );
 
@@ -111,10 +114,10 @@ export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = (
     <SimpleSheet data={data}>
         <div className="space-y-4">
             {data.items.map((item, i) => (
-                <div key={i} className="flex justify-between p-4 border rounded bg-white items-center">
-                    <span className="text-xl font-bold">{item.reversed}</span>
+                <EditableElement key={i} className="flex justify-between p-4 border rounded bg-white items-center">
+                    <span className="text-xl font-bold"><EditableText value={item.reversed} tag="span" /></span>
                     <div className="w-32 border-b-2 border-zinc-300"></div>
-                </div>
+                </EditableElement>
             ))}
         </div>
     </SimpleSheet>
@@ -169,7 +172,7 @@ export const CodeReadingSheet: React.FC<{ data: CodeReadingData }> = ({ data }) 
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
         {/* Key Map (Legend) */}
-        <div className="mb-10 p-6 bg-zinc-100 dark:bg-zinc-800 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm">
+        <EditableElement className="mb-10 p-6 bg-zinc-100 dark:bg-zinc-800 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm">
             <h4 className="text-center font-bold mb-4 text-zinc-500 uppercase tracking-widest text-sm">ŞİFRE ANAHTARI</h4>
             <div className="flex flex-wrap justify-center gap-6">
                 {(data.keyMap || []).map((item, idx) => (
@@ -182,12 +185,12 @@ export const CodeReadingSheet: React.FC<{ data: CodeReadingData }> = ({ data }) 
                     </div>
                 ))}
             </div>
-        </div>
+        </EditableElement>
 
         {/* Codes to Solve */}
         <div className="space-y-8">
             {(data.codesToSolve || []).map((code, idx) => (
-                <div key={idx} className="p-4 bg-white dark:bg-zinc-700/30 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-600">
+                <EditableElement key={idx} className="p-4 bg-white dark:bg-zinc-700/30 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-600">
                     <div className="flex flex-wrap items-center gap-2 mb-4 justify-center">
                         {code.sequence.map((sym, sIdx) => {
                             const keyItem = data.keyMap.find(k => k.symbol === sym);
@@ -206,7 +209,7 @@ export const CodeReadingSheet: React.FC<{ data: CodeReadingData }> = ({ data }) 
                             ))}
                         </div>
                     </div>
-                </div>
+                </EditableElement>
             ))}
         </div>
         
@@ -277,11 +280,11 @@ export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData 
             {/* Sub-type: Letter Cancellation */}
             {data.subType === 'letter-cancellation' && data.grid && (
                 <div className="flex flex-col items-center gap-8">
-                    <div className="bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700">
+                    <EditableElement className="bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700">
                         <GridComponent grid={data.grid} cellClassName="w-12 h-12 text-2xl font-bold font-dyslexic" />
-                    </div>
+                    </EditableElement>
                     {data.targetChars && (
-                        <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-200 dark:border-rose-800 flex items-center gap-4">
+                        <EditableElement className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-200 dark:border-rose-800 flex items-center gap-4">
                             <span className="font-bold text-rose-700 dark:text-rose-300">Bu harflerin üzerini çiz:</span>
                             <div className="flex gap-2">
                                 {data.targetChars.map((char, i) => (
@@ -291,17 +294,17 @@ export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData 
                                     </span>
                                 ))}
                             </div>
-                        </div>
+                        </EditableElement>
                     )}
                     {data.password && (
-                        <div className="w-full max-w-md p-6 border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 text-center">
+                        <EditableElement className="w-full max-w-md p-6 border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 text-center">
                             <p className="text-zinc-500 text-sm mb-2 uppercase tracking-widest">Kalan Harflerden Oluşan Şifre</p>
                             <div className="flex justify-center gap-2">
                                 {data.password.split('').map((_, i) => (
                                     <div key={i} className="w-10 h-12 border-b-4 border-zinc-400"></div>
                                 ))}
                             </div>
-                        </div>
+                        </EditableElement>
                     )}
                 </div>
             )}
@@ -309,7 +312,7 @@ export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData 
             {/* Sub-type: Path Finding */}
             {data.subType === 'path-finding' && data.pathGrid && (
                 <div className="flex justify-center">
-                    <div className="relative bg-white dark:bg-zinc-800 p-4 rounded-xl shadow-lg border-2 border-zinc-300">
+                    <EditableElement className="relative bg-white dark:bg-zinc-800 p-4 rounded-xl shadow-lg border-2 border-zinc-300">
                         <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${data.pathGrid[0].length}, minmax(0, 1fr))` }}>
                             {data.pathGrid.map((row, r) => 
                                 row.map((cell, c) => (
@@ -325,7 +328,7 @@ export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData 
                                 ))
                             )}
                         </div>
-                    </div>
+                    </EditableElement>
                 </div>
             )}
 
@@ -333,11 +336,11 @@ export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData 
             {data.subType === 'visual-logic' && data.logicItems && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {data.logicItems.map((item, idx) => (
-                        <div key={idx} className="p-4 border-2 rounded-xl bg-white dark:bg-zinc-800 flex items-center justify-between gap-4">
+                        <EditableElement key={idx} className="p-4 border-2 rounded-xl bg-white dark:bg-zinc-800 flex items-center justify-between gap-4">
                             <div className="bg-zinc-100 dark:bg-zinc-900 rounded-full w-8 h-8 flex items-center justify-center font-bold text-zinc-500">{idx + 1}</div>
                             <PentagonLogic item={item} />
                             <div className="w-12 h-12 border-2 border-dashed border-zinc-300 rounded-lg"></div>
-                        </div>
+                        </EditableElement>
                     ))}
                 </div>
             )}
@@ -351,10 +354,10 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
             <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {data.puzzles.map((puzzle, i) => (
-                    <div key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 shadow-sm break-inside-avoid flex flex-col h-full">
+                    <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 shadow-sm break-inside-avoid flex flex-col h-full">
                         {/* Riddle Text */}
                         <div className="bg-zinc-100 dark:bg-zinc-700/50 p-4 rounded-lg mb-4 text-center border border-zinc-200 dark:border-zinc-600">
-                            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-100">{puzzle.riddle}</p>
+                            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-100"><EditableText value={puzzle.riddle} tag="span" /></p>
                         </div>
 
                         {/* Boxes Area */}
@@ -382,7 +385,7 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </EditableElement>
                 ))}
             </div>
             {/* Answer Key Strip (For Print) */}
@@ -399,10 +402,10 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
             <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {data.puzzles.map((puzzle, i) => (
-                    <div key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 shadow-md break-inside-avoid flex flex-col h-full relative">
+                    <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 shadow-md break-inside-avoid flex flex-col h-full relative">
                         {/* Riddle Box */}
                         <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg mb-4 text-center border border-amber-200 dark:border-amber-800">
-                            <p className="text-lg font-medium text-amber-900 dark:text-amber-100 font-dyslexic">{puzzle.riddle}</p>
+                            <p className="text-lg font-medium text-amber-900 dark:text-amber-100 font-dyslexic"><EditableText value={puzzle.riddle} tag="span" /></p>
                         </div>
 
                         {/* List Boxes */}
@@ -412,7 +415,7 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
                                     {box.title && <div className="text-xs text-zinc-500 mb-2 uppercase tracking-wider font-bold border-b pb-1">{box.title}</div>}
                                     <ul className="flex flex-col gap-1 text-base font-bold text-zinc-800 dark:text-zinc-200">
                                         {box.items.map((item, nIdx) => (
-                                            <li key={nIdx} className="py-1">{item}</li>
+                                            <li key={nIdx} className="py-1"><EditableText value={item} tag="span" /></li>
                                         ))}
                                     </ul>
                                 </div>
@@ -430,7 +433,7 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </EditableElement>
                 ))}
             </div>
             {/* Answer Key Strip (For Print) */}
