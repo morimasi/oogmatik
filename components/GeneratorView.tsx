@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Activity, GeneratorOptions, ActivityType, StudentProfile } from '../types';
 import { statsService } from '../services/statsService';
@@ -13,11 +12,12 @@ interface GeneratorViewProps {
     studentProfile?: StudentProfile | null;
 }
 
+// Profesyonel Ayar Tanımı Arayüzü
 interface FieldDefinition {
     key: string;
     label: string;
-    type: string;
-    width: string;
+    type: 'select' | 'number' | 'text';
+    width: 'full' | 'half'; // Izgara yerleşimi için
     defaultValue?: any;
     options?: string[];
     min?: number;
@@ -48,11 +48,11 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         setOptions((prev: any) => ({ ...prev, [key]: value }));
     };
 
-    // Dinamik alanları belirle (Profesyonel Ayarlar - Izgara Yapısı için width eklendi)
+    // Dinamik alanları belirle (Profesyonel Ayarlar)
     const getFields = (type: ActivityType): FieldDefinition[] => {
         const commonFields: FieldDefinition[] = [
-            { key: 'difficulty', label: 'Zorluk Seviyesi', type: 'select', defaultValue: 'Orta', options: ['Başlangıç', 'Orta', 'Zor', 'Uzman'], width: 'half' },
-            { key: 'itemCount', label: 'Soru/Öğe Sayısı', type: 'number', defaultValue: 10, min: 1, max: 50, width: 'half' }
+            { key: 'difficulty', label: 'Zorluk', type: 'select', defaultValue: 'Orta', options: ['Başlangıç', 'Orta', 'Zor', 'Uzman'], width: 'half' },
+            { key: 'itemCount', label: 'Soru Sayısı', type: 'number', defaultValue: 10, min: 1, max: 50, width: 'half' }
         ];
 
         switch (type) {
@@ -67,7 +67,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 return [
                     { key: 'itemCount', label: 'Adet', type: 'number', defaultValue: 4, min: 1, max: 10, width: 'half' },
                     { key: 'gridSize', label: 'Izgara Boyutu', type: 'number', defaultValue: 10, min: 5, max: 20, width: 'half' },
-                    { key: 'subType', label: 'Etkinlik Alt Tipi', type: 'select', defaultValue: 'letter-cancellation', options: ['letter-cancellation', 'path-finding', 'visual-logic'], width: 'full' },
+                    { key: 'subType', label: 'Etkinlik Tipi', type: 'select', defaultValue: 'letter-cancellation', options: ['letter-cancellation', 'path-finding', 'visual-logic'], width: 'full' },
                 ];
             case 'ATTENTION_DEVELOPMENT':
                 return [
@@ -175,7 +175,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
-                            {/* Worksheet Count */}
+                            {/* Worksheet Count - Always full width or special */}
                             <div className="col-span-2">
                                 <label className="block text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1">Sayfa Sayısı</label>
                                 <div className="flex items-center bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg h-9 px-1">
