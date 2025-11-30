@@ -106,7 +106,11 @@ const AppContent: React.FC = () => {
   const [worksheetData, setWorksheetData] = useState<WorksheetData>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // New State for Hover-based Expansion
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -443,38 +447,49 @@ const AppContent: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
-        <Sidebar
-            isSidebarOpen={isSidebarOpen}
-            closeSidebar={() => setIsSidebarOpen(false)}
-            selectedActivity={selectedActivity}
-            onSelectActivity={handleSelectActivity}
-            setWorksheetData={setWorksheetData}
-            setIsLoading={setIsLoading}
-            setError={setError}
-            isLoading={isLoading}
-            onAddToHistory={addToHistory}
-        />
         
-        <ContentArea
-          currentView={currentView}
-          onBackToGenerator={() => { setCurrentView('generator'); setSelectedActivity(null); setWorksheetData(null); }}
-          activityType={selectedActivity}
-          worksheetData={worksheetData}
-          isLoading={isLoading}
-          error={error}
-          styleSettings={styleSettings}
-          onStyleChange={setStyleSettings}
-          onSave={addSavedWorksheet}
-          onLoadSaved={loadSavedWorksheet}
-          onFeedback={() => setIsFeedbackOpen(true)}
-          onOpenAuth={() => setIsAuthModalOpen(true)}
-          onSelectActivity={handleSelectActivity}
-          workbookItems={workbookItems}
-          setWorkbookItems={setWorkbookItems}
-          workbookSettings={workbookSettings}
-          setWorkbookSettings={setWorkbookSettings}
-          onAddToWorkbook={handleAddToWorkbook}
-        />
+        {/* Sidebar Container with Hover Listener */}
+        <div onMouseEnter={() => setIsSidebarExpanded(true)}>
+            <Sidebar
+                isSidebarOpen={isSidebarOpen}
+                closeSidebar={() => setIsSidebarOpen(false)}
+                selectedActivity={selectedActivity}
+                onSelectActivity={handleSelectActivity}
+                setWorksheetData={setWorksheetData}
+                setIsLoading={setIsLoading}
+                setError={setError}
+                isLoading={isLoading}
+                onAddToHistory={addToHistory}
+                isExpanded={isSidebarExpanded}
+            />
+        </div>
+        
+        {/* Content Container with Hover Listener */}
+        <div 
+            className="flex-1 flex flex-col overflow-hidden" 
+            onMouseEnter={() => setIsSidebarExpanded(false)}
+        >
+            <ContentArea
+              currentView={currentView}
+              onBackToGenerator={() => { setCurrentView('generator'); setSelectedActivity(null); setWorksheetData(null); }}
+              activityType={selectedActivity}
+              worksheetData={worksheetData}
+              isLoading={isLoading}
+              error={error}
+              styleSettings={styleSettings}
+              onStyleChange={setStyleSettings}
+              onSave={addSavedWorksheet}
+              onLoadSaved={loadSavedWorksheet}
+              onFeedback={() => setIsFeedbackOpen(true)}
+              onOpenAuth={() => setIsAuthModalOpen(true)}
+              onSelectActivity={handleSelectActivity}
+              workbookItems={workbookItems}
+              setWorkbookItems={setWorkbookItems}
+              workbookSettings={workbookSettings}
+              setWorkbookSettings={setWorkbookSettings}
+              onAddToWorkbook={handleAddToWorkbook}
+            />
+        </div>
       </div>
       
       <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />

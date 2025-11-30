@@ -8,9 +8,10 @@ interface GeneratorViewProps {
     onGenerate: (options: GeneratorOptions) => void;
     onBack: () => void;
     isLoading: boolean;
+    isExpanded?: boolean;
 }
 
-export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading }) => {
+export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true }) => {
     const [options, setOptions] = useState<any>({
         worksheetCount: 1,
         mode: 'fast',
@@ -64,9 +65,41 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
     const fields = getFields(activity.id);
 
+    // If collapsed, show a minimal placeholder or vertical tool bar
+    if (!isExpanded) {
+        return (
+            <div className="flex flex-col h-full bg-white dark:bg-zinc-800 items-center py-4">
+                <button onClick={onBack} className="mb-6 text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200" title="Geri">
+                    <i className="fa-solid fa-arrow-left fa-lg"></i>
+                </button>
+                
+                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center text-xl mb-4 shadow-sm" title={activity.title}>
+                    <i className={activity.icon}></i>
+                </div>
+                
+                <div className="flex-1 w-full flex flex-col items-center gap-4 mt-4">
+                    <div className="w-8 h-8 rounded-full border-2 border-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-400" title="Ayarlar Gizli">
+                        <i className="fa-solid fa-sliders"></i>
+                    </div>
+                </div>
+
+                <div className="mt-auto">
+                     <button
+                        onClick={() => onGenerate(options)}
+                        disabled={isLoading}
+                        className="w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg flex items-center justify-center transition-all disabled:opacity-50"
+                        title="Oluştur"
+                    >
+                        {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-print"></i>}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col h-full bg-white dark:bg-zinc-800 shadow-xl overflow-hidden">
-            <div className="p-6 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
+            <div className="p-6 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 shrink-0">
                 <div className="flex justify-between items-start">
                     <button onClick={onBack} className="text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 mb-4 flex items-center">
                         <i className="fa-solid fa-arrow-left mr-2"></i> Geri
@@ -80,15 +113,15 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     </button>
                 </div>
                 <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center text-xl">
+                    <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center text-xl shrink-0">
                         <i className={activity.icon}></i>
                     </div>
-                    <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{activity.title}</h2>
+                    <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 leading-tight">{activity.title}</h2>
                 </div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{activity.description}</p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">{activity.description}</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                 <div className="space-y-4">
                     <h3 className="font-bold text-zinc-800 dark:text-zinc-200 text-sm uppercase tracking-wider border-b border-zinc-200 dark:border-zinc-700 pb-2">Ayarlar</h3>
                     
@@ -98,21 +131,21 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             <div className="flex bg-zinc-100 dark:bg-zinc-700 p-1 rounded-xl">
                                 <button
                                     onClick={() => handleChange('mode', 'fast')}
-                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${options.mode === 'fast' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
+                                    className={`flex-1 py-2 px-2 rounded-lg text-xs md:text-sm font-bold transition-all ${options.mode === 'fast' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
                                 >
-                                    <i className="fa-solid fa-bolt mr-2"></i>Hızlı
+                                    <i className="fa-solid fa-bolt mr-1"></i>Hızlı
                                 </button>
                                 <button
                                     onClick={() => handleChange('mode', 'ai')}
-                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${options.mode === 'ai' ? 'bg-white dark:bg-zinc-600 text-purple-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
+                                    className={`flex-1 py-2 px-2 rounded-lg text-xs md:text-sm font-bold transition-all ${options.mode === 'ai' ? 'bg-white dark:bg-zinc-600 text-purple-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
                                 >
-                                    <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>Yapay Zeka
+                                    <i className="fa-solid fa-wand-magic-sparkles mr-1"></i>AI
                                 </button>
                                 <button
                                     onClick={() => handleChange('mode', 'manual')}
-                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${options.mode === 'manual' ? 'bg-white dark:bg-zinc-600 text-emerald-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
+                                    className={`flex-1 py-2 px-2 rounded-lg text-xs md:text-sm font-bold transition-all ${options.mode === 'manual' ? 'bg-white dark:bg-zinc-600 text-emerald-600 shadow-sm' : 'text-zinc-500 dark:text-zinc-400'}`}
                                 >
-                                    <i className="fa-solid fa-keyboard mr-2"></i>Manuel
+                                    <i className="fa-solid fa-keyboard mr-1"></i>Manuel
                                 </button>
                             </div>
                             <p className="text-xs text-zinc-400 mt-2 ml-1">
@@ -180,7 +213,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 </div>
             </div>
 
-            <div className="p-6 border-t border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+            <div className="p-6 border-t border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shrink-0">
                 <button
                     onClick={() => onGenerate(options)}
                     disabled={isLoading || (options.mode === 'manual' && (!options.customInput || options.customInput.trim().length < 2))}

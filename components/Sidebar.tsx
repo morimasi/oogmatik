@@ -19,6 +19,7 @@ interface SidebarProps {
   isSidebarOpen: boolean;
   closeSidebar: () => void;
   onAddToHistory: (activityType: ActivityType, data: WorksheetData) => void;
+  isExpanded?: boolean;
 }
 
 const getActivityById = (id: ActivityType | null): Activity | undefined => {
@@ -39,7 +40,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   setIsLoading,
   setError,
   isLoading,
-  onAddToHistory
+  onAddToHistory,
+  isExpanded = true
 }) => {
   const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -139,49 +141,61 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       id="tour-sidebar"
-      className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-[var(--bg-paper)] backdrop-blur-md shadow-xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-[var(--border-color)] print:hidden ${
+      className={`fixed inset-y-0 left-0 z-30 transform bg-[var(--bg-paper)] backdrop-blur-md shadow-xl transition-all duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-[var(--border-color)] print:hidden ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}
+      } ${isExpanded ? 'w-80' : 'w-24'}`}
       aria-label="Etkinlik Menüsü"
     >
-        <div className="flex h-full flex-col">
+        <div className="flex h-full flex-col overflow-hidden">
             {currentActivity ? (
                 <GeneratorView 
                     activity={currentActivity}
                     onGenerate={handleGenerate}
                     onBack={() => onSelectActivity(null)}
                     isLoading={isLoading}
+                    isExpanded={isExpanded}
                 />
             ) : (
                 <>
-                    <div className="border-b p-4 border-[var(--border-color)] flex justify-between items-center bg-inherit">
-                        <div>
+                    <div className="border-b p-4 border-[var(--border-color)] flex justify-between items-center bg-inherit shrink-0 h-[73px]">
+                        <div className={`transition-opacity duration-300 ${!isExpanded ? 'opacity-0 hidden' : 'opacity-100'}`}>
                             <h2 className="text-lg font-bold text-[var(--text-primary)]">Etkinlikler</h2>
-                            <p className="text-xs text-[var(--text-muted)]">Bir kategori ve etkinlik seçin</p>
+                            <p className="text-xs text-[var(--text-muted)]">Bir kategori seçin</p>
                         </div>
+                        
+                        {!isExpanded && (
+                             <div className="w-full flex justify-center text-[var(--text-primary)]">
+                                 <i className="fa-solid fa-layer-group text-xl"></i>
+                             </div>
+                        )}
+
                          <button
                             onClick={closeSidebar}
-                            className="md:hidden text-[var(--text-muted)] hover:bg-[var(--bg-inset)] rounded-full w-8 h-8 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)]"
+                            className="md:hidden text-[var(--text-muted)] hover:bg-[var(--bg-inset)] rounded-full w-8 h-8 flex items-center justify-center focus:outline-none"
                             aria-label="Menüyü kapat"
                         >
                             <i className="fa-solid fa-times"></i>
                         </button>
                     </div>
-                    <nav className="flex-1 overflow-y-auto p-2">
+                    <nav className="flex-1 overflow-y-auto p-2 custom-scrollbar">
                         {categorizedActivities.map((category) => (
                             <div key={category.id} className="py-1">
                                 <button
                                     onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
                                     // Menu Button
-                                    className={`w-full flex items-center justify-between p-3 text-left font-semibold text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-inset)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${openCategoryId === category.id ? 'bg-[var(--bg-inset)]' : ''}`}
+                                    className={`w-full flex items-center p-3 text-left font-semibold text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-inset)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${openCategoryId === category.id ? 'bg-[var(--bg-inset)]' : ''} ${!isExpanded ? 'justify-center' : 'justify-between'}`}
                                     aria-expanded={openCategoryId === category.id}
+                                    title={!isExpanded ? category.title : undefined}
                                 >
-                                    <span>{category.title}</span>
-                                    <i className={`fa-solid fa-chevron-down text-sm text-[var(--text-muted)] transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
+                                    <div className="flex items-center gap-3">
+                                        <i className={`${category.icon} text-lg ${openCategoryId === category.id ? 'text-[var(--accent-color)]' : ''}`}></i>
+                                        <span className={`whitespace-nowrap transition-opacity duration-300 ${!isExpanded ? 'opacity-0 hidden' : 'opacity-100'}`}>{category.title}</span>
+                                    </div>
+                                    <i className={`fa-solid fa-chevron-down text-sm text-[var(--text-muted)] transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''} ${!isExpanded ? 'hidden' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (
                                     // Sub-menu
-                                    <ul className="sidebar-activity-list mt-1 space-y-1 bg-[var(--bg-primary)] rounded-lg p-2 mx-2 shadow-inner border border-[var(--border-color)]">
+                                    <ul className={`sidebar-activity-list mt-1 space-y-1 bg-[var(--bg-primary)] rounded-lg p-2 shadow-inner border border-[var(--border-color)] ${!isExpanded ? 'mx-0' : 'mx-2'}`}>
                                         {category.items.map(activity => (
                                             <li key={`${activity.id}-${activity.title}`}>
                                                 <button
@@ -190,14 +204,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                         closeSidebar();
                                                     }}
                                                     // Activity Item
-                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${
+                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors focus:outline-none flex items-center ${
                                                         selectedActivity === activity.id 
                                                         ? 'bg-[var(--bg-inset)] text-[var(--text-primary)] border-l-4 border-[var(--accent-color)] font-bold' 
                                                         : 'text-[var(--text-secondary)] hover:bg-[var(--bg-inset)] hover:text-[var(--text-primary)]'
-                                                    }`}
+                                                    } ${!isExpanded ? 'justify-center' : 'justify-start'}`}
+                                                    title={!isExpanded ? activity.title : undefined}
                                                 >
-                                                    <i className={`${activity.icon} fa-fw mr-2 ${selectedActivity === activity.id ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}></i>
-                                                    {activity.title}
+                                                    <i className={`${activity.icon} fa-fw ${!isExpanded ? 'text-lg' : 'mr-2'} ${selectedActivity === activity.id ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}></i>
+                                                    <span className={`truncate transition-opacity duration-300 ${!isExpanded ? 'opacity-0 w-0 hidden' : 'opacity-100'}`}>{activity.title}</span>
                                                 </button>
                                             </li>
                                         ))}
