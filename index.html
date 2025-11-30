@@ -158,6 +158,22 @@
           display: none !important;
         }
 
+        /* 
+           CRITICAL FIX: Reset the Infinite Canvas transformations during print.
+           This ensures that mouse wheel zooming (viewZoom) does not affect the print scale.
+           The content will print at 100% size relative to the paper.
+        */
+        .printable-content-parent {
+            transform: none !important; /* Removes scale() and translate() applied by mouse interaction */
+            width: 100% !important;
+            height: auto !important;
+            position: static !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+            overflow: visible !important;
+        }
+
         /* Content Styling: Force White BG, Black Text, No Shadows */
         .worksheet-page, .worksheet-item, .printable-content-parent, 
         div, span, p, td, th, li, h1, h2, h3, h4, h5, h6 {
