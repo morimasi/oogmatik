@@ -5,7 +5,6 @@ import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
 import { MascotRobot, MascotOwl, MascotCat } from '../VisualAssets';
 import { EditableElement, EditableText } from '../Editable'; 
 
-// --- HELPER: SMART EMOJI FINDER ---
 const findEmojiForDescription = (desc: string): string | null => {
     if (!desc) return null;
     const safeDesc = String(desc);
@@ -38,27 +37,10 @@ const findEmojiForDescription = (desc: string): string | null => {
     return null;
 };
 
-// --- HELPER: STRING TO COLOR ---
 const stringToColor = (str: string): string => {
     const safeStr = String(str);
     const colors = [
-        'bg-red-100 text-red-600 border-red-200',
-        'bg-orange-100 text-orange-600 border-orange-200',
-        'bg-amber-100 text-amber-600 border-amber-200',
-        'bg-yellow-100 text-yellow-600 border-yellow-200',
-        'bg-lime-100 text-lime-600 border-lime-200',
-        'bg-green-100 text-green-600 border-green-200',
-        'bg-emerald-100 text-emerald-600 border-emerald-200',
-        'bg-teal-100 text-teal-600 border-teal-200',
-        'bg-cyan-100 text-cyan-600 border-cyan-200',
-        'bg-sky-100 text-sky-600 border-sky-200',
-        'bg-blue-100 text-blue-600 border-blue-200',
-        'bg-indigo-100 text-indigo-600 border-indigo-200',
-        'bg-violet-100 text-violet-600 border-violet-200',
-        'bg-purple-100 text-purple-600 border-purple-200',
-        'bg-fuchsia-100 text-fuchsia-600 border-fuchsia-200',
-        'bg-pink-100 text-pink-600 border-pink-200',
-        'bg-rose-100 text-rose-600 border-rose-200'
+        'bg-red-100 text-red-600 border-red-200', 'bg-orange-100 text-orange-600 border-orange-200', 'bg-amber-100 text-amber-600 border-amber-200', 'bg-yellow-100 text-yellow-600 border-yellow-200', 'bg-lime-100 text-lime-600 border-lime-200', 'bg-green-100 text-green-600 border-green-200', 'bg-emerald-100 text-emerald-600 border-emerald-200', 'bg-teal-100 text-teal-600 border-teal-200', 'bg-cyan-100 text-cyan-600 border-cyan-200', 'bg-sky-100 text-sky-600 border-sky-200', 'bg-blue-100 text-blue-600 border-blue-200', 'bg-indigo-100 text-indigo-600 border-indigo-200', 'bg-violet-100 text-violet-600 border-violet-200', 'bg-purple-100 text-purple-600 border-purple-200', 'bg-fuchsia-100 text-fuchsia-600 border-fuchsia-200', 'bg-pink-100 text-pink-600 border-pink-200', 'bg-rose-100 text-rose-600 border-rose-200'
     ];
     let hash = 0;
     for (let i = 0; i < safeStr.length; i++) {
@@ -67,7 +49,6 @@ const stringToColor = (str: string): string => {
     return colors[Math.abs(hash) % colors.length];
 };
 
-// --- TTS HELPER ---
 const useTTS = () => {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const synth = window.speechSynthesis;
@@ -102,7 +83,6 @@ const useTTS = () => {
     return { speak, cancel, isSpeaking };
 };
 
-// Enhanced ImageDisplay with Professional SVG Handling and Editable Wrapper
 export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string | number; className?: string }) => {
     
     let safeDesc = '';
@@ -115,11 +95,8 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
     }
 
     return (
-        /* The container is NOT EditableElement here because ImageDisplay is often used INSIDE other EditableElements. 
-           If standalone, the parent should wrap it. */
         <div className={`image-display-container ${className} relative overflow-hidden`}>
             {(() => {
-                // 1. Try rendering SVG Code (AI Generated)
                 if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
                     let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
                     cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
@@ -141,7 +118,6 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
                     );
                 }
 
-                // 2. Try rendering Base64 Image
                 if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
                     const src = base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
                     return (
@@ -149,7 +125,6 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
                     );
                 }
                 
-                // 3. AI generated Emoji fallback
                 if (base64 && typeof base64 === 'string' && base64.length < 15 && base64.trim().length > 0) {
                      return (
                         <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700 w-full h-full`}>

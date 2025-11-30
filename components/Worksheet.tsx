@@ -22,8 +22,6 @@ interface WorksheetProps {
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
     if (!data || !activityType || data.length === 0) return null;
 
-    // WYSIWYG Fix: 
-    // Always stack multiple worksheets vertically (outerCols = 1) to match print behavior.
     const outerCols = 1;
     const innerCols = settings.columns;
     
@@ -31,20 +29,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     const pageWidth = isLandscape ? '297mm' : '210mm';
     const pageHeight = isLandscape ? '210mm' : '297mm';
 
-    // Base styles applied to the A4 container
     const pageStyle = {
         width: pageWidth,
         minHeight: pageHeight,
-        padding: `max(10mm, var(--worksheet-margin))`, // Ensure print safety margin
+        padding: `max(10mm, var(--worksheet-margin))`,
         position: 'relative' as const,
         backgroundColor: 'white',
         color: 'black',
         boxSizing: 'border-box' as const,
-        overflow: 'hidden', // Clip content that scales out of bounds
+        overflow: 'hidden',
         ...getBorderCSS(settings.themeBorder || 'simple')
     };
 
-    // CSS Variables for internal content to react instantly
     const variableStyle = {
         '--worksheet-font-size': `${settings.fontSize}px`,
         '--worksheet-border-color': settings.borderColor,
@@ -55,7 +51,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         '--content-align': settings.contentAlign || 'center',
         '--font-weight': settings.fontWeight || 'normal',
         '--font-style': settings.fontStyle || 'normal',
-        // Visibility Flags
         '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
         '--show-mascot': settings.showMascot ? 'block' : 'none',
         '--show-student-info': settings.showStudentInfo ? 'flex' : 'none',
@@ -65,9 +60,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
     return (
         <div className="flex flex-col items-center bg-transparent w-full" style={variableStyle}>
-            {/* Inject dynamic print styles */}
             <style>{`
-                /* Dynamic Grid System for Items */
                 .dynamic-grid {
                     display: grid;
                     grid-template-columns: repeat(var(--dynamic-cols), 1fr);
@@ -76,7 +69,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     align-items: start;
                 }
 
-                /* Content Styling based on Toolbar Settings */
                 .worksheet-content {
                     font-size: var(--worksheet-font-size);
                     font-weight: var(--font-weight);
@@ -100,13 +92,12 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         page-break-after: always !important;
                         margin: 0 !important;
                         box-shadow: none !important;
-                        border: none !important; /* Remove screen helper borders if any */
-                        overflow: hidden !important; /* Ensure clip in print too */
+                        border: none !important;
+                        overflow: hidden !important;
                     }
                     
                     .no-print { display: none !important; }
                     
-                    /* Force grid layouts */
                     .print\\:grid-cols-2 {
                         display: grid !important;
                         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -121,11 +112,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         className="worksheet-item shadow-2xl print:shadow-none transition-all duration-300 ease-in-out"
                         style={pageStyle}
                     >
-                        {/* 
-                           CONTENT SCALER 
-                           Scales content to fit the A4 page.
-                           Transform Origin: Top Left + Inverse Width Calculation ensures perfect centering and fit.
-                        */}
                         <div 
                             className="worksheet-scaler worksheet-content"
                             style={{
@@ -134,7 +120,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 width: `calc(100% / ${settings.scale})`,
                             }}
                         >
-                            {/* Student Info Header Injection */}
                             {settings.showStudentInfo && (
                                 <div className="mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest flex justify-between items-end print:flex">
                                     <div className="flex-1 text-left">
@@ -151,15 +136,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 </div>
                             )}
 
-                            {/* WRAP THE MAIN SHEET IN AN EDITABLE ELEMENT IF NEEDED OR JUST RENDER */}
-                            {/* Actually, RenderSheet returns multiple items usually. We let common components handle Editable logic internally or we wrap the whole block? */}
-                            {/* Wrapping the whole sheet content allows moving the main block relative to header */}
-                            <EditableElement id="main-content">
+                            <EditableElement id="main-content-block">
                                 <RenderSheet activityType={activityType} data={sheetData} />
                             </EditableElement>
                         </div>
                         
-                        {/* Footer stays at absolute bottom of A4 page, unaffected by content scale */}
                         <div 
                             className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black print:opacity-100 pointer-events-none"
                             style={{ display: 'var(--show-footer, flex)' }}
@@ -178,7 +159,6 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
     const props = { data: data as any };
 
     switch (activityType) {
-        // --- Dyslexia Support ---
         case ActivityType.READING_FLOW: return <DyslexiaSheets.ReadingFlowSheet {...props} />;
         case ActivityType.LETTER_DISCRIMINATION: return <DyslexiaSheets.LetterDiscriminationSheet {...props} />;
         case ActivityType.RAPID_NAMING: return <DyslexiaSheets.RapidNamingSheet {...props} />;
@@ -194,7 +174,6 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.MIND_GAMES: return <NewActivitySheets.MindGamesSheet {...props} />;
         case ActivityType.MIND_GAMES_56: return <NewActivitySheets.MindGames56Sheet {...props} />;
 
-        // --- Math & Logic ---
         case ActivityType.BASIC_OPERATIONS: return <MathLogicSheets.BasicOperationsSheet {...props} />;
         case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <MathLogicSheets.RealLifeMathProblemsSheet {...props} />;
         case ActivityType.MATH_PUZZLE: return <MathLogicSheets.MathPuzzleSheet {...props} />;
@@ -206,7 +185,7 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.ROMAN_NUMERAL_STAR_HUNT: return <MathLogicSheets.RomanNumeralStarHuntSheet {...props} />;
         case ActivityType.ROMAN_NUMERAL_CONNECT: return <VisualPerceptionSheets.RomanNumeralConnectSheet {...props} />;
         case ActivityType.ROUNDING_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />;
-        case ActivityType.ARITHMETIC_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />; // Reusing RoundingConnectSheet logic
+        case ActivityType.ARITHMETIC_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />;
         case ActivityType.ROMAN_NUMERAL_MULTIPLICATION: return <MathLogicSheets.RomanNumeralMultiplicationSheet {...props} />;
         case ActivityType.KENDOKU: return <MathLogicSheets.KendokuSheet {...props} />;
         case ActivityType.OPERATION_SQUARE_FILL_IN: return <MathLogicSheets.OperationSquareSheet {...props} />;
@@ -224,7 +203,6 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.SHAPE_NUMBER_PATTERN: return <MathLogicSheets.ShapeNumberPatternSheet {...props} />;
         case ActivityType.SHAPE_COUNTING: return <MathLogicSheets.ShapeCountingSheet {...props} />;
 
-        // --- Visual Perception ---
         case ActivityType.FIND_THE_DIFFERENCE: return <VisualPerceptionSheets.FindTheDifferenceSheet {...props} />;
         case ActivityType.WORD_COMPARISON: return <VisualPerceptionSheets.WordComparisonSheet {...props} />;
         case ActivityType.SHAPE_MATCHING: return <VisualPerceptionSheets.ShapeMatchingSheet {...props} />;
@@ -249,7 +227,6 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.PUNCTUATION_COLORING: return <VisualPerceptionSheets.PunctuationColoringSheet {...props} />;
         case ActivityType.SYNONYM_ANTONYM_COLORING: return <VisualPerceptionSheets.SynonymAntonymColoringSheet {...props} />;
 
-        // --- Reading Comprehension ---
         case ActivityType.STORY_COMPREHENSION: return <ReadingComprehensionSheets.StoryComprehensionSheet {...props} />;
         case ActivityType.STORY_CREATION_PROMPT: return <ReadingComprehensionSheets.StoryCreationPromptSheet {...props} />;
         case ActivityType.WORDS_IN_STORY: return <ReadingComprehensionSheets.WordsInStorySheet {...props} />;
@@ -260,7 +237,6 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.PROVERB_WORD_CHAIN: return <ReadingComprehensionSheets.ProverbWordChainSheet {...props} />;
         case ActivityType.PROVERB_SEARCH: return <ReadingComprehensionSheets.ProverbSearchSheet {...props} />;
 
-        // --- Word Games ---
         case ActivityType.WORD_SEARCH: return <WordGameSheets.WordSearchSheet {...props} />;
         case ActivityType.ANAGRAM: return <WordGameSheets.AnagramSheet {...props} />;
         case ActivityType.SPELLING_CHECK: return <WordGameSheets.SpellingCheckSheet {...props} />;
@@ -298,7 +274,6 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.SYNONYM_WORD_SEARCH: return <WordGameSheets.SynonymWordSearchSheet {...props} />;
         case ActivityType.SYNONYM_SEARCH_STORY: return <WordGameSheets.SynonymSearchAndStorySheet {...props} />;
 
-        // --- Memory & Attention ---
         case ActivityType.WORD_MEMORY: return <MemoryAttentionSheets.WordMemorySheet {...props} />;
         case ActivityType.VISUAL_MEMORY: return <MemoryAttentionSheets.VisualMemorySheet {...props} />;
         case ActivityType.NUMBER_SEARCH: return <MemoryAttentionSheets.NumberSearchSheet {...props} />;
@@ -313,13 +288,11 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.STROOP_TEST: return <MemoryAttentionSheets.StroopTestSheet {...props} />;
         case ActivityType.CHAOTIC_NUMBER_SEARCH: return <MemoryAttentionSheets.ChaoticNumberSearchSheet {...props} />;
 
-        // --- New Activities ---
         case ActivityType.FAMILY_RELATIONS: return <NewActivitySheets.FamilyRelationsSheet {...props} />;
         case ActivityType.LOGIC_DEDUCTION: return <NewActivitySheets.LogicDeductionSheet {...props} />;
         case ActivityType.NUMBER_BOX_LOGIC: return <NewActivitySheets.NumberBoxLogicSheet {...props} />;
         case ActivityType.MAP_INSTRUCTION: return <NewActivitySheets.MapInstructionSheet {...props} />;
 
-        // --- Dyscalculia ---
         case ActivityType.NUMBER_SENSE: return <DyscalculiaSheets.NumberSenseSheet {...props} />;
         case ActivityType.ARITHMETIC_FLUENCY: return <DyscalculiaSheets.VisualArithmeticSheet {...props} />;
         case ActivityType.VISUAL_ARITHMETIC: return <DyscalculiaSheets.VisualArithmeticSheet {...props} />;
