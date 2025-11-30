@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -38,6 +37,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         backgroundColor: 'white',
         color: 'black',
         boxSizing: 'border-box' as const,
+        overflow: 'hidden', // Clip content that scales out of bounds
         ...getBorderCSS(settings.themeBorder || 'simple')
     };
 
@@ -57,6 +57,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--show-mascot': settings.showMascot ? 'block' : 'none',
         '--show-student-info': settings.showStudentInfo ? 'flex' : 'none',
         '--show-footer': settings.showFooter ? 'flex' : 'none',
+        '--scale': settings.scale,
     } as React.CSSProperties;
 
     return (
@@ -100,6 +101,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         margin: 0 !important;
                         box-shadow: none !important;
                         border: none !important; /* Remove screen helper borders if any */
+                        overflow: hidden !important; /* Ensure clip in print too */
                     }
                     
                     .no-print { display: none !important; }
@@ -121,17 +123,15 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                     >
                         {/* 
                            CONTENT SCALER 
-                           This wrapper scales the content (text, images, grids) 
-                           while keeping the A4 container fixed. 
-                           It allows shrinking large content to fit the page.
+                           Scales content to fit the A4 page.
+                           Transform Origin: Top Left + Inverse Width Calculation ensures perfect centering and fit.
                         */}
                         <div 
                             className="worksheet-scaler worksheet-content"
                             style={{
                                 transform: `scale(${settings.scale})`,
-                                transformOrigin: 'top center', // Scales from top, keeping header at top
-                                width: `calc(100% / ${settings.scale})`, // Compensate width so 100% visual width is maintained
-                                margin: '0 auto' // Centers content horizontally when scaled up (width < 100%)
+                                transformOrigin: 'top left', 
+                                width: `calc(100% / ${settings.scale})`,
                             }}
                         >
                             <RenderSheet activityType={activityType} data={sheetData} />
