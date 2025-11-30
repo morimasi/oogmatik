@@ -1,3 +1,4 @@
+
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile } from '../types';
 import Worksheet from './Worksheet';
@@ -12,7 +13,8 @@ import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { worksheetService } from '../services/worksheetService';
 import { WorkbookView } from './WorkbookView';
-import { EditableContext } from './Editable';
+import { EditorProvider } from '../context/EditorContext';
+import { EditorUI } from './editor/EditorUI';
 // @ts-ignore
 import html2canvas from 'html2canvas';
 
@@ -31,7 +33,6 @@ interface ContentAreaProps {
   onFeedback: () => void;
   onOpenAuth: () => void;
   onSelectActivity?: (activityType: ActivityType) => void;
-  // Workbook Props
   workbookItems: CollectionItem[];
   setWorkbookItems: React.Dispatch<React.SetStateAction<CollectionItem[]>>;
   workbookSettings: WorkbookSettings;
@@ -124,19 +125,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         // or explicitly explicitly allow it anywhere not interactive
         if (currentView !== 'generator' || !worksheetData) return;
         
-        // If in edit mode, and clicking on the worksheet page (or any editable element), don't pan!
-        // This allows selection and interaction inside the page without moving the canvas.
+        // If in edit mode, block panning on worksheet items to allow selection
         if (isEditMode) {
             const target = e.target as HTMLElement;
-            // Assuming worksheet pages have a specific class or structure we can detect
             if (target.closest('.worksheet-item') || target.closest('.printable-content-parent')) {
                 return;
             }
         }
         
-        // Check if the target is an input or button to avoid blocking interaction
         const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.tagName === 'TEXTAREA' || target.closest('button')) {
+        if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.tagName === 'TEXTAREA' || target.closest('button') || target.closest('.edit-ui')) {
             return;
         }
 
@@ -169,14 +167,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const elements = document.querySelectorAll('.worksheet-item');
         if (!elements || elements.length === 0) return;
 
-        // Temporarily hide UI elements or specific markers if needed before snapshot
         const editIndicators = document.querySelectorAll('.edit-handle');
         editIndicators.forEach((el: any) => el.style.display = 'none');
 
         try {
-            // Take snapshot of the first page for simplicity
             const canvas = await html2canvas(elements[0] as HTMLElement, {
-                scale: 2, // Higher quality
+                scale: 2, 
                 useCORS: true, 
                 backgroundColor: null 
             });
@@ -191,7 +187,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             console.error("Snapshot failed:", err);
             alert("Ekran görüntüsü alınırken bir hata oluştu.");
         } finally {
-            // Restore indicators
             editIndicators.forEach((el: any) => el.style.display = '');
         }
     };
@@ -297,7 +292,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = getBreadcrumbs();
 
   return (
-    <EditableContext.Provider value={{ isEditMode, zoom: viewZoom }}>
+    <EditorProvider isEditMode={isEditMode} zoom={viewZoom}>
     <main className={`flex-1 flex flex-col h-full bg-[var(--bg-primary)] transition-colors duration-300 overflow-hidden`}>
       
       {/* 1. TOP BAR (Toolbar & Breadcrumbs) - Fixed Height */}
@@ -343,13 +338,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {/* 2. MAIN CONTENT AREA (Canvas) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
+        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
+          {/* PROFESSIONAL EDITOR OVERLAY UI */}
+          <EditorUI />
+
           {/* Background Grid Pattern */}
           {currentView === 'generator' && worksheetData && (
               <div className="absolute inset-0 pointer-events-none opacity-10" 
@@ -364,8 +362,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           
           {/* Edit Mode Overlay Info */}
           {isEditMode && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
-                  <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#2d2d30] text-gray-200 border border-[#3e3e42] px-4 py-2 rounded-sm shadow-xl z-50 font-bold text-xs flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
+                  <i className="fa-solid fa-pen-ruler text-[#007acc]"></i> FREEHAND MODE
               </div>
           )}
 
@@ -466,7 +464,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         />
       </div>
     </main>
-    </EditableContext.Provider>
+    </EditorProvider>
   );
 };
 
