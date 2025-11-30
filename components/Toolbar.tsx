@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
 
@@ -16,7 +15,7 @@ interface ToolbarProps {
   onViewWorkbook?: () => void;
   onToggleEdit?: () => void;
   isEditMode?: boolean;
-  onSnapshot?: () => void; // New prop for screenshot
+  onSnapshot?: () => void; 
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -299,7 +298,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             </button>
         </div>
         
-        {/* Click outside listener to close menus could be added here or handled by parent */}
+        {/* Click outside listener to close menus */}
         {activeMenu !== 'none' && (
             <div className="fixed inset-0 z-40" onClick={() => setActiveMenu('none')}></div>
         )}

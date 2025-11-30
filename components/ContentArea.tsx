@@ -1,4 +1,3 @@
-
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile } from '../types';
 import Worksheet from './Worksheet';
@@ -90,11 +89,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false); // NEW STATE FOR EDIT MODE
+    const [isEditMode, setIsEditMode] = useState(false); 
     
     // --- INFINITE CANVAS STATE ---
     const [viewZoom, setViewZoom] = useState(1);
-    const [pan, setPan] = useState({ x: 0, y: 50 }); // Start with a little top padding
+    const [pan, setPan] = useState({ x: 0, y: 50 }); 
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     
@@ -112,7 +111,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         if (currentView !== 'generator' || !worksheetData) return;
 
         // Standard behavior: Ctrl+Wheel or just Wheel for zoom in design tools
-        // We prevent default scrolling to implement zoom
         if (e.ctrlKey || !e.shiftKey) { 
              const delta = e.deltaY * -0.001;
              const newZoom = Math.min(Math.max(0.2, viewZoom + delta), 3);
@@ -126,11 +124,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         // or explicitly explicitly allow it anywhere not interactive
         if (currentView !== 'generator' || !worksheetData) return;
         
-        // If in edit mode, and clicking on the worksheet page, don't pan!
-        // This allows selection and interaction inside the page.
+        // If in edit mode, and clicking on the worksheet page (or any editable element), don't pan!
+        // This allows selection and interaction inside the page without moving the canvas.
         if (isEditMode) {
             const target = e.target as HTMLElement;
-            if (target.closest('.worksheet-item') || target.closest('.worksheet-page')) return;
+            // Assuming worksheet pages have a specific class or structure we can detect
+            if (target.closest('.worksheet-item') || target.closest('.printable-content-parent')) {
+                return;
+            }
         }
         
         // Check if the target is an input or button to avoid blocking interaction
@@ -140,7 +141,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         }
 
         setIsDragging(true);
-        // Calculate offset relative to current pan
         setDragStart({ 
             x: e.clientX - pan.x, 
             y: e.clientY - pan.y 
@@ -174,12 +174,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         editIndicators.forEach((el: any) => el.style.display = 'none');
 
         try {
-            // Take snapshot of the first page for simplicity, or iterate if needed
-            // Currently focusing on the main visible worksheet.
+            // Take snapshot of the first page for simplicity
             const canvas = await html2canvas(elements[0] as HTMLElement, {
                 scale: 2, // Higher quality
-                useCORS: true, // For images
-                backgroundColor: null // Transparent background if possible, or white
+                useCORS: true, 
+                backgroundColor: null 
             });
 
             const link = document.createElement('a');
@@ -208,13 +207,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const year = now.getFullYear();
         const hour = String(now.getHours()).padStart(2, '0');
         const minute = String(now.getMinutes()).padStart(2, '0');
-        const second = String(now.getSeconds()).padStart(2, '0');
-        const millisecond = String(now.getMilliseconds()).padStart(3, '0');
         
-        // Include student name if available
         const prefix = studentProfile?.name ? `${studentProfile.name} - ` : '';
-        
-        return `${prefix}${title} - ${day}.${month}.${year} ${hour}:${minute}:${second}-${millisecond}`;
+        return `${prefix}${title} - ${day}.${month}.${year} ${hour}:${minute}`;
     };
 
     const handleSave = () => {
@@ -270,7 +265,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             setIsShareModalOpen(false);
         } catch (error) {
             console.error("Anında paylaşım hatası:", error);
-            alert('Paylaşım sırasında bir hata oluştu. Lütfen internet bağlantınızı kontrol edin.');
+            alert('Paylaşım sırasında bir hata oluştu.');
         } finally {
             setIsSharing(false);
         }
@@ -302,7 +297,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = getBreadcrumbs();
 
   return (
-    <EditableContext.Provider value={{ isEditMode }}>
+    <EditableContext.Provider value={{ isEditMode, zoom: viewZoom }}>
     <main className={`flex-1 flex flex-col h-full bg-[var(--bg-primary)] transition-colors duration-300 overflow-hidden`}>
       
       {/* 1. TOP BAR (Toolbar & Breadcrumbs) - Fixed Height */}
@@ -338,24 +333,24 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     isPreviewMode={isPreviewMode}
                     onAddToWorkbook={onAddToWorkbook}
                     workbookItemCount={workbookItems.length}
-                    onToggleEdit={() => setIsEditMode(!isEditMode)} // Add Toggle Handler
-                    isEditMode={isEditMode} // Pass State
-                    onSnapshot={handleTakeSnapshot} // New Snapshot Function
+                    onToggleEdit={() => setIsEditMode(!isEditMode)} 
+                    isEditMode={isEditMode} 
+                    onSnapshot={handleTakeSnapshot} 
                 />
           )}
       </div>
 
-      {/* 2. MAIN CONTENT AREA (Canvas) - Flexible Height, Hidden Overflow for custom Pan */}
+      {/* 2. MAIN CONTENT AREA (Canvas) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData && !isEditMode ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
+        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-          {/* Background Grid Pattern for Design Tool Feel */}
+          {/* Background Grid Pattern */}
           {currentView === 'generator' && worksheetData && (
               <div className="absolute inset-0 pointer-events-none opacity-10" 
                    style={{ 
@@ -367,7 +362,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </div>
           )}
           
-          {/* Edit Mode Indicator Overlay */}
+          {/* Edit Mode Overlay Info */}
           {isEditMode && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
                   <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
@@ -386,7 +381,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
           {currentView === 'generator' ? (
             <>
-                {/* Error Message */}
                 {error && !error.startsWith("Bilgi:") && (
                     <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 pointer-events-none">
                         <div className="bg-[var(--bg-paper)] border-2 border-red-500/30 rounded-2xl shadow-xl overflow-hidden pointer-events-auto">
@@ -404,7 +398,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     </div>
                 )}
 
-                {/* Loading State */}
                 {isLoading && (
                     <div className="flex flex-col items-center justify-center absolute inset-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm">
                         <div className="text-center mb-8">
@@ -417,7 +410,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     </div>
                 )}
 
-                {/* Landing State */}
                 {!isLoading && !error && !worksheetData && (
                      <div className="flex flex-col items-center justify-center h-full w-full">
                          <div className="text-center p-8 max-w-3xl bg-[var(--panel-bg)] backdrop-blur-sm rounded-3xl border border-[var(--border-color)] shadow-2xl w-full mx-4">
@@ -433,15 +425,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     </div>
                 )}
                 
-                {/* Worksheet Render Area - The Scrollable/Zoomable Canvas */}
                 {worksheetData && (
                     <div 
                         className={`printable-content-parent transition-transform duration-75 ease-out will-change-transform`}
                         style={{ 
                             transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
-                            transformOrigin: 'top center', // Zoom relative to top center
+                            transformOrigin: 'top center', 
                             width: '100%',
-                            height: 'auto', // Allow it to take necessary height
+                            height: 'auto', 
                             display: 'flex',
                             justifyContent: 'center'
                         }}

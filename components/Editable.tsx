@@ -1,11 +1,11 @@
-
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 interface EditableContextType {
     isEditMode: boolean;
+    zoom: number;
 }
 
-export const EditableContext = React.createContext<EditableContextType>({ isEditMode: false });
+export const EditableContext = React.createContext<EditableContextType>({ isEditMode: false, zoom: 1 });
 
 export const useEditable = () => React.useContext(EditableContext);
 
@@ -15,11 +15,11 @@ interface EditableElementProps {
     initialPos?: { x: number; y: number };
     id?: string;
     type?: 'block' | 'text' | 'image';
-    style?: React.CSSProperties; // Allow overriding styles
+    style?: React.CSSProperties; 
 }
 
 export const EditableElement: React.FC<EditableElementProps> = ({ children, className = "", initialPos = { x: 0, y: 0 }, id, type = 'block', style: propStyle }) => {
-    const { isEditMode } = useEditable();
+    const { isEditMode, zoom } = useEditable();
     const [position, setPosition] = useState(initialPos);
     const [size, setSize] = useState<{ width: string | number; height: string | number }>({ width: 'auto', height: 'auto' });
     const [rotation, setRotation] = useState(0);
@@ -28,17 +28,25 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
     const [isResizing, setIsResizing] = useState(false);
     const [isDeleted, setIsDeleted] = useState(false);
     
-    // Drag Start Position
-    const dragStart = useRef({ x: 0, y: 0 });
-    // Resize Start Data
-    const resizeStart = useRef({ w: 0, h: 0, x: 0, y: 0 });
+    // Refs for drag logic
+    const startPos = useRef({ x: 0, y: 0 });
+    const originalPos = useRef({ x: 0, y: 0 });
+    
+    // Refs for resize logic
+    const startResizeMouse = useRef({ x: 0, y: 0 });
+    const startResizeSize = useRef({ w: 0, h: 0 });
+    
+    // Refs for rotation logic
+    const startRotateMouse = useRef({ x: 0 });
+    const startRotateAngle = useRef(0);
+
     const elementRef = useRef<HTMLDivElement>(null);
 
     // Reset selection when clicking outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (elementRef.current && !elementRef.current.contains(e.target as Node)) {
-                // Check if clicking a handle, if so don't deselect
+                // Check if clicking a handle
                 if (!(e.target as HTMLElement).closest('.edit-handle')) {
                     setIsSelected(false);
                 }
@@ -53,82 +61,42 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
     // --- DRAG LOGIC ---
     const handleMouseDown = (e: React.MouseEvent) => {
         if (!isEditMode) return;
-        // Don't drag if interacting with content (like input) or handles
+        // Don't drag if interacting with handles or content editable
         if ((e.target as HTMLElement).closest('.edit-handle') || (e.target as HTMLElement).isContentEditable) return;
         
-        e.stopPropagation(); // Prevent selecting parent
+        e.stopPropagation(); 
         setIsSelected(true);
         setIsDragging(true);
-        dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+        
+        startPos.current = { x: e.clientX, y: e.clientY };
+        originalPos.current = { ...position };
     };
 
     // --- RESIZE LOGIC ---
     const handleResizeStart = (e: React.MouseEvent, direction: string) => {
         e.stopPropagation();
+        e.preventDefault();
         setIsResizing(true);
         const rect = elementRef.current?.getBoundingClientRect();
         if (rect) {
-            resizeStart.current = { 
-                w: rect.width, 
-                h: rect.height, 
-                x: e.clientX, 
-                y: e.clientY 
-            };
+            startResizeMouse.current = { x: e.clientX, y: e.clientY };
+            startResizeSize.current = { w: rect.width / zoom, h: rect.height / zoom }; // Normalize by zoom
         }
     };
-
-    // --- GLOBAL MOUSE MOVE/UP ---
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (!isEditMode) return;
-
-            if (isDragging) {
-                e.preventDefault();
-                setPosition({
-                    x: e.clientX - dragStart.current.x,
-                    y: e.clientY - dragStart.current.y
-                });
-            }
-
-            if (isResizing && elementRef.current) {
-                e.preventDefault();
-                const deltaX = e.clientX - resizeStart.current.x;
-                const deltaY = e.clientY - resizeStart.current.y;
-                
-                // Simple resize logic (bottom-right based)
-                // For a full implementation we'd handle all directions, 
-                // here we assume corner resize affects width/height
-                const newWidth = Math.max(20, resizeStart.current.w + deltaX);
-                const newHeight = Math.max(20, resizeStart.current.h + deltaY);
-                
-                setSize({ width: newWidth, height: newHeight });
-            }
-        };
-
-        const handleMouseUp = () => {
-            setIsDragging(false);
-            setIsResizing(false);
-        };
-
-        if (isDragging || isResizing) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-        }
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isDragging, isResizing, isEditMode]);
 
     // --- ROTATION LOGIC ---
     const handleRotateStart = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const startX = e.clientX;
-        const startRotation = rotation;
+        e.preventDefault();
+        // Use a flag or state to track rotation mode if needed, 
+        // but adding listener directly is simpler for this structure
+        startRotateMouse.current = { x: e.clientX };
+        startRotateAngle.current = rotation;
         
         const onRotate = (moveEvent: MouseEvent) => {
-            const delta = moveEvent.clientX - startX;
-            setRotation(startRotation + delta);
+            const delta = (moveEvent.clientX - startRotateMouse.current.x);
+            // Sensitivity adjustment
+            setRotation(startRotateAngle.current + delta * 0.5); 
         };
         
         const onRotateEnd = () => {
@@ -147,14 +115,55 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
         }
     };
 
+    // --- GLOBAL MOUSE MOVE/UP FOR DRAG & RESIZE ---
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isEditMode) return;
+
+            if (isDragging) {
+                e.preventDefault();
+                const deltaX = (e.clientX - startPos.current.x) / zoom;
+                const deltaY = (e.clientY - startPos.current.y) / zoom;
+                setPosition({
+                    x: originalPos.current.x + deltaX,
+                    y: originalPos.current.y + deltaY
+                });
+            }
+
+            if (isResizing) {
+                e.preventDefault();
+                const deltaX = (e.clientX - startResizeMouse.current.x) / zoom;
+                const deltaY = (e.clientY - startResizeMouse.current.y) / zoom;
+                
+                // Simple resize logic (width/height)
+                const newWidth = Math.max(20, startResizeSize.current.w + deltaX);
+                const newHeight = Math.max(20, startResizeSize.current.h + deltaY);
+                
+                setSize({ width: newWidth, height: newHeight });
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsDragging(false);
+            setIsResizing(false);
+        };
+
+        if (isDragging || isResizing) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging, isResizing, isEditMode, zoom]);
+
     if (isDeleted) return null;
 
     const computedStyle: React.CSSProperties = {
         transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
         width: size.width,
         height: size.height,
-        // When dragging, use absolute to break flow if needed, but 'transform' keeps it relative to original slot visually
-        // For true free-form, 'absolute' is better, but 'transform' preserves document flow which is safer for this app structure.
         position: 'relative', 
         zIndex: isSelected ? 100 : 1,
         cursor: isEditMode ? (isDragging ? 'grabbing' : 'grab') : 'default',
@@ -169,7 +178,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
     return (
         <div 
             ref={elementRef}
-            className={`${className} transition-shadow duration-200 group/edit ${isSelected ? 'ring-2 ring-indigo-500 shadow-2xl bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm z-[100]' : 'hover:ring-1 hover:ring-indigo-300 hover:bg-indigo-50/10'}`}
+            className={`${className} transition-shadow duration-200 group/edit ${isSelected ? 'ring-2 ring-indigo-500 shadow-2xl bg-white/50 backdrop-blur-[1px] z-[100]' : 'hover:ring-1 hover:ring-indigo-300 hover:bg-indigo-50/10'}`}
             style={computedStyle}
             onMouseDown={handleMouseDown}
         >
@@ -193,18 +202,11 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
                         <i className="fa-solid fa-times text-[10px] text-white"></i>
                     </div>
 
-                    {/* Resize Handles */}
-                    {/* Bottom Right */}
+                    {/* Resize Handle (Bottom Right) */}
                     <div 
                         className="absolute -bottom-1.5 -right-1.5 w-4 h-4 bg-indigo-500 border-2 border-white rounded-full cursor-se-resize z-50 edit-handle shadow-sm hover:scale-125 transition-transform"
                         onMouseDown={(e) => handleResizeStart(e, 'se')}
                     ></div>
-                    {/* Bottom Left */}
-                    <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border border-indigo-500 cursor-sw-resize edit-handle"></div>
-                    {/* Top Right */}
-                    <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border border-indigo-500 cursor-ne-resize edit-handle"></div>
-                    {/* Top Left */}
-                    <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border border-indigo-500 cursor-nw-resize edit-handle"></div>
                 </>
             )}
 
@@ -234,7 +236,7 @@ export const EditableText: React.FC<{
             onBlur={(e: React.FocusEvent<HTMLElement>) => onChange && onChange(e.currentTarget.innerText)}
             onKeyDown={(e: React.KeyboardEvent) => e.stopPropagation()} 
             onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
-            onClick={(e: React.MouseEvent) => e.preventDefault()}
+            onClick={(e: React.MouseEvent) => e.preventDefault()} // Prevent clicking through to parent drag
         >
             {value}
         </Tag>
