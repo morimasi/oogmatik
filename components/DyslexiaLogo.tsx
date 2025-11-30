@@ -1,5 +1,4 @@
-
-import React, { CSSProperties, useRef, useState, useEffect } from 'react';
+import React, { CSSProperties, useRef, useState, useLayoutEffect } from 'react';
 
 const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
   const text = "Bursa Disleksi";
@@ -7,27 +6,47 @@ const DyslexiaLogo: React.FC<{ className?: string }> = ({ className }) => {
   const [letterData, setLetterData] = useState<{ char: string; x: number; y: number }[]>([]);
 
   // Effect to measure character positions on mount
-  useEffect(() => {
-    if (textRef.current && letterData.length === 0) {
-      const positions = [];
-      const textEl = textRef.current;
+  useLayoutEffect(() => {
+    const measure = () => {
+      if (!textRef.current) return;
 
+      const textEl = textRef.current;
+      const positions = [];
+      
       try {
-          for (let i = 0; i < text.length; i++) {
-            const startPos = textEl.getStartPositionOfChar(i);
-            const endPos = textEl.getEndPositionOfChar(i);
-            positions.push({
-              char: text[i],
-              x: (startPos.x + endPos.x) / 2, // Horizontal center
-              y: startPos.y, // Y position
-            });
+        // Sanity check: if element has no dimensions, it's not ready.
+        if (textEl.getComputedTextLength() === 0) {
+          // Font or layout might not be ready, retry.
+          setTimeout(measure, 100); 
+          return;
+        }
+
+        for (let i = 0; i < text.length; i++) {
+          const startPos = textEl.getStartPositionOfChar(i);
+          const endPos = textEl.getEndPositionOfChar(i);
+          // Another check: if startPos is (0,0) for characters after the first one, something is wrong.
+          if (startPos.x === 0 && endPos.x === 0 && i > 0) {
+             throw new Error("Measurement returned invalid coordinates, font likely not ready.");
           }
-          setLetterData(positions);
+          positions.push({
+            char: text[i],
+            x: (startPos.x + endPos.x) / 2, // Horizontal center
+            y: startPos.y, // Y position
+          });
+        }
+        setLetterData(positions);
       } catch (e) {
-          // Fallback for environments where getStartPositionOfChar might fail or not be ready
-          console.warn("Text measurement failed, using fallback positioning");
+        // Fallback for environments where getStartPositionOfChar might fail
+        console.warn("Text measurement failed, using fallback positioning.");
       }
-    }
+    };
+
+    // Use document.fonts.ready to wait for custom font loading.
+    document.fonts.ready.then(() => {
+        // A small timeout ensures layout is stable after fonts are loaded.
+        setTimeout(measure, 50);
+    });
+    // This effect should only run once on mount.
   }, []);
 
   return (
