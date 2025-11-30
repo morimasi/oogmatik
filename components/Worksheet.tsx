@@ -53,25 +53,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--print-height': pageHeight
     } as React.CSSProperties;
 
-    // Style for scaling the content inside the page (Screen only)
-    const scalerStyle: React.CSSProperties = {
-        transform: `scale(${settings.scale})`,
-        transformOrigin: 'top center',
-        width: `${100 / settings.scale}%`, 
-        marginBottom: `${(1 - settings.scale) * 100}%`
-    };
-
     const outerGridStyle = {
         display: 'grid',
         gridTemplateColumns: `repeat(${outerCols}, 1fr)`,
-        gap: `${settings.gap}px`,
-        width: '100%'
+        gap: '40px', // Visual gap between pages on screen
+        width: '100%',
+        justifyItems: 'center'
     };
 
     const borderStyle = getBorderCSS(settings.themeBorder || 'simple');
 
     return (
-        <div className="w-full flex flex-col items-center bg-transparent" style={containerStyle}>
+        <div className="flex flex-col items-center bg-transparent" style={containerStyle}>
             {/* Inject dynamic print styles for page size and flow control */}
             <style>{`
                 /* Dynamic Grid System for Items */
@@ -190,51 +183,42 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                 }
             `}</style>
 
-            <div 
-                className="worksheet-page shadow-2xl print:shadow-none transition-all duration-300 relative"
-                style={{ 
-                    width: pageWidth,
-                    minHeight: pageHeight,
-                    height: 'auto',
-                    padding: 0, 
-                    fontSize: `var(--worksheet-font-size)`,
-                }}
-            >
-                <div className="flex flex-col h-full relative z-10">
-                    {/* Scaler Wrapper */}
-                    <div className="flex-1 w-full worksheet-scaler" style={scalerStyle}>
-                        
-                        <div className="outer-grid" style={outerGridStyle}>
-                            {data.map((sheetData, index) => (
-                                <div 
-                                    key={index} 
-                                    className="worksheet-item relative bg-white text-black"
-                                    style={{
-                                        // For screen mode, apply styles here. Print mode overrides via CSS class.
-                                        padding: `max(20px, var(--worksheet-margin))`,
-                                        minHeight: pageHeight,
-                                        marginBottom: '20px', // Visual gap between pages on screen
-                                        fontWeight: settings.fontWeight,
-                                        fontStyle: settings.fontStyle,
-                                        textAlign: settings.contentAlign,
-                                        ...borderStyle
-                                    }}
-                                >
-                                    <RenderSheet activityType={activityType} data={sheetData} />
-                                    
-                                    <div 
-                                        className="absolute bottom-4 left-0 w-full px-8 justify-between items-center text-[10px] opacity-50 text-black print:opacity-100"
-                                        style={{ display: 'var(--show-footer, flex)' }}
-                                    >
-                                        <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
-                                        <span>{new Date().toLocaleDateString('tr-TR')}</span>
-                                    </div>
-                                </div>
-                            ))}
+            <div className="outer-grid" style={outerGridStyle}>
+                {data.map((sheetData, index) => (
+                    <div 
+                        key={index} 
+                        className="worksheet-item relative bg-white text-black shadow-2xl print:shadow-none transition-shadow"
+                        style={{
+                            width: pageWidth,
+                            minHeight: pageHeight,
+                            // For screen mode, apply styles here. Print mode overrides via CSS class.
+                            padding: `max(20px, var(--worksheet-margin))`,
+                            fontSize: `var(--worksheet-font-size)`,
+                            fontWeight: settings.fontWeight,
+                            fontStyle: settings.fontStyle,
+                            textAlign: settings.contentAlign,
+                            ...borderStyle
+                        }}
+                    >
+                        {/* Inner content scaler for density adjustments (Toolbar zoom scale) */}
+                        <div style={{
+                            transform: `scale(${settings.scale})`,
+                            transformOrigin: 'top center',
+                            width: `${100 / settings.scale}%`,
+                            height: '100%'
+                        }}>
+                            <RenderSheet activityType={activityType} data={sheetData} />
                         </div>
-
+                        
+                        <div 
+                            className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black print:opacity-100"
+                            style={{ display: 'var(--show-footer, flex)' }}
+                        >
+                            <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
+                            <span>{new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
                     </div>
-                </div>
+                ))}
             </div>
         </div>
     );
