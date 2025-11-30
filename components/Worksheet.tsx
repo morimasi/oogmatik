@@ -127,10 +127,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                         
                         /* 
                            Minimal Reasonable Margin Logic:
-                           Ensures at least 10mm safety margin for printers, 
+                           Ensures at least 5mm safety margin for printers, 
                            plus any extra user margin.
                         */
-                        padding: max(10mm, var(--worksheet-margin)) !important;
+                        padding: max(5mm, var(--worksheet-margin)) !important;
                         
                         page-break-after: always !important;
                         break-after: page !important;
