@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -13,6 +13,7 @@ import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
+import { StudentInfoModal } from './components/StudentInfoModal';
 
 // Lazy Loaded Components
 const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
@@ -117,6 +118,10 @@ const AppContent: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isTourOpen, setIsTourOpen] = useState(false);
   
+  // Student Info State
+  const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+
   // Workbook State
   const [workbookItems, setWorkbookItems] = useState<CollectionItem[]>([]);
   const [workbookSettings, setWorkbookSettings] = useState<WorkbookSettings>({
@@ -272,7 +277,8 @@ const AppContent: React.FC = () => {
             data,
             activity.icon,
             { id: category.id, title: category.title },
-            styleSettings 
+            styleSettings,
+            studentProfile || undefined // Pass student profile if exists
         );
         alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
     } catch (e: any) {
@@ -286,6 +292,11 @@ const AppContent: React.FC = () => {
     setWorksheetData(worksheet.worksheetData);
     if (worksheet.styleSettings) {
         setStyleSettings(worksheet.styleSettings);
+    }
+    if (worksheet.studentProfile) {
+        setStudentProfile(worksheet.studentProfile);
+    } else {
+        setStudentProfile(null);
     }
     setCurrentView('generator');
   };
@@ -461,6 +472,8 @@ const AppContent: React.FC = () => {
                 isLoading={isLoading}
                 onAddToHistory={addToHistory}
                 isExpanded={isSidebarExpanded}
+                onOpenStudentModal={() => setIsStudentModalOpen(true)}
+                studentProfile={studentProfile}
             />
         </div>
         
@@ -488,6 +501,7 @@ const AppContent: React.FC = () => {
               workbookSettings={workbookSettings}
               setWorkbookSettings={setWorkbookSettings}
               onAddToWorkbook={handleAddToWorkbook}
+              studentProfile={studentProfile}
             />
         </div>
       </div>
@@ -497,6 +511,14 @@ const AppContent: React.FC = () => {
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       
+      <StudentInfoModal 
+          isOpen={isStudentModalOpen} 
+          onClose={() => setIsStudentModalOpen(false)} 
+          currentProfile={studentProfile}
+          onSave={(p) => setStudentProfile(p)}
+          onClear={() => setStudentProfile(null)}
+      />
+
       <SettingsModal 
           isOpen={openModal === 'settings'} 
           onClose={() => setOpenModal(null)}

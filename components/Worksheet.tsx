@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings } from '../types';
+import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
 import * as MemoryAttentionSheets from './sheets/MemoryAttentionSheets';
 import * as VisualPerceptionSheets from './sheets/VisualPerceptionSheets';
@@ -14,9 +15,10 @@ interface WorksheetProps {
     activityType: ActivityType | null;
     data: WorksheetData;
     settings: StyleSettings;
+    studentProfile?: StudentProfile | null;
 }
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) => {
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
     if (!data || !activityType || data.length === 0) return null;
 
     // WYSIWYG Fix: 
@@ -59,6 +61,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
         '--show-footer': settings.showFooter ? 'flex' : 'none',
         '--scale': settings.scale,
     } as React.CSSProperties;
+
+    // Pass student info string to sheets if needed, or render here directly if architecture allows
+    // The PedagogicalHeader component currently handles the Student Info strip.
+    // We can modify the data passed to RenderSheet or modify how PedagogicalHeader works.
+    // However, PedagogicalHeader is inside specific sheet components. 
+    // Best way is to CSS Variable injection for simple text or pass as prop if supported.
+    // Since props are rigid, let's inject a global print header if enabled.
+    
+    // UPDATE: PedagogicalHeader has a student info strip. Let's make it smarter.
+    // We will render a custom student info block here on top of the sheet content 
+    // and hide the default one inside PedagogicalHeader via CSS if needed, 
+    // OR pass the profile down. Passing props is cleaner.
 
     return (
         <div className="flex flex-col items-center bg-transparent w-full" style={variableStyle}>
@@ -134,6 +148,20 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                                 width: `calc(100% / ${settings.scale})`,
                             }}
                         >
+                            {/* Student Info Header Injection */}
+                            {settings.showStudentInfo && (
+                                <div className="mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest flex justify-between items-end print:flex">
+                                    <div className="flex-1 text-left">
+                                        <div>Adı Soyadı: <span className="font-normal normal-case ml-2">{studentProfile?.name || '...........................................'}</span></div>
+                                        {studentProfile?.school && <div className="mt-1">Okul: <span className="font-normal normal-case ml-2">{studentProfile.school}</span></div>}
+                                    </div>
+                                    <div className="text-right">
+                                        <div>Tarih: <span className="font-normal normal-case ml-2">{studentProfile?.date || '...../...../.......'}</span></div>
+                                        {studentProfile?.grade && <div className="mt-1">Sınıf: <span className="font-normal normal-case ml-2">{studentProfile.grade}</span></div>}
+                                    </div>
+                                </div>
+                            )}
+
                             <RenderSheet activityType={activityType} data={sheetData} />
                         </div>
                         

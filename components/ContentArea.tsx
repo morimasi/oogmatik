@@ -1,6 +1,6 @@
 
 import React, { memo, useState, useRef, useEffect } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings } from '../types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
@@ -35,6 +35,7 @@ interface ContentAreaProps {
   workbookSettings: WorkbookSettings;
   setWorkbookSettings: React.Dispatch<React.SetStateAction<WorkbookSettings>>;
   onAddToWorkbook: () => void;
+  studentProfile?: StudentProfile | null;
 }
 
 const LandingText = memo(() => {
@@ -79,7 +80,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   setWorkbookItems,
   workbookSettings,
   setWorkbookSettings,
-  onAddToWorkbook
+  onAddToWorkbook,
+  studentProfile
 }) => {
     const { user } = useAuth();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -165,7 +167,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const second = String(now.getSeconds()).padStart(2, '0');
         const millisecond = String(now.getMilliseconds()).padStart(3, '0');
         
-        return `${title} - ${day}.${month}.${year} ${hour}:${minute}:${second}-${millisecond}`;
+        // Include student name if available
+        const prefix = studentProfile?.name ? `${studentProfile.name} - ` : '';
+        
+        return `${prefix}${title} - ${day}.${month}.${year} ${hour}:${minute}:${second}-${millisecond}`;
     };
 
     const handleSave = () => {
@@ -209,7 +214,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 worksheetData,
                 icon: activity.icon,
                 category: { id: category.id, title: category.title },
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                styleSettings: styleSettings,
+                studentProfile: studentProfile || undefined
             };
     
             await worksheetService.shareWorksheet(worksheetToShare, user.id, user.name, receiverId);
@@ -228,7 +235,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const handleDownloadPDF = () => {
         const originalTitle = document.title;
         const activityName = activityType ? activityType.replace(/_/g, ' ').toLowerCase() : 'etkinlik';
-        document.title = `BursaDisleksi_${activityName}_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}`;
+        const studentSuffix = studentProfile?.name ? `_${studentProfile.name.replace(/ /g, '_')}` : '';
+        document.title = `BursaDisleksi_${activityName}${studentSuffix}_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}`;
         window.print();
         document.title = originalTitle;
     };
@@ -383,7 +391,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             justifyContent: 'center'
                         }}
                     >
-                      <Worksheet activityType={activityType} data={worksheetData} settings={styleSettings} />
+                      <Worksheet 
+                        activityType={activityType} 
+                        data={worksheetData} 
+                        settings={styleSettings} 
+                        studentProfile={studentProfile}
+                      />
                     </div>
                 )}
             </>

@@ -216,9 +216,14 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
     return (
         <div className="pedagogical-header mb-8 text-center print:mb-6 break-inside-avoid relative group">
             
-            {/* Student Info Strip (Visibility controlled via CSS var in Worksheet.tsx) */}
+            {/* 
+               Student Info Strip
+               Hidden if default strip is disabled, but can be replaced by custom one in Worksheet.tsx
+               We keep it for legacy compatibility, but Worksheet.tsx injects a better one if studentProfile exists.
+               We'll check a CSS variable or rely on parent overriding.
+            */}
             <div 
-                className="justify-between items-center mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest hidden print:flex"
+                className="justify-between items-center mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest hidden print:flex student-info-strip-default"
                 style={{ display: 'var(--show-student-info, flex)' }}
             >
                 <div className="flex-1 text-left">Adı Soyadı: ...........................................</div>

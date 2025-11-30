@@ -1,5 +1,5 @@
 
-import { ActivityType, StyleSettings } from './types/core';
+import { ActivityType, StyleSettings, StudentProfile } from './types/core';
 
 import { 
     NumberPatternData, ShapeNumberPatternData, MathPuzzleData, FutoshikiData, NumberPyramidData, NumberCapsuleData, OddEvenSudokuData,
@@ -74,6 +74,7 @@ export interface SavedWorksheet {
     sharedByName?: string;
     sharedWith?: string;
     styleSettings?: StyleSettings;
+    studentProfile?: StudentProfile;
 }
 
 export interface HistoryItem {

@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
+import { ActivityType, WorksheetData, Activity, GeneratorOptions, StudentProfile } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
@@ -20,6 +20,8 @@ interface SidebarProps {
   closeSidebar: () => void;
   onAddToHistory: (activityType: ActivityType, data: WorksheetData) => void;
   isExpanded?: boolean;
+  onOpenStudentModal?: () => void;
+  studentProfile?: StudentProfile | null;
 }
 
 const getActivityById = (id: ActivityType | null): Activity | undefined => {
@@ -41,7 +43,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   setError,
   isLoading,
   onAddToHistory,
-  isExpanded = true
+  isExpanded = true,
+  onOpenStudentModal,
+  studentProfile
 }) => {
   const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -154,6 +158,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                     onBack={() => onSelectActivity(null)}
                     isLoading={isLoading}
                     isExpanded={isExpanded}
+                    onOpenStudentModal={onOpenStudentModal}
+                    studentProfile={studentProfile}
                 />
             ) : (
                 <>

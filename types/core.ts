@@ -159,6 +159,14 @@ export interface UiSettings {
     saturation: number; 
 }
 
+export interface StudentProfile {
+    name: string;
+    school?: string;
+    grade?: string;
+    date?: string;
+    notes?: string;
+}
+
 export interface StyleSettings {
   fontSize: number;
   scale: number;
@@ -318,6 +326,22 @@ export interface SavedAssessment {
     sharedBy?: string;
     sharedByName?: string;
     sharedWith?: string;
+}
+
+export interface SavedWorksheet {
+    id: string;
+    userId: string;
+    name: string;
+    activityType: ActivityType;
+    worksheetData: any; // Using 'any' to avoid circular ref complexity for now
+    createdAt: string;
+    icon: string;
+    category: { id: string; title: string };
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
+    styleSettings?: StyleSettings;
+    studentProfile?: StudentProfile; // New field
 }
 
 export interface BaseActivityData {

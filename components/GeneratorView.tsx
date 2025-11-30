@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Activity, GeneratorOptions, ActivityType } from '../types';
+import { Activity, GeneratorOptions, ActivityType, StudentProfile } from '../types';
 import { statsService } from '../services/statsService';
 
 interface GeneratorViewProps {
@@ -9,9 +9,11 @@ interface GeneratorViewProps {
     onBack: () => void;
     isLoading: boolean;
     isExpanded?: boolean;
+    onOpenStudentModal?: () => void;
+    studentProfile?: StudentProfile | null;
 }
 
-export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true }) => {
+export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal, studentProfile }) => {
     const [options, setOptions] = useState<any>({
         worksheetCount: 1,
         mode: 'fast',
@@ -83,7 +85,17 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     </div>
                 </div>
 
-                <div className="mt-auto">
+                <div className="mt-auto flex flex-col gap-2 items-center">
+                     {onOpenStudentModal && (
+                        <button 
+                            onClick={onOpenStudentModal}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${studentProfile ? 'bg-indigo-100 text-indigo-600' : 'bg-zinc-100 text-zinc-400 hover:bg-zinc-200'}`}
+                            title={studentProfile ? studentProfile.name : "Öğrenci Bilgisi Ekle"}
+                        >
+                            <i className="fa-solid fa-user-graduate"></i>
+                        </button>
+                     )}
+                     
                      <button
                         onClick={() => onGenerate(options)}
                         disabled={isLoading}
@@ -213,7 +225,17 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 </div>
             </div>
 
-            <div className="p-6 border-t border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shrink-0">
+            <div className="p-6 border-t border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shrink-0 space-y-3">
+                {onOpenStudentModal && (
+                    <button 
+                        onClick={onOpenStudentModal}
+                        className={`w-full py-3 rounded-xl border-2 transition-all flex items-center justify-center gap-2 font-bold text-sm ${studentProfile ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'border-dashed border-zinc-300 text-zinc-500 hover:bg-zinc-50'}`}
+                    >
+                        <i className={`fa-solid ${studentProfile ? 'fa-user-check' : 'fa-user-plus'}`}></i>
+                        {studentProfile ? `${studentProfile.name} Seçili` : 'Öğrenci Bilgisi Ekle'}
+                    </button>
+                )}
+
                 <button
                     onClick={() => onGenerate(options)}
                     disabled={isLoading || (options.mode === 'manual' && (!options.customInput || options.customInput.trim().length < 2))}

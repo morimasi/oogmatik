@@ -1,7 +1,7 @@
 
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings } from '../types';
+import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile } from '../types';
 
 const { collection, addDoc, query, where, getDocs, orderBy, deleteDoc, doc, updateDoc, increment } = firestore;
 
@@ -42,7 +42,8 @@ const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     sharedBy: docData.sharedBy,
     sharedByName: docData.sharedByName,
     sharedWith: docData.sharedWith,
-    styleSettings: docData.styleSettings // Load style settings if present
+    styleSettings: docData.styleSettings, // Load style settings if present
+    studentProfile: docData.studentProfile // Load student profile if present
 });
 
 export const worksheetService = {
@@ -53,7 +54,8 @@ export const worksheetService = {
         data: SingleWorksheetData[], 
         icon: string,
         category: { id: string, title: string },
-        styleSettings?: StyleSettings
+        styleSettings?: StyleSettings,
+        studentProfile?: StudentProfile
     ): Promise<SavedWorksheet> => {
         try {
             // Serialize worksheetData to string to avoid "Nested arrays not supported" error in Firestore
@@ -72,7 +74,8 @@ export const worksheetService = {
                     title: safeCategory.title || 'Genel' 
                 },
                 createdAt: new Date().toISOString(),
-                styleSettings: styleSettings // Save the style settings
+                styleSettings: styleSettings, // Save the style settings
+                studentProfile: studentProfile // Save student profile
             };
 
             const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
@@ -145,7 +148,8 @@ export const worksheetService = {
                 sharedByName: senderName || 'Anonim',
                 sharedWith: receiverId,
                 createdAt: new Date().toISOString(),
-                styleSettings: worksheet.styleSettings // Preserve styles when sharing
+                styleSettings: worksheet.styleSettings, // Preserve styles when sharing
+                studentProfile: worksheet.studentProfile // Preserve student info
             };
 
             await addDoc(collection(db, "saved_worksheets"), sharedPayload);
