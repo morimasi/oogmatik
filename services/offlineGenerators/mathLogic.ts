@@ -60,13 +60,26 @@ const generateSimpleMazeSVG = () => {
 };
 
 export const generateOfflineBasicOperations = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
-    // ... (Existing code for Basic Operations - unchanged)
-    const { selectedOperations, num1Digits, num2Digits, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
-    const count = itemCount || 25;
+    const { selectedOperations, operationType, num1Digits, num2Digits, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount, difficulty } = options;
+    const count = itemCount || 20;
     const results: BasicOperationsData[] = [];
-    const d1 = num1Digits || 2;
-    const d2 = num2Digits || 1;
-    const ops = (selectedOperations && selectedOperations.length > 0) ? selectedOperations : ['addition'];
+    
+    // Determine digit count based on difficulty if not provided
+    let d1 = num1Digits || (difficulty === 'Başlangıç' ? 1 : 2);
+    let d2 = num2Digits || (difficulty === 'Başlangıç' ? 1 : 2);
+    
+    // Operations logic
+    let ops = ['+'];
+    if (operationType === 'mixed' && selectedOperations && selectedOperations.length > 0) {
+        // Map UI values to internal
+        ops = selectedOperations.map(o => o === 'add' ? '+' : o === 'sub' ? '-' : o === 'mult' ? 'x' : o === 'div' ? '÷' : o).filter(o => ['+','-','x','÷'].includes(o));
+    } else if (operationType) {
+        if(operationType === 'add') ops = ['+'];
+        if(operationType === 'sub') ops = ['-'];
+        if(operationType === 'mult') ops = ['x'];
+        if(operationType === 'div') ops = ['÷'];
+    }
+    if (ops.length === 0) ops = ['+']; // Fallback
 
     for(let i=0; i<worksheetCount; i++) {
         const operationsList: BasicOperationsData['operations'] = [];
@@ -85,63 +98,52 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
             let operator: any = '+';
             let valid = false;
 
-            if (currentOp === 'addition') {
+            if (currentOp === '+') {
                 operator = '+';
-                const hasThird = useThirdNumber && d1 < 4; 
+                const hasThird = useThirdNumber; 
                 num1 = getRandomInt(min1, max1);
                 num2 = getRandomInt(min2, max2);
-                if (hasThird) {
-                    const min3 = Math.pow(10, Math.max(1, d2 - 1));
-                    const max3 = Math.pow(10, d2) - 1;
-                    num3 = getRandomInt(min3, max3);
-                }
+                if (hasThird) num3 = getRandomInt(min2, max2);
+                
                 const isCarry = hasCarry(num1, num2) || (hasThird && (hasCarry(num1+num2, num3)));
+                // Only enforce carry restriction if strictly disallowed (allowCarry is false)
                 valid = allowCarry ? true : !isCarry;
                 if (valid) answer = num1 + num2 + num3;
             } 
-            else if (currentOp === 'subtraction') {
+            else if (currentOp === '-') {
                 operator = '-';
                 num1 = getRandomInt(min1, max1);
-                num2 = getRandomInt(min2, max2);
-                if (num2 >= num1) {
-                    if (d1 === d2) {
-                        if(num2 > num1) [num1, num2] = [num2, num1];
-                        else if(num1 === num2) num1 += 1; 
-                    } else {
-                        num2 = getRandomInt(min2, Math.min(max2, num1 - 1));
-                    }
-                }
+                num2 = getRandomInt(min2, Math.min(max2, num1)); // Ensure n2 <= n1
+                
                 const isBorrow = hasBorrow(num1, num2);
                 valid = allowBorrow ? true : !isBorrow; 
                 if (valid) answer = num1 - num2;
             }
-            else if (currentOp === 'multiplication') {
+            else if (currentOp === 'x') {
                 operator = 'x';
-                num1 = getRandomInt(min1, max1);
-                num2 = getRandomInt(min2, max2);
+                // Simplify mult for basic levels if digits not set
+                const m1 = difficulty === 'Başlangıç' ? getRandomInt(1, 5) : getRandomInt(min1, max1);
+                const m2 = difficulty === 'Başlangıç' ? getRandomInt(1, 5) : getRandomInt(min2, max2);
+                num1 = m1; num2 = m2;
                 answer = num1 * num2;
                 valid = true; 
             }
-            else if (currentOp === 'division') {
+            else if (currentOp === '÷') {
                 operator = '÷';
-                num2 = getRandomInt(min2, max2);
-                if (num2 === 0) num2 = 1; 
+                const divisor = getRandomInt(2, 9);
                 if (allowRemainder) {
-                    num1 = getRandomInt(min1, max1);
+                    const dividend = getRandomInt(min1, max1);
+                    num1 = dividend; num2 = divisor;
                     answer = Math.floor(num1 / num2);
                     remainder = num1 % num2;
-                    valid = remainder > 0;
+                    valid = true;
                 } else {
-                    const minQuotient = Math.ceil(min1 / num2);
-                    const maxQuotient = Math.floor(max1 / num2);
-                    if (maxQuotient >= minQuotient) {
-                        answer = getRandomInt(minQuotient, maxQuotient);
-                        num1 = answer * num2;
-                        remainder = 0;
-                        valid = true;
-                    } else {
-                        valid = false; 
-                    }
+                    const quotient = getRandomInt(2, 12);
+                    num1 = quotient * divisor;
+                    num2 = divisor;
+                    answer = quotient;
+                    remainder = 0;
+                    valid = true;
                 }
             }
 
@@ -166,7 +168,6 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
 };
 
 export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
-    // ... (Existing code for Real Life Problems - unchanged)
     const { worksheetCount, itemCount } = options;
     const results: RealLifeProblemData[] = [];
     const names = ["Ali", "Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Mert", "Duru", "Kerem", "Defne"];
@@ -203,21 +204,31 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
 };
 
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
-    // ... (Existing code for Math Puzzle - unchanged)
     const { itemCount, worksheetCount, difficulty, operations, numberRange } = options;
     const settings = getDifficultySettings(difficulty);
     const objects = EMOJIS.slice(0, 15);
-    let valueMin = settings.numberRange.min;
-    let valueMax = settings.numberRange.max;
+    
+    // Parse Range
+    let valueMin = 1, valueMax = 10;
     if (numberRange) {
         const parts = numberRange.split('-');
         if (parts.length === 2) {
             valueMin = parseInt(parts[0]);
             valueMax = parseInt(parts[1]);
         }
+    } else {
+        valueMin = settings.numberRange.min;
+        valueMax = settings.numberRange.max;
     }
-    let ops = settings.operations;
-    if (operations === 'add') ops = ['+']; else if (operations === 'addsub') ops = ['+', '-']; else if (operations === 'mult') ops = ['+', '-', '*']; else if (operations === 'all') ops = ['+', '-', '*', '/'];
+
+    // Determine Operators
+    let ops: string[] = ['+'];
+    if (operations === 'all' || operations === 'mixed') ops = ['+', '-', '*', '/'];
+    else if (operations === 'addsub') ops = ['+', '-'];
+    else if (operations === 'multdiv') ops = ['*', '/'];
+    else if (operations === 'add') ops = ['+'];
+    else if (operations === 'mult') ops = ['*'];
+    else ops = settings.operations;
 
     const results: MathPuzzleData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -230,10 +241,20 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
             let problemStr = `${currentObjects[idx1]} ${op} ${currentObjects[idx2]} = ?`;
             let question = `İpucu: ${currentObjects[0]}=${values[0]}, ${currentObjects[1]}=${values[1]}, ${currentObjects[2]}=${values[2]}`;
             let answer = 0;
+            
             if (op === '+') { answer = val1 + val2; } 
-            else if (op === '-') { if (val1 < val2) { [val1, val2] = [val2, val1]; problemStr = `${currentObjects[idx2]} ${op} ${currentObjects[idx1]} = ?`; } answer = val1 - val2; } 
+            else if (op === '-') { 
+                if (val1 < val2) { [val1, val2] = [val2, val1]; problemStr = `${currentObjects[idx2]} ${op} ${currentObjects[idx1]} = ?`; } 
+                answer = val1 - val2; 
+            } 
             else if (op === '*') { answer = val1 * val2; } 
-            else if (op === '/') { if (val2 === 0) val2 = 1; const product = val1 * val2; problemStr = `${product} ${op} ${currentObjects[idx2]} = ?`; question = `İpucu: ${currentObjects[idx2]}=${val2}. (Bölünen sayı ${product})`; answer = val1; }
+            else if (op === '/' || op === '÷') { 
+                if (val2 === 0) val2 = 1; 
+                const product = val1 * val2; 
+                problemStr = `${product} ${op} ${currentObjects[idx2]} = ?`; 
+                question = `İpucu: ${currentObjects[idx2]}=${val2}. (Bölünen sayı ${product})`; 
+                answer = val1; 
+            }
             return { problem: problemStr, question, answer: answer.toString() };
         });
         results.push({ title: `Matematik Bulmacası (${difficulty})`, instruction: "Sembollerin sayısal değerlerini bulun ve işlemi çözün.", pedagogicalNote: "Cebirsel düşünme ve sembolik işlem yapma becerisi.", imagePrompt: 'Bulmaca', puzzles });
@@ -242,7 +263,6 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
 };
 
 export const generateOfflineNumberPattern = async (options: GeneratorOptions): Promise<NumberPatternData[]> => {
-    // ... (Existing code for Number Pattern - unchanged)
     const { itemCount, worksheetCount, difficulty, patternType } = options;
     const results: NumberPatternData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
@@ -272,7 +292,6 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
     return results;
 };
 
-// ... (Other existing functions remain unchanged)
 export const generateOfflineFutoshiki = async (options: GeneratorOptions) => {
     const { difficulty, worksheetCount, itemCount, contentType } = options;
     const settings = getDifficultySettings(difficulty);

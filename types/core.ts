@@ -196,7 +196,25 @@ export interface GeneratorOptions {
     mode: 'ai' | 'fast' | 'manual';
     difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
     worksheetCount: number;
-    timestamp?: number;
+    itemCount: number;
+    
+    // Detailed Configs
+    gridSize?: number; // 3 to 20
+    operationType?: 'add' | 'sub' | 'mult' | 'div' | 'mixed' | 'addsub' | 'multdiv';
+    selectedOperations?: string[]; // Multiple selection
+    numberRange?: string; // "1-10", "1-20", "1-100", "100-1000"
+    allowCarry?: boolean; // Eldeli toplama
+    allowBorrow?: boolean; // Onluk bozma
+    allowRemainder?: boolean; // Kalanlı bölme
+    useThirdNumber?: boolean; // 3 sayı toplama
+    num1Digits?: number; // Basamak sayısı
+    num2Digits?: number;
+    
+    wordLength?: { min: number, max: number };
+    case?: 'upper' | 'lower'; // Harf büyüklüğü
+    directions?: 'simple' | 'diagonal' | 'all'; // Word search directions
+    
+    topic?: string;
     customInput?: string | string[];
     [key: string]: any;
 }
