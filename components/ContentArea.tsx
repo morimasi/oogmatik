@@ -86,35 +86,70 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isSharing, setIsSharing] = useState(false);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     
-    // View Zoom State (Visual Zoom only)
+    // --- INFINITE CANVAS STATE ---
     const [viewZoom, setViewZoom] = useState(1);
+    const [pan, setPan] = useState({ x: 0, y: 50 }); // Start with a little top padding
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    
     const canvasRef = useRef<HTMLDivElement>(null);
 
-    // Reset zoom when activity changes
+    // Reset zoom and pan when activity changes
     useEffect(() => {
         setViewZoom(1);
+        setPan({ x: 0, y: 50 });
     }, [activityType]);
 
     // Handle Mouse Wheel Zoom
     const handleWheel = (e: React.WheelEvent) => {
-        // Only zoom if Control key is NOT pressed (standard behavior for custom zoom UIs)
-        // Or if we want it to always zoom without scroll, we prevent default.
-        // Let's implement: Wheel -> Zoom. Shift+Wheel -> Horizontal Scroll.
-        if (e.ctrlKey || e.metaKey || !e.shiftKey) { // Zoom on simple scroll or ctrl+scroll
-             // if content is scrollable vertically and user is scrolling, maybe we shouldn't zoom?
-             // Requirement: "mausenın tekerlegı ıle bu beyaz a4 çalışma sayfası buyuyup kuculebılsın"
-             // Implementation: We'll consume the wheel event for zoom if it happens over the canvas area.
-             
-             // Prevent default only if we are actually zooming to avoid page jumpiness
-             // e.preventDefault(); (React synthetic events don't support preventDefault on passive listeners easily, relying on logic)
-             
+        if (currentView !== 'generator' || !worksheetData) return;
+
+        // Standard behavior: Ctrl+Wheel or just Wheel for zoom in design tools
+        // We prevent default scrolling to implement zoom
+        if (e.ctrlKey || !e.shiftKey) { 
              const delta = e.deltaY * -0.001;
              const newZoom = Math.min(Math.max(0.2, viewZoom + delta), 3);
              setViewZoom(newZoom);
         }
     };
 
-    const handleResetZoom = () => setViewZoom(1);
+    // --- PANNING LOGIC ---
+    const handleMouseDown = (e: React.MouseEvent) => {
+        // Only allow dragging if clicking on the background (the container)
+        // or explicitly explicitly allow it anywhere not interactive
+        if (currentView !== 'generator' || !worksheetData) return;
+        
+        // Check if the target is an input or button to avoid blocking interaction
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.tagName === 'TEXTAREA' || target.closest('button')) {
+            return;
+        }
+
+        setIsDragging(true);
+        // Calculate offset relative to current pan
+        setDragStart({ 
+            x: e.clientX - pan.x, 
+            y: e.clientY - pan.y 
+        });
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        setPan({
+            x: e.clientX - dragStart.x,
+            y: e.clientY - dragStart.y
+        });
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    const handleResetView = () => {
+        setViewZoom(1);
+        setPan({ x: 0, y: 50 });
+    };
 
     const generateAutoName = () => {
         if (!activityType) return 'Kaydedilmiş Etkinlik';
@@ -218,7 +253,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     <main className={`flex-1 flex flex-col h-full bg-[var(--bg-primary)] transition-colors duration-300 overflow-hidden`}>
       
       {/* 1. TOP BAR (Toolbar & Breadcrumbs) - Fixed Height */}
-      <div className="shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 print:hidden z-20 shadow-sm">
+      <div className="shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 print:hidden z-20 shadow-sm relative">
           {!isPreviewMode && (
               <nav className="mb-4 flex items-center text-sm text-[var(--text-secondary)]" aria-label="Breadcrumb">
                 <ol className="flex items-center space-x-2">
@@ -254,19 +289,35 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
       </div>
 
-      {/* 2. MAIN CONTENT AREA (Canvas) - Flexible Height */}
+      {/* 2. MAIN CONTENT AREA (Canvas) - Flexible Height, Hidden Overflow for custom Pan */}
       <div 
         ref={canvasRef}
-        className="flex-1 relative overflow-auto bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible custom-scrollbar flex items-center justify-center p-8"
+        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
+          {/* Background Grid Pattern for Design Tool Feel */}
+          {currentView === 'generator' && worksheetData && (
+              <div className="absolute inset-0 pointer-events-none opacity-10" 
+                   style={{ 
+                       backgroundImage: 'radial-gradient(#9ca3af 1px, transparent 1px)', 
+                       backgroundSize: '20px 20px',
+                       transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
+                       transformOrigin: 'top center'
+                   }}>
+              </div>
+          )}
+
           {/* Zoom Controls Overlay */}
           {currentView === 'generator' && worksheetData && !isPreviewMode && (
               <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-700 p-1.5 print:hidden">
                   <button onClick={() => setViewZoom(z => Math.max(0.2, z - 0.1))} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-minus"></i></button>
                   <span className="text-xs font-mono font-bold w-12 text-center text-zinc-700 dark:text-zinc-200">{Math.round(viewZoom * 100)}%</span>
                   <button onClick={() => setViewZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-plus"></i></button>
-                  <button onClick={handleResetZoom} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500" title="Sıfırla"><i className="fa-solid fa-compress"></i></button>
+                  <button onClick={handleResetView} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500" title="Sıfırla/Ortala"><i className="fa-solid fa-compress"></i></button>
               </div>
           )}
 
@@ -274,8 +325,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             <>
                 {/* Error Message */}
                 {error && !error.startsWith("Bilgi:") && (
-                    <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4">
-                        <div className="bg-[var(--bg-paper)] border-2 border-red-500/30 rounded-2xl shadow-xl overflow-hidden">
+                    <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 pointer-events-none">
+                        <div className="bg-[var(--bg-paper)] border-2 border-red-500/30 rounded-2xl shadow-xl overflow-hidden pointer-events-auto">
                             <div className="bg-red-500 p-4 flex justify-center">
                                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                                     <i className="fa-solid fa-circle-exclamation text-3xl text-white"></i>
@@ -322,17 +373,24 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 {/* Worksheet Render Area - The Scrollable/Zoomable Canvas */}
                 {worksheetData && (
                     <div 
-                        className={`printable-content-parent transition-transform duration-100 ease-out origin-top`}
-                        style={{ transform: `scale(${viewZoom})` }}
+                        className={`printable-content-parent transition-transform duration-75 ease-out will-change-transform`}
+                        style={{ 
+                            transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
+                            transformOrigin: 'top center', // Zoom relative to top center
+                            width: '100%',
+                            height: 'auto', // Allow it to take necessary height
+                            display: 'flex',
+                            justifyContent: 'center'
+                        }}
                     >
                       <Worksheet activityType={activityType} data={worksheetData} settings={styleSettings} />
                     </div>
                 )}
             </>
           ) : currentView === 'savedList' ? (
-            <div className="w-full max-w-5xl h-full overflow-y-auto"><SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} /></div>
+            <div className="w-full max-w-5xl h-full overflow-y-auto mx-auto p-4"><SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} /></div>
           ) : currentView === 'shared' ? (
-            <div className="w-full max-w-5xl h-full overflow-y-auto"><SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} /></div>
+            <div className="w-full max-w-5xl h-full overflow-y-auto mx-auto p-4"><SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} /></div>
           ) : currentView === 'assessment' ? (
               <div className="w-full h-full overflow-y-auto"><AssessmentModule onBack={onBackToGenerator} onSelectActivity={(id) => { if (onSelectActivity) onSelectActivity(id); }} /></div>
           ) : currentView === 'favorites' ? (
