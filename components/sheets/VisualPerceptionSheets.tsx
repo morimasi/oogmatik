@@ -496,7 +496,7 @@ export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = (
                     {data.grid.map((row, i) => (
                         <tr key={i}>
                             <td className="border border-zinc-300 p-2 font-bold bg-zinc-100 text-xs text-center">{String.fromCharCode(65+i)}</td>
-                            {data.grid && data.grid.length > 0 && data.grid[0] && row.map((cell, j) => (
+                            {row.map((cell, j) => (
                                 <td key={j} className="border border-zinc-300 w-10 h-10 text-center font-mono text-lg">{cell}</td>
                             ))}
                         </tr>
