@@ -69,9 +69,9 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                             </div>
                         </div>
                         {problem.imagePrompt && (
-                            <div className="hidden sm:block w-24 h-24 bg-white rounded-lg border border-zinc-200 p-1 shadow-sm flex-shrink-0">
+                            <EditableElement className="hidden sm:block w-24 h-24 bg-white rounded-lg border border-zinc-200 p-1 shadow-sm flex-shrink-0">
                                 <ImageDisplay base64={problem.imageBase64} description={problem.text} className="w-full h-full object-contain rounded" />
-                            </div>
+                            </EditableElement>
                         )}
                     </div>
 
@@ -369,16 +369,10 @@ export const RoundingConnectSheet: React.FC<{ data: RoundingConnectData | Arithm
                  <EditableElement 
                     key={i} 
                     className="absolute w-auto min-w-[3rem] h-12 px-2 rounded-full bg-zinc-100 border-2 border-zinc-800 flex items-center justify-center font-bold shadow-sm"
-                    initialPos={{ x: item.x * 500, y: item.y * 500 }} // Hack for absolute positioning conversion attempt, but style handles it
-                    // Actually, wrapper handles transform. We need to pass style to wrapper or let wrapper handle it.
-                    // The current implementation of EditableElement uses transform: translate(pos.x, pos.y).
-                    // The items here are absolutely positioned by `left` and `top`.
-                    // We need to wrap them and let the wrapper handle the drag.
+                    initialPos={{ x: item.x * 500, y: item.y * 500 }} 
+                    style={{ left: `${item.x * 100}%`, top: `${item.y * 100}%`, transform: 'translate(-50%, -50%)' }}
                  >
-                     {/* The wrapper handles dragging. We need to set initial style. */}
-                     <div style={{ position: 'absolute', left: `${item.x * 100}%`, top: `${item.y * 100}%`, transform: 'translate(-50%, -50%)' }}>
-                        <EditableText value={item.text || item.value} tag="span" />
-                     </div>
+                     <EditableText value={item.text || item.value} tag="span" />
                  </EditableElement>
              ))}
         </div>
@@ -664,7 +658,7 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
 // Updated MazeGrid with visual connections and ID display
 const MazeGrid = ({ grid, rules }: { grid: number[][], rules: {id: number, text: string, isPath: boolean}[] }) => {
     return (
-        <div className="relative p-2 bg-zinc-100 border-2 border-zinc-300 rounded-xl shadow-inner max-w-md mx-auto">
+        <EditableElement className="relative p-2 bg-zinc-100 border-2 border-zinc-300 rounded-xl shadow-inner max-w-md mx-auto">
             {/* Start Arrow */}
             <div className="absolute -left-6 top-6 text-green-500 text-2xl animate-bounce-horizontal"><i className="fa-solid fa-arrow-right"></i></div>
             
@@ -685,7 +679,7 @@ const MazeGrid = ({ grid, rules }: { grid: number[][], rules: {id: number, text:
             
             {/* End Arrow */}
             <div className="absolute -right-6 bottom-6 text-red-500 text-2xl animate-bounce-horizontal"><i className="fa-solid fa-arrow-right"></i></div>
-        </div>
+        </EditableElement>
     );
 };
 
@@ -713,7 +707,7 @@ export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ 
 
                 {/* Right: The Question List */}
                 <div className="w-full md:w-1/2">
-                    <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+                    <EditableElement className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
                         <div className="bg-zinc-50 px-4 py-3 border-b border-zinc-200">
                             <h4 className="font-bold text-zinc-700 uppercase text-sm tracking-wider">Kurallar Listesi</h4>
                         </div>
@@ -727,7 +721,7 @@ export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ 
                                 </li>
                             ))}
                         </ul>
-                    </div>
+                    </EditableElement>
                 </div>
             </div>
         </div>
@@ -746,7 +740,7 @@ export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumbe
                     </EditableElement>
                 ))}
             </div>
-            <div className="w-full md:w-1/3 bg-zinc-800 p-6 rounded-3xl shadow-xl text-center break-inside-avoid">
+            <EditableElement className="w-full md:w-1/3 bg-zinc-800 p-6 rounded-3xl shadow-xl text-center break-inside-avoid">
                 <div className="bg-white w-full h-16 mb-6 rounded-lg flex items-center justify-center text-3xl font-mono tracking-widest border-4 border-zinc-300">
                     {/* Placeholder for digits */}
                     _______
@@ -761,7 +755,7 @@ export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumbe
                         0
                     </div>
                 </div>
-            </div>
+            </EditableElement>
         </div>
     </div>
 );
@@ -839,7 +833,7 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
                 
                 <div className="space-y-4">
                     {data.categories.map((cat, i) => (
-                        <div key={i}>
+                        <EditableElement key={i}>
                             <h5 className="font-bold text-xs uppercase text-zinc-400 mb-2"><EditableText value={cat.title} tag="span" /></h5>
                             <div className="flex gap-2 flex-wrap">
                                 {cat.items.map((item, j) => (
@@ -849,12 +843,13 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </EditableElement>
                     ))}
                 </div>
             </div>
 
             <div className="lg:col-span-2 overflow-x-auto">
+                <EditableElement>
                 <table className="border-collapse w-full bg-white text-sm">
                     <thead>
                         <tr>
@@ -881,6 +876,7 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
                         ))}
                     </tbody>
                 </table>
+                </EditableElement>
             </div>
         </div>
     </div>
