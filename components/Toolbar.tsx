@@ -16,6 +16,7 @@ interface ToolbarProps {
   onViewWorkbook?: () => void;
   onToggleEdit?: () => void;
   isEditMode?: boolean;
+  onSnapshot?: () => void; // New prop for screenshot
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -31,7 +32,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
     workbookItemCount = 0,
     onViewWorkbook,
     onToggleEdit,
-    isEditMode
+    isEditMode,
+    onSnapshot
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type'>('none');
 
@@ -203,15 +205,35 @@ const Toolbar: React.FC<ToolbarProps> = ({
       
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
-            {/* EDIT TOGGLE BUTTON */}
+            {/* EDIT TOGGLE BUTTON - UPDATED LOGIC */}
             {onToggleEdit && (
                 <button 
                     onClick={onToggleEdit}
-                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
-                    title="Düzenleme Modu"
+                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-green-600 text-white border-green-600 ring-2 ring-green-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
+                    title={isEditMode ? "Düzenlemeyi Bitir ve Kaydet" : "Düzenleme Modu"}
                 >
-                    <i className="fa-solid fa-pen-ruler"></i>
-                    <span className="hidden sm:inline">Düzenle</span>
+                    {isEditMode ? (
+                        <>
+                            <i className="fa-solid fa-check"></i>
+                            <span className="hidden sm:inline">Kaydet ve Bitir</span>
+                        </>
+                    ) : (
+                        <>
+                            <i className="fa-solid fa-pen-ruler"></i>
+                            <span className="hidden sm:inline">Düzenle</span>
+                        </>
+                    )}
+                </button>
+            )}
+
+            {/* SNAPSHOT BUTTON */}
+            {onSnapshot && (
+                <button 
+                    onClick={onSnapshot}
+                    className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-zinc-800 text-white border-zinc-900 hover:bg-zinc-700"
+                    title="Ekran Görüntüsü Al"
+                >
+                    <i className="fa-solid fa-camera"></i>
                 </button>
             )}
 

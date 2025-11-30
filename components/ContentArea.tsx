@@ -14,6 +14,8 @@ import { ShareModal } from './ShareModal';
 import { worksheetService } from '../services/worksheetService';
 import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
+// @ts-ignore
+import html2canvas from 'html2canvas';
 
 
 interface ContentAreaProps {
@@ -124,10 +126,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         // or explicitly explicitly allow it anywhere not interactive
         if (currentView !== 'generator' || !worksheetData) return;
         
-        // If in edit mode, and clicking on an editable element, don't pan
+        // If in edit mode, and clicking on the worksheet page, don't pan!
+        // This allows selection and interaction inside the page.
         if (isEditMode) {
             const target = e.target as HTMLElement;
-            if (target.closest('.worksheet-item')) return;
+            if (target.closest('.worksheet-item') || target.closest('.worksheet-page')) return;
         }
         
         // Check if the target is an input or button to avoid blocking interaction
@@ -160,6 +163,38 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const handleResetView = () => {
         setViewZoom(1);
         setPan({ x: 0, y: 50 });
+    };
+
+    const handleTakeSnapshot = async () => {
+        const elements = document.querySelectorAll('.worksheet-item');
+        if (!elements || elements.length === 0) return;
+
+        // Temporarily hide UI elements or specific markers if needed before snapshot
+        const editIndicators = document.querySelectorAll('.edit-handle');
+        editIndicators.forEach((el: any) => el.style.display = 'none');
+
+        try {
+            // Take snapshot of the first page for simplicity, or iterate if needed
+            // Currently focusing on the main visible worksheet.
+            const canvas = await html2canvas(elements[0] as HTMLElement, {
+                scale: 2, // Higher quality
+                useCORS: true, // For images
+                backgroundColor: null // Transparent background if possible, or white
+            });
+
+            const link = document.createElement('a');
+            const activityName = activityType ? activityType.replace(/_/g, '-').toLowerCase() : 'etkinlik';
+            link.download = `bursa-disleksi-${activityName}-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+        } catch (err) {
+            console.error("Snapshot failed:", err);
+            alert("Ekran görüntüsü alınırken bir hata oluştu.");
+        } finally {
+            // Restore indicators
+            editIndicators.forEach((el: any) => el.style.display = '');
+        }
     };
 
     const generateAutoName = () => {
@@ -305,6 +340,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     workbookItemCount={workbookItems.length}
                     onToggleEdit={() => setIsEditMode(!isEditMode)} // Add Toggle Handler
                     isEditMode={isEditMode} // Pass State
+                    onSnapshot={handleTakeSnapshot} // New Snapshot Function
                 />
           )}
       </div>
