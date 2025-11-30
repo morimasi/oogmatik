@@ -1,3 +1,4 @@
+
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile } from '../types';
 import Worksheet from './Worksheet';
@@ -124,19 +125,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         // or explicitly explicitly allow it anywhere not interactive
         if (currentView !== 'generator' || !worksheetData) return;
         
-        // If in edit mode, and clicking on the worksheet page (or any editable element), don't pan!
-        // This allows selection and interaction inside the page without moving the canvas.
-        if (isEditMode) {
-            const target = e.target as HTMLElement;
-            // Assuming worksheet pages have a specific class or structure we can detect
-            if (target.closest('.worksheet-item') || target.closest('.printable-content-parent')) {
-                return;
-            }
-        }
+        // If in edit mode, check if we clicked an editable element first (managed by stopPropagation in EditableElement)
+        // However, if the click bubbles here, it means we clicked background or non-editable area
         
         // Check if the target is an input or button to avoid blocking interaction
         const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.tagName === 'TEXTAREA' || target.closest('button')) {
+        if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.tagName === 'TEXTAREA' || target.closest('button') || target.closest('.editable-element')) {
             return;
         }
 

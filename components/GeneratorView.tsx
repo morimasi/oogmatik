@@ -373,7 +373,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
                 <button
                     onClick={() => onGenerate(options)}
-                    disabled={isLoading || (options.mode === 'manual' && (!options.customInput || options.customInput.trim().length < 2))}
+                    disabled={isLoading || (options.mode === 'manual' && (!options.customInput || (typeof options.customInput === 'string' ? options.customInput.trim().length < 2 : options.customInput.length < 1)))}
                     className="w-full h-10 bg-zinc-900 hover:bg-zinc-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold rounded shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm uppercase tracking-wide"
                 >
                     {isLoading ? (

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
 
@@ -204,7 +205,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
       
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
-            {/* EDIT TOGGLE BUTTON - UPDATED LOGIC */}
+            {/* EDIT TOGGLE BUTTON */}
             {onToggleEdit && (
                 <button 
                     onClick={onToggleEdit}
