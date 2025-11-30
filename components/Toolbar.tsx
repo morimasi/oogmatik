@@ -14,6 +14,8 @@ interface ToolbarProps {
   onAddToWorkbook?: () => void;
   workbookItemCount?: number;
   onViewWorkbook?: () => void;
+  onToggleEdit?: () => void;
+  isEditMode?: boolean;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -27,7 +29,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
     isPreviewMode,
     onAddToWorkbook,
     workbookItemCount = 0,
-    onViewWorkbook
+    onViewWorkbook,
+    onToggleEdit,
+    isEditMode
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type'>('none');
 
@@ -199,6 +203,18 @@ const Toolbar: React.FC<ToolbarProps> = ({
       
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
+            {/* EDIT TOGGLE BUTTON */}
+            {onToggleEdit && (
+                <button 
+                    onClick={onToggleEdit}
+                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
+                    title="Düzenleme Modu"
+                >
+                    <i className="fa-solid fa-pen-ruler"></i>
+                    <span className="hidden sm:inline">Düzenle</span>
+                </button>
+            )}
+
             {onAddToWorkbook && (
                 <button 
                     id="add-to-wb-btn"

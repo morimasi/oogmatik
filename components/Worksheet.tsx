@@ -10,6 +10,7 @@ import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 import * as DyscalculiaSheets from './sheets/DyscalculiaSheets';
 import * as NewActivitySheets from './sheets/NewActivitySheets';
 import { getBorderCSS } from './VisualAssets';
+import { EditableElement, EditableText } from './Editable';
 
 interface WorksheetProps {
     activityType: ActivityType | null;
@@ -62,18 +63,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         '--scale': settings.scale,
     } as React.CSSProperties;
 
-    // Pass student info string to sheets if needed, or render here directly if architecture allows
-    // The PedagogicalHeader component currently handles the Student Info strip.
-    // We can modify the data passed to RenderSheet or modify how PedagogicalHeader works.
-    // However, PedagogicalHeader is inside specific sheet components. 
-    // Best way is to CSS Variable injection for simple text or pass as prop if supported.
-    // Since props are rigid, let's inject a global print header if enabled.
-    
-    // UPDATE: PedagogicalHeader has a student info strip. Let's make it smarter.
-    // We will render a custom student info block here on top of the sheet content 
-    // and hide the default one inside PedagogicalHeader via CSS if needed, 
-    // OR pass the profile down. Passing props is cleaner.
-
     return (
         <div className="flex flex-col items-center bg-transparent w-full" style={variableStyle}>
             {/* Inject dynamic print styles */}
@@ -105,9 +94,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
                     }
-                    
-                    /* Reset scaling for print to ensure natural flow OR keep it if user wants 'fit to page' effect */
-                    /* Currently we KEEP the scale to allow users to shrink content to fit paper */
                     
                     .worksheet-item {
                         break-after: page !important;
@@ -152,17 +138,25 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             {settings.showStudentInfo && (
                                 <div className="mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest flex justify-between items-end print:flex">
                                     <div className="flex-1 text-left">
-                                        <div>Adı Soyadı: <span className="font-normal normal-case ml-2">{studentProfile?.name || '...........................................'}</span></div>
-                                        {studentProfile?.school && <div className="mt-1">Okul: <span className="font-normal normal-case ml-2">{studentProfile.school}</span></div>}
+                                        <div className="flex gap-2">
+                                            <EditableText value="Adı Soyadı:" tag="span" /> 
+                                            <span className="font-normal normal-case ml-2"><EditableText value={studentProfile?.name || '...........................................'} tag="span" /></span>
+                                        </div>
+                                        {studentProfile?.school && <div className="mt-1 flex gap-2"><EditableText value="Okul:" tag="span" /> <span className="font-normal normal-case ml-2"><EditableText value={studentProfile.school} tag="span" /></span></div>}
                                     </div>
                                     <div className="text-right">
-                                        <div>Tarih: <span className="font-normal normal-case ml-2">{studentProfile?.date || '...../...../.......'}</span></div>
-                                        {studentProfile?.grade && <div className="mt-1">Sınıf: <span className="font-normal normal-case ml-2">{studentProfile.grade}</span></div>}
+                                        <div className="flex gap-2 justify-end"><EditableText value="Tarih:" tag="span" /> <span className="font-normal normal-case ml-2"><EditableText value={studentProfile?.date || '...../...../.......'} tag="span" /></span></div>
+                                        {studentProfile?.grade && <div className="mt-1 flex gap-2 justify-end"><EditableText value="Sınıf:" tag="span" /> <span className="font-normal normal-case ml-2"><EditableText value={studentProfile.grade} tag="span" /></span></div>}
                                     </div>
                                 </div>
                             )}
 
-                            <RenderSheet activityType={activityType} data={sheetData} />
+                            {/* WRAP THE MAIN SHEET IN AN EDITABLE ELEMENT IF NEEDED OR JUST RENDER */}
+                            {/* Actually, RenderSheet returns multiple items usually. We let common components handle Editable logic internally or we wrap the whole block? */}
+                            {/* Wrapping the whole sheet content allows moving the main block relative to header */}
+                            <EditableElement id="main-content">
+                                <RenderSheet activityType={activityType} data={sheetData} />
+                            </EditableElement>
                         </div>
                         
                         {/* Footer stays at absolute bottom of A4 page, unaffected by content scale */}

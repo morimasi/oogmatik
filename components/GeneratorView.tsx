@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Activity, GeneratorOptions, ActivityType, StudentProfile } from '../types';
 import { statsService } from '../services/statsService';
@@ -15,7 +14,7 @@ interface GeneratorViewProps {
 
 // --- ULTRA COMPACT INPUT COMPONENTS ---
 
-const Label = ({ children, icon }: { children: React.ReactNode, icon?: string }) => (
+const Label = ({ children, icon }: { children?: React.ReactNode, icon?: string }) => (
     <div className="flex items-center gap-1.5 mb-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-tight">
         {icon && <i className={`fa-solid ${icon}`}></i>}
         <span>{children}</span>
@@ -333,63 +332,4 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     <button onClick={onBack} className="text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors shrink-0"><i className="fa-solid fa-arrow-left"></i></button>
                     <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate uppercase tracking-tight">{activity.title}</h2>
                 </div>
-                <button onClick={handleToggleFavorite} className={`text-sm transition-all p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${isFavorite ? 'text-rose-500' : 'text-zinc-300 hover:text-zinc-500'}`}><i className={`fa-${isFavorite ? 'solid' : 'regular'} fa-heart`}></i></button>
-            </div>
-
-            {/* Settings Body */}
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                {/* Mode Switcher */}
-                <div className="mb-6">
-                    <Label icon="fa-robot">Üretim Modu</Label>
-                    <div className="flex bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded border border-zinc-200 dark:border-zinc-700">
-                        {['fast', 'ai', 'manual'].map((m) => (
-                            <button
-                                key={m}
-                                onClick={() => handleChange('mode', m)}
-                                className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wide rounded-[3px] transition-all flex items-center justify-center gap-1.5 ${options.mode === m 
-                                    ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm ring-1 ring-black/5' 
-                                    : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
-                            >
-                                <i className={`fa-solid ${m === 'fast' ? 'fa-bolt' : m === 'ai' ? 'fa-wand-magic-sparkles' : 'fa-keyboard'}`}></i>
-                                {m === 'fast' ? 'Hızlı' : m === 'ai' ? 'AI' : 'Manuel'}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {renderControls()}
-            </div>
-
-            {/* Footer Actions */}
-            <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0 space-y-3 z-20">
-                {onOpenStudentModal && (
-                    <button 
-                        onClick={onOpenStudentModal}
-                        className={`w-full py-2 rounded border border-dashed transition-all flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-wider ${studentProfile ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'border-zinc-300 text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}`}
-                    >
-                        <i className={`fa-solid ${studentProfile ? 'fa-user-check' : 'fa-user-plus'}`}></i>
-                        {studentProfile ? studentProfile.name : 'Öğrenci Ekle'}
-                    </button>
-                )}
-
-                <button
-                    onClick={() => onGenerate(options)}
-                    disabled={isLoading || (options.mode === 'manual' && (!options.customInput || options.customInput.trim().length < 2))}
-                    className="w-full h-10 bg-zinc-900 hover:bg-zinc-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold rounded shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm uppercase tracking-wide"
-                >
-                    {isLoading ? (
-                        <>
-                            <i className="fa-solid fa-circle-notch fa-spin"></i>
-                            <span>Hazırlanıyor</span>
-                        </>
-                    ) : (
-                        <>
-                            <i className="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>OLUŞTUR</span>
-                        </>
-                    )}
-                </button>
-            </div>
-        </div>
-    );
-};
+                <button onClick={handleToggleFavorite} className={`text-sm transition-all p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${isFavorite ? 'text-rose-5

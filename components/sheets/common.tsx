@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
 import { MascotRobot, MascotOwl, MascotCat } from '../VisualAssets';
+import { EditableElement, EditableText } from '../Editable'; // Import Editable Components
 
 // --- HELPER: SMART EMOJI FINDER ---
 const findEmojiForDescription = (desc: string): string | null => {
@@ -113,92 +114,73 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
         safeDesc = '';
     }
 
-    // 1. Try rendering SVG Code (AI Generated)
-    if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
-        // Clean up markdown and Prepare SVG for responsive display
-        let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
-        
-        // CRITICAL: Remove fixed width/height attributes to allow CSS scaling
-        cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
-        
-        // Ensure preserveAspectRatio is set for proper centering
-        if (!cleanSvg.includes('preserveAspectRatio')) {
-            cleanSvg = cleanSvg.replace('<svg', '<svg preserveAspectRatio="xMidYMid meet"');
-        }
-        
-        // Ensure viewbox exists if missing (basic fallback)
-        if (!cleanSvg.includes('viewBox')) {
-             cleanSvg = cleanSvg.replace('<svg', '<svg viewBox="0 0 512 512"');
-        }
-        
-        // Add container style override for SVG
-        cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
-
-        return (
-            <div 
-                className={`${className} flex items-center justify-center rounded-xl overflow-hidden relative group bg-white dark:bg-zinc-800/30 transition-all`}
-                title={safeDesc || 'Görsel'}
-                role="img"
-                aria-label={safeDesc}
-            >
-                {/* Enhanced Background for Premium Feel */}
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#e0e7ff_1px,transparent_1px)] [background-size:20px_20px] -z-10"></div>
-                <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-zinc-100/30 -z-10"></div>
-                
-                <div 
-                    className="w-full h-full p-1 flex items-center justify-center [&>svg]:drop-shadow-md transition-transform duration-300 hover:scale-105"
-                    dangerouslySetInnerHTML={{ __html: cleanSvg }}
-                />
-            </div>
-        );
-    }
-
-    // 2. Try rendering Base64 Image (Legacy/Uploads)
-    if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
-        const src = base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
-        return (
-            <img 
-                src={src} 
-                alt={safeDesc || 'Görsel'} 
-                className={`${className} object-contain rounded-lg shadow-sm bg-white/50 dark:bg-zinc-800/50 transition-all duration-300 hover:scale-[1.02]`} 
-                loading="lazy" 
-            />
-        );
-    }
-    
-    // 3. AI generated Emoji fallback (Stored in base64 field sometimes)
-    if (base64 && typeof base64 === 'string' && base64.length < 15 && base64.trim().length > 0) {
-         return (
-            <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all ${className} bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700`}>
-                <div className="text-5xl md:text-6xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={safeDesc}>
-                    {base64}
-                </div>
-            </div>
-         );
-    }
-    
-    const cleanDescription = (safeDesc.trim().length > 0) ? safeDesc : 'Görsel';
-    
-    // 4. Smart Emoji/Icon Fallback (Local dictionary)
-    const emojiIcon = findEmojiForDescription(cleanDescription);
-    
-    // 5. Deterministic Color Avatar Fallback
-    const colorClass = stringToColor(cleanDescription);
-    const initial = cleanDescription.charAt(0).toUpperCase();
-    
+    // Wrap with EditableElement
     return (
-        <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all ${className} ${emojiIcon ? 'bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700' : `border-2 ${colorClass}`}`}>
-            {emojiIcon ? (
-                <div className="text-5xl md:text-6xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={cleanDescription}>
-                    {emojiIcon}
+    <EditableElement className={className}>
+        {/* Actual Content Logic */}
+        {(() => {
+            // 1. Try rendering SVG Code (AI Generated)
+            if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
+                let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
+                cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
+                if (!cleanSvg.includes('preserveAspectRatio')) cleanSvg = cleanSvg.replace('<svg', '<svg preserveAspectRatio="xMidYMid meet"');
+                if (!cleanSvg.includes('viewBox')) cleanSvg = cleanSvg.replace('<svg', '<svg viewBox="0 0 512 512"');
+                cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
+
+                return (
+                    <div 
+                        className={`flex items-center justify-center rounded-xl overflow-hidden relative group bg-white dark:bg-zinc-800/30 transition-all w-full h-full`}
+                        title={safeDesc || 'Görsel'}
+                        role="img"
+                        aria-label={safeDesc}
+                    >
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#e0e7ff_1px,transparent_1px)] [background-size:20px_20px] -z-10"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-zinc-100/30 -z-10"></div>
+                        <div className="w-full h-full p-1 flex items-center justify-center [&>svg]:drop-shadow-md transition-transform duration-300 hover:scale-105" dangerouslySetInnerHTML={{ __html: cleanSvg }} />
+                    </div>
+                );
+            }
+
+            // 2. Try rendering Base64 Image
+            if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
+                const src = base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
+                return (
+                    <img src={src} alt={safeDesc || 'Görsel'} className={`object-contain rounded-lg shadow-sm bg-white/50 dark:bg-zinc-800/50 transition-all duration-300 hover:scale-[1.02] w-full h-full`} loading="lazy" />
+                );
+            }
+            
+            // 3. AI generated Emoji fallback
+            if (base64 && typeof base64 === 'string' && base64.length < 15 && base64.trim().length > 0) {
+                 return (
+                    <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700 w-full h-full`}>
+                        <div className="text-5xl md:text-6xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={safeDesc}>
+                            {base64}
+                        </div>
+                    </div>
+                 );
+            }
+            
+            const cleanDescription = (safeDesc.trim().length > 0) ? safeDesc : 'Görsel';
+            const emojiIcon = findEmojiForDescription(cleanDescription);
+            const colorClass = stringToColor(cleanDescription);
+            const initial = cleanDescription.charAt(0).toUpperCase();
+            
+            return (
+                <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 overflow-hidden select-none transition-all w-full h-full ${emojiIcon ? 'bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-zinc-700' : `border-2 ${colorClass}`}`}>
+                    {emojiIcon ? (
+                        <div className="text-5xl md:text-6xl filter drop-shadow-sm transform transition-transform hover:scale-110 cursor-default animate-in fade-in zoom-in duration-300 leading-none" role="img" aria-label={cleanDescription}>
+                            {emojiIcon}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full w-full animate-in fade-in duration-500">
+                            <span className="text-4xl font-black opacity-80 mb-1">{initial}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 px-1 truncate max-w-full">{cleanDescription}</span>
+                        </div>
+                    )}
                 </div>
-            ) : (
-                <div className="flex flex-col items-center justify-center h-full w-full animate-in fade-in duration-500">
-                    <span className="text-4xl font-black opacity-80 mb-1">{initial}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 px-1 truncate max-w-full">{cleanDescription}</span>
-                </div>
-            )}
-        </div>
+            );
+        })()}
+    </EditableElement>
     );
 });
 
@@ -214,14 +196,9 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
     };
 
     return (
-        <div className="pedagogical-header mb-8 text-center print:mb-6 break-inside-avoid relative group">
+        <EditableElement id="header-block" className="pedagogical-header mb-8 text-center print:mb-6 break-inside-avoid relative group w-full">
             
-            {/* 
-               Student Info Strip
-               Hidden if default strip is disabled, but can be replaced by custom one in Worksheet.tsx
-               We keep it for legacy compatibility, but Worksheet.tsx injects a better one if studentProfile exists.
-               We'll check a CSS variable or rely on parent overriding.
-            */}
+            {/* Student Info Strip injected in Worksheet.tsx, kept here for fallback logic if needed */}
             <div 
                 className="justify-between items-center mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest hidden print:flex student-info-strip-default"
                 style={{ display: 'var(--show-student-info, flex)' }}
@@ -231,22 +208,20 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 <div className="w-24 text-right">Puan: .......</div>
             </div>
 
-            {/* Mascot Container */}
-            <div 
-                className="absolute -top-4 right-0 z-10 hidden print:block" 
-                style={{ display: 'var(--show-mascot, block)' }}
-            >
+            {/* Mascot Container (Movable) */}
+            <EditableElement id="mascot" className="absolute -top-4 right-0 z-10 hidden print:block" style={{ display: 'var(--show-mascot, block)' }}>
                 {getMascot()}
                 <div className="absolute -left-16 top-4 bg-white border-2 border-black rounded-xl p-2 shadow-sm text-[10px] font-bold w-16 text-center bubble-triangle">
-                    Hadi Çöz!
+                    <EditableText value="Hadi Çöz!" tag="span" />
                 </div>
-            </div>
+            </EditableElement>
 
             <div className="flex items-center justify-center gap-3 mb-3 relative z-0">
-                <h3 className="text-3xl font-black text-zinc-800 dark:text-zinc-100 font-dyslexic tracking-tight relative inline-block">
-                    {title}
-                    <span className="absolute bottom-1 right-0 w-full h-2 bg-yellow-300 -z-10 opacity-50 transform -rotate-1 rounded-full print:hidden"></span>
-                </h3>
+                <EditableText 
+                    tag="h3" 
+                    value={title} 
+                    className="text-3xl font-black text-zinc-800 dark:text-zinc-100 font-dyslexic tracking-tight relative inline-block"
+                />
                 <button 
                     onClick={() => speak(`${title}. Yönerge: ${instruction}`)}
                     className={`w-8 h-8 rounded-full flex items-center justify-center transition-all print:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${isSpeaking ? 'bg-indigo-100 text-indigo-600 animate-pulse' : 'bg-zinc-100 text-zinc-400 hover:bg-indigo-50 hover:text-indigo-500 dark:bg-zinc-800'}`}
@@ -256,12 +231,16 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 </button>
             </div>
             
-            <div className="inline-block px-8 py-3 bg-white dark:bg-indigo-900/20 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm relative print:border-zinc-300">
-                <p className="text-lg font-bold text-indigo-800 dark:text-indigo-200 print:text-black font-dyslexic">{instruction}</p>
+            <EditableElement id="instruction-box" className="inline-block px-8 py-3 bg-white dark:bg-indigo-900/20 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm relative print:border-zinc-300">
+                <EditableText 
+                    tag="p" 
+                    value={instruction} 
+                    className="text-lg font-bold text-indigo-800 dark:text-indigo-200 print:text-black font-dyslexic" 
+                />
                 <div className="absolute -top-3 -left-3 text-2xl text-indigo-300 print:text-zinc-400">
                     <i className="fa-solid fa-quote-left"></i>
                 </div>
-            </div>
+            </EditableElement>
             
             {data?.imageBase64 && (
                 <div className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-white dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300 print:shadow-none print:border-zinc-200">
@@ -277,11 +256,11 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 <div className="print:block" style={{ display: 'var(--show-pedagogical-note, flex)' }}>
                     <div className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 italic mt-2">
                         <i className="fa-solid fa-graduation-cap text-zinc-400"></i>
-                        <span>Eğitmen Notu: {note}</span>
+                        <span>Eğitmen Notu: <EditableText tag="span" value={note} /></span>
                     </div>
                 </div>
             )}
-        </div>
+        </EditableElement>
     );
 });
 
@@ -360,7 +339,7 @@ export const GridComponent = React.memo(({ grid, passwordCells, cellClassName = 
                     const isBlackCell = cell === null;
                     return (
                         <td key={cellIndex} className={`border text-center font-mono text-lg ${cellClassName} ${isPasswordCell ? 'bg-amber-200 dark:bg-amber-800' : ''} ${isBlackCell ? 'bg-zinc-800 dark:bg-zinc-900' : 'bg-white dark:bg-zinc-700/50'}`} style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                            {showLetters ? (typeof cell === 'string' ? cell.toLocaleUpperCase('tr') : cell) : ''}
+                            {showLetters ? (typeof cell === 'string' ? <EditableText value={cell.toLocaleUpperCase('tr')} tag="span" /> : <EditableText value={cell || ''} tag="span" />) : ''}
                         </td>
                     )
                 })}

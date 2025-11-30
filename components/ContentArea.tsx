@@ -13,6 +13,7 @@ import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { worksheetService } from '../services/worksheetService';
 import { WorkbookView } from './WorkbookView';
+import { EditableContext } from './Editable';
 
 
 interface ContentAreaProps {
@@ -87,6 +88,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false); // NEW STATE FOR EDIT MODE
     
     // --- INFINITE CANVAS STATE ---
     const [viewZoom, setViewZoom] = useState(1);
@@ -100,6 +102,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     useEffect(() => {
         setViewZoom(1);
         setPan({ x: 0, y: 50 });
+        setIsEditMode(false);
     }, [activityType]);
 
     // Handle Mouse Wheel Zoom
@@ -120,6 +123,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         // Only allow dragging if clicking on the background (the container)
         // or explicitly explicitly allow it anywhere not interactive
         if (currentView !== 'generator' || !worksheetData) return;
+        
+        // If in edit mode, and clicking on an editable element, don't pan
+        if (isEditMode) {
+            const target = e.target as HTMLElement;
+            if (target.closest('.worksheet-item')) return;
+        }
         
         // Check if the target is an input or button to avoid blocking interaction
         const target = e.target as HTMLElement;
@@ -258,6 +267,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = getBreadcrumbs();
 
   return (
+    <EditableContext.Provider value={{ isEditMode }}>
     <main className={`flex-1 flex flex-col h-full bg-[var(--bg-primary)] transition-colors duration-300 overflow-hidden`}>
       
       {/* 1. TOP BAR (Toolbar & Breadcrumbs) - Fixed Height */}
@@ -293,6 +303,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     isPreviewMode={isPreviewMode}
                     onAddToWorkbook={onAddToWorkbook}
                     workbookItemCount={workbookItems.length}
+                    onToggleEdit={() => setIsEditMode(!isEditMode)} // Add Toggle Handler
+                    isEditMode={isEditMode} // Pass State
                 />
           )}
       </div>
@@ -300,7 +312,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {/* 2. MAIN CONTENT AREA (Canvas) - Flexible Height, Hidden Overflow for custom Pan */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
+        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData && !isEditMode ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -316,6 +328,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                        transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
                        transformOrigin: 'top center'
                    }}>
+              </div>
+          )}
+          
+          {/* Edit Mode Indicator Overlay */}
+          {isEditMode && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
+                  <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
               </div>
           )}
 
@@ -420,6 +439,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         />
       </div>
     </main>
+    </EditableContext.Provider>
   );
 };
 
