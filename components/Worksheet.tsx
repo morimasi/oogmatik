@@ -129,9 +129,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings }) =
                             className="worksheet-scaler worksheet-content"
                             style={{
                                 transform: `scale(${settings.scale})`,
-                                transformOrigin: 'top center',
-                                width: `calc(100% / ${settings.scale})`, 
-                                // height: auto is implicit, allowing content to flow
+                                transformOrigin: 'top center', // Scales from top, keeping header at top
+                                width: `calc(100% / ${settings.scale})`, // Compensate width so 100% visual width is maintained
+                                margin: '0 auto' // Centers content horizontally when scaled up (width < 100%)
                             }}
                         >
                             <RenderSheet activityType={activityType} data={sheetData} />
