@@ -91,14 +91,25 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
     for(let i=0; i<worksheetCount; i++) {
         const operationsList: BasicOperationsData['operations'] = [];
         let attempts = 0;
-        let opIndex = 0;
+        
+        // Randomize starting op for variety
+        let opIndex = getRandomInt(0, ops.length - 1);
 
         while(operationsList.length < count && attempts < 3000) {
             attempts++;
-            const currentOp = ops[opIndex % ops.length];
+            
+            // If mixed, ensure we don't just cycle 1,2,3,4 but pick somewhat randomly to avoid patterns
+            if (ops.length > 1) {
+                opIndex = getRandomInt(0, ops.length - 1);
+            } else {
+                opIndex = 0;
+            }
+            
+            const currentOp = ops[opIndex];
             
             // Adjust ranges based on max value for cleaner problems
-            const rangeMax = maxVal;
+            // Add some jitter to ranges per problem to vary difficulty slightly
+            const rangeMax = Math.max(minVal + 5, maxVal - getRandomInt(0, 5));
             const rangeMin = minVal;
             
             let num1 = 0, num2 = 0, num3 = 0, answer = 0, remainder = 0;
@@ -160,7 +171,6 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
                 operationsList.push({ 
                     num1, num2, num3: num3 > 0 ? num3 : undefined, operator, answer, remainder: remainder > 0 ? remainder : undefined 
                 });
-                opIndex++; 
             }
         }
 
@@ -193,8 +203,12 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
     for(let i=0; i<worksheetCount; i++) {
         const problems: RealLifeProblemData['problems'] = [];
         const count = itemCount || 4;
+        
+        // Shuffle templates for variety within the sheet
+        const templates = shuffle(logicTemplates);
+        
         for(let j=0; j<count; j++) {
-            const selectedFunc = logicTemplates[j % logicTemplates.length];
+            const selectedFunc = templates[j % templates.length];
             const name = getRandomItems(names, 1)[0];
             const item = getRandomItems(items, 1)[0];
             const n1 = getRandomInt(10, 50); 
@@ -218,7 +232,7 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
 
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty, operations, numberRange } = options;
-    const objects = EMOJIS.slice(0, 15);
+    const objectsPool = shuffle(EMOJIS.slice(0, 30)); // Shuffle pool
     
     // Parse Range
     let valueMin = 1, valueMax = 10;
@@ -247,7 +261,10 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
 
     const results: MathPuzzleData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        const currentObjects = getRandomItems(objects, 3);
+        // Pick new objects for each sheet
+        const startIndex = (i * 3) % (objectsPool.length - 3);
+        const currentObjects = objectsPool.slice(startIndex, startIndex + 3);
+        
         const values = currentObjects.map(() => getRandomInt(valueMin, valueMax));
         const puzzles = Array.from({ length: itemCount || 6 }).map(() => {
             const op = getRandomItems(ops, 1)[0];
@@ -283,7 +300,7 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
     const results: NumberPatternData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const patterns = Array.from({ length: itemCount || 8 }).map(() => {
-            let start = getRandomInt(1, 10);
+            let start = getRandomInt(1, 10 + i * 2); // Vary start
             let sequence = [start];
             let answer = 0;
             const type = patternType || (difficulty === 'Başlangıç' ? 'arithmetic' : 'complex');

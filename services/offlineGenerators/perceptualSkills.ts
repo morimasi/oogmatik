@@ -94,25 +94,45 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
             let differentWord = '';
             const chars = baseWord.split('');
 
+            // Variation Strategy:
+            // 1. Swap adjacent chars
+            // 2. Replace one char with a random similar char
+            // 3. Mirror logic (b -> d)
+            // 4. Vowel swap (a -> e)
+            
+            const strategy = getRandomInt(1, 4);
+
             if (difficulty === 'Başlangıç' && chars.length > 1) { 
+                // Simple Swap
                 [chars[0], chars[chars.length - 1]] = [chars[chars.length - 1], chars[0]]; 
                 differentWord = chars.join(''); 
             } else if (difficulty === 'Orta' && chars.length > 2) { 
+                // Random replace
                 const pos = getRandomInt(1, chars.length - 2); 
                 chars[pos] = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)]; 
                 differentWord = chars.join(''); 
             } else { 
-                if (baseWord.includes('b')) differentWord = baseWord.replace('b', 'd');
-                else if (baseWord.includes('d')) differentWord = baseWord.replace('d', 'b');
-                else if (baseWord.includes('p')) differentWord = baseWord.replace('p', 'q');
-                else if (baseWord.includes('q')) differentWord = baseWord.replace('q', 'p');
-                else if (baseWord.includes('m')) differentWord = baseWord.replace('m', 'n');
-                else if (baseWord.includes('n')) differentWord = baseWord.replace('n', 'm');
-                else if (chars.length > 1) { 
-                    const pos = getRandomInt(0, chars.length - 1); 
-                    chars[pos] = getRandomItems(turkishAlphabet.split('').filter(c => c !== chars[pos]), 1)[0]; 
+                // Hard Logic
+                if (strategy === 1 && (baseWord.includes('b') || baseWord.includes('d') || baseWord.includes('p') || baseWord.includes('q') || baseWord.includes('m') || baseWord.includes('n'))) {
+                    // Mirror
+                    if (baseWord.includes('b')) differentWord = baseWord.replace('b', 'd');
+                    else if (baseWord.includes('d')) differentWord = baseWord.replace('d', 'b');
+                    else if (baseWord.includes('p')) differentWord = baseWord.replace('p', 'q');
+                    else if (baseWord.includes('q')) differentWord = baseWord.replace('q', 'p');
+                    else if (baseWord.includes('m')) differentWord = baseWord.replace('m', 'n');
+                    else if (baseWord.includes('n')) differentWord = baseWord.replace('n', 'm');
+                } else if (strategy === 2 && chars.length > 1) { 
+                    // Random internal swap
+                    const pos = getRandomInt(0, chars.length - 2); 
+                    [chars[pos], chars[pos+1]] = [chars[pos+1], chars[pos]];
                     differentWord = chars.join(''); 
-                } else { 
+                } else if (strategy === 3) {
+                    // Vowel change
+                    differentWord = baseWord.replace(/[aeıioöuü]/, (m) => m === 'a' ? 'e' : 'a');
+                }
+                
+                // Fallback
+                if (!differentWord || differentWord === baseWord) {
                     differentWord = baseWord + '.'; 
                 }
             }
@@ -141,11 +161,19 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
 export const generateOfflineWordComparison = async (options: GeneratorOptions): Promise<WordComparisonData[]> => {
     const { topic, difficulty, worksheetCount } = options;
     const results: WordComparisonData[] = [];
+    const masterPool = shuffle(getWordsForDifficulty(difficulty, topic));
+
     for (let i = 0; i < worksheetCount; i++) {
-        const wordPool = getWordsForDifficulty(difficulty, topic);
-        const commonWords = getRandomItems(wordPool, 10);
-        const list1_diff = getRandomItems(wordPool.filter(w => !commonWords.includes(w)), 3);
-        const list2_diff = getRandomItems(wordPool.filter(w => !commonWords.includes(w) && !list1_diff.includes(w)), 3);
+        // Ensure varied words per sheet
+        const start = (i * 15) % Math.max(1, masterPool.length - 15);
+        const poolSubset = masterPool.slice(start, start + 20);
+        
+        const commonWords = getRandomItems(poolSubset, 10);
+        const diffPool = poolSubset.filter(w => !commonWords.includes(w));
+        
+        const list1_diff = getRandomItems(diffPool, 3);
+        const list2_diff = getRandomItems(diffPool.filter(w => !list1_diff.includes(w)), 3);
+        
         results.push({
             title: 'Kelime Karşılaştırma',
             instruction: "İki kutuyu karşılaştırın ve sadece bir kutuda olup diğerinde olmayan kelimeleri bulun.",
@@ -497,9 +525,14 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
         pairsPool = pool.map(p => ({word: p.word, match: (p as any).synonym || (p as any).antonym}));
     }
 
+    // Shuffle pool
+    pairsPool = shuffle(pairsPool);
+
     for(let i = 0; i < worksheetCount; i++) {
         const count = itemCount || 6;
-        const selectedPairs = getRandomItems(pairsPool, count);
+        const start = (i * count) % pairsPool.length;
+        const selectedPairs = pairsPool.slice(start, start + count);
+        
         const points: any[] = [];
         const colors = getRandomItems(CONNECT_COLORS, count);
 
@@ -508,9 +541,6 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
 
         selectedPairs.forEach((pair, idx) => {
             // Left Side (x=0)
-            // Note: We use EMOJI_MAP to try and find an icon for the word
-            // Or just pass the word as imagePrompt and let frontend handle it if AI mode
-            // For offline, let's try to map known emojis
             const leftIcon = EMOJI_MAP[pair.word] || EMOJI_MAP[Object.keys(EMOJI_MAP).find(k => EMOJI_MAP[k] === pair.word) || ''] || pair.word;
             const rightIcon = EMOJI_MAP[pair.match] || EMOJI_MAP[Object.keys(EMOJI_MAP).find(k => EMOJI_MAP[k] === pair.match) || ''] || pair.match;
 
@@ -549,8 +579,13 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
 export const generateOfflineProfessionConnect = async (options: GeneratorOptions): Promise<ProfessionConnectData[]> => {
     const {itemCount, worksheetCount} = options;
     const results: ProfessionConnectData[] = [];
+    const masterProfessions = shuffle(TR_VOCAB.jobs);
+
     for(let i=0; i<worksheetCount; i++){
-        const professions: string[] = getRandomItems(TR_VOCAB.jobs, itemCount || 5);
+        const count = itemCount || 5;
+        const start = (i * count) % masterProfessions.length;
+        const professions = masterProfessions.slice(start, start + count);
+        
         const points = professions.flatMap((p: string, idx) => ([
             { label: p, imageDescription: p, imagePrompt: 'Meslek', x: 0, y: idx * 2, pairId: idx },
             { label: '', imageDescription: `${p} Aracı`, imagePrompt: 'Meslek', x: 5, y: idx * 2, pairId: idx }
@@ -591,12 +626,23 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
     const { itemCount, worksheetCount, topic } = options;
     const results: VisualOddOneOutThemedData[] = [];
 
+    // Ensure varied categories across sheets
+    const shuffledCats = shuffle([...ITEM_CATEGORIES]);
+
     for (let i = 0; i < worksheetCount; i++) {
         const rows: VisualOddOneOutThemedData['rows'] = [];
+        
         for (let j = 0; j < (itemCount || 5); j++) {
             const topicStr = topic as string;
-            const randomMainCat = getRandomItems(ITEM_CATEGORIES, 1)[0] as string | undefined;
-            const mainCatKey = (topicStr && topicStr !== 'Rastgele' && ITEM_CATEGORIES.includes(topicStr.toLowerCase())) ? topicStr.toLowerCase() : randomMainCat || 'animals';
+            
+            // If random, pick from shuffled list to ensure variety
+            let mainCatKey = 'animals';
+            if (topicStr && topicStr !== 'Rastgele' && ITEM_CATEGORIES.includes(topicStr.toLowerCase())) {
+                mainCatKey = topicStr.toLowerCase();
+            } else {
+                mainCatKey = shuffledCats[j % shuffledCats.length];
+            }
+            
             const oddCatKey = getRandomItems(ITEM_CATEGORIES.filter(c => c !== mainCatKey), 1)[0];
 
             const vocab = TR_VOCAB as any;
@@ -631,29 +677,36 @@ export const generateOfflinePunctuationColoring = async (options: GeneratorOptio
     const { itemCount, worksheetCount } = options;
     const punctuationSentences = [
         { text: 'Okula gittim', correctMark: '.' }, { text: 'Nereye gidiyorsun', correctMark: '?' },
-        { text: 'Eyvah, geç kaldım', correctMark: '!' }, { text: 'Kedi, köpek ve kuş besliyorum', correctMark: '.' }
+        { text: 'Eyvah, geç kaldım', correctMark: '!' }, { text: 'Kedi, köpek ve kuş besliyorum', correctMark: '.' },
+        { text: 'Yaşasın tatil', correctMark: '!' }, { text: 'Ödevini yaptın mı', correctMark: '?' },
+        { text: 'Pazardan elma aldım', correctMark: '.' }, { text: 'Ah, elim yandı', correctMark: '!' }
     ];
-    return Array.from({ length: worksheetCount }, () => {
-        // Use itemCount to determine number of sentences
+    
+    const masterPool = shuffle(punctuationSentences);
+
+    return Array.from({ length: worksheetCount }, (_, pageIdx) => {
         const count = itemCount || 4;
-        // Generate more sentences if needed by duplicating or expanding pool
-        const sentences = getRandomItems(punctuationSentences, Math.min(count, punctuationSentences.length)).map((s, i) => ({
+        const start = (pageIdx * count) % masterPool.length;
+        
+        // Loop around if needed
+        let sentences = [];
+        if (start + count <= masterPool.length) {
+            sentences = masterPool.slice(start, start + count);
+        } else {
+            sentences = [...masterPool.slice(start), ...masterPool.slice(0, count - (masterPool.length - start))];
+        }
+
+        sentences = sentences.map((s, i) => ({
             ...s,
             color: COLORS[i % COLORS.length].css
         }));
-        
-        // If user wants more items than we have unique ones, fill with random duplicates
-        while (sentences.length < count) {
-             const s = getRandomItems(punctuationSentences, 1)[0];
-             sentences.push({ ...s, color: COLORS[sentences.length % COLORS.length].css });
-        }
 
         return {
             title: 'Noktalama Boyama',
             instruction: "Cümlenin sonuna gelecek işarete göre kutuyu boya.",
             pedagogicalNote: "Dilbilgisi kurallarını görselleştirme.",
             imagePrompt: 'Noktalama',
-            sentences: sentences.slice(0, count)
+            sentences
         };
     });
 }
