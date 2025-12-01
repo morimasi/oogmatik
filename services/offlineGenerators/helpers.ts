@@ -191,96 +191,231 @@ const findEmojiForDescription = (desc: string): string | null => {
 
 export const generateSmartConnectGrid = (dim: number, count: number) => {
     const res = [];
+    // Simple 2-column layout:
     for(let i=0; i<count; i++) {
-        res.push({pairIndex: i, x: 0, y: i*2, isStart: true});
-        res.push({pairIndex: i, x: 5, y: i*2, isStart: false});
+        res.push({pairIndex: i, x: 0, y: i * 2, isStart: true});
+        res.push({pairIndex: i, x: 1, y: i * 2, isStart: false});
     }
     return res;
 };
-export const generateMaze = (r: number, c: number) => Array(r).fill(Array(c).fill(0));
-export const generateLatinSquare = (n: number) => Array(n).fill(Array(n).fill(1));
-export const generateRandomPattern = (dim: number, den: number) => [];
-export const generateSudokuGrid = (n: number, d: string) => Array(n).fill(Array(n).fill(null));
 
-// --- MAZE PATH GENERATOR ---
+// --- VALID MAZE GENERATOR (Recursive Backtracker) ---
+export const generateMaze = (rows: number, cols: number): number[][] => {
+    // Ensure odd dimensions for proper wall generation
+    const h = rows % 2 === 0 ? rows + 1 : rows;
+    const w = cols % 2 === 0 ? cols + 1 : cols;
+    
+    // 0: Wall, 1: Path
+    const grid = Array.from({length: h}, () => Array(w).fill(0));
+    const stack: {r:number, c:number}[] = [];
+    const dirs = [[0,2], [0,-2], [2,0], [-2,0]]; // Jump 2
+    
+    const startR = 1, startC = 1;
+    grid[startR][startC] = 1;
+    stack.push({r: startR, c: startC});
+    
+    while(stack.length > 0) {
+        const current = stack[stack.length - 1];
+        const neighbors = [];
+        
+        for(const [dr, dc] of dirs) {
+            const nr = current.r + dr, nc = current.c + dc;
+            if (nr > 0 && nr < h - 1 && nc > 0 && nc < w - 1 && grid[nr][nc] === 0) {
+                neighbors.push({r: nr, c: nc, dr: dr/2, dc: dc/2});
+            }
+        }
+        
+        if (neighbors.length > 0) {
+            const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+            // Break wall
+            grid[current.r + next.dr][current.c + next.dc] = 1;
+            grid[next.r][next.c] = 1;
+            stack.push({r: next.r, c: next.c});
+        } else {
+            stack.pop();
+        }
+    }
+    
+    // Ensure Start and End open
+    grid[1][0] = 1; 
+    grid[h-2][w-1] = 1; 
+    
+    // Map back to original requested size if different
+    if (h !== rows || w !== cols) {
+        return grid.slice(0, rows).map(row => row.slice(0, cols));
+    }
+    
+    return grid;
+};
+
+// --- VALID LATIN SQUARE GENERATOR (Randomized) ---
+export const generateLatinSquare = (n: number): number[][] => {
+    // 1. Create first row 1..n shuffled
+    const firstRow = shuffle(Array.from({length: n}, (_, i) => i + 1));
+    let grid: number[][] = [firstRow];
+    
+    // 2. Generate shifted rows to ensure Latin property
+    for (let i = 1; i < n; i++) {
+        const prevRow = grid[i-1];
+        grid.push([...prevRow.slice(1), prevRow[0]]);
+    }
+    
+    // 3. Shuffle Rows
+    grid = shuffle(grid);
+    
+    // 4. Transpose (Swap Rows/Cols) to mix columns
+    grid = grid[0].map((_, colIndex) => grid.map(row => row[colIndex]));
+    
+    // 5. Shuffle Rows again (Effectively shuffles columns of original)
+    grid = shuffle(grid);
+    
+    return grid;
+};
+
+// --- VALID SUDOKU GENERATOR (Backtracking) ---
+export const generateSudokuGrid = (n: number, difficulty: string): (number | null)[][] => {
+    const size = n;
+    const boxH = size === 9 ? 3 : (size === 6 ? 2 : 2);
+    const boxW = size === 9 ? 3 : (size === 6 ? 3 : 2);
+    
+    const grid: number[][] = Array.from({length: size}, () => Array(size).fill(0));
+    
+    const isValid = (r: number, c: number, num: number): boolean => {
+        // Row/Col check
+        for(let k=0; k<size; k++) {
+            if (grid[r][k] === num || grid[k][c] === num) return false;
+        }
+        // Box check
+        const startR = Math.floor(r / boxH) * boxH;
+        const startC = Math.floor(c / boxW) * boxW;
+        for(let i=0; i<boxH; i++) {
+            for(let j=0; j<boxW; j++) {
+                if(grid[startR+i][startC+j] === num) return false;
+            }
+        }
+        return true;
+    };
+    
+    const solve = (r: number, c: number): boolean => {
+        if (r === size) return true;
+        const nextR = c === size - 1 ? r + 1 : r;
+        const nextC = c === size - 1 ? 0 : c + 1;
+        
+        if (grid[r][c] !== 0) return solve(nextR, nextC);
+        
+        const nums = shuffle(Array.from({length: size}, (_, i) => i + 1));
+        
+        for (const num of nums) {
+            if (isValid(r, c, num)) {
+                grid[r][c] = num;
+                if (solve(nextR, nextC)) return true;
+                grid[r][c] = 0;
+            }
+        }
+        return false;
+    };
+    
+    solve(0, 0); // Generate full valid grid
+    
+    // Remove numbers based on difficulty
+    const removeCount = difficulty === 'Başlangıç' ? Math.floor(size*size*0.3) : (difficulty === 'Orta' ? Math.floor(size*size*0.5) : Math.floor(size*size*0.6));
+    
+    const puzzle: (number|null)[][] = grid.map(row => [...row]);
+    let removed = 0;
+    let attempts = 0;
+    // Safety break to prevent infinite loop
+    while(removed < removeCount && attempts < size*size*4) {
+        attempts++;
+        const r = getRandomInt(0, size-1);
+        const c = getRandomInt(0, size-1);
+        if (puzzle[r][c] !== null) {
+            puzzle[r][c] = null;
+            removed++;
+        }
+    }
+    
+    return puzzle;
+};
+
+// --- RANDOM PATTERN GENERATOR (Grid Drawing - Connected Path) ---
+export const generateRandomPattern = (dim: number, density: number): [number, number][][] => {
+    const lines: [number, number][][] = [];
+    const numPaths = Math.max(1, Math.floor(density)); // 1 for simple, more for complex
+    const stepsPerPath = Math.min(dim * 2, 5 + density * 2);
+
+    for (let p = 0; p < numPaths; p++) {
+        let currX = getRandomInt(0, dim);
+        let currY = getRandomInt(0, dim);
+        
+        for (let s = 0; s < stepsPerPath; s++) {
+            // Possible neighbors
+            const neighbors = [
+                [currX+1, currY], [currX-1, currY], [currX, currY+1], [currX, currY-1],
+                [currX+1, currY+1], [currX-1, currY-1], [currX+1, currY-1], [currX-1, currY+1]
+            ].filter(pos => pos[0] >= 0 && pos[0] <= dim && pos[1] >= 0 && pos[1] <= dim);
+            
+            if (neighbors.length === 0) break;
+            
+            const next = getRandomItems(neighbors, 1)[0];
+            
+            // Check if line already exists
+            const exists = lines.some(l => 
+                (l[0][0]===currX && l[0][1]===currY && l[1][0]===next[0] && l[1][1]===next[1]) ||
+                (l[0][0]===next[0] && l[0][1]===next[1] && l[1][0]===currX && l[1][1]===currY)
+            );
+            
+            if (!exists) {
+                lines.push([[currX, currY], next]);
+            }
+            
+            currX = next[0];
+            currY = next[1];
+        }
+    }
+    return lines;
+};
+
+// --- MAZE PATH GENERATOR (For Punctuation Maze) ---
 export const generateMazePath = (rows: number, cols: number): { grid: number[][], pathIds: number[], distractorIds: number[] } => {
-    // 1. Initialize Grid
     const grid: number[][] = Array.from({ length: rows }, () => Array(cols).fill(0));
     const path: {r: number, c: number}[] = [];
     const pathIds: number[] = [];
     const distractorIds: number[] = [];
     
-    // 2. Generate a simple path from Top-Left to Bottom-Right
-    // Simple Greedy algorithm with randomness
+    // Generate simple path from TL to BR
     let currR = 0;
     let currC = 0;
     let step = 1;
     
-    // Assign ID 1 to start
-    grid[0][0] = step;
     path.push({r: 0, c: 0});
-    pathIds.push(step);
     
     while(currR < rows - 1 || currC < cols - 1) {
         step++;
         const moves = [];
         if (currR < rows - 1) moves.push({r: currR+1, c: currC});
         if (currC < cols - 1) moves.push({r: currR, c: currC+1});
-        // Sometimes go backwards or sideways to make it maze-like? For simplicity, forward only for guaranteed solution.
-        // To make it maze-like, we can add a few random deviations but let's stick to simple path for worksheet.
         
         const next = getRandomItems(moves, 1)[0];
-        if(!next) break; // Should not happen
+        if(!next) break;
         
         currR = next.r;
         currC = next.c;
-        grid[currR][currC] = step;
         path.push({r: currR, c: currC});
-        pathIds.push(step);
     }
     
-    // 3. Fill the rest of the grid with unique IDs for distractors
-    // Start numbering distractors after the max path ID to ensure uniqueness, 
-    // OR just fill empty spots with random numbers not in path.
-    // Better: Number ALL cells sequentially 1..N, but path is a specific sequence of those numbers?
-    // User wants: "Follow the rule".
-    // So Grid shows IDs (1..36).
-    // Questions list: 1. Rule (Correct), 2. Rule (Incorrect).
-    // So we need to assign a Rule ID to each cell.
-    
-    let counter = 1;
-    const finalGrid: number[][] = [];
-    
+    // Fill grid with unique IDs and categorize
+    let cellCounter = 1;
     for(let r=0; r<rows; r++) {
         const row: number[] = [];
         for(let c=0; c<cols; c++) {
-            const id = counter++;
+            const id = cellCounter++;
             row.push(id);
-            // Check if this coord was on the generated spatial path
-            // The path array holds coordinates.
             const isOnPath = path.some(p => p.r === r && p.c === c);
-            
-            if (isOnPath) {
-                // If it is START or END or Middle path, it needs a CORRECT rule.
-                // We will map these IDs to "Correct" list later.
-                // But wait, pathIds list above has sequential steps (1,2,3..) which is not what we want.
-                // We want cell IDs (1..36) to be correct/incorrect.
-            } else {
-                distractorIds.push(id);
-            }
+            if (isOnPath) pathIds.push(id);
+            else distractorIds.push(id);
         }
-        finalGrid.push(row);
+        grid[r] = row;
     }
-    
-    // Re-calculate path IDs based on the cell ID (counter)
-    const finalPathIds = path.map(p => {
-        // Calculate ID: row * cols + col + 1
-        return (p.r * cols) + p.c + 1;
-    });
 
-    return {
-        grid: finalGrid,
-        pathIds: finalPathIds,
-        distractorIds
-    };
+    return { grid, pathIds, distractorIds };
 };
