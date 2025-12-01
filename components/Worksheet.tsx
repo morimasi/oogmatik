@@ -55,11 +55,16 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         '--content-align': settings.contentAlign || 'center',
         '--font-weight': settings.fontWeight || 'normal',
         '--font-style': settings.fontStyle || 'normal',
-        // Visibility Flags
-        '--show-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
-        '--show-mascot': settings.showMascot ? 'block' : 'none',
-        '--show-student-info': settings.showStudentInfo ? 'flex' : 'none',
-        '--show-footer': settings.showFooter ? 'flex' : 'none',
+        
+        // Visibility Flags (Passed as CSS variables for deep children to use)
+        '--display-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
+        '--display-mascot': settings.showMascot ? 'block' : 'none',
+        '--display-student-info': settings.showStudentInfo ? 'flex' : 'none',
+        '--display-footer': settings.showFooter ? 'flex' : 'none',
+        '--display-title': settings.showTitle ? 'block' : 'none',
+        '--display-instruction': settings.showInstruction ? 'block' : 'none',
+        '--display-image': settings.showImage ? 'block' : 'none',
+        
         '--scale': settings.scale,
     } as React.CSSProperties;
 
@@ -134,19 +139,30 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 width: `calc(100% / ${settings.scale})`,
                             }}
                         >
-                            {/* Student Info Header Injection */}
+                            {/* Student Info Header Injection (Minimal & Professional) */}
                             {settings.showStudentInfo && (
-                                <div className="mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest flex justify-between items-end print:flex">
-                                    <div className="flex-1 text-left">
-                                        <div className="flex gap-2">
-                                            <EditableText value="Adı Soyadı:" tag="span" /> 
-                                            <span className="font-normal normal-case ml-2"><EditableText value={studentProfile?.name || '...........................................'} tag="span" /></span>
+                                <div className="mb-8 pb-2 border-b-2 border-zinc-800 text-xs font-bold text-zinc-900 uppercase tracking-widest flex justify-between items-center print:flex">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] text-zinc-500">Adı Soyadı</span>
+                                            <span className="text-sm font-black"><EditableText value={studentProfile?.name || '................................'} tag="span" /></span>
                                         </div>
-                                        {studentProfile?.school && <div className="mt-1 flex gap-2"><EditableText value="Okul:" tag="span" /> <span className="font-normal normal-case ml-2"><EditableText value={studentProfile.school} tag="span" /></span></div>}
+                                        {studentProfile?.school && (
+                                            <div className="flex flex-col border-l pl-4 border-zinc-300">
+                                                <span className="text-[10px] text-zinc-500">Okul</span>
+                                                <span className="text-sm"><EditableText value={studentProfile.school} tag="span" /></span>
+                                            </div>
+                                        )}
+                                        {studentProfile?.grade && (
+                                            <div className="flex flex-col border-l pl-4 border-zinc-300">
+                                                <span className="text-[10px] text-zinc-500">Sınıf</span>
+                                                <span className="text-sm"><EditableText value={studentProfile.grade} tag="span" /></span>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="text-right">
-                                        <div className="flex gap-2 justify-end"><EditableText value="Tarih:" tag="span" /> <span className="font-normal normal-case ml-2"><EditableText value={studentProfile?.date || '...../...../.......'} tag="span" /></span></div>
-                                        {studentProfile?.grade && <div className="mt-1 flex gap-2 justify-end"><EditableText value="Sınıf:" tag="span" /> <span className="font-normal normal-case ml-2"><EditableText value={studentProfile.grade} tag="span" /></span></div>}
+                                    <div className="flex flex-col text-right">
+                                        <span className="text-[10px] text-zinc-500">Tarih</span>
+                                        <span className="text-sm"><EditableText value={studentProfile?.date || '.../.../....'} tag="span" /></span>
                                     </div>
                                 </div>
                             )}
@@ -162,7 +178,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         {/* Footer stays at absolute bottom of A4 page, unaffected by content scale */}
                         <div 
                             className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black print:opacity-100 pointer-events-none"
-                            style={{ display: 'var(--show-footer, flex)' }}
+                            style={{ display: 'var(--display-footer)' }}
                         >
                             <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
                             <span>{new Date().toLocaleDateString('tr-TR')}</span>

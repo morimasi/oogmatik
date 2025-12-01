@@ -197,23 +197,19 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
     return (
         <div className="pedagogical-header mb-8 text-center print:mb-6 break-inside-avoid relative w-full">
             
-            <div 
-                className="justify-between items-center mb-6 border-b-2 border-black pb-2 text-sm font-bold text-black uppercase tracking-widest hidden print:flex student-info-strip-default"
-                style={{ display: 'var(--show-student-info, flex)' }}
-            >
-                <div className="flex-1 text-left">Adı Soyadı: ...........................................</div>
-                <div className="w-48 text-right">Tarih: ...../...../.......</div>
-                <div className="w-24 text-right">Puan: .......</div>
-            </div>
+            {/* 
+               CRITICAL FIX: The hardcoded student info strip has been removed from here.
+               The user info is now handled solely by Worksheet.tsx via the `showStudentInfo` setting.
+            */}
 
-            <EditableElement id="mascot" className="absolute -top-4 right-0 z-10 hidden print:block" style={{ display: 'var(--show-mascot, block)' }}>
+            <EditableElement id="mascot" className="absolute -top-4 right-0 z-10 hidden print:block" style={{ display: 'var(--display-mascot)' }}>
                 {getMascot()}
                 <div className="absolute -left-16 top-4 bg-white border-2 border-black rounded-xl p-2 shadow-sm text-[10px] font-bold w-16 text-center bubble-triangle">
                     <EditableText value="Hadi Çöz!" tag="span" />
                 </div>
             </EditableElement>
 
-            <EditableElement className="flex items-center justify-center gap-3 mb-3 relative z-0">
+            <EditableElement className="flex items-center justify-center gap-3 mb-3 relative z-0" style={{ display: 'var(--display-title)' }}>
                 <EditableText 
                     tag="h3" 
                     value={title} 
@@ -221,7 +217,7 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 />
             </EditableElement>
             
-            <EditableElement id="instruction-box" className="inline-block px-8 py-3 bg-white dark:bg-indigo-900/20 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm relative print:border-zinc-300">
+            <EditableElement id="instruction-box" className="inline-block px-8 py-3 bg-white dark:bg-indigo-900/20 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm relative print:border-zinc-300" style={{ display: 'var(--display-instruction)' }}>
                 <EditableText 
                     tag="p" 
                     value={instruction} 
@@ -233,7 +229,7 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
             </EditableElement>
             
             {data?.imageBase64 && (
-                <EditableElement className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-white dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300 print:shadow-none print:border-zinc-200">
+                <EditableElement className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-zinc-700 bg-white dark:bg-zinc-800 relative group-hover:shadow-xl transition-all duration-300 print:shadow-none print:border-zinc-200" style={{ display: 'var(--display-image)' }}>
                     <ImageDisplay 
                         base64={data.imageBase64} 
                         description={data.imagePrompt || title} 
@@ -243,7 +239,7 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
             )}
 
             {note && (
-                <EditableElement className="print:block" style={{ display: 'var(--show-pedagogical-note, flex)' }}>
+                <EditableElement className="print:block" style={{ display: 'var(--display-pedagogical-note)' }}>
                     <div className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 italic mt-2">
                         <i className="fa-solid fa-graduation-cap text-zinc-400"></i>
                         <span>Eğitmen Notu: <EditableText tag="span" value={note} /></span>

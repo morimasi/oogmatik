@@ -60,11 +60,10 @@ const Toolbar: React.FC<ToolbarProps> = ({
   const ToggleButton = ({ icon, label, active, onClick }: { icon: string, label: string, active: boolean, onClick: () => void }) => (
       <button 
           onClick={onClick}
-          className={`flex items-center gap-2 w-full p-2 rounded text-xs font-medium transition-colors ${active ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-inset)]'}`}
+          className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-[10px] font-bold transition-all border ${active ? 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] border-transparent hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}
       >
-          <i className={`fa-solid ${icon} w-4 text-center`}></i>
-          <span className="flex-1 text-left">{label}</span>
-          {active && <i className="fa-solid fa-check text-[10px]"></i>}
+          <i className={`fa-solid ${icon} text-lg`}></i>
+          <span>{label}</span>
       </button>
   );
 
@@ -121,14 +120,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  
                  {activeMenu === 'visual' && (
                      <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 flex flex-col gap-3 animate-in fade-in zoom-in-95">
-                         <div className="flex justify-between items-center">
-                             <span className="text-xs font-bold text-[var(--text-secondary)]">Maskot</span>
-                             <div className="relative inline-block w-8 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" checked={settings.showMascot} onChange={(e) => onSettingsChange({...settings, showMascot: e.target.checked})} className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-indigo-600"/>
-                                <label className="toggle-label block overflow-hidden h-4 rounded-full bg-zinc-300 cursor-pointer"></label>
-                            </div>
-                         </div>
-                         
                          <div>
                              <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Çerçeve</span>
                              <div className="grid grid-cols-3 gap-1">
@@ -181,7 +172,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  )}
              </div>
 
-             {/* Print Visibility Dropdown */}
+             {/* Visibility Dropdown (Enhanced) */}
              <div className="relative">
                  <button
                     onClick={() => setActiveMenu(activeMenu === 'print' ? 'none' : 'print')}
@@ -192,11 +183,17 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  </button>
                  
                  {activeMenu === 'print' && (
-                     <div className="absolute top-full left-0 mt-2 w-56 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-2 z-50 flex flex-col gap-1 animate-in fade-in zoom-in-95">
-                         <ToggleButton icon="fa-user-pen" label="Öğrenci Bilgi Alanı" active={settings.showStudentInfo} onClick={() => onSettingsChange({...settings, showStudentInfo: !settings.showStudentInfo})} />
-                         <ToggleButton icon="fa-graduation-cap" label="Eğitmen Notu" active={settings.showPedagogicalNote} onClick={() => onSettingsChange({...settings, showPedagogicalNote: !settings.showPedagogicalNote})} />
-                         <ToggleButton icon="fa-copyright" label="Alt Bilgi (Footer)" active={settings.showFooter} onClick={() => onSettingsChange({...settings, showFooter: !settings.showFooter})} />
-                         <ToggleButton icon="fa-otter" label="Maskot" active={settings.showMascot} onClick={() => onSettingsChange({...settings, showMascot: !settings.showMascot})} />
+                     <div className="absolute top-full left-0 mt-2 w-64 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 animate-in fade-in zoom-in-95">
+                         <h4 className="text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Sayfa Bileşenleri</h4>
+                         <div className="grid grid-cols-2 gap-2">
+                             <ToggleButton icon="fa-user-pen" label="Öğrenci" active={settings.showStudentInfo} onClick={() => onSettingsChange({...settings, showStudentInfo: !settings.showStudentInfo})} />
+                             <ToggleButton icon="fa-heading" label="Başlık" active={settings.showTitle} onClick={() => onSettingsChange({...settings, showTitle: !settings.showTitle})} />
+                             <ToggleButton icon="fa-quote-left" label="Yönerge" active={settings.showInstruction} onClick={() => onSettingsChange({...settings, showInstruction: !settings.showInstruction})} />
+                             <ToggleButton icon="fa-image" label="Görsel" active={settings.showImage} onClick={() => onSettingsChange({...settings, showImage: !settings.showImage})} />
+                             <ToggleButton icon="fa-graduation-cap" label="Eğt. Notu" active={settings.showPedagogicalNote} onClick={() => onSettingsChange({...settings, showPedagogicalNote: !settings.showPedagogicalNote})} />
+                             <ToggleButton icon="fa-otter" label="Maskot" active={settings.showMascot} onClick={() => onSettingsChange({...settings, showMascot: !settings.showMascot})} />
+                             <ToggleButton icon="fa-copyright" label="Alt Bilgi" active={settings.showFooter} onClick={() => onSettingsChange({...settings, showFooter: !settings.showFooter})} />
+                         </div>
                      </div>
                  )}
              </div>

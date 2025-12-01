@@ -179,9 +179,12 @@ export interface StyleSettings {
   themeBorder: 'none' | 'simple' | 'math' | 'verbal' | 'stars' | 'geo';
   
   // Visibility Settings
+  showStudentInfo: boolean; // Name/Date strip
+  showTitle: boolean;
+  showInstruction: boolean;
+  showImage: boolean;
   showPedagogicalNote: boolean;
   showMascot: boolean;
-  showStudentInfo: boolean; // Name/Date strip
   showFooter: boolean; // Branding footer
   
   // Typography Settings

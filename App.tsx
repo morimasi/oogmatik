@@ -31,9 +31,12 @@ const initialStyleSettings: StyleSettings = {
     showPedagogicalNote: true,
     orientation: 'portrait',
     showMascot: true,
-    themeBorder: 'simple',
     showStudentInfo: true,
+    showTitle: true,
+    showInstruction: true,
+    showImage: true,
     showFooter: true,
+    themeBorder: 'simple',
     contentAlign: 'center',
     fontWeight: 'normal',
     fontStyle: 'normal'
