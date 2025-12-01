@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions, StudentProfile } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
@@ -49,6 +49,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Arama terimi değiştiğinde veya menü daraltıldığında kategori durumunu yönet
+  useEffect(() => {
+      if (searchTerm) {
+          // Arama yapılıyorsa tüm kategorileri açık varsayacağız (render mantığında)
+          setOpenCategoryId(null);
+      }
+  }, [searchTerm]);
 
   const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
@@ -135,12 +144,32 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const currentActivity = getActivityById(selectedActivity);
 
-  const categorizedActivities = useMemo(() => {
-      return ACTIVITY_CATEGORIES.map(category => ({
-          ...category,
-          items: ACTIVITIES.filter(act => category.activities.includes(act.id))
-      }));
-  }, []);
+  // Filtered Categories based on Search
+  const filteredCategories = useMemo(() => {
+      if (!searchTerm.trim()) {
+          return ACTIVITY_CATEGORIES.map(category => ({
+              ...category,
+              items: ACTIVITIES.filter(act => category.activities.includes(act.id))
+          }));
+      }
+
+      const lowerTerm = searchTerm.toLocaleLowerCase('tr');
+      return ACTIVITY_CATEGORIES.map(category => {
+          // Kategori başlığı eşleşiyor mu?
+          const isCategoryMatch = category.title.toLocaleLowerCase('tr').includes(lowerTerm);
+          
+          // Etkinlikler eşleşiyor mu?
+          const matchingActivities = ACTIVITIES.filter(act => 
+              category.activities.includes(act.id) && 
+              (act.title.toLocaleLowerCase('tr').includes(lowerTerm) || isCategoryMatch)
+          );
+
+          return {
+              ...category,
+              items: matchingActivities
+          };
+      }).filter(cat => cat.items.length > 0);
+  }, [searchTerm]);
 
   return (
     <aside
@@ -163,69 +192,112 @@ const Sidebar: React.FC<SidebarProps> = ({
                 />
             ) : (
                 <>
-                    <div className="border-b p-4 border-[var(--border-color)] flex justify-between items-center bg-inherit shrink-0 h-[73px]">
-                        <div className={`transition-opacity duration-300 ${!isExpanded ? 'opacity-0 hidden' : 'opacity-100'}`}>
-                            <h2 className="text-lg font-bold text-[var(--text-primary)]">Etkinlikler</h2>
-                            <p className="text-xs text-[var(--text-muted)]">Bir kategori seçin</p>
-                        </div>
-                        
-                        {!isExpanded && (
-                             <div className="w-full flex justify-center text-[var(--text-primary)]">
-                                 <i className="fa-solid fa-layer-group text-xl"></i>
-                             </div>
-                        )}
+                    <div className="border-b p-4 border-[var(--border-color)] flex flex-col justify-between bg-inherit shrink-0 gap-3">
+                        <div className="flex justify-between items-center h-[33px]">
+                            <div className={`transition-opacity duration-300 ${!isExpanded ? 'opacity-0 hidden' : 'opacity-100'}`}>
+                                <h2 className="text-lg font-bold text-[var(--text-primary)]">Etkinlikler</h2>
+                            </div>
+                            
+                            {!isExpanded && (
+                                <div className="w-full flex justify-center text-[var(--text-primary)]">
+                                    <i className="fa-solid fa-layer-group text-xl"></i>
+                                </div>
+                            )}
 
-                         <button
-                            onClick={closeSidebar}
-                            className="md:hidden text-[var(--text-muted)] hover:bg-[var(--bg-inset)] rounded-full w-8 h-8 flex items-center justify-center focus:outline-none"
-                            aria-label="Menüyü kapat"
-                        >
-                            <i className="fa-solid fa-times"></i>
-                        </button>
-                    </div>
-                    <nav className="flex-1 overflow-y-auto p-2 custom-scrollbar">
-                        {categorizedActivities.map((category) => (
-                            <div key={category.id} className="py-1">
-                                <button
-                                    onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
-                                    // Menu Button
-                                    className={`w-full flex items-center p-3 text-left font-semibold text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-inset)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${openCategoryId === category.id ? 'bg-[var(--bg-inset)]' : ''} ${!isExpanded ? 'justify-center' : 'justify-between'}`}
-                                    aria-expanded={openCategoryId === category.id}
-                                    title={!isExpanded ? category.title : undefined}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <i className={`${category.icon} text-lg ${openCategoryId === category.id ? 'text-[var(--accent-color)]' : ''}`}></i>
-                                        <span className={`whitespace-nowrap transition-opacity duration-300 ${!isExpanded ? 'opacity-0 hidden' : 'opacity-100'}`}>{category.title}</span>
-                                    </div>
-                                    <i className={`fa-solid fa-chevron-down text-sm text-[var(--text-muted)] transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''} ${!isExpanded ? 'hidden' : ''}`}></i>
-                                </button>
-                                {openCategoryId === category.id && (
-                                    // Sub-menu
-                                    <ul className={`sidebar-activity-list mt-1 space-y-1 bg-[var(--bg-primary)] rounded-lg p-2 shadow-inner border border-[var(--border-color)] ${!isExpanded ? 'mx-0' : 'mx-2'}`}>
-                                        {category.items.map(activity => (
-                                            <li key={`${activity.id}-${activity.title}`}>
-                                                <button
-                                                    onClick={() => {
-                                                        onSelectActivity(activity.id);
-                                                        closeSidebar();
-                                                    }}
-                                                    // Activity Item
-                                                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors focus:outline-none flex items-center ${
-                                                        selectedActivity === activity.id 
-                                                        ? 'bg-[var(--bg-inset)] text-[var(--text-primary)] border-l-4 border-[var(--accent-color)] font-bold' 
-                                                        : 'text-[var(--text-secondary)] hover:bg-[var(--bg-inset)] hover:text-[var(--text-primary)]'
-                                                    } ${!isExpanded ? 'justify-center' : 'justify-start'}`}
-                                                    title={!isExpanded ? activity.title : undefined}
-                                                >
-                                                    <i className={`${activity.icon} fa-fw ${!isExpanded ? 'text-lg' : 'mr-2'} ${selectedActivity === activity.id ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}></i>
-                                                    <span className={`truncate transition-opacity duration-300 ${!isExpanded ? 'opacity-0 w-0 hidden' : 'opacity-100'}`}>{activity.title}</span>
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
+                            <button
+                                onClick={closeSidebar}
+                                className="md:hidden text-[var(--text-muted)] hover:bg-[var(--bg-inset)] rounded-full w-8 h-8 flex items-center justify-center focus:outline-none"
+                                aria-label="Menüyü kapat"
+                            >
+                                <i className="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+
+                        {/* Search Bar - Only visible when expanded */}
+                        {isExpanded && (
+                            <div className="relative">
+                                <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+                                <input 
+                                    type="text" 
+                                    placeholder="Etkinlik ara..." 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-8 pr-8 py-2 bg-[var(--bg-inset)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)] placeholder:text-zinc-500"
+                                />
+                                {searchTerm && (
+                                    <button 
+                                        onClick={() => setSearchTerm('')}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200"
+                                    >
+                                        <i className="fa-solid fa-times-circle text-xs"></i>
+                                    </button>
                                 )}
                             </div>
-                        ))}
+                        )}
+                    </div>
+
+                    <nav className="flex-1 overflow-y-auto p-2 custom-scrollbar space-y-1">
+                        {filteredCategories.length === 0 ? (
+                            <div className="text-center p-4 text-zinc-500 text-sm">
+                                Sonuç bulunamadı.
+                            </div>
+                        ) : (
+                            filteredCategories.map((category) => {
+                                const isOpen = searchTerm ? true : openCategoryId === category.id;
+                                
+                                return (
+                                    <div key={category.id} className="rounded-xl overflow-hidden transition-all duration-200">
+                                        <button
+                                            onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
+                                            className={`w-full flex items-center p-3 text-left font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-inset)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] ${isOpen ? 'bg-[var(--bg-inset)] text-[var(--text-primary)]' : ''} ${!isExpanded ? 'justify-center' : 'justify-between'}`}
+                                            title={!isExpanded ? category.title : undefined}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isOpen ? 'bg-[var(--accent-color)] text-black' : 'bg-transparent text-[var(--text-muted)]'}`}>
+                                                    <i className={`${category.icon} text-sm`}></i>
+                                                </div>
+                                                <span className={`whitespace-nowrap transition-opacity duration-300 font-bold text-sm ${!isExpanded ? 'opacity-0 hidden' : 'opacity-100'}`}>{category.title}</span>
+                                            </div>
+                                            {isExpanded && !searchTerm && (
+                                                <i className={`fa-solid fa-chevron-down text-xs text-[var(--text-muted)] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}></i>
+                                            )}
+                                        </button>
+                                        
+                                        {/* Sub-menu with Animation */}
+                                        <div 
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
+                                        >
+                                            <ul className={`pl-4 pr-1 py-1 space-y-1 ${!isExpanded ? 'hidden' : ''}`}>
+                                                {category.items.map(activity => (
+                                                    <li key={`${activity.id}-${activity.title}`}>
+                                                        <button
+                                                            onClick={() => {
+                                                                onSelectActivity(activity.id);
+                                                                // Don't close sidebar on desktop selection
+                                                                if(window.innerWidth < 768) closeSidebar();
+                                                            }}
+                                                            className={`w-full text-left px-3 py-2 text-xs font-medium rounded-lg transition-all focus:outline-none flex items-center group relative overflow-hidden ${
+                                                                selectedActivity === activity.id 
+                                                                ? 'bg-[var(--accent-color)] text-black shadow-md' 
+                                                                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)]'
+                                                            }`}
+                                                        >
+                                                            {/* Active Indicator Line */}
+                                                            {selectedActivity === activity.id && (
+                                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30"></div>
+                                                            )}
+                                                            
+                                                            <i className={`fa-solid fa-circle text-[6px] mr-3 ${selectedActivity === activity.id ? 'text-black' : 'text-[var(--border-color)] group-hover:text-[var(--accent-color)]'}`}></i>
+                                                            <span className="truncate">{activity.title}</span>
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
                     </nav>
                 </>
             )}

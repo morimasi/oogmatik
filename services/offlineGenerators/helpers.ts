@@ -352,11 +352,11 @@ export const generateRandomPattern = (dim: number, density: number): [number, nu
             const neighbors = [
                 [currX+1, currY], [currX-1, currY], [currX, currY+1], [currX, currY-1],
                 [currX+1, currY+1], [currX-1, currY-1], [currX+1, currY-1], [currX-1, currY+1]
-            ].filter(pos => pos[0] >= 0 && pos[0] <= dim && pos[1] >= 0 && pos[1] <= dim);
+            ].filter(pos => pos[0] >= 0 && pos[0] <= dim && pos[1] >= 0 && pos[1] <= dim) as [number, number][];
             
             if (neighbors.length === 0) break;
             
-            const next = getRandomItems(neighbors, 1)[0];
+            const next = getRandomItems(neighbors, 1)[0] as [number, number];
             
             // Check if line already exists
             const exists = lines.some(l => 
