@@ -1,8 +1,11 @@
 
+
 import React from 'react';
-import { CollectionItem, WorkbookSettings } from '../types';
+import { CollectionItem, WorkbookSettings, SavedAssessment, ActivityType } from '../types';
 import Worksheet from './Worksheet';
 import DyslexiaLogo from './DyslexiaLogo';
+import { RadarChart } from './RadarChart';
+import { ACTIVITIES } from '../constants';
 
 interface WorkbookProps {
     items: CollectionItem[];
@@ -189,6 +192,69 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         );
     };
 
+    // --- ASSESSMENT REPORT PAGE RENDERER ---
+    const AssessmentReportPage = ({ assessment }: { assessment: SavedAssessment }) => {
+        const { report, studentName, createdAt, grade } = assessment;
+        return (
+            <div className="p-12 h-full flex flex-col">
+                <div className="border-b-4 border-black pb-4 mb-8 flex justify-between items-end">
+                    <div>
+                        <h2 className="text-3xl font-black text-black uppercase tracking-tight">Bilişsel Performans Analizi</h2>
+                        <p className="text-zinc-500 font-bold">{studentName} • {grade}</p>
+                    </div>
+                    <div className="text-right text-sm font-mono text-zinc-400">
+                        {new Date(createdAt).toLocaleDateString('tr-TR')}
+                    </div>
+                </div>
+
+                <div className="flex-1 space-y-8">
+                    <div className="bg-zinc-50 p-6 rounded-xl border-l-8 border-indigo-500 text-sm leading-relaxed text-zinc-800 text-justify">
+                        <h4 className="font-bold mb-2 uppercase text-indigo-800">Genel Değerlendirme</h4>
+                        {report.overallSummary}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-8 items-start">
+                        <div className="border-2 border-zinc-200 rounded-xl p-4 flex flex-col items-center">
+                            <h4 className="font-bold text-xs uppercase mb-4 text-zinc-400">Risk Profili</h4>
+                            <div className="transform scale-90 origin-top">
+                                {report.chartData && <RadarChart data={report.chartData} />}
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <h4 className="font-bold text-green-700 uppercase text-xs mb-2 border-b border-green-200 pb-1">Güçlü Yönler</h4>
+                                <ul className="list-disc list-inside text-sm text-zinc-700 space-y-1">
+                                    {report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-rose-700 uppercase text-xs mb-2 border-b border-rose-200 pb-1">Gelişim Alanları</h4>
+                                <ul className="list-disc list-inside text-sm text-zinc-700 space-y-1">
+                                    {report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-t-2 border-dashed border-zinc-300 pt-6">
+                        <h4 className="font-bold text-zinc-800 uppercase text-sm mb-4">Önerilen Eğitim Rotası</h4>
+                        <div className="grid grid-cols-3 gap-4">
+                            {report.roadmap.map((item, idx) => (
+                                <div key={idx} className="bg-white border-2 border-zinc-800 p-3 rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                    <div className="text-[10px] font-bold text-zinc-400 uppercase mb-1">Adım {idx + 1}</div>
+                                    <h5 className="font-bold text-black text-sm mb-1">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
+                                    <p className="text-xs text-zinc-600 leading-snug">{item.reason}</p>
+                                    <div className="mt-2 text-[10px] bg-zinc-100 px-2 py-1 rounded inline-block font-mono">{item.frequency}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     // Calculate start page based on cover + optional TOC
     const contentStartPage = settings.showTOC ? 3 : 2;
 
@@ -217,14 +283,18 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                     <div className="relative bg-white shadow-2xl print:shadow-none" style={{ width: '210mm', minHeight: '297mm' }}>
                         <Watermark />
                         
-                        {/* Worksheet Wrapper */}
-                        <div className="relative z-10">
-                            <Worksheet 
-                                activityType={item.activityType} 
-                                data={[item.data]} 
-                                settings={{...item.settings, showPedagogicalNote: true}} 
-                                studentProfile={{ name: settings.studentName, school: settings.schoolName, grade: '', date: new Date().toLocaleDateString() }}
-                            />
+                        {/* Worksheet / Report Wrapper */}
+                        <div className="relative z-10 h-full">
+                            {item.activityType === ActivityType.ASSESSMENT_REPORT ? (
+                                <AssessmentReportPage assessment={item.data as SavedAssessment} />
+                            ) : (
+                                <Worksheet 
+                                    activityType={item.activityType} 
+                                    data={[item.data]} 
+                                    settings={{...item.settings, showPedagogicalNote: true}} 
+                                    studentProfile={{ name: settings.studentName, school: settings.schoolName, grade: '', date: new Date().toLocaleDateString() }}
+                                />
+                            )}
                         </div>
                         
                         <PageFooter pageNum={index + contentStartPage} />

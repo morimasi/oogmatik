@@ -1,4 +1,5 @@
 
+
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -129,6 +130,9 @@ export enum ActivityType {
   
   MIND_GAMES = 'MIND_GAMES',
   MIND_GAMES_56 = 'MIND_GAMES_56',
+
+  // --- REPORT ---
+  ASSESSMENT_REPORT = 'ASSESSMENT_REPORT',
 
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
@@ -380,7 +384,7 @@ export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 
 export interface CollectionItem {
     id: string;
     activityType: ActivityType;
-    data: any; // SingleWorksheetData
+    data: any; // SingleWorksheetData or AssessmentReport
     settings: StyleSettings;
     title: string;
 }

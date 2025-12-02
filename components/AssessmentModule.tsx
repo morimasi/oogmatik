@@ -1,833 +1,427 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { AssessmentProfile, AssessmentReport, ActivityType, TestCategory, User, SavedAssessment } from '../types';
+import React, { useState, useEffect } from 'react';
+import { AssessmentProfile, SavedAssessment, ActivityType } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
-import { ACTIVITIES } from '../constants';
-import { RadarChart } from './RadarChart';
-import { useAuth } from '../context/AuthContext';
 import { assessmentService } from '../services/assessmentService';
-import { ShareModal } from './ShareModal';
-import { TR_VOCAB, getRandomItems, getRandomInt, shuffle } from '../services/offlineGenerators/helpers';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
+import { useAuth } from '../context/AuthContext';
+import { getRandomItems, shuffle, getRandomInt } from '../services/offlineGenerators/helpers';
+import { TR_VOCAB } from '../data/vocabulary';
 
 interface AssessmentModuleProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
+    onAddToWorkbook?: (assessment: SavedAssessment) => void;
 }
 
-const steps = ['Giriş', 'Profil', 'Okuma', 'Matematik', 'Dikkat', 'Görsel', 'Bellek', 'Gözlem', 'Analiz', 'Sonuç'];
-
-// ... (VISUAL ASSETS code remains same)
-// Professional Matrix Cell Renderer (Raven's Style 2.0)
-const MatrixCell: React.FC<{ item: any; className?: string }> = ({ item, className = "" }) => {
-    if (!item) return <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-dashed border-zinc-300 dark:border-zinc-600 flex items-center justify-center relative overflow-hidden`}><div className="absolute inset-0 bg-zinc-50 dark:bg-zinc-900 opacity-50"></div><span className="text-4xl text-zinc-400 font-bold relative z-10">?</span></div>;
-
-    const { outer, inner, rotation = 0, fill = false } = item;
-    
-    // Shape Renderers
-    const renderShape = (type: string, size: number, style: 'stroke' | 'fill', colorClass: string) => {
-        const center = 50;
-        const r = size / 2;
-        const props = {
-            stroke: "currentColor",
-            strokeWidth: "3",
-            fill: style === 'fill' ? "currentColor" : "none",
-            className: colorClass,
-            vectorEffect: "non-scaling-stroke"
-        };
-
-        if (type === 'circle') return <circle cx={center} cy={center} r={r} {...props} />;
-        if (type === 'square') return <rect x={center - r} y={center - r} width={size} height={size} {...props} />;
-        if (type === 'triangle') return <polygon points={`${center},${center - r} ${center + r},${center + r} ${center - r},${center + r}`} {...props} />;
-        if (type === 'diamond') return <polygon points={`${center},${center - r} ${center + r},${center} ${center},${center + r} ${center - r},${center}`} {...props} />;
-        if (type === 'cross') return <path d={`M${center-r},${center-r} L${center+r},${center+r} M${center+r},${center-r} L${center-r},${center+r}`} {...props} strokeWidth="5" />;
-        if (type === 'star') return <polygon points="50,15 61,35 85,35 65,50 75,75 50,60 25,75 35,50 15,35 39,35" {...props} />;
-        return null;
-    };
-
-    return (
-        <div className={`${className} bg-white dark:bg-zinc-800 border-2 border-zinc-800 dark:border-zinc-400 flex items-center justify-center relative overflow-hidden`}>
-            <svg viewBox="0 0 100 100" className="w-4/5 h-4/5">
-                <g transform={`rotate(${rotation}, 50, 50)`}>
-                    {/* Outer Shape */}
-                    {renderShape(outer, 70, fill ? 'fill' : 'stroke', fill ? "text-zinc-800 dark:text-zinc-200" : "text-zinc-800 dark:text-zinc-200")}
-                    
-                    {/* Inner Shape */}
-                    {inner && renderShape(inner, 30, 'fill', "text-indigo-600 dark:text-indigo-400")}
-                </g>
-            </svg>
-        </div>
-    );
-};
-
-// ... (DYNAMIC TEST GENERATORS code remains same: generateReadingTest, generateMathTest, etc.)
-// 1. Reading: Dynamic Pseudoword & Sentence Generator (Improved)
-const generateReadingTest = (grade: number) => {
-    const items = [];
-    
-    // Kelime Havuzu Seçimi
-    let poolKey = 'easy_words';
-    if (grade >= 3 && grade <= 4) poolKey = 'medium_words';
-    if (grade >= 5) poolKey = 'hard_words';
-    
-    const realWords = getRandomItems((TR_VOCAB[poolKey] as string[]) || TR_VOCAB.easy_words, 15);
-
-    // Lexical (Real Word vs Pseudoword) - 6 Items
-    for(let i=0; i<6; i++) {
-        const isReal = Math.random() > 0.5;
-        let q = realWords[i].toLocaleUpperCase('tr');
-        
-        if (!isReal) {
-            // Gerçekçi Uydurma Kelime Üretimi (Disleksi Simülasyonu)
-            const original = q;
-            // 1. Benzer harfleri değiştir
-            if (q.includes('B')) q = q.replace('B', 'D');
-            else if (q.includes('D')) q = q.replace('D', 'B');
-            else if (q.includes('M')) q = q.replace('M', 'N');
-            else if (q.includes('N')) q = q.replace('N', 'M');
-            else if (q.includes('E')) q = q.replace('E', 'A');
-            // 2. Harf sırasını değiştir (Hecenin içini karıştır)
-            else if (q.length > 3) {
-                const arr = q.split('');
-                const idx = Math.floor(arr.length / 2);
-                [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]];
-                q = arr.join('');
-            }
-            // 3. Sonuna ekle
-            else {
-                q = q + 'K';
-            }
-            
-            // Eğer kelime değişmediyse veya hala anlamlıysa zorla değiştir
-            if (q === original) q = "Z" + q.substring(1);
-        }
-        items.push({ subtype: 'lexical', q, isReal, id: `lex-${i}` });
-    }
-
-    // Sentence Comprehension (Cloze) - 4 Items
-    // Dinamik cümle şablonları
-    const sentenceTemplates = [
-        { t: "{subject} ağaca tırmanıp {object} topladı.", s: ["Kedi", "Maymun", "Çocuk"], o: ["elma", "kitap", "balık"], a: "elma" }, // Basit mantık
-        { t: "Hava çok soğuktu, bu yüzden {clothing} giydim.", c: ["montumu", "mayomu", "gözlüğümü"], a: "montumu" },
-        { t: "Susadığım için mutfağa gidip bir bardak {drink} içtim.", d: ["su", "ekmek", "çatal"], a: "su" },
-        { t: "{vehicle} kırmızı ışık yanınca hemen durdu.", v: ["Otobüs", "Kuş", "Nehir"], a: "Otobüs" }
-    ];
-    
-    const selectedSentences = getRandomItems(sentenceTemplates, 4);
-    selectedSentences.forEach((s, i) => {
-        let text = s.t;
-        // Basit şablon doldurma (Regex yerine manuel replace daha güvenli offline için)
-        if(s.s) text = text.replace('{subject}', getRandomItems(s.s, 1)[0]);
-        if(s.c) text = text.replace('{clothing}', "...");
-        if(s.d) text = text.replace('{drink}', "...");
-        if(s.o) text = text.replace('{object}', "...");
-        if(s.v) text = text.replace('{vehicle}', "...");
-        
-        // Eğer boşluk yoksa manuel ekle (yukarıdaki replace mantığına göre '...' zaten eklendi)
-        
-        // Seçenekleri hazırla
-        let opts: string[] = [];
-        if (s.c) opts = s.c;
-        else if (s.d) opts = s.d;
-        else if (s.v) opts = s.v;
-        else if (s.o) opts = s.o;
-        else opts = ["seçenek1", "seçenek2", "seçenek3"]; // Fallback
-
-        items.push({ subtype: 'sentence', q: text, opts: shuffle(opts), a: s.a, id: `sent-${i}` });
-    });
-    
-    return items;
-};
-
-// 2. Math: Mental Arithmetic (Unchanged logic, just ensure types)
-const generateMathTest = (grade: number) => {
-    const items = [];
-    for(let i=0; i<8; i++) {
-        let n1=0, n2=0, op='', ans=0;
-        if (grade === 1) {
-            n1 = getRandomInt(1, 10); n2 = getRandomInt(1, 10); op = Math.random() > 0.5 ? '+' : '-';
-            if (op === '-' && n1 < n2) [n1, n2] = [n2, n1];
-            ans = op === '+' ? n1 + n2 : n1 - n2;
-        } else if (grade <= 3) {
-            op = Math.random() > 0.3 ? (Math.random() > 0.5 ? '+' : '-') : 'x';
-            if (op === 'x') { n1 = getRandomInt(2, 5); n2 = getRandomInt(2, 5); ans = n1 * n2; }
-            else { n1 = getRandomInt(10, 50); n2 = getRandomInt(5, 20); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
-        } else {
-            op = ['+', '-', 'x', '/'][getRandomInt(0,3)];
-            if (op === 'x') { n1 = getRandomInt(6, 12); n2 = getRandomInt(3, 9); ans = n1 * n2; }
-            else if (op === '/') { n2 = getRandomInt(2, 9); ans = getRandomInt(4, 15); n1 = n2 * ans; }
-            else { n1 = getRandomInt(50, 200); n2 = getRandomInt(20, 100); if(op==='-' && n1<n2)[n1,n2]=[n2,n1]; ans = op === '+' ? n1 + n2 : n1 - n2; }
-        }
-        const dist1 = ans + getRandomInt(1, 3);
-        const dist2 = Math.max(0, ans - getRandomInt(1, 3));
-        items.push({ q: `${n1} ${op} ${n2} = ?`, opts: shuffle([ans, dist1, dist2]), a: ans, id: i });
-    }
-    return items;
-};
-
-// 3. Visual: Professional 2x2 Matrix Reasoning (Raven's Style)
-const generateVisualTest = (grade: number) => {
-    const items = [];
-    const shapes = ['circle', 'square', 'triangle', 'diamond', 'cross', 'star'];
-    
-    // Logic Types: 1. Identity, 2. Rotation, 3. Addition, 4. Subtraction (Inner)
-    for(let i=0; i<6; i++) {
-        const logicType = i % 4; 
-        let matrix = [null, null, null, null] as any[]; // TL, TR, BL, BR(Target)
-        let target, distractors;
-
-        const s1 = shapes[getRandomInt(0, 5)];
-        const s2 = shapes[getRandomInt(0, 5)];
-
-        if (logicType === 0) { // Identity (Row 1 same, Row 2 same)
-            // A A
-            // B ? (B)
-            matrix = [
-                { outer: s1, inner: s2, rotation: 0 }, { outer: s1, inner: s2, rotation: 0 },
-                { outer: s2, inner: s1, rotation: 0 }, { outer: s2, inner: s1, rotation: 0 } // Target
-            ];
-            target = matrix[3];
-            distractors = [ 
-                { outer: s2, inner: s2, rotation: 0 }, 
-                { outer: s1, inner: s1, rotation: 0 }, 
-                { outer: s2, inner: s1, rotation: 45 } 
-            ];
-        } 
-        else if (logicType === 1) { // Rotation Progression
-            // 0   45
-            // 90  ? (135)
-            matrix = [
-                { outer: s1, rotation: 0 }, { outer: s1, rotation: 45 },
-                { outer: s1, rotation: 90 }, { outer: s1, rotation: 135 } // Target
-            ];
-            target = matrix[3];
-            distractors = [ 
-                { outer: s1, rotation: 0 }, 
-                { outer: s1, rotation: 90 }, 
-                { outer: s1, rotation: 180 } 
-            ];
-        }
-        else if (logicType === 2) { // Inner Shape Addition
-            // Outer only   |  Inner only
-            // Both (Combined) |  ? (Complex Combined?) -> Let's simplify: Row logic
-            // Col 1: Empty inner. Col 2: Filled inner.
-            matrix = [
-                { outer: s1, inner: null }, { outer: s1, inner: s2 },
-                { outer: s2, inner: null }, { outer: s2, inner: s1 } // Target
-            ];
-            target = matrix[3];
-            distractors = [ 
-                { outer: s2, inner: null }, 
-                { outer: s1, inner: s1 }, 
-                { outer: s2, inner: s2 } 
-            ];
-        }
-        else { // Fill Toggle
-            // Filled   Empty
-            // Empty    ? (Filled)
-            matrix = [
-                { outer: s1, fill: true }, { outer: s1, fill: false },
-                { outer: s2, fill: false }, { outer: s2, fill: true } // Target
-            ];
-            target = matrix[3];
-            distractors = [ 
-                { outer: s2, fill: false }, 
-                { outer: s1, fill: true }, 
-                { outer: s1, fill: false } 
-            ];
-        }
-
-        items.push({
-            type: 'matrix',
-            grid: matrix.slice(0, 3), // Pass first 3
-            opts: shuffle([target, ...distractors]),
-            a: target,
-            id: i
-        });
-    }
-    return items;
-};
-
-// 4. Attention: Adaptive Distractors
-const generateAttentionTest = (grade: number) => {
-    let target = 'b';
-    let distractors = ['d'];
-    let totalItems = 36; // 6x6 Grid
-
-    if (grade <= 2) { 
-        target = 'b'; distractors = ['d']; 
-    } else if (grade <= 4) { 
-        target = 'm'; distractors = ['n', 'u']; 
-    } else { 
-        target = 'p'; distractors = ['q', 'b', 'd']; 
-    }
-
-    const items = Array.from({ length: totalItems }).map(() => {
-        const isTarget = Math.random() < 0.3; // 30% targets
-        return {
-            char: isTarget ? target : getRandomItems(distractors, 1)[0],
-            isSelected: false,
-            isCorrectTarget: isTarget
-        };
-    });
-    return { items, targetChar: target };
-};
-
-// 5. Memory: Digit Span Backwards (Geriye Sayı Tekrarı)
-const generateMemoryTest = (grade: number) => {
-    const items = [];
-    // Progressive difficulty: Start with 2 digits, go up to 5 or 6
-    const lengths = grade <= 2 ? [2, 3, 3, 4] : (grade <= 4 ? [3, 4, 4, 5] : [3, 4, 5, 6]);
-    
-    for(let i=0; i<4; i++) {
-        const len = lengths[i];
-        const nums: number[] = [];
-        while(nums.length < len) {
-            const n = getRandomInt(1, 9); // 1-9 (avoid 0 for simplicity in speech)
-            if(nums[nums.length-1] !== n) nums.push(n); // No immediate repeats
-        }
-        items.push({
-            type: 'digit-span',
-            sequence: nums,
-            answer: [...nums].reverse().join(''), // Target is REVERSE
-            id: i
-        });
-    }
-    return items;
-};
-
-// --- COMPONENTS ---
-// ... (TestProgress, ObservationList, TransitionScreen code remains same)
-const TestProgress = ({ current, total, label }: { current: number; total: number; label: string }) => {
-    const progress = total <= 1 ? 100 : Math.min(100, Math.max(0, ((current + 1) / total) * 100));
-    return (
-        <div className="w-full mb-4 px-4">
-            <div className="flex justify-between text-[10px] font-bold uppercase text-zinc-400 mb-1 tracking-widest">
-                <span className="flex items-center gap-2"><i className="fa-solid fa-list-check"></i> {label}</span>
-                <span>{current + 1} / {total}</span>
-            </div>
-            <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-1.5 overflow-hidden">
-                <div className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
-            </div>
-        </div>
-    );
-};
-
-const ObservationList = ({ observations, setProfile }: { observations: string[], setProfile: React.Dispatch<React.SetStateAction<AssessmentProfile>> }) => {
-    const items = [
-        "Okurken satır atlıyor veya yerini kaybediyor", 
-        "b-d, p-q harflerini karıştırıyor", 
-        "Heceleyerek veya çok yavaş okuyor", 
-        "Yazısı okunaksız ve düzensiz", 
-        "Tahtadan deftere geçirmekte zorlanıyor", 
-        "Matematiksel sembolleri karıştırıyor (+ ile x)", 
-        "Sağ-sol yönlerini karıştırıyor", 
-        "Dikkatini toplamakta güçlük çekiyor", 
-        "Eşyalarını sık sık kaybediyor veya unutuyor"
-    ];
-    return (
-        <div className="grid grid-cols-1 gap-3">
-            {items.map((obs, i) => (
-                <button key={i} onClick={() => {
-                    setProfile(p => ({...p, observations: p.observations.includes(obs) ? p.observations.filter(o=>o!==obs) : [...p.observations, obs]}))
-                }} className={`p-3 text-left border-2 rounded-xl transition-all flex items-center gap-3 ${observations.includes(obs) ? 'bg-indigo-50 border-indigo-500 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-200' : 'bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 hover:border-indigo-200'}`}>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${observations.includes(obs) ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-zinc-300'}`}>
-                        {observations.includes(obs) && <i className="fa-solid fa-check text-[10px]"></i>}
-                    </div>
-                    <span className="text-sm font-medium">{obs}</span>
-                </button>
-            ))}
-        </div>
-    );
-};
-
-const TransitionScreen = ({ message, icon = "fa-spinner" }: { message: string, icon?: string }) => (
-    <div className="flex flex-col items-center justify-center h-full p-8 animate-in fade-in duration-500">
-        <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mb-6 shadow-lg relative">
-            <i className={`fa-solid ${icon} text-4xl text-indigo-600 dark:text-indigo-400 ${icon === 'fa-spinner' ? 'fa-spin' : 'animate-bounce'}`}></i>
-        </div>
-        <h3 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2 text-center">Harika Gidiyorsun!</h3>
-        <p className="text-zinc-500 dark:text-zinc-400 font-medium text-lg text-center max-w-sm">{message}</p>
-    </div>
-);
-
-// --- MAIN COMPONENT ---
-
-export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity }) => {
+export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook }) => {
     const { user } = useAuth();
-    const [currentStep, setCurrentStep] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isTransitioning, setIsTransitioning] = useState(false);
-    const [transitionMessage, setTransitionMessage] = useState('Yükleniyor...');
+    const [step, setStep] = useState<'profile' | 'test-intro' | 'testing' | 'generating' | 'report'>('profile');
     
-    // Memory Test specific states
-    const [memoryPhase, setMemoryPhase] = useState<'show' | 'input'>('show'); // show digits or input
-    const [currentDigitIndex, setCurrentDigitIndex] = useState(0);
-    const [userMemoryInput, setUserMemoryInput] = useState('');
-    
-    const [saving, setSaving] = useState(false);
-    const [savedSuccess, setSavedSuccess] = useState(false);
-    
+    // Profile State
     const [profile, setProfile] = useState<AssessmentProfile>({
         studentName: '',
+        age: 7,
+        grade: '1. Sınıf',
         gender: 'Erkek',
-        age: 7, 
-        grade: '1. Sınıf', 
-        observations: [], 
+        observations: [],
         testResults: {}
     });
-    const [report, setReport] = useState<AssessmentReport | null>(null);
-    const [feedbackState, setFeedbackState] = useState<'none' | 'correct' | 'wrong'>('none');
 
-    // History View State
-    const [showHistory, setShowHistory] = useState(false);
-    const [historyList, setHistoryList] = useState<SavedAssessment[]>([]);
-    const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
+    // Test State
+    const [currentTestIndex, setCurrentTestIndex] = useState(0);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [testBattery, setTestBattery] = useState<any[]>([]);
+    const [answers, setAnswers] = useState<any[]>([]);
+    const [generatedReport, setGeneratedReport] = useState<SavedAssessment | null>(null);
 
-    const [testState, setTestState] = useState({
-        score: 0, total: 0, startTime: 0, items: [] as any[], currentIndex: 0,
-        attentionState: [] as { char: string; isSelected: boolean; isCorrectTarget: boolean }[],
-        targetChar: '', // For attention test instruction
-        answers: [] as boolean[]
-    });
-
-    // Load History
-    useEffect(() => {
-        if (showHistory && user) {
-            assessmentService.getUserAssessments(user.id).then(setHistoryList);
-        }
-    }, [showHistory, user]);
-
-    const startTestPhase = useCallback((items: any[], isAttention = false, attentionTarget = '') => {
-        setFeedbackState('none');
-        if (isAttention) {
-            setTestState({ score: 0, total: 1, startTime: Date.now(), items: [], currentIndex: 0, attentionState: items, targetChar: attentionTarget, answers: [] });
-        } else {
-            setTestState({ score: 0, total: items.length, startTime: Date.now(), items, currentIndex: 0, attentionState: [], targetChar: '', answers: [] });
-            // For memory test, init phase
-            if (items.length > 0 && items[0].type === 'digit-span') {
-                setMemoryPhase('show');
-                setCurrentDigitIndex(0);
-                setUserMemoryInput('');
-            }
-        }
-    }, []);
-
-    // Digit Span Animation Logic
-    useEffect(() => {
-        if (currentStep === 6 && testState.items.length > 0 && memoryPhase === 'show') {
-            const item = testState.items[testState.currentIndex];
-            if (!item) return;
-            
-            const timer = setTimeout(() => {
-                if (currentDigitIndex < item.sequence.length) {
-                    setCurrentDigitIndex(prev => prev + 1);
-                } else {
-                    setMemoryPhase('input');
-                }
-            }, 1000); // 1 second per digit
-            
-            return () => clearTimeout(timer);
-        }
-    }, [currentStep, testState.currentIndex, memoryPhase, currentDigitIndex, testState.items]);
-
-    const handleAnswer = (isCorrect: boolean, category: TestCategory, testName: string) => {
-        setFeedbackState(isCorrect ? 'correct' : 'wrong');
-        
-        setTimeout(() => {
-            setTestState(prev => {
-                const nextScore = isCorrect ? prev.score + 1 : prev.score;
-                const nextAnswers = [...prev.answers, isCorrect];
-                
-                if (prev.items && prev.currentIndex < prev.items.length - 1) {
-                    const nextIndex = prev.currentIndex + 1;
-                    
-                    if (category === 'cognitive') {
-                        setMemoryPhase('show');
-                        setCurrentDigitIndex(0);
-                        setUserMemoryInput('');
-                    }
-                    
-                    setFeedbackState('none');
-                    return { ...prev, score: nextScore, currentIndex: nextIndex, answers: nextAnswers };
-                } else {
-                    finishTestWithValues(nextScore, nextAnswers, prev.items, prev.total, prev.startTime, category, testName);
-                    return prev;
-                }
-            });
-        }, 800); 
+    // Profile Handlers
+    const grades = ['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf'];
+    
+    const handleProfileSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        prepareTests();
+        setStep('test-intro');
     };
 
-    const finishTestWithValues = (finalScore: number, finalAnswers: boolean[], items: any[], total: number, startTime: number, category: TestCategory, testName: string) => {
-        const duration = Math.round((Date.now() - startTime) / 1000);
-        const accuracy = total > 0 ? (finalScore / total) * 100 : 0;
-        
-        if (category === 'reading') {
-             // Calculate specific scores for lexical vs sentence
-             let lexCorrect = 0, lexTotal = 0;
-             items.forEach((item, idx) => { if (item.subtype === 'lexical') { lexTotal++; if (finalAnswers[idx]) lexCorrect++; } });
-             const lexScore = lexTotal > 0 ? Math.round((lexCorrect/lexTotal)*100) : 0;
-             setProfile(prev => ({ ...prev, observations: [...prev.observations, `Kelime Tanıma: %${lexScore}`] }));
-        }
-
-        saveResult(category, testName, finalScore, total, accuracy, duration);
-    };
-
-    const saveResult = (id: TestCategory, name: string, score: number, total: number, accuracy: number, duration: number) => {
+    const toggleObservation = (obs: string) => {
         setProfile(prev => ({
             ...prev,
-            testResults: {
-                ...prev.testResults,
-                [id]: { id, name, score, total, accuracy, duration, timestamp: Date.now() }
-            }
+            observations: prev.observations.includes(obs) 
+                ? prev.observations.filter(o => o !== obs) 
+                : [...prev.observations, obs]
         }));
-        setFeedbackState('none');
+    };
+
+    // --- DYNAMIC TEST GENERATOR ENGINE ---
+    const prepareTests = () => {
+        const gradeNum = parseInt(profile.grade.split('.')[0]);
+        const battery = [];
+
+        // 1. READING TEST
+        battery.push(generateReadingTest(gradeNum));
+
+        // 2. MATH TEST
+        battery.push(generateMathTest(gradeNum));
+
+        // 3. ATTENTION TEST (Standard for all)
+        battery.push(generateAttentionTest(gradeNum));
+
+        setTestBattery(battery);
+    };
+
+    const generateReadingTest = (grade: number) => {
+        let questions = [];
         
-        let nextMsg = "Sonraki aşama...";
-        if (id === 'reading') nextMsg = "Matematik Testi Hazırlanıyor";
-        if (id === 'math') nextMsg = "Dikkat Testi Hazırlanıyor";
-        if (id === 'attention') nextMsg = "Görsel Mantık Testi Hazırlanıyor";
-        if (id === 'visual') nextMsg = "İşleyen Bellek Testi Hazırlanıyor";
-        if (id === 'cognitive') nextMsg = "Testler Tamamlandı!";
+        if (grade === 1) {
+            // Letter & Syllable Awareness
+            const letters = getRandomItems(['b', 'd', 'p', 'm', 'n'], 3);
+            questions = letters.map(l => ({
+                type: 'multiple-choice',
+                text: `"${l.toUpperCase()}" harfi hangisidir?`,
+                options: shuffle([l, 'k', 's', 't']),
+                correct: l
+            }));
+            // Simple word reading
+            const words = getRandomItems(TR_VOCAB.easy_words, 2);
+            questions.push({
+                type: 'multiple-choice',
+                text: `Resimdeki nedir? (${words[0]})`,
+                options: shuffle([words[0], words[1], 'masa', 'kalem']),
+                correct: words[0]
+            });
+        } else {
+            // Comprehension
+            const story = grade < 4 
+                ? "Ali okula gitti. Yolda küçük bir kedi gördü. Kediye süt verdi."
+                : "Güneş sistemindeki en büyük gezegen Jüpiter'dir. Etrafında birçok uydu döner. Fırtınaları ile meşhurdur.";
+            
+            const q1 = grade < 4 
+                ? { text: "Ali yolda ne gördü?", options: ["Kedi", "Köpek", "Kuş", "Araba"], correct: "Kedi" }
+                : { text: "Jüpiter'in özelliği nedir?", options: ["En sıcak gezegendir", "En büyük gezegendir", "Uydusu yoktur", "Mavidir"], correct: "En büyük gezegendir" };
 
-        triggerTransition(nextMsg, currentStep + 1);
-    };
-
-    const triggerTransition = (msg: string, nextStepIndex: number) => {
-        setIsTransitioning(true);
-        setTransitionMessage(msg);
-        setTestState(prev => ({ ...prev, items: [], attentionState: [], answers: [], currentIndex: 0 }));
-        setTimeout(() => { setCurrentStep(nextStepIndex); setIsTransitioning(false); }, 1500);
-    };
-
-    // State Initialization based on Step
-    useEffect(() => {
-        if (isTransitioning) return;
-        const gradeInt = parseInt(profile.grade) || 1;
-
-        if (currentStep === 2 && testState.items.length === 0) startTestPhase(generateReadingTest(gradeInt));
-        else if (currentStep === 3 && testState.items.length === 0) startTestPhase(generateMathTest(gradeInt));
-        else if (currentStep === 4 && testState.attentionState.length === 0) {
-            const { items, targetChar } = generateAttentionTest(gradeInt);
-            startTestPhase(items, true, targetChar);
-        }
-        else if (currentStep === 5 && testState.items.length === 0) startTestPhase(generateVisualTest(gradeInt));
-        else if (currentStep === 6 && testState.items.length === 0) startTestPhase(generateMemoryTest(gradeInt));
-        else if (currentStep === 8 && !report && !isLoading) handleReportGeneration();
-    }, [currentStep, isTransitioning, profile.grade]);
-
-    const handleReportGeneration = async () => {
-        setIsLoading(true);
-        try {
-            await new Promise(r => setTimeout(r, 1000));
-            const result = await generateAssessmentReport(profile);
-            if (result) {
-                setReport(result);
-                // Auto-save on generation if user exists
-                // if (user) assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, result).catch(console.error);
-                setCurrentStep(9);
+            questions.push({ type: 'text-read', content: story });
+            questions.push({ type: 'multiple-choice', ...q1 });
+            
+            // Sentence Logic (Cloze)
+            const sentenceTemplates: any[] = [
+                { t: "{subject} ağaca tırmanıp {object} topladı.", s: ["Kedi", "Maymun", "Çocuk"], o: ["elma", "kitap", "balık"], a: "elma" },
+                { t: "Hava çok soğuktu, bu yüzden {clothing} giydim.", c: ["montumu", "mayomu", "gözlüğümü"], a: "montumu" },
+                { t: "Susadığım için mutfağa gidip bir bardak {drink} içtim.", d: ["su", "ekmek", "çatal"], a: "su" },
+                { t: "{vehicle} kırmızı ışık yanınca hemen durdu.", v: ["Otobüs", "Kuş", "Nehir"], a: "Otobüs" }
+            ];
+            
+            if (grade >= 4) {
+                sentenceTemplates.push(
+                    { t: "Güneş doğudan doğar ve {direction} batar.", s: ["batıdan", "kuzeyden", "güneyden"], a: "batıdan" },
+                    { t: "Kitap okumayı çok seven Ali, her hafta sonu {place} gider.", p: ["kütüphaneye", "manava", "berbere"], a: "kütüphaneye" }
+                );
             }
+
+            const tmpl = getRandomItems(sentenceTemplates, 1)[0];
+            const qText = tmpl.t.replace(/\{.*?\}/g, '_____');
+            // Assuming options are flattened or picking specifically; simplifying for demo
+            const opts = shuffle([tmpl.a, "yanlış1", "yanlış2", "yanlış3"]); 
+            
+            questions.push({
+                type: 'multiple-choice',
+                text: `Boşluğa hangisi gelmelidir? "${qText}"`,
+                options: opts,
+                correct: tmpl.a
+            });
+        }
+
+        return {
+            id: 'reading',
+            name: 'Okuma Becerileri',
+            questions
+        };
+    };
+
+    const generateMathTest = (grade: number) => {
+        const questions = [];
+        const limit = grade * 10; // 1->10, 2->20, 6->60 scale
+        
+        // Operation
+        const n1 = getRandomInt(1, limit);
+        const n2 = getRandomInt(1, limit);
+        
+        if (grade === 1) {
+            questions.push({
+                type: 'multiple-choice',
+                text: `${n1} + ${n2} = ?`,
+                options: shuffle([n1+n2, n1+n2+1, n1+n2-1, n1+n2+2]),
+                correct: n1+n2
+            });
+        } else if (grade <= 3) {
+            questions.push({
+                type: 'multiple-choice',
+                text: `${n1 * 2} - ${n2} = ?`,
+                options: shuffle([(n1*2)-n2, (n1*2)-n2+2, (n1*2)-n2-2, (n1*2)-n2+5]),
+                correct: (n1*2)-n2
+            });
+        } else {
+            // Fractions / Logic
+            questions.push({
+                type: 'multiple-choice',
+                text: `Bir pastanın 1/4'ünü Ali, 2/4'ünü Ayşe yedi. Geriye ne kadar kaldı?`,
+                options: ["1/4", "2/4", "3/4", "Hiç"],
+                correct: "1/4"
+            });
+        }
+
+        // Logic / Sequence
+        const seqStart = getRandomInt(1, 10);
+        const seqStep = getRandomInt(2, 5);
+        const seq = [seqStart, seqStart+seqStep, seqStart+(seqStep*2), '?', seqStart+(seqStep*4)];
+        questions.push({
+            type: 'multiple-choice',
+            text: `Örüntüyü tamamla: ${seq.join(' - ')}`,
+            options: shuffle([seqStart+(seqStep*3), seqStart+(seqStep*3)+1, seqStart+(seqStep*3)-1, seqStart+(seqStep*3)+2]),
+            correct: seqStart+(seqStep*3)
+        });
+
+        return {
+            id: 'math',
+            name: 'Matematik & Mantık',
+            questions
+        };
+    };
+
+    const generateAttentionTest = (grade: number) => {
+        // Simple odd-one-out
+        const icons = ['⭐', '⭐', '⭐', '☀️'];
+        return {
+            id: 'attention',
+            name: 'Dikkat & Algı',
+            questions: [
+                {
+                    type: 'multiple-choice',
+                    text: 'Farklı olanı bul: ⭐ ⭐ ☀️ ⭐',
+                    options: ['1. Yıldız', '2. Yıldız', '3. Güneş', '4. Yıldız'],
+                    correct: '3. Güneş' // Simplified logic
+                }
+            ]
+        };
+    };
+
+    // --- TEST EXECUTION HANDLERS ---
+    const handleAnswer = (answer: any) => {
+        const currentTest = testBattery[currentTestIndex];
+        const currentQ = currentTest.questions[currentQuestionIndex];
+        
+        // Record Answer
+        const isCorrect = String(answer) === String(currentQ.correct);
+        setAnswers(prev => [...prev, {
+            testId: currentTest.id,
+            questionIdx: currentQuestionIndex,
+            isCorrect,
+            time: 0 // Placeholder
+        }]);
+
+        // Next Question or Next Test
+        if (currentQuestionIndex < currentTest.questions.length - 1) {
+            setCurrentQuestionIndex(p => p + 1);
+        } else {
+            if (currentTestIndex < testBattery.length - 1) {
+                setCurrentTestIndex(p => p + 1);
+                setCurrentQuestionIndex(0);
+            } else {
+                finishTests();
+            }
+        }
+    };
+
+    const finishTests = async () => {
+        setStep('generating');
+        
+        // Compile Results
+        const compiledResults: any = {};
+        testBattery.forEach(test => {
+            const testAnswers = answers.filter(a => a.testId === test.id);
+            const correctCount = testAnswers.filter((a: any) => a.isCorrect).length;
+            compiledResults[test.id] = {
+                id: test.id,
+                name: test.name,
+                score: correctCount * 10,
+                total: test.questions.length * 10,
+                accuracy: (correctCount / test.questions.length) * 100,
+                duration: 0,
+                timestamp: Date.now()
+            };
+        });
+
+        const finalProfile = { ...profile, testResults: compiledResults };
+        setProfile(finalProfile);
+
+        try {
+            const report = await generateAssessmentReport(finalProfile);
+            const savedAssessment: SavedAssessment = {
+                id: crypto.randomUUID(),
+                userId: user?.id || 'guest',
+                studentName: profile.studentName,
+                age: profile.age,
+                gender: profile.gender,
+                grade: profile.grade,
+                report,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (user) {
+                await assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, report);
+            }
+            
+            setGeneratedReport(savedAssessment);
+            setStep('report');
         } catch (error) {
             console.error(error);
-            alert("Rapor oluşturulamadı.");
-            setCurrentStep(7);
-        } finally { setIsLoading(false); }
+            alert("Rapor oluşturulurken bir hata oluştu.");
+            setStep('profile');
+        }
     };
 
-    // --- RENDER HELPERS ---
-    const isTestReady = (isAttention = false) => {
-        if (isTransitioning) return false;
-        if (isAttention) return testState.attentionState && testState.attentionState.length > 0;
-        return testState.items && testState.items.length > 0 && !!testState.items?.[testState.currentIndex];
-    };
+    // --- RENDERERS ---
 
-    const currentItem = testState.items?.[testState.currentIndex];
-
-    // Manual Save & Share Handlers
-    const handleManualSave = async () => {
-        if (!user || !report) return;
-        setSaving(true);
-        try {
-            await assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, report);
-            setSavedSuccess(true);
-            setTimeout(() => setSavedSuccess(false), 3000);
-        } catch (e) { alert('Hata oluştu.'); } finally { setSaving(false); }
-    };
-
-    if (showHistory) {
+    if (step === 'profile') {
         return (
-            <>
-                <div className="flex flex-col h-full bg-white dark:bg-zinc-900 p-6 overflow-y-auto">
-                    <div className="flex justify-between items-center mb-6 border-b pb-4">
-                        <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Değerlendirme Geçmişi</h2>
-                        <button onClick={() => setShowHistory(false)} className="text-sm font-bold text-zinc-500 hover:text-zinc-800 flex items-center gap-2"><i className="fa-solid fa-arrow-left"></i> Geri Dön</button>
+            <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-zinc-800 rounded-2xl shadow-xl mt-8 border border-zinc-200 dark:border-zinc-700">
+                <div className="flex items-center gap-3 mb-6 border-b pb-4 border-zinc-200 dark:border-zinc-700">
+                    <button onClick={onBack} className="text-zinc-400 hover:text-zinc-600"><i className="fa-solid fa-arrow-left"></i></button>
+                    <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Öğrenci Profili Oluştur</h2>
+                </div>
+                
+                <form onSubmit={handleProfileSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-2">Adı Soyadı</label>
+                            <input type="text" required className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white" 
+                                value={profile.studentName} onChange={e => setProfile({...profile, studentName: e.target.value})} placeholder="Örn: Ali Yılmaz" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-2">Cinsiyet</label>
+                            <div className="flex gap-4">
+                                {['Erkek', 'Kız'].map(g => (
+                                    <button key={g} type="button" onClick={() => setProfile({...profile, gender: g as any})}
+                                        className={`flex-1 p-3 rounded-xl border-2 font-bold transition-all ${profile.gender === g ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-zinc-200 text-zinc-500'}`}>
+                                        {g}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                    {historyList.length === 0 ? (
-                        <p className="text-center text-zinc-500 mt-10">Kayıtlı değerlendirme bulunamadı.</p>
-                    ) : (
-                        <div className="space-y-3">
-                            {historyList.map(item => (
-                                <div key={item.id} className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl flex justify-between items-center border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedAssessment(item)}>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold"><i className="fa-solid fa-file-medical"></i></div>
-                                        <div>
-                                            <h4 className="font-bold text-zinc-900 dark:text-zinc-100">{item.studentName}</h4>
-                                            <p className="text-xs text-zinc-500">{new Date(item.createdAt).toLocaleDateString()} - {item.grade}</p>
-                                        </div>
-                                    </div>
-                                    <button className="text-indigo-600 font-bold text-sm">Görüntüle</button>
-                                </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-2">Yaş</label>
+                            <input type="number" required min="5" max="15" className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white" 
+                                value={profile.age} onChange={e => setProfile({...profile, age: parseInt(e.target.value)})} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-2">Sınıf</label>
+                            <select className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white"
+                                value={profile.grade} onChange={e => setProfile({...profile, grade: e.target.value})}>
+                                {grades.map(g => <option key={g} value={g}>{g}</option>)}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-3">Eğitmen Gözlemleri (Varsa İşaretleyin)</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {['Okumada güçlük', 'Yazı bozukluğu (Disgrafi)', 'Matematikte zorlanma (Diskalkuli)', 'Dikkat eksikliği', 'Aşırı hareketlilik', 'Harfleri karıştırma'].map(obs => (
+                                <button key={obs} type="button" onClick={() => toggleObservation(obs)}
+                                    className={`text-left p-3 rounded-lg border transition-all text-sm ${profile.observations.includes(obs) ? 'bg-amber-50 border-amber-400 text-amber-900' : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'}`}>
+                                    <i className={`fa-solid ${profile.observations.includes(obs) ? 'fa-check-square' : 'fa-square'} mr-2`}></i>
+                                    {obs}
+                                </button>
                             ))}
                         </div>
-                    )}
-                </div>
-                <AssessmentReportViewer assessment={selectedAssessment} onClose={() => setSelectedAssessment(null)} user={user} />
-            </>
+                    </div>
+
+                    <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2">
+                        <span>Testi Başlat</span>
+                        <i className="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
         );
     }
 
-    return (
-        <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 font-sans">
-            
-            <div className="px-4 py-3 bg-white dark:bg-zinc-800 border-b dark:border-zinc-700 shadow-sm z-20 flex justify-between items-center sticky top-0 no-print shrink-0">
-                <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 font-bold text-sm flex items-center"><i className="fa-solid fa-arrow-left mr-2"></i>Çıkış</button>
-                <div className="flex items-center gap-1 md:gap-2 overflow-x-auto no-scrollbar">
-                    {steps.map((s, i) => (
-                        <div key={i} className="flex items-center">
-                            <div className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full ${i === currentStep ? 'bg-indigo-600 scale-125' : i < currentStep ? 'bg-green-500' : 'bg-zinc-300 dark:bg-zinc-600'} transition-all`} title={s}></div>
-                            {i < steps.length - 1 && <div className={`w-4 md:w-6 h-0.5 ${i < currentStep ? 'bg-green-500' : 'bg-zinc-200 dark:bg-zinc-700'}`}></div>}
-                        </div>
-                    ))}
+    if (step === 'test-intro' || step === 'testing') {
+        const currentTest = testBattery[currentTestIndex];
+        const currentQ = currentTest?.questions[currentQuestionIndex];
+
+        if (step === 'test-intro') {
+            return (
+                <div className="max-w-xl mx-auto mt-20 text-center p-8 bg-white rounded-3xl shadow-xl border-4 border-indigo-100 animate-in zoom-in">
+                    <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 text-3xl">
+                        <i className="fa-solid fa-rocket"></i>
+                    </div>
+                    <h2 className="text-2xl font-black text-zinc-800 mb-2">Hazır mısın {profile.studentName.split(' ')[0]}?</h2>
+                    <p className="text-zinc-500 mb-8">Şimdi seninle {testBattery.length} bölümlük eğlenceli bir oyun oynayacağız.</p>
+                    <button onClick={() => setStep('testing')} className="px-8 py-3 bg-indigo-600 text-white rounded-full font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-300">
+                        Başla!
+                    </button>
                 </div>
-                <div className="w-16"></div>
-            </div>
+            );
+        }
 
-            <div className="flex-1 overflow-hidden p-4 md:p-6 flex justify-center items-start md:items-center">
-                <div className="w-full max-w-4xl bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden relative h-full max-h-full transition-all printable-area-assessment">
-                    
-                    {feedbackState !== 'none' && (
-                        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-zinc-900/80 backdrop-blur-[2px] transition-all animate-in fade-in">
-                            <div className={`w-24 h-24 rounded-full flex items-center justify-center shadow-2xl scale-110 ${feedbackState === 'correct' ? 'bg-green-500' : 'bg-red-500'}`}>
-                                <i className={`fa-solid fa-${feedbackState === 'correct' ? 'check' : 'xmark'} text-5xl text-white`}></i>
-                            </div>
+        return (
+            <div className="max-w-3xl mx-auto mt-8 p-6 md:p-12 bg-white rounded-3xl shadow-2xl border border-zinc-200 relative overflow-hidden min-h-[500px] flex flex-col">
+                <div className="absolute top-0 left-0 w-full h-2 bg-zinc-100">
+                    <div className="h-full bg-indigo-500 transition-all duration-500" 
+                        style={{width: `${((currentTestIndex * 10 + currentQuestionIndex) / (testBattery.length * 5)) * 100}%`}}></div>
+                </div>
+                
+                <div className="flex justify-between items-center mb-8">
+                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{currentTest.name}</span>
+                    <span className="px-3 py-1 bg-zinc-100 rounded-full text-xs font-bold text-zinc-600">{currentQuestionIndex + 1} / {currentTest.questions.length}</span>
+                </div>
+
+                <div className="flex-1 flex flex-col justify-center">
+                    {currentQ.type === 'text-read' ? (
+                        <div className="text-center mb-8">
+                            <p className="text-2xl font-dyslexic leading-loose text-zinc-800 mb-8 bg-amber-50 p-6 rounded-xl border-2 border-amber-100">{currentQ.content}</p>
+                            <button onClick={() => handleAnswer(true)} className="px-6 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600">Okudum, Devam Et</button>
                         </div>
-                    )}
-
-                    {isTransitioning && <div className="absolute inset-0 z-40 bg-white dark:bg-zinc-800"><TransitionScreen message={transitionMessage} icon="fa-hourglass-half" /></div>}
-
-                    {/* STEP 0: INTRO */}
-                    {currentStep === 0 && (
-                        <div className="p-6 md:p-10 text-center flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white dark:from-zinc-800 dark:to-zinc-900 overflow-y-auto">
-                            <div className="w-24 h-24 bg-white dark:bg-zinc-700 rounded-full flex items-center justify-center mb-6 shadow-xl animate-pulse">
-                                <i className="fa-solid fa-brain text-5xl text-indigo-600 dark:text-indigo-400"></i>
+                    ) : (
+                        <>
+                            <h3 className="text-2xl md:text-3xl font-bold text-zinc-800 text-center mb-10">{currentQ.text}</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {currentQ.options.map((opt: string, i: number) => (
+                                    <button key={i} onClick={() => handleAnswer(opt)} 
+                                        className="p-6 text-lg font-bold text-zinc-700 bg-zinc-50 border-2 border-zinc-200 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 hover:text-indigo-700 transition-all active:scale-95">
+                                        {opt}
+                                    </button>
+                                ))}
                             </div>
-                            <h2 className="text-3xl md:text-4xl font-black mb-4 text-zinc-800 dark:text-zinc-100">Bilişsel Değerlendirme</h2>
-                            <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-300 mb-8 max-w-md">Öğrencinin Okuma, Matematik, Dikkat ve Görsel Algı becerilerini analiz ederek kişiselleştirilmiş eğitim rotası oluşturun.</p>
-                            <div className="flex gap-4">
-                                <button onClick={() => setCurrentStep(1)} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold rounded-2xl shadow-lg flex items-center gap-3">Analizi Başlat <i className="fa-solid fa-arrow-right"></i></button>
-                                {user && <button onClick={() => setShowHistory(true)} className="px-6 py-3 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200 text-lg font-bold rounded-2xl shadow-sm hover:bg-zinc-50">Geçmiş Raporlar</button>}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 1: PROFILE */}
-                    {currentStep === 1 && (
-                        <div className="p-6 md:p-8 flex flex-col flex-1 max-w-lg mx-auto w-full overflow-y-auto">
-                            <h3 className="text-2xl font-bold mb-6 text-center text-zinc-800 dark:text-zinc-100">Öğrenci Profili</h3>
-                            <div className="space-y-6 flex-1">
-                                <div>
-                                    <label className="block font-bold mb-2">Cinsiyet</label>
-                                    <div className="flex gap-4">
-                                        <button onClick={() => setProfile({...profile, gender: 'Erkek'})} className={`flex-1 p-3 border-2 rounded-xl font-bold ${profile.gender === 'Erkek' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-zinc-200'}`}>Erkek</button>
-                                        <button onClick={() => setProfile({...profile, gender: 'Kız'})} className={`flex-1 p-3 border-2 rounded-xl font-bold ${profile.gender === 'Kız' ? 'border-pink-500 bg-pink-50 text-pink-700' : 'border-zinc-200'}`}>Kız</button>
-                                    </div>
-                                </div>
-                                <div className="bg-zinc-50 dark:bg-zinc-700/30 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-600">
-                                    <div className="flex justify-between items-center mb-4"><label className="font-bold text-lg">Yaş</label><span className="text-2xl font-black text-indigo-600">{profile.age}</span></div>
-                                    <input type="range" min="5" max="15" value={profile.age} onChange={e => setProfile({...profile, age: +e.target.value})} className="w-full h-3 bg-zinc-200 rounded-lg accent-indigo-600" />
-                                </div>
-                                <div>
-                                    <label className="block font-bold mb-3 text-lg">Sınıf</label>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf'].map(g => (
-                                            <button key={g} onClick={() => setProfile({...profile, grade: g})} className={`p-3 border-2 rounded-xl font-bold text-xs md:text-sm ${profile.grade === g ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-zinc-200'}`}>{g}</button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-6 pt-6 border-t dark:border-zinc-700">
-                                <input type="text" value={profile.studentName} onChange={e => setProfile({...profile, studentName: e.target.value})} className="w-full p-3 border-2 rounded-xl bg-white dark:bg-zinc-700 placeholder:text-zinc-400 outline-none mb-4" placeholder="Öğrenci Adı Soyadı" />
-                                <button onClick={() => { if(!profile.studentName) return; triggerTransition('Okuma Testi Hazırlanıyor...', 2); }} className="py-4 w-full bg-zinc-900 dark:bg-indigo-600 text-white text-lg font-bold rounded-xl shadow-md">Devam Et</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 2: READING */}
-                    {currentStep === 2 && isTestReady() && (
-                        <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-6"><TestProgress current={testState.currentIndex} total={testState.total} label="Okuma Testi" /></div>
-                            <div className="p-6 md:p-8 text-center flex-1 flex flex-col items-center justify-center overflow-y-auto">
-                                {currentItem?.subtype === 'lexical' ? (
-                                    <>
-                                        <h3 className="text-sm md:text-base font-bold text-zinc-400 mb-4 uppercase tracking-widest"><i className="fa-solid fa-font mr-2"></i>Bu kelime gerçek mi?</h3>
-                                        <div className="text-4xl md:text-6xl font-black mb-8 p-8 bg-white dark:bg-zinc-700 border-4 border-zinc-100 dark:border-zinc-600 rounded-3xl w-full max-w-md shadow-sm text-zinc-800 dark:text-zinc-100 font-dyslexic">{currentItem?.q}</div>
-                                        <div className="flex gap-4 w-full max-w-md">
-                                            <button onClick={() => handleAnswer(currentItem?.isReal === false, 'reading', 'Okuma')} className="flex-1 p-4 bg-rose-50 text-rose-600 font-black rounded-2xl border-b-4 border-rose-200 shadow-sm active:scale-95 text-lg"><i className="fa-solid fa-xmark mr-2"></i> HAYIR</button>
-                                            <button onClick={() => handleAnswer(currentItem?.isReal === true, 'reading', 'Okuma')} className="flex-1 p-4 bg-emerald-50 text-emerald-600 font-black rounded-2xl border-b-4 border-emerald-200 shadow-sm active:scale-95 text-lg"><i className="fa-solid fa-check mr-2"></i> EVET</button>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <h3 className="text-sm md:text-base font-bold text-zinc-400 mb-4 uppercase tracking-widest">Cümleyi Tamamla</h3>
-                                        <div className="text-xl md:text-2xl font-bold mb-8 p-6 bg-sky-50 dark:bg-sky-900/20 border-2 border-sky-100 rounded-2xl w-full max-w-2xl text-zinc-800 dark:text-zinc-100 font-dyslexic leading-relaxed">{currentItem?.q}</div>
-                                        <div className="grid grid-cols-1 gap-3 w-full max-w-md">
-                                            {currentItem?.opts?.map((opt: string, i: number) => (
-                                                <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'reading', 'Okuma')} className="p-3 bg-white dark:bg-zinc-700 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl text-lg font-bold hover:border-sky-500 hover:text-sky-600 shadow-sm active:scale-95">{opt}</button>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 3: MATH */}
-                    {currentStep === 3 && isTestReady() && (
-                        <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-6"><TestProgress current={testState.currentIndex} total={testState.total} label="Matematik Testi" /></div>
-                            <div className="p-6 md:p-8 text-center flex-1 flex flex-col items-center justify-center overflow-y-auto">
-                                <div className="text-3xl md:text-5xl font-bold mb-8 text-indigo-900 dark:text-indigo-200 font-mono bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-2xl border-2 border-indigo-100 w-full max-w-md">{currentItem?.q}</div>
-                                <div className="grid grid-cols-3 gap-3 w-full max-w-md">
-                                    {currentItem?.opts?.map((opt: number, i:number) => (
-                                        <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'math', 'Matematik')} className="p-4 bg-white dark:bg-zinc-700 border-2 border-zinc-200 text-2xl font-bold rounded-2xl hover:border-indigo-500 hover:text-indigo-600 shadow-sm active:scale-95">{opt}</button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 4: ATTENTION (Grid) */}
-                    {currentStep === 4 && isTestReady(true) && (
-                        <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-4 px-6 flex justify-between items-center border-b pb-3 border-zinc-100 dark:border-zinc-700 shrink-0">
-                                <div><h3 className="font-bold text-base md:text-lg">Dikkat Testi</h3><p className="text-xs text-zinc-500">Sadece "<span className="font-bold text-indigo-600">{testState.targetChar}</span>" harflerini işaretle.</p></div>
-                                <button onClick={() => {
-                                    let score = 0, total = 0;
-                                    testState.attentionState.forEach(i => { if(i.isCorrectTarget) total++; if(i.isSelected && i.isCorrectTarget) score++; if(i.isSelected && !i.isCorrectTarget) score-=0.5; });
-                                    const acc = total > 0 ? (Math.max(0,score)/total)*100 : 0;
-                                    setProfile(p => ({...p, testResults: {...p.testResults, 'attention': {id:'attention', name:'Dikkat', score: Math.max(0,score), total, accuracy: acc, duration: 60, timestamp: Date.now()}}}));
-                                    triggerTransition("Görsel Mantık Testi Hazırlanıyor...", 5);
-                                }} className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-full shadow-md">Tamamla</button>
-                            </div>
-                            <div className="p-4 flex-1 flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/30 overflow-y-auto">
-                                <div className="grid grid-cols-6 gap-2 md:gap-3 p-2">
-                                    {testState.attentionState.map((item, i) => (
-                                        <button key={i} onClick={() => setTestState(p => { const n = [...p.attentionState]; n[i].isSelected = !n[i].isSelected; return {...p, attentionState: n}; })} 
-                                            className={`w-9 h-9 md:w-12 md:h-12 rounded-lg text-xl md:text-2xl font-bold flex items-center justify-center font-dyslexic shadow-sm border transition-all ${item.isSelected ? 'bg-indigo-600 text-white border-indigo-600 scale-110' : 'bg-white dark:bg-zinc-800 border-zinc-200 text-zinc-400 hover:border-indigo-300'}`}>
-                                            {item.char}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 5: VISUAL (Raven's Matrices) */}
-                    {currentStep === 5 && isTestReady() && (
-                        <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-6"><TestProgress current={testState.currentIndex} total={testState.total} label="Görsel Mantık (Matris)" /></div>
-                            <div className="p-4 md:p-8 text-center flex-1 flex flex-col items-center justify-center overflow-y-auto">
-                                <h3 className="text-zinc-500 font-bold mb-3 uppercase tracking-wider text-xs">Eksik Parçayı Bul</h3>
-                                <div className="mb-6 grid grid-cols-2 gap-3 p-4 bg-zinc-100 dark:bg-zinc-900 rounded-2xl shadow-inner border-2 border-zinc-200 dark:border-zinc-700 max-w-sm w-full">
-                                    {currentItem?.grid?.map((item: any, i: number) => (
-                                        <MatrixCell key={i} item={item} className="w-full aspect-square rounded-lg shadow-sm" />
-                                    ))}
-                                    <div className="w-full aspect-square bg-white dark:bg-zinc-800 border-2 border-dashed border-indigo-400 rounded-lg flex items-center justify-center"><span className="text-3xl font-bold text-indigo-300">?</span></div>
-                                </div>
-                                <div className="flex gap-3 justify-center w-full max-w-xl flex-wrap">
-                                    {currentItem?.opts?.map((opt: any, i:number) => (
-                                        <button key={i} onClick={() => handleAnswer(opt === currentItem?.a, 'visual', 'Görsel Algı')} className="w-16 h-16 md:w-20 md:h-20 hover:scale-105 transition-transform focus:outline-none">
-                                            <MatrixCell item={opt} className="w-full h-full rounded-xl shadow-md hover:border-indigo-500 hover:ring-2 hover:ring-indigo-300" />
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 6: MEMORY (Digit Span Backwards) */}
-                    {currentStep === 6 && isTestReady() && (
-                        <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="pt-6"><TestProgress current={testState.currentIndex} total={testState.total} label="İşleyen Bellek (Geriye Sayı)" /></div>
-                            <div className="p-6 md:p-8 text-center flex-1 flex flex-col items-center justify-center overflow-y-auto">
-                                {memoryPhase === 'show' ? (
-                                    <div className="animate-in zoom-in duration-300">
-                                        <h3 className="text-base md:text-lg font-bold text-zinc-400 mb-6 uppercase tracking-widest">Sayıları Aklında Tut</h3>
-                                        {currentDigitIndex < currentItem.sequence.length ? (
-                                            <div className="text-6xl md:text-8xl font-black text-indigo-600 dark:text-indigo-400 transition-all scale-110">
-                                                {currentItem.sequence[currentDigitIndex]}
-                                            </div>
-                                        ) : (
-                                            <div className="text-2xl font-bold text-zinc-500">Hazırlan...</div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-300 w-full max-w-xs">
-                                        <h3 className="text-lg md:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-100"><i className="fa-solid fa-rotate-left mr-2 text-indigo-500"></i>Sayıları TERSTEN Yaz</h3>
-                                        <div className="mb-6 h-14 w-full bg-zinc-100 dark:bg-zinc-700 rounded-xl flex items-center justify-center text-2xl font-mono tracking-widest border-2 border-indigo-200">
-                                            {userMemoryInput}
-                                            <span className="animate-pulse w-2 h-6 bg-indigo-500 ml-1"></span>
-                                        </div>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {[1,2,3,4,5,6,7,8,9].map(n => (
-                                                <button key={n} onClick={() => setUserMemoryInput(p => p + n)} className="h-14 bg-white dark:bg-zinc-800 rounded-xl border-b-4 border-zinc-200 dark:border-zinc-700 text-xl font-bold active:border-b-0 active:translate-y-1 transition-all shadow-sm">{n}</button>
-                                            ))}
-                                            <button onClick={() => setUserMemoryInput(p => p.slice(0,-1))} className="h-14 bg-rose-50 text-rose-600 rounded-xl border-b-4 border-rose-200 font-bold active:border-b-0 active:translate-y-1"><i className="fa-solid fa-delete-left"></i></button>
-                                            <button onClick={() => setUserMemoryInput(p => p + '0')} className="h-14 bg-white dark:bg-zinc-800 rounded-xl border-b-4 border-zinc-200 text-xl font-bold active:border-b-0 active:translate-y-1">0</button>
-                                            <button onClick={() => handleAnswer(userMemoryInput === currentItem.answer, 'cognitive', 'İşleyen Bellek')} className="h-14 bg-emerald-500 text-white rounded-xl border-b-4 border-emerald-700 font-bold active:border-b-0 active:translate-y-1"><i className="fa-solid fa-check"></i></button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* STEP 7: OBSERVATIONS */}
-                    {currentStep === 7 && (
-                        <div className="p-6 md:p-8 flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                            <h3 className="text-2xl font-bold mb-2 text-center shrink-0">Eğitmen Gözlemleri</h3>
-                            <p className="text-center text-zinc-500 mb-6 shrink-0 text-sm">Lütfen öğrenciyle ilgili gözlemlediğiniz durumları işaretleyin.</p>
-                            <div className="flex-1 overflow-y-auto custom-scrollbar px-2 mb-4">
-                                <ObservationList observations={profile.observations} setProfile={setProfile} />
-                            </div>
-                            <button onClick={() => handleReportGeneration()} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 shrink-0">
-                                {isLoading ? <><i className="fa-solid fa-spinner fa-spin"></i> Analiz Ediliyor...</> : 'Raporu Oluştur'}
-                            </button>
-                        </div>
-                    )}
-
-                    {/* STEP 9: REPORT DISPLAY - Replaced by Reusable Component wrapper to save space and consistency */}
-                    {currentStep === 9 && report && (
-                        <AssessmentReportViewer 
-                            assessment={{
-                                id: 'new_report',
-                                userId: user?.id || 'guest',
-                                studentName: profile.studentName,
-                                gender: profile.gender,
-                                age: profile.age,
-                                grade: profile.grade,
-                                report: report,
-                                createdAt: new Date().toISOString()
-                            } as SavedAssessment} 
-                            onClose={() => setCurrentStep(0)} 
-                            user={user}
-                            onManualSave={handleManualSave}
-                            isSaving={saving}
-                            isSaved={savedSuccess}
-                        />
+                        </>
                     )}
                 </div>
             </div>
-        </div>
-    );
+        );
+    }
+
+    if (step === 'generating') {
+        return (
+            <div className="flex flex-col items-center justify-center h-full mt-20">
+                <div className="w-24 h-24 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
+                <h3 className="text-xl font-bold text-zinc-800">Yapay Zeka Analiz Yapıyor...</h3>
+                <p className="text-zinc-500 mt-2">Cevaplarını inceliyor ve raporunu hazırlıyorum.</p>
+            </div>
+        );
+    }
+
+    if (step === 'report' && generatedReport) {
+        return (
+            <AssessmentReportViewer 
+                assessment={generatedReport} 
+                onClose={onBack} 
+                user={user}
+                onAddToWorkbook={onAddToWorkbook} 
+            />
+        );
+    }
+
+    return null;
 };

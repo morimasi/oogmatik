@@ -1,6 +1,6 @@
 
 import React, { memo, useState, useRef, useEffect } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile } from '../types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
@@ -274,6 +274,17 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         document.title = originalTitle;
     };
 
+    const handleAddToWorkbookFromReport = (assessment: SavedAssessment) => {
+        const newItem: CollectionItem = {
+            id: crypto.randomUUID(),
+            activityType: ActivityType.ASSESSMENT_REPORT,
+            data: assessment,
+            settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
+            title: `Rapor: ${assessment.studentName}`
+        };
+        setWorkbookItems(prev => [...prev, newItem]);
+    };
+
     const getBreadcrumbs = () => {
         if (currentView === 'savedList') return ['Ana Sayfa', 'Arşivim'];
         if (currentView === 'shared') return ['Ana Sayfa', 'Paylaşılanlar'];
@@ -445,7 +456,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           ) : currentView === 'shared' ? (
             <div className="w-full max-w-5xl h-full overflow-y-auto mx-auto p-4"><SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} /></div>
           ) : currentView === 'assessment' ? (
-              <div className="w-full h-full overflow-y-auto"><AssessmentModule onBack={onBackToGenerator} onSelectActivity={(id) => { if (onSelectActivity) onSelectActivity(id); }} /></div>
+              <div className="w-full h-full overflow-y-auto">
+                  <AssessmentModule 
+                    onBack={onBackToGenerator} 
+                    onSelectActivity={(id) => { if (onSelectActivity) onSelectActivity(id); }} 
+                    onAddToWorkbook={handleAddToWorkbookFromReport}
+                  />
+              </div>
           ) : currentView === 'favorites' ? (
               <div className="w-full h-full overflow-y-auto"><FavoritesSection onSelectActivity={(id) => { if (onSelectActivity) onSelectActivity(id); }} onBack={onBackToGenerator} /></div>
           ) : currentView === 'workbook' ? (

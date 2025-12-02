@@ -13,6 +13,7 @@ interface AssessmentReportViewerProps {
     onManualSave?: () => Promise<void>;
     isSaving?: boolean;
     isSaved?: boolean;
+    onAddToWorkbook?: (assessment: SavedAssessment) => void;
 }
 
 export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({ 
@@ -21,7 +22,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     user,
     onManualSave,
     isSaving,
-    isSaved
+    isSaved,
+    onAddToWorkbook
 }) => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
@@ -53,6 +55,13 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
         }
     };
 
+    const handleAddToWorkbook = () => {
+        if (onAddToWorkbook) {
+            onAddToWorkbook(assessment);
+            alert('Rapor çalışma kitapçığına eklendi.');
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 print:p-0 print:bg-white print:block" onClick={onClose}>
             <div className="printable-content bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative print:max-h-none print:w-full print:h-auto print:shadow-none print:rounded-none print:border-none print:overflow-visible" onClick={e => e.stopPropagation()}>
@@ -66,7 +75,15 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 </header>
                 
                 {/* TOOLBAR */}
-                <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 border-b border-zinc-200 no-print">
+                <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 border-b border-zinc-200 no-print flex-wrap">
+                    {onAddToWorkbook && (
+                        <button 
+                            onClick={handleAddToWorkbook}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-all shadow-sm"
+                        >
+                            <i className="fa-solid fa-plus-circle"></i> Kitapçığa Ekle
+                        </button>
+                    )}
                     {onManualSave && (
                         <button onClick={onManualSave} disabled={isSaving} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${isSaved ? 'bg-green-100 text-green-700' : 'bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-100'}`}>
                             {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>}
