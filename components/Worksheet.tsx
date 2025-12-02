@@ -10,7 +10,7 @@ import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 import * as DyscalculiaSheets from './sheets/DyscalculiaSheets';
 import * as NewActivitySheets from './sheets/NewActivitySheets';
 import { getBorderCSS } from './VisualAssets';
-import { EditableElement, EditableText } from './Editable';
+import { EditableElement, EditableText, useEditable } from './Editable';
 
 interface WorksheetProps {
     activityType: ActivityType | null;
@@ -20,6 +20,8 @@ interface WorksheetProps {
 }
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
+    const { isEditMode } = useEditable();
+
     if (!data || !activityType || data.length === 0) return null;
 
     // WYSIWYG Fix: 
@@ -123,16 +125,30 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 {data.map((sheetData, index) => (
                     <div 
                         key={index} 
-                        className="worksheet-item shadow-2xl print:shadow-none transition-all duration-300 ease-in-out"
+                        className="worksheet-item worksheet-texture realistic-shadow transition-all duration-300 ease-in-out"
                         style={pageStyle}
                     >
+                        {/* EDIT MODE OVERLAYS */}
+                        {isEditMode && (
+                            <>
+                                {/* Grid Pattern Overlay */}
+                                <div className="absolute inset-0 edit-grid-overlay z-0"></div>
+                                {/* Safety Margin Indicator (e.g. 5mm from edge) */}
+                                <div className="absolute inset-[5mm] print-safety-margin z-0"></div>
+                                {/* Page Number Hint */}
+                                <div className="absolute top-2 right-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded shadow-sm opacity-50 pointer-events-none edit-handle">
+                                    Sayfa {index + 1}
+                                </div>
+                            </>
+                        )}
+
                         {/* 
                            CONTENT SCALER 
                            Scales content to fit the A4 page.
                            Transform Origin: Top Left + Inverse Width Calculation ensures perfect centering and fit.
                         */}
                         <div 
-                            className="worksheet-scaler worksheet-content"
+                            className="worksheet-scaler worksheet-content relative z-10"
                             style={{
                                 transform: `scale(${settings.scale})`,
                                 transformOrigin: 'top left', 

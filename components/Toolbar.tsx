@@ -206,13 +206,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
             {onToggleEdit && (
                 <button 
                     onClick={onToggleEdit}
-                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-green-600 text-white border-green-600 ring-2 ring-green-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
+                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200 animate-pulse' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
                     title={isEditMode ? "Düzenlemeyi Bitir ve Kaydet" : "Düzenleme Modu"}
                 >
                     {isEditMode ? (
                         <>
                             <i className="fa-solid fa-check"></i>
-                            <span className="hidden sm:inline">Kaydet ve Bitir</span>
+                            <span className="hidden sm:inline">Bitir</span>
                         </>
                     ) : (
                         <>
@@ -252,7 +252,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                     title="Kitapçığı Görüntüle"
                 >
                     <i className="fa-solid fa-book-open"></i>
-                    {workbookItemCount > 0 && <span className="bg-emerald-500 text-white rounded-full px-1.5 text-[9px]">{workbookItemCount}</span>}
+                    {workbookItemCount > 0 && <span className="bg-emerald-50 text-white rounded-full px-1.5 text-[9px]">{workbookItemCount}</span>}
                 </button>
             )}
 

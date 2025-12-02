@@ -39,7 +39,7 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
 
         return {
             title: `Sayı Hissi ve Tahmin (${difficulty})`,
-            instruction: 'Sayı doğrusundaki eksik sayıyı bul ve kutulardaki çoklukları karşılaştır.',
+            instruction: 'Sayı doğrusundaki eksik sayıyı bul ve kavanozdaki nesneleri tahmin et.',
             pedagogicalNote: 'Sayısal aralıklar, ritmik sayma ve görsel miktar tahmini.',
             imagePrompt: 'Sayı Doğrusu',
             layout: 'visual',
