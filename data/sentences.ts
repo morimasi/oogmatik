@@ -1,4 +1,5 @@
 
+
 export const PROVERBS = [
   "Damlaya damlaya göl olur.",
   "Sakla samanı, gelir zamanı.",
@@ -245,7 +246,7 @@ export const PROVERBS = [
   "Şahin sinek avlamaz.",
   "Şeytanın bacağını kırmak.",
   "Tabancanın dolusu bir kişiyi, boşu kırk kişiyi korkutur.",
-  "Taş yerinde ağırdır.",
+  "Taşıma su ile değirmen dönmez.",
   "Tatlı dil yılanı deliğinden çıkarır.",
   "Tavşan dağa küsmüş, dağın haberi olmamış.",
   "Tekerlek kırıldıktan sonra yol gösteren çok olur.",
@@ -345,6 +346,3 @@ export const DYNAMIC_STORY_MODULES = {
         activities: ["koşmaya", "saklanmaya", "gülmeye", "şarkı söylemeye", "düşünmeye", "aramaya"]
     }
 };
-
-// Keep old templates for backward compatibility if needed, but dynamic generator relies on above
-export const STORY_TEMPLATES = []; 
