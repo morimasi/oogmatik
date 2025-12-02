@@ -138,7 +138,12 @@ const AppContent: React.FC = () => {
       schoolName: '',
       year: new Date().getFullYear().toString(),
       teacherNote: '',
-      theme: 'modern'
+      theme: 'modern',
+      accentColor: '#4f46e5',
+      coverStyle: 'centered',
+      showTOC: true,
+      showPageNumbers: true,
+      showWatermark: false
   });
   
   const [theme, setTheme] = useState<AppTheme>(() => {
@@ -594,7 +599,7 @@ const AppContent: React.FC = () => {
             <div>
                 <h3 className="text-xl font-bold mb-3 text-[var(--text-primary)]">Uygulama Geliştiricisi</h3>
                 <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-                    Uygulama ile ilgili her türlü soru, öneri veya geri bildiriminiz için bizimle iletişime geçebilirsiniz.
+                    Uygulama ile ilgili her türlü soru, öneri veya geri bildiriminiz için bizimle iletişime geçiniz.
                 </p>
             </div>
 

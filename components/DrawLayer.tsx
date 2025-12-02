@@ -31,15 +31,24 @@ export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
         const resizeCanvas = () => {
             if (canvasRef.current && canvasRef.current.parentElement) {
                 const parent = canvasRef.current.parentElement;
+                // Avoid clearing on minor resize if possible, or handle state restoration
+                // For now, simpler implementation:
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvasRef.current.width;
+                tempCanvas.height = canvasRef.current.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                if (tempCtx) tempCtx.drawImage(canvasRef.current, 0, 0);
+
                 canvasRef.current.width = parent.clientWidth;
                 canvasRef.current.height = parent.clientHeight;
                 
-                // Re-apply context settings after resize reset
+                // Restore content
                 if (context) {
                     context.lineCap = 'round';
                     context.lineJoin = 'round';
                     context.strokeStyle = color;
                     context.lineWidth = lineWidth;
+                    context.drawImage(tempCanvas, 0, 0);
                 }
             }
         };
@@ -48,34 +57,16 @@ export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
         resizeCanvas(); // Initial call
         
         return () => window.removeEventListener('resize', resizeCanvas);
-    }, [context, color, lineWidth]);
+    }, [context, color, lineWidth]); // Re-run if context settings change? No, context persists.
 
-    const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-        if (!context || !isActive) return;
-        
-        const { offsetX, offsetY } = getCoordinates(e);
-        context.beginPath();
-        context.moveTo(offsetX, offsetY);
-        setIsDrawing(true);
-    };
-
-    const draw = (e: React.MouseEvent | React.TouchEvent) => {
-        if (!isDrawing || !context || !isActive) return;
-        
-        const { offsetX, offsetY } = getCoordinates(e);
-        
-        context.strokeStyle = tool === 'eraser' ? 'rgba(0,0,0,1)' : color;
-        context.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
-        context.lineWidth = tool === 'eraser' ? 20 : lineWidth;
-        
-        context.lineTo(offsetX, offsetY);
-        context.stroke();
-    };
-
-    const stopDrawing = () => {
-        if (context) context.closePath();
-        setIsDrawing(false);
-    };
+    // Update context when tools change
+    useEffect(() => {
+        if (context) {
+            context.strokeStyle = tool === 'eraser' ? 'rgba(0,0,0,1)' : color;
+            context.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
+            context.lineWidth = tool === 'eraser' ? 20 : lineWidth;
+        }
+    }, [tool, color, lineWidth, context]);
 
     const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
         if (!canvasRef.current) return { offsetX: 0, offsetY: 0 };
@@ -91,12 +82,34 @@ export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
             clientY = (e as React.MouseEvent).clientY;
         }
 
-        // Adjust for zoom if necessary (coordinates are relative to canvas size, which is 100% of parent)
-        // Since canvas scales with parent div which scales with zoom, raw offset should be correct relative to rect
         return {
             offsetX: clientX - rect.left,
             offsetY: clientY - rect.top
         };
+    };
+
+    const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!context || !isActive) return;
+        e.preventDefault(); // Prevent scrolling on touch
+        
+        const { offsetX, offsetY } = getCoordinates(e);
+        context.beginPath();
+        context.moveTo(offsetX, offsetY);
+        setIsDrawing(true);
+    };
+
+    const draw = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!isDrawing || !context || !isActive) return;
+        e.preventDefault();
+
+        const { offsetX, offsetY } = getCoordinates(e);
+        context.lineTo(offsetX, offsetY);
+        context.stroke();
+    };
+
+    const stopDrawing = () => {
+        if (context) context.closePath();
+        setIsDrawing(false);
     };
 
     const clearCanvas = () => {
@@ -108,7 +121,7 @@ export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
     if (!isActive) return null;
 
     return (
-        <div className="absolute inset-0 z-50 pointer-events-auto">
+        <div className="absolute inset-0 z-50 pointer-events-auto overflow-hidden">
             {/* Toolbar */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white dark:bg-zinc-800 p-2 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-700 flex items-center gap-2 pointer-events-auto animate-in slide-in-from-top-4">
                 <button 
@@ -119,22 +132,28 @@ export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
                     <i className="fa-solid fa-pen"></i>
                 </button>
                 
-                <input 
-                    type="color" 
-                    value={color} 
-                    onChange={(e) => { setColor(e.target.value); setTool('pen'); }}
-                    className="w-8 h-8 rounded-full border-0 p-0 cursor-pointer"
-                    title="Renk Seç"
-                />
+                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-zinc-300 cursor-pointer">
+                    <input 
+                        type="color" 
+                        value={color} 
+                        onChange={(e) => { setColor(e.target.value); setTool('pen'); }}
+                        className="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer"
+                        title="Renk Seç"
+                    />
+                </div>
                 
-                <input 
-                    type="range" 
-                    min="1" max="10" 
-                    value={lineWidth} 
-                    onChange={(e) => setLineWidth(Number(e.target.value))}
-                    className="w-20 h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
-                    title="Kalınlık"
-                />
+                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-700 rounded-full px-2">
+                    <span className="text-[10px] text-zinc-500"><i className="fa-solid fa-circle text-[6px]"></i></span>
+                    <input 
+                        type="range" 
+                        min="1" max="10" 
+                        value={lineWidth} 
+                        onChange={(e) => setLineWidth(Number(e.target.value))}
+                        className="w-16 h-1 bg-zinc-300 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                        title="Kalınlık"
+                    />
+                    <span className="text-[10px] text-zinc-500"><i className="fa-solid fa-circle"></i></span>
+                </div>
                 
                 <button 
                     onClick={() => setTool('eraser')}
