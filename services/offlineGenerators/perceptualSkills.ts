@@ -68,7 +68,7 @@ const generateConnectedPath = (dim: number, complexity: number): [number, number
 
         if (validMoves.length === 0) break;
 
-        const [dx, dy] = getRandomItems(validMoves, 1)[0];
+        const [dx, dy] = getRandomItems(validMoves, 1)[0] as [number, number];
         const nextX = currX + dx;
         const nextY = currY + dy;
 

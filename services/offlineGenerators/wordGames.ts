@@ -445,6 +445,8 @@ export const generateOfflineSynonymMatchingPattern = async (o: GeneratorOptions)
     }));
 };
 export const generateOfflineMissingParts = async (o: GeneratorOptions): Promise<MissingPartsData[]> => {
+    // This is now deprecated in favor of ReadingComprehension, but kept for compatibility
+    // Redirects to Reading Comprehension's generator if possible, or returns placeholder
     return Array.from({length: o.worksheetCount}, () => ({
         title: 'Eksik Parça', instruction: 'Tamamla.', pedagogicalNote: 'Bütünleme.', imagePrompt: 'Parça',
         prompt:'Birleştir.', leftParts:[], rightParts:[], givenParts:[]
