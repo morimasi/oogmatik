@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { CollectionItem, WorkbookSettings } from '../types';
 import Workbook from './Workbook';
 
@@ -11,8 +11,15 @@ interface WorkbookViewProps {
     onBack: () => void;
 }
 
+const COLORS = ['#4f46e5', '#ef4444', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#06b6d4', '#1f2937'];
+
 export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, settings, setSettings, onBack }) => {
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+    const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
+    
+    // Drag & Drop State
+    const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleRemoveItem = (id: string) => {
         if(confirm('Bu sayfayı kitapçıktan çıkarmak istediğinize emin misiniz?')) {
@@ -20,13 +27,26 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         }
     };
 
-    const moveItem = (index: number, direction: 'up' | 'down') => {
+    // HTML5 Drag & Drop Handlers
+    const handleDragStart = (index: number) => {
+        setDraggedItemIndex(index);
+    };
+
+    const handleDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        if (draggedItemIndex === null || draggedItemIndex === index) return;
+        
+        // Reorder list visually
         const newItems = [...items];
-        const targetIndex = direction === 'up' ? index - 1 : index + 1;
-        if (targetIndex >= 0 && targetIndex < newItems.length) {
-            [newItems[index], newItems[targetIndex]] = [newItems[targetIndex], newItems[index]];
-            setItems(newItems);
-        }
+        const draggedItem = newItems[draggedItemIndex];
+        newItems.splice(draggedItemIndex, 1);
+        newItems.splice(index, 0, draggedItem);
+        setItems(newItems);
+        setDraggedItemIndex(index);
+    };
+
+    const handleDragEnd = () => {
+        setDraggedItemIndex(null);
     };
 
     const handlePrint = () => {
@@ -36,125 +56,255 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         document.title = originalTitle;
     };
 
+    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                setSettings({ ...settings, logoUrl: ev.target?.result as string });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
-        <div className="h-full flex flex-col bg-[var(--bg-primary)]">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6 pb-4 border-b border-[var(--border-color)] px-6 pt-6 print:hidden">
+        <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
+            {/* Top Toolbar */}
+            <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 shadow-sm shrink-0 print:hidden">
                 <div className="flex items-center gap-4">
-                    <button onClick={onBack} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
-                        <i className="fa-solid fa-arrow-left"></i>
+                    <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center gap-2 text-sm font-bold">
+                        <i className="fa-solid fa-arrow-left"></i> Geri
                     </button>
-                    <div>
-                        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Çalışma Kitapçığı</h2>
-                        <p className="text-sm text-[var(--text-muted)]">{items.length} Sayfa</p>
+                    <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-600"></div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                            <i className="fa-solid fa-book-open-reader text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 leading-tight">Çalışma Kitapçığı</h2>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">{items.length} Sayfa • {settings.theme.toUpperCase()} Tema</p>
+                        </div>
                     </div>
                 </div>
-                <div className="flex gap-2">
-                    <div className="bg-[var(--bg-inset)] p-1 rounded-lg flex items-center">
+
+                <div className="flex gap-3">
+                    <div className="bg-zinc-100 dark:bg-zinc-700 p-1 rounded-lg flex">
                         <button 
                             onClick={() => setViewMode('edit')}
-                            className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${viewMode === 'edit' ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}
+                            className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${viewMode === 'edit' ? 'bg-white dark:bg-zinc-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'}`}
                         >
-                            <i className="fa-solid fa-list mr-2"></i>Düzenle
+                            <i className="fa-solid fa-pen-ruler"></i> Düzenle
                         </button>
                         <button 
                             onClick={() => setViewMode('preview')}
-                            className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${viewMode === 'preview' ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}
+                            className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${viewMode === 'preview' ? 'bg-white dark:bg-zinc-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'}`}
                         >
-                            <i className="fa-solid fa-eye mr-2"></i>Önizle
+                            <i className="fa-solid fa-eye"></i> Önizle
                         </button>
                     </div>
                     {viewMode === 'preview' && (
-                        <button onClick={handlePrint} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg flex items-center gap-2">
+                        <button onClick={handlePrint} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95">
                             <i className="fa-solid fa-print"></i> Yazdır
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* Edit Mode */}
-            {viewMode === 'edit' && (
-                <div className="flex flex-col md:flex-row gap-8 h-full overflow-hidden px-6 pb-6">
-                    {/* Settings Panel */}
-                    <div className="w-full md:w-1/3 overflow-y-auto pr-2 custom-scrollbar">
-                        <div className="bg-[var(--bg-paper)] p-6 rounded-2xl border border-[var(--border-color)] shadow-sm space-y-4">
-                            <h3 className="font-bold text-lg text-[var(--text-primary)] mb-4 border-b border-[var(--border-color)] pb-2">Kapak Ayarları</h3>
+            {/* Main Content Area */}
+            {viewMode === 'edit' ? (
+                <div className="flex flex-1 overflow-hidden">
+                    {/* Left Sidebar: Controls */}
+                    <div className="w-80 md:w-96 bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 flex flex-col z-10 shrink-0">
+                        {/* Tabs */}
+                        <div className="flex border-b border-zinc-200 dark:border-zinc-700">
+                            <button 
+                                onClick={() => setActiveTab('content')}
+                                className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${activeTab === 'content' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
+                            >
+                                <i className="fa-solid fa-layer-group"></i> İçerik
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('design')}
+                                className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${activeTab === 'design' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
+                            >
+                                <i className="fa-solid fa-paintbrush"></i> Tasarım
+                            </button>
+                        </div>
+
+                        {/* Tab Content */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
                             
-                            <div>
-                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Kitapçık Başlığı</label>
-                                <input type="text" value={settings.title} onChange={e => setSettings({...settings, title: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
-                            </div>
-                            
-                            <div>
-                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Öğrenci Adı</label>
-                                <input type="text" value={settings.studentName} onChange={e => setSettings({...settings, studentName: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
-                            </div>
+                            {activeTab === 'content' && (
+                                <>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Kitapçık Başlığı</label>
+                                            <input type="text" value={settings.title} onChange={e => setSettings({...settings, title: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Örn: Tatil Kitabım" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Öğrenci</label>
+                                                <input type="text" value={settings.studentName} onChange={e => setSettings({...settings, studentName: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ad Soyad" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yıl / Dönem</label>
+                                                <input type="text" value={settings.year} onChange={e => setSettings({...settings, year: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="2024-2025" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Eğitmen Notu</label>
+                                            <textarea value={settings.teacherNote} onChange={e => setSettings({...settings, teacherNote: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none" placeholder="Öğrenciye bir not bırakın..." />
+                                        </div>
+                                    </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Okul / Kurum</label>
-                                <input type="text" value={settings.schoolName} onChange={e => setSettings({...settings, schoolName: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
-                            </div>
+                                    <div className="pt-6 border-t border-zinc-200 dark:border-zinc-700">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="font-bold text-zinc-700 dark:text-zinc-200 text-sm">Sayfalar ({items.length})</h3>
+                                            <span className="text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-700 px-2 py-1 rounded">Sürükleyip Sıralayın</span>
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            {items.map((item, index) => (
+                                                <div 
+                                                    key={item.id}
+                                                    draggable
+                                                    onDragStart={() => handleDragStart(index)}
+                                                    onDragOver={(e) => handleDragOver(e, index)}
+                                                    onDragEnd={handleDragEnd}
+                                                    className={`group flex items-center gap-3 p-3 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-400 transition-all ${draggedItemIndex === index ? 'opacity-50 border-dashed border-indigo-500' : ''}`}
+                                                >
+                                                    <div className="w-6 h-6 flex items-center justify-center text-zinc-400">
+                                                        <i className="fa-solid fa-grip-vertical"></i>
+                                                    </div>
+                                                    <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-indigo-600 text-xs shrink-0">
+                                                        {index + 1}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">{item.title}</p>
+                                                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{item.activityType}</p>
+                                                    </div>
+                                                    <button onClick={() => handleRemoveItem(item.id)} className="text-zinc-300 hover:text-red-500 p-2 transition-colors">
+                                                        <i className="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {items.length === 0 && (
+                                                <div className="text-center py-8 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-400 text-sm">
+                                                    Henüz sayfa eklenmedi.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
 
-                            <div>
-                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Eğitim Yılı</label>
-                                <input type="text" value={settings.year} onChange={e => setSettings({...settings, year: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
-                            </div>
+                            {activeTab === 'design' && (
+                                <>
+                                    {/* Cover Style */}
+                                    <div>
+                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Kapak Teması</label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {['modern', 'classic', 'fun', 'minimal', 'academic', 'artistic'].map(t => (
+                                                <button 
+                                                    key={t} 
+                                                    onClick={() => setSettings({...settings, theme: t as any})}
+                                                    className={`p-3 rounded-xl border-2 text-sm font-bold capitalize transition-all text-left flex items-center gap-2 ${settings.theme === t ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-700 text-zinc-600 hover:border-zinc-300'}`}
+                                                >
+                                                    <div className={`w-3 h-3 rounded-full ${settings.theme === t ? 'bg-indigo-500' : 'bg-zinc-300'}`}></div>
+                                                    {t}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Eğitmen Notu</label>
-                                <textarea value={settings.teacherNote} onChange={e => setSettings({...settings, teacherNote: e.target.value})} className="w-full p-2 rounded-lg bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]" />
-                            </div>
+                                    {/* Accent Color */}
+                                    <div>
+                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Vurgu Rengi</label>
+                                        <div className="flex flex-wrap gap-3">
+                                            {COLORS.map(c => (
+                                                <button 
+                                                    key={c}
+                                                    onClick={() => setSettings({...settings, accentColor: c})}
+                                                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110 ${settings.accentColor === c ? 'border-zinc-900 dark:border-white ring-2 ring-offset-2 ring-zinc-300' : 'border-transparent'}`}
+                                                    style={{ backgroundColor: c }}
+                                                >
+                                                    {settings.accentColor === c && <i className="fa-solid fa-check text-white text-xs"></i>}
+                                                </button>
+                                            ))}
+                                            <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-200 cursor-pointer">
+                                                <input type="color" value={settings.accentColor} onChange={e => setSettings({...settings, accentColor: e.target.value})} className="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer" />
+                                            </div>
+                                        </div>
+                                    </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Kapak Teması</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {['modern', 'classic', 'fun', 'minimal'].map(t => (
-                                        <button key={t} onClick={() => setSettings({...settings, theme: t as any})} className={`p-2 rounded border text-sm capitalize ${settings.theme === t ? 'bg-[var(--accent-color)] text-black border-transparent font-bold shadow-sm' : 'bg-[var(--bg-inset)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>
-                                            {t}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                                    {/* Logo Upload */}
+                                    <div>
+                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Okul / Kurum Logosu</label>
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-700 rounded-xl border-2 border-dashed border-zinc-300 flex items-center justify-center overflow-hidden">
+                                                {settings.logoUrl ? <img src={settings.logoUrl} className="w-full h-full object-contain" /> : <i className="fa-solid fa-image text-zinc-300 text-xl"></i>}
+                                            </div>
+                                            <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm font-bold hover:bg-zinc-50 transition-colors">
+                                                Logo Seç
+                                            </button>
+                                            <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
+                                            {settings.logoUrl && <button onClick={() => setSettings({...settings, logoUrl: undefined})} className="text-red-500 text-sm hover:underline">Kaldır</button>}
+                                        </div>
+                                    </div>
+
+                                    {/* Cover Layout */}
+                                    <div>
+                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Kapak Düzeni</label>
+                                        <div className="flex bg-zinc-100 dark:bg-zinc-700 p-1 rounded-lg">
+                                            {['centered', 'left', 'split'].map(layout => (
+                                                <button
+                                                    key={layout}
+                                                    onClick={() => setSettings({...settings, coverStyle: layout as any})}
+                                                    className={`flex-1 py-2 text-xs font-bold uppercase rounded-md transition-all ${settings.coverStyle === layout ? 'bg-white shadow-sm text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                                >
+                                                    {layout}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Toggles */}
+                                    <div className="space-y-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                                        <label className="flex items-center justify-between cursor-pointer group">
+                                            <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">İçindekiler Tablosu</span>
+                                            <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showTOC ? 'bg-green-500' : 'bg-zinc-300'}`}>
+                                                <input type="checkbox" checked={settings.showTOC} onChange={e => setSettings({...settings, showTOC: e.target.checked})} className="hidden" />
+                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showTOC ? 'left-6' : 'left-1'}`}></div>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center justify-between cursor-pointer group">
+                                            <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Sayfa Numaraları</span>
+                                            <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showPageNumbers ? 'bg-green-500' : 'bg-zinc-300'}`}>
+                                                <input type="checkbox" checked={settings.showPageNumbers} onChange={e => setSettings({...settings, showPageNumbers: e.target.checked})} className="hidden" />
+                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showPageNumbers ? 'left-6' : 'left-1'}`}></div>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center justify-between cursor-pointer group">
+                                            <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Filigran (Logo)</span>
+                                            <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showWatermark ? 'bg-green-500' : 'bg-zinc-300'}`}>
+                                                <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings({...settings, showWatermark: e.target.checked})} className="hidden" />
+                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showWatermark ? 'left-6' : 'left-1'}`}></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
-                    {/* Items List */}
-                    <div className="flex-1 overflow-y-auto bg-[var(--bg-inset)] rounded-2xl p-4 border border-[var(--border-color)] custom-scrollbar">
-                        {items.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-[var(--text-muted)] opacity-50">
-                                <i className="fa-solid fa-folder-open text-6xl mb-4"></i>
-                                <p className="font-bold">Henüz etkinlik eklenmemiş.</p>
-                                <p className="text-sm mt-2">Etkinlik ekranlarındaki "<i className="fa-solid fa-plus-circle"></i> Kitapçığa Ekle" butonunu kullanın.</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {items.map((item, index) => (
-                                    <div key={item.id} className="bg-[var(--bg-paper)] p-4 rounded-xl shadow-sm border border-[var(--border-color)] flex items-center gap-4 group hover:border-[var(--accent-color)] transition-all">
-                                        <div className="w-8 h-8 rounded-full bg-[var(--bg-inset)] flex items-center justify-center font-bold text-[var(--text-muted)] shrink-0 border border-[var(--border-color)]">
-                                            {index + 1}
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="font-bold text-[var(--text-primary)]">{item.title}</h4>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[10px] uppercase font-bold tracking-wider bg-[var(--bg-inset)] px-2 py-0.5 rounded text-[var(--text-muted)]">{item.activityType}</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2 opacity-100 sm:opacity-50 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="p-2 hover:bg-[var(--bg-inset)] rounded disabled:opacity-30 text-[var(--text-secondary)]"><i className="fa-solid fa-arrow-up"></i></button>
-                                            <button onClick={() => moveItem(index, 'down')} disabled={index === items.length - 1} className="p-2 hover:bg-[var(--bg-inset)] rounded disabled:opacity-30 text-[var(--text-secondary)]"><i className="fa-solid fa-arrow-down"></i></button>
-                                            <div className="w-px bg-[var(--border-color)] mx-1"></div>
-                                            <button onClick={() => handleRemoveItem(item.id)} className="p-2 hover:bg-rose-900/20 text-rose-500 rounded"><i className="fa-solid fa-trash"></i></button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                    {/* Right: Live Preview */}
+                    <div className="flex-1 bg-zinc-100 dark:bg-zinc-950 p-8 overflow-auto flex justify-center custom-scrollbar">
+                        <div className="scale-[0.6] sm:scale-[0.7] md:scale-[0.8] origin-top transition-transform duration-300">
+                            <Workbook items={items} settings={settings} />
+                        </div>
                     </div>
                 </div>
-            )}
-
-            {/* Preview Mode */}
-            {viewMode === 'preview' && (
+            ) : (
                 <div className="flex-1 overflow-auto bg-zinc-200 dark:bg-zinc-950 p-8 flex justify-center custom-scrollbar">
                     <Workbook items={items} settings={settings} />
                 </div>

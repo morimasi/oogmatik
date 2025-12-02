@@ -391,6 +391,15 @@ export interface WorkbookSettings {
     schoolName: string;
     year: string;
     teacherNote: string;
-    theme: 'modern' | 'classic' | 'fun' | 'minimal';
-    coverImage?: string; 
+    
+    // Updated Professional Settings
+    theme: 'modern' | 'classic' | 'fun' | 'minimal' | 'academic' | 'artistic';
+    accentColor: string; // Hex color for highlights
+    logoUrl?: string; // Custom logo upload
+    coverStyle: 'centered' | 'left' | 'split';
+    
+    // Visibility
+    showTOC: boolean; // Table of Contents
+    showPageNumbers: boolean;
+    showWatermark: boolean;
 }
