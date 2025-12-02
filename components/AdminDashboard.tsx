@@ -15,6 +15,45 @@ interface AdminDashboardProps {
 
 const PAGE_SIZE = 15;
 
+// Reusing BentoCard locally or import if shared (assuming local definition for simplicity in this file scope)
+const BentoCard: React.FC<{ 
+    children: React.ReactNode; 
+    className?: string; 
+    title?: string; 
+    icon?: string; 
+    iconColor?: string;
+    action?: React.ReactNode;
+}> = ({ children, className = "", title, icon, iconColor = "bg-zinc-100 text-zinc-500", action }) => (
+    <div className={`bg-white dark:bg-zinc-800 p-6 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col ${className}`}>
+        {(title || icon || action) && (
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                    {icon && (
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-sm ${iconColor}`}>
+                            <i className={icon}></i>
+                        </div>
+                    )}
+                    {title && <h3 className="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{title}</h3>}
+                </div>
+                {action && <div>{action}</div>}
+            </div>
+        )}
+        <div className="flex-1 flex flex-col">
+            {children}
+        </div>
+    </div>
+);
+
+const StatBigValue: React.FC<{ value: string | number; label: string; trend?: string }> = ({ value, label, trend }) => (
+    <div>
+        <div className="text-4xl font-black text-zinc-800 dark:text-zinc-100 tracking-tight">{value}</div>
+        <div className="flex items-center gap-2 mt-1">
+            <span className="text-sm text-zinc-500 font-medium">{label}</span>
+            {trend && <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">{trend}</span>}
+        </div>
+    </div>
+);
+
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'users' | 'feedbacks' | 'messages' | 'stats'>('users');
@@ -197,142 +236,203 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     }
 
     return (
-        <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
-            <header className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 p-4 flex justify-between items-center">
+        <div className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900">
+            <header className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 px-6 py-4 flex justify-between items-center shadow-sm z-10">
                 <div className="flex items-center gap-4">
                     <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800"><i className="fa-solid fa-arrow-left"></i></button>
                     <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Yönetici Paneli</h2>
                 </div>
-                <div className="flex gap-2 overflow-x-auto">
-                    <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${activeTab === 'users' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Kullanıcılar</button>
-                    <button onClick={() => setActiveTab('feedbacks')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${activeTab === 'feedbacks' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>Geri Bildirimler</button>
-                    <button onClick={() => setActiveTab('stats')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${activeTab === 'stats' ? 'bg-indigo-100 text-indigo-700' : 'text-zinc-500'}`}>İstatistikler</button>
+                <div className="flex gap-2">
+                    <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'users' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}>Kullanıcılar</button>
+                    <button onClick={() => setActiveTab('feedbacks')} className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'feedbacks' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}>Mesajlar</button>
+                    <button onClick={() => setActiveTab('stats')} className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'stats' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}>Analiz</button>
                 </div>
             </header>
 
-            <div className="flex-1 overflow-hidden p-4 md:p-8">
-                {/* USERS TAB */}
-                {activeTab === 'users' && (
-                    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden flex flex-col h-full">
-                        <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
-                            <h3 className="font-bold">Toplam {usersCount} Kullanıcı</h3>
-                            <button onClick={() => loadData('users')} className="text-sm text-indigo-600 font-bold flex items-center gap-2"><i className="fa-solid fa-sync"></i> Yenile</button>
-                        </div>
-                        <div className="overflow-x-auto flex-1">
-                            {loading.users ? <div className="h-full flex items-center justify-center"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div> : (
-                            <table className="w-full text-left text-sm">
-                                <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 sticky top-0">
-                                    <tr>
-                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Kullanıcı</th>
-                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Üretim</th>
-                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Son Etkinlik</th>
-                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Plan</th>
-                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400">Durum</th>
-                                        <th className="p-4 font-semibold text-zinc-600 dark:text-zinc-400 text-right">İşlemler</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
-                                    {users.map(u => (
-                                        <tr key={u.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30">
-                                            <td className="p-4 flex items-center gap-3">
-                                                <img src={u.avatar} alt="" className="w-8 h-8 rounded-full bg-zinc-200" />
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                                                        {u.name}
-                                                        {u.role === 'admin' && <span className="bg-purple-100 text-purple-700 text-[10px] px-1 rounded">ADMIN</span>}
-                                                    </span>
-                                                    <span className="text-xs text-zinc-500">{u.email}</span>
-                                                </div>
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">{u.worksheetCount}</span>
-                                            </td>
-                                            <td className="p-4">
-                                                {u.lastActiveActivity ? (
-                                                    <div className="flex flex-col">
-                                                        <span className="text-zinc-700 dark:text-zinc-300 font-medium">{u.lastActiveActivity.title}</span>
-                                                        <span className="text-xs text-zinc-500">{new Date(u.lastActiveActivity.date).toLocaleDateString()}</span>
-                                                    </div>
-                                                ) : <span className="text-zinc-400">-</span>}
-                                            </td>
-                                            <td className="p-4 text-zinc-600 dark:text-zinc-400 capitalize">{u.subscriptionPlan}</td>
-                                            <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-bold ${u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{u.status}</span></td>
-                                            <td className="p-4 text-right space-x-2">
-                                                {u.id !== user.id && (
-                                                    <>
-                                                        <button onClick={() => setInspectingUser(u)} className="text-blue-600 hover:text-blue-800 bg-blue-50 p-2 rounded-lg" title="Detaylı İncele"><i className="fa-solid fa-eye"></i></button>
-                                                        <button onClick={() => handleSetRole(u.id, u.role)} className="text-purple-600 hover:text-purple-800 p-2 rounded-lg hover:bg-purple-50" title={u.role === 'admin' ? 'Yönetici Yetkisini Al' : 'Yönetici Yap'}><i className={`fa-solid ${u.role === 'admin' ? 'fa-user-slash' : 'fa-user-shield'}`}></i></button>
-                                                        <button onClick={() => handleToggleStatus(u.id, u.status)} className="text-amber-600 hover:text-amber-800 p-2 rounded-lg hover:bg-amber-50" title={u.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}><i className={`fa-solid ${u.status === 'active' ? 'fa-ban' : 'fa-check'}`}></i></button>
-                                                        <button onClick={() => handleDeleteUser(u.id)} className="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50" title="Sil"><i className="fa-solid fa-trash"></i></button>
-                                                    </>
-                                                )}
-                                            </td>
+            <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
+                <div className="max-w-7xl mx-auto">
+                    
+                    {/* USERS TAB - WRAPPED IN BENTO */}
+                    {activeTab === 'users' && (
+                        <BentoCard className="min-h-[600px] p-0 overflow-hidden" title="Kullanıcı Listesi" icon="fa-solid fa-users" iconColor="bg-blue-100 text-blue-600">
+                            <div className="flex justify-between items-center px-6 mb-4">
+                                <p className="text-sm text-zinc-500 font-bold">{usersCount} Kayıt</p>
+                                <button onClick={() => loadData('users')} className="text-indigo-600 text-sm font-bold hover:underline">Yenile</button>
+                            </div>
+                            
+                            <div className="overflow-x-auto flex-1">
+                                {loading.users ? <div className="h-full flex items-center justify-center min-h-[300px]"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div> : (
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-zinc-50 dark:bg-zinc-700/30 border-y border-zinc-200 dark:border-zinc-700">
+                                        <tr>
+                                            <th className="px-6 py-3 font-bold text-zinc-500 uppercase text-xs">Kullanıcı</th>
+                                            <th className="px-6 py-3 font-bold text-zinc-500 uppercase text-xs">Aktivite</th>
+                                            <th className="px-6 py-3 font-bold text-zinc-500 uppercase text-xs">Rol</th>
+                                            <th className="px-6 py-3 font-bold text-zinc-500 uppercase text-xs">Durum</th>
+                                            <th className="px-6 py-3 font-bold text-zinc-500 uppercase text-xs text-right">İşlem</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            )}
-                        </div>
-                         {usersTotalPages > 1 && (
-                            <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
-                                <button onClick={() => setUsersPage(p => Math.max(0, p - 1))} disabled={usersPage === 0} className="px-3 py-1 border rounded text-sm disabled:opacity-50">Önceki</button>
-                                <span>Sayfa {usersPage + 1} / {usersTotalPages}</span>
-                                <button onClick={() => setUsersPage(p => p + 1)} disabled={usersPage >= usersTotalPages - 1} className="px-3 py-1 border rounded text-sm disabled:opacity-50">Sonraki</button>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
+                                        {users.map(u => (
+                                            <tr key={u.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/20 transition-colors">
+                                                <td className="px-6 py-4 flex items-center gap-3">
+                                                    <img src={u.avatar} className="w-8 h-8 rounded-full bg-zinc-200" />
+                                                    <div>
+                                                        <div className="font-bold text-zinc-800 dark:text-zinc-200">{u.name}</div>
+                                                        <div className="text-xs text-zinc-500">{u.email}</div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-bold text-zinc-700">{u.worksheetCount}</span>
+                                                        <span className="text-xs text-zinc-400">üretim</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {u.role === 'admin' 
+                                                        ? <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-bold">Yönetici</span> 
+                                                        : <span className="bg-zinc-100 text-zinc-600 px-2 py-1 rounded text-xs font-bold">Kullanıcı</span>}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`w-2 h-2 rounded-full inline-block mr-2 ${u.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                                    <span className="text-xs font-bold uppercase text-zinc-500">{u.status}</span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right space-x-2">
+                                                    {u.id !== user.id && (
+                                                        <>
+                                                            <button onClick={() => setInspectingUser(u)} className="p-2 hover:bg-zinc-100 rounded text-zinc-500 hover:text-indigo-600" title="İncele"><i className="fa-solid fa-eye"></i></button>
+                                                            <button onClick={() => handleSetRole(u.id, u.role)} className="p-2 hover:bg-zinc-100 rounded text-zinc-500 hover:text-purple-600" title="Yetki Değiştir"><i className="fa-solid fa-user-shield"></i></button>
+                                                            <button onClick={() => handleDeleteUser(u.id)} className="p-2 hover:bg-zinc-100 rounded text-zinc-500 hover:text-red-600" title="Sil"><i className="fa-solid fa-trash"></i></button>
+                                                        </>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                )}
                             </div>
-                        )}
-                    </div>
-                )}
-
-                {/* FEEDBACKS TAB */}
-                {activeTab === 'feedbacks' && (
-                     <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden flex flex-col h-full">
-                        <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
-                            <h3 className="font-bold">Toplam {feedbacksCount} Geri Bildirim</h3>
-                            <button onClick={() => loadData('feedbacks')} className="text-sm text-indigo-600 font-bold flex items-center gap-2"><i className="fa-solid fa-sync"></i> Yenile</button>
-                        </div>
-                        <div className="overflow-y-auto flex-1 p-4 space-y-4">
-                            {loading.feedbacks ? <div className="h-full flex items-center justify-center"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div> : feedbacks.length === 0 ? <div className="text-center p-8 text-zinc-400">Henüz geri bildirim yok.</div> :
-                            feedbacks.map(fb => (
-                                <div key={fb.id} className={`p-6 rounded-xl border ${fb.status === 'new' ? 'border-indigo-500 shadow-md' : 'border-zinc-200 dark:border-zinc-700 shadow-sm'}`}>
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <span className="font-bold text-zinc-900 dark:text-zinc-100">{fb.userName || 'Anonim'}</span>
-                                            <span className="text-xs text-zinc-500"> ({fb.userEmail})</span>
-                                            {fb.status === 'new' && <span className="ml-2 bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">YENİ</span>}
-                                        </div>
-                                        <div className="flex text-yellow-400 text-sm">{Array.from({length: 5}).map((_, i) => (<i key={i} className={`${i < fb.rating ? 'fa-solid' : 'fa-regular'} fa-star`}></i>))}</div>
-                                    </div>
-                                    <div className="mb-4">
-                                        <span className="inline-block px-2 py-1 bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs rounded mb-2">{fb.activityTitle || 'Genel'}</span>
-                                        <p className="text-zinc-700 dark:text-zinc-200">{fb.message}</p>
-                                    </div>
+                            {usersTotalPages > 1 && (
+                                <div className="p-4 border-t border-zinc-200 flex justify-between items-center">
+                                    <button onClick={() => setUsersPage(p => Math.max(0, p - 1))} disabled={usersPage === 0} className="px-3 py-1 border rounded text-xs font-bold disabled:opacity-50">Önceki</button>
+                                    <span className="text-xs text-zinc-500 font-bold">{usersPage + 1} / {usersTotalPages}</span>
+                                    <button onClick={() => setUsersPage(p => p + 1)} disabled={usersPage >= usersTotalPages - 1} className="px-3 py-1 border rounded text-xs font-bold disabled:opacity-50">Sonraki</button>
                                 </div>
-                            ))}
-                        </div>
-                         {feedbacksTotalPages > 1 && (
-                            <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
-                                <button onClick={() => setFeedbacksPage(p => Math.max(0, p - 1))} disabled={feedbacksPage === 0} className="px-3 py-1 border rounded text-sm disabled:opacity-50">Önceki</button>
-                                <span>Sayfa {feedbacksPage + 1} / {feedbacksTotalPages}</span>
-                                <button onClick={() => setFeedbacksPage(p => p + 1)} disabled={feedbacksPage >= feedbacksTotalPages - 1} className="px-3 py-1 border rounded text-sm disabled:opacity-50">Sonraki</button>
+                            )}
+                        </BentoCard>
+                    )}
+
+                    {/* FEEDBACKS TAB - WRAPPED IN BENTO */}
+                    {activeTab === 'feedbacks' && (
+                         <BentoCard className="min-h-[600px] p-0" title="Gelen Kutusu" icon="fa-solid fa-inbox" iconColor="bg-orange-100 text-orange-600">
+                            <div className="flex justify-between items-center px-6 mb-4">
+                                <p className="text-sm text-zinc-500 font-bold">{feedbacksCount} Mesaj</p>
+                                <button onClick={() => loadData('feedbacks')} className="text-indigo-600 text-sm font-bold hover:underline">Yenile</button>
                             </div>
-                        )}
-                    </div>
-                )}
-               
-                {/* STATS TAB */}
-                {activeTab === 'stats' && (
-                    <div className="flex flex-col h-full gap-6 overflow-y-auto pb-20">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4"><div className="w-12 h-12 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl"><i className="fa-solid fa-bolt"></i></div><div><p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">Toplam Üretim</p><p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">{totalGenerations}</p></div></div>
-                            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4"><div className="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl"><i className="fa-solid fa-trophy"></i></div><div><p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">En Popüler</p><p className="text-xl font-bold text-zinc-800 dark:text-zinc-100 line-clamp-1" title={mostPopular?.title || '-'}>{mostPopular?.title || '-'}</p></div></div>
-                            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4"><div className="w-12 h-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-2xl"><i className="fa-solid fa-clock"></i></div><div><p className="text-sm text-zinc-500 dark:text-zinc-400 font-bold uppercase">Ort. Tamamlama</p><p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">{avgTime} dk</p></div></div>
+                            
+                            <div className="flex-1 overflow-y-auto px-6 space-y-4 pb-6">
+                                {loading.feedbacks ? <div className="flex justify-center p-12"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div> : feedbacks.length === 0 ? <div className="text-center text-zinc-400 p-12">Mesaj yok.</div> :
+                                feedbacks.map(fb => (
+                                    <div key={fb.id} className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-700/30 border border-zinc-200 dark:border-zinc-700 flex gap-4">
+                                        <div className={`w-2 h-auto rounded-full ${fb.status === 'new' ? 'bg-blue-500' : 'bg-zinc-300'}`}></div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h4 className="font-bold text-zinc-900 dark:text-zinc-100">{fb.activityTitle || 'Genel'}</h4>
+                                                <div className="flex text-yellow-400 text-xs">{Array.from({length:5}).map((_,i) => <i key={i} className={`${i<fb.rating?'fa-solid':'fa-regular'} fa-star`}></i>)}</div>
+                                            </div>
+                                            <p className="text-zinc-600 dark:text-zinc-300 text-sm mb-3">{fb.message}</p>
+                                            <div className="flex justify-between items-center text-xs text-zinc-400 font-medium">
+                                                <span>{fb.userName} ({fb.userEmail})</span>
+                                                <span>{new Date(fb.timestamp).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </BentoCard>
+                    )}
+                   
+                    {/* STATS TAB - FULL BENTO GRID LAYOUT */}
+                    {activeTab === 'stats' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            
+                            {/* Summary Cards */}
+                            <BentoCard title="Toplam Üretim" icon="fa-solid fa-bolt" iconColor="bg-indigo-100 text-indigo-600">
+                                <div className="mt-auto">
+                                    <StatBigValue value={totalGenerations} label="Materyal Oluşturuldu" />
+                                </div>
+                            </BentoCard>
+
+                            <BentoCard title="Popüler" icon="fa-solid fa-fire" iconColor="bg-orange-100 text-orange-600">
+                                <div className="mt-auto">
+                                    <div className="text-xl font-bold text-zinc-800 line-clamp-2 leading-tight mb-1">{mostPopular?.title || '-'}</div>
+                                    <div className="text-xs text-zinc-500 font-bold bg-zinc-100 inline-block px-2 py-1 rounded">{mostPopular?.generationCount} kez</div>
+                                </div>
+                            </BentoCard>
+
+                            <BentoCard title="Ortalama Süre" icon="fa-solid fa-clock" iconColor="bg-blue-100 text-blue-600">
+                                <div className="mt-auto">
+                                    <StatBigValue value={`${avgTime} sn`} label="Üretim Süresi" />
+                                </div>
+                            </BentoCard>
+
+                            <BentoCard title="Aktif Kullanıcılar" icon="fa-solid fa-users" iconColor="bg-emerald-100 text-emerald-600">
+                                <div className="mt-auto">
+                                    <StatBigValue value={usersCount} label="Kayıtlı Hesap" />
+                                </div>
+                            </BentoCard>
+
+                            {/* Top 5 Activities Bar Chart (Span 2x2) */}
+                            <BentoCard className="md:col-span-2 lg:row-span-2" title="En Çok Kullanılan 5 Etkinlik" icon="fa-solid fa-chart-simple" iconColor="bg-violet-100 text-violet-600">
+                                <div className="flex flex-col justify-end h-full gap-4 mt-4">
+                                    {top5.map((item, index) => {
+                                        const maxVal = top5[0].generationCount || 1;
+                                        const widthPercent = ((item.generationCount || 0) / maxVal) * 100;
+                                        return (
+                                            <div key={item.activityId} className="w-full">
+                                                <div className="flex justify-between text-xs font-bold text-zinc-600 mb-1">
+                                                    <span className="truncate w-3/4">{item.title}</span>
+                                                    <span>{item.generationCount}</span>
+                                                </div>
+                                                <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-3 overflow-hidden">
+                                                    <div 
+                                                        className="h-full rounded-full bg-indigo-500 transition-all duration-1000" 
+                                                        style={{ width: `${widthPercent}%`, opacity: 1 - (index * 0.1) }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </BentoCard>
+
+                            {/* Detailed Stats Table (Span 2x2) */}
+                            <BentoCard className="md:col-span-2 lg:row-span-2 p-0 overflow-hidden" title="Tüm Etkinlik Verileri" icon="fa-solid fa-table" iconColor="bg-zinc-100 text-zinc-600">
+                                <div className="overflow-auto flex-1 max-h-[400px]">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-zinc-50 dark:bg-zinc-800 border-b sticky top-0 z-10">
+                                            <tr>
+                                                <th className="p-4 cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500" onClick={() => handleSort('title')}>Etkinlik</th>
+                                                <th className="p-4 text-center cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500" onClick={() => handleSort('generationCount')}>Sayı</th>
+                                                <th className="p-4 text-right cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500" onClick={() => handleSort('lastGenerated')}>Son</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
+                                            {sortedStats.map((item) => (
+                                                <tr key={item.activityId} className="hover:bg-zinc-50 transition-colors">
+                                                    <td className="p-4 font-bold text-zinc-700 text-xs">{item.title}</td>
+                                                    <td className="p-4 text-center"><span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded text-xs font-bold">{item.generationCount}</span></td>
+                                                    <td className="p-4 text-right text-zinc-400 text-xs font-mono">{new Date(item.lastGenerated).toLocaleDateString('tr-TR')}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </BentoCard>
+
                         </div>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div className="lg:col-span-1 bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"><h3 className="text-lg font-bold mb-6 text-zinc-800 dark:text-zinc-100">En Çok Kullanılan 5 Etkinlik</h3><div className="flex flex-col justify-end h-64 gap-3">{top5.map((item, index) => {const maxVal = top5[0].generationCount || 1; const widthPercent = ((item.generationCount || 0) / maxVal) * 100; return (<div key={item.activityId} className="w-full"><div className="flex justify-between text-xs mb-1"><span className="font-medium truncate w-3/4" title={item.title}>{item.title}</span><span className="font-bold">{item.generationCount}</span></div><div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-3 overflow-hidden"><div className="h-full rounded-full bg-indigo-500" style={{ width: `${widthPercent}%`, opacity: 1 - (index * 0.15) }}></div></div></div>);})}</div></div>
-                            <div className="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col"><div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-center"><h3 className="font-bold text-zinc-800 dark:text-zinc-100">Tüm Etkinlik Detayları</h3></div><div className="overflow-x-auto flex-1"><table className="w-full text-left text-sm"><thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 uppercase font-bold text-xs sticky top-0"><tr><th className="p-4 cursor-pointer hover:text-indigo-600" onClick={() => handleSort('title')}>Etkinlik Adı <i className="fa-solid fa-sort ml-1"></i></th><th className="p-4 text-center cursor-pointer hover:text-indigo-600" onClick={() => handleSort('generationCount')}>Üretim <i className="fa-solid fa-sort ml-1"></i></th><th className="p-4 text-center cursor-pointer hover:text-indigo-600" onClick={() => handleSort('avgCompletionTime')}>Ort. Süre (dk) <i className="fa-solid fa-sort ml-1"></i></th><th className="p-4 text-right cursor-pointer hover:text-indigo-600" onClick={() => handleSort('lastGenerated')}>Son İşlem <i className="fa-solid fa-sort ml-1"></i></th></tr></thead><tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">{sortedStats.map((item) => (<tr key={item.activityId} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors"><td className="p-4 font-medium text-zinc-800 dark:text-zinc-200">{item.title}</td><td className="p-4 text-center"><span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded font-bold text-xs">{item.generationCount}</span></td><td className="p-4 text-center text-zinc-600 dark:text-zinc-400">{item.avgCompletionTime}</td><td className="p-4 text-right text-zinc-500 text-xs">{new Date(item.lastGenerated).toLocaleDateString('tr-TR')}</td></tr>))}</tbody></table></div></div>
-                        </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );
