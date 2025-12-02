@@ -308,11 +308,13 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
             </div>
             
             <div className="aspect-video w-full bg-white rounded-xl mb-4 overflow-hidden border-2 border-black relative">
-                {panel.imageBase64 ? (
-                    <ImageDisplay base64={panel.imageBase64} description={panel.description} className="w-full h-full object-cover" />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-zinc-300 text-4xl"><i className="fa-regular fa-image"></i></div>
-                )}
+                {/* Updated ImageDisplay to use imagePrompt if available */}
+                <ImageDisplay 
+                    base64={panel.imageBase64} 
+                    prompt={panel.imagePrompt}
+                    description={panel.description} 
+                    className="w-full h-full object-cover" 
+                />
             </div>
             
             <div className="min-h-[4rem] flex items-center justify-center text-center">

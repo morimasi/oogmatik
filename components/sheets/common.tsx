@@ -20,37 +20,91 @@ const findEmojiForDescription = (desc: string): string | null => {
     return null;
 };
 
-// Enhanced ImageDisplay
-export const ImageDisplay = React.memo(({ base64, description, className = "w-full h-32" }: { base64?: string; description?: string | number; className?: string }) => {
+interface ImageDisplayProps {
+    base64?: string;
+    description?: string | number;
+    prompt?: string;
+    className?: string;
+}
+
+// Enhanced ImageDisplay with Free AI Generation
+export const ImageDisplay = React.memo(({ base64, description, prompt, className = "w-full h-32" }: ImageDisplayProps) => {
     let safeDesc = '';
     try { if (description) safeDesc = String(description); } catch (e) { safeDesc = ''; }
 
+    // Generate a consistent seed based on description to ensure the image doesn't flicker on re-renders
+    const seed = safeDesc.length > 0 ? safeDesc.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : Math.floor(Math.random() * 1000);
+
     return (
-        <div className={`image-display-container ${className} relative overflow-hidden`}>
+        <div className={`image-display-container ${className} relative overflow-hidden bg-white`}>
             {(() => {
+                // 1. Priority: Base64 or SVG provided directly
                 if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
                     let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
                     cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '').replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
                     return <div className="w-full h-full p-1 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: cleanSvg }} />;
                 }
+                
                 if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
                     return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" />;
                 }
+
+                // 2. Priority: AI Generation (Pollinations.ai) - Free & Quota Friendly
+                // If a specific prompt is provided (usually English from Gemini)
+                if (prompt && prompt.length > 2) {
+                    const encodedPrompt = encodeURIComponent(`${prompt} children's book illustration, clean vector art, white background, high contrast, colorful`);
+                    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
+                    
+                    return (
+                        <img 
+                            src={imageUrl} 
+                            alt={safeDesc} 
+                            className="object-contain w-full h-full" 
+                            loading="lazy"
+                            onError={(e) => {
+                                // Fallback to emoji if image fails to load
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                        />
+                    );
+                }
+
+                // 3. Fallback: Emoji or Initial Letter
                 const emojiIcon = findEmojiForDescription(safeDesc);
                 const initial = safeDesc.charAt(0).toUpperCase();
                 return (
-                    <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-200`}>
-                        {emojiIcon ? <div className="text-5xl">{emojiIcon}</div> : <div className="flex flex-col items-center"><span className="text-4xl font-black opacity-80 text-black">{initial}</span><span className="text-[10px] font-bold uppercase text-black">{safeDesc}</span></div>}
+                    <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-100 hidden`}>
+                        {emojiIcon ? (
+                            <div className="text-5xl">{emojiIcon}</div>
+                        ) : (
+                            <div className="flex flex-col items-center">
+                                <span className="text-4xl font-black opacity-80 text-black">{initial}</span>
+                                <span className="text-[10px] font-bold uppercase text-black">{safeDesc}</span>
+                            </div>
+                        )}
                     </div>
                 );
             })()}
+            
+            {/* Immediate Fallback Element (displayed if image errors or no prompt) */}
+            {(!prompt && !base64) && (
+                 <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-100`}>
+                    {findEmojiForDescription(safeDesc) ? (
+                        <div className="text-5xl">{findEmojiForDescription(safeDesc)}</div>
+                    ) : (
+                        <div className="flex flex-col items-center">
+                            <span className="text-4xl font-black opacity-80 text-black">{safeDesc.charAt(0).toUpperCase()}</span>
+                            <span className="text-[10px] font-bold uppercase text-black">{safeDesc}</span>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 });
 
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => {
-    // Mascot code removed completely as requested
-    
     return (
         <div className="pedagogical-header mb-4 text-center print:mb-4 break-inside-avoid relative w-full">
             <EditableElement className="flex items-center justify-center gap-3 mb-2 relative z-0" style={{ display: 'var(--display-title)' }}>
@@ -61,9 +115,14 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 <EditableText tag="p" value={instruction} className="text-lg font-bold text-black" />
             </EditableElement>
             
-            {data?.imageBase64 && (
+            {(data?.imagePrompt || data?.imageBase64) && (
                 <EditableElement className="my-4 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-black" style={{ display: 'var(--display-image)' }}>
-                    <ImageDisplay base64={data.imageBase64} description={data.imagePrompt || title} className="w-full h-64 object-contain bg-white" />
+                    <ImageDisplay 
+                        base64={data.imageBase64} 
+                        prompt={data.imagePrompt}
+                        description={data.title} 
+                        className="w-full h-64 object-contain bg-white" 
+                    />
                 </EditableElement>
             )}
 

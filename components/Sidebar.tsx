@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions, StudentProfile } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
@@ -49,14 +49,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
 
-  // Arama yapıldığında kategorileri otomatik açmak için
-  useEffect(() => {
-      if (searchTerm) {
-          setOpenCategoryId(null); // Arama modunda accordion mantığını devre dışı bırakıp hepsini listele
-      }
-  }, [searchTerm]);
+  const categorizedActivities = useMemo(() => {
+      return ACTIVITY_CATEGORIES.map(category => ({
+          ...category,
+          items: ACTIVITIES.filter(act => category.activities.includes(act.id))
+      }));
+  }, []);
 
   const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
@@ -124,30 +123,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const currentActivity = getActivityById(selectedActivity);
 
-  // Arama Filtreleme Mantığı
-  const filteredCategories = useMemo(() => {
-      if (!searchTerm.trim()) {
-          return ACTIVITY_CATEGORIES.map(category => ({
-              ...category,
-              items: ACTIVITIES.filter(act => category.activities.includes(act.id))
-          }));
-      }
-
-      const lowerTerm = searchTerm.toLocaleLowerCase('tr');
-      return ACTIVITY_CATEGORIES.map(category => {
-          const isCategoryMatch = category.title.toLocaleLowerCase('tr').includes(lowerTerm);
-          const matchingActivities = ACTIVITIES.filter(act => 
-              category.activities.includes(act.id) && 
-              (act.title.toLocaleLowerCase('tr').includes(lowerTerm) || isCategoryMatch)
-          );
-
-          return {
-              ...category,
-              items: matchingActivities
-          };
-      }).filter(cat => cat.items.length > 0);
-  }, [searchTerm]);
-
   return (
     <aside
       id="tour-sidebar"
@@ -184,78 +159,56 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <i className="fa-solid fa-times"></i>
                             </button>
                         </div>
-
-                        {isExpanded && (
-                            <div className="relative">
-                                <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
-                                <input 
-                                    type="text" 
-                                    placeholder="Etkinlik ara..." 
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-8 pr-8 py-2 bg-[var(--bg-inset)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)] placeholder:text-zinc-500"
-                                />
-                                {searchTerm && (
-                                    <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200">
-                                        <i className="fa-solid fa-times-circle text-xs"></i>
-                                    </button>
-                                )}
-                            </div>
-                        )}
                     </div>
 
                     <nav className="flex-1 overflow-y-auto p-2 custom-scrollbar space-y-1">
-                        {filteredCategories.length === 0 ? (
-                            <div className="text-center p-4 text-zinc-500 text-sm">Sonuç bulunamadı.</div>
-                        ) : (
-                            filteredCategories.map((category) => {
-                                const isOpen = searchTerm ? true : openCategoryId === category.id;
-                                
-                                return (
-                                    <div key={category.id} className="rounded-xl overflow-hidden transition-all duration-200">
-                                        <button
-                                            onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
-                                            className={`w-full flex items-center p-3 text-left font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-inset)] transition-all focus:outline-none ${isOpen ? 'bg-[var(--bg-inset)] text-[var(--text-primary)]' : ''} ${!isExpanded ? 'justify-center' : 'justify-between'}`}
-                                            title={!isExpanded ? category.title : undefined}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isOpen ? 'bg-[var(--accent-color)] text-black' : 'bg-transparent text-[var(--text-muted)]'}`}>
-                                                    <i className={`${category.icon} text-sm`}></i>
-                                                </div>
-                                                <span className={`whitespace-nowrap transition-opacity duration-300 font-bold text-sm ${!isExpanded ? 'opacity-0 hidden' : 'opacity-100'}`}>{category.title}</span>
+                        {categorizedActivities.map((category) => {
+                            const isOpen = openCategoryId === category.id;
+                            
+                            return (
+                                <div key={category.id} className="rounded-xl overflow-hidden transition-all duration-200">
+                                    <button
+                                        onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
+                                        className={`w-full flex items-center p-3 text-left font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-inset)] transition-all focus:outline-none ${isOpen ? 'bg-[var(--bg-inset)] text-[var(--text-primary)]' : ''} ${!isExpanded ? 'justify-center' : 'justify-between'}`}
+                                        title={!isExpanded ? category.title : undefined}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isOpen ? 'bg-[var(--accent-color)] text-black' : 'bg-transparent text-[var(--text-muted)]'}`}>
+                                                <i className={`${category.icon} text-sm`}></i>
                                             </div>
-                                            {isExpanded && !searchTerm && (
-                                                <i className={`fa-solid fa-chevron-down text-xs text-[var(--text-muted)] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}></i>
-                                            )}
-                                        </button>
-                                        
-                                        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                                            <ul className={`pl-4 pr-1 py-1 space-y-1 ${!isExpanded ? 'hidden' : ''}`}>
-                                                {category.items.map(activity => (
-                                                    <li key={activity.id}>
-                                                        <button
-                                                            onClick={() => {
-                                                                onSelectActivity(activity.id);
-                                                                if(window.innerWidth < 768) closeSidebar();
-                                                            }}
-                                                            className={`w-full text-left px-3 py-2 text-xs font-medium rounded-lg transition-all flex items-center group relative overflow-hidden ${
-                                                                selectedActivity === activity.id 
-                                                                ? 'bg-[var(--accent-color)] text-black shadow-md' 
-                                                                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)]'
-                                                            }`}
-                                                        >
-                                                            {selectedActivity === activity.id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30"></div>}
-                                                            <i className={`fa-solid fa-circle text-[6px] mr-3 ${selectedActivity === activity.id ? 'text-black' : 'text-[var(--border-color)] group-hover:text-[var(--accent-color)]'}`}></i>
-                                                            <span className="truncate">{activity.title}</span>
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                            <span className={`whitespace-nowrap transition-opacity duration-300 font-bold text-sm ${!isExpanded ? 'opacity-0 hidden' : 'opacity-100'}`}>{category.title}</span>
                                         </div>
+                                        {isExpanded && (
+                                            <i className={`fa-solid fa-chevron-down text-xs text-[var(--text-muted)] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}></i>
+                                        )}
+                                    </button>
+                                    
+                                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                        <ul className={`pl-4 pr-1 py-1 space-y-1 ${!isExpanded ? 'hidden' : ''}`}>
+                                            {category.items.map(activity => (
+                                                <li key={activity.id}>
+                                                    <button
+                                                        onClick={() => {
+                                                            onSelectActivity(activity.id);
+                                                            if(window.innerWidth < 768) closeSidebar();
+                                                        }}
+                                                        className={`w-full text-left px-3 py-2 text-xs font-medium rounded-lg transition-all flex items-center group relative overflow-hidden ${
+                                                            selectedActivity === activity.id 
+                                                            ? 'bg-[var(--accent-color)] text-black shadow-md' 
+                                                            : 'text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)]'
+                                                        }`}
+                                                    >
+                                                        {selectedActivity === activity.id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30"></div>}
+                                                        <i className={`fa-solid fa-circle text-[6px] mr-3 ${selectedActivity === activity.id ? 'text-black' : 'text-[var(--border-color)] group-hover:text-[var(--accent-color)]'}`}></i>
+                                                        <span className="truncate">{activity.title}</span>
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                );
-                            })
-                        )}
+                                </div>
+                            );
+                        })}
                     </nav>
                 </>
             )}
