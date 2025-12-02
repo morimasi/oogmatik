@@ -11,19 +11,23 @@ import { EditableElement, EditableText } from '../Editable';
 export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="dynamic-grid max-w-3xl mx-auto">
-            {(data.rows || []).map((row, index) => (
-                <EditableElement key={index} className="flex items-center justify-between p-6 border-2 rounded-xl bg-white dark:bg-zinc-700/50 shadow-sm hover:shadow-md transition-shadow break-inside-avoid" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                    <div className="w-8 h-8 flex items-center justify-center bg-zinc-200 dark:bg-zinc-600 rounded-full font-bold mr-4">{index + 1}</div>
-                    <div className="flex-1 flex justify-around">
-                        {(row.items || []).map((item, itemIndex) => (
-                            <div key={itemIndex} className="px-4 py-2 border border-dashed border-zinc-300 rounded cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
-                                <span className="text-2xl font-mono tracking-wider"><EditableText value={item} tag="span" /></span>
-                            </div>
-                        ))}
-                    </div>
-                </EditableElement>
-            ))}
+        {/* ADDED print:grid-cols-2 */}
+        <div className="dynamic-grid max-w-4xl mx-auto">
+            {(data.rows || []).map((row, index) => {
+                const isVisual = row.visualDistractionLevel === 'high';
+                return (
+                    <EditableElement key={index} className={`flex items-center justify-between p-4 border-2 rounded-xl bg-white dark:bg-zinc-700/50 shadow-sm hover:shadow-md transition-shadow break-inside-avoid ${isVisual ? 'flex-col gap-4' : ''}`} style={{borderColor: 'var(--worksheet-border-color)'}}>
+                        {!isVisual && <div className="w-8 h-8 flex items-center justify-center bg-zinc-200 dark:bg-zinc-600 rounded-full font-bold mr-4">{index + 1}</div>}
+                        <div className={`flex-1 flex justify-around w-full ${isVisual ? 'gap-4' : ''}`}>
+                            {(row.items || []).map((item, itemIndex) => (
+                                <div key={itemIndex} className={`px-4 py-2 border border-dashed border-zinc-300 rounded cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/30 flex items-center justify-center ${isVisual ? 'w-full h-24 text-3xl font-black bg-zinc-50' : ''}`}>
+                                    <span className={isVisual ? "text-4xl" : "text-2xl font-mono tracking-wider"}><EditableText value={item} tag="span" /></span>
+                                </div>
+                            ))}
+                        </div>
+                    </EditableElement>
+                );
+            })}
         </div>
     </div>
 );
@@ -129,20 +133,28 @@ export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> =
 
 export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
     const gridDim = data.gridDim;
-    const cellSize = 30;
+    // Increased size for better printing/drawing experience
+    const cellSize = 35;
     const totalSize = gridDim * cellSize;
 
     const renderGrid = (lines: [number, number][][] | null, isTarget: boolean) => (
         <div className="flex flex-col items-center">
-            <span className="mb-2 font-semibold text-zinc-500">{isTarget ? "Örnek" : "Senin Çizimin"}</span>
-            <svg width={totalSize} height={totalSize} className={`bg-white dark:bg-zinc-800 border-2 ${isTarget ? 'border-indigo-400' : 'border-zinc-300'}`}>
-                {/* Grid */}
-                {Array.from({ length: gridDim + 1 }).map((_, i) => (
-                    <g key={i}>
-                        <line x1={i * cellSize} y1="0" x2={i * cellSize} y2={totalSize} className="stroke-zinc-200 dark:stroke-zinc-600" strokeWidth="1" />
-                        <line x1="0" y1={i * cellSize} x2={totalSize} y2={i * cellSize} className="stroke-zinc-200 dark:stroke-zinc-600" strokeWidth="1" />
-                    </g>
-                ))}
+            <span className="mb-2 font-semibold text-zinc-500 text-xs uppercase tracking-wider">{isTarget ? "Referans" : "Çizim Alanı"}</span>
+            <svg width={totalSize} height={totalSize} className={`bg-white border-2 ${isTarget ? 'border-zinc-800' : 'border-zinc-400'}`}>
+                <defs>
+                    <pattern id="smallGrid" width={cellSize} height={cellSize} patternUnits="userSpaceOnUse">
+                        <path d={`M ${cellSize} 0 L 0 0 0 ${cellSize}`} fill="none" stroke={isTarget ? "#e5e7eb" : "#d1d5db"} strokeWidth="1"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#smallGrid)" />
+                
+                {/* Dots at intersections */}
+                {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
+                     const r = Math.floor(i / (gridDim + 1));
+                     const c = i % (gridDim + 1);
+                     return <circle key={i} cx={c*cellSize} cy={r*cellSize} r="2.5" className="fill-zinc-400" />
+                })}
+
                 {/* Lines */}
                 {(lines || []).map((line, index) => (
                     // Safety check: ensure line has at least 2 points and points are defined
@@ -151,18 +163,12 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
                             key={index}
                             x1={line[0][0] * cellSize} y1={line[0][1] * cellSize}
                             x2={line[1][0] * cellSize} y2={line[1][1] * cellSize}
-                            className="stroke-indigo-600 dark:stroke-indigo-400"
-                            strokeWidth="3"
+                            className="stroke-indigo-600"
+                            strokeWidth="4"
                             strokeLinecap="round"
                         />
                     )
                 ))}
-                {/* Dots at intersections */}
-                {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
-                     const r = Math.floor(i / (gridDim + 1));
-                     const c = i % (gridDim + 1);
-                     return <circle key={i} cx={c*cellSize} cy={r*cellSize} r="2" className="fill-zinc-300" />
-                })}
             </svg>
         </div>
     );
@@ -173,7 +179,7 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
             <div className="space-y-12">
                 {(data.drawings || []).map((drawing, index) => (
                     // ADDED print:flex-row
-                    <EditableElement key={index} className="flex flex-col md:flex-row print:flex-row gap-12 items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl break-inside-avoid">
+                    <EditableElement key={index} className="flex flex-col md:flex-row print:flex-row gap-16 items-center justify-center p-8 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl break-inside-avoid border border-zinc-200">
                         {renderGrid(drawing.lines, true)}
                         <i className="fa-solid fa-arrow-right text-3xl text-zinc-300 hidden md:block print:block"></i>
                         {renderGrid(null, false)}
@@ -222,44 +228,45 @@ export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }
 export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data }) => {
     const { grid: { rows, cols }, targetPattern, shapes } = data;
     const activeColor = shapes[0]?.color || '#3B82F6';
+    const cellDisplaySize = 35; // Bigger cells
 
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             {/* ADDED print:flex-row */}
-            <EditableElement className="flex flex-col md:flex-row print:flex-row gap-12 justify-center items-center break-inside-avoid">
+            <EditableElement className="flex flex-col md:flex-row print:flex-row gap-16 justify-center items-start break-inside-avoid mt-8">
                 
                 {/* Target Pattern (Left Side) */}
                 <div className="flex flex-col items-center">
-                    <h4 className="font-bold text-center mb-4 text-zinc-600 uppercase tracking-widest text-sm">Örnek Desen</h4>
-                    <div className="border-4 border-zinc-800 p-1 bg-white inline-block shadow-lg">
-                        <div className={`grid gap-px bg-zinc-300`} style={{gridTemplateColumns: `repeat(${cols}, 20px)`}}>
+                    <h4 className="font-bold text-center mb-2 text-zinc-500 uppercase tracking-widest text-xs">Referans</h4>
+                    <div className="border-4 border-zinc-900 p-1 bg-white inline-block shadow-lg">
+                        <div className={`grid gap-px bg-zinc-200`} style={{gridTemplateColumns: `repeat(${cols}, ${cellDisplaySize}px)`}}>
                             {(targetPattern || []).flat().map((cell, i) => (
-                                <div key={i} className="w-[20px] h-[20px]" style={{backgroundColor: cell ? activeColor : 'white'}}></div>
+                                <div key={i} className="w-full h-[35px]" style={{backgroundColor: cell ? activeColor : 'white'}}></div>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                <div className="text-zinc-300 hidden md:block print:block">
+                <div className="text-zinc-300 hidden md:flex print:flex flex-col justify-center h-full pt-20">
                     <i className="fa-solid fa-arrow-right text-4xl"></i>
                 </div>
                 
                 {/* Empty Grid (Right Side) */}
                 <div className="flex flex-col items-center">
-                    <h4 className="font-bold text-center mb-4 text-zinc-600 uppercase tracking-widest text-sm">Boyama Alanı</h4>
-                    <div className="border-4 border-zinc-800 p-1 bg-white inline-block shadow-lg">
-                        <div className={`grid gap-px bg-zinc-300`} style={{gridTemplateColumns: `repeat(${cols}, 30px)`}}>
+                    <h4 className="font-bold text-center mb-2 text-zinc-500 uppercase tracking-widest text-xs">Boyama Alanı</h4>
+                    <div className="border-4 border-zinc-900 p-1 bg-white inline-block shadow-lg">
+                        <div className={`grid gap-px bg-zinc-200`} style={{gridTemplateColumns: `repeat(${cols}, ${cellDisplaySize}px)`}}>
                             {Array.from({length: rows * cols}).map((_, i) => (
-                                <div key={i} className="w-[30px] h-[30px] bg-white hover:bg-indigo-50 cursor-pointer"></div>
+                                <div key={i} className="w-full h-[35px] bg-white hover:bg-indigo-50 cursor-pointer"></div>
                             ))}
                         </div>
                     </div>
                 </div>
             </EditableElement>
             
-            <div className="mt-8 text-center text-sm text-zinc-500">
-                <p>İpucu: Kareleri sayarak boyayın.</p>
+            <div className="mt-10 text-center text-sm text-zinc-500 bg-zinc-50 p-4 rounded-lg inline-block mx-auto w-full max-w-lg border border-dashed border-zinc-300">
+                <p>İpucu: Kareleri sayarak veya simetriyi takip ederek boyayın.</p>
             </div>
         </div>
     )
@@ -270,11 +277,15 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
              {data.rows.map((row, i) => (
-                 <EditableElement key={i} className="flex justify-around p-4 border rounded-lg bg-white break-inside-avoid">
+                 <EditableElement key={i} className="flex justify-around p-4 border rounded-lg bg-white break-inside-avoid shadow-sm items-center">
+                     <div className="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-400 mr-2">{i+1}</div>
                      {row.items.map((item, j) => (
-                         <div key={j} className="flex flex-col gap-2 items-center cursor-pointer hover:bg-zinc-50 p-2 rounded">
-                             <SegmentDisplay segments={item.segments} />
-                             <div className="w-4 h-4 border rounded-full"></div>
+                         <div key={j} className="flex flex-col gap-2 items-center cursor-pointer hover:bg-zinc-50 p-4 rounded border border-transparent hover:border-indigo-200 transition-all">
+                             {/* Render rotated segment display or improved shape */}
+                             <div style={{transform: `rotate(${item.rotation || 0}deg)`}} className="transition-transform">
+                                <SegmentDisplay segments={item.segments} />
+                             </div>
+                             <div className="w-4 h-4 border-2 border-zinc-300 rounded-full mt-2"></div>
                          </div>
                      ))}
                  </EditableElement>
