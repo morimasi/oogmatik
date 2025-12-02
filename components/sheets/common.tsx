@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
-import { MascotRobot, MascotOwl, MascotCat } from '../VisualAssets';
 import { EditableElement, EditableText } from '../Editable'; 
 
 // --- HELPER: SMART EMOJI FINDER ---
@@ -19,14 +18,6 @@ const findEmojiForDescription = (desc: string): string | null => {
         }
     }
     return null;
-};
-
-// --- HELPER: STRING TO COLOR (Simplified for B&W focus, keeps borders but white bg if needed, kept for compatibility) ---
-const stringToColor = (str: string): string => {
-    // Keeping logic but can be overridden by parent styles
-    const safeStr = String(str);
-    const colors = ['bg-white border-black text-black','bg-white border-black text-black']; 
-    return colors[0];
 };
 
 // Enhanced ImageDisplay
@@ -58,36 +49,27 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
 });
 
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => {
-    const getMascot = () => {
-        const lowerTitle = title.toLowerCase();
-        if (lowerTitle.includes('matematik')) return <MascotRobot className="w-24 h-24" />;
-        if (lowerTitle.includes('okuma')) return <MascotOwl className="w-24 h-24" />;
-        return <MascotCat className="w-24 h-24" />;
-    };
-
+    // Mascot code removed completely as requested
+    
     return (
-        <div className="pedagogical-header mb-8 text-center print:mb-6 break-inside-avoid relative w-full">
-            <EditableElement id="mascot" className="absolute -top-4 right-0 z-10 hidden print:block" style={{ display: 'var(--display-mascot)' }}>
-                {getMascot()}
-            </EditableElement>
-
-            <EditableElement className="flex items-center justify-center gap-3 mb-3 relative z-0" style={{ display: 'var(--display-title)' }}>
+        <div className="pedagogical-header mb-4 text-center print:mb-4 break-inside-avoid relative w-full">
+            <EditableElement className="flex items-center justify-center gap-3 mb-2 relative z-0" style={{ display: 'var(--display-title)' }}>
                 <EditableText tag="h3" value={title} className="text-3xl font-black text-black tracking-tight" />
             </EditableElement>
             
-            <EditableElement id="instruction-box" className="inline-block px-8 py-3 bg-white rounded-2xl border-2 border-black mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ display: 'var(--display-instruction)' }}>
+            <EditableElement id="instruction-box" className="inline-block px-8 py-2 bg-white rounded-2xl border-2 border-black mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ display: 'var(--display-instruction)' }}>
                 <EditableText tag="p" value={instruction} className="text-lg font-bold text-black" />
             </EditableElement>
             
             {data?.imageBase64 && (
-                <EditableElement className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-black" style={{ display: 'var(--display-image)' }}>
+                <EditableElement className="my-4 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-black" style={{ display: 'var(--display-image)' }}>
                     <ImageDisplay base64={data.imageBase64} description={data.imagePrompt || title} className="w-full h-64 object-contain bg-white" />
                 </EditableElement>
             )}
 
             {note && (
                 <EditableElement className="print:block" style={{ display: 'var(--display-pedagogical-note)' }}>
-                    <div className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-600 italic mt-2 font-bold">
+                    <div className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-600 italic mt-1 font-bold">
                         <i className="fa-solid fa-graduation-cap"></i>
                         <span>Eğitmen Notu: <EditableText tag="span" value={note} /></span>
                     </div>

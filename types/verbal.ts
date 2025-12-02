@@ -56,6 +56,10 @@ export interface MissingPartsData extends BaseActivityData {
     storyWithBlanks: string[]; // Segments of story split by blanks
     wordBank: string[]; 
     answers: string[];
+    // Legacy properties kept for compatibility
+    leftParts: {id: number, text: string}[];
+    rightParts: {id: number, text: string}[];
+    givenParts: {word: string, parts: string[]}[];
 }
 
 // ... (Diğer mevcut tipler aynen korunur)

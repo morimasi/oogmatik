@@ -25,21 +25,23 @@ const initialStyleSettings: StyleSettings = {
     scale: 1, // Default scale
     borderColor: '#d4d4d8',
     borderWidth: 1,
-    margin: 20, // Reduced default margin to reasonable 20px
+    margin: 20, 
     columns: 1,
     gap: 16,
-    showPedagogicalNote: true,
     orientation: 'portrait',
-    showMascot: true,
-    showStudentInfo: true,
-    showTitle: true,
-    showInstruction: true,
-    showImage: true,
-    showFooter: true,
     themeBorder: 'simple',
     contentAlign: 'center',
     fontWeight: 'normal',
-    fontStyle: 'normal'
+    fontStyle: 'normal',
+    
+    // Visibility Flags - All set to FALSE by default as requested
+    showPedagogicalNote: false,
+    showMascot: false,
+    showStudentInfo: false,
+    showTitle: false,
+    showInstruction: false,
+    showImage: false,
+    showFooter: false
 };
 
 const initialUiSettings: UiSettings = {

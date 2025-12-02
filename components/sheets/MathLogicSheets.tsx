@@ -10,18 +10,18 @@ import {
 import { CagedGridSvg, GridComponent, ImageDisplay, Shape, ShapeDisplay, PedagogicalHeader } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
+const BORDER_CLASS = "border-2 border-black bg-white text-black";
+
 export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        {/* Updated to use dynamic-grid class which maps to toolbar settings */}
         <div className="dynamic-grid mt-4">
             {data.operations.map((op, index) => (
-                <EditableElement key={index} className="p-3 bg-white border-2 border-black rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col items-end justify-center text-xl font-mono font-bold break-inside-avoid relative overflow-hidden text-black">
-                    {/* Dikey İşlem Formatı */}
+                <EditableElement key={index} className={`p-3 rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col items-end justify-center text-xl font-mono font-bold break-inside-avoid relative overflow-hidden ${BORDER_CLASS}`}>
                     <div className="tracking-wide mr-2"><EditableText value={op.num1} tag="span" /></div>
                     
                     <div className="flex items-center w-full justify-end gap-2 mr-2">
-                        <span className="text-lg absolute left-2 text-black"><EditableText value={op.operator} tag="span" /></span>
+                        <span className="text-lg absolute left-2"><EditableText value={op.operator} tag="span" /></span>
                         <div className="tracking-wide"><EditableText value={op.num2} tag="span" /></div>
                     </div>
                     
@@ -31,15 +31,12 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
                         </div>
                     )}
                     
-                    {/* İşlem Çizgisi */}
                     <div className="w-full border-b-2 border-black my-1"></div>
                     
-                    {/* Sonuç Alanı */}
-                    <div className="h-8 w-full bg-white rounded border border-dashed border-zinc-400"></div>
+                    <div className="h-8 w-full bg-white rounded border-2 border-dashed border-zinc-300"></div>
                     
-                    {/* Kalanlı Bölme Alanı */}
                     {op.remainder !== undefined && (
-                        <div className="mt-1 w-full flex justify-between items-center text-[10px] text-zinc-500 font-sans font-normal border-t pt-1">
+                        <div className="mt-1 w-full flex justify-between items-center text-[10px] text-zinc-500 font-sans font-normal border-t border-black pt-1">
                             <span>K:</span>
                             <div className="w-6 h-4 border-b border-zinc-400"></div>
                         </div>
@@ -55,16 +52,15 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="dynamic-grid">
             {data.problems.map((problem, index) => (
-                <EditableElement key={index} className="bg-white rounded-3xl border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] break-inside-avoid overflow-hidden text-black">
+                <EditableElement key={index} className={`rounded-3xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] break-inside-avoid overflow-hidden ${BORDER_CLASS}`}>
                     
-                    {/* SORU BAŞLIĞI VE METNİ */}
-                    <div className="bg-white p-6 border-b-4 border-black flex gap-6 items-start">
+                    <div className="p-6 border-b-2 border-black flex gap-6 items-start bg-white">
                         <div className="flex-shrink-0 w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center font-black text-2xl shadow-lg transform -rotate-3">
                             {index + 1}
                         </div>
                         <div className="flex-1">
                             <h4 className="font-bold text-black text-xs uppercase tracking-widest mb-2 border-b-2 border-black inline-block pb-1">Problem</h4>
-                            <div className="text-xl font-bold leading-relaxed text-black font-dyslexic">
+                            <div className="text-xl font-bold leading-relaxed font-dyslexic">
                                 <EditableText value={problem.text} tag="p" />
                             </div>
                         </div>
@@ -75,12 +71,9 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                         )}
                     </div>
 
-                    {/* PROBLEM ÇÖZME STRATEJİSİ ALANI (4'lü Matris) */}
-                    <div className="grid grid-cols-2 print:grid-cols-2 divide-x-2 divide-black border-b-2 border-black">
-                        
-                        {/* ADIM 1: ANLAMA */}
+                    <div className="grid grid-cols-2 divide-x-2 divide-black border-b-2 border-black">
                         <div className="p-4 min-h-[150px]">
-                            <div className="flex items-center gap-2 mb-3 text-black">
+                            <div className="flex items-center gap-2 mb-3">
                                 <i className="fa-solid fa-magnifying-glass-chart text-lg"></i>
                                 <h5 className="font-bold text-sm uppercase">1. Problemi Anlama</h5>
                             </div>
@@ -93,9 +86,8 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                             </div>
                         </div>
 
-                        {/* ADIM 2: PLANLAMA */}
                         <div className="p-4 min-h-[150px]">
-                            <div className="flex items-center gap-2 mb-3 text-black">
+                            <div className="flex items-center gap-2 mb-3">
                                 <i className="fa-solid fa-pencil-ruler text-lg"></i>
                                 <h5 className="font-bold text-sm uppercase">2. Plan Yapma</h5>
                             </div>
@@ -105,28 +97,25 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 print:grid-cols-2 divide-x-2 divide-black">
-                        
-                        {/* ADIM 3: UYGULAMA */}
+                    <div className="grid grid-cols-2 divide-x-2 divide-black">
                         <div className="p-4 min-h-[150px]">
-                            <div className="flex items-center gap-2 mb-3 text-black">
+                            <div className="flex items-center gap-2 mb-3">
                                 <i className="fa-solid fa-calculator text-lg"></i>
                                 <h5 className="font-bold text-sm uppercase">3. Planı Uygulama</h5>
                             </div>
                             <div className="w-full h-full min-h-[100px] border border-zinc-200 rounded"></div>
                         </div>
 
-                        {/* ADIM 4: KONTROL */}
                         <div className="p-4 min-h-[150px] bg-white flex flex-col justify-between">
                             <div>
-                                <div className="flex items-center gap-2 mb-3 text-black">
+                                <div className="flex items-center gap-2 mb-3">
                                     <i className="fa-solid fa-clipboard-check text-lg"></i>
                                     <h5 className="font-bold text-sm uppercase">4. Sonuç</h5>
                                 </div>
                             </div>
                             
                             <div className="mt-4 pt-4 border-t-2 border-black flex items-center justify-between">
-                                <span className="font-black text-lg text-black">SONUÇ:</span>
+                                <span className="font-black text-lg">SONUÇ:</span>
                                 <div className="w-24 h-10 border-2 border-black rounded bg-white"></div>
                             </div>
                         </div>
@@ -138,24 +127,23 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
     </div>
 );
 
-// ... (Diğer matematik bileşenlerini de benzer şekilde beyaz arka plan/siyah çerçeve ile güncellemek için aynı mantığı uygula)
 export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="p-4 bg-white rounded-lg border-2 border-black flex flex-col break-inside-avoid shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black">
+                <EditableElement key={index} className={`p-4 rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col break-inside-avoid ${BORDER_CLASS}`}>
                     {(puzzle.objects && puzzle.objects.length > 0) && (
                         <div className="flex justify-center gap-4 mb-4 border-b-2 border-black pb-2">
                             {(puzzle.objects || []).map(obj => (
-                                <div key={obj.name} className="flex flex-col items-center text-xs font-semibold text-black">
+                                <div key={obj.name} className="flex flex-col items-center text-xs font-semibold">
                                     <ImageDisplay base64={obj.imageBase64} description={obj.name} className="w-12 h-12" />
                                     <span><EditableText value={obj.name} tag="span" /></span>
                                 </div>
                             ))}
                         </div>
                     )}
-                    <div className="font-bold text-2xl text-center mb-3 flex-grow text-black">
+                    <div className="font-bold text-2xl text-center mb-3 flex-grow">
                         <EditableText value={puzzle.problem} tag="p" />
                     </div>
                     <div className="text-sm text-center text-zinc-600 mb-4 font-bold">
@@ -176,7 +164,7 @@ export const NumberPatternSheet: React.FC<{ data: NumberPatternData }> = ({ data
         <PedagogicalHeader title={data.title} instruction={data.instruction || "Aşağıdaki sayı dizilerindeki kuralı bul ve '?' yerine gelmesi gereken sayıyı yaz."} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.patterns || []).map((pattern, index) => (
-                <EditableElement key={index} className="flex items-center justify-center gap-4 p-4 bg-white rounded-lg shadow-sm border-2 border-black text-black">
+                <EditableElement key={index} className={`flex items-center justify-center gap-4 p-4 rounded-lg shadow-sm ${BORDER_CLASS}`}>
                     <p className="font-mono text-xl tracking-wider font-bold"><EditableText value={pattern.sequence} tag="span" /></p>
                     <div className="w-20 h-10 border-2 border-black rounded-md bg-white"></div>
                 </EditableElement>
@@ -227,7 +215,7 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
                          const cc = con.col1;
                          const x = cc * (cellSize + gap) + 10 + cellSize/2;
                          const y = cr * (cellSize + gap) + cellSize + 10 + gap/2;
-                         const sym = con.symbol === '>' ? 'v' : '^';
+                         const sym = con.symbol === '>' ? 'v' : '^'; // Visual rotation for vertical
                          return <text key={i} x={x} y={y + 5} textAnchor="middle" className="text-xl font-bold fill-black">{sym}</text>;
                     }
                 })}
@@ -261,7 +249,7 @@ export const NumberPyramidSheet: React.FC<{ data: NumberPyramidData }> = ({ data
                             {pyramid.rows.map((row: (number|null)[], rIndex: number) => (
                                 <div key={rIndex} className="flex gap-1">
                                     {row.map((cell: any, cIndex: any) => (
-                                        <div key={cIndex} className="w-12 h-12 flex items-center justify-center border-2 border-black rounded-md bg-white shadow-sm text-xl font-bold text-black relative">
+                                        <div key={cIndex} className={`w-12 h-12 flex items-center justify-center rounded-md shadow-sm text-xl font-bold ${BORDER_CLASS}`}>
                                             {cell !== null ? <EditableText value={cell} tag="span" /> : ''}
                                         </div>
                                     ))}
@@ -280,12 +268,12 @@ export const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="relative bg-white p-6 rounded-xl border-2 border-black break-inside-avoid">
-                    <h4 className="text-center font-bold mb-4 text-black"><EditableText value={puzzle.title} tag="span" /></h4>
+                <EditableElement key={index} className={`relative p-6 rounded-xl break-inside-avoid ${BORDER_CLASS}`}>
+                    <h4 className="text-center font-bold mb-4"><EditableText value={puzzle.title} tag="span" /></h4>
                     <div className="grid grid-cols-4 gap-2 mx-auto w-max relative">
                         {(puzzle.grid || []).map((row, r) => 
                             row.map((cell, c) => (
-                                <div key={`${r}-${c}`} className="w-12 h-12 border border-black flex items-center justify-center text-xl font-bold text-black">
+                                <div key={`${r}-${c}`} className="w-12 h-12 border border-black flex items-center justify-center text-xl font-bold">
                                     <EditableText value={cell || ''} tag="span" />
                                 </div>
                             ))
@@ -307,7 +295,7 @@ export const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data
                             })}
                         </svg>
                     </div>
-                    <div className="mt-4 text-center text-sm font-bold bg-white border border-black p-2 rounded text-black"><EditableText value={puzzle.numbersToUse} tag="span" /></div>
+                    <div className="mt-4 text-center text-sm font-bold bg-white border border-black p-2 rounded"><EditableText value={puzzle.numbersToUse} tag="span" /></div>
                 </EditableElement>
             ))}
         </div>
@@ -361,10 +349,10 @@ export const RoundingConnectSheet: React.FC<{ data: RoundingConnectData | Arithm
     return (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="mb-6 p-4 bg-white border-2 border-black rounded-lg text-black text-center font-bold">
+        <div className={`mb-6 p-4 rounded-lg text-center font-bold ${BORDER_CLASS}`}>
             <EditableText value={data.example || ''} tag="span" />
         </div>
-        <div className="relative h-[600px] border-2 border-black rounded-xl bg-white">
+        <div className={`relative h-[600px] rounded-xl ${BORDER_CLASS}`}>
              {items.map((item: any, i: number) => (
                  <EditableElement 
                     key={i} 
@@ -429,7 +417,7 @@ export const OperationSquareSheet: React.FC<{ data: OperationSquareFillInData }>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
         <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="p-4 bg-white rounded-lg border-2 border-black break-inside-avoid">
+                <EditableElement key={index} className={`p-4 rounded-lg break-inside-avoid ${BORDER_CLASS}`}>
                     <GridComponent grid={puzzle.grid} cellClassName="w-12 h-12 text-xl font-bold border-black" />
                     <div className="mt-4 text-center p-2 bg-white border border-black rounded">
                         <span className="font-bold text-sm text-black block mb-1">Kullanılacak Sayılar:</span>
@@ -491,7 +479,7 @@ export const TargetNumberSheet: React.FC<{ data: TargetNumberData }> = ({ data }
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="p-6 bg-white rounded-xl border-2 border-black shadow-sm flex flex-col items-center break-inside-avoid">
+                <EditableElement key={index} className={`p-6 rounded-xl shadow-sm flex flex-col items-center break-inside-avoid ${BORDER_CLASS}`}>
                     <div className="w-20 h-20 rounded-full bg-black text-white flex items-center justify-center text-3xl font-bold mb-4 border-4 border-white shadow-[0_0_0_2px_black]">
                         <EditableText value={puzzle.target} tag="span" />
                     </div>
@@ -537,7 +525,7 @@ export const VisualNumberPatternSheet: React.FC<{ data: VisualNumberPatternData 
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="p-4 bg-white rounded-xl border-2 border-black shadow-sm flex items-center justify-between break-inside-avoid">
+                <EditableElement key={index} className={`p-4 rounded-xl shadow-sm flex items-center justify-between break-inside-avoid ${BORDER_CLASS}`}>
                     <div className="flex gap-4">
                         {puzzle.items.map((item, i) => (
                             <div key={i} className="flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 border-black font-bold text-xl bg-white text-black" 
@@ -558,14 +546,12 @@ export const VisualNumberPatternSheet: React.FC<{ data: VisualNumberPatternData 
     </div>
 );
 
-// NEW COMPONENTS
-
 export const OddOneOutSheet: React.FC<{ data: OddOneOutData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {data.groups.map((group, index) => (
-                <EditableElement key={index} className="p-4 bg-white rounded-xl shadow-sm border-2 border-black break-inside-avoid">
+                <EditableElement key={index} className={`p-4 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
                     <div className="flex flex-wrap justify-around gap-4">
                         {group.words.map((word, wIndex) => (
                             <div key={wIndex} className="px-4 py-2 bg-white border border-black rounded-lg font-bold cursor-pointer hover:bg-zinc-200 transition-colors text-black">
@@ -585,7 +571,7 @@ export const ThematicOddOneOutSheet: React.FC<{ data: ThematicOddOneOutData }> =
         <div className="mb-4 text-center font-black text-black uppercase">Tema: <EditableText value={data.theme} tag="span" /></div>
         <div className="dynamic-grid">
             {data.rows.map((row, index) => (
-                <EditableElement key={index} className="p-4 bg-white rounded-xl shadow-sm border-2 border-black flex flex-wrap justify-around gap-4 break-inside-avoid">
+                <EditableElement key={index} className={`p-4 rounded-xl shadow-sm flex flex-wrap justify-around gap-4 break-inside-avoid ${BORDER_CLASS}`}>
                     {row.words.map((word, wIndex) => (
                         <div key={wIndex} className="flex flex-col items-center gap-2 p-2 border border-black rounded-lg hover:shadow-md transition-shadow cursor-pointer">
                             {word.imagePrompt && <ImageDisplay base64={word.imageBase64} description={word.text} className="w-20 h-20 object-contain" />}
@@ -603,7 +589,7 @@ export const ThematicOddOneOutSentenceSheet: React.FC<{ data: ThematicOddOneOutS
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {data.rows.map((row, index) => (
-                <EditableElement key={index} className="p-4 bg-white rounded-xl shadow-sm border-2 border-black break-inside-avoid">
+                <EditableElement key={index} className={`p-4 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
                     <div className="flex flex-wrap justify-around gap-4 mb-4">
                         {row.words.map((word, wIndex) => (
                             <div key={wIndex} className="px-4 py-2 bg-white border border-black rounded-lg font-bold cursor-pointer hover:bg-zinc-200 transition-colors text-black">
@@ -618,7 +604,7 @@ export const ThematicOddOneOutSentenceSheet: React.FC<{ data: ThematicOddOneOutS
                 </EditableElement>
             ))}
         </div>
-        <div className="mt-6 p-4 bg-white border-2 border-black rounded-lg text-center text-black font-bold break-inside-avoid">
+        <div className={`mt-6 p-4 rounded-lg text-center font-bold break-inside-avoid ${BORDER_CLASS}`}>
             <EditableText value={data.sentencePrompt} tag="p" />
         </div>
     </div>
@@ -629,7 +615,7 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {data.columns.map((col, index) => (
-                <EditableElement key={index} className="flex flex-col gap-3 p-4 bg-white rounded-xl border-2 border-black break-inside-avoid">
+                <EditableElement key={index} className={`flex flex-col gap-3 p-4 rounded-xl break-inside-avoid ${BORDER_CLASS}`}>
                     {col.words.map((word, wIndex) => (
                         <div key={wIndex} className="p-2 bg-white border border-black rounded text-center font-bold cursor-pointer hover:bg-zinc-100 transition-colors text-black">
                             <EditableText value={word} tag="span" />
@@ -638,7 +624,7 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
                 </EditableElement>
             ))}
         </div>
-        <div className="p-4 border-2 border-dashed border-black rounded-xl bg-white break-inside-avoid">
+        <div className={`p-4 border-2 border-dashed border-black rounded-xl bg-white break-inside-avoid`}>
             <p className="text-center text-black font-bold mb-4"><EditableText value={data.sentencePrompt} tag="span" /></p>
             <div className="space-y-4">
                 {Array.from({length: data.columns.length}).map((_, i) => (
@@ -652,32 +638,23 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
     </div>
 );
 
-// Updated MazeGrid with visual connections and ID display
 const MazeGrid = ({ grid, rules }: { grid: number[][], rules: {id: number, text: string, isPath: boolean}[] }) => {
-    // FIX: Add safety check for grid[0]
     if (!grid || grid.length === 0 || !grid[0]) return null;
     return (
-        <EditableElement className="relative p-2 bg-white border-2 border-black rounded-xl shadow-inner max-w-md mx-auto">
-            {/* Start Arrow */}
-            <div className="absolute -left-6 top-6 text-black text-2xl font-bold">Giriş-></div>
+        <EditableElement className={`relative p-2 rounded-xl shadow-inner max-w-md mx-auto ${BORDER_CLASS}`}>
+            <div className="absolute -left-6 top-6 text-black text-2xl font-bold">Giriş-{'>'}</div>
             
-            {/* Grid */}
             <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${grid[0].length}, 1fr)`}}>
                 {grid.flat().map((cellId, idx) => {
-                    const r = Math.floor(idx / grid[0].length);
-                    const c = idx % grid[0].length;
-                    
                     return (
                         <div key={idx} className="aspect-square bg-white border-2 border-black rounded flex items-center justify-center text-lg font-bold text-black shadow-sm relative group cursor-pointer hover:bg-zinc-200 transition-all">
                             {cellId}
-                            {/* Connectors Visual Logic (simplified) - check neighbors in grid if needed */}
                         </div>
                     );
                 })}
             </div>
             
-            {/* End Arrow */}
-            <div className="absolute -right-6 bottom-6 text-black text-2xl font-bold">->Çıkış</div>
+            <div className="absolute -right-6 bottom-6 text-black text-2xl font-bold">-{'>'}Çıkış</div>
         </EditableElement>
     );
 };
@@ -685,17 +662,15 @@ const MazeGrid = ({ grid, rules }: { grid: number[][], rules: {id: number, text:
 export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ data }) => {
     return (
         <div>
-            {/* Pass data to header so it can render the SVG if available in imagePrompt */}
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
             
             <div className="flex justify-center mb-6">
-                <div className="px-6 py-3 bg-white border-2 border-black rounded-full text-black font-bold text-xl">
+                <div className={`px-6 py-3 rounded-full font-bold text-xl ${BORDER_CLASS}`}>
                     Hedef İşaret: <span className="text-4xl ml-2 align-middle">{data.punctuationMark}</span>
                 </div>
             </div>
             
             <div className="flex flex-col md:flex-row gap-8 items-start">
-                {/* Left: The Visual Maze Grid */}
                 <div className="w-full md:w-1/2">
                     {data.grid ? (
                         <MazeGrid grid={data.grid} rules={data.rules as any} />
@@ -704,9 +679,8 @@ export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ 
                     )}
                 </div>
 
-                {/* Right: The Question List */}
                 <div className="w-full md:w-1/2">
-                    <EditableElement className="bg-white rounded-xl border-2 border-black shadow-sm overflow-hidden">
+                    <EditableElement className={`rounded-xl shadow-sm overflow-hidden ${BORDER_CLASS}`}>
                         <div className="bg-white px-4 py-3 border-b-2 border-black">
                             <h4 className="font-bold text-black uppercase text-sm tracking-wider">Kurallar Listesi</h4>
                         </div>
@@ -733,15 +707,14 @@ export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumbe
         <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="flex-1 w-full space-y-4">
                 {data.clues.map((clue, index) => (
-                    <EditableElement key={index} className="flex items-center gap-4 p-3 bg-white rounded-lg shadow-sm border-2 border-black">
+                    <EditableElement key={index} className={`flex items-center gap-4 p-3 rounded-lg shadow-sm ${BORDER_CLASS}`}>
                         <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">{clue.id}</div>
                         <p className="text-black font-bold"><EditableText value={clue.text} tag="span" /></p>
                     </EditableElement>
                 ))}
             </div>
-            <EditableElement className="w-full md:w-1/3 bg-white border-4 border-black p-6 rounded-3xl shadow-xl text-center break-inside-avoid">
+            <EditableElement className={`w-full md:w-1/3 p-6 rounded-3xl shadow-xl text-center break-inside-avoid border-4 border-black bg-white`}>
                 <div className="bg-white w-full h-16 mb-6 rounded-lg flex items-center justify-center text-3xl font-mono tracking-widest border-4 border-black text-black">
-                    {/* Placeholder for digits */}
                     _______
                 </div>
                 <div className="grid grid-cols-3 gap-4">
@@ -764,7 +737,7 @@ export const ShapeNumberPatternSheet: React.FC<{ data: ShapeNumberPatternData }>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="dynamic-grid space-y-8">
             {data.patterns.map((pattern, pIndex) => (
-                <EditableElement key={pIndex} className="flex flex-wrap justify-center gap-8 md:gap-16 p-6 bg-white rounded-xl shadow-sm border-2 border-black break-inside-avoid">
+                <EditableElement key={pIndex} className={`flex flex-wrap justify-center gap-8 md:gap-16 p-6 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
                     {pattern.shapes.map((shape, sIndex) => {
                         if (shape.type === 'triangle') {
                             return (
@@ -796,7 +769,7 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex flex-col items-center gap-8">
             {data.figures.map((fig, index) => (
-                <EditableElement key={index} className="p-6 bg-white rounded-xl shadow-sm border-2 border-black flex flex-col items-center break-inside-avoid">
+                <EditableElement key={index} className={`p-6 rounded-xl shadow-sm flex flex-col items-center break-inside-avoid ${BORDER_CLASS}`}>
                     <svg viewBox="0 0 100 100" className="w-64 h-64 mb-6">
                         {fig.svgPaths.map((path, pIndex) => (
                             <path key={pIndex} d={path.d} fill={path.fill} stroke={path.stroke || 'black'} strokeWidth="1" />

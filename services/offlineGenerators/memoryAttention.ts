@@ -269,7 +269,7 @@ export const generateOfflineColorWheelMemory = async (options: GeneratorOptions)
         });
     }
     return results;
-}
+};
 
 export const generateOfflineImageComprehension = async (options: GeneratorOptions): Promise<ImageComprehensionData[]> => {
     const { worksheetCount } = options;
