@@ -74,7 +74,7 @@ export interface LetterGridWordFindData extends BaseActivityData { grid: string[
 export interface ThematicWordSearchColorData extends WordSearchData {}
 export interface SynonymWordSearchData extends BaseActivityData { grid: string[][]; wordsToMatch: { word: string; synonym: string; }[]; prompt?: string; }
 export interface SynonymSearchAndStoryData extends BaseActivityData { grid: string[][]; wordTable: { word: string; synonym: string; }[]; storyPrompt: string; prompt?: string; }
-export interface AnagramsData extends BaseActivityData { anagrams: { word: string; scrambled: string; imageBase64: string; }[]; sentencePrompt: string; prompt?: string; }
+export interface AnagramsData extends BaseActivityData { anagrams: { word: string; scrambled: string; imageBase64: string; imagePrompt?: string; }[]; sentencePrompt: string; prompt?: string; }
 export interface SpellingCheckData extends BaseActivityData { checks: { correct: string; options: string[]; imageBase64?: string; imagePrompt: string; }[]; }
 export interface LetterBridgeData extends BaseActivityData { pairs: { word1: string; word2: string; }[]; followUpPrompt: string; }
 export interface WordLadderData extends BaseActivityData { theme: string; ladders: { startWord: string; endWord: string; steps: number; }[]; }

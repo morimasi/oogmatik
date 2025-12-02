@@ -156,7 +156,7 @@ export const generateOfflineAnagram = async (options: GeneratorOptions): Promise
             pedagogicalNote: "Kelime türetme, harf dizilimi ve fonolojik farkındalık çalışması.",
             imagePrompt: 'Harfler',
             prompt: 'Harfleri doğru sıraya diz.',
-            anagrams: sheetWords.map(word => ({ word, scrambled: shuffle(word.split('')).join(''), imageBase64: '' })),
+            anagrams: sheetWords.map(word => ({ word, scrambled: shuffle(word.split('')).join(''), imageBase64: '', imagePrompt: word })),
             sentencePrompt: 'Bulduğun kelimelerden üç tanesi ile bir hikaye cümlesi kur.'
         });
     }
@@ -172,25 +172,51 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
 
     for(let i=0; i<worksheetCount; i++) {
         const startIndex = (i * count) % Math.max(1, masterPool.length - count);
-        const words = masterPool.slice(startIndex, startIndex + count);
+        let words = masterPool.slice(startIndex, startIndex + count);
         
+        // Safety check
+        if (words.length === 0) words = ["ELMA", "ARMUT", "KİRAZ"];
+
         // Better Layout logic
         const layout = generateCrosswordLayout(words); 
         
-        // Ensure minimum grid size to hold layout
-        const maxR = Math.max(...layout.placements.map(p => p.row + (p.dir==='down'?p.word.length:0))) + 2;
-        const maxC = Math.max(...layout.placements.map(p => p.col + (p.dir==='across'?p.word.length:0))) + 2;
-        const gridRows = Math.max(settings.gridSize, maxR);
-        const gridCols = Math.max(settings.gridSize, maxC);
+        // Calculate Bounds to handle negative coordinates
+        let minR = 0, maxR = 0, minC = 0, maxC = 0;
+        
+        if (layout.placements.length > 0) {
+            minR = Math.min(...layout.placements.map(p => p.row));
+            minC = Math.min(...layout.placements.map(p => p.col));
+            maxR = Math.max(...layout.placements.map(p => p.row + (p.dir === 'down' ? p.word.length - 1 : 0)));
+            maxC = Math.max(...layout.placements.map(p => p.col + (p.dir === 'across' ? p.word.length - 1 : 0)));
+        }
+
+        // Add padding and shift
+        const padding = 2;
+        const width = maxC - minC + 1;
+        const height = maxR - minR + 1;
+        
+        const gridRows = Math.max(settings.gridSize, height + padding * 2);
+        const gridCols = Math.max(settings.gridSize, width + padding * 2);
+        
+        // Shift to positive space + padding
+        const offsetR = -minR + padding;
+        const offsetC = -minC + padding;
         
         const grid = Array.from({length: gridRows}, () => Array(gridCols).fill(null));
         
         layout.placements.forEach(p => {
+            const startR = p.row + offsetR;
+            const startC = p.col + offsetC;
+
             for(let k=0; k<p.word.length; k++) {
                 if (p.dir === 'across') {
-                    if(p.col+k < gridCols) grid[p.row][p.col+k] = ''; 
+                    if(startR >= 0 && startR < gridRows && startC+k >= 0 && startC+k < gridCols) {
+                        grid[startR][startC+k] = ''; 
+                    }
                 } else {
-                    if(p.row+k < gridRows) grid[p.row+k][p.col] = ''; 
+                    if(startR+k >= 0 && startR+k < gridRows && startC >= 0 && startC < gridCols) {
+                        grid[startR+k][startC] = ''; 
+                    }
                 }
             }
         });
@@ -198,8 +224,8 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
         const clues = layout.placements.map((p, idx) => ({
             id: idx + 1,
             direction: p.dir,
-            text: `Bu kelime ${p.word.length} harflidir.`, // Offline basic clue
-            start: { row: p.row, col: p.col },
+            text: `Bu kelime ${p.word.length} harflidir.`,
+            start: { row: p.row + offsetR, col: p.col + offsetC },
             word: p.word.toUpperCase(),
             imagePrompt: p.word
         }));
