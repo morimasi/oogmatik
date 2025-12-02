@@ -118,20 +118,81 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
     
     return Array.from({ length: worksheetCount }, () => {
         const fillers = DYNAMIC_STORY_MODULES.fillers;
-        const hints = {
+        
+        // Define theme-based hints for better context if a topic is provided
+        let specificHints = null;
+        let themeTitle = "Hikaye Atölyesi";
+        let imagePrompt = `Creative writing inspiration, open book with elements flying out, magical style.`;
+
+        if (topic === 'space') {
+            specificHints = {
+                who: getRandomItems(['Astronot Efe', 'Uzaylı Zorg', 'Kaptan Yıldız'], 1)[0],
+                where: getRandomItems(['Mars Gezegeni', 'Ay Üssü', 'Kuyruklu Yıldız'], 1)[0],
+                when: getRandomItems(['3025 yılında', 'Roket kalkarken', 'Gece yarısı'], 1)[0],
+                problem: getRandomItems(['Yakıt bitti', 'İletişim koptu', 'Meteor yaklaşıyor'], 1)[0]
+            };
+            themeTitle = "Uzay Macerası";
+            imagePrompt = "Astronaut in space, colorful planets, rocket ship, cartoon vector style.";
+        } else if (topic === 'animals') {
+            specificHints = {
+                who: getRandomItems(['Aslan Kral', 'Minik Tavşan', 'Bilge Baykuş'], 1)[0],
+                where: getRandomItems(['Büyülü Orman', 'Hayvanat Bahçesi', 'Nehir Kenarı'], 1)[0],
+                when: getRandomItems(['Güneş doğarken', 'Kış uykusundan önce', 'Bahar sabahı'], 1)[0],
+                problem: getRandomItems(['Yuvasını kaybetti', 'Karnı acıktı', 'Arkadaşını bulamadı'], 1)[0]
+            };
+            themeTitle = "Hayvanlar Alemi";
+            imagePrompt = "Cute forest animals, lion, rabbit, owl in a green forest, bright colors.";
+        } else if (topic === 'school') {
+            specificHints = {
+                who: getRandomItems(['Yeni Öğrenci', 'Öğretmen', 'Yaramaz Can'], 1)[0],
+                where: getRandomItems(['Okul Bahçesi', 'Sınıf', 'Kütüphane'], 1)[0],
+                when: getRandomItems(['Teneffüs zili çalınca', 'Sınav sırasında', 'Okulun ilk günü'], 1)[0],
+                problem: getRandomItems(['Ödevini unuttu', 'Topu patladı', 'Geç kaldı'], 1)[0]
+            };
+            themeTitle = "Okul Hikayesi";
+            imagePrompt = "School building, happy students, classroom items, colorful vector illustration.";
+        } else if (topic === 'nature') {
+            specificHints = {
+                who: getRandomItems(['Doğa Kaşifi', 'Kampçı', 'Dağcı Ali'], 1)[0],
+                where: getRandomItems(['Kamp Alanı', 'Şelale', 'Yüksek Dağ'], 1)[0],
+                when: getRandomItems(['Fırtına çıkınca', 'Güneş batarken', 'Yürüyüş yaparken'], 1)[0],
+                problem: getRandomItems(['Çadırı uçtu', 'Yolu kaybetti', 'Ayı gördü'], 1)[0]
+            };
+            themeTitle = "Doğa Gezisi";
+            imagePrompt = "Nature camping scene, tent, mountains, trees, campfire, flat design.";
+        } else if (topic === 'fantasy') {
+            specificHints = {
+                who: getRandomItems(['Prenses Elif', 'Cesur Şövalye', 'Küçük Ejderha'], 1)[0],
+                where: getRandomItems(['Bulutlar Ülkesi', 'Kristal Mağara', 'Uçan Kale'], 1)[0],
+                when: getRandomItems(['Dolunayda', 'Sihir yaparken', 'Yüzyıllar önce'], 1)[0],
+                problem: getRandomItems(['Asası kırıldı', 'Ejderha uyandı', 'Büyü bozuldu'], 1)[0]
+            };
+            themeTitle = "Masal Diyarı";
+            imagePrompt = "Fantasy castle, dragon, magic sparkles, princess, fairytale style.";
+        }
+
+        const hints = specificHints || {
             who: getRandomItems(fillers.characters, 1)[0],
             where: getRandomItems(fillers.places, 1)[0],
             when: getRandomItems(['Sabah erkenden', 'Fırtınalı bir gece', 'Okul çıkışı', 'Yaz tatilinde'], 1)[0],
             problem: getRandomItems(['Anahtar kayboldu', 'Yolunu kaybetti', 'Gizemli bir ses duydu', 'Arkadaşı gelmedi'], 1)[0]
         };
 
+        // Determine keywords based on topic or difficulty
+        let keywordsPool = getWordsForDifficulty(difficulty, topic && topic !== 'Rastgele' && topic !== 'fantasy' && topic !== 'space' && topic !== 'nature' ? topic : undefined);
+        
+        // Add topic specific words manually if getWordsForDifficulty returns generic
+        if (topic === 'space') keywordsPool = ['roket', 'yıldız', 'gezegen', 'astronot', 'uzaylı', ...keywordsPool];
+        if (topic === 'fantasy') keywordsPool = ['sihir', 'ejderha', 'kale', 'prenses', 'hazine', ...keywordsPool];
+        if (topic === 'nature') keywordsPool = ['ağaç', 'nehir', 'kamp', 'çadır', 'ateş', ...keywordsPool];
+
         return {
-            title: `Hikaye Atölyesi (${difficulty})`,
+            title: `${themeTitle} (${difficulty})`,
             prompt: "Aşağıdaki ipuçlarını ve 5N 1K tablosunu kullanarak kendi özgün hikayeni oluştur.",
-            keywords: getRandomItems(getWordsForDifficulty(difficulty, topic), 5),
+            keywords: getRandomItems(keywordsPool, 5),
             structureHints: hints,
             pedagogicalNote: "Yaratıcı yazma, olay örgüsü kurma ve hikaye unsurlarını (karakter, mekan, zaman, olay) yapılandırma becerisi.",
-            imagePrompt: `Creative writing inspiration, open book with elements flying out like ${hints.who} and ${hints.where}, magical style.`
+            imagePrompt: imagePrompt
         };
     });
 };

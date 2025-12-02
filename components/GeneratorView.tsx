@@ -293,6 +293,25 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         
         return (
             <div className="animate-in fade-in slide-in-from-top-2">
+                {type === 'STORY_CREATION_PROMPT' ? (
+                    <div className="mb-4">
+                        <CompactSelect
+                            label="Hikaye Teması"
+                            value={options.topic || 'Rastgele'}
+                            onChange={(v: string) => handleChange('topic', v)}
+                            icon="fa-book-open"
+                            options={[
+                                { value: 'Rastgele', label: 'Rastgele Sürpriz' },
+                                { value: 'school', label: 'Okul Maceraları' },
+                                { value: 'animals', label: 'Hayvanlar Alemi' },
+                                { value: 'space', label: 'Uzay Yolculuğu' },
+                                { value: 'nature', label: 'Doğa Gezisi' },
+                                { value: 'fantasy', label: 'Masal Diyarı' }
+                            ]}
+                        />
+                    </div>
+                ) : null}
+
                 <CommonControls />
                 <div className="border-t border-zinc-100 dark:border-zinc-700 my-4"></div>
                 
@@ -301,7 +320,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 {['FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT', 'SHAPE_MATCHING', 'GRID_DRAWING'].includes(type) && <VisualControls />}
                 
                 {/* Default text input for topic if not covered above but needed */}
-                {!['BASIC_OPERATIONS', 'MATH_PUZZLE', 'KENDOKU', 'NUMBER_PYRAMID', 'REAL_LIFE_MATH_PROBLEMS', 'WORD_SEARCH', 'WORD_SEARCH_WITH_PASSWORD', 'LETTER_GRID_WORD_FIND', 'CROSSWORD', 'ANAGRAM', 'FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT', 'SHAPE_MATCHING', 'GRID_DRAWING'].includes(type) && (
+                {!['BASIC_OPERATIONS', 'MATH_PUZZLE', 'KENDOKU', 'NUMBER_PYRAMID', 'REAL_LIFE_MATH_PROBLEMS', 'WORD_SEARCH', 'WORD_SEARCH_WITH_PASSWORD', 'LETTER_GRID_WORD_FIND', 'CROSSWORD', 'ANAGRAM', 'FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT', 'SHAPE_MATCHING', 'GRID_DRAWING', 'STORY_CREATION_PROMPT'].includes(type) && (
                      <div className="mt-2">
                         <Label icon="fa-tag">Konu / Tema (Opsiyonel)</Label>
                         <input type="text" value={options.topic} onChange={(e) => handleChange('topic', e.target.value)} placeholder="Örn: Doğa, Uzay..." className="w-full h-8 px-2 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded text-xs outline-none focus:ring-1 focus:ring-indigo-500" />
