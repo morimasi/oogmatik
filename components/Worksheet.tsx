@@ -38,7 +38,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         color: 'black',
         boxSizing: 'border-box' as const,
         overflow: 'hidden', // Clip content that scales out of bounds
-        ...getBorderCSS(settings.themeBorder || 'simple')
+        ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
     };
 
     // CSS Variables for internal content to react instantly to toolbar settings
@@ -72,7 +72,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     } as React.CSSProperties;
 
     // Apply visual style class to the wrapper
-    const visualStyleClass = `style-${settings.visualStyle || 'minimal'}`;
+    const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
 
     return (
         <div className={`flex flex-col items-center bg-transparent w-full ${visualStyleClass}`} style={variableStyle}>

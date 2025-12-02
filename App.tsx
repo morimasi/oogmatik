@@ -33,6 +33,7 @@ const initialStyleSettings: StyleSettings = {
     contentAlign: 'center',
     fontWeight: 'normal',
     fontStyle: 'normal',
+    visualStyle: 'card', // Updated default style
     
     // Visibility Flags - All set to FALSE by default as requested
     showPedagogicalNote: false,

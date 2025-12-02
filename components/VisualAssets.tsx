@@ -83,15 +83,20 @@ export const MascotCat = ({ className }: { className?: string }) => (
 
 // --- BORDERS ---
 
-export const getBorderCSS = (type: 'none' | 'simple' | 'math' | 'verbal' | 'stars' | 'geo') => {
+export const getBorderCSS = (type: string, color: string = '#3f3f46', width: number = 4) => {
     if (type === 'none') return {};
     
+    // Simple borders use the dynamic color directly
     if (type === 'simple') return {
-        border: '4px solid #3f3f46',
+        border: `${width}px solid ${color}`,
         borderRadius: '0px'
     };
 
     let svgData = '';
+
+    // Thematic borders use SVG. We use 'width' to control border thickness.
+    // Colors are generally fixed for themes but could be parameterized if needed.
+    // For now, we respect the width setting.
 
     if (type === 'math') {
         svgData = `
@@ -125,7 +130,7 @@ export const getBorderCSS = (type: 'none' | 'simple' | 'math' | 'verbal' | 'star
     const encoded = `url("data:image/svg+xml,${encodeURIComponent(svgData.trim())}")`;
 
     return {
-        border: '16px solid transparent',
+        border: `${width}px solid transparent`,
         borderImageSource: encoded,
         borderImageSlice: 30,
         borderImageRepeat: 'round'
