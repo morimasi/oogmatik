@@ -1,6 +1,4 @@
 
-
-
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment } from '../types';
 import Worksheet from './Worksheet';
@@ -16,6 +14,7 @@ import { ShareModal } from './ShareModal';
 import { worksheetService } from '../services/worksheetService';
 import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
+import { DrawLayer } from './DrawLayer';
 // @ts-ignore
 import html2canvas from 'html2canvas';
 
@@ -41,6 +40,9 @@ interface ContentAreaProps {
   setWorkbookSettings: React.Dispatch<React.SetStateAction<WorkbookSettings>>;
   onAddToWorkbook: () => void;
   studentProfile?: StudentProfile | null;
+  // Zen Mode & Draw Mode
+  zenMode: boolean;
+  toggleZenMode: () => void;
 }
 
 const LandingText = memo(() => {
@@ -86,13 +88,15 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   workbookSettings,
   setWorkbookSettings,
   onAddToWorkbook,
-  studentProfile
+  studentProfile,
+  zenMode,
+  toggleZenMode
 }) => {
     const { user } = useAuth();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
-    const [isPreviewMode, setIsPreviewMode] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false); 
+    const [isDrawMode, setIsDrawMode] = useState(false);
     
     // --- INFINITE CANVAS STATE ---
     const [viewZoom, setViewZoom] = useState(1);
@@ -107,6 +111,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         setViewZoom(1);
         setPan({ x: 0, y: 50 });
         setIsEditMode(false);
+        setIsDrawMode(false);
     }, [activityType]);
 
     // Handle Mouse Wheel Zoom
@@ -125,7 +130,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const handleMouseDown = (e: React.MouseEvent) => {
         // Only allow dragging if clicking on the background (the container)
         // or explicitly explicitly allow it anywhere not interactive
-        if (currentView !== 'generator' || !worksheetData) return;
+        if (currentView !== 'generator' || !worksheetData || isDrawMode) return;
         
         // If in edit mode, check if we clicked an editable element first (managed by stopPropagation in EditableElement)
         // However, if the click bubbles here, it means we clicked background or non-editable area
@@ -308,8 +313,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     <main className={`flex-1 flex flex-col h-full bg-[var(--bg-primary)] transition-colors duration-300 overflow-hidden`}>
       
       {/* 1. TOP BAR (Toolbar & Breadcrumbs) - Fixed Height */}
-      <div className="shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 print:hidden z-20 shadow-sm relative">
-          {!isPreviewMode && (
+      {/* Zen Mode active hides breadcrumbs for focus */}
+      <div className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 print:hidden z-20 shadow-sm relative transition-all duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 absolute top-0 left-0 right-0' : ''}`}>
+          {!zenMode && (
               <nav className="mb-4 flex items-center text-sm text-[var(--text-secondary)]" aria-label="Breadcrumb">
                 <ol className="flex items-center space-x-2">
                     {breadcrumbs.map((crumb, idx) => (
@@ -336,13 +342,21 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     onFeedback={onFeedback}
                     onShare={handleShare}
                     onDownloadPDF={handleDownloadPDF}
-                    onTogglePreview={() => setIsPreviewMode(!isPreviewMode)}
-                    isPreviewMode={isPreviewMode}
+                    onTogglePreview={toggleZenMode}
+                    isPreviewMode={zenMode}
                     onAddToWorkbook={onAddToWorkbook}
                     workbookItemCount={workbookItems.length}
-                    onToggleEdit={() => setIsEditMode(!isEditMode)} 
+                    onToggleEdit={() => {
+                        setIsEditMode(!isEditMode);
+                        if (isDrawMode) setIsDrawMode(false); // Disable draw if edit
+                    }} 
                     isEditMode={isEditMode} 
                     onSnapshot={handleTakeSnapshot} 
+                    onToggleDraw={() => {
+                        setIsDrawMode(!isDrawMode);
+                        if (isEditMode) setIsEditMode(false); // Disable edit if draw
+                    }}
+                    isDrawMode={isDrawMode}
                 />
           )}
       </div>
@@ -350,7 +364,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {/* 2. MAIN CONTENT AREA (Canvas) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
+        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode || isDrawMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -369,15 +383,20 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </div>
           )}
           
-          {/* Edit Mode Overlay Info */}
+          {/* Mode Overlay Info */}
           {isEditMode && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
                   <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
               </div>
           )}
+          {isDrawMode && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
+                  <i className="fa-solid fa-pencil"></i> Çizim Modu Aktif
+              </div>
+          )}
 
           {/* Zoom Controls Overlay */}
-          {currentView === 'generator' && worksheetData && !isPreviewMode && (
+          {currentView === 'generator' && worksheetData && !zenMode && (
               <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-700 p-1.5 print:hidden">
                   <button onClick={() => setViewZoom(z => Math.max(0.2, z - 0.1))} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-minus"></i></button>
                   <span className="text-xs font-mono font-bold w-12 text-center text-zinc-700 dark:text-zinc-200">{Math.round(viewZoom * 100)}%</span>
@@ -441,15 +460,19 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             width: '100%',
                             height: 'auto', 
                             display: 'flex',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            position: 'relative'
                         }}
                     >
-                      <Worksheet 
-                        activityType={activityType} 
-                        data={worksheetData} 
-                        settings={styleSettings} 
-                        studentProfile={studentProfile}
-                      />
+                        {/* DRAWING LAYER OVERLAY */}
+                        <DrawLayer isActive={isDrawMode} zoom={viewZoom} />
+
+                        <Worksheet 
+                            activityType={activityType} 
+                            data={worksheetData} 
+                            settings={styleSettings} 
+                            studentProfile={studentProfile}
+                        />
                     </div>
                 )}
             </>

@@ -116,6 +116,9 @@ const AppContent: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   // New State for Hover-based Expansion
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+  
+  // ZEN MODE STATE
+  const [zenMode, setZenMode] = useState(false);
 
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -193,7 +196,7 @@ const AppContent: React.FC = () => {
           const themesToRemove = [
               'theme-light', 'dark', 'theme-anthracite', 'theme-anthracite-gold', 
               'theme-anthracite-cyber', 'theme-anthracite-bumblebee', 'theme-anthracite-stone', 
-              'theme-anthracite-honey', 'theme-anthracite-onyx'
+              'theme-anthracite-honey', 'theme-anthracite-onyx', 'theme-space', 'theme-nature', 'theme-ocean'
           ];
           root.classList.remove(...themesToRemove);
           if (theme === 'dark') {
@@ -362,7 +365,8 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
-      <header className="relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 print:hidden">
+      {/* HEADER IS HIDDEN IN ZEN MODE */}
+      <header className={`relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 print:hidden transition-all duration-500 ${zenMode ? '-mt-20 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
         <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] mr-3 p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars fa-lg"></i></button>
@@ -464,8 +468,11 @@ const AppContent: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
         
-        {/* Sidebar Container with Hover Listener */}
-        <div onMouseEnter={() => setIsSidebarExpanded(true)}>
+        {/* Sidebar Container with Hover Listener - Hidden in Zen Mode */}
+        <div 
+            onMouseEnter={() => setIsSidebarExpanded(true)} 
+            className={`transition-all duration-500 ease-in-out ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}
+        >
             <Sidebar
                 isSidebarOpen={isSidebarOpen}
                 closeSidebar={() => setIsSidebarOpen(false)}
@@ -507,6 +514,8 @@ const AppContent: React.FC = () => {
               setWorkbookSettings={setWorkbookSettings}
               onAddToWorkbook={handleAddToWorkbook}
               studentProfile={studentProfile}
+              zenMode={zenMode}
+              toggleZenMode={() => setZenMode(!zenMode)}
             />
         </div>
       </div>

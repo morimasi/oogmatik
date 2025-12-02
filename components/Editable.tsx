@@ -20,6 +20,10 @@ interface EditableElementProps {
     onClick?: (e: React.MouseEvent) => void;
 }
 
+// SNAP CONFIGURATION
+const GRID_SIZE = 20;
+const SNAP_THRESHOLD = 10;
+
 export const EditableElement: React.FC<EditableElementProps> = ({ children, className = "", initialPos = { x: 0, y: 0 }, id, type = 'block', style: propStyle, onClick }) => {
     const { isEditMode, zoom } = useEditable();
     
@@ -34,6 +38,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [isRotating, setIsRotating] = useState(false);
+    const [isSnapping, setIsSnapping] = useState(false);
 
     const ref = useRef<HTMLDivElement>(null);
     const startPos = useRef({ x: 0, y: 0 });
@@ -111,10 +116,24 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
             if (isDragging) {
                 const dx = (e.clientX - startPos.current.x) / zoom;
                 const dy = (e.clientY - startPos.current.y) / zoom;
+                
+                let rawX = initialTransform.current.x + dx;
+                let rawY = initialTransform.current.y + dy;
+
+                // Snap to Grid Logic
+                const snapX = Math.round(rawX / GRID_SIZE) * GRID_SIZE;
+                const snapY = Math.round(rawY / GRID_SIZE) * GRID_SIZE;
+
+                const isSnapX = Math.abs(rawX - snapX) < SNAP_THRESHOLD;
+                const isSnapY = Math.abs(rawY - snapY) < SNAP_THRESHOLD;
+
+                setIsSnapping(isSnapX || isSnapY);
+
                 setPosition({
-                    x: initialTransform.current.x + dx,
-                    y: initialTransform.current.y + dy
+                    x: isSnapX ? snapX : rawX,
+                    y: isSnapY ? snapY : rawY
                 });
+
             } else if (isResizing) {
                 const dx = (e.clientX - startPos.current.x) / zoom;
                 const dy = (e.clientY - startPos.current.y) / zoom;
@@ -135,6 +154,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
             setIsDragging(false);
             setIsResizing(false);
             setIsRotating(false);
+            setIsSnapping(false);
         };
 
         if (isDragging || isResizing || isRotating) {
@@ -163,6 +183,14 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
 
     return (
         <div ref={ref} className={`${className} editable-element group/edit`} style={style} onMouseDown={handleMouseDown}>
+            {/* Alignment Guides (Visual Only) */}
+            {isEditMode && isDragging && isSnapping && (
+                <>
+                    <div className="absolute top-0 bottom-0 left-0 w-px bg-indigo-400 opacity-50 -translate-x-1/2 pointer-events-none h-[200vh] -top-[50vh]"></div>
+                    <div className="absolute left-0 right-0 top-0 h-px bg-indigo-400 opacity-50 -translate-y-1/2 pointer-events-none w-[200vh] -left-[50vh]"></div>
+                </>
+            )}
+
             {isEditMode && isSelected && (
                 <>
                     {/* Rotate Handle (Top) */}

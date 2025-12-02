@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { UiSettings, AppTheme } from '../types';
 
@@ -19,12 +20,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
         { id: 'light', name: 'Açık', color: '#fafafa' },
         { id: 'dark', name: 'Koyu', color: '#18181b' },
         { id: 'anthracite', name: 'Antrasit', color: '#222226' },
+        { id: 'space', name: 'Uzay', color: '#0b0d17' },
+        { id: 'nature', name: 'Doğa', color: '#f0fdf4' },
+        { id: 'ocean', name: 'Okyanus', color: '#ecfeff' },
         { id: 'anthracite-gold', name: 'Altın', color: '#1f1f22' },
         { id: 'anthracite-cyber', name: 'Cyber', color: '#000000' },
-        { id: 'anthracite-bumblebee', name: 'Bumblebee', color: '#2c2820' },
-        { id: 'anthracite-stone', name: 'Taş', color: '#3d4043' },
-        { id: 'anthracite-honey', name: 'Bal', color: '#38322f' },
-        { id: 'anthracite-onyx', name: 'Oniks', color: '#121212' },
     ];
 
     const fonts: { id: UiSettings['fontFamily']; name: string }[] = [
@@ -95,9 +95,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                              backgroundColor: 'var(--bg-primary)',
                              color: 'var(--text-primary)',
                              borderColor: 'var(--border-color)',
-                             backgroundImage: 'radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px), radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px)',
-                             backgroundSize: '32px 32px',
-                             backgroundPosition: '0 0, 16px 16px'
+                             backgroundImage: 'var(--pattern-image)',
+                             backgroundSize: '550px 550px'
                          }}>
                         <p className="text-xs opacity-70 uppercase font-bold mb-2">Önizleme</p>
                         <h3 className="text-xl font-bold mb-2">Bursa Disleksi AI</h3>

@@ -1,5 +1,3 @@
-
-
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
   ANAGRAM = 'ANAGRAM',
@@ -153,7 +151,7 @@ export enum ActivityType {
   VISUAL_DISCRIMINATION_MATH = 'VISUAL_DISCRIMINATION_MATH'
 }
 
-export type AppTheme = 'light' | 'dark' | 'anthracite' | 'anthracite-gold' | 'anthracite-cyber' | 'anthracite-bumblebee' | 'anthracite-stone' | 'anthracite-honey' | 'anthracite-onyx';
+export type AppTheme = 'light' | 'dark' | 'anthracite' | 'anthracite-gold' | 'anthracite-cyber' | 'anthracite-bumblebee' | 'anthracite-stone' | 'anthracite-honey' | 'anthracite-onyx' | 'space' | 'nature' | 'ocean';
 
 export interface UiSettings {
     fontFamily: 'Lexend' | 'OpenDyslexic' | 'Inter' | 'Lora' | 'Comic Neue';

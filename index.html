@@ -50,6 +50,7 @@
         --ui-spacing: normal;
         --ui-line-height: 1.6;
         --ui-saturation: 100%;
+        --pattern-image: none;
       }
 
       /* --- THEME OVERRIDES --- */
@@ -86,7 +87,58 @@
         --pattern-color: #27272a;
       }
 
-      /* Anthracite Variations (Accent Color Changes) */
+      /* --- CONCEPT THEMES --- */
+
+      /* Space Theme */
+      :root.theme-space {
+        --bg-primary: #0b0d17;
+        --bg-secondary: #151932;
+        --bg-paper: #1c2142;
+        --bg-inset: #0f1221;
+        --panel-bg: rgba(28, 33, 66, 0.95);
+        --text-primary: #e0e7ff;
+        --text-secondary: #a5b4fc;
+        --text-muted: #6366f1;
+        --border-color: #312e81;
+        --accent-color: #c084fc; /* Purple */
+        --accent-hover: #a855f7;
+        --pattern-color: #312e81;
+        --pattern-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px), radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+      }
+
+      /* Nature Theme */
+      :root.theme-nature {
+        --bg-primary: #f0fdf4;
+        --bg-secondary: #dcfce7;
+        --bg-paper: #ffffff;
+        --bg-inset: #f0fdf4;
+        --panel-bg: rgba(255, 255, 255, 0.95);
+        --text-primary: #14532d;
+        --text-secondary: #15803d;
+        --text-muted: #86efac;
+        --border-color: #bbf7d0;
+        --accent-color: #22c55e; /* Green */
+        --accent-hover: #16a34a;
+        --pattern-color: #dcfce7;
+      }
+
+      /* Ocean Theme */
+      :root.theme-ocean {
+        --bg-primary: #ecfeff;
+        --bg-secondary: #cffafe;
+        --bg-paper: #ffffff;
+        --bg-inset: #ecfeff;
+        --panel-bg: rgba(255, 255, 255, 0.95);
+        --text-primary: #0e7490;
+        --text-secondary: #0891b2;
+        --text-muted: #67e8f9;
+        --border-color: #a5f3fc;
+        --accent-color: #06b6d4; /* Cyan */
+        --accent-hover: #0891b2;
+        --pattern-color: #cffafe;
+      }
+
+      /* Anthracite Variations */
       :root.theme-anthracite-gold { --accent-color: #fbbf24; --accent-hover: #f59e0b; }
       :root.theme-anthracite-cyber { --accent-color: #22d3ee; --accent-hover: #06b6d4; }
       :root.theme-anthracite-bumblebee { --accent-color: #facc15; --accent-hover: #eab308; }
@@ -100,6 +152,8 @@
         letter-spacing: var(--ui-spacing);
         line-height: var(--ui-line-height);
         background-color: var(--bg-primary);
+        background-image: var(--pattern-image);
+        background-size: 550px 550px;
         color: var(--text-primary);
         margin: 0;
         padding: 0;
@@ -165,6 +219,7 @@
             --text-muted: #000000 !important;
             --border-color: #000000 !important;
             --accent-color: #000000 !important;
+            --pattern-image: none !important;
         }
 
         /* Reset Main Containers */
@@ -189,7 +244,7 @@
         }
         
         /* Hide Edit Mode Helpers */
-        .edit-grid-overlay, .print-safety-margin, .edit-handle {
+        .edit-grid-overlay, .print-safety-margin, .edit-handle, .draw-layer {
             display: none !important;
         }
 
