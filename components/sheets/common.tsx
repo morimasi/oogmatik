@@ -21,13 +21,12 @@ const findEmojiForDescription = (desc: string): string | null => {
     return null;
 };
 
-// --- HELPER: STRING TO COLOR ---
+// --- HELPER: STRING TO COLOR (Simplified for B&W focus, keeps borders but white bg if needed, kept for compatibility) ---
 const stringToColor = (str: string): string => {
+    // Keeping logic but can be overridden by parent styles
     const safeStr = String(str);
-    const colors = ['bg-red-100 text-red-600 border-red-200','bg-blue-100 text-blue-600 border-blue-200','bg-green-100 text-green-600 border-green-200','bg-yellow-100 text-yellow-600 border-yellow-200','bg-purple-100 text-purple-600 border-purple-200'];
-    let hash = 0;
-    for (let i = 0; i < safeStr.length; i++) hash = safeStr.charCodeAt(i) + ((hash << 5) - hash);
-    return colors[Math.abs(hash) % colors.length];
+    const colors = ['bg-white border-black text-black','bg-white border-black text-black']; 
+    return colors[0];
 };
 
 // Enhanced ImageDisplay
@@ -47,11 +46,10 @@ export const ImageDisplay = React.memo(({ base64, description, className = "w-fu
                     return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" />;
                 }
                 const emojiIcon = findEmojiForDescription(safeDesc);
-                const colorClass = stringToColor(safeDesc);
                 const initial = safeDesc.charAt(0).toUpperCase();
                 return (
-                    <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full ${emojiIcon ? 'bg-white border-2 border-zinc-100' : `border-2 ${colorClass}`}`}>
-                        {emojiIcon ? <div className="text-5xl">{emojiIcon}</div> : <div className="flex flex-col items-center"><span className="text-4xl font-black opacity-80">{initial}</span><span className="text-[10px] font-bold uppercase">{safeDesc}</span></div>}
+                    <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-200`}>
+                        {emojiIcon ? <div className="text-5xl">{emojiIcon}</div> : <div className="flex flex-col items-center"><span className="text-4xl font-black opacity-80 text-black">{initial}</span><span className="text-[10px] font-bold uppercase text-black">{safeDesc}</span></div>}
                     </div>
                 );
             })()}
@@ -74,22 +72,22 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
             </EditableElement>
 
             <EditableElement className="flex items-center justify-center gap-3 mb-3 relative z-0" style={{ display: 'var(--display-title)' }}>
-                <EditableText tag="h3" value={title} className="text-3xl font-black text-zinc-800 dark:text-zinc-100 tracking-tight" />
+                <EditableText tag="h3" value={title} className="text-3xl font-black text-black tracking-tight" />
             </EditableElement>
             
-            <EditableElement id="instruction-box" className="inline-block px-8 py-3 bg-white dark:bg-indigo-900/20 rounded-2xl border-2 border-indigo-100 dark:border-indigo-800 mb-4 shadow-sm" style={{ display: 'var(--display-instruction)' }}>
-                <EditableText tag="p" value={instruction} className="text-lg font-bold text-indigo-800 dark:text-indigo-200" />
+            <EditableElement id="instruction-box" className="inline-block px-8 py-3 bg-white rounded-2xl border-2 border-black mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ display: 'var(--display-instruction)' }}>
+                <EditableText tag="p" value={instruction} className="text-lg font-bold text-black" />
             </EditableElement>
             
             {data?.imageBase64 && (
-                <EditableElement className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-white" style={{ display: 'var(--display-image)' }}>
-                    <ImageDisplay base64={data.imageBase64} description={data.imagePrompt || title} className="w-full h-64 object-contain" />
+                <EditableElement className="my-6 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-black" style={{ display: 'var(--display-image)' }}>
+                    <ImageDisplay base64={data.imageBase64} description={data.imagePrompt || title} className="w-full h-64 object-contain bg-white" />
                 </EditableElement>
             )}
 
             {note && (
                 <EditableElement className="print:block" style={{ display: 'var(--display-pedagogical-note)' }}>
-                    <div className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-500 italic mt-2">
+                    <div className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-600 italic mt-2 font-bold">
                         <i className="fa-solid fa-graduation-cap"></i>
                         <span>Eğitmen Notu: <EditableText tag="span" value={note} /></span>
                     </div>
@@ -121,7 +119,7 @@ export const ReadingRuler: React.FC = () => {
                     <i className="fa-solid fa-ruler-horizontal"></i>
                 </button>
             </div>
-            {isActive && <div className="absolute left-0 right-0 h-12 bg-yellow-200/30 border-y-2 border-indigo-400/50 pointer-events-none z-10" style={{ top: position - 24 }}></div>}
+            {isActive && <div className="absolute left-0 right-0 h-12 bg-yellow-200/30 border-y-2 border-black/50 pointer-events-none z-10" style={{ top: position - 24 }}></div>}
         </div>
     );
 };
@@ -150,8 +148,8 @@ export const GridComponent = React.memo(({ grid, cellClassName = 'w-10 h-10', pa
                     {row.map((cell, c) => (
                         <td 
                             key={c} 
-                            className={`border text-center font-mono ${cellClassName} ${isPasswordCell(r,c) ? 'bg-amber-100 border-amber-300' : ''}`} 
-                            style={{borderColor: isPasswordCell(r,c) ? '#fcd34d' : 'var(--worksheet-border-color)'}}
+                            className={`border text-center font-mono ${cellClassName} ${isPasswordCell(r,c) ? 'bg-zinc-200 border-black font-black' : 'bg-white text-black'}`} 
+                            style={{borderColor: 'black', borderWidth: '1px'}}
                         >
                             <EditableText value={cell || ''} tag="span" />
                         </td>
@@ -166,12 +164,12 @@ export const GridComponent = React.memo(({ grid, cellClassName = 'w-10 h-10', pa
 
 export const SegmentDisplay = React.memo(({ segments }: { segments: boolean[] }) => (
     <div className="grid grid-cols-3 grid-rows-3 w-12 h-12 gap-0.5">
-        {segments.map((active, i) => <div key={i} className={active ? 'bg-black' : 'bg-gray-200'}></div>)}
+        {segments.map((active, i) => <div key={i} className={active ? 'bg-black' : 'bg-white border border-zinc-200'}></div>)}
     </div>
 ));
 
 export const ShapeDisplay = React.memo(({ shapes }: { shapes: ShapeType[] }) => (
-    <div className="flex gap-1">{shapes.map((s, i) => <Shape key={i} name={s} className="w-6 h-6" />)}</div>
+    <div className="flex gap-1 text-black">{shapes.map((s, i) => <Shape key={i} name={s} className="w-6 h-6" />)}</div>
 ));
 
 // CagedGridSvg for Kendoku
@@ -228,7 +226,7 @@ export const CagedGridSvg = ({ size, cages, gridData }: { size: number, cages: a
             {gridData.map((row, r) => 
                 row.map((val, c) => (
                     val !== null ? (
-                        <text key={`${r}-${c}`} x={c * cellSize + cellSize/2} y={r * cellSize + cellSize/2 + 5} textAnchor="middle" fontSize="20" fontWeight="bold">
+                        <text key={`${r}-${c}`} x={c * cellSize + cellSize/2} y={r * cellSize + cellSize/2 + 5} textAnchor="middle" fontSize="20" fontWeight="bold" fill="black">
                             {val}
                         </text>
                     ) : null
