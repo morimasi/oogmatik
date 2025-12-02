@@ -50,6 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
 
+  // Memoize categorized activities to avoid recalculation on every render
   const categorizedActivities = useMemo(() => {
       return ACTIVITY_CATEGORIES.map(category => ({
           ...category,

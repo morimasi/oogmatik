@@ -52,7 +52,8 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 // 2. Priority: AI Generation (Pollinations.ai) - Free & Quota Friendly
                 // If a specific prompt is provided (usually English from Gemini)
                 if (prompt && prompt.length > 2) {
-                    const encodedPrompt = encodeURIComponent(`${prompt} children's book illustration, clean vector art, white background, high contrast, colorful`);
+                    // We append styling keywords to ensure consistent, child-friendly vector art style
+                    const encodedPrompt = encodeURIComponent(`${prompt} children's book illustration, clean vector art, white background, high contrast, colorful, flat design`);
                     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
                     
                     return (
@@ -74,7 +75,7 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 const emojiIcon = findEmojiForDescription(safeDesc);
                 const initial = safeDesc.charAt(0).toUpperCase();
                 return (
-                    <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-100 hidden`}>
+                    <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-100 ${prompt ? 'hidden' : ''}`}>
                         {emojiIcon ? (
                             <div className="text-5xl">{emojiIcon}</div>
                         ) : (
