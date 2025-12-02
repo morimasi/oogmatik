@@ -234,6 +234,7 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
                 id: crypto.randomUUID(), 
                 description: step.desc,
                 order: step.order,
+                imagePrompt: `${step.desc} illustration, clean vector style, colorful children's book style`, // Added Specific Prompt
                 imageBase64: '' 
             }))),
             transitionWords: ['İlk önce', 'Sonra', 'Daha sonra', 'Bunun üzerine', 'En sonunda'],

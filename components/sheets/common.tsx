@@ -27,7 +27,7 @@ interface ImageDisplayProps {
     className?: string;
 }
 
-// Enhanced ImageDisplay with Free AI Generation
+// Enhanced ImageDisplay with Free AI Generation (Pollinations.ai)
 export const ImageDisplay = React.memo(({ base64, description, prompt, className = "w-full h-32" }: ImageDisplayProps) => {
     let safeDesc = '';
     try { if (description) safeDesc = String(description); } catch (e) { safeDesc = ''; }
@@ -50,10 +50,14 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 }
 
                 // 2. Priority: AI Generation (Pollinations.ai) - Free & Quota Friendly
-                // If a specific prompt is provided (usually English from Gemini)
+                // If a specific prompt is provided (usually English from Gemini or Offline Generator)
                 if (prompt && prompt.length > 2) {
                     // We append styling keywords to ensure consistent, child-friendly vector art style
-                    const encodedPrompt = encodeURIComponent(`${prompt} children's book illustration, clean vector art, white background, high contrast, colorful, flat design`);
+                    // encodeURIComponent handles special chars including Turkish
+                    const finalPrompt = `${prompt} children's book illustration, clean vector art, white background, high contrast, colorful, flat design`;
+                    const encodedPrompt = encodeURIComponent(finalPrompt);
+                    
+                    // Pollinations URL construction
                     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
                     
                     return (
