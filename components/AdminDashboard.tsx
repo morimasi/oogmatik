@@ -77,6 +77,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     // Stats Tab States
     const [sortConfig, setSortConfig] = useState<{ key: keyof ActivityStats; direction: 'asc' | 'desc' }>({ key: 'generationCount', direction: 'desc' });
     
+    // User Search & Filter
+    const [userSearch, setUserSearch] = useState('');
+    const [userFilter, setUserFilter] = useState<'all' | 'admin' | 'suspended'>('all');
+
     // Load data based on active tab and pagination
     const loadData = async (tab = activeTab, page = 0) => {
         setLoading(prev => ({...prev, [tab]: true}));
@@ -145,7 +149,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         }
     };
 
-    // --- STATS SORTING ---
+    // --- FEEDBACK ACTIONS ---
+    const handleMarkFeedbackRead = async (id: string) => {
+        await messagingService.updateFeedbackStatus(id, 'read');
+        loadData();
+    };
+
+    const handleDeleteFeedback = async (id: string) => {
+        if (confirm('Bu mesajı silmek istediğinizden emin misiniz?')) {
+            await messagingService.deleteFeedback(id);
+            loadData();
+        }
+    };
+
+    const handleReplyFeedback = async (id: string) => {
+        const reply = prompt("Yanıtınız:");
+        if (reply && user) {
+            await messagingService.replyToFeedback(id, reply, user);
+            alert("Yanıt kaydedildi.");
+            loadData();
+        }
+    };
+
+    // --- FILTERING & SORTING ---
+    const filteredUsers = users.filter(u => {
+        const matchesSearch = u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase());
+        const matchesFilter = userFilter === 'all' 
+            ? true 
+            : userFilter === 'admin' 
+                ? u.role === 'admin' 
+                : u.status === 'suspended';
+        return matchesSearch && matchesFilter;
+    });
+
     const handleSort = (key: keyof ActivityStats) => {
         let direction: 'asc' | 'desc' = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -177,7 +213,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const avgTime = stats.length > 0 ? Math.round(stats.reduce((a,b) => a + (b.avgCompletionTime || 0), 0) / stats.length) : 0;
     
     const usersTotalPages = Math.ceil(usersCount / PAGE_SIZE);
-    const feedbacksTotalPages = Math.ceil(feedbacksCount / PAGE_SIZE);
 
     if (!user || user.role !== 'admin') return <div className="p-8 text-center text-red-600">Yetkisiz Erişim</div>;
 
@@ -252,12 +287,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                 <div className="max-w-7xl mx-auto">
                     
-                    {/* USERS TAB - WRAPPED IN BENTO */}
+                    {/* USERS TAB */}
                     {activeTab === 'users' && (
                         <BentoCard className="min-h-[600px] p-0 overflow-hidden" title="Kullanıcı Listesi" icon="fa-solid fa-users" iconColor="bg-blue-100 text-blue-600">
-                            <div className="flex justify-between items-center px-6 mb-4">
-                                <p className="text-sm text-zinc-500 font-bold">{usersCount} Kayıt</p>
-                                <button onClick={() => loadData('users')} className="text-indigo-600 text-sm font-bold hover:underline">Yenile</button>
+                            <div className="flex flex-col md:flex-row justify-between items-center px-6 mb-4 gap-4">
+                                <div className="flex items-center gap-4 w-full md:w-auto">
+                                    <p className="text-sm text-zinc-500 font-bold whitespace-nowrap">{usersCount} Kayıt</p>
+                                    <div className="relative w-full md:w-64">
+                                        <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+                                        <input 
+                                            type="text" 
+                                            placeholder="İsim veya E-posta Ara..." 
+                                            value={userSearch}
+                                            onChange={(e) => setUserSearch(e.target.value)}
+                                            className="w-full pl-8 pr-3 py-2 bg-zinc-100 rounded-lg text-xs border-none focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <select 
+                                        value={userFilter} 
+                                        onChange={(e) => setUserFilter(e.target.value as any)}
+                                        className="bg-zinc-100 text-xs font-bold px-3 py-2 rounded-lg border-none focus:ring-0"
+                                    >
+                                        <option value="all">Tümü</option>
+                                        <option value="admin">Yöneticiler</option>
+                                        <option value="suspended">Askıya Alınanlar</option>
+                                    </select>
+                                    <button onClick={() => loadData('users')} className="text-indigo-600 text-sm font-bold hover:underline">Yenile</button>
+                                </div>
                             </div>
                             
                             <div className="overflow-x-auto flex-1">
@@ -273,8 +331,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
-                                        {users.map(u => (
-                                            <tr key={u.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/20 transition-colors">
+                                        {filteredUsers.map(u => (
+                                            <tr key={u.id} className={`transition-colors ${u.status === 'suspended' ? 'bg-red-50/50' : 'hover:bg-zinc-50 dark:hover:bg-zinc-700/20'}`}>
                                                 <td className="px-6 py-4 flex items-center gap-3">
                                                     <img src={u.avatar} className="w-8 h-8 rounded-full bg-zinc-200" />
                                                     <div>
@@ -295,14 +353,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className={`w-2 h-2 rounded-full inline-block mr-2 ${u.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                                    <span className="text-xs font-bold uppercase text-zinc-500">{u.status}</span>
+                                                    <span className="text-xs font-bold uppercase text-zinc-500">{u.status === 'active' ? 'Aktif' : 'Askıda'}</span>
                                                 </td>
                                                 <td className="px-6 py-4 text-right space-x-2">
                                                     {u.id !== user.id && (
                                                         <>
-                                                            <button onClick={() => setInspectingUser(u)} className="p-2 hover:bg-zinc-100 rounded text-zinc-500 hover:text-indigo-600" title="İncele"><i className="fa-solid fa-eye"></i></button>
-                                                            <button onClick={() => handleSetRole(u.id, u.role)} className="p-2 hover:bg-zinc-100 rounded text-zinc-500 hover:text-purple-600" title="Yetki Değiştir"><i className="fa-solid fa-user-shield"></i></button>
-                                                            <button onClick={() => handleDeleteUser(u.id)} className="p-2 hover:bg-zinc-100 rounded text-zinc-500 hover:text-red-600" title="Sil"><i className="fa-solid fa-trash"></i></button>
+                                                            <button onClick={() => setInspectingUser(u)} className="p-2 hover:bg-indigo-50 rounded text-zinc-500 hover:text-indigo-600 transition-colors" title="İncele"><i className="fa-solid fa-eye"></i></button>
+                                                            <button onClick={() => handleSetRole(u.id, u.role)} className="p-2 hover:bg-purple-50 rounded text-zinc-500 hover:text-purple-600 transition-colors" title="Yetki Değiştir"><i className="fa-solid fa-user-shield"></i></button>
+                                                            <button onClick={() => handleToggleStatus(u.id, u.status)} className={`p-2 rounded transition-colors ${u.status === 'active' ? 'hover:bg-orange-50 text-zinc-500 hover:text-orange-600' : 'hover:bg-green-50 text-red-500 hover:text-green-600'}`} title={u.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}>
+                                                                <i className={`fa-solid ${u.status === 'active' ? 'fa-ban' : 'fa-unlock'}`}></i>
+                                                            </button>
+                                                            <button onClick={() => handleDeleteUser(u.id)} className="p-2 hover:bg-red-50 rounded text-zinc-500 hover:text-red-600 transition-colors" title="Sil"><i className="fa-solid fa-trash"></i></button>
                                                         </>
                                                     )}
                                                 </td>
@@ -322,7 +383,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                         </BentoCard>
                     )}
 
-                    {/* FEEDBACKS TAB - WRAPPED IN BENTO */}
+                    {/* FEEDBACKS TAB */}
                     {activeTab === 'feedbacks' && (
                          <BentoCard className="min-h-[600px] p-0" title="Gelen Kutusu" icon="fa-solid fa-inbox" iconColor="bg-orange-100 text-orange-600">
                             <div className="flex justify-between items-center px-6 mb-4">
@@ -333,17 +394,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                             <div className="flex-1 overflow-y-auto px-6 space-y-4 pb-6">
                                 {loading.feedbacks ? <div className="flex justify-center p-12"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div> : feedbacks.length === 0 ? <div className="text-center text-zinc-400 p-12">Mesaj yok.</div> :
                                 feedbacks.map(fb => (
-                                    <div key={fb.id} className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-700/30 border border-zinc-200 dark:border-zinc-700 flex gap-4">
-                                        <div className={`w-2 h-auto rounded-full ${fb.status === 'new' ? 'bg-blue-500' : 'bg-zinc-300'}`}></div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-bold text-zinc-900 dark:text-zinc-100">{fb.activityTitle || 'Genel'}</h4>
-                                                <div className="flex text-yellow-400 text-xs">{Array.from({length:5}).map((_,i) => <i key={i} className={`${i<fb.rating?'fa-solid':'fa-regular'} fa-star`}></i>)}</div>
+                                    <div key={fb.id} className={`p-4 rounded-2xl border transition-all ${fb.status === 'new' ? 'bg-white border-blue-200 shadow-sm' : 'bg-zinc-50 border-zinc-100 opacity-80'}`}>
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex gap-3">
+                                                <div className={`w-2 h-2 mt-2 rounded-full ${fb.status === 'new' ? 'bg-blue-500' : 'bg-zinc-300'}`}></div>
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">{fb.activityTitle || 'Genel'}</h4>
+                                                        {fb.status === 'replied' && <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold uppercase">Yanıtlandı</span>}
+                                                    </div>
+                                                    <div className="flex text-yellow-400 text-xs mb-2">{Array.from({length:5}).map((_,i) => <i key={i} className={`${i<fb.rating?'fa-solid':'fa-regular'} fa-star`}></i>)}</div>
+                                                    <p className="text-zinc-700 dark:text-zinc-300 text-sm mb-3">{fb.message}</p>
+                                                    {fb.adminReply && (
+                                                        <div className="bg-indigo-50 p-3 rounded-lg text-xs text-indigo-800 mb-2">
+                                                            <span className="font-bold">Yanıt:</span> {fb.adminReply}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex justify-between items-center text-xs text-zinc-400 font-medium gap-4">
+                                                        <span>{fb.userName} ({fb.userEmail})</span>
+                                                        <span>{new Date(fb.timestamp).toLocaleString()}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p className="text-zinc-600 dark:text-zinc-300 text-sm mb-3">{fb.message}</p>
-                                            <div className="flex justify-between items-center text-xs text-zinc-400 font-medium">
-                                                <span>{fb.userName} ({fb.userEmail})</span>
-                                                <span>{new Date(fb.timestamp).toLocaleDateString()}</span>
+                                            <div className="flex flex-col gap-1">
+                                                {fb.status === 'new' && (
+                                                    <button onClick={() => handleMarkFeedbackRead(fb.id)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded" title="Okundu İşaretle"><i className="fa-solid fa-check"></i></button>
+                                                )}
+                                                <button onClick={() => handleReplyFeedback(fb.id)} className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded" title="Yanıtla"><i className="fa-solid fa-reply"></i></button>
+                                                <button onClick={() => handleDeleteFeedback(fb.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded" title="Sil"><i className="fa-solid fa-trash"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -352,7 +430,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                         </BentoCard>
                     )}
                    
-                    {/* STATS TAB - FULL BENTO GRID LAYOUT */}
+                    {/* STATS TAB */}
                     {activeTab === 'stats' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             
@@ -382,7 +460,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                 </div>
                             </BentoCard>
 
-                            {/* Top 5 Activities Bar Chart (Span 2x2) */}
+                            {/* Top 5 Activities Bar Chart */}
                             <BentoCard className="md:col-span-2 lg:row-span-2" title="En Çok Kullanılan 5 Etkinlik" icon="fa-solid fa-chart-simple" iconColor="bg-violet-100 text-violet-600">
                                 <div className="flex flex-col justify-end h-full gap-4 mt-4">
                                     {top5.map((item, index) => {
@@ -406,15 +484,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                                 </div>
                             </BentoCard>
 
-                            {/* Detailed Stats Table (Span 2x2) */}
+                            {/* Detailed Stats Table with Sorting */}
                             <BentoCard className="md:col-span-2 lg:row-span-2 p-0 overflow-hidden" title="Tüm Etkinlik Verileri" icon="fa-solid fa-table" iconColor="bg-zinc-100 text-zinc-600">
                                 <div className="overflow-auto flex-1 max-h-[400px]">
                                     <table className="w-full text-left text-sm">
                                         <thead className="bg-zinc-50 dark:bg-zinc-800 border-b sticky top-0 z-10">
                                             <tr>
-                                                <th className="p-4 cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500" onClick={() => handleSort('title')}>Etkinlik</th>
-                                                <th className="p-4 text-center cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500" onClick={() => handleSort('generationCount')}>Sayı</th>
-                                                <th className="p-4 text-right cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500" onClick={() => handleSort('lastGenerated')}>Son</th>
+                                                <th className="p-4 cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500 group" onClick={() => handleSort('title')}>
+                                                    Etkinlik <i className={`fa-solid fa-sort${sortConfig.key === 'title' ? (sortConfig.direction === 'asc' ? '-up' : '-down') : ''} ml-1 text-zinc-300`}></i>
+                                                </th>
+                                                <th className="p-4 text-center cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500 group" onClick={() => handleSort('generationCount')}>
+                                                    Sayı <i className={`fa-solid fa-sort${sortConfig.key === 'generationCount' ? (sortConfig.direction === 'asc' ? '-up' : '-down') : ''} ml-1 text-zinc-300`}></i>
+                                                </th>
+                                                <th className="p-4 text-right cursor-pointer hover:text-indigo-600 text-xs uppercase text-zinc-500 group" onClick={() => handleSort('lastGenerated')}>
+                                                    Son <i className={`fa-solid fa-sort${sortConfig.key === 'lastGenerated' ? (sortConfig.direction === 'asc' ? '-up' : '-down') : ''} ml-1 text-zinc-300`}></i>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">

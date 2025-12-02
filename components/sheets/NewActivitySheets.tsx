@@ -250,7 +250,7 @@ export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
                         {/* 2. Matrix Logic */}
                         {puzzle.type === 'matrix_logic' && puzzle.grid && (
                              <div className="bg-zinc-100 dark:bg-zinc-900 p-2 rounded-lg border-2 border-zinc-300 dark:border-zinc-600">
-                                 <GridComponent grid={puzzle.grid as any} cellClassName="w-16 h-16 text-2xl font-bold flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-600" showLetters={false} />
+                                 <GridComponent grid={puzzle.grid as any} cellClassName="w-16 h-16 text-2xl font-bold flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-600" />
                              </div>
                         )}
 

@@ -9,23 +9,6 @@ import { EditableElement, EditableText } from '../Editable';
 
 // --- SHARED COMPONENTS ---
 
-const StudentInfoStrip = () => (
-    <div className="flex flex-wrap justify-between border-2 border-black p-3 mb-6 rounded-xl bg-white text-black font-bold uppercase text-[10px] tracking-wider gap-4 print:flex w-full">
-        <div className="flex-1 min-w-[150px] border-b-2 border-black border-dashed flex flex-col justify-end pb-1 h-10">
-            <span className="text-zinc-500 mb-auto">Adı Soyadı</span>
-        </div>
-        <div className="w-24 border-b-2 border-black border-dashed flex flex-col justify-end pb-1 h-10">
-            <span className="text-zinc-500 mb-auto">Tarih</span>
-        </div>
-        <div className="w-24 border-b-2 border-black border-dashed flex flex-col justify-end pb-1 h-10">
-            <span className="text-zinc-500 mb-auto">Süre</span>
-        </div>
-        <div className="w-24 border-b-2 border-black border-dashed flex flex-col justify-end pb-1 h-10">
-            <span className="text-zinc-500 mb-auto">Puan</span>
-        </div>
-    </div>
-);
-
 const ScoreTable = ({ rows = 1 }: { rows?: number }) => (
     <div className="mt-8 border-2 border-black rounded-xl overflow-hidden text-xs bg-white text-black break-inside-avoid">
         <div className="grid grid-cols-4 bg-zinc-100 border-b-2 border-black font-bold p-2 text-center">
@@ -59,7 +42,6 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
             {/* PAGE 1: MEMORIZE */}
             <div className="flex flex-col min-h-[1000px] relative break-after-page print:break-after-page">
                 <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Kelimeleri dikkatlice oku ve ezberle." note={data.pedagogicalNote} data={data} />
-                <StudentInfoStrip />
                 
                 <div className="flex-1 flex flex-col items-center justify-center">
                     <div className="bg-white border-4 border-black rounded-3xl p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-2xl w-full text-center">
@@ -82,7 +64,6 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
             {/* PAGE 2: TEST */}
             <div className="flex flex-col min-h-[1000px] relative pt-8">
                 <PedagogicalHeader title={`${data.title} - TEST`} instruction="2. AŞAMA: Aklında kalan kelimeleri bul ve kutucuğu işaretle." />
-                <StudentInfoStrip />
                 
                 <div className="flex-1">
                     <div className="bg-white border-4 border-black rounded-3xl p-8 max-w-3xl mx-auto w-full">
@@ -112,7 +93,6 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
             {/* PAGE 1: MEMORIZE */}
             <div className="flex flex-col min-h-[1000px] relative break-after-page print:break-after-page">
                 <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Görselleri dikkatlice incele ve yerlerini ezberle." note={data.pedagogicalNote} data={data} />
-                <StudentInfoStrip />
                 
                 <div className="flex-1 flex flex-col items-center justify-center">
                     <div className="grid grid-cols-3 md:grid-cols-4 gap-6 w-full max-w-3xl">
@@ -136,7 +116,6 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
             {/* PAGE 2: TEST */}
             <div className="flex flex-col min-h-[1000px] relative pt-8">
                 <PedagogicalHeader title={`${data.title} - TEST`} instruction="2. AŞAMA: Bir önceki sayfada gördüğün resimleri işaretle." />
-                <StudentInfoStrip />
                 
                 <div className="flex-1">
                     <div className="grid grid-cols-4 md:grid-cols-5 gap-4 w-full">
@@ -168,7 +147,6 @@ export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ 
             {/* PAGE 1 */}
             <div className="flex flex-col min-h-[1000px] relative break-after-page print:break-after-page">
                 <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." note={data.pedagogicalNote} data={data} />
-                <StudentInfoStrip />
                 
                 <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 items-center justify-center p-4">
                     {(data.charactersToMemorize || []).map((char, index) => (
@@ -184,7 +162,6 @@ export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ 
             {/* PAGE 2 */}
             <div className="flex flex-col min-h-[1000px] relative pt-8">
                 <PedagogicalHeader title={`${data.title} - KİMİ GÖRDÜN?`} instruction="Daha önce gördüğün karakterlerin altındaki kutucuğu işaretle." />
-                <StudentInfoStrip />
                 
                 <div className="flex-1 grid grid-cols-3 md:grid-cols-4 gap-6 p-4">
                     {(data.testCharacters || []).map((char, index) => (
@@ -212,7 +189,6 @@ export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data
             {/* PAGE 1 */}
             <div className="flex flex-col min-h-[1000px] relative break-after-page print:break-after-page">
                 <PedagogicalHeader title={data.title} instruction="Renk çemberindeki nesnelerin yerini ve rengini ezberle." note={data.pedagogicalNote} data={data} />
-                <StudentInfoStrip />
                 
                 <div className="flex-1 flex items-center justify-center">
                     <EditableElement className="relative w-[300px] h-[300px]">
@@ -250,7 +226,6 @@ export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data
             {/* PAGE 2 */}
             <div className="flex flex-col min-h-[1000px] relative pt-8">
                 <PedagogicalHeader title={`${data.title} - BOŞ ÇEMBER`} instruction="Çemberi aklında kaldığı gibi boya ve nesneleri çiz." />
-                <StudentInfoStrip />
                 
                 <div className="flex-1 flex flex-col items-center justify-center">
                     <svg viewBox="0 0 300 300" className="w-[300px] h-[300px] overflow-visible mb-8">
@@ -283,7 +258,7 @@ export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }>
         {/* Page 1 */}
         <div className="min-h-[1000px] break-after-page print:break-after-page flex flex-col">
             <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." note={data.pedagogicalNote} data={data} />
-            <StudentInfoStrip />
+            
             <div className="flex-1 flex items-center justify-center p-8">
                 <div className="bg-white p-8 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-2xl font-medium leading-loose max-w-2xl text-center font-dyslexic text-black">
                     {data.sceneDescription}
@@ -295,7 +270,7 @@ export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }>
         {/* Page 2 */}
         <div className="min-h-[1000px] flex flex-col pt-8">
             <PedagogicalHeader title="HATIRLAMA TESTİ" instruction="Metne bakmadan soruları cevapla." />
-            <StudentInfoStrip />
+            
             <div className="flex-1 space-y-8 mt-8">
                 {data.questions.map((q, i) => (
                     <EditableElement key={i} className="p-6 border-2 border-black rounded-xl bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -315,7 +290,6 @@ export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }>
 export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
     <div className="w-full h-full">
         <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction || "Sırasıyla a, b, d, g harflerinin altını çizin."} note={data.pedagogicalNote} data={data} />
-        <StudentInfoStrip />
         
         <div className="bg-white border-2 border-black rounded-lg p-1">
             {/* Standard Burdon Layout: Blocks of 10/20 chars lines */}
@@ -358,7 +332,6 @@ export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }
 export const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData }> = ({ data }) => (
     <div className="relative h-full flex flex-col w-full">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <StudentInfoStrip />
         
         <div className="flex-1 relative border-4 border-black rounded-3xl overflow-hidden bg-white min-h-[600px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             {/* Target List on Top */}
@@ -409,7 +382,6 @@ export const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData 
 export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <StudentInfoStrip />
         
         <div className="grid grid-cols-4 gap-6 mt-8">
             {data.items.map((item, index) => (
@@ -446,7 +418,6 @@ export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) =>
 const StandardSheet = ({ data, children }: any) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <StudentInfoStrip />
         {children}
         <ScoreTable rows={1} />
     </div>

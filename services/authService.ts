@@ -141,7 +141,6 @@ export const authService = {
         return mapDbUserToAppUser(updatedSnap.data(), userId, auth.currentUser?.email || '');
     },
 
-    // Yeni Metot: Kullanıcının aktivite istatistiklerini güncelle
     recordActivityGeneration: async (userId: string, activityId: string, activityTitle: string): Promise<void> => {
         try {
             const userDocRef = doc(db, "users", userId);
@@ -161,7 +160,6 @@ export const authService = {
     updatePassword: async (newPassword: string): Promise<void> => {
         const user = auth.currentUser;
         if (user) {
-            // Firebase v9 updatePassword from firebase/auth
             const { updatePassword } = await import("firebase/auth");
             await updatePassword(user, newPassword);
         } else {
@@ -191,6 +189,8 @@ export const authService = {
 
     getAllUsers: async (page: number, pageSize: number): Promise<{ users: User[], count: number | null }> => {
         try {
+            // In a real app, pagination would use startAfter/limit.
+            // For this scale, fetching top 100 is acceptable.
             const q = query(collection(db, "users"), orderBy("createdAt", "desc"), limit(100));
             const querySnapshot = await getDocs(q);
             const users: User[] = [];
@@ -205,7 +205,11 @@ export const authService = {
         }
     },
 
+    // --- ADMIN ACTIONS ---
+
     deleteUser: async (userId: string): Promise<void> => {
+        // Note: Deleting user from Auth requires Cloud Functions or Admin SDK.
+        // Here we just delete the Firestore document.
         await deleteDoc(doc(db, "users", userId));
     },
 

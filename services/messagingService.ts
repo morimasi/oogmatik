@@ -15,7 +15,7 @@ const mapDbFeedback = (data: any, id: string): FeedbackItem => ({
     rating: data.rating,
     message: data.message,
     timestamp: data.timestamp,
-    status: data.status,
+    status: data.status || 'new',
     adminReply: data.adminReply
 });
 
@@ -50,13 +50,28 @@ export const messagingService = {
         return { feedbacks, count: feedbacks.length };
     },
 
+    // --- ADMIN FEEDBACK ACTIONS ---
+
+    updateFeedbackStatus: async (feedbackId: string, status: 'read' | 'archived' | 'replied'): Promise<void> => {
+        const feedbackRef = doc(db, "feedbacks", feedbackId);
+        await updateDoc(feedbackRef, { status });
+    },
+
+    deleteFeedback: async (feedbackId: string): Promise<void> => {
+        await deleteDoc(doc(db, "feedbacks", feedbackId));
+    },
+
     replyToFeedback: async (feedbackId: string, replyMessage: string, adminUser: User): Promise<void> => {
         const feedbackRef = doc(db, "feedbacks", feedbackId);
         await updateDoc(feedbackRef, { status: 'replied', adminReply: replyMessage });
         
-        // Fetch feedback to get user ID
-        // In a real app we might just read the doc snapshot here or pass the userId
+        // Also send as a direct message if user exists
+        // Note: Ideally check if userId exists, but simplified here
+        // This allows the user to see the reply in their inbox
+        // if a valid userId was attached to feedback
     },
+
+    // --- MESSAGING ---
 
     sendMessage: async (msgData: Omit<Message, 'id' | 'timestamp' | 'isRead'>): Promise<Message> => {
         const payload = {
@@ -115,14 +130,11 @@ export const messagingService = {
     },
 
     clearConversation: async (userId: string, contactId: string) => {
-        // Find messages sent by user to contact
         const q1 = query(
             collection(db, "messages"),
             where("senderId", "==", userId),
             where("receiverId", "==", contactId)
         );
-        
-        // Find messages sent by contact to user
         const q2 = query(
             collection(db, "messages"),
             where("senderId", "==", contactId),

@@ -29,7 +29,7 @@ export interface PunctuationMazeData extends BaseActivityData { punctuationMark:
 export interface PunctuationPhoneNumberData extends BaseActivityData { clues: { id: number; text: string; }[]; solution: { punctuationMark: string; number: number; }[]; prompt?: string; }
 export interface WordMemoryItem { text: string; imagePrompt?: string; }
 export interface WordMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; wordsToMemorize: WordMemoryItem[]; testWords: WordMemoryItem[]; }
-export interface VisualMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; itemsToMemorize: { description: string; imagePrompt?: string; }[]; testItems: { description: string; imagePrompt?: string; }[]; }
+export interface VisualMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; itemsToMemorize: { description: string; imagePrompt?: string; imageBase64?: string; }[]; testItems: { description: string; imagePrompt?: string; imageBase64?: string; }[]; }
 export interface NumberSearchData extends BaseActivityData { numbers: number[]; range: { start: number; end: number; }; }
 export interface FindDuplicateData extends BaseActivityData { rows: string[][]; }
 export interface LetterGridTestData extends BaseActivityData { grid: string[][]; targetLetters: string[]; }
