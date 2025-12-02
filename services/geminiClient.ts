@@ -32,12 +32,37 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
             throw new Error(errorMessage);
         }
         
+        // STREAM HANDLER
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+
+        if (!reader) {
+            throw new Error("Yanıt akışı okunamadı.");
+        }
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value, { stream: true });
+            fullText += chunk;
+            
+            // Burada isteğe bağlı olarak UI'a ilerleme durumu bildirilebilir (callback ile)
+            // Örn: onProgress && onProgress(fullText.length)
+        }
+
+        // Final decode flush
+        fullText += decoder.decode();
+
         try {
-            const parsed = await response.json();
+            // Clean markdown code blocks if present
+            const cleanedJsonText = fullText.replace(/^```json\s*|```\s*$/g, '').trim();
+            const parsed = JSON.parse(cleanedJsonText);
             return parsed;
         } catch (e) {
-            console.error("Yapay zeka yanıtı ayrıştırılamadı:", e);
-            throw new Error("Yapay zeka sunucusundan geçersiz veya bozuk bir yanıt alındı. Lütfen tekrar deneyin.");
+            console.error("Yapay zeka yanıtı ayrıştırılamadı. Ham metin:", fullText);
+            throw new Error("Yapay zeka sunucusundan alınan veri JSON formatında değildi. Lütfen tekrar deneyin.");
         }
 
     } catch (error) {
