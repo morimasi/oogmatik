@@ -180,6 +180,23 @@ export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: Shap
     }
 });
 
+export const Matchstick = React.memo(({ x1, y1, x2, y2, color, strokeWidth = 4 }: { x1: number, y1: number, x2: number, y2: number, color?: string, strokeWidth?: number }) => {
+    // Realistic Matchstick Rendering
+    return (
+        <g>
+            {/* Stick Body */}
+            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d4d4d4" strokeWidth={strokeWidth} strokeLinecap="round" />
+            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color || "#f59e0b"} strokeWidth={strokeWidth - 2} strokeLinecap="round" />
+            {/* Head (Red/Brown dot at start) */}
+            <circle cx={x1} cy={y1} r={strokeWidth} fill="#78350f" /> 
+        </g>
+    );
+});
+
+export const ConnectionDot = React.memo(({ side, active }: { side: 'left' | 'right', active?: boolean }) => (
+    <div className={`w-4 h-4 rounded-full border-2 border-zinc-400 bg-white ${active ? 'bg-zinc-800 border-zinc-800' : ''} absolute top-1/2 -translate-y-1/2 ${side === 'left' ? '-left-2' : '-right-2'} shadow-sm z-10`}></div>
+));
+
 export const GridComponent = React.memo(({ grid, cellClassName = 'w-10 h-10', passwordCells }: { grid: any[][]; cellClassName?: string; passwordCells?: {row: number, col: number}[] }) => {
     const isPasswordCell = (r: number, c: number) => {
         return passwordCells?.some(pc => pc.row === r && pc.col === c);
