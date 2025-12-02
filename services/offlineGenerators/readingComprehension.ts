@@ -235,7 +235,7 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
                 description: step.desc,
                 order: step.order,
                 // Ensures image prompt is present even in offline mode for Pollinations
-                imagePrompt: `${step.desc} illustration, clean vector style, colorful children's book style`, 
+                imagePrompt: `${step.desc}, children's book illustration, clean vector style, colorful`, 
                 imageBase64: '' 
             }))),
             transitionWords: ['İlk önce', 'Sonra', 'Daha sonra', 'Bunun üzerine', 'En sonunda'],
