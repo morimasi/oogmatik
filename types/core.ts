@@ -181,6 +181,12 @@ export interface StyleSettings {
   orientation: 'portrait' | 'landscape';
   themeBorder: 'none' | 'simple' | 'math' | 'verbal' | 'stars' | 'geo';
   
+  // Advanced Typography & Layout
+  fontFamily?: 'OpenDyslexic' | 'Lexend' | 'Inter' | 'Comic Neue' | 'Lora';
+  lineHeight?: number; // 1.0 to 2.5
+  letterSpacing?: number; // 0 to 5px
+  visualStyle?: 'minimal' | 'boxed' | 'card' | 'zebra'; // Visual theme for items
+
   // Visibility Settings
   showStudentInfo: boolean; // Name/Date strip
   showTitle: boolean;

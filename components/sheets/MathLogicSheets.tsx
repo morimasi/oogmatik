@@ -15,9 +15,10 @@ const BORDER_CLASS = "border-2 border-black bg-white text-black";
 export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        {/* Using dynamic-grid which maps to CSS columns defined in Worksheet.tsx */}
         <div className="dynamic-grid mt-4">
             {data.operations.map((op, index) => (
-                <EditableElement key={index} className={`p-3 rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col items-end justify-center text-xl font-mono font-bold break-inside-avoid relative overflow-hidden ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-3 rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col items-end justify-center text-xl font-mono font-bold break-inside-avoid relative overflow-hidden ${BORDER_CLASS}`}>
                     <div className="tracking-wide mr-2"><EditableText value={op.num1} tag="span" /></div>
                     
                     <div className="flex items-center w-full justify-end gap-2 mr-2">
@@ -52,7 +53,7 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="dynamic-grid">
             {data.problems.map((problem, index) => (
-                <EditableElement key={index} className={`rounded-3xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] break-inside-avoid overflow-hidden ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element rounded-3xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] break-inside-avoid overflow-hidden ${BORDER_CLASS}`}>
                     
                     <div className="p-6 border-b-2 border-black flex gap-6 items-start bg-white">
                         <div className="flex-shrink-0 w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center font-black text-2xl shadow-lg transform -rotate-3">
@@ -132,7 +133,7 @@ export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) =>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className={`p-4 rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-4 rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col break-inside-avoid ${BORDER_CLASS}`}>
                     {(puzzle.objects && puzzle.objects.length > 0) && (
                         <div className="flex justify-center gap-4 mb-4 border-b-2 border-black pb-2">
                             {(puzzle.objects || []).map(obj => (
@@ -164,7 +165,7 @@ export const NumberPatternSheet: React.FC<{ data: NumberPatternData }> = ({ data
         <PedagogicalHeader title={data.title} instruction={data.instruction || "Aşağıdaki sayı dizilerindeki kuralı bul ve '?' yerine gelmesi gereken sayıyı yaz."} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.patterns || []).map((pattern, index) => (
-                <EditableElement key={index} className={`flex items-center justify-center gap-4 p-4 rounded-lg shadow-sm ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element flex items-center justify-center gap-4 p-4 rounded-lg shadow-sm ${BORDER_CLASS}`}>
                     <p className="font-mono text-xl tracking-wider font-bold"><EditableText value={pattern.sequence} tag="span" /></p>
                     <div className="w-20 h-10 border-2 border-black rounded-md bg-white"></div>
                 </EditableElement>
@@ -228,7 +229,7 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
             <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
             <div className="dynamic-grid justify-items-center">
                 {(data.puzzles || []).map((puzzle, index) => (
-                    <EditableElement key={index} className="break-inside-avoid">
+                    <EditableElement key={index} className="editable-element break-inside-avoid">
                         {renderFutoshiki(puzzle)}
                     </EditableElement>
                 ))}
@@ -243,7 +244,7 @@ export const NumberPyramidSheet: React.FC<{ data: NumberPyramidData }> = ({ data
              <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
             <div className="dynamic-grid justify-items-center">
                 {(data.pyramids || []).map((pyramid: any, index: number) => (
-                    <EditableElement key={index} className="flex flex-col items-center break-inside-avoid">
+                    <EditableElement key={index} className="editable-element flex flex-col items-center break-inside-avoid">
                         <h4 className="font-semibold mb-4 text-black"><EditableText value={pyramid.title} tag="span" /></h4>
                         <div className="flex flex-col items-center gap-1">
                             {pyramid.rows.map((row: (number|null)[], rIndex: number) => (
@@ -268,7 +269,7 @@ export const NumberCapsuleSheet: React.FC<{ data: NumberCapsuleData }> = ({ data
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className={`relative p-6 rounded-xl break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element relative p-6 rounded-xl break-inside-avoid ${BORDER_CLASS}`}>
                     <h4 className="text-center font-bold mb-4"><EditableText value={puzzle.title} tag="span" /></h4>
                     <div className="grid grid-cols-4 gap-2 mx-auto w-max relative">
                         {(puzzle.grid || []).map((row, r) => 
@@ -308,7 +309,7 @@ export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData }> = ({ data
             <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
             <div className="dynamic-grid justify-items-center">
                 {(data.puzzles || []).map((puzzle, index) => (
-                    <EditableElement key={index} className="flex justify-center break-inside-avoid">
+                    <EditableElement key={index} className="editable-element flex justify-center break-inside-avoid">
                         <div className="grid grid-cols-6 border-4 border-black">
                             {(puzzle.grid || []).map((row, rIndex) => (
                                 (row || []).map((cell, cIndex) => {
@@ -356,7 +357,7 @@ export const RoundingConnectSheet: React.FC<{ data: RoundingConnectData | Arithm
              {items.map((item: any, i: number) => (
                  <EditableElement 
                     key={i} 
-                    className="absolute w-auto min-w-[3rem] h-12 px-2 rounded-full bg-white border-2 border-black flex items-center justify-center font-bold shadow-sm text-black"
+                    className="editable-element absolute w-auto min-w-[3rem] h-12 px-2 rounded-full bg-white border-2 border-black flex items-center justify-center font-bold shadow-sm text-black"
                     initialPos={{ x: item.x * 500, y: item.y * 500 }} 
                     style={{ left: `${item.x * 100}%`, top: `${item.y * 100}%`, transform: 'translate(-50%, -50%)' }}
                  >
@@ -373,7 +374,7 @@ export const RomanNumeralMultiplicationSheet: React.FC<{ data: RomanNumeralMulti
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="flex justify-center break-inside-avoid">
+                <EditableElement key={index} className="editable-element flex justify-center break-inside-avoid">
                     <table className="border-collapse border-4 border-black text-black">
                         <tbody>
                             <tr>
@@ -404,7 +405,7 @@ export const KendokuSheet: React.FC<{ data: KendokuData }> = ({ data }) => (
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
         <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="break-inside-avoid">
+                <EditableElement key={index} className="editable-element break-inside-avoid">
                     <CagedGridSvg size={puzzle.size} cages={puzzle.cages} gridData={puzzle.grid} />
                 </EditableElement>
             ))}
@@ -417,7 +418,7 @@ export const OperationSquareSheet: React.FC<{ data: OperationSquareFillInData }>
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
         <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className={`p-4 rounded-lg break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-4 rounded-lg break-inside-avoid ${BORDER_CLASS}`}>
                     <GridComponent grid={puzzle.grid} cellClassName="w-12 h-12 text-xl font-bold border-black" />
                     <div className="mt-4 text-center p-2 bg-white border border-black rounded">
                         <span className="font-bold text-sm text-black block mb-1">Kullanılacak Sayılar:</span>
@@ -436,7 +437,7 @@ export const MultiplicationWheelSheet: React.FC<{ data: MultiplicationWheelData 
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="dynamic-grid justify-items-center">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="relative w-64 h-64 break-inside-avoid">
+                <EditableElement key={index} className="editable-element relative w-64 h-64 break-inside-avoid">
                     {/* Outer Circle */}
                     <div className="absolute inset-0 rounded-full border-4 border-black bg-white flex items-center justify-center">
                         {/* Inner Circle */}
@@ -479,7 +480,7 @@ export const TargetNumberSheet: React.FC<{ data: TargetNumberData }> = ({ data }
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className={`p-6 rounded-xl shadow-sm flex flex-col items-center break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-6 rounded-xl shadow-sm flex flex-col items-center break-inside-avoid ${BORDER_CLASS}`}>
                     <div className="w-20 h-20 rounded-full bg-black text-white flex items-center justify-center text-3xl font-bold mb-4 border-4 border-white shadow-[0_0_0_2px_black]">
                         <EditableText value={puzzle.target} tag="span" />
                     </div>
@@ -500,7 +501,7 @@ export const ShapeSudokuSheet: React.FC<{ data: ShapeSudokuData }> = ({ data }) 
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="flex flex-col items-center gap-8">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="flex flex-col items-center gap-4 break-inside-avoid">
+                <EditableElement key={index} className="editable-element flex flex-col items-center gap-4 break-inside-avoid">
                     <div className="grid grid-cols-4 border-4 border-black">
                         {(puzzle.grid || []).map((row, r) => 
                             row.map((shape, c) => (
@@ -525,7 +526,7 @@ export const VisualNumberPatternSheet: React.FC<{ data: VisualNumberPatternData 
         <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {(data.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className={`p-4 rounded-xl shadow-sm flex items-center justify-between break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-4 rounded-xl shadow-sm flex items-center justify-between break-inside-avoid ${BORDER_CLASS}`}>
                     <div className="flex gap-4">
                         {puzzle.items.map((item, i) => (
                             <div key={i} className="flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 border-black font-bold text-xl bg-white text-black" 
@@ -551,7 +552,7 @@ export const OddOneOutSheet: React.FC<{ data: OddOneOutData }> = ({ data }) => (
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {data.groups.map((group, index) => (
-                <EditableElement key={index} className={`p-4 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-4 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
                     <div className="flex flex-wrap justify-around gap-4">
                         {group.words.map((word, wIndex) => (
                             <div key={wIndex} className="px-4 py-2 bg-white border border-black rounded-lg font-bold cursor-pointer hover:bg-zinc-200 transition-colors text-black">
@@ -571,7 +572,7 @@ export const ThematicOddOneOutSheet: React.FC<{ data: ThematicOddOneOutData }> =
         <div className="mb-4 text-center font-black text-black uppercase">Tema: <EditableText value={data.theme} tag="span" /></div>
         <div className="dynamic-grid">
             {data.rows.map((row, index) => (
-                <EditableElement key={index} className={`p-4 rounded-xl shadow-sm flex flex-wrap justify-around gap-4 break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-4 rounded-xl shadow-sm flex flex-wrap justify-around gap-4 break-inside-avoid ${BORDER_CLASS}`}>
                     {row.words.map((word, wIndex) => (
                         <div key={wIndex} className="flex flex-col items-center gap-2 p-2 border border-black rounded-lg hover:shadow-md transition-shadow cursor-pointer">
                             {word.imagePrompt && <ImageDisplay base64={word.imageBase64} description={word.text} className="w-20 h-20 object-contain" />}
@@ -589,7 +590,7 @@ export const ThematicOddOneOutSentenceSheet: React.FC<{ data: ThematicOddOneOutS
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="dynamic-grid">
             {data.rows.map((row, index) => (
-                <EditableElement key={index} className={`p-4 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-4 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
                     <div className="flex flex-wrap justify-around gap-4 mb-4">
                         {row.words.map((word, wIndex) => (
                             <div key={wIndex} className="px-4 py-2 bg-white border border-black rounded-lg font-bold cursor-pointer hover:bg-zinc-200 transition-colors text-black">
@@ -615,7 +616,7 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {data.columns.map((col, index) => (
-                <EditableElement key={index} className={`flex flex-col gap-3 p-4 rounded-xl break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element flex flex-col gap-3 p-4 rounded-xl break-inside-avoid ${BORDER_CLASS}`}>
                     {col.words.map((word, wIndex) => (
                         <div key={wIndex} className="p-2 bg-white border border-black rounded text-center font-bold cursor-pointer hover:bg-zinc-100 transition-colors text-black">
                             <EditableText value={word} tag="span" />
@@ -641,7 +642,7 @@ export const ColumnOddOneOutSentenceSheet: React.FC<{ data: ColumnOddOneOutSente
 const MazeGrid = ({ grid, rules }: { grid: number[][], rules: {id: number, text: string, isPath: boolean}[] }) => {
     if (!grid || grid.length === 0 || !grid[0]) return null;
     return (
-        <EditableElement className={`relative p-2 rounded-xl shadow-inner max-w-md mx-auto ${BORDER_CLASS}`}>
+        <EditableElement className={`editable-element relative p-2 rounded-xl shadow-inner max-w-md mx-auto ${BORDER_CLASS}`}>
             <div className="absolute -left-6 top-6 text-black text-2xl font-bold">Giriş-{'>'}</div>
             
             <div className="grid gap-1" style={{gridTemplateColumns: `repeat(${grid[0].length}, 1fr)`}}>
@@ -680,7 +681,7 @@ export const PunctuationMazeSheet: React.FC<{ data: PunctuationMazeData }> = ({ 
                 </div>
 
                 <div className="w-full md:w-1/2">
-                    <EditableElement className={`rounded-xl shadow-sm overflow-hidden ${BORDER_CLASS}`}>
+                    <EditableElement className={`editable-element rounded-xl shadow-sm overflow-hidden ${BORDER_CLASS}`}>
                         <div className="bg-white px-4 py-3 border-b-2 border-black">
                             <h4 className="font-bold text-black uppercase text-sm tracking-wider">Kurallar Listesi</h4>
                         </div>
@@ -707,13 +708,13 @@ export const PunctuationPhoneNumberSheet: React.FC<{ data: PunctuationPhoneNumbe
         <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="flex-1 w-full space-y-4">
                 {data.clues.map((clue, index) => (
-                    <EditableElement key={index} className={`flex items-center gap-4 p-3 rounded-lg shadow-sm ${BORDER_CLASS}`}>
+                    <EditableElement key={index} className={`editable-element flex items-center gap-4 p-3 rounded-lg shadow-sm ${BORDER_CLASS}`}>
                         <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">{clue.id}</div>
                         <p className="text-black font-bold"><EditableText value={clue.text} tag="span" /></p>
                     </EditableElement>
                 ))}
             </div>
-            <EditableElement className={`w-full md:w-1/3 p-6 rounded-3xl shadow-xl text-center break-inside-avoid border-4 border-black bg-white`}>
+            <EditableElement className={`editable-element w-full md:w-1/3 p-6 rounded-3xl shadow-xl text-center break-inside-avoid border-4 border-black bg-white`}>
                 <div className="bg-white w-full h-16 mb-6 rounded-lg flex items-center justify-center text-3xl font-mono tracking-widest border-4 border-black text-black">
                     _______
                 </div>
@@ -737,7 +738,7 @@ export const ShapeNumberPatternSheet: React.FC<{ data: ShapeNumberPatternData }>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="dynamic-grid space-y-8">
             {data.patterns.map((pattern, pIndex) => (
-                <EditableElement key={pIndex} className={`flex flex-wrap justify-center gap-8 md:gap-16 p-6 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={pIndex} className={`editable-element flex flex-wrap justify-center gap-8 md:gap-16 p-6 rounded-xl shadow-sm break-inside-avoid ${BORDER_CLASS}`}>
                     {pattern.shapes.map((shape, sIndex) => {
                         if (shape.type === 'triangle') {
                             return (
@@ -769,7 +770,7 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex flex-col items-center gap-8">
             {data.figures.map((fig, index) => (
-                <EditableElement key={index} className={`p-6 rounded-xl shadow-sm flex flex-col items-center break-inside-avoid ${BORDER_CLASS}`}>
+                <EditableElement key={index} className={`editable-element p-6 rounded-xl shadow-sm flex flex-col items-center break-inside-avoid ${BORDER_CLASS}`}>
                     <svg viewBox="0 0 100 100" className="w-64 h-64 mb-6">
                         {fig.svgPaths.map((path, pIndex) => (
                             <path key={pIndex} d={path.d} fill={path.fill} stroke={path.stroke || 'black'} strokeWidth="1" />

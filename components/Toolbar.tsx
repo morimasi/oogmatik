@@ -40,7 +40,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onToggleDraw,
     isDrawMode
 }) => {
-  const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type'>('none');
+  const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type' | 'theme'>('none');
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
@@ -110,18 +110,32 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 onChange={(v: number) => onSettingsChange({...settings, columns: v})}
              />
 
-             {/* Visual Settings Dropdown */}
+             {/* Style Settings Dropdown */}
              <div className="relative">
                  <button
-                    onClick={() => setActiveMenu(activeMenu === 'visual' ? 'none' : 'visual')}
-                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'visual' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                    title="Görsel Ayarlar"
+                    onClick={() => setActiveMenu(activeMenu === 'theme' ? 'none' : 'theme')}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'theme' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                    title="Görsel Stil"
                  >
-                     <i className="fa-solid fa-paintbrush"></i> Stil
+                     <i className="fa-solid fa-swatchbook"></i> Tema
                  </button>
                  
-                 {activeMenu === 'visual' && (
+                 {activeMenu === 'theme' && (
                      <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 flex flex-col gap-3 animate-in fade-in zoom-in-95">
+                         <div>
+                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Kart Stili</span>
+                             <div className="grid grid-cols-2 gap-1">
+                                 {['minimal', 'boxed', 'card', 'zebra'].map((s) => (
+                                     <button 
+                                        key={s} 
+                                        onClick={() => onSettingsChange({...settings, visualStyle: s as any})}
+                                        className={`h-8 rounded border flex items-center justify-center text-[10px] font-bold uppercase transition-all ${settings.visualStyle === s ? 'bg-[var(--accent-color)] text-black border-transparent' : 'bg-[var(--bg-inset)] text-[var(--text-muted)] border-transparent hover:bg-zinc-700'}`}
+                                     >
+                                         {s}
+                                     </button>
+                                 ))}
+                             </div>
+                         </div>
                          <div>
                              <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Çerçeve</span>
                              <div className="grid grid-cols-3 gap-1">
@@ -136,7 +150,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
                                  ))}
                              </div>
                          </div>
-                         
                          <div>
                              <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Kenar Boşluğu</span>
                              <input type="range" min="0" max="80" value={settings.margin} onChange={(e) => onSettingsChange({...settings, margin: Number(e.target.value)})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
@@ -150,25 +163,54 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  <button
                     onClick={() => setActiveMenu(activeMenu === 'type' ? 'none' : 'type')}
                     className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'type' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                    title="Yazı Ayarları"
+                    title="Tipografi Ayarları"
                  >
                      <i className="fa-solid fa-font"></i> Yazı
                  </button>
                  
                  {activeMenu === 'type' && (
-                     <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 flex flex-col gap-2 animate-in fade-in zoom-in-95">
+                     <div className="absolute top-full left-0 mt-2 w-56 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 flex flex-col gap-3 animate-in fade-in zoom-in-95">
+                         
+                         {/* Font Family */}
+                         <div>
+                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Font</span>
+                             <select 
+                                value={settings.fontFamily || 'OpenDyslexic'} 
+                                onChange={(e) => onSettingsChange({...settings, fontFamily: e.target.value as any})}
+                                className="w-full bg-[var(--bg-inset)] border border-[var(--border-color)] text-xs text-[var(--text-primary)] p-1 rounded"
+                             >
+                                 <option value="OpenDyslexic">OpenDyslexic</option>
+                                 <option value="Lexend">Lexend (Okuma)</option>
+                                 <option value="Inter">Inter (Modern)</option>
+                                 <option value="Comic Neue">Comic Sans (El Yazısı)</option>
+                                 <option value="Lora">Lora (Kitap)</option>
+                             </select>
+                         </div>
+
                          <div className="flex justify-between bg-[var(--bg-inset)] p-1 rounded">
                              <button onClick={() => onSettingsChange({...settings, fontWeight: settings.fontWeight === 'bold' ? 'normal' : 'bold'})} className={`p-1.5 rounded flex-1 ${settings.fontWeight === 'bold' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-bold"></i></button>
                              <button onClick={() => onSettingsChange({...settings, fontStyle: settings.fontStyle === 'italic' ? 'normal' : 'italic'})} className={`p-1.5 rounded flex-1 ${settings.fontStyle === 'italic' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-italic"></i></button>
                          </div>
+                         
                          <div className="flex justify-between bg-[var(--bg-inset)] p-1 rounded">
                              <button onClick={() => onSettingsChange({...settings, contentAlign: 'left'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'left' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-left"></i></button>
                              <button onClick={() => onSettingsChange({...settings, contentAlign: 'center'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'center' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-center"></i></button>
                              <button onClick={() => onSettingsChange({...settings, contentAlign: 'right'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'right' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-right"></i></button>
                          </div>
+                         
                          <div>
-                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Punto</span>
+                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Punto (Boyut)</span>
                              <input type="range" min="12" max="32" value={settings.fontSize} onChange={(e) => onSettingsChange({...settings, fontSize: Number(e.target.value)})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
+                         </div>
+
+                         <div>
+                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Satır Aralığı</span>
+                             <input type="range" min="10" max="25" value={(settings.lineHeight || 1.5) * 10} onChange={(e) => onSettingsChange({...settings, lineHeight: Number(e.target.value) / 10})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
+                         </div>
+
+                         <div>
+                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Harf Aralığı</span>
+                             <input type="range" min="0" max="50" value={(settings.letterSpacing || 0) * 10} onChange={(e) => onSettingsChange({...settings, letterSpacing: Number(e.target.value) / 10})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
                          </div>
                      </div>
                  )}

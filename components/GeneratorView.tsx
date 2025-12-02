@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Activity, GeneratorOptions, ActivityType, StudentProfile } from '../types';
 import { statsService } from '../services/statsService';
@@ -164,8 +165,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     
     const CommonControls = () => (
         <div className="grid grid-cols-2 gap-3 mb-4">
-            <CompactCounter label="Sayfa Sayısı" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={20} icon="fa-copy" />
-            <CompactCounter label="Öğe Sayısı" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={50} icon="fa-list-ol" />
+            <CompactCounter label="Sayfa Adedi" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={20} icon="fa-copy" />
+            <CompactCounter label="Toplam Soru/Öğe" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={50} icon="fa-list-ol" />
             <div className="col-span-2">
                 <CompactSelect label="Zorluk Seviyesi" value={options.difficulty} onChange={(v: string) => handleChange('difficulty', v)} options={DIFFICULTY_OPTIONS} icon="fa-gauge-high" />
             </div>

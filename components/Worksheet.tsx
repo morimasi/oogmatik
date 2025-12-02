@@ -24,11 +24,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
     if (!data || !activityType || data.length === 0) return null;
 
-    // WYSIWYG Fix: 
-    // Always stack multiple worksheets vertically (outerCols = 1) to match print behavior.
-    const outerCols = 1;
-    const innerCols = settings.columns;
-    
     const isLandscape = settings.orientation === 'landscape';
     const pageWidth = isLandscape ? '297mm' : '210mm';
     const pageHeight = isLandscape ? '210mm' : '297mm';
@@ -46,14 +41,20 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         ...getBorderCSS(settings.themeBorder || 'simple')
     };
 
-    // CSS Variables for internal content to react instantly
+    // CSS Variables for internal content to react instantly to toolbar settings
     const variableStyle = {
         '--worksheet-font-size': `${settings.fontSize}px`,
         '--worksheet-border-color': settings.borderColor,
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-margin': `${settings.margin}px`,
         '--worksheet-gap': `${settings.gap}px`,
-        '--dynamic-cols': innerCols,
+        
+        // Advanced Typography
+        '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
+        '--worksheet-line-height': settings.lineHeight || 1.6,
+        '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
+        
+        '--dynamic-cols': settings.columns,
         '--content-align': settings.contentAlign || 'center',
         '--font-weight': settings.fontWeight || 'normal',
         '--font-style': settings.fontStyle || 'normal',
@@ -70,24 +71,37 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         '--scale': settings.scale,
     } as React.CSSProperties;
 
+    // Apply visual style class to the wrapper
+    const visualStyleClass = `style-${settings.visualStyle || 'minimal'}`;
+
     return (
-        <div className="flex flex-col items-center bg-transparent w-full" style={variableStyle}>
+        <div className={`flex flex-col items-center bg-transparent w-full ${visualStyleClass}`} style={variableStyle}>
             {/* Inject dynamic print styles */}
             <style>{`
-                /* Dynamic Grid System for Items */
+                /* Dynamic Grid System for Items using CSS Columns */
                 .dynamic-grid {
-                    display: grid;
-                    grid-template-columns: repeat(var(--dynamic-cols), 1fr);
-                    gap: var(--worksheet-gap);
+                    column-count: var(--dynamic-cols);
+                    column-gap: var(--worksheet-gap);
                     width: 100%;
-                    align-items: start;
+                }
+                
+                /* Ensure items don't break inside */
+                .dynamic-grid > * {
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                    margin-bottom: var(--worksheet-gap);
+                    display: inline-block;
+                    width: 100%;
                 }
 
-                /* Content Styling based on Toolbar Settings */
+                /* Typography Application */
                 .worksheet-content {
+                    font-family: var(--worksheet-font-family), sans-serif;
                     font-size: var(--worksheet-font-size);
                     font-weight: var(--font-weight);
                     font-style: var(--font-style);
+                    line-height: var(--worksheet-line-height);
+                    letter-spacing: var(--worksheet-letter-spacing);
                     text-align: var(--content-align);
                 }
 
@@ -108,20 +122,31 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         margin: 0 !important;
                         box-shadow: none !important;
                         border: none !important; /* Remove screen helper borders if any */
-                        overflow: hidden !important; /* Ensure clip in print too */
+                        overflow: visible !important; /* Let content flow to next page naturally */
+                        height: auto !important; /* Allow height to expand */
+                        display: block !important;
                     }
                     
                     .no-print { display: none !important; }
-                    
-                    /* Force grid layouts */
-                    .print\\:grid-cols-2 {
-                        display: grid !important;
-                        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                    }
                 }
             `}</style>
 
             <div className="flex flex-col gap-10 w-full items-center">
+                {/* 
+                   We treat all data items as a continuous flow. 
+                   Usually generators return 1 array item = 1 page concept.
+                   But for "smart flow", we render them inside one big container if possible,
+                   OR we render multiple pages as before.
+                   
+                   Current Generator logic returns Array<SingleWorksheetData>.
+                   Each element in this array is treated as a separate "Worksheet Page".
+                   
+                   To support "50 items flow", we assume the generator returns 1 large SingleWorksheetData object
+                   containing all 50 items in its internal array (e.g. data.operations), OR
+                   it returns multiple pages.
+                   
+                   Here we just render whatever the generator gave us as pages.
+                */}
                 {data.map((sheetData, index) => (
                     <div 
                         key={index} 
@@ -156,36 +181,31 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             }}
                         >
                             {/* Student Info Header Injection (Minimal & Professional) */}
-                            {settings.showStudentInfo && (
-                                <div className="mb-8 pb-2 border-b-2 border-zinc-800 text-xs font-bold text-zinc-900 uppercase tracking-widest flex justify-between items-center print:flex">
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] text-zinc-500">Adı Soyadı</span>
-                                            <span className="text-sm font-black"><EditableText value={studentProfile?.name || '................................'} tag="span" /></span>
+                            <div className="mb-8 pb-2 border-b-2 border-zinc-800 text-xs font-bold text-zinc-900 uppercase tracking-widest flex justify-between items-center print:flex" style={{ display: 'var(--display-student-info)' }}>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] text-zinc-500">Adı Soyadı</span>
+                                        <span className="text-sm font-black"><EditableText value={studentProfile?.name || '................................'} tag="span" /></span>
+                                    </div>
+                                    {studentProfile?.school && (
+                                        <div className="flex flex-col border-l pl-4 border-zinc-300">
+                                            <span className="text-[10px] text-zinc-500">Okul</span>
+                                            <span className="text-sm"><EditableText value={studentProfile.school} tag="span" /></span>
                                         </div>
-                                        {studentProfile?.school && (
-                                            <div className="flex flex-col border-l pl-4 border-zinc-300">
-                                                <span className="text-[10px] text-zinc-500">Okul</span>
-                                                <span className="text-sm"><EditableText value={studentProfile.school} tag="span" /></span>
-                                            </div>
-                                        )}
-                                        {studentProfile?.grade && (
-                                            <div className="flex flex-col border-l pl-4 border-zinc-300">
-                                                <span className="text-[10px] text-zinc-500">Sınıf</span>
-                                                <span className="text-sm"><EditableText value={studentProfile.grade} tag="span" /></span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col text-right">
-                                        <span className="text-[10px] text-zinc-500">Tarih</span>
-                                        <span className="text-sm"><EditableText value={studentProfile?.date || '.../.../....'} tag="span" /></span>
-                                    </div>
+                                    )}
+                                    {studentProfile?.grade && (
+                                        <div className="flex flex-col border-l pl-4 border-zinc-300">
+                                            <span className="text-[10px] text-zinc-500">Sınıf</span>
+                                            <span className="text-sm"><EditableText value={studentProfile.grade} tag="span" /></span>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
+                                <div className="flex flex-col text-right">
+                                    <span className="text-[10px] text-zinc-500">Tarih</span>
+                                    <span className="text-sm"><EditableText value={studentProfile?.date || '.../.../....'} tag="span" /></span>
+                                </div>
+                            </div>
 
-                            {/* WRAP THE MAIN SHEET IN AN EDITABLE ELEMENT IF NEEDED OR JUST RENDER */}
-                            {/* Actually, RenderSheet returns multiple items usually. We let common components handle Editable logic internally or we wrap the whole block? */}
-                            {/* Wrapping the whole sheet content allows moving the main block relative to header */}
                             <EditableElement id="main-content">
                                 <RenderSheet activityType={activityType} data={sheetData} />
                             </EditableElement>
