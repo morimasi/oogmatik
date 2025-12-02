@@ -331,6 +331,7 @@ export interface AssessmentReport {
     analysis: {
         strengths: string[];
         weaknesses: string[];
+        errorAnalysis?: string[]; // Detailed pedagogical analysis of errors
     };
     roadmap: {
         activityId: string;

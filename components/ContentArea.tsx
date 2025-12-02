@@ -1,4 +1,6 @@
 
+
+
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment } from '../types';
 import Worksheet from './Worksheet';
@@ -277,7 +279,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const handleAddToWorkbookFromReport = (assessment: SavedAssessment) => {
         const newItem: CollectionItem = {
             id: crypto.randomUUID(),
-            activityType: ActivityType.ASSESSMENT_REPORT,
+            activityType: ActivityType.ASSESSMENT_REPORT, // Use the new enum value
             data: assessment,
             settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
             title: `Rapor: ${assessment.studentName}`
@@ -460,7 +462,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                   <AssessmentModule 
                     onBack={onBackToGenerator} 
                     onSelectActivity={(id) => { if (onSelectActivity) onSelectActivity(id); }} 
-                    onAddToWorkbook={handleAddToWorkbookFromReport}
+                    onAddToWorkbook={handleAddToWorkbookFromReport} // Handled logic
                   />
               </div>
           ) : currentView === 'favorites' ? (

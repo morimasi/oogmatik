@@ -1,5 +1,6 @@
 
 
+
 import React from 'react';
 import { CollectionItem, WorkbookSettings, SavedAssessment, ActivityType } from '../types';
 import Worksheet from './Worksheet';
@@ -192,14 +193,14 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         );
     };
 
-    // --- ASSESSMENT REPORT PAGE RENDERER ---
+    // --- ASSESSMENT REPORT PAGE RENDERER (Professional Layout) ---
     const AssessmentReportPage = ({ assessment }: { assessment: SavedAssessment }) => {
         const { report, studentName, createdAt, grade } = assessment;
         return (
             <div className="p-12 h-full flex flex-col">
                 <div className="border-b-4 border-black pb-4 mb-8 flex justify-between items-end">
                     <div>
-                        <h2 className="text-3xl font-black text-black uppercase tracking-tight">Bilişsel Performans Analizi</h2>
+                        <h2 className="text-3xl font-black text-black uppercase tracking-tight">Tanılama ve Değerlendirme Raporu</h2>
                         <p className="text-zinc-500 font-bold">{studentName} • {grade}</p>
                     </div>
                     <div className="text-right text-sm font-mono text-zinc-400">
@@ -208,36 +209,50 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                 </div>
 
                 <div className="flex-1 space-y-8">
+                    {/* General Summary */}
                     <div className="bg-zinc-50 p-6 rounded-xl border-l-8 border-indigo-500 text-sm leading-relaxed text-zinc-800 text-justify">
-                        <h4 className="font-bold mb-2 uppercase text-indigo-800">Genel Değerlendirme</h4>
+                        <h4 className="font-bold mb-2 uppercase text-indigo-800 tracking-wider">Uzman Görüşü & Özet</h4>
                         {report.overallSummary}
                     </div>
 
                     <div className="grid grid-cols-2 gap-8 items-start">
-                        <div className="border-2 border-zinc-200 rounded-xl p-4 flex flex-col items-center">
-                            <h4 className="font-bold text-xs uppercase mb-4 text-zinc-400">Risk Profili</h4>
+                        {/* Radar Chart Section */}
+                        <div className="border-2 border-zinc-200 rounded-xl p-4 flex flex-col items-center justify-center min-h-[300px]">
+                            <h4 className="font-bold text-xs uppercase mb-4 text-zinc-400 tracking-wider">Becerisel Risk Profili</h4>
                             <div className="transform scale-90 origin-top">
                                 {report.chartData && <RadarChart data={report.chartData} />}
                             </div>
                         </div>
                         
+                        {/* Strengths & Weaknesses */}
                         <div className="space-y-4">
-                            <div>
-                                <h4 className="font-bold text-green-700 uppercase text-xs mb-2 border-b border-green-200 pb-1">Güçlü Yönler</h4>
-                                <ul className="list-disc list-inside text-sm text-zinc-700 space-y-1">
+                            <div className="p-4 bg-green-50 rounded-xl border border-green-200">
+                                <h4 className="font-bold text-green-800 uppercase text-xs mb-2 border-b border-green-200 pb-1">Güçlü Yönler</h4>
+                                <ul className="list-disc list-inside text-sm text-green-900 space-y-1">
                                     {report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                                 </ul>
                             </div>
-                            <div>
-                                <h4 className="font-bold text-rose-700 uppercase text-xs mb-2 border-b border-rose-200 pb-1">Gelişim Alanları</h4>
-                                <ul className="list-disc list-inside text-sm text-zinc-700 space-y-1">
+                            <div className="p-4 bg-rose-50 rounded-xl border border-rose-200">
+                                <h4 className="font-bold text-rose-800 uppercase text-xs mb-2 border-b border-rose-200 pb-1">Gelişim Alanları</h4>
+                                <ul className="list-disc list-inside text-sm text-rose-900 space-y-1">
                                     {report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
                                 </ul>
                             </div>
                         </div>
                     </div>
 
-                    <div className="border-t-2 border-dashed border-zinc-300 pt-6">
+                    {/* Detailed Error Analysis if available */}
+                    {report.analysis.errorAnalysis && report.analysis.errorAnalysis.length > 0 && (
+                        <div className="border-t-2 border-dashed border-zinc-300 pt-4">
+                            <h4 className="font-bold text-zinc-800 uppercase text-sm mb-2">Hata Analizi</h4>
+                            <ul className="list-decimal list-inside text-xs text-zinc-600 space-y-1">
+                                {report.analysis.errorAnalysis.map((err, i) => <li key={i}>{err}</li>)}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* Roadmap */}
+                    <div className="mt-auto pt-6 border-t-4 border-black">
                         <h4 className="font-bold text-zinc-800 uppercase text-sm mb-4">Önerilen Eğitim Rotası</h4>
                         <div className="grid grid-cols-3 gap-4">
                             {report.roadmap.map((item, idx) => (

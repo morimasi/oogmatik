@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { SavedAssessment, AssessmentReport } from '../types';
 import { RadarChart } from './RadarChart';
@@ -58,7 +59,6 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     const handleAddToWorkbook = () => {
         if (onAddToWorkbook) {
             onAddToWorkbook(assessment);
-            alert('Rapor çalışma kitapçığına eklendi.');
         }
     };
 
@@ -78,7 +78,17 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 border-b border-zinc-200 no-print flex-wrap">
                     {onAddToWorkbook && (
                         <button 
-                            onClick={handleAddToWorkbook}
+                            onClick={(e) => {
+                                handleAddToWorkbook();
+                                const btn = e.currentTarget;
+                                const originalContent = btn.innerHTML;
+                                btn.classList.add('bg-green-100', 'text-green-700');
+                                btn.innerHTML = '<i class="fa-solid fa-check"></i> Eklendi';
+                                setTimeout(() => {
+                                    btn.classList.remove('bg-green-100', 'text-green-700');
+                                    btn.innerHTML = originalContent;
+                                }, 2000);
+                            }}
                             className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-all shadow-sm"
                         >
                             <i className="fa-solid fa-plus-circle"></i> Kitapçığa Ekle
@@ -109,37 +119,42 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 {/* REPORT CONTENT */}
                 <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar assessment-report-container print:overflow-visible print:bg-white text-black">
                     <div className="mb-8 border-b-2 border-zinc-800 pb-4">
-                        <h1 className="text-3xl font-black text-black">Bursa Disleksi AI - Değerlendirme Raporu</h1>
+                        <h1 className="text-3xl font-black text-black">Özel Eğitim Tanılama ve Raporlama</h1>
                         <div className="flex justify-between mt-4 text-black"><p><strong>Öğrenci:</strong> {assessment.studentName}</p><p><strong>Tarih:</strong> {new Date(assessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
                     </div>
                     
                     <div className="bg-indigo-50 p-4 rounded-xl text-indigo-900 text-sm leading-relaxed border border-indigo-100 break-inside-avoid print:border-black print:bg-white print:text-black">
-                        <h4 className="font-bold mb-2">Genel Özet</h4>
+                        <h4 className="font-bold mb-2 uppercase tracking-wider">Uzman Görüşü & Özet</h4>
                         {report.overallSummary}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
                         <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px] bg-white break-inside-avoid print:border-black">
-                            <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2 print:text-black">Risk Analizi</h4>
+                            <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2 print:text-black">Becerisel Risk Profili</h4>
                             {report.chartData && <RadarChart data={report.chartData} />}
                         </div>
                         <div className="space-y-3 break-inside-avoid">
                             {Object.entries(report.scores).map(([key, value]) => {
                                 const score = value as number;
-                                const label = key === 'reading' ? 'Okuma' : key === 'math' ? 'Matematik' : key === 'attention' ? 'Dikkat' : key === 'cognitive' ? 'Bellek' : 'Yazma';
+                                const label = key === 'reading' ? 'Okuma Becerileri' : key === 'math' ? 'Matematik & Mantık' : key === 'attention' ? 'Dikkat & Algı' : key === 'cognitive' ? 'Bilişsel Performans' : 'Yazma Becerisi';
+                                const riskLevel = score > 70 ? 'Yüksek Risk' : score > 40 ? 'Orta Risk' : 'Düşük Risk';
+                                const colorClass = score > 70 ? 'bg-red-500' : score > 40 ? 'bg-yellow-500' : 'bg-green-500';
+                                
                                 return (
-                                    <div key={key} className="p-3 rounded-lg border border-zinc-200 flex items-center justify-between bg-white print:border-black">
-                                        <span className="capitalize font-bold text-sm text-zinc-700 print:text-black">
-                                            {label}
-                                        </span>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-24 h-2 bg-zinc-200 rounded-full overflow-hidden print:border print:border-black">
-                                                <div 
-                                                    className={`h-full rounded-full ${score > 70 ? 'bg-red-500' : score > 40 ? 'bg-yellow-500' : 'bg-green-500'} print:bg-black`} 
-                                                    style={{ width: `${score}%` }}
-                                                ></div>
-                                            </div>
-                                            <span className="font-bold text-xs w-8 text-right text-black">{score}</span>
+                                    <div key={key} className="p-3 rounded-lg border border-zinc-200 flex flex-col bg-white print:border-black">
+                                        <div className="flex justify-between mb-1">
+                                            <span className="capitalize font-bold text-sm text-zinc-700 print:text-black">
+                                                {label}
+                                            </span>
+                                            <span className={`text-[10px] px-2 py-0.5 rounded text-white font-bold print:text-black print:border print:border-black print:bg-white ${colorClass}`}>
+                                                {riskLevel} (%{score})
+                                            </span>
+                                        </div>
+                                        <div className="w-full h-2 bg-zinc-200 rounded-full overflow-hidden print:border print:border-black">
+                                            <div 
+                                                className={`h-full rounded-full ${colorClass} print:bg-black`} 
+                                                style={{ width: `${score}%` }}
+                                            ></div>
                                         </div>
                                     </div>
                                 );
@@ -161,9 +176,18 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                             </ul>
                         </div>
                     </div>
+
+                    {report.analysis.errorAnalysis && report.analysis.errorAnalysis.length > 0 && (
+                        <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-amber-900 text-sm leading-relaxed break-inside-avoid print:border-black print:bg-white print:text-black">
+                            <h4 className="font-bold mb-2 flex items-center gap-2"><i className="fa-solid fa-magnifying-glass-chart"></i> Hata Analizi (Error Analysis)</h4>
+                            <ul className="list-decimal list-inside space-y-1">
+                                {report.analysis.errorAnalysis.map((err, i) => <li key={i}>{err}</li>)}
+                            </ul>
+                        </div>
+                    )}
                     
                      <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg break-inside-avoid print:bg-white print:text-black print:border print:border-black print:shadow-none">
-                        <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-road"></i> Önerilen Yol Haritası</h4>
+                        <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-road"></i> Önerilen Eğitim Rotası</h4>
                         <div className="space-y-4">
                             {report.roadmap.map((item, idx) => (
                                 <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-600 print:bg-white print:border-black print:text-black">
