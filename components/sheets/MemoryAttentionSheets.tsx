@@ -4,68 +4,102 @@ import {
     WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData
 } from '../../types';
-import { ImageDisplay, PedagogicalHeader } from './common';
+import { ImageDisplay, PedagogicalHeader, Shape } from './common';
+import { EditableElement, EditableText } from '../Editable';
+
+// --- SHARED COMPONENTS ---
+
+const StudentInfoStrip = () => (
+    <div className="flex flex-wrap justify-between border-2 border-black p-3 mb-6 rounded-xl bg-white text-black font-bold uppercase text-[10px] tracking-wider gap-4 print:flex">
+        <div className="flex-1 min-w-[150px] border-b-2 border-black border-dashed flex flex-col justify-end pb-1 h-10">
+            <span className="text-zinc-500 mb-auto">Adı Soyadı</span>
+        </div>
+        <div className="w-24 border-b-2 border-black border-dashed flex flex-col justify-end pb-1 h-10">
+            <span className="text-zinc-500 mb-auto">Tarih</span>
+        </div>
+        <div className="w-24 border-b-2 border-black border-dashed flex flex-col justify-end pb-1 h-10">
+            <span className="text-zinc-500 mb-auto">Süre</span>
+        </div>
+        <div className="w-24 border-b-2 border-black border-dashed flex flex-col justify-end pb-1 h-10">
+            <span className="text-zinc-500 mb-auto">Puan</span>
+        </div>
+    </div>
+);
+
+const ScoreTable = ({ rows = 10 }: { rows?: number }) => (
+    <div className="mt-8 border-2 border-black rounded-xl overflow-hidden text-xs bg-white text-black">
+        <div className="grid grid-cols-4 bg-zinc-100 border-b-2 border-black font-bold p-2 text-center">
+            <span>Bölüm</span>
+            <span>Doğru</span>
+            <span>Yanlış</span>
+            <span>Net</span>
+        </div>
+        {Array.from({length: Math.min(rows, 5)}).map((_, i) => (
+            <div key={i} className="grid grid-cols-4 border-b border-zinc-300 last:border-b-0 p-2 h-8">
+                <span className="font-bold text-center border-r border-zinc-200">{i+1}. Bölüm</span>
+                <span className="border-r border-zinc-200"></span>
+                <span className="border-r border-zinc-200"></span>
+                <span></span>
+            </div>
+        ))}
+        <div className="grid grid-cols-4 bg-zinc-100 border-t-2 border-black font-bold p-2 text-center">
+            <span>TOPLAM</span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+);
+
+// --- MEMORY SHEETS (Dual Page) ---
 
 export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) => {
-    const [isHidden, setIsHidden] = useState(false);
-
     return (
-        <div>
-            <div className="page relative">
-                <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
+        <div className="w-full">
+            {/* PAGE 1: MEMORIZE */}
+            <div className="flex flex-col min-h-[900px] relative break-after-page">
+                <PedagogicalHeader title={data.title} instruction="1. Sayfa: Kelimeleri dikkatlice oku ve ezberle." note={data.pedagogicalNote} data={data} />
+                <StudentInfoStrip />
                 
-                <div className={`transition-all duration-300 ${isHidden ? 'blur-md opacity-20 select-none pointer-events-none' : ''} print:blur-none print:opacity-100`}>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
-                        {(data.wordsToMemorize || []).map((word, index) => (
-                            <div key={index} className="p-6 bg-amber-100 dark:bg-amber-800/50 border-2 border-amber-300 rounded-xl text-center shadow-md">
-                                <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{word.text}</p>
-                            </div>
-                        ))}
+                <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="bg-amber-50 border-4 border-amber-200 rounded-3xl p-8 shadow-sm max-w-2xl w-full text-center">
+                        <h3 className="text-xl font-bold text-amber-800 mb-6 uppercase tracking-widest border-b-2 border-amber-200 pb-2">Ezberlenecek Kelimeler</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                            {(data.wordsToMemorize || []).map((word, index) => (
+                                <EditableElement key={index} className="p-4 bg-white border-2 border-amber-100 rounded-xl shadow-[2px_2px_0px_0px_rgba(251,191,36,1)] flex items-center justify-center">
+                                    <p className="text-lg font-black text-zinc-800 uppercase"><EditableText value={word.text} tag="span" /></p>
+                                </EditableElement>
+                            ))}
+                        </div>
                     </div>
                 </div>
-
-                {/* Interactive Overlay for Screen */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none print:hidden">
-                    {isHidden ? (
-                        <div className="bg-white/90 dark:bg-zinc-900/90 p-6 rounded-2xl shadow-xl border-2 border-indigo-100 dark:border-zinc-700 text-center pointer-events-auto animate-in fade-in zoom-in">
-                            <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <i className="fa-solid fa-eye-slash text-2xl"></i>
-                            </div>
-                            <h4 className="font-bold text-lg text-zinc-800 dark:text-zinc-100 mb-1">Liste Gizlendi</h4>
-                            <p className="text-xs text-zinc-500 mb-4">Aşağıdaki test bölümüne geçin.</p>
-                            <button onClick={() => setIsHidden(false)} className="text-indigo-600 hover:text-indigo-800 text-sm font-bold">
-                                Tekrar Bak
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-auto">
-                            <button 
-                                onClick={() => setIsHidden(true)}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-2"
-                            >
-                                <i className="fa-solid fa-check-circle"></i>
-                                Ezberledim, Gizle
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="absolute bottom-0 w-full text-center text-sm text-zinc-400 italic print:block hidden">
-                    --- Katlama Çizgisi ---
+                
+                <div className="text-center text-xs text-zinc-400 mt-4 font-mono uppercase tracking-widest border-t pt-2">
+                    Sayfa 1 / 2 - Ezberleme Bölümü
                 </div>
             </div>
 
-            <div className="page-break"></div>
-
-            <div className="page">
-                <h3 className="text-2xl font-bold mb-4 text-center mt-8">{data.testTitle}</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {(data.testWords || []).map((word, index) => (
-                        <div key={index} className="flex items-center bg-white dark:bg-zinc-700/50 p-4 rounded-lg border border-zinc-200 shadow-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors">
-                            <div className="w-6 h-6 border-2 border-zinc-400 rounded-md mr-3 shrink-0"></div>
-                            <label className="text-lg select-none cursor-pointer">{word.text}</label>
+            {/* PAGE 2: TEST */}
+            <div className="flex flex-col min-h-[900px] relative pt-8">
+                <PedagogicalHeader title={`${data.title} - TEST`} instruction="2. Sayfa: Aklında kalan kelimeleri bul ve işaretle." />
+                <StudentInfoStrip />
+                
+                <div className="flex-1">
+                    <div className="bg-white border-4 border-zinc-200 rounded-3xl p-8 max-w-3xl mx-auto w-full">
+                        <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                            {(data.testWords || []).map((word, index) => (
+                                <div key={index} className="flex items-center gap-2 p-2 border rounded-lg hover:bg-zinc-50 cursor-pointer">
+                                    <div className="w-5 h-5 border-2 border-zinc-400 rounded-full shrink-0"></div>
+                                    <span className="text-sm font-bold text-zinc-700 uppercase truncate"><EditableText value={word.text} tag="span" /></span>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
+                    <ScoreTable />
+                </div>
+
+                <div className="text-center text-xs text-zinc-400 mt-4 font-mono uppercase tracking-widest border-t pt-2">
+                    Sayfa 2 / 2 - Hatırlama Testi
                 </div>
             </div>
         </div>
@@ -73,359 +107,385 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
 };
 
 export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }) => {
-    const [isHidden, setIsHidden] = useState(false);
-
     return (
-        <div>
-            <div className="page relative">
-                <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
+        <div className="w-full">
+            {/* PAGE 1: MEMORIZE */}
+            <div className="flex flex-col min-h-[900px] relative break-after-page">
+                <PedagogicalHeader title={data.title} instruction="1. Sayfa: Görselleri dikkatlice incele ve ezberle." note={data.pedagogicalNote} data={data} />
+                <StudentInfoStrip />
                 
-                <div className={`transition-all duration-300 ${isHidden ? 'blur-md opacity-20 select-none pointer-events-none' : ''} print:blur-none print:opacity-100`}>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 max-w-xl mx-auto">
+                <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-6 w-full max-w-3xl">
                         {(data.itemsToMemorize || []).map((item, index) => (
-                            <div key={index} className="p-4 bg-white dark:bg-zinc-800 border-2 border-indigo-200 rounded-xl text-center flex flex-col items-center justify-center aspect-square shadow-md">
-                                <p className="text-5xl mb-2">{item.description.split(' ').pop()}</p>
-                                <p className="text-xs font-semibold text-zinc-500 uppercase">{item.description.split(' ').slice(0, -1).join(' ')}</p>
-                            </div>
+                            <EditableElement key={index} className="aspect-square bg-white border-2 border-black rounded-xl p-2 flex flex-col items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                {item.imageBase64 ? (
+                                    <ImageDisplay base64={item.imageBase64} description={item.description} className="w-full h-full object-contain" />
+                                ) : (
+                                    <span className="text-4xl">{item.description.split(' ').pop()}</span> // Emoji fallback
+                                )}
+                            </EditableElement>
                         ))}
                     </div>
                 </div>
-
-                {/* Interactive Overlay for Screen */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none print:hidden">
-                    {isHidden ? (
-                        <div className="bg-white/90 dark:bg-zinc-900/90 p-6 rounded-2xl shadow-xl border-2 border-indigo-100 dark:border-zinc-700 text-center pointer-events-auto animate-in fade-in zoom-in">
-                            <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <i className="fa-solid fa-eye-slash text-2xl"></i>
-                            </div>
-                            <h4 className="font-bold text-lg text-zinc-800 dark:text-zinc-100 mb-1">Görseller Gizlendi</h4>
-                            <p className="text-xs text-zinc-500 mb-4">Aşağıdaki test bölümüne geçin.</p>
-                            <button onClick={() => setIsHidden(false)} className="text-indigo-600 hover:text-indigo-800 text-sm font-bold">
-                                Tekrar Bak
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-auto">
-                            <button 
-                                onClick={() => setIsHidden(true)}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-2"
-                            >
-                                <i className="fa-solid fa-check-circle"></i>
-                                Ezberledim, Gizle
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="absolute bottom-0 w-full text-center text-sm text-zinc-400 italic print:block hidden">
-                    --- Katlama Çizgisi ---
+                
+                <div className="text-center text-xs text-zinc-400 mt-4 font-mono uppercase tracking-widest border-t pt-2">
+                    Sayfa 1 / 2 - Görsel Hafıza
                 </div>
             </div>
-            
-            <div className="page-break"></div>
-            
-            <div className="page">
-                <h3 className="text-2xl font-bold mb-4 text-center mt-8">{data.testTitle}</h3>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                    {(data.testItems || []).map((item, index) => (
-                        <div key={index} className="flex flex-col items-center justify-center text-center bg-white dark:bg-zinc-700/50 p-3 rounded-lg border cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors group" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                            <div className="w-6 h-6 border-2 border-zinc-400 rounded-full mb-3 shrink-0 group-hover:border-indigo-500 transition-colors"></div>
-                            <p className="text-4xl">{item.description.split(' ').pop()}</p>
-                            <label className="text-xs mt-1 font-medium select-none">{item.description.split(' ').slice(0, -1).join(' ')}</label>
-                        </div>
-                    ))}
+
+            {/* PAGE 2: TEST */}
+            <div className="flex flex-col min-h-[900px] relative pt-8">
+                <PedagogicalHeader title={`${data.title} - TEST`} instruction="2. Sayfa: Gördüğün resimleri işaretle." />
+                <StudentInfoStrip />
+                
+                <div className="flex-1">
+                    <div className="grid grid-cols-4 md:grid-cols-5 gap-4 w-full">
+                        {(data.testItems || []).map((item, index) => (
+                            <div key={index} className="aspect-square bg-white border-2 border-zinc-200 rounded-lg p-2 flex flex-col items-center justify-center opacity-80 hover:opacity-100 hover:border-black transition-all cursor-pointer relative group">
+                                <div className="absolute top-1 right-1 w-4 h-4 border-2 border-zinc-300 rounded bg-white group-hover:border-indigo-500"></div>
+                                {item.imageBase64 ? (
+                                    <ImageDisplay base64={item.imageBase64} description={item.description} className="w-3/4 h-3/4 object-contain opacity-50 group-hover:opacity-100 filter grayscale group-hover:grayscale-0" />
+                                ) : (
+                                    <span className="text-3xl filter grayscale group-hover:grayscale-0">{item.description.split(' ').pop()}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <ScoreTable />
+                </div>
+
+                <div className="text-center text-xs text-zinc-400 mt-4 font-mono uppercase tracking-widest border-t pt-2">
+                    Sayfa 2 / 2 - Hatırlama Testi
                 </div>
             </div>
         </div>
     );
 };
 
-export const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || `Sayıları sırasıyla bul: ${data.range?.start} - ${data.range?.end}`} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-3 text-center p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200">
-            {(data.numbers || []).map((num, index) => (
-                <div key={index} className="font-mono text-xl p-2 hover:bg-zinc-100 rounded cursor-pointer select-none">
-                    {num}
+export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data }) => {
+    return (
+        <div className="w-full">
+            {/* PAGE 1 */}
+            <div className="flex flex-col min-h-[900px] relative break-after-page">
+                <PedagogicalHeader title={data.title} instruction="Karakterlerin özelliklerini (şapka, gözlük, renk) ezberle." note={data.pedagogicalNote} data={data} />
+                <StudentInfoStrip />
+                
+                <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 items-center justify-center p-4">
+                    {(data.charactersToMemorize || []).map((char, index) => (
+                        <EditableElement key={index} className="flex flex-col items-center bg-zinc-50 border-2 border-zinc-300 p-4 rounded-full aspect-square justify-center shadow-lg">
+                            <ImageDisplay base64={char.imageBase64} description={char.description} className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-sm mb-2" />
+                            <p className="text-xs font-bold text-center bg-white px-3 py-1 rounded-full border border-zinc-200 shadow-sm"><EditableText value={char.description} tag="span" /></p>
+                        </EditableElement>
+                    ))}
                 </div>
-            ))}
-        </div>
-    </div>
-);
+                <div className="footer-line">Sayfa 1 / 2</div>
+            </div>
 
-export const FindDuplicateSheet: React.FC<{ data: FindDuplicateData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || "Satırlardaki ikizleri bul."} note={data.pedagogicalNote} />
-        <div className="p-6 bg-white dark:bg-zinc-700/30 rounded-xl shadow-sm border border-zinc-200">
-            <table className="w-full border-separate border-spacing-y-4">
-                <tbody>
-                {(data.rows || []).map((row, rowIndex) => (
-                    <tr key={rowIndex} className="bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 transition-colors rounded-lg">
-                        <td className="p-2 text-zinc-400 font-bold text-xs w-8">{rowIndex + 1}</td>
-                        {(row || []).map((char, charIndex) => (
-                            <td key={charIndex} className="text-center font-mono text-2xl p-3 border-l border-zinc-200 first:border-l-0 first:rounded-l-lg last:rounded-r-lg cursor-pointer hover:text-indigo-600">
-                                {char}
-                            </td>
-                        ))}
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </div>
-    </div>
-);
-
-export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || "Hedef harfleri bul."} note={data.pedagogicalNote} />
-        <div className="bg-white dark:bg-zinc-700/30 p-6 rounded-xl shadow-inner flex justify-center">
-            <table className="border-collapse">
-                <tbody>
-                    {(data.grid || []).map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {(row || []).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-lg w-8 h-8 p-1 hover:bg-yellow-100 cursor-pointer select-none">
-                                    {cell}
-                                </td>
-                            ))}
-                        </tr>
+            {/* PAGE 2 */}
+            <div className="flex flex-col min-h-[900px] relative pt-8">
+                <PedagogicalHeader title={`${data.title} - KİMİ GÖRDÜN?`} instruction="Daha önce gördüğün karakterleri işaretle." />
+                <StudentInfoStrip />
+                
+                <div className="flex-1 grid grid-cols-3 md:grid-cols-4 gap-4 p-4">
+                    {(data.testCharacters || []).map((char, index) => (
+                        <div key={index} className="flex flex-col items-center border border-zinc-200 p-2 rounded-xl relative">
+                            <div className="absolute top-2 left-2 w-5 h-5 border-2 border-zinc-400 rounded bg-white"></div>
+                            <ImageDisplay base64={char.imageBase64} description={char.description} className="w-24 h-24 rounded-full object-cover filter grayscale opacity-70" />
+                        </div>
                     ))}
-                </tbody>
-            </table>
+                </div>
+                <ScoreTable />
+            </div>
         </div>
-    </div>
-);
-
-export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction || "a, b, d, g harflerini bul ve çiz."} note={data.pedagogicalNote} />
-        <div className="mb-6 border-2 p-4 rounded-lg grid grid-cols-2 gap-4 bg-zinc-50 print:bg-white" style={{borderColor: 'var(--worksheet-border-color)'}}>
-            <div><label className="block text-sm font-bold uppercase text-zinc-500">Adı Soyadı:</label><div className="h-8 mt-1 border-b-2 border-zinc-300"></div></div>
-            <div><label className="block text-sm font-bold uppercase text-zinc-500">Süre:</label><div className="h-8 mt-1 border-b-2 border-zinc-300"></div></div>
-        </div>
-        <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg">
-            <table className="w-full border-separate border-spacing-y-2">
-                <tbody>
-                    {(data.grid || []).map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            <td className="text-xs text-zinc-400 w-4">{rowIndex+1}</td>
-                            {(row || []).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="text-center font-serif text-lg w-6 h-8 cursor-pointer hover:text-indigo-600">
-                                    {cell}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    </div>
-);
-
-export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || "İkilileri bul."} note={data.pedagogicalNote} />
-        <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner">
-            <table className="table-fixed w-full">
-                <tbody>
-                    {(data.grid || []).map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {(row || []).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="border border-zinc-300 dark:border-zinc-600 text-center font-mono text-xl w-10 h-10 hover:bg-zinc-100 cursor-pointer select-none" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                                    {cell}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    </div>
-);
-
-export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || "Hedefi bul."} note={data.pedagogicalNote} />
-        <div className="bg-white dark:bg-zinc-700/30 p-4 rounded-lg shadow-inner max-w-xl mx-auto">
-            <table className="table-fixed w-full">
-                <tbody>
-                    {(data.grid || []).map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {(row || []).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="text-center font-mono text-xl p-1 hover:bg-zinc-200 cursor-pointer select-none" style={{borderColor: 'var(--worksheet-border-color)', borderWidth: 'var(--worksheet-border-width)'}}>
-                                    {cell}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-        <div className="mt-8 flex justify-center items-center gap-4 p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-            <h4 className="font-bold text-xl text-zinc-800 dark:text-zinc-200">Toplam <span className="text-red-600 dark:text-red-400 text-2xl mx-2">{data.target}</span> Sayısı:</h4>
-            <div className="w-16 h-12 border-b-2 border-zinc-800 dark:border-zinc-200"></div>
-        </div>
-    </div>
-);
+    );
+};
 
 export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data }) => {
     const items = data.items || [];
-    const angleStep = 360 / items.length;
-
-    const getCoords = (angle: number, radius: number) => [
-        50 + radius * Math.cos(angle * Math.PI / 180),
-        50 + radius * Math.sin(angle * Math.PI / 180)
-    ];
-
-    const renderWheel = (showItems: boolean) => (
-        <svg viewBox="0 0 100 100" className="w-full h-full max-w-md mx-auto drop-shadow-xl">
-            {(items || []).map((item, index) => {
-                const startAngle = index * angleStep - 90;
-                const endAngle = (index + 1) * angleStep - 90;
-                const midAngle = startAngle + angleStep / 2;
-
-                const [startX, startY] = getCoords(startAngle, 45);
-                const [endX, endY] = getCoords(endAngle, 45);
-                const largeArcFlag = angleStep <= 180 ? "0" : "1";
-                const pathData = `M 50,50 L ${startX},${startY} A 45,45 0 ${largeArcFlag},1 ${endX},${endY} Z`;
-                
-                // Text position
-                const [textX, textY] = getCoords(midAngle, 30);
-
-                return (
-                    <g key={index}>
-                        <path d={pathData} fill={item.color} stroke="white" strokeWidth="1" />
-                        {showItems && (
-                            <text x={textX} y={textY} textAnchor="middle" dominantBaseline="middle" fontSize="5" fontWeight="bold" fill="white" style={{textShadow: '1px 1px 1px black'}}>
-                                {item.name}
-                            </text>
-                        )}
-                    </g>
-                );
-            })}
-            <circle cx="50" cy="50" r="10" fill="white" />
-        </svg>
-    );
+    const radius = 120;
+    const center = 150;
 
     return (
-        <div>
-            <div className="page">
-                <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
-                <div className="my-8">
-                    {renderWheel(true)}
+        <div className="w-full">
+            {/* PAGE 1 */}
+            <div className="flex flex-col min-h-[900px] relative break-after-page">
+                <PedagogicalHeader title={data.title} instruction="Renk çemberindeki nesnelerin yerini ve rengini ezberle." note={data.pedagogicalNote} data={data} />
+                <StudentInfoStrip />
+                
+                <div className="flex-1 flex items-center justify-center">
+                    <EditableElement className="relative w-[300px] h-[300px]">
+                        <svg viewBox="0 0 300 300" className="w-full h-full overflow-visible">
+                            {/* Wheel Segments */}
+                            {items.map((item, i) => {
+                                const angle = (i * 360) / items.length;
+                                const nextAngle = ((i + 1) * 360) / items.length;
+                                // Simple arc path logic
+                                const x1 = center + radius * Math.cos((angle - 90) * Math.PI / 180);
+                                const y1 = center + radius * Math.sin((angle - 90) * Math.PI / 180);
+                                const x2 = center + radius * Math.cos((nextAngle - 90) * Math.PI / 180);
+                                const y2 = center + radius * Math.sin((nextAngle - 90) * Math.PI / 180);
+                                
+                                const textAngle = angle + (360 / items.length) / 2;
+                                const tx = center + (radius * 0.7) * Math.cos((textAngle - 90) * Math.PI / 180);
+                                const ty = center + (radius * 0.7) * Math.sin((textAngle - 90) * Math.PI / 180);
+
+                                return (
+                                    <g key={i}>
+                                        <path d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`} fill={item.color} stroke="white" strokeWidth="2" />
+                                        <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" fontSize="24" fill="white" fontWeight="bold" style={{textShadow: '1px 1px 2px black'}}>
+                                            {item.imagePrompt || item.name[0]}
+                                        </text>
+                                    </g>
+                                );
+                            })}
+                            <circle cx={center} cy={center} r={30} fill="white" stroke="black" strokeWidth="2" />
+                        </svg>
+                    </EditableElement>
                 </div>
             </div>
 
-            <div className="page-break"></div>
-
-            <div className="page">
-                <h3 className="text-2xl font-bold mb-6 text-center">{data.testTitle}</h3>
-                <div className="flex justify-center items-center gap-3 flex-wrap mb-12">
-                    {(items || []).map((item, index) => (
-                        <div key={index} className="px-3 py-2 bg-white border-2 border-zinc-300 rounded-lg text-sm font-bold shadow-sm select-none cursor-grab">
-                            {item.name}
+            {/* PAGE 2 */}
+            <div className="flex flex-col min-h-[900px] relative pt-8">
+                <PedagogicalHeader title={`${data.title} - BOŞ ÇEMBER`} instruction="Çemberi aklında kaldığı gibi boya ve nesneleri çiz." />
+                <StudentInfoStrip />
+                
+                <div className="flex-1 flex flex-col items-center justify-center">
+                    <svg viewBox="0 0 300 300" className="w-[300px] h-[300px] overflow-visible mb-8">
+                        <circle cx={center} cy={center} r={radius} fill="none" stroke="black" strokeWidth="2" />
+                        {items.map((_, i) => {
+                            const angle = (i * 360) / items.length;
+                            const x1 = center + radius * Math.cos((angle - 90) * Math.PI / 180);
+                            const y1 = center + radius * Math.sin((angle - 90) * Math.PI / 180);
+                            return <line key={i} x1={center} y1={center} x2={x1} y2={y1} stroke="black" strokeWidth="2" />;
+                        })}
+                        <circle cx={center} cy={center} r={30} fill="white" stroke="black" strokeWidth="2" />
+                    </svg>
+                    
+                    <div className="w-full max-w-lg">
+                        <h4 className="font-bold border-b border-black mb-2">Hatırlatma Listesi</h4>
+                        <div className="flex flex-wrap gap-2">
+                            {items.map((item, i) => (
+                                <span key={i} className="border border-zinc-300 px-2 py-1 rounded text-xs text-zinc-400">{item.name}</span>
+                            ))}
                         </div>
-                    ))}
-                </div>
-                <div className="opacity-50 grayscale hover:grayscale-0 transition-all">
-                     {renderWheel(false)}
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }> = ({ data }) => (
+// --- ATTENTION & PERCEPTION SHEETS ---
+
+export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
     <div>
-        <div className="page">
-             <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
-            <div className="my-6 flex justify-center">
-                <ImageDisplay base64={data.imageBase64} description={data.sceneDescription} className="w-full h-96 rounded-xl shadow-md object-cover" />
-            </div>
-            <div className="bg-yellow-50 dark:bg-zinc-800 p-6 rounded-xl border-l-8 border-yellow-400">
-                <p className="text-lg leading-relaxed italic text-zinc-700 dark:text-zinc-300">{data.sceneDescription}</p>
-            </div>
-        </div>
-
-        <div className="page-break"></div>
-
-        <div className="page">
-            <h3 className="text-2xl font-bold mb-6 text-center">{data.testTitle}</h3>
-            <div className="space-y-6 max-w-2xl mx-auto">
-                {(data.questions || []).map((q, index) => (
-                    <div key={index} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border shadow-sm" style={{borderColor: 'var(--worksheet-border-color)'}}>
-                        <p className="font-bold text-lg mb-4 text-indigo-800 dark:text-indigo-300">{index + 1}. {q}</p>
-                        <div className="w-full h-12 border-b-2 border-dashed border-zinc-300"></div>
+        <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction || "Sırasıyla a, b, d, g harflerinin altını çizin."} note={data.pedagogicalNote} data={data} />
+        <StudentInfoStrip />
+        
+        <div className="bg-white border-2 border-black rounded-lg p-1">
+            <div className="font-mono text-lg leading-loose tracking-widest break-all p-4 text-justify select-none">
+                {data.grid.map((row, i) => (
+                    <div key={i} className="mb-2 flex justify-between">
+                        <span className="w-6 font-bold text-zinc-400 text-xs mt-1">{i+1}</span>
+                        <div className="flex-1 flex justify-between">
+                            {row.map((char, j) => (
+                                <span key={j} className="inline-block w-6 text-center">{char}</span>
+                            ))}
+                        </div>
                     </div>
                 ))}
             </div>
         </div>
-    </div>
-);
 
-export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data }) => (
-    <div>
-      <div className="page">
-        <PedagogicalHeader title={data.title} instruction={data.instruction || data.memorizeTitle} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-8">
-          {(data.charactersToMemorize || []).map((char, index) => (
-            <div key={index} className="p-4 bg-white border-2 border-zinc-200 rounded-xl text-center shadow-sm flex flex-col items-center">
-              <ImageDisplay base64={char.imageBase64} description={char.description} className="w-32 h-32 mb-3 rounded-full object-cover border-4 border-zinc-100" />
-              <p className="text-md font-bold text-zinc-700">{char.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="page-break"></div>
-      <div className="page">
-        <h3 className="text-2xl font-bold mb-6 text-center mt-8">{data.testTitle}</h3>
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-          {(data.testCharacters || []).map((char, index) => (
-            <div key={index} className="flex flex-col items-center bg-white p-3 rounded-lg border border-zinc-200 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="w-6 h-6 border-2 border-zinc-300 rounded-full mb-2 self-end"></div>
-              <ImageDisplay base64={char.imageBase64} description={char.description} className="w-20 h-20 mb-2 rounded-full" />
-              <label className="text-xs text-center font-semibold">{char.description}</label>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-);
-
-export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || "Rengi söyle!"} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-8 text-center mt-8">
-            {(data.items || []).map((item, index) => (
-                <div key={index} className="p-6 rounded-xl bg-white shadow-sm border border-zinc-100 flex items-center justify-center h-32 cursor-pointer hover:scale-105 transition-transform">
-                    <p className="text-4xl sm:text-5xl font-black tracking-wide select-none" style={{ color: item.color, textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>
-                        {item.text}
-                    </p>
+        <div className="mt-6">
+            <h4 className="font-bold text-sm uppercase mb-2">Puanlama Tablosu</h4>
+            <div className="border border-black text-xs">
+                <div className="grid grid-cols-11 border-b border-black font-bold bg-zinc-100">
+                    <span className="p-1 border-r border-black">Satır</span>
+                    {[1,2,3,4,5,6,7,8,9,10].map(n => <span key={n} className="p-1 border-r border-black text-center">{n}</span>)}
                 </div>
-            ))}
+                <div className="grid grid-cols-11 border-b border-black">
+                    <span className="p-1 border-r border-black font-bold">Doğru</span>
+                    {Array.from({length:10}).map((_,i) => <span key={i} className="p-1 border-r border-black"></span>)}
+                </div>
+                <div className="grid grid-cols-11">
+                    <span className="p-1 border-r border-black font-bold">Yanlış</span>
+                    {Array.from({length:10}).map((_,i) => <span key={i} className="p-1 border-r border-black"></span>)}
+                </div>
+            </div>
         </div>
     </div>
 );
 
 export const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData }> = ({ data }) => (
+    <div className="relative h-full flex flex-col">
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <StudentInfoStrip />
+        
+        <div className="flex-1 relative border-4 border-black rounded-3xl overflow-hidden bg-white min-h-[600px]">
+            {/* Target List on Top */}
+            <div className="absolute top-0 left-0 w-full bg-zinc-100 border-b-2 border-black p-2 flex justify-center gap-2 flex-wrap z-10">
+                <span className="font-bold text-sm self-center mr-2">HEDEFLER:</span>
+                {Array.from({length: 10}).map((_, i) => (
+                    <div key={i} className="w-8 h-8 bg-white border border-black rounded-full flex items-center justify-center font-bold shadow-sm">{data.range.start + i}</div>
+                ))}
+                <span className="self-center">... {data.range.end}</span>
+            </div>
+
+            {/* Chaotic Numbers */}
+            <div className="absolute inset-0 top-16 p-4">
+                {data.numbers.map((num, i) => (
+                    <EditableElement 
+                        key={i} 
+                        className="absolute flex items-center justify-center font-black font-dyslexic cursor-crosshair select-none"
+                        style={{
+                            left: `${num.x}%`,
+                            top: `${num.y}%`,
+                            transform: `rotate(${num.rotation}deg) scale(${num.size})`,
+                            color: num.color || 'black',
+                            zIndex: Math.floor(Math.random() * 10)
+                        }}
+                    >
+                        {num.value}
+                    </EditableElement>
+                ))}
+            </div>
+        </div>
+        
+        <div className="mt-4 p-4 bg-zinc-100 border-2 border-dashed border-zinc-400 rounded-xl text-center">
+            <p className="font-bold">Toplam Bulunan Sayı:</p>
+            <div className="w-32 h-10 border-b-2 border-black mx-auto mt-2"></div>
+        </div>
+    </div>
+);
+
+export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || data.prompt} note={data.pedagogicalNote} />
-        <div className="relative w-full h-[700px] bg-white dark:bg-zinc-800 rounded-xl shadow-inner overflow-hidden border-2 border-zinc-300 mx-auto max-w-3xl">
-            {(data.numbers || []).map((num, index) => (
-                <span
-                    key={index}
-                    className="absolute font-bold font-mono cursor-pointer select-none hover:scale-150 transition-transform"
-                    style={{
-                        left: `${num.x}%`,
-                        top: `${num.y}%`,
-                        fontSize: `${num.size + 0.5}rem`,
-                        transform: `rotate(${num.rotation}deg)`,
-                        color: num.color,
-                    }}
-                >
-                    {num.value}
-                </span>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <StudentInfoStrip />
+        
+        <div className="grid grid-cols-4 gap-6 mt-8">
+            {data.items.map((item, index) => (
+                <EditableElement key={index} className="aspect-[4/3] bg-white border-4 border-black rounded-2xl flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] break-inside-avoid">
+                    <span 
+                        className="text-4xl font-black tracking-wider uppercase"
+                        style={{ color: item.color }} // This is the trick: Word says 'BLUE' but color is Red
+                    >
+                        <EditableText value={item.text} tag="span" />
+                    </span>
+                </EditableElement>
             ))}
+        </div>
+
+        <div className="mt-8 flex justify-between gap-8">
+            <div className="flex-1 p-4 border-2 border-black rounded-xl">
+                <h4 className="font-bold mb-2 border-b border-black">Hata Sayısı</h4>
+                <div className="h-8"></div>
+            </div>
+            <div className="flex-1 p-4 border-2 border-black rounded-xl">
+                <h4 className="font-bold mb-2 border-b border-black">Düzeltme Sayısı</h4>
+                <div className="h-8"></div>
+            </div>
+            <div className="flex-1 p-4 border-2 border-black rounded-xl">
+                <h4 className="font-bold mb-2 border-b border-black">Toplam Süre</h4>
+                <div className="h-8"></div>
+            </div>
+        </div>
+    </div>
+);
+
+// Standard sheets reuse common layouts but with StudentInfoStrip added
+const StandardSheet = ({ data, children }: any) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <StudentInfoStrip />
+        {children}
+        <ScoreTable rows={5} />
+    </div>
+);
+
+export const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }) => (
+    <StandardSheet data={data}>
+        <div className="flex flex-wrap gap-2 justify-center font-mono text-xl p-6 border-2 border-black rounded-xl bg-white">
+            {data.numbers.map((n, i) => (
+                <span key={i} className="w-10 h-10 flex items-center justify-center border border-zinc-100 hover:bg-zinc-100 rounded">{n}</span>
+            ))}
+        </div>
+    </StandardSheet>
+);
+
+export const FindDuplicateSheet: React.FC<{ data: FindDuplicateData }> = ({ data }) => (
+    <StandardSheet data={data}>
+        <div className="space-y-4">
+            {data.rows.map((row, i) => (
+                <EditableElement key={i} className="flex justify-between items-center p-3 border-2 border-black rounded-lg bg-white shadow-sm">
+                    <span className="w-6 font-bold">{i+1}.</span>
+                    <div className="flex-1 flex justify-around font-mono text-2xl tracking-widest">
+                        {row.map((char, j) => <span key={j}>{char}</span>)}
+                    </div>
+                </EditableElement>
+            ))}
+        </div>
+    </StandardSheet>
+);
+
+export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
+    <StandardSheet data={data}>
+        <div className="bg-white border-2 border-black p-4 rounded-xl font-mono text-lg tracking-widest leading-loose text-justify">
+            {data.grid.map((row, i) => (
+                <div key={i}>{row.join('  ')}</div>
+            ))}
+        </div>
+    </StandardSheet>
+);
+
+export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ data }) => (
+    <StandardSheet data={data}>
+        <div className="bg-white border-2 border-black p-4 rounded-xl grid gap-2" style={{gridTemplateColumns: `repeat(${data.grid.length}, 1fr)`}}>
+            {data.grid.flat().map((char, i) => (
+                <div key={i} className="aspect-square flex items-center justify-center border border-zinc-100 text-xl font-bold">{char}</div>
+            ))}
+        </div>
+    </StandardSheet>
+);
+
+export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }) => (
+    <StandardSheet data={data}>
+        <div className="bg-zinc-900 p-6 rounded-xl text-white font-mono text-lg tracking-widest text-center leading-loose">
+            {data.grid.map((row, i) => (
+                <div key={i}>{row.join(' ')}</div>
+            ))}
+        </div>
+    </StandardSheet>
+);
+
+export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }> = ({ data }) => (
+    <div className="w-full">
+        {/* Page 1 */}
+        <div className="min-h-[900px] break-after-page flex flex-col">
+            <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." note={data.pedagogicalNote} data={data} />
+            <StudentInfoStrip />
+            <div className="flex-1 flex items-center justify-center p-8">
+                <div className="bg-white p-8 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-xl font-medium leading-relaxed max-w-2xl text-center font-dyslexic">
+                    {data.sceneDescription}
+                </div>
+            </div>
+            <div className="text-center text-xs border-t pt-2 mt-4">Sayfa 1 - Okuma</div>
+        </div>
+        
+        {/* Page 2 */}
+        <div className="min-h-[900px] flex flex-col pt-8">
+            <PedagogicalHeader title="HATIRLAMA TESTİ" instruction="Soruları cevapla." />
+            <StudentInfoStrip />
+            <div className="flex-1 space-y-6">
+                {data.questions.map((q, i) => (
+                    <EditableElement key={i} className="p-4 border-2 border-black rounded-xl bg-white shadow-sm">
+                        <p className="font-bold mb-4">{i+1}. {q}</p>
+                        <div className="border-b-2 border-dashed border-zinc-400 h-8 w-full"></div>
+                    </EditableElement>
+                ))}
+                <ScoreTable rows={3} />
+            </div>
         </div>
     </div>
 );
