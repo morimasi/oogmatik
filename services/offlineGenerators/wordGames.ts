@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, SynonymMatchingPatternData, MissingPartsData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, ResfebeClue, JumbledWordStoryData } from '../../types';
+import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, SynonymMatchingPatternData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, ResfebeClue, JumbledWordStoryData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout, wordToRebus, ITEM_CATEGORIES, CATEGORY_NAMES, getDifficultySettings } from './helpers';
 import { PROVERBS } from '../../data/sentences';
 
@@ -444,14 +444,7 @@ export const generateOfflineSynonymMatchingPattern = async (o: GeneratorOptions)
         theme:'Genel', prompt:'Eşleştir.', pairs:[{word:'Siyah', synonym:'Kara'}]
     }));
 };
-export const generateOfflineMissingParts = async (o: GeneratorOptions): Promise<MissingPartsData[]> => {
-    // This is now deprecated in favor of ReadingComprehension, but kept for compatibility
-    // Redirects to Reading Comprehension's generator if possible, or returns placeholder
-    return Array.from({length: o.worksheetCount}, () => ({
-        title: 'Eksik Parça', instruction: 'Tamamla.', pedagogicalNote: 'Bütünleme.', imagePrompt: 'Parça',
-        prompt:'Birleştir.', leftParts:[], rightParts:[], givenParts:[]
-    }));
-};
+
 export const generateOfflineWordWeb = async (o: GeneratorOptions): Promise<WordWebData[]> => {
     return Array.from({length: o.worksheetCount}, () => ({
         title: 'Kelime Ağı', instruction: 'Ağı doldur.', pedagogicalNote: 'İlişkilendirme.', imagePrompt: 'Ağ',

@@ -2,13 +2,63 @@
 import { BaseActivityData } from './core';
 
 export interface MultipleChoiceStoryQuestion { type: 'multiple-choice'; question: string; options: string[]; answerIndex: number; }
-export interface OpenEndedStoryQuestion { type: 'open-ended'; question: string; }
-export type StoryQuestion = MultipleChoiceStoryQuestion | OpenEndedStoryQuestion;
-export interface StoryData extends BaseActivityData { story: string; mainIdea: string; characters: string[]; setting: string; questions: StoryQuestion[]; }
-export interface StoryAnalysisData extends BaseActivityData { story: string; analysisQuestions: { type: string; question: string; }[]; }
-export interface StoryCreationPromptData extends BaseActivityData { prompt: string; keywords: string[]; }
-export interface WordsInStoryData extends BaseActivityData { story: string; questions: { word: string; question: string; }[]; }
-export interface StorySequencingData extends BaseActivityData { prompt: string; panels: { id: string; description: string; imageBase64?: string; imagePrompt?: string; }[]; }
+export interface OpenEndedStoryQuestion { type: 'open-ended'; question: string; spaceLines?: number; }
+export interface TrueFalseQuestion { type: 'true-false'; statement: string; isTrue: boolean; }
+export type StoryQuestion = MultipleChoiceStoryQuestion | OpenEndedStoryQuestion | TrueFalseQuestion;
+
+export interface StoryData extends BaseActivityData { 
+    story: string; 
+    mainIdea: string; 
+    characters: string[]; 
+    setting: string; 
+    questions: StoryQuestion[]; 
+    readingDuration?: number; // Recommended reading time
+}
+
+export interface StoryAnalysisData extends BaseActivityData { 
+    story: string; 
+    storyMap: {
+        characters: string;
+        setting: string;
+        problem: string;
+        solution: string;
+        theme: string;
+    };
+}
+
+export interface StoryCreationPromptData extends BaseActivityData { 
+    prompt: string; 
+    keywords: string[]; 
+    structureHints: {
+        who: string;
+        where: string;
+        when: string;
+        problem: string;
+    };
+}
+
+export interface WordsInStoryData extends BaseActivityData { 
+    story: string; 
+    vocabWork: { 
+        word: string; 
+        contextQuestion: string; 
+        type: 'meaning' | 'synonym' | 'antonym';
+    }[]; 
+}
+
+export interface StorySequencingData extends BaseActivityData { 
+    prompt: string; 
+    panels: { id: string; description: string; imageBase64?: string; imagePrompt?: string; order: number; }[]; 
+    transitionWords: string[];
+}
+
+export interface MissingPartsData extends BaseActivityData { 
+    storyWithBlanks: string[]; // Segments of story split by blanks
+    wordBank: string[]; 
+    answers: string[];
+}
+
+// ... (Diğer mevcut tipler aynen korunur)
 export interface ProverbFillData extends BaseActivityData { proverbs: { start: string; end: string; full: string; }[]; meaning: string; usagePrompt: string; }
 export interface ProverbSayingSortData extends BaseActivityData { prompt: string; items: { text: string; type: 'atasözü'|'özdeyiş'; }[]; }
 export interface ProverbWordChainData extends BaseActivityData { prompt: string; wordCloud: { word: string; color: string; }[]; solutions: string[]; }
@@ -43,7 +93,6 @@ export interface SynonymAntonymGridData extends BaseActivityData { prompt: strin
 export interface ResfebeClue { type: 'text'|'image'; value: string; imageBase64?: string; imagePrompt?: string; }
 export interface AntonymResfebeData extends BaseActivityData { prompt: string; puzzles: { word: string; antonym: string; clues: ResfebeClue[]; imagePrompt?: string; }[]; antonymsPrompt: string; }
 export interface SynonymMatchingPatternData extends BaseActivityData { theme: string; prompt: string; pairs: { word: string; synonym: string; }[]; }
-export interface MissingPartsData extends BaseActivityData { prompt: string; leftParts: { id: number; text: string; }[]; rightParts: { id: number; text: string; }[]; givenParts: { word: string; parts: string[]; }[]; }
 export interface WordWebData extends BaseActivityData { prompt: string; wordsToFind: string[]; grid: string[][]; keyWordPrompt: string; }
 export interface SyllableWordSearchData extends BaseActivityData { prompt: string; syllablesToCombine: string[]; wordsToCreate: { syllable1: string; syllable2: string; answer: string; }[]; wordsToFindInSearch: string[]; grid: string[][]; passwordPrompt: string; }
 export interface WordWebWithPasswordData extends BaseActivityData { prompt: string; words: string[]; grid: string[][]; passwordColumnIndex: number; }
