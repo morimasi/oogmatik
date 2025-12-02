@@ -1,9 +1,25 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
-// Basit bir bekleme (sleep) yardımcı fonksiyonu
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// System Instruction: The AI's persona and strict rules.
+const SYSTEM_INSTRUCTION = `
+[ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI, PEDAGOG ve SVG MÜHENDİSİ]
+
+Sen, öğrenme güçlüğü (disleksi, diskalkuli) ve dikkat eksikliği yaşayan çocuklar için materyal hazırlayan dünyanın en iyi uzmanısın. Aynı zamanda kusursuz SVG kodu yazabilen bir yazılım mühendisisin.
+
+TEMEL KURALLAR:
+1. **Pedagojik Yaklaşım:** İçerikler her zaman pozitif, cesaretlendirici ve hedef yaş grubunun bilişsel seviyesine (1-6. Sınıf) tam uygun olmalıdır. Karmaşık cümlelerden kaçın.
+2. **Format:** Çıktı, İSTENİLEN JSON ŞEMASINA (%100) uymalıdır. Asla şema dışına çıkma. Markdown formatında (kdod bloğu) verme, saf JSON üretmeye çalış.
+3. **Görselleştirme (SVG):** 'imagePrompt' veya 'imageBase64' alanı istendiğinde, harici bir resim url'i değil, o alanı dolduracak **Inline SVG Kodu** üretmelisin.
+   - SVG Kuralları: <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"> ile başla.
+   - Stil: "Modern Flat 2.0", "Kawaii", Yuvarlak hatlar, Canlı Renkler (#4F46E5, #EF4444, #F59E0B, #10B981).
+   - Karmaşıklık: Çocukların algısını dağıtmayacak kadar sade ama estetik.
+4. **Dil:** Tüm içerik (yönergeler, hikayeler) Türkçe olmalıdır. Sadece SVG içindeki teknik kodlar İngilizce olabilir.
+
+GÖREV:
+Kullanıcının gönderdiği JSON şemasına ve konu/zorluk ayarlarına göre, tekrara düşmeyen, özgün ve eğitsel değeri yüksek bir çalışma sayfası içeriği üret.
+`;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS Support
@@ -26,64 +42,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
         }
         
-        // API Anahtarı sadece ortam değişkenlerinden alınmalıdır.
         const apiKey = process.env.API_KEY;
         
         if (!apiKey) {
             console.error("API_KEY bulunamadı.");
-            return res.status(500).json({ error: 'Sunucuda API anahtarı yapılandırılmamış. Lütfen Vercel ayarlarını kontrol edin.' });
+            return res.status(500).json({ error: 'Sunucu yapılandırma hatası: API anahtarı eksik.' });
         }
 
         const ai = new GoogleGenAI({ apiKey });
         
-        // MODEL SEÇİM STRATEJİSİ (Sıfır Maliyet / Hız Odaklı)
+        // Use flash model by default for speed, unless specified otherwise
         let selectedModel = model || "gemini-2.5-flash"; 
-
-        // Prompt Zenginleştirme: Profesyonel SVG Sanat Yönetmenliği ve Grafik Mühendisliği
-        const enhancedPrompt = `${prompt}
-        
-        [SİSTEM TALİMATI - EĞİTİM MATERYALİ VE SVG MÜHENDİSİ]
-        Sen ödüllü bir "Eğitim Materyali Tasarımcısı" ve "SVG Kodlama Uzmanı"sın.
-        Amacın: Çocuklar için "Premium/Ücretli Üyelik" kalitesinde, görsel olarak zengin, işlevsel ve pedagojik olarak kusursuz içerikler üretmek.
-        
-        GÖREVİN: 
-        Şemadaki 'imagePrompt' veya 'imageBase64' alanları için harici resim oluşturmak yerine, doğrudan PROFESYONEL, RENKLİ ve İŞLEVSEL SVG KODU yazacaksın.
-
-        **SVG TASARIM KURALLARI (Stil Rehberi):**
-        1.  **CANVAS:** Her zaman <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"> kullan.
-        2.  **STİL: "Modern Flat 2.0" (Düz Tasarım)**
-            - "Kawaii" tarzı sevimli, yuvarlak hatlı çizimler.
-            - Canlı, çocuk dostu renk paleti: #4F46E5 (Indigo), #EF4444 (Rose), #F59E0B (Amber), #10B981 (Emerald), #3B82F6 (Blue).
-        3.  **İŞLEVSELLİK (ETKİNLİK TÜRÜNE GÖRE):**
-            - **Labirent (Maze) İsteniyorsa:** Sadece ikon çizme! <path> elementleriyle çizilmiş, çözülebilir, duvarları olan, başlangıç (yeşil nokta) ve bitiş (kırmızı nokta) noktası belli olan kuşbakışı bir labirent planı çiz.
-            - **Grafik/Tablo İsteniyorsa:** Verileri temsil eden gerçek bir Bar Chart (Sütun Grafiği) veya Pie Chart (Pasta Grafik) çiz. Eksenleri ve etiketleri (text) ekle.
-            - **Eşleştirme İsteniyorsa:** İki sütun halinde noktalar veya kutular çiz.
-            - **Kesir İsteniyorsa:** Kesri tam olarak temsil eden bölünmüş daire (pasta dilimi) veya dikdörtgen çiz.
-            - **Harita İsteniyorsa:** Basitleştirilmiş, renkli ve bölgeleri belirgin bir harita taslağı çiz.
-        4.  **DETAYLANDIRMA:**
-            - Ana şekillerin arkasına soluk renkli "Blob" veya daireler ekleyerek derinlik kat.
-            - Şekillere hafif "Highlight" (beyaz opaklık) ve "Shadow" (siyah opaklık) ekleyerek hacim ver.
-            - Nesneleri tam ortaya hizala ve kenarlardan boşluk bırak.
-
-        **KOD YAPISI:**
-        - Karmaşık 'path'ler yerine mümkün olduğunca <circle>, <rect rx="20">, <ellipse>, <line stroke-width="8" stroke-linecap="round"> kombinasyonları kullan.
-        - SVG kodunu tek satıra sıkıştırma, okunabilir kalsın.
-        - Asla <img> etiketi veya base64 string kullanma, saf vektör çiz.
-
-        Eğer SVG çizimi teknik olarak imkansızsa (çok karmaşık bir fotoğraf gerekiyorsa), en yüksek kalitede, ilgili bir EMOJİ döndür (ancak öncelik her zaman SVG'dir).
-        `;
 
         try {
             // Streaming yanıtı başlat
             const { stream } = await ai.models.generateContentStream({
                 model: selectedModel, 
-                contents: enhancedPrompt,
+                contents: prompt, // Only the user prompt here
                 config: {
+                    // System Instruction is now separate for better adherence
+                    systemInstruction: SYSTEM_INSTRUCTION,
                     responseMimeType: "application/json",
                     responseSchema: schema,
                     temperature: 0.7,
                     topP: 0.95,
-                    topK: 40
+                    topK: 40,
+                    // Safety Settings: Allow educational content that might be flagged falsely (e.g. anatomy)
+                    safetySettings: [
+                        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                    ]
                 },
             });
 
@@ -103,28 +93,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         } catch (error: any) {
             console.error(`Stream error (${selectedModel}):`, error.message);
-            // Headerlar gönderildiyse JSON dönemeyiz, stream'i hata ile kapatırız.
-            // Ancak stream başlamadan hata olursa JSON dönebiliriz.
             if (!res.headersSent) {
                 if (error.status === 429 || error.status === 503) {
                     return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul." });
                 }
                 return res.status(500).json({ error: "Yapay zeka akışı sırasında hata oluştu." });
             } else {
-                res.end(); // Stream'i sonlandır
+                res.end();
             }
         }
 
     } catch (error: unknown) {
         console.error("API Handler Error:", error);
         if (!res.headersSent) {
-            let statusCode = 500;
             let errorMessage = "Sunucu hatası.";
-
             if (error instanceof Error) {
                 errorMessage = error.message;
             }
-            return res.status(statusCode).json({ error: errorMessage });
+            return res.status(500).json({ error: errorMessage });
         }
         res.end();
     }

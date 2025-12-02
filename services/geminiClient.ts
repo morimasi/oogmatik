@@ -1,13 +1,13 @@
 
-// This function will now call our own backend proxy instead of Google's API directly.
+// This function calls our own backend proxy.
 export const generateWithSchema = async (prompt: string, schema: any, model?: string) => {
     try {
         // Yapay zekanın her seferinde farklı çıktı üretmesini sağlamak için benzersiz bir bağlam ekliyoruz.
         const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
         
-        // Changed visual style instruction to allow variety: drawing, cartoon, vector.
-        // Added strict instruction to ALWAYS generate imagePrompt for every possible item to ensure visual richness.
-        const enhancedPrompt = `${prompt}\n\n[SİSTEM TALİMATI: \n1. Önceki çıktıları tekrar etme. Benzersiz ol. Random Seed: ${uniqueSeed}.\n2. GÖRSEL ZORUNLULUĞU: Şema içinde 'imagePrompt' alanı tanımlı olan HER ÖĞE için MUTLAKA dolu ve detaylı bir İngilizce görsel betimlemesi yaz. Asla boş bırakma. Bu betimlemeler bir eylem ve bağlam içermelidir (Örn: 'kedi' yerine 'yumakla oynayan sevimli bir kedi').\n3. GÖRSEL STİLİ: Betimlemelere şu stillerden uygun olanı ekle: 'Cute colorful vector art style', 'Children book illustration style', 'Vibrant cartoon style'. Amaç çocukların ilgisini çekecek, pozitif, renkli ve net görseller üretmektir. Korkutucu veya karanlık öğelerden kaçın.]`;
+        // NOTE: System instructions are now handled on the server side (api/generate.ts).
+        // We only append specific runtime constraints here.
+        const enhancedPrompt = `${prompt}\n\n[Context ID: ${uniqueSeed}]`;
 
         const response = await fetch('/api/generate', {
             method: 'POST',
@@ -26,8 +26,7 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                 const errorJson = JSON.parse(errorText);
                 if (errorJson.error) errorMessage += ` - ${errorJson.error}`;
             } catch (e) {
-                // Not JSON, likely an HTML error page from Vercel or network issue
-                errorMessage += ` - Sunucudan beklenmedik bir yanıt alındı. Detay: ${errorText.substring(0, 100)}...`;
+                errorMessage += ` - Sunucudan beklenmedik bir yanıt alındı.`;
             }
             throw new Error(errorMessage);
         }
@@ -47,22 +46,44 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
             
             const chunk = decoder.decode(value, { stream: true });
             fullText += chunk;
-            
-            // Burada isteğe bağlı olarak UI'a ilerleme durumu bildirilebilir (callback ile)
-            // Örn: onProgress && onProgress(fullText.length)
         }
 
         // Final decode flush
         fullText += decoder.decode();
 
         try {
-            // Clean markdown code blocks if present
-            const cleanedJsonText = fullText.replace(/^```json\s*|```\s*$/g, '').trim();
+            // ROBUST JSON PARSING STRATEGY
+            // 1. Remove Markdown code blocks if present
+            let cleanedJsonText = fullText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+            
+            // 2. Sometimes models add text before/after JSON. Find the first '{' or '[' and the last '}' or ']'
+            const firstOpenBrace = cleanedJsonText.indexOf('{');
+            const firstOpenBracket = cleanedJsonText.indexOf('[');
+            let startIndex = -1;
+
+            if (firstOpenBrace !== -1 && firstOpenBracket !== -1) {
+                startIndex = Math.min(firstOpenBrace, firstOpenBracket);
+            } else if (firstOpenBrace !== -1) {
+                startIndex = firstOpenBrace;
+            } else {
+                startIndex = firstOpenBracket;
+            }
+
+            if (startIndex !== -1) {
+                const lastCloseBrace = cleanedJsonText.lastIndexOf('}');
+                const lastCloseBracket = cleanedJsonText.lastIndexOf(']');
+                const endIndex = Math.max(lastCloseBrace, lastCloseBracket);
+                
+                if (endIndex > startIndex) {
+                    cleanedJsonText = cleanedJsonText.substring(startIndex, endIndex + 1);
+                }
+            }
+
             const parsed = JSON.parse(cleanedJsonText);
             return parsed;
         } catch (e) {
             console.error("Yapay zeka yanıtı ayrıştırılamadı. Ham metin:", fullText);
-            throw new Error("Yapay zeka sunucusundan alınan veri JSON formatında değildi. Lütfen tekrar deneyin.");
+            throw new Error("Yapay zeka yanıtı geçerli bir veri formatında değil. Lütfen tekrar deneyin.");
         }
 
     } catch (error) {
@@ -70,6 +91,6 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
         if (error instanceof Error) {
             throw error;
         }
-        throw new Error("Yapay zeka sunucusuna bağlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+        throw new Error("Yapay zeka sunucusuna bağlanırken bir hata oluştu.");
     }
 };
