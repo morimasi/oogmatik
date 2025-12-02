@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
+import { PrintSettingsModal } from './PrintSettingsModal';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -40,10 +41,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     isDrawMode
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type'>('none');
-
-  const handlePrint = () => {
-    window.print();
-  };
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
       <div className="flex items-center gap-1.5 group" title={title}>
@@ -181,7 +179,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  <button
                     onClick={() => setActiveMenu(activeMenu === 'print' ? 'none' : 'print')}
                     className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'print' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                    title="Yazdırma Görünürlüğü"
+                    title="Sayfa Bileşenleri"
                  >
                      <i className="fa-solid fa-eye"></i> Görünürlük
                  </button>
@@ -303,11 +301,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 <span className="hidden sm:inline">Paylaş</span>
             </button>
             
-            <button onClick={onDownloadPDF || handlePrint} className="ml-1 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-black text-[10px] font-bold py-1.5 px-2.5 rounded shadow-sm transition-colors flex items-center gap-1.5">
-                <i className="fa-solid fa-file-pdf"></i> <span>İndir</span>
-            </button>
-
-            <button onClick={handlePrint} className="bg-zinc-700 hover:bg-zinc-600 text-white text-[10px] font-bold py-1.5 px-2.5 rounded shadow-sm transition-colors flex items-center gap-1.5">
+            <button onClick={() => setIsPrintModalOpen(true)} className="ml-1 bg-zinc-700 hover:bg-zinc-600 text-white text-[10px] font-bold py-1.5 px-2.5 rounded shadow-sm transition-colors flex items-center gap-1.5">
                 <i className="fa-solid fa-print"></i> <span>Yazdır</span>
             </button>
         </div>
@@ -316,6 +310,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
         {activeMenu !== 'none' && (
             <div className="fixed inset-0 z-40" onClick={() => setActiveMenu('none')}></div>
         )}
+
+        <PrintSettingsModal isOpen={isPrintModalOpen} onClose={() => setIsPrintModalOpen(false)} defaultTitle="Çalışma Kağıdı" />
     </div>
   );
 };
