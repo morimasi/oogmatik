@@ -186,8 +186,6 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
     return results;
 };
 
-// ... (Rest of the functions remain similar, but ensure they respect options.numberRange if applicable)
-
 export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
     const { worksheetCount, itemCount } = options;
     const results: RealLifeProblemData[] = [];
@@ -204,7 +202,6 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
         const problems: RealLifeProblemData['problems'] = [];
         const count = itemCount || 4;
         
-        // Shuffle templates for variety within the sheet
         const templates = shuffle(logicTemplates);
         
         for(let j=0; j<count; j++) {
@@ -228,13 +225,10 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
     return results;
 };
 
-// ... (Keep existing export functions, updated where range is used)
-
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty, operations, numberRange } = options;
     const objectsPool = shuffle(EMOJIS.slice(0, 30)); // Shuffle pool
     
-    // Parse Range
     let valueMin = 1, valueMax = 10;
     if (numberRange) {
         const parts = numberRange.split('-');
@@ -243,25 +237,22 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
             valueMax = parseInt(parts[1]);
         }
     } else {
-        // Fallback based on difficulty if range not set
         if(difficulty === 'Orta') valueMax = 20;
         if(difficulty === 'Zor') valueMax = 50;
     }
 
-    // Determine Operators
     let ops: string[] = ['+'];
     if (operations === 'all' || operations === 'mixed') ops = ['+', '-', '*', '/'];
     else if (operations === 'addsub') ops = ['+', '-'];
     else if (operations === 'multdiv') ops = ['*', '/'];
     else if (operations === 'add') ops = ['+'];
     else if (operations === 'mult') ops = ['*'];
-    else if (Array.isArray(operations)) { // From multi-select
+    else if (Array.isArray(operations)) {
          ops = operations.map(o => o === 'add' ? '+' : o === 'sub' ? '-' : o === 'mult' ? '*' : o === 'div' ? '/' : o);
     }
 
     const results: MathPuzzleData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
-        // Pick new objects for each sheet
         const startIndex = (i * 3) % (objectsPool.length - 3);
         const currentObjects = objectsPool.slice(startIndex, startIndex + 3);
         
@@ -294,13 +285,12 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
     return results;
 };
 
-// ... (Other functions remain largely the same, logic is sound)
 export const generateOfflineNumberPattern = async (options: GeneratorOptions): Promise<NumberPatternData[]> => {
     const { itemCount, worksheetCount, difficulty, patternType } = options;
     const results: NumberPatternData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const patterns = Array.from({ length: itemCount || 8 }).map(() => {
-            let start = getRandomInt(1, 10 + i * 2); // Vary start
+            let start = getRandomInt(1, 10 + i * 2); 
             let sequence = [start];
             let answer = 0;
             const type = patternType || (difficulty === 'Başlangıç' ? 'arithmetic' : 'complex');

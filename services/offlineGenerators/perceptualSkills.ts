@@ -3,82 +3,10 @@ import {
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
     GeneratorOptions
 } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare, generateMaze, getDifficultySettings } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare, generateMaze, getDifficultySettings, generateSymmetricPattern, generateConnectedPath } from './helpers';
 
 // --- HELPER: PROCEDURAL SYMMETRIC GRID GENERATOR ---
-const generateSymmetricPattern = (rows: number, cols: number, density: number = 0.4): number[][] => {
-    // Create empty grid
-    const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
-    
-    // Fill top-left quadrant randomly
-    const halfRows = Math.ceil(rows / 2);
-    const halfCols = Math.ceil(cols / 2);
-
-    for (let r = 0; r < halfRows; r++) {
-        for (let c = 0; c < halfCols; c++) {
-            if (Math.random() < density) {
-                // Set the pixel
-                const val = 1;
-                grid[r][c] = val;
-                
-                // Mirror Horizontal
-                if (cols - 1 - c !== c) grid[r][cols - 1 - c] = val;
-                
-                // Mirror Vertical
-                if (rows - 1 - r !== r) grid[rows - 1 - r][c] = val;
-                
-                // Mirror Diagonal (Bottom-Right)
-                if (cols - 1 - c !== c && rows - 1 - r !== r) grid[rows - 1 - r][cols - 1 - c] = val;
-            }
-        }
-    }
-    return grid;
-};
-
-// --- HELPER: CONNECTED PATH GENERATOR (Professional Grid Drawing) ---
-const generateConnectedPath = (dim: number, complexity: number): [number, number][][] => {
-    const lines: [number, number][][] = [];
-    const points: [number, number][] = [];
-    
-    // Start somewhere in the middle-ish
-    let currX = getRandomInt(1, dim - 2);
-    let currY = getRandomInt(1, dim - 2);
-    points.push([currX, currY]);
-
-    const steps = Math.min(dim * dim, 6 + complexity * 3);
-    const visited = new Set<string>();
-    visited.add(`${currX},${currY}`);
-
-    for (let i = 0; i < steps; i++) {
-        const moves = [
-            [0, 1], [0, -1], [1, 0], [-1, 0], // Orthogonal
-            [1, 1], [1, -1], [-1, 1], [-1, -1] // Diagonal
-        ];
-        
-        // Filter valid moves (stay in bounds, don't retrace immediately)
-        const validMoves = moves.filter(([dx, dy]) => {
-            const nx = currX + dx;
-            const ny = currY + dy;
-            // Check bounds
-            if (nx < 0 || nx > dim || ny < 0 || ny > dim) return false;
-            // Don't go back to immediate previous point (simple loop prevention)
-            if (visited.has(`${nx},${ny}`) && i < steps - 1) return false; 
-            return true;
-        });
-
-        if (validMoves.length === 0) break;
-
-        const [dx, dy] = getRandomItems(validMoves, 1)[0] as [number, number];
-        const nextX = currX + dx;
-        const nextY = currY + dy;
-
-        lines.push([[currX, currY], [nextX, nextY]]);
-        visited.add(`${nextX},${nextY}`);
-        currX = nextX;
-        currY = nextY;
-    }
-    return lines;
-};
+// ... (Helper moved to helpers.ts for sharing, but kept in mind for usage)
 
 const dotArtShapes: Record<string, { dots: { cx: number; cy: number }[]; name: string; }> = {
     'heart': {

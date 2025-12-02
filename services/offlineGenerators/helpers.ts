@@ -263,3 +263,47 @@ export const generateMazePath = (rows: number, cols: number) => {
 };
 
 export const wordToRebus = (word: string) => simpleSyllabify(word).map(s => ({ type: 'text' as const, value: s }));
+
+export const generateConnectedPath = (dim: number, complexity: number): [number, number][][] => {
+    const lines: [number, number][][] = [];
+    let currentX = getRandomInt(0, dim);
+    let currentY = getRandomInt(0, dim);
+    const steps = Math.min(dim * 4, 6 + complexity * 4);
+
+    for(let i=0; i<steps; i++) {
+        const moves = [
+            {dx: 1, dy: 0}, {dx: -1, dy: 0}, 
+            {dx: 0, dy: 1}, {dx: 0, dy: -1}
+        ].filter(m => {
+            const nx = currentX + m.dx;
+            const ny = currentY + m.dy;
+            return nx >= 0 && nx <= dim && ny >= 0 && ny <= dim;
+        });
+
+        if(moves.length === 0) break;
+        const move = moves[Math.floor(Math.random() * moves.length)];
+        
+        lines.push([[currentX, currentY], [currentX + move.dx, currentY + move.dy]]);
+        currentX += move.dx;
+        currentY += move.dy;
+    }
+    return lines;
+};
+
+export const generateSymmetricPattern = (rows: number, cols: number, density: number): number[][] => {
+    const grid = Array.from({length: rows}, () => Array(cols).fill(0));
+    const midR = Math.ceil(rows / 2);
+    const midC = Math.ceil(cols / 2);
+
+    for(let r = 0; r < midR; r++) {
+        for(let c = 0; c < midC; c++) {
+            if (Math.random() < density) {
+                grid[r][c] = 1;
+                if (c < cols - 1 - c) grid[r][cols - 1 - c] = 1;
+                if (r < rows - 1 - r) grid[rows - 1 - r][c] = 1;
+                if (c < cols - 1 - c && r < rows - 1 - r) grid[rows - 1 - r][cols - 1 - c] = 1;
+            }
+        }
+    }
+    return grid;
+};
