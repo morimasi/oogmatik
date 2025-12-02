@@ -7,22 +7,25 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
     const results: WordMemoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const count = itemCount || 12;
-        const memorizeCount = Math.floor(count * ((memorizeRatio || 60) / 100)); // Increase default ratio for better engagement
+        // Increase ratio slightly for better UX in dual page
+        const memorizeCount = Math.max(4, Math.floor(count * 0.6)); 
         
         let pool = getWordsForDifficulty(difficulty, topic || 'Rastgele');
-        if (pool.length < count * 2) pool = [...pool, ...getWordsForDifficulty(difficulty, 'Rastgele')]; // Ensure enough pool
+        if (pool.length < count * 2) pool = [...pool, ...getWordsForDifficulty(difficulty, 'Rastgele')];
         
         pool = shuffle(pool);
         
+        // Select targets to memorize
         const targets = pool.slice(0, memorizeCount);
+        // Select distractors for the test phase
         const distractors = pool.slice(memorizeCount, memorizeCount + (count - memorizeCount));
         
-        // Test list includes targets + distractors
+        // Test list includes targets + distractors, shuffled
         const testList = shuffle([...targets, ...distractors]);
         
         results.push({
             title: 'Kelime Hafıza',
-            instruction: "İlk sayfadaki kelimeleri ezberle. İkinci sayfada sadece ezberlediklerini işaretle.",
+            instruction: "1. Aşama: Kelimeleri ezberle. 2. Aşama: Test kısmında hatırladıklarını işaretle.",
             pedagogicalNote: "Kısa süreli işitsel-sözel bellek kapasitesini ölçer.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
@@ -43,15 +46,15 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
     
     for (let i = 0; i < worksheetCount; i++) {
         const count = itemCount || 12;
-        const memorizeCount = Math.floor(count * ((memorizeRatio || 60) / 100));
+        const memorizeCount = Math.max(4, Math.floor(count * 0.6));
         
         const pool = shuffle(allEmojis);
         const targets = pool.slice(0, memorizeCount);
-        const distractors = pool.slice(memorizeCount, count); // Total count for test
+        const distractors = pool.slice(memorizeCount, count); // Total needed
         
         const itemsToMemorize = targets.map(emoji => ({
             description: `${EMOJI_MAP[emoji]} ${emoji}`,
-            imagePrompt: emoji // For SVG generation if needed, or emoji direct
+            imagePrompt: emoji 
         }));
         
         const testItems = shuffle([...targets, ...distractors]).map(emoji => ({
@@ -77,7 +80,7 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
 export const generateOfflineNumberSearch = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
     const { worksheetCount, difficulty, itemCount } = options;
     const results: NumberSearchData[] = [];
-    const count = itemCount || 20; // Items to find
+    const count = itemCount || 20;
 
     for (let i = 0; i < worksheetCount; i++) {
         let range = { start: 1, end: count };
@@ -85,8 +88,6 @@ export const generateOfflineNumberSearch = async (options: GeneratorOptions): Pr
         if (difficulty === 'Zor') range = { start: 100, end: 100 + count };
 
         const targetNumbers = Array.from({ length: count }, (_, k) => k + range.start);
-        
-        // Generate distractors (similar looking numbers)
         const distractors = Array.from({ length: count * 3 }, () => {
              const base = getRandomInt(range.start, range.end + 20);
              return base;
@@ -108,24 +109,21 @@ export const generateOfflineNumberSearch = async (options: GeneratorOptions): Pr
 export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOptions): Promise<FindDuplicateData[]> => {
     const { itemCount, difficulty, worksheetCount } = options;
     const results: FindDuplicateData[] = [];
-    
-    // Increased column count for professional density
     const cols = difficulty === 'Başlangıç' ? 10 : (difficulty === 'Orta' ? 15 : 20);
 
     for (let i = 0; i < worksheetCount; i++) {
         const rows = Array.from({ length: itemCount || 12 }, () => {
             let pool = turkishAlphabet.split('');
-            if (difficulty === 'Zor') pool = ['b','d','p','q','m','n','u','ü']; // Confusing chars
+            if (difficulty === 'Zor') pool = ['b','d','p','q','m','n','u','ü']; 
             
-            // Fill row with randoms
             const rowChars = Array.from({length: cols}, () => getRandomItems(pool, 1)[0]);
-            
-            // Ensure unique duplicate pair
             const target = getRandomItems(pool, 1)[0];
+            
+            // Ensure unique pair
             const idx1 = getRandomInt(0, Math.floor(cols/2));
             const idx2 = getRandomInt(Math.floor(cols/2) + 1, cols - 1);
             
-            // Clear existing targets to avoid accidental triplicates
+            // Cleanup accidental duplicates of target first
             for(let k=0; k<cols; k++) if(rowChars[k] === target) rowChars[k] = getRandomItems(pool.filter(c=>c!==target),1)[0];
             
             rowChars[idx1] = target;
@@ -136,7 +134,7 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
         
         results.push({ 
             title: 'İkiliyi Bul', 
-            instruction: "Her satırda DİĞERLERİNDEN FARKLI OLAN değil, İKİ KEZ YAZILMIŞ olan karakteri bul.",
+            instruction: "Her satırda iki kez yazılmış olan karakteri bulun.",
             pedagogicalNote: "Odaklanmış dikkat ve görsel ayrım.",
             imagePrompt: 'Dikkat',
             rows 
@@ -152,15 +150,15 @@ export const generateOfflineLetterGridTest = async (options: GeneratorOptions): 
     
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 15;
-        const targets = ['a', 'b', 'd', 'g']; // Burdon style targets usually
+        const targets = ['a', 'b', 'd', 'g'];
         const pool = turkishAlphabet.split('');
         
         const grid: string[][] = [];
+        // Generate dense grid
         for(let r=0; r<size; r++){
             const row: string[] = [];
-            for(let c=0; c<20; c++){ // Fixed width for standard print
-                // 30% chance of target
-                if (Math.random() < 0.3) {
+            for(let c=0; c<25; c++){ // Wide rows for print
+                if (Math.random() < 0.25) {
                     row.push(getRandomItems(targets, 1)[0]);
                 } else {
                     row.push(getRandomItems(pool.filter(x => !targets.includes(x)), 1)[0]);
@@ -183,9 +181,8 @@ export const generateOfflineLetterGridTest = async (options: GeneratorOptions): 
 
 
 export const generateOfflineBurdonTest = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
-    // Specifically tailored for Burdon (Standard Format)
-    // 10-20 lines, random distribution of a,b,d,g
-    const res = await generateOfflineLetterGridTest({ ...options, gridSize: 15, targetLetters: 'a,b,d,g' });
+    // Specialized high density grid
+    const res = await generateOfflineLetterGridTest({ ...options, gridSize: 20, targetLetters: 'a,b,d,g' });
     return res.map(d => ({
         ...d, 
         title: 'BURDON DİKKAT TESTİ',
@@ -204,10 +201,8 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
         const pairInput = (targetPair as string)?.replace(/[\s,]/g, '') || 'bd';
         const pair = pairInput.substring(0, 2);
         
-        // Create grid
         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
         
-        // Insert pairs
         const pairCount = itemCount || 10;
         for (let k = 0; k < pairCount; k++) {
             const r = getRandomInt(0, size - 1);
@@ -235,7 +230,7 @@ export const generateOfflineTargetSearch = async (options: GeneratorOptions): Pr
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 15;
         const target = targetChar || 'd';
-        const distractor = distractorChar || 'b'; // d vs b standard
+        const distractor = distractorChar || 'b';
         
         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => Math.random() > 0.3 ? distractor : target));
         
@@ -286,10 +281,6 @@ export const generateOfflineImageComprehension = async (options: GeneratorOption
         {
             scene: "Mutfak masasının üzerinde bir vazo içinde üç tane mavi çiçek var. Masada ayrıca bir elma ve iki tane portakal duruyor. Pencereden içeri güneş sızıyor.",
             questions: ["Vazoda kaç tane çiçek var?", "Masadaki meyveler nelerdir?", "Çiçekler ne renkti?"]
-        },
-        {
-            scene: "Kumsalda büyük bir şemsiyenin altında oturan bir aile var. Çocuklar kumdan kale yapıyor. Denizde yelkenli bir tekne yüzüyor.",
-            questions: ["Aile nerede oturuyor?", "Çocuklar ne yapıyor?", "Denizde ne yüzüyor?"]
         }
     ];
 
@@ -297,14 +288,14 @@ export const generateOfflineImageComprehension = async (options: GeneratorOption
     for (let i = 0; i < worksheetCount; i++) {
         const selectedScene = getRandomItems(scenes, 1)[0];
         results.push({
-            title: "Resme Dikkat (Hızlı Mod)",
-            instruction: "Metni oku, zihninde canlandır ve detayları hatırla.",
+            title: "Resme Dikkat",
+            instruction: "1. Aşama: Metni oku ve sahneyi zihninde canlandır.",
             pedagogicalNote: "Sözel bilgiyi görselleştirebilme ve detay hatırlama.",
             memorizeTitle: "Metni Oku ve Canlandır",
             testTitle: "Soruları Cevapla",
             sceneDescription: selectedScene.scene,
             imagePrompt: 'Resim',
-            imageBase64: "", // No image in fast mode
+            imageBase64: "", 
             questions: selectedScene.questions
         });
     }
@@ -316,13 +307,11 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     const {itemCount, worksheetCount, memorizeRatio} = options;
     const adjectives = ['Mutlu', 'Üzgün', 'Hızlı', 'Yavaş', 'Büyük', 'Küçük', 'Renkli', 'Komik'];
     const results: CharacterMemoryData[] = [];
-    
-    // Using Emojis as "Characters" for offline generator
     const peopleEmojis = ['👮', '👩‍⚕️', '👨‍🍳', '👩‍🚀', '🧙‍♂️', '🧛‍♀️', '🧜‍♂️', '🧚‍♀️', '🧞‍♂️', '🦹‍♀️'];
 
     for(let i=0; i<worksheetCount; i++){
         const count = itemCount || 8;
-        const memorizeCount = Math.floor(count * ((memorizeRatio || 60) / 100));
+        const memorizeCount = Math.max(4, Math.floor(count * 0.6));
         
         const pool = shuffle(peopleEmojis);
         const targets = pool.slice(0, memorizeCount);
@@ -330,7 +319,7 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
         
         const itemsToMemorize = targets.map(emoji => ({
             description: `${getRandomItems(adjectives, 1)[0]} Karakter`,
-            imagePrompt: emoji // Render emoji as char
+            imagePrompt: emoji 
         }));
         
         const testItems = shuffle([...targets, ...distractors]).map(emoji => ({
@@ -367,7 +356,7 @@ export const generateOfflineStroopTest = async (options: GeneratorOptions): Prom
     for (let i = 0; i < worksheetCount; i++) {
         const items = Array.from({ length: itemCount || 24 }).map(() => {
             const textObj = getRandomItems(colorMap, 1)[0];
-            // Ensure conflict
+            // Ensure conflict (interference)
             let colorObj = getRandomItems(colorMap, 1)[0];
             while (colorObj.name === textObj.name) {
                 colorObj = getRandomItems(colorMap, 1)[0];
@@ -394,10 +383,7 @@ export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptio
         const count = itemCount || 40;
         const range = {start: 1, end: count};
         
-        // Target sequence
         const targets = Array.from({length: count}, (_,k) => k+1);
-        
-        // Distractors (Random large numbers or duplicates)
         const distractorsCount = difficulty === 'Zor' ? count : Math.floor(count/2);
         const distractors = Array.from({length: distractorsCount}, () => getRandomInt(count+1, 99));
         
@@ -405,11 +391,11 @@ export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptio
         
         const numbers = allNumbers.map(value => ({
             value,
-            x: getRandomInt(2, 95), // Percent
-            y: getRandomInt(2, 95), // Percent
-            size: getRandomInt(1, 4), // REM scale
-            rotation: getRandomInt(-180, 180), // Full chaos rotation
-            color: getRandomItems(['black', '#333', '#555', '#000'], 1)[0] // Monochromatic chaos for print
+            x: getRandomInt(5, 90), // Percent bounds
+            y: getRandomInt(10, 90), // Percent bounds (leave top space for targets)
+            size: getRandomInt(10, 25) / 10, // 1.0 to 2.5 REM
+            rotation: getRandomInt(-180, 180),
+            color: 'black'
         }));
         
         results.push({
