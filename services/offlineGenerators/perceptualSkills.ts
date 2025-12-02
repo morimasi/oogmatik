@@ -40,11 +40,12 @@ const generateConnectedPath = (dim: number, complexity: number): [number, number
     const lines: [number, number][][] = [];
     const points: [number, number][] = [];
     
+    // Start somewhere in the middle-ish
     let currX = getRandomInt(1, dim - 2);
     let currY = getRandomInt(1, dim - 2);
     points.push([currX, currY]);
 
-    const steps = Math.min(dim * dim, 6 + complexity * 2);
+    const steps = Math.min(dim * dim, 6 + complexity * 3);
     const visited = new Set<string>();
     visited.add(`${currX},${currY}`);
 
@@ -54,10 +55,15 @@ const generateConnectedPath = (dim: number, complexity: number): [number, number
             [1, 1], [1, -1], [-1, 1], [-1, -1] // Diagonal
         ];
         
+        // Filter valid moves (stay in bounds, don't retrace immediately)
         const validMoves = moves.filter(([dx, dy]) => {
             const nx = currX + dx;
             const ny = currY + dy;
-            return nx >= 0 && nx <= dim && ny >= 0 && ny <= dim && !visited.has(`${nx},${ny}`);
+            // Check bounds
+            if (nx < 0 || nx > dim || ny < 0 || ny > dim) return false;
+            // Don't go back to immediate previous point (simple loop prevention)
+            if (visited.has(`${nx},${ny}`) && i < steps - 1) return false; 
+            return true;
         });
 
         if (validMoves.length === 0) break;
@@ -70,8 +76,6 @@ const generateConnectedPath = (dim: number, complexity: number): [number, number
         visited.add(`${nextX},${nextY}`);
         currX = nextX;
         currY = nextY;
-        
-        // Occasionally mimic symmetry or close loop logic could be added here
     }
     return lines;
 };
@@ -118,7 +122,7 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
     // Symbol Matrix Mode for Hard/Expert
     const symbolPairs = [
         ['O', '0'], ['l', '1'], ['6', '9'], ['E', 'F'], ['B', '8'], ['Z', '2'], ['S', '5'],
-        ['😐', '😑'], ['🙂', '🙃'], ['⭐', '🌟'], ['⭕', '🔴'], ['⬛', '◼️']
+        ['😐', '😑'], ['🙂', '🙃'], ['⭐', '🌟'], ['⭕', '🔴'], ['⬛', '◼️'], ['⬆️', '⬇️'], ['🔲', '🔳']
     ];
 
     for (let i = 0; i < worksheetCount; i++) {
@@ -136,7 +140,7 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
                 const diff = pair[1];
                 
                 // Create a string of repeated symbols for intensity
-                const repeatCount = 5;
+                const repeatCount = difficulty === 'Uzman' ? 8 : 5;
                 const baseStr = Array(repeatCount).fill(base).join(' ');
                 const diffStr = Array(repeatCount).fill(base).join(' ').replace(base, diff); // Replace one
                 
@@ -221,27 +225,34 @@ export const generateOfflineShapeMatching = async (options: GeneratorOptions): P
     const { itemCount, difficulty, worksheetCount } = options;
     const results: ShapeMatchingData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
+        // Complexity increases shape depth
         const shapeCount = difficulty === 'Başlangıç' ? 2 : (difficulty === 'Orta' ? 3 : 4);
         
-        // Generate complex composite shapes instead of just random lists
-        // E.g. Circle inside Square vs Square inside Circle
-        const leftColumn = Array.from({ length: itemCount || 5 }, (_, k) => ({ 
-            id: k + 1, 
+        // Generate unique composite shapes
+        // Each item will be a set of shapes (e.g. Circle, Square, Star) + Colors
+        const baseShapes = Array.from({ length: itemCount || 5 }, (_, k) => ({
+            id: k + 1,
             shapes: getRandomItems(SHAPE_TYPES, shapeCount),
             color: getRandomItems(COLORS, 1)[0].css
         }));
         
-        // Shuffle right column
-        const rightColumn = shuffle(leftColumn.map((item, index) => ({ 
+        const leftColumn = baseShapes.map(s => ({
+            id: s.id,
+            shapes: s.shapes,
+            color: s.color
+        }));
+        
+        // Right column needs to match but shuffled
+        const rightColumn = shuffle(baseShapes).map((item, index) => ({ 
             id: String.fromCharCode(65 + index), 
-            shapes: item.shapes, // Identical shape composition
+            shapes: item.shapes, 
             color: item.color 
-        })));
+        }));
         
         results.push({ 
-            title: 'Şekil Eşleştirme', 
+            title: 'Şekil Eşleştirme (Kompozit)', 
             instruction: "Sol sütundaki şekil gruplarını sağ sütundaki eşleriyle çizgilerle birleştirin.",
-            pedagogicalNote: "Görsel form algısı ve eşleştirme becerisi çalışmasıdır.",
+            pedagogicalNote: "Çoklu görsel bileşenleri bir bütün olarak algılama (Gestalt) ve eşleştirme.",
             imagePrompt: 'Şekiller',
             leftColumn, 
             rightColumn,
@@ -274,8 +285,8 @@ export const generateOfflineGridDrawing = async (options: GeneratorOptions): Pro
     const {itemCount, worksheetCount, gridSize, difficulty} = options;
     const results: GridDrawingData[] = [];
     for(let i=0; i < worksheetCount; i++){
-        const dim = gridSize || 6;
-        const complexity = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 3);
+        const dim = gridSize || 8;
+        const complexity = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 4);
         
         const drawings = Array.from({length: itemCount || 2}).map(() => {
             return { 
@@ -285,7 +296,7 @@ export const generateOfflineGridDrawing = async (options: GeneratorOptions): Pro
             };
         });
         results.push({ 
-            title: 'Kare Çizim / Teknik Kopyalama', 
+            title: 'Kare Çizim (Teknik Kopyalama)', 
             instruction: "Soldaki deseni referans noktalarını kullanarak sağdaki boş ızgaraya aynen çizin.",
             pedagogicalNote: "El-göz koordinasyonu, uzamsal konumlandırma ve kopyalama becerisini geliştirir.",
             imagePrompt: 'Çizim',
@@ -307,7 +318,7 @@ export const generateOfflineSymbolCipher = async (options: GeneratorOptions): Pr
         }));
         
         const availableLetters = cipherKey.map(k => k.letter);
-        const simpleWords = ['baba', 'baca', 'aba', 'caba', 'ede', 'fece'].filter(w => w.split('').every(l => availableLetters.includes(l)));
+        const simpleWords = ['baba', 'baca', 'aba', 'caba', 'ede', 'fece', 'defa'].filter(w => w.split('').every(l => availableLetters.includes(l)));
         
         const wordsToUse = simpleWords.length >= (itemCount || 5) ? getRandomItems(simpleWords, itemCount || 5) : Array.from({length: itemCount || 5}, () => 
             Array.from({length: 4}, () => getRandomItems(availableLetters, 1)[0]).join('')
@@ -334,15 +345,16 @@ export const generateOfflineBlockPainting = async (options: GeneratorOptions): P
     const { worksheetCount, difficulty } = options;
     const results: BlockPaintingData[] = [];
     
-    const size = difficulty === 'Başlangıç' ? 6 : (difficulty === 'Orta' ? 8 : 10);
+    // Larger grids for more detail
+    const size = difficulty === 'Başlangıç' ? 6 : (difficulty === 'Orta' ? 8 : 12);
     
     for (let i = 0; i < worksheetCount; i++) {
         // Generate Procedural Symmetric Pattern (Mandala-like)
-        const density = difficulty === 'Başlangıç' ? 0.3 : 0.5;
+        const density = difficulty === 'Başlangıç' ? 0.3 : 0.4;
         const pattern = generateSymmetricPattern(size, size, density);
 
         results.push({
-            title: `Blok Boyama (${difficulty})`,
+            title: `Simetrik Blok Boyama (${difficulty})`,
             instruction: "Soldaki örneğe dikkatlice bak. Sağdaki boş kareleri, simetri ve desen kurallarına uyarak aynı şekilde boya.",
             pedagogicalNote: "Görsel bütünleme, parça-bütün ilişkisi ve konumsal kopyalama becerisi.",
             imagePrompt: 'Blok',
@@ -375,11 +387,12 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
             const oddOne = [...baseSegments];
             // Modify structure for odd one
             if (Math.random() > 0.5) {
-                // Invert a few bits
+                // Invert a few bits to change structure slightly
                 oddOne[0] = !oddOne[0];
                 oddOne[4] = !oddOne[4];
+                oddOne[8] = !oddOne[8];
             } else {
-                // Mirror
+                // Mirror (Reverse array approximates reflection for simple grid shapes)
                 oddOne.reverse();
             }
 
@@ -392,7 +405,7 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
             return { 
                 items, 
                 correctIndex, 
-                reason: "Diğerleri aynı şeklin döndürülmüş halidir, bu ise yapısal olarak farklıdır." 
+                reason: "Diğerleri aynı şeklin döndürülmüş halidir, bu ise yapısal olarak farklıdır (aynalanmıştır)." 
             };
         });
 
@@ -411,8 +424,8 @@ export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions):
     const {itemCount, worksheetCount, gridSize, difficulty} = options;
     const results: SymmetryDrawingData[] = [];
     for(let i=0; i<worksheetCount; i++){
-        const dim = gridSize || 10;
-        const dotCount = difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 5 : 7);
+        const dim = gridSize || 12;
+        const dotCount = difficulty === 'Başlangıç' ? 4 : (difficulty === 'Orta' ? 6 : 8);
         const dots = Array.from({length: dotCount}).map(() => ({x: getRandomInt(0, (dim/2) - 1), y: getRandomInt(0, dim-1), color: '#000'}));
         results.push({
             title: 'Simetri Tamamlama',
@@ -433,7 +446,7 @@ export const generateOfflineFindDifferentString = async (options: GeneratorOptio
     const results: FindDifferentStringData[] = [];
     for(let i=0; i<worksheetCount; i++){
         const rows = Array.from({length:itemCount || 8}).map(() => {
-            const base = getRandomItems(["X89K", "M2N4", "A7B3", "K9L1", "7UP5"], 1)[0];
+            const base = getRandomItems(["X89K", "M2N4", "A7B3", "K9L1", "7UP5", "B8D8", "S5S2"], 1)[0];
             const diff = base.substring(0, 2) + (base.charAt(2) === '9' ? '8' : '9') + base.substring(3);
             const items = shuffle([base, base, base, diff]);
             return {items, correctIndex: items.indexOf(diff)};
@@ -450,7 +463,7 @@ export const generateOfflineFindDifferentString = async (options: GeneratorOptio
 };
 
 export const generateOfflineDotPainting = async (options: GeneratorOptions): Promise<DotPaintingData[]> => {
-    const { worksheetCount, itemCount } = options; // itemCount unused visually but could mean more complex dots
+    const { worksheetCount, itemCount } = options;
     const results: DotPaintingData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const shapeKey = getRandomItems(Object.keys(dotArtShapes), 1)[0];
@@ -459,7 +472,7 @@ export const generateOfflineDotPainting = async (options: GeneratorOptions): Pro
         const shapeDots = shape.dots.map(d => ({ ...d, color }));
 
         results.push({
-            title: 'Nokta Boyama',
+            title: 'Nokta Boyama (Koordinat Resim)',
             instruction: "Verilen renkteki noktaları boyayarak gizli resmi ortaya çıkar.",
             pedagogicalNote: "İnce motor becerileri ve görsel bütünleme.",
             imagePrompt: 'Nokta',
@@ -479,7 +492,6 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
     const results: AbcConnectData[] = [];
     const dim = gridSize || 6;
     
-    // Logic to use custom letters if provided, otherwise fallback to A-J
     let letters = ['A','B','C','D','E','F','G','H','J'];
     if (targetLetters) {
         const customLetters = targetLetters.split(/[\s,]+/).map(s => s.trim().toUpperCase()).filter(s => s.length === 1);
@@ -488,7 +500,6 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
         }
     }
 
-    // Ensure enough letters for pairs requested, loop if needed
     const count = Math.min(letters.length, Math.floor((itemCount || 6) / 2));
     const actualLetters = letters.slice(0, count);
 
@@ -503,7 +514,7 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
         }));
 
         results.push({
-            title: 'ABC Bağlama (Profesyonel)',
+            title: 'Nokta Birleştirme (Flow)',
             instruction: "Aynı harfleri, çizgiler birbirini kesmeyecek şekilde birleştirin. Tüm kareler dolmalıdır.",
             pedagogicalNote: "Planlama ve uzamsal akıl yürütme.",
             imagePrompt: 'Bağlama',
@@ -519,12 +530,12 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 6;
         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
-        const message = "OKU";
+        const message = getRandomItems(["OKU", "YAZ", "BUL", "ÇİZ"], 1)[0];
         const cipherCoordinates: string[] = [];
         
         for(let k=0; k<message.length; k++) {
             const r = k;
-            const c = k;
+            const c = k + 1; // Slight offset
             if(r < size && c < size) {
                 grid[r][c] = message[k].toUpperCase();
                 cipherCoordinates.push(`${String.fromCharCode(65 + r)}${c+1}`);
@@ -545,28 +556,23 @@ export const generateOfflineCoordinateCipher = async (options: GeneratorOptions)
     return results;
 };
 
-// --- UPDATED WORD CONNECT GENERATOR ---
 export const generateOfflineWordConnect = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
     const results: WordConnectData[] = [];
     
-    // Choose pool based on difficulty or random mix
     let pairsPool: {word: string, match: string}[] = [];
     
     if (difficulty === 'Başlangıç') {
-        // Simple associations
         pairsPool = [
             {word: 'Güneş', match: 'Sıcak'}, {word: 'Kar', match: 'Soğuk'}, {word: 'Arı', match: 'Bal'},
             {word: 'İnek', match: 'Süt'}, {word: 'Tavuk', match: 'Yumurta'}, {word: 'Fırça', match: 'Boya'},
             {word: 'Kalem', match: 'Kağıt'}, {word: 'Çekiç', match: 'Çivi'}, {word: 'Gemi', match: 'Deniz'}
         ];
     } else {
-        // Synonyms or Antonyms
         const pool = Math.random() > 0.5 ? TR_VOCAB.synonyms : TR_VOCAB.antonyms;
         pairsPool = pool.map(p => ({word: p.word, match: (p as any).synonym || (p as any).antonym}));
     }
 
-    // Shuffle pool
     pairsPool = shuffle(pairsPool);
 
     for(let i = 0; i < worksheetCount; i++) {
@@ -576,14 +582,11 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
         
         const points: any[] = [];
         const colors = getRandomItems(CONNECT_COLORS, count);
-
-        // Prepare shuffle for right column
         const rightSideIndices = shuffle(Array.from({length: count}, (_, k) => k));
 
         selectedPairs.forEach((pair, idx) => {
-            // Left Side (x=0)
-            const leftIcon = EMOJI_MAP[pair.word] || EMOJI_MAP[Object.keys(EMOJI_MAP).find(k => EMOJI_MAP[k] === pair.word) || ''] || pair.word;
-            const rightIcon = EMOJI_MAP[pair.match] || EMOJI_MAP[Object.keys(EMOJI_MAP).find(k => EMOJI_MAP[k] === pair.match) || ''] || pair.match;
+            const leftIcon = EMOJI_MAP[pair.word] || pair.word.charAt(0);
+            const rightIcon = EMOJI_MAP[pair.match] || pair.match.charAt(0);
 
             points.push({ 
                 word: pair.word, 
@@ -591,10 +594,9 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
                 x: 0, 
                 y: idx, 
                 color: colors[idx % colors.length],
-                imagePrompt: leftIcon // In offline mode, this acts as a hint or emoji if available
+                imagePrompt: leftIcon 
             });
             
-            // Right Side (x=1) - randomized position
             points.push({ 
                 word: pair.match, 
                 pairId: idx, 
@@ -607,10 +609,10 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
         
         results.push({
             title: "Kelime Bağlama (Hızlı Mod)",
-            instruction: "Sol sütundaki kelimeleri sağ sütundaki eşleriyle (eş/zıt anlam veya ilişki) çizgilerle birleştir.",
-            pedagogicalNote: "Anlamsal ilişkilendirme, kelime dağarcığı ve görsel eşleştirme becerisi.",
-            imagePrompt: 'Bağlantı', // Cover image
-            gridDim: 1, // Logic handled by column layout in frontend
+            instruction: "Sol sütundaki kelimeleri sağ sütundaki eşleriyle (ilişkili olanlar) birleştir.",
+            pedagogicalNote: "Anlamsal ilişkilendirme ve kelime dağarcığı.",
+            imagePrompt: 'Bağlantı',
+            gridDim: 1,
             points
         });
     }
@@ -634,7 +636,7 @@ export const generateOfflineProfessionConnect = async (options: GeneratorOptions
         results.push({ 
             title: 'Meslek Eşleştirme', 
             instruction: "Meslekleri kullandıkları araçlarla eşleştirin.",
-            pedagogicalNote: "İlişkilendirme ve kelime dağarcığı.",
+            pedagogicalNote: "İlişkilendirme ve sosyal bilgiler.",
             imagePrompt: 'Meslek',
             gridDim: 6, 
             points 
@@ -666,45 +668,31 @@ export const generateOfflineMatchstickSymmetry = async (options: GeneratorOption
 export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOptions): Promise<VisualOddOneOutThemedData[]> => {
     const { itemCount, worksheetCount, topic } = options;
     const results: VisualOddOneOutThemedData[] = [];
-
-    // Ensure varied categories across sheets
     const shuffledCats = shuffle([...ITEM_CATEGORIES]);
 
     for (let i = 0; i < worksheetCount; i++) {
         const rows: VisualOddOneOutThemedData['rows'] = [];
         
         for (let j = 0; j < (itemCount || 5); j++) {
-            const topicStr = topic as string;
-            
-            // If random, pick from shuffled list to ensure variety
-            let mainCatKey = 'animals';
-            if (topicStr && topicStr !== 'Rastgele' && ITEM_CATEGORIES.includes(topicStr.toLowerCase())) {
-                mainCatKey = topicStr.toLowerCase();
-            } else {
-                mainCatKey = shuffledCats[j % shuffledCats.length];
-            }
-            
+            let mainCatKey = shuffledCats[j % shuffledCats.length];
             const oddCatKey = getRandomItems(ITEM_CATEGORIES.filter(c => c !== mainCatKey), 1)[0];
 
             const vocab = TR_VOCAB as any;
             const mainItems: string[] = getRandomItems((vocab[mainCatKey] || []) as string[], 3);
             const oddItem: string | undefined = getRandomItems((vocab[oddCatKey] || []) as string[], 1)[0];
 
-            if (!oddItem || mainItems.length < 3) {
-                j--; 
-                continue;
-            }
+            if (!oddItem || mainItems.length < 3) { j--; continue; }
 
             const items = shuffle([
                 ...mainItems.map(desc => ({ description: desc, imagePrompt: 'Tema', isOdd: false })),
                 { description: oddItem, imagePrompt: 'Tema', isOdd: true }
             ]);
 
-            rows.push({ theme: mainCatKey, items });
+            rows.push({ theme: CATEGORY_NAMES[mainCatKey] || mainCatKey, items });
         }
         
         results.push({
-            title: 'Tematik Farklı Olanı Bul (Hızlı Mod)',
+            title: 'Tematik Farklı Olanı Bul',
             instruction: "Her grupta, konuyla ilgisiz olanı bulun.",
             pedagogicalNote: "Kategorizasyon ve mantıksal çıkarım.",
             imagePrompt: 'Tema',
@@ -719,25 +707,11 @@ export const generateOfflinePunctuationColoring = async (options: GeneratorOptio
     const punctuationSentences = [
         { text: 'Okula gittim', correctMark: '.' }, { text: 'Nereye gidiyorsun', correctMark: '?' },
         { text: 'Eyvah, geç kaldım', correctMark: '!' }, { text: 'Kedi, köpek ve kuş besliyorum', correctMark: '.' },
-        { text: 'Yaşasın tatil', correctMark: '!' }, { text: 'Ödevini yaptın mı', correctMark: '?' },
-        { text: 'Pazardan elma aldım', correctMark: '.' }, { text: 'Ah, elim yandı', correctMark: '!' }
+        { text: 'Yaşasın tatil', correctMark: '!' }, { text: 'Ödevini yaptın mı', correctMark: '?' }
     ];
     
-    const masterPool = shuffle(punctuationSentences);
-
     return Array.from({ length: worksheetCount }, (_, pageIdx) => {
-        const count = itemCount || 4;
-        const start = (pageIdx * count) % masterPool.length;
-        
-        // Loop around if needed
-        let sentences = [];
-        if (start + count <= masterPool.length) {
-            sentences = masterPool.slice(start, start + count);
-        } else {
-            sentences = [...masterPool.slice(start), ...masterPool.slice(0, count - (masterPool.length - start))];
-        }
-
-        sentences = sentences.map((s, i) => ({
+        const sentences = getRandomItems(punctuationSentences, itemCount || 4).map((s, i) => ({
             ...s,
             color: COLORS[i % COLORS.length].css
         }));
@@ -745,7 +719,7 @@ export const generateOfflinePunctuationColoring = async (options: GeneratorOptio
         return {
             title: 'Noktalama Boyama',
             instruction: "Cümlenin sonuna gelecek işarete göre kutuyu boya.",
-            pedagogicalNote: "Dilbilgisi kurallarını görselleştirme.",
+            pedagogicalNote: "Dilbilgisi kuralları.",
             imagePrompt: 'Noktalama',
             sentences
         };
@@ -756,8 +730,8 @@ export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOp
     const { worksheetCount } = options;
     const results: SynonymAntonymColoringData[] = [];
     for(let i=0; i < worksheetCount; i++) {
-        const synonymPair: { word: string; synonym: string } = getRandomItems(TR_VOCAB.synonyms, 1)[0];
-        const antonymPair: { word: string; antonym: string } = getRandomItems(TR_VOCAB.antonyms, 1)[0];
+        const synonymPair = getRandomItems(TR_VOCAB.synonyms, 1)[0];
+        const antonymPair = getRandomItems(TR_VOCAB.antonyms, 1)[0];
         const color1 = getRandomItems(COLORS, 1)[0].css;
         const color2 = getRandomItems(COLORS.filter(c => c.css !== color1), 1)[0].css;
 
@@ -768,15 +742,13 @@ export const generateOfflineSynonymAntonymColoring = async (options: GeneratorOp
 
         const wordsOnImage = shuffle([
             { word: synonymPair.synonym, x: 20, y: 30 },
-            { word: antonymPair.antonym, x: 70, y: 60 },
-            { word: getRandomItems(getWordsForDifficulty('Başlangıç'), 1)[0], x: 40, y: 80 },
-            { word: getRandomItems(getWordsForDifficulty('Başlangıç'), 1)[0], x: 60, y: 10 }
+            { word: antonymPair.antonym, x: 70, y: 60 }
         ]);
 
         results.push({
             title: 'Eş/Zıt Anlamlı Boyama',
-            instruction: "Kelimelerin ilişkisine göre (eş/zıt) boyama yap.",
-            pedagogicalNote: "Kelime anlamı ilişkileri pekiştirme.",
+            instruction: "Kelimelerin ilişkisine göre boyama yap.",
+            pedagogicalNote: "Kelime anlamı ilişkileri.",
             imagePrompt: 'Eş Anlam',
             colorKey,
             wordsOnImage
@@ -790,7 +762,6 @@ export const generateOfflineStarHunt = async (options: GeneratorOptions): Promis
     const size = gridSize || (difficulty === 'Orta' ? 6 : (difficulty === 'Zor' ? 8 : 5));
     
     return Array.from({ length: worksheetCount }, () => {
-        // Use Latin Square to generate a valid non-colliding grid for stars
         const latin = generateLatinSquare(size); 
         const grid: (ShapeType | 'star' | 'question' | null)[][] = latin.map(row => 
             row.map(val => val === 1 ? 'star' : null)
@@ -799,7 +770,7 @@ export const generateOfflineStarHunt = async (options: GeneratorOptions): Promis
         return {
             title: 'Yıldız Avı (Hızlı Mod)',
             instruction: "Her satır ve sütunda 1 yıldız olacak şekilde yerleştirin. Yıldızlar birbirine değmemelidir.",
-            pedagogicalNote: "Mantıksal çıkarım ve kısıtlama yönetimi (Constraint Satisfaction).",
+            pedagogicalNote: "Mantıksal çıkarım ve kısıtlama yönetimi.",
             imagePrompt: 'Yıldız',
             grid: grid,
             targetCount: size
@@ -833,7 +804,7 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
         return {
             title: 'Üçgen Sayma',
             instruction: "Şeklin içinde kaç tane üçgen olduğunu sayın.",
-            pedagogicalNote: "Görsel ayrıştırma, parça-bütün ilişkisi ve sistematik sayma becerisi.",
+            pedagogicalNote: "Görsel ayrıştırma ve sayma.",
             imagePrompt: 'Üçgen',
             figures: [{
                 svgPaths: figure.svgPaths,

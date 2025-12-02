@@ -20,7 +20,7 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                         {!isVisual && <div className="w-8 h-8 flex items-center justify-center bg-zinc-200 dark:bg-zinc-600 rounded-full font-bold mr-4">{index + 1}</div>}
                         <div className={`flex-1 flex justify-around w-full ${isVisual ? 'gap-4' : ''}`}>
                             {(row.items || []).map((item, itemIndex) => (
-                                <div key={itemIndex} className={`px-4 py-2 border border-dashed border-zinc-300 rounded cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/30 flex items-center justify-center ${isVisual ? 'w-full h-24 text-3xl font-black bg-zinc-50' : ''}`}>
+                                <div key={itemIndex} className={`px-4 py-2 border border-dashed border-zinc-300 rounded cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/30 flex items-center justify-center ${isVisual ? 'w-full h-24 text-3xl font-black bg-zinc-50 overflow-hidden tracking-widest leading-none break-all text-center' : ''}`}>
                                     <span className={isVisual ? "text-4xl" : "text-2xl font-mono tracking-wider"}><EditableText value={item} tag="span" /></span>
                                 </div>
                             ))}
@@ -85,8 +85,14 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
                 {(data.leftColumn || []).map((item, i) => (
                     <EditableElement key={i} className="flex items-center gap-4">
                         <span className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-800 font-bold">{item.id}</span>
-                        <div className="p-4 border-2 border-indigo-200 rounded-lg bg-white shadow-sm w-32 h-32 flex items-center justify-center">
-                            <ShapeDisplay shapes={item.shapes} />
+                        <div className="p-2 border-2 border-indigo-200 rounded-lg bg-white shadow-sm w-32 h-32 flex items-center justify-center relative">
+                            {/* Composite Shape Render */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-20 scale-150">
+                                <ShapeDisplay shapes={[item.shapes[0]]} />
+                            </div>
+                            <div className="relative z-10">
+                                <ShapeDisplay shapes={item.shapes.slice(1)} />
+                            </div>
                         </div>
                         <div className="w-4 h-4 bg-indigo-500 rounded-full"></div>
                     </EditableElement>
@@ -96,8 +102,13 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
                 {(data.rightColumn || []).map((item, i) => (
                     <EditableElement key={i} className="flex items-center gap-4 flex-row-reverse">
                         <span className="w-8 h-8 flex items-center justify-center rounded-full bg-rose-100 text-rose-800 font-bold">{item.id}</span>
-                        <div className="p-4 border-2 border-rose-200 rounded-lg bg-white shadow-sm w-32 h-32 flex items-center justify-center">
-                            <ShapeDisplay shapes={item.shapes} />
+                        <div className="p-2 border-2 border-rose-200 rounded-lg bg-white shadow-sm w-32 h-32 flex items-center justify-center relative">
+                             <div className="absolute inset-0 flex items-center justify-center opacity-20 scale-150">
+                                <ShapeDisplay shapes={[item.shapes[0]]} />
+                            </div>
+                            <div className="relative z-10">
+                                <ShapeDisplay shapes={item.shapes.slice(1)} />
+                            </div>
                         </div>
                          <div className="w-4 h-4 bg-rose-500 rounded-full"></div>
                     </EditableElement>
@@ -134,25 +145,26 @@ export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> =
 export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
     const gridDim = data.gridDim;
     // Increased size for better printing/drawing experience
-    const cellSize = 35;
+    const cellSize = 30;
     const totalSize = gridDim * cellSize;
 
     const renderGrid = (lines: [number, number][][] | null, isTarget: boolean) => (
         <div className="flex flex-col items-center">
             <span className="mb-2 font-semibold text-zinc-500 text-xs uppercase tracking-wider">{isTarget ? "Referans" : "Çizim Alanı"}</span>
             <svg width={totalSize} height={totalSize} className={`bg-white border-2 ${isTarget ? 'border-zinc-800' : 'border-zinc-400'}`}>
+                {/* Technical Grid Pattern */}
                 <defs>
-                    <pattern id="smallGrid" width={cellSize} height={cellSize} patternUnits="userSpaceOnUse">
-                        <path d={`M ${cellSize} 0 L 0 0 0 ${cellSize}`} fill="none" stroke={isTarget ? "#e5e7eb" : "#d1d5db"} strokeWidth="1"/>
+                    <pattern id={`gridPattern-${isTarget}`} width={cellSize} height={cellSize} patternUnits="userSpaceOnUse">
+                        <path d={`M ${cellSize} 0 L 0 0 0 ${cellSize}`} fill="none" stroke={isTarget ? "#e5e7eb" : "#d4d4d8"} strokeWidth="1"/>
                     </pattern>
                 </defs>
-                <rect width="100%" height="100%" fill="url(#smallGrid)" />
+                <rect width="100%" height="100%" fill={`url(#gridPattern-${isTarget})`} />
                 
                 {/* Dots at intersections */}
                 {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
                      const r = Math.floor(i / (gridDim + 1));
                      const c = i % (gridDim + 1);
-                     return <circle key={i} cx={c*cellSize} cy={r*cellSize} r="2.5" className="fill-zinc-400" />
+                     return <circle key={i} cx={c*cellSize} cy={r*cellSize} r="2" className={isTarget ? "fill-zinc-400" : "fill-zinc-300"} />
                 })}
 
                 {/* Lines */}
@@ -164,8 +176,9 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
                             x1={line[0][0] * cellSize} y1={line[0][1] * cellSize}
                             x2={line[1][0] * cellSize} y2={line[1][1] * cellSize}
                             className="stroke-indigo-600"
-                            strokeWidth="4"
+                            strokeWidth="3"
                             strokeLinecap="round"
+                            strokeLinejoin="round"
                         />
                     )
                 ))}
@@ -179,7 +192,7 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
             <div className="space-y-12">
                 {(data.drawings || []).map((drawing, index) => (
                     // ADDED print:flex-row
-                    <EditableElement key={index} className="flex flex-col md:flex-row print:flex-row gap-16 items-center justify-center p-8 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl break-inside-avoid border border-zinc-200">
+                    <EditableElement key={index} className="flex flex-col md:flex-row print:flex-row gap-12 items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl break-inside-avoid border border-zinc-200 shadow-sm">
                         {renderGrid(drawing.lines, true)}
                         <i className="fa-solid fa-arrow-right text-3xl text-zinc-300 hidden md:block print:block"></i>
                         {renderGrid(null, false)}
@@ -228,7 +241,7 @@ export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }
 export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data }) => {
     const { grid: { rows, cols }, targetPattern, shapes } = data;
     const activeColor = shapes[0]?.color || '#3B82F6';
-    const cellDisplaySize = 35; // Bigger cells
+    const cellDisplaySize = 35; // Bigger cells for better visibility
 
     return (
         <div>
@@ -279,15 +292,22 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
              {data.rows.map((row, i) => (
                  <EditableElement key={i} className="flex justify-around p-4 border rounded-lg bg-white break-inside-avoid shadow-sm items-center">
                      <div className="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-400 mr-2">{i+1}</div>
-                     {row.items.map((item, j) => (
-                         <div key={j} className="flex flex-col gap-2 items-center cursor-pointer hover:bg-zinc-50 p-4 rounded border border-transparent hover:border-indigo-200 transition-all">
-                             {/* Render rotated segment display or improved shape */}
-                             <div style={{transform: `rotate(${item.rotation || 0}deg)`}} className="transition-transform">
-                                <SegmentDisplay segments={item.segments} />
+                     {row.items.map((item, j) => {
+                         const rotation = item.rotation || 0;
+                         // Check if it's mirrored (odd item logic in generator)
+                         // For now generator handles logic by modifying segments, but if we pass explicit flag:
+                         // const isMirrored = item.isMirrored; 
+                         
+                         return (
+                             <div key={j} className="flex flex-col gap-2 items-center cursor-pointer hover:bg-zinc-50 p-4 rounded border border-transparent hover:border-indigo-200 transition-all">
+                                 {/* Render rotated segment display or improved shape */}
+                                 <div style={{transform: `rotate(${rotation}deg)`}} className="transition-transform origin-center">
+                                    <SegmentDisplay segments={item.segments} />
+                                 </div>
+                                 <div className="w-4 h-4 border-2 border-zinc-300 rounded-full mt-2"></div>
                              </div>
-                             <div className="w-4 h-4 border-2 border-zinc-300 rounded-full mt-2"></div>
-                         </div>
-                     ))}
+                         )
+                     })}
                  </EditableElement>
              ))}
         </div>
