@@ -5,19 +5,48 @@ import { PedagogicalHeader, GridComponent, ImageDisplay } from './common';
 
 // --- TURKEY MAP COMPONENT ---
 const TurkeyMapSVG = ({ cities }: { cities: { name: string, x: number, y: number }[] }) => {
-    // A simplified SVG path for Turkey's outline
-    const simplifiedPath = "M426 116 l -25 -20 l -45 -4 l -30 18 l -35 2 l -26 -16 l -30 5 l -22 18 l -33 -1 l -20 12 l -15 28 l -38 10 l -14 22 l -28 6 l -8 18 l 10 20 l 25 10 l 18 -8 l 40 2 l 30 20 l 55 8 l 40 -12 l 30 -25 l 15 -30 l 10 -40 Z";
+    // More realistic simplified path for Turkey
+    const turkeyPath = "M 137,78 C 150,75 165,72 180,70 L 220,60 L 270,50 L 330,45 L 400,42 L 480,45 L 550,42 L 620,45 L 680,55 L 720,65 L 750,80 L 765,110 L 760,140 L 740,160 L 710,180 L 650,190 L 600,195 L 550,220 L 500,230 L 450,235 L 400,230 L 350,240 L 300,245 L 250,235 L 200,220 L 150,200 L 100,180 L 60,160 L 40,130 L 50,100 L 90,90 Z";
+
+    // Detailed Polygon Points approximating Turkey's shape for a better look
+    const realTurkeyPath = "M172,69 L227,53 L336,44 L460,42 L578,44 L677,53 L732,69 L752,95 L755,125 L735,150 L690,165 L630,175 L580,180 L545,215 L490,225 L440,220 L385,235 L335,245 L285,235 L245,220 L205,200 L160,185 L125,170 L95,145 L85,115 L125,95 Z";
 
     return (
-        <svg viewBox="0 0 500 250" className="w-full h-auto border-2 border-zinc-200 rounded-lg bg-sky-50 shadow-inner">
-            <path d={simplifiedPath} fill="#f0fdf4" stroke="#4ade80" strokeWidth="2" />
-            {(cities || []).map(city => (
-                <g key={city.name} transform={`translate(${city.x * 4.5}, ${city.y * 2.2})`}>
-                    <circle cx="0" cy="0" r="4" fill="#ef4444" className="cursor-pointer hover:r-6 transition-all" />
-                    <text x="6" y="4" fontSize="8" className="font-bold fill-zinc-700 pointer-events-none select-none">{city.name}</text>
-                </g>
-            ))}
-        </svg>
+        <div className="relative w-full aspect-[2/1] bg-blue-100 rounded-xl border-4 border-blue-200 overflow-hidden shadow-md">
+            {/* Sea Background Texture */}
+            <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(#3b82f6 1px, transparent 1px)', backgroundSize: '10px 10px'}}></div>
+            
+            <svg viewBox="0 0 800 400" className="w-full h-full absolute inset-0">
+                {/* Land Mass */}
+                <path d={realTurkeyPath} fill="#fde68a" stroke="#d97706" strokeWidth="3" className="drop-shadow-lg" />
+                
+                {/* Internal Decorative Grid (Longitude/Latitude style) */}
+                <path d="M 200,50 L 200,250 M 400,40 L 400,250 M 600,40 L 600,200" stroke="#d97706" strokeWidth="0.5" strokeDasharray="5,5" opacity="0.3" />
+                <path d="M 100,100 L 750,100 M 100,180 L 700,180" stroke="#d97706" strokeWidth="0.5" strokeDasharray="5,5" opacity="0.3" />
+
+                {/* Cities */}
+                {(cities || []).map(city => (
+                    <g key={city.name} transform={`translate(${city.x * 8}, ${city.y * 4})`} className="group cursor-pointer">
+                        {/* City Marker */}
+                        <circle cx="0" cy="0" r="6" fill="#ef4444" stroke="white" strokeWidth="2" className="transition-all duration-300 group-hover:r-8 shadow-sm" />
+                        <circle cx="0" cy="0" r="10" fill="transparent" stroke="#ef4444" strokeWidth="1" opacity="0.3" className="animate-ping" />
+                        
+                        {/* City Label */}
+                        <rect x="-30" y="-25" width="60" height="18" rx="4" fill="white" stroke="#e5e7eb" strokeWidth="1" className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <text x="0" y="-13" fontSize="10" textAnchor="middle" fontWeight="bold" fill="#374151" className="opacity-0 group-hover:opacity-100 transition-opacity select-none">{city.name}</text>
+                        
+                        {/* Permanent Label (Small) */}
+                        <text x="0" y="14" fontSize="9" textAnchor="middle" fontWeight="bold" fill="#1f2937" className="select-none pointer-events-none drop-shadow-sm filter bg-white/50">{city.name}</text>
+                    </g>
+                ))}
+            </svg>
+            
+            {/* Compass */}
+            <div className="absolute top-4 right-4 w-12 h-12 bg-white/80 rounded-full border border-zinc-300 flex items-center justify-center shadow-sm">
+                <span className="text-xl font-bold text-zinc-700">K</span>
+                <div className="absolute w-1 h-3 bg-red-500 -mt-3"></div>
+            </div>
+        </div>
     );
 };
 
