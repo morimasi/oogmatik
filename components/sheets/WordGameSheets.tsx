@@ -103,14 +103,15 @@ export const WordSearchSheet: React.FC<SheetProps<WordSearchData | WordSearchWit
 export const SynonymSearchAndStorySheet: React.FC<SheetProps<SynonymSearchAndStoryData>> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.prompt} note={data.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        {/* ADDED print:grid-cols-2 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8 items-start">
             <EditableElement className="bg-white p-2 rounded-xl shadow-lg border-2 border-zinc-100">
                 <GridComponent grid={data.grid} cellClassName="w-9 h-9 text-lg" />
             </EditableElement>
             
             <div className="space-y-6">
                 <EditableElement className="bg-indigo-50 p-5 rounded-2xl border border-indigo-100">
-                    <h4 className="font-bold mb-3 text-indigo-700 border-b border-indigo-200 pb-1">Eş Anlam Eşleştirmesi</h4>
+                    <h4 className="font-bold mb-3 text-indigo-700 border-b border-indigo-200 pb-1">Eş Anlam Eşleştirme</h4>
                     <ul className="space-y-2">
                     {(data.wordTable || []).map((pair, index) => (
                         <li key={index} className="flex items-center justify-between p-2 bg-white rounded border border-indigo-50 shadow-sm">
@@ -282,7 +283,8 @@ export const CrosswordSheet: React.FC<SheetProps<CrosswordData>> = ({ data }) =>
         <div>
             <PedagogicalHeader title={title} instruction={instruction || prompt} note={pedagogicalNote} data={data} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mt-8">
+            {/* ADDED print:grid-cols-2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-2 gap-12 items-start mt-8">
                 {/* The Grid */}
                 <EditableElement className="w-full max-w-lg mx-auto lg:mx-0 bg-black p-2 shadow-2xl rounded-lg">
                     <div

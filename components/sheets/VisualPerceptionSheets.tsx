@@ -638,7 +638,7 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
                         ))}
                     </svg>
                     <div className="flex items-center gap-4 p-4 bg-zinc-100 border-2 border-black rounded-xl w-full">
-                        <span className="font-bold text-black text-lg">Toplam {fig.targetShape === 'triangle' ? 'Üçgen' : 'Şekil'}:</span>
+                        <span className="font-bold text-black text-lg">Toplam {fig.targetShape === 'triangle' ? 'Üçgen' : 'Şekil'} Sayısı:</span>
                         <div className="w-20 h-10 border-b-4 border-black border-dashed"></div>
                     </div>
                 </EditableElement>

@@ -2,7 +2,8 @@
 import React from 'react';
 import { 
     WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
-    ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData
+    ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData,
+    AttentionDevelopmentData, AttentionFocusData
 } from '../../types';
 import { ImageDisplay, PedagogicalHeader, Shape } from './common';
 import { EditableElement, EditableText } from '../Editable';
@@ -493,3 +494,99 @@ export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }
         </div>
     </StandardSheet>
 );
+
+export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentData }> = ({ data }) => {
+    return (
+        <div>
+            <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
+            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
+                {data.puzzles.map((puzzle, i) => (
+                    <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 shadow-sm break-inside-avoid flex flex-col h-full">
+                        {/* Riddle Text */}
+                        <div className="bg-zinc-100 dark:bg-zinc-700/50 p-4 rounded-lg mb-4 text-center border border-zinc-200 dark:border-zinc-600">
+                            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-100"><EditableText value={puzzle.riddle} tag="span" /></p>
+                        </div>
+
+                        {/* Boxes Area */}
+                        <div className="flex gap-4 justify-center mb-6 flex-1 items-center">
+                            {puzzle.boxes.map((box, bIdx) => (
+                                <div key={bIdx} className="border-2 border-zinc-800 dark:border-zinc-400 p-2 min-w-[80px] text-center bg-white dark:bg-zinc-900">
+                                    {box.label && <div className="text-xs text-zinc-400 mb-1 uppercase tracking-wider">{box.label}</div>}
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        {box.numbers.map((num, nIdx) => (
+                                            <span key={nIdx} className="text-xl font-bold font-mono px-1">{num}{nIdx < box.numbers.length-1 ? ',' : ''}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Options */}
+                        <div className="border-t pt-4 flex justify-around">
+                            {puzzle.options.map((opt, oIdx) => (
+                                <div key={oIdx} className="flex flex-col items-center gap-1 cursor-pointer group">
+                                    <div className="w-8 h-8 rounded-full border-2 border-zinc-300 group-hover:border-indigo-500 group-hover:bg-indigo-50 flex items-center justify-center font-bold text-sm text-zinc-500 group-hover:text-indigo-600 transition-all">
+                                        {String.fromCharCode(97 + oIdx)}
+                                    </div>
+                                    <span className="font-bold text-lg">{opt}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </EditableElement>
+                ))}
+            </div>
+            {/* Answer Key Strip (For Print) */}
+            <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
+                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
+            </div>
+        </div>
+    );
+};
+
+export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ data }) => {
+    return (
+        <div>
+            <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
+            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
+                {data.puzzles.map((puzzle, i) => (
+                    <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 shadow-md break-inside-avoid flex flex-col h-full relative">
+                        {/* Riddle Box */}
+                        <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg mb-4 text-center border border-amber-200 dark:border-amber-800">
+                            <p className="text-lg font-medium text-amber-900 dark:text-amber-100 font-dyslexic"><EditableText value={puzzle.riddle} tag="span" /></p>
+                        </div>
+
+                        {/* List Boxes */}
+                        <div className="flex gap-4 justify-center mb-6 flex-1 items-stretch">
+                            {puzzle.boxes.map((box, bIdx) => (
+                                <div key={bIdx} className="border-2 border-zinc-800 dark:border-zinc-300 p-3 min-w-[100px] text-center bg-white dark:bg-zinc-900 flex flex-col">
+                                    {box.title && <div className="text-xs text-zinc-500 mb-2 uppercase tracking-wider font-bold border-b pb-1">{box.title}</div>}
+                                    <ul className="flex flex-col gap-1 text-base font-bold text-zinc-800 dark:text-zinc-200">
+                                        {box.items.map((item, nIdx) => (
+                                            <li key={nIdx} className="py-1"><EditableText value={item} tag="span" /></li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Options */}
+                        <div className="border-t border-zinc-200 dark:border-zinc-700 pt-4 flex flex-wrap justify-center gap-4">
+                            {puzzle.options.map((opt, oIdx) => (
+                                <div key={oIdx} className="flex items-center gap-2 cursor-pointer group bg-zinc-50 dark:bg-zinc-700/50 px-3 py-1 rounded-full border border-transparent hover:border-indigo-300 transition-all">
+                                    <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-600 group-hover:bg-indigo-500 group-hover:text-white flex items-center justify-center font-bold text-xs text-zinc-600 dark:text-zinc-300 transition-colors">
+                                        {String.fromCharCode(97 + oIdx)}
+                                    </div>
+                                    <span className="font-bold text-sm">{opt}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </EditableElement>
+                ))}
+            </div>
+            {/* Answer Key Strip (For Print) */}
+            <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
+                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
+            </div>
+        </div>
+    );
+};
