@@ -106,7 +106,7 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             mainIdea: 'Dikkatli okuma, detayları fark etme ve çıkarım yapma.', 
             setting: chosenValues.place,
             pedagogicalNote: `${difficulty} seviyesinde okuma anlama. 5N1K soruları ve çıkarım yapma becerileri desteklenmektedir.`,
-            imagePrompt: `Children's book illustration of ${chosenValues.character} in ${chosenValues.place}, finding a ${chosenValues.object}, colorful vector style.`
+            imagePrompt: `${chosenValues.character} in ${chosenValues.place} with a ${chosenValues.object}`
         });
     }
     return results;
@@ -122,7 +122,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
         // Define theme-based hints for better context if a topic is provided
         let specificHints = null;
         let themeTitle = "Hikaye Atölyesi";
-        let imagePrompt = `Creative writing inspiration, open book with elements flying out, magical style.`;
+        let imagePrompt = `Creative writing inspiration`;
 
         if (topic === 'space') {
             specificHints = {
@@ -132,7 +132,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Yakıt bitti', 'İletişim koptu', 'Meteor yaklaşıyor'], 1)[0]
             };
             themeTitle = "Uzay Macerası";
-            imagePrompt = "Astronaut in space, colorful planets, rocket ship, cartoon vector style.";
+            imagePrompt = "Astronaut in space rocket ship";
         } else if (topic === 'animals') {
             specificHints = {
                 who: getRandomItems(['Aslan Kral', 'Minik Tavşan', 'Bilge Baykuş'], 1)[0],
@@ -141,7 +141,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Yuvasını kaybetti', 'Karnı acıktı', 'Arkadaşını bulamadı'], 1)[0]
             };
             themeTitle = "Hayvanlar Alemi";
-            imagePrompt = "Cute forest animals, lion, rabbit, owl in a green forest, bright colors.";
+            imagePrompt = "Forest animals lion rabbit owl";
         } else if (topic === 'school') {
             specificHints = {
                 who: getRandomItems(['Yeni Öğrenci', 'Öğretmen', 'Yaramaz Can'], 1)[0],
@@ -150,7 +150,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Ödevini unuttu', 'Topu patladı', 'Geç kaldı'], 1)[0]
             };
             themeTitle = "Okul Hikayesi";
-            imagePrompt = "School building, happy students, classroom items, colorful vector illustration.";
+            imagePrompt = "School classroom students";
         } else if (topic === 'nature') {
             specificHints = {
                 who: getRandomItems(['Doğa Kaşifi', 'Kampçı', 'Dağcı Ali'], 1)[0],
@@ -159,7 +159,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Çadırı uçtu', 'Yolu kaybetti', 'Ayı gördü'], 1)[0]
             };
             themeTitle = "Doğa Gezisi";
-            imagePrompt = "Nature camping scene, tent, mountains, trees, campfire, flat design.";
+            imagePrompt = "Camping tent nature mountains";
         } else if (topic === 'fantasy') {
             specificHints = {
                 who: getRandomItems(['Prenses Elif', 'Cesur Şövalye', 'Küçük Ejderha'], 1)[0],
@@ -168,7 +168,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Asası kırıldı', 'Ejderha uyandı', 'Büyü bozuldu'], 1)[0]
             };
             themeTitle = "Masal Diyarı";
-            imagePrompt = "Fantasy castle, dragon, magic sparkles, princess, fairytale style.";
+            imagePrompt = "Fantasy castle dragon princess";
         }
 
         const hints = specificHints || {
@@ -218,7 +218,7 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
             })),
             questions: [], // Deprecated field kept for type compatibility if needed
             pedagogicalNote: "Bilinmeyen kelimelerin anlamını bağlam ipuçlarını kullanarak tahmin etme stratejisi.",
-            imagePrompt: `Illustration of ${chosenValues.character} looking at a dictionary or magnifying glass, educational style.`
+            imagePrompt: `Character reading dictionary magnifying glass`
         };
     });
 };
@@ -240,7 +240,7 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
              },
              analysisQuestions: [], // Deprecated
              pedagogicalNote: "Hikaye unsurlarını ayrıştırma, analiz etme ve özetleme becerisi.",
-             imagePrompt: `Story map concept, path through a landscape representing beginning, middle, and end.`
+             imagePrompt: `Story map path journey`
          };
     });
 };
@@ -295,12 +295,12 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
                 id: crypto.randomUUID(), 
                 description: step.desc,
                 order: step.order,
-                // Ensures image prompt is present even in offline mode for Pollinations
-                imagePrompt: `${step.desc}, children's book illustration, clean vector style, colorful`, 
+                // Crucial fix: Use the step description as the image prompt
+                imagePrompt: `${step.desc}`, 
                 imageBase64: '' 
             }))),
             transitionWords: ['İlk önce', 'Sonra', 'Daha sonra', 'Bunun üzerine', 'En sonunda'],
-            imagePrompt: 'Sequence cards illustration.'
+            imagePrompt: 'Story sequence timeline'
         };
     });
 };
@@ -354,7 +354,7 @@ export const generateOfflineMissingParts = async (options: GeneratorOptions): Pr
             prompt: 'Hikayedeki boşlukları kutudaki uygun kelimelerle tamamla.',
             instruction: 'Metnin anlam bütünlüğüne dikkat et.',
             pedagogicalNote: 'Sözcük dağarcığı, bağlamsal ipuçlarını kullanma ve okuduğunu anlama.',
-            imagePrompt: 'Missing puzzle piece concept.',
+            imagePrompt: 'Puzzle piece missing',
             storyWithBlanks: segments,
             wordBank: shuffle([...answers, 'yanlış', 'kelime']), // Add distractors
             answers,
@@ -382,7 +382,7 @@ export const generateOfflineProverbFillInTheBlank = async (o: GeneratorOptions):
             meaning: 'Eksik kelimeleri bularak atasözlerini tamamla.',
             usagePrompt: 'Bir tanesini seç ve resmini çiz.',
             pedagogicalNote: "Kültürel bellek ve cümle tamamlama.",
-            imagePrompt: "Atasözü görseli"
+            imagePrompt: "Proverb wisdom old parchment"
         };
     });
 };
@@ -401,7 +401,7 @@ export const generateOfflineProverbSayingSort = async (options: GeneratorOptions
             prompt: 'Söyleyeni belli olanlara Özdeyiş, anonim olanlara Atasözü denir. Sınıflandır.',
             items,
             pedagogicalNote: "Bilgi kaynağı analizi.",
-            imagePrompt: "Sınıflandırma görseli"
+            imagePrompt: "Sorting hat or categorization"
         };
     });
 };
@@ -417,7 +417,7 @@ export const generateOfflineProverbWordChain = async (options: GeneratorOptions)
             wordCloud: words,
             solutions: [solution],
             pedagogicalNote: "Sözdizimi (Sentaks) becerisi.",
-            imagePrompt: "Zincir görseli"
+            imagePrompt: "Word chain link"
         };
     });
 };
@@ -441,7 +441,7 @@ export const generateOfflineProverbSearch = async (options: GeneratorOptions): P
             proverb,
             meaning: 'Bulduğun kelimeleri sıraya dizerek atasözünü yaz.',
             pedagogicalNote: "Görsel tarama ve bütünleme.",
-            imagePrompt: "Bulmaca görseli"
+            imagePrompt: "Hidden words puzzle"
         });
     }
     return results;

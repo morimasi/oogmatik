@@ -27,7 +27,7 @@ interface ImageDisplayProps {
     className?: string;
 }
 
-// Enhanced ImageDisplay with Free AI Generation (Pollinations.ai)
+// Enhanced ImageDisplay with Context-Aware AI Generation
 export const ImageDisplay = React.memo(({ base64, description, prompt, className = "w-full h-32" }: ImageDisplayProps) => {
     let safeDesc = '';
     try { if (description) safeDesc = String(description); } catch (e) { safeDesc = ''; }
@@ -49,15 +49,26 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                     return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" />;
                 }
 
-                // 2. Priority: AI Generation (Pollinations.ai) - Free & Quota Friendly
-                // If a specific prompt is provided (usually English from Gemini or Offline Generator)
-                if (prompt && prompt.length > 2) {
+                // 2. Priority: AI Generation (Pollinations.ai)
+                // Fix: Combine prompt AND description to ensure relevance.
+                // If prompt is generic (like "Resim", "Image"), ignore it and use description.
+                let contentForPrompt = prompt || '';
+                
+                // If prompt is too short or generic, prioritize the description text
+                if (!contentForPrompt || contentForPrompt.length < 4 || contentForPrompt === 'Resim' || contentForPrompt === 'Nesne') {
+                    contentForPrompt = safeDesc;
+                } else if (safeDesc && !contentForPrompt.includes(safeDesc)) {
+                    // Combine them for better context: "running child" (prompt) + "Ali okula koşuyor" (desc)
+                    contentForPrompt = `${contentForPrompt} ${safeDesc}`;
+                }
+
+                if (contentForPrompt && contentForPrompt.length > 1) {
                     // We append styling keywords to ensure consistent, child-friendly vector art style
-                    // encodeURIComponent handles special chars including Turkish
-                    const finalPrompt = `${prompt} children's book illustration, clean vector art, white background, high contrast, colorful, flat design`;
+                    // Using 'children's book illustration' style generally yields safe and relevant results
+                    const finalPrompt = `${contentForPrompt}, educational vector art, flat design, white background, high contrast, colorful, cute style, clear lines`;
                     const encodedPrompt = encodeURIComponent(finalPrompt);
                     
-                    // Pollinations URL construction
+                    // Pollinations URL construction with seed for consistency
                     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
                     
                     return (
@@ -69,7 +80,7 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                             onError={(e) => {
                                 // Fallback to emoji if image fails to load
                                 e.currentTarget.style.display = 'none';
-                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden');
                             }}
                         />
                     );
@@ -79,13 +90,13 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 const emojiIcon = findEmojiForDescription(safeDesc);
                 const initial = safeDesc.charAt(0).toUpperCase();
                 return (
-                    <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-100 ${prompt ? 'hidden' : ''}`}>
+                    <div className={`fallback-icon rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-100`}>
                         {emojiIcon ? (
                             <div className="text-5xl">{emojiIcon}</div>
                         ) : (
                             <div className="flex flex-col items-center">
                                 <span className="text-4xl font-black opacity-80 text-black">{initial}</span>
-                                <span className="text-[10px] font-bold uppercase text-black">{safeDesc}</span>
+                                <span className="text-[10px] font-bold uppercase text-black">{safeDesc.substring(0, 10)}</span>
                             </div>
                         )}
                     </div>
@@ -93,18 +104,9 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
             })()}
             
             {/* Immediate Fallback Element (displayed if image errors or no prompt) */}
-            {(!prompt && !base64) && (
-                 <div className={`rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-100`}>
-                    {findEmojiForDescription(safeDesc) ? (
-                        <div className="text-5xl">{findEmojiForDescription(safeDesc)}</div>
-                    ) : (
-                        <div className="flex flex-col items-center">
-                            <span className="text-4xl font-black opacity-80 text-black">{safeDesc.charAt(0).toUpperCase()}</span>
-                            <span className="text-[10px] font-bold uppercase text-black">{safeDesc}</span>
-                        </div>
-                    )}
-                </div>
-            )}
+            <div className="fallback-icon hidden absolute inset-0 flex items-center justify-center bg-zinc-50">
+                 <span className="text-2xl opacity-50">{safeDesc ? safeDesc.charAt(0).toUpperCase() : '?'}</span>
+            </div>
         </div>
     );
 });

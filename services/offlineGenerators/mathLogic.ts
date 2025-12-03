@@ -178,7 +178,7 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
             title: 'Dört İşlem Alıştırmaları',
             instruction: 'Aşağıdaki işlemleri dikkatlice yapın.',
             pedagogicalNote: 'İşlem akıcılığı, eldeli/eldesiz toplama ve onluk bozma becerilerini geliştirir.',
-            imagePrompt: 'İşlem',
+            imagePrompt: 'Arithmetic Operations',
             isVertical: true,
             operations: operationsList
         });
@@ -192,10 +192,10 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
     const names = ["Ali", "Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Mert", "Duru", "Kerem", "Defne"];
     const items = ["elma", "kalem", "ceviz", "kitap", "bilye", "lira", "şeker", "kurabiye", "balon", "top"];
     const logicTemplates = [
-        (n1: number, n2: number, name: string) => ({ text: `${name} ${n1} yaşındadır. Babasının yaşı, ${name}'nin yaşının 3 katından 4 fazladır. Babası kaç yaşındadır?`, ans: (n1 * 3) + 4, hint: "Çarpma ve Toplama" }),
-        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}'nin ${n1} lirası vardı. Tanesi ${n2} lira olan ${item}lardan 2 tane aldı. Geriye kaç lirası kaldı?`, ans: n1 - (n2 * 2), hint: "Çarpma ve Çıkarma" }),
-        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}, ${n1 * n2} tane ${item}sını ${n2} arkadaşına eşit olarak paylaştırdı. Her birine kaç ${item} düşer?`, ans: n1, hint: "Bölme" }),
-        (n1: number, n2: number, name: string, item: string) => ({ text: `${name} sabah ${n1} tane, öğleden sonra ${n2} tane ${item} topladı. Akşam ${Math.floor(n1/2)} tanesini yedi. Geriye kaç ${item} kaldı?`, ans: n1 + n2 - Math.floor(n1/2), hint: "Toplama ve Çıkarma" })
+        (n1: number, n2: number, name: string) => ({ text: `${name} ${n1} yaşındadır. Babasının yaşı, ${name}'nin yaşının 3 katından 4 fazladır. Babası kaç yaşındadır?`, ans: (n1 * 3) + 4, hint: "Çarpma ve Toplama", keywords: `father age ${name}` }),
+        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}'nin ${n1} lirası vardı. Tanesi ${n2} lira olan ${item}lardan 2 tane aldı. Geriye kaç lirası kaldı?`, ans: n1 - (n2 * 2), hint: "Çarpma ve Çıkarma", keywords: `money buying ${item}` }),
+        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}, ${n1 * n2} tane ${item}sını ${n2} arkadaşına eşit olarak paylaştırdı. Her birine kaç ${item} düşer?`, ans: n1, hint: "Bölme", keywords: `sharing ${item} friends` }),
+        (n1: number, n2: number, name: string, item: string) => ({ text: `${name} sabah ${n1} tane, öğleden sonra ${n2} tane ${item} topladı. Akşam ${Math.floor(n1/2)} tanesini yedi. Geriye kaç ${item} kaldı?`, ans: n1 + n2 - Math.floor(n1/2), hint: "Toplama ve Çıkarma", keywords: `collecting ${item}` })
     ];
 
     for(let i=0; i<worksheetCount; i++) {
@@ -212,13 +212,19 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
             const n2 = getRandomInt(2, 9); 
             const validN1 = (j % logicTemplates.length === 1) ? Math.max(n1, (n2 * 2) + 10) : n1;
             const problemData = selectedFunc(validN1, n2, name, item);
-            problems.push({ text: problemData.text, solution: `${problemData.ans}`, operationHint: "", imagePrompt: j % 2 === 0 ? 'Düşünen Çocuk' : 'Matematik Problemi' });
+            problems.push({ 
+                text: problemData.text, 
+                solution: `${problemData.ans}`, 
+                operationHint: "", 
+                // Context aware image prompt from template
+                imagePrompt: problemData.keywords
+            });
         }
         results.push({
             title: 'Problem Çözme Stratejileri',
             instruction: 'Problemleri 4 adımda (Anlama, Planlama, Çözme, Kontrol) çözün.',
             pedagogicalNote: 'Polya\'nın problem çözme basamaklarını kullanarak analitik düşünme becerisi.',
-            imagePrompt: 'Strateji',
+            imagePrompt: 'Problem Solving Student',
             problems
         });
     }
@@ -280,7 +286,13 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
             }
             return { problem: problemStr, question, answer: answer.toString() };
         });
-        results.push({ title: `Matematik Bulmacası (${difficulty})`, instruction: "Sembollerin sayısal değerlerini bulun ve işlemi çözün.", pedagogicalNote: "Cebirsel düşünme ve sembolik işlem yapma becerisi.", imagePrompt: 'Bulmaca', puzzles });
+        results.push({ 
+            title: `Matematik Bulmacası (${difficulty})`, 
+            instruction: "Sembollerin sayısal değerlerini bulun ve işlemi çözün.", 
+            pedagogicalNote: "Cebirsel düşünme ve sembolik işlem yapma becerisi.", 
+            imagePrompt: 'Math Symbols Puzzle', 
+            puzzles 
+        });
     }
     return results;
 };
@@ -310,7 +322,7 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
             }
             return { sequence: `${sequence.slice(0, 5).join(', ')}, ?`, answer: answer.toString() };
         });
-        results.push({ title: 'Sayı Örüntüsü (Hızlı Mod)', instruction: "Örüntü kuralını bul ve '?' yerine gelecek sayıyı yaz.", pedagogicalNote: "Matematiksel tümevarım ve ilişkilendirme becerisi.", imagePrompt: 'Örüntü', patterns });
+        results.push({ title: 'Sayı Örüntüsü (Hızlı Mod)', instruction: "Örüntü kuralını bul ve '?' yerine gelecek sayıyı yaz.", pedagogicalNote: "Matematiksel tümevarım ve ilişkilendirme becerisi.", imagePrompt: 'Number Pattern Sequence', patterns });
     }
     return results;
 };
@@ -349,7 +361,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions) => {
             }
             return { size, numbers: maskedGrid, constraints, units };
         });
-        results.push({ title: `Futoşiki (${difficulty})`, instruction: "Her satır ve sütunda öğeler bir kez bulunmalı. > ve < işaretlerine dikkat et.", pedagogicalNote: "Mantıksal çıkarım ve sayısal ilişki analizi.", imagePrompt: 'Mantık', puzzles });
+        results.push({ title: `Futoşiki (${difficulty})`, instruction: "Her satır ve sütunda öğeler bir kez bulunmalı. > ve < işaretlerine dikkat et.", pedagogicalNote: "Mantıksal çıkarım ve sayısal ilişki analizi.", imagePrompt: 'Logic Grid Puzzle', puzzles });
     }
     return results;
 }
@@ -389,7 +401,7 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions) =>
         let instr = "Piramidin tepesine doğru toplama yaparak boşlukları doldur.";
         if (op === 'multiplication') instr = "Altındaki iki sayıyı çarpıp üstteki kutuya yaz.";
         if (op === 'division') instr = "Üstteki sayı, alttaki iki sayının çarpımıdır (veya bölme ilişkisi kur).";
-        results.push({ title: `İşlem Piramidi (${difficulty})`, instruction: instr, pedagogicalNote: "İşlem akıcılığı ve parça-bütün ilişkisi.", imagePrompt: 'Piramit', pyramids });
+        results.push({ title: `İşlem Piramidi (${difficulty})`, instruction: instr, pedagogicalNote: "İşlem akıcılığı ve parça-bütün ilişkisi.", imagePrompt: 'Number Pyramid', pyramids });
     }
     return results;
 }
@@ -401,7 +413,7 @@ export const generateOfflineNumberCapsule = async (options: GeneratorOptions) =>
          prompt: 'Kapsülleri doldurun.',
          instruction: "Her kapsülün içindeki sayıların toplamı hedef sayıya eşit olmalıdır.",
          pedagogicalNote: "Toplama ve mantıksal eleme becerisi.",
-         imagePrompt: 'Kapsül',
+         imagePrompt: 'Number Capsules',
          puzzles: Array.from({length: itemCount || 2}).map((_, idx) => ({
              title: `Bulmaca ${idx+1}`,
              numbersToUse: '1-9 arası',
@@ -429,7 +441,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions) =>
             return { title: 'Bulmaca', numbersToUse: '1-6', grid, constrainedCells: variant === 'shaded' ? undefined : constrainedCells, shadedCells: variant === 'shaded' ? shadedCells : undefined }
         });
         const instr = variant === 'shaded' ? "Gölgeli alanlara sadece çift sayı yazabilirsin." : "Gri kutulara çift sayı gelmelidir.";
-        results.push({title: 'Sudoku Varyasyonu (Hızlı Mod)', instruction: instr, pedagogicalNote: "Kategorizasyon ve mantıksal kısıtlama yönetimi.", imagePrompt: 'Sudoku', puzzles});
+        results.push({title: 'Sudoku Varyasyonu (Hızlı Mod)', instruction: instr, pedagogicalNote: "Kategorizasyon ve mantıksal kısıtlama yönetimi.", imagePrompt: 'Sudoku Grid', puzzles});
     }
     return results;
 }
@@ -447,7 +459,7 @@ export const generateOfflineRomanNumeralStarHunt = async (options: GeneratorOpti
         const grid: (string | null)[][] = Array.from({ length: size + 1 }, () => Array(size + 1).fill(null));
         for(let r=0; r<size; r++) grid[r+1][0] = rowCounts[r];
         for(let c=0; c<size; c++) grid[0][c+1] = colCounts[c];
-        results.push({ title: 'Yıldız Avı (Romen Rakamlı) (Hızlı Mod)', prompt: 'Her satır ve sütunda belirtilen sayıda yıldız olmalı.', instruction: "Tablonun kenarındaki Romen rakamları, o satır/sütundaki yıldız sayısını gösterir.", pedagogicalNote: "Mantıksal eleme ve uzamsal akıl yürütme.", imagePrompt: 'Yıldız', grid, starCount: starsPerRegion });
+        results.push({ title: 'Yıldız Avı (Romen Rakamlı) (Hızlı Mod)', prompt: 'Her satır ve sütunda belirtilen sayıda yıldız olmalı.', instruction: "Tablonun kenarındaki Romen rakamları, o satır/sütundaki yıldız sayısını gösterir.", pedagogicalNote: "Mantıksal eleme ve uzamsal akıl yürütme.", imagePrompt: 'Star Puzzle Grid', grid, starCount: starsPerRegion });
     }
     return results;
 }
@@ -466,7 +478,7 @@ export const generateOfflineRomanNumeralMultiplication = async (options: Generat
                 results: { r1c1: Math.random() > 0.5 ? toRoman(n1 * n3) : null, r1c2: Math.random() > 0.5 ? toRoman(n1 * n4) : null, r2c1: Math.random() > 0.5 ? toRoman(n2 * n3) : null, r2c2: Math.random() > 0.5 ? toRoman(n2 * n4) : null }
             };
         });
-        results.push({ title: 'İşlem Karesi (Romen Rakamlı) (Hızlı Mod)', instruction: "Satır ve sütun başlıklarını çarpıp sonuçları ilgili kutulara yazın.", pedagogicalNote: "Romen rakamları ile çarpma işlemi pratiği.", imagePrompt: 'Romen Rakamı', puzzles });
+        results.push({ title: 'İşlem Karesi (Romen Rakamlı) (Hızlı Mod)', instruction: "Satır ve sütun başlıklarını çarpıp sonuçları ilgili kutulara yazın.", pedagogicalNote: "Romen rakamları ile çarpma işlemi pratiği.", imagePrompt: 'Roman Numerals', puzzles });
     }
     return results;
 }
@@ -504,7 +516,7 @@ export const generateOfflineKendoku = async (options: GeneratorOptions) => {
             }
             return { size, grid: Array.from({length: size}, () => Array(size).fill(null)), cages };
         });
-        results.push({ title: 'Kendoku (Hızlı Mod)', instruction: "Kafeslerin sol üstündeki sayı ve işleme göre kutuları doldur. Her satır ve sütunda rakamlar bir kez kullanılmalı.", pedagogicalNote: "Aritmetik işlem yeteneği ve problem çözme stratejileri.", imagePrompt: 'Mantık', puzzles });
+        results.push({ title: 'Kendoku (Hızlı Mod)', instruction: "Kafeslerin sol üstündeki sayı ve işleme göre kutuları doldur. Her satır ve sütunda rakamlar bir kez kullanılmalı.", pedagogicalNote: "Aritmetik işlem yeteneği ve problem çözme stratejileri.", imagePrompt: 'Logic Math Grid', puzzles });
     }
     return results;
 }
@@ -520,7 +532,7 @@ export const generateOfflineShapeSudoku = async (options: GeneratorOptions) => {
             const shapeGrid = grid.map(row => row.map(cell => cell === null ? null : shapes[(cell-1) % shapes.length]));
             return {grid: shapeGrid, shapesToUse: shapes.map(s => ({shape: s, label: s}))};
         });
-        return { title: `Şekilli Sudoku (${difficulty})`, prompt: 'Şekilleri tekrar etmeyecek şekilde yerleştirin.', instruction: `Her satır, sütun ve bölgede her şekil bir kez kullanılmalıdır.`, pedagogicalNote: "Sayılar yerine semboller kullanarak Sudoku mantığını öğretir.", imagePrompt: 'Sudoku', puzzles }
+        return { title: `Şekilli Sudoku (${difficulty})`, prompt: 'Şekilleri tekrar etmeyecek şekilde yerleştirin.', instruction: `Her satır, sütun ve bölgede her şekil bir kez kullanılmalıdır.`, pedagogicalNote: "Sayılar yerine semboller kullanarak Sudoku mantığını öğretir.", imagePrompt: 'Shape Sudoku', puzzles }
     });
 }
 
@@ -539,7 +551,7 @@ export const generateOfflineOperationSquareFillIn = async (options: GeneratorOpt
              }
              return {grid, numbersToUse: [n1, n2, n3, n4], results: []};
          });
-         results.push({ title: 'İşlem Karesi (Hızlı Mod)', instruction: "Sonuçları tutturmak için kutulara uygun sayıları yaz.", pedagogicalNote: "Denklem çözme ve aritmetik akıl yürütme.", imagePrompt: 'İşlem', puzzles });
+         results.push({ title: 'İşlem Karesi (Hızlı Mod)', instruction: "Sonuçları tutturmak için kutulara uygun sayıları yaz.", pedagogicalNote: "Denklem çözme ve aritmetik akıl yürütme.", imagePrompt: 'Math Grid', puzzles });
      }
      return results;
 }
@@ -554,13 +566,13 @@ export const generateOfflineMultiplicationWheel = async (options: GeneratorOptio
              const outerMasked: (number|null)[] = outer.map(n => Math.random() > 0.4 ? n : null);
              return { outerNumbers: outerMasked, innerResult: center };
          });
-         results.push({title: 'Çarpım Çarkı (Hızlı Mod)', imagePrompt: 'Çark', instruction: '', pedagogicalNote: '', puzzles});
+         results.push({title: 'Çarpım Çarkı (Hızlı Mod)', imagePrompt: 'Multiplication Wheel', instruction: '', pedagogicalNote: '', puzzles});
      }
      return results;
 }
 export const generateOfflineTargetNumber = async (options: GeneratorOptions) => {
      const {itemCount, worksheetCount} = options;
-     return Array.from({length: worksheetCount}, () => ({ title: 'Hedef Sayı (Hızlı Mod)', prompt: 'Verilen sayılarla dört işlem yaparak hedef sayıya ulaşın.', instruction: 'Sayıları kullanarak hedef sayıya ulaşın.', pedagogicalNote: 'Aritmetik işlem becerisi.', imagePrompt: 'Hedef', puzzles: Array.from({length: itemCount || 4}, () => { const n1 = getRandomInt(1, 9); const n2 = getRandomInt(1, 9); const n3 = getRandomInt(1, 9); const n4 = getRandomInt(1, 9); return {target: n1 * n2 + n3 - n4, givenNumbers: [n1, n2, n3, n4]}; }) }));
+     return Array.from({length: worksheetCount}, () => ({ title: 'Hedef Sayı (Hızlı Mod)', prompt: 'Verilen sayılarla dört işlem yaparak hedef sayıya ulaşın.', instruction: 'Sayıları kullanarak hedef sayıya ulaşın.', pedagogicalNote: 'Aritmetik işlem becerisi.', imagePrompt: 'Target Number Game', puzzles: Array.from({length: itemCount || 4}, () => { const n1 = getRandomInt(1, 9); const n2 = getRandomInt(1, 9); const n3 = getRandomInt(1, 9); const n4 = getRandomInt(1, 9); return {target: n1 * n2 + n3 - n4, givenNumbers: [n1, n2, n3, n4]}; }) }));
 }
 
 export const generateOfflineVisualNumberPattern = async (options: GeneratorOptions) => {
@@ -573,7 +585,7 @@ export const generateOfflineVisualNumberPattern = async (options: GeneratorOptio
             const items = Array.from({length: 4}, (_, k) => ({ number: start + k * step, color: ['#3B82F6', '#EF4444', '#10B981'][k % 3], size: 1 + (k % 2) * 0.5 }));
             return { items, rule: `Sayılar ${step} artıyor.`, answer: start + 4 * step };
         });
-        results.push({ title: 'Görsel Sayı Örüntüsü (Hızlı Mod)', instruction: "Sayı, renk ve boyut değişimindeki kuralı bulup bir sonraki adımı tahmin et.", pedagogicalNote: "Çoklu değişkenli örüntü tanıma becerisi.", imagePrompt: 'Örüntü', puzzles });
+        results.push({ title: 'Görsel Sayı Örüntüsü (Hızlı Mod)', instruction: "Sayı, renk ve boyut değişimindeki kuralı bulup bir sonraki adımı tahmin et.", pedagogicalNote: "Çoklu değişkenli örüntü tanıma becerisi.", imagePrompt: 'Number Patterns', puzzles });
     }
     return results;
 }
@@ -588,7 +600,7 @@ export const generateOfflineLogicGridPuzzle = async (options: GeneratorOptions) 
         const pets = getRandomItems(petPool, 3);
         const colors = getRandomItems(colorPool, 3);
         const clues = [ `${people[0]}, ${pets[0]} besliyor.`, `${colors[0]} rengini seven kişi ${people[0]}.`, `${people[1]} ${colors[1]} rengini sever ama ${pets[2]} beslemez.`, `${pets[2]} sahibi ${colors[2]} rengini seviyor.`, `${people[2]} ${pets[0]} sahibi değildir.` ];
-        results.push({ title: 'Mantık Tablosu (Hızlı Mod)', instruction: "Tabloda 'Evet' için ✔, 'Hayır' için ✘ işareti koyarak ilerle.", pedagogicalNote: "Sistematik düşünme, eleme ve çıkarım yapma becerileri.", imagePrompt: 'Mantık', clues: shuffle(clues).slice(0, 4), people: people, categories: [ { title: 'Evcil Hayvan', items: pets.map(p => ({name: p, imageDescription: p, imagePrompt: p})) }, { title: 'Favori Renk', items: colors.map(c => ({name: c, imageDescription: c, imagePrompt: c})) } ] });
+        results.push({ title: 'Mantık Tablosu (Hızlı Mod)', instruction: "Tabloda 'Evet' için ✔, 'Hayır' için ✘ işareti koyarak ilerle.", pedagogicalNote: "Sistematik düşünme, eleme ve çıkarım yapma becerileri.", imagePrompt: 'Logic Grid', clues: shuffle(clues).slice(0, 4), people: people, categories: [ { title: 'Evcil Hayvan', items: pets.map(p => ({name: p, imageDescription: p, imagePrompt: p})) }, { title: 'Favori Renk', items: colors.map(c => ({name: c, imageDescription: c, imagePrompt: c})) } ] });
     }
     return results;
 }
@@ -605,24 +617,24 @@ export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promi
             const words = [...mainWords, oddWord].filter(Boolean) as string[];
             return { words: shuffle(words) };
         });
-        results.push({ title: 'Farkı Fark Et (Anlamsal) (Hızlı Mod)', instruction: "Her grupta, anlamsal olarak diğerlerinden farklı olan kelimeyi bulun.", pedagogicalNote: "Kategorik düşünme ve semantik ayrım becerisi.", imagePrompt: 'Fark', groups });
+        results.push({ title: 'Farkı Fark Et (Anlamsal) (Hızlı Mod)', instruction: "Her grupta, anlamsal olarak diğerlerinden farklı olan kelimeyi bulun.", pedagogicalNote: "Kategorik düşünme ve semantik ayrım becerisi.", imagePrompt: 'Odd One Out', groups });
     }
     return results;
 };
 export const generateOfflineThematicOddOneOut = async (options: GeneratorOptions): Promise<ThematicOddOneOutData[]> => {
     const { itemCount, worksheetCount, topic } = options;
     const res = await generateOfflineOddOneOut({ ...options, itemCount: (itemCount || 5) * worksheetCount, worksheetCount: 1});
-    return [{ title: `Tematik Farkı Bul (${topic || 'Rastgele'}) (Hızlı Mod)`, prompt: "Her satırda temaya uymayan kelimeyi bul.", theme: topic || 'Genel', rows: res[0].groups.map(g => ({words: g.words.map(w => ({ text: w, imagePrompt: 'Nesne' })), oddWord: ''})), sentencePrompt: 'Farklı kelimelerle birer cümle kur.', instruction: 'Temaya uymayanı bul.', pedagogicalNote: 'Kategorizasyon.', imagePrompt: 'Tema' }];
+    return [{ title: `Tematik Farkı Bul (${topic || 'Rastgele'}) (Hızlı Mod)`, prompt: "Her satırda temaya uymayan kelimeyi bul.", theme: topic || 'Genel', rows: res[0].groups.map(g => ({words: g.words.map(w => ({ text: w, imagePrompt: w })), oddWord: ''})), sentencePrompt: 'Farklı kelimelerle birer cümle kur.', instruction: 'Temaya uymayanı bul.', pedagogicalNote: 'Kategorizasyon.', imagePrompt: 'Thematic Objects' }];
 };
 export const generateOfflineThematicOddOneOutSentence = async (options: GeneratorOptions): Promise<ThematicOddOneOutSentenceData[]> => {
     const { itemCount, worksheetCount, topic } = options;
     const res = await generateOfflineOddOneOut({ ...options, itemCount: (itemCount || 5) * worksheetCount, worksheetCount: 1});
-    return [{ title: `Tematik Farklı Kelimeyle Cümle Kurma (Hızlı Mod)`, prompt: "Her satırda temaya uymayan kelimeyi bul ve o kelimeyle bir cümle kur.", rows: res[0].groups.map(g => ({words: g.words, oddWord: ''})), sentencePrompt: 'Farklı kelimelerle kurduğun cümleleri aşağıya yaz.', instruction: 'Farklı olanı bul ve cümle kur.', pedagogicalNote: 'Sözdizimi ve kategorizasyon.', imagePrompt: 'Cümle' }];
+    return [{ title: `Tematik Farklı Kelimeyle Cümle Kurma (Hızlı Mod)`, prompt: "Her satırda temaya uymayan kelimeyi bul ve o kelimeyle bir cümle kur.", rows: res[0].groups.map(g => ({words: g.words, oddWord: ''})), sentencePrompt: 'Farklı kelimelerle kurduğun cümleleri aşağıya yaz.', instruction: 'Farklı olanı bul ve cümle kur.', pedagogicalNote: 'Sözdizimi ve kategorizasyon.', imagePrompt: 'Sentences Writing' }];
 };
 export const generateOfflineColumnOddOneOutSentence = async (options: GeneratorOptions): Promise<ColumnOddOneOutSentenceData[]> => {
     const {itemCount, worksheetCount} = options;
     const res = await generateOfflineOddOneOut({ ...options, itemCount: (itemCount || 4) * worksheetCount, worksheetCount: 1});
-    return [{ title: 'Sütunlarda Farklı Olan (Hızlı Mod)', prompt: 'Her sütunda farklı olanı bul.', columns: res[0].groups.map(g => ({words: g.words, oddWord: ''})), sentencePrompt: 'Farklı kelimelerle cümle kur.', instruction: 'Sütunlardaki farklı kelimeyi bul.', pedagogicalNote: 'Sınıflandırma.', imagePrompt: 'Sütun' }];
+    return [{ title: 'Sütunlarda Farklı Olan (Hızlı Mod)', prompt: 'Her sütunda farklı olanı bul.', columns: res[0].groups.map(g => ({words: g.words, oddWord: ''})), sentencePrompt: 'Farklı kelimelerle cümle kur.', instruction: 'Sütunlardaki farklı kelimeyi bul.', pedagogicalNote: 'Sınıflandırma.', imagePrompt: 'Columns Sorting' }];
 };
 
 // --- UPDATED PUNCTUATION MAZE GENERATOR ---
@@ -702,12 +714,12 @@ export const generateOfflinePunctuationPhoneNumber = async (options: GeneratorOp
     return Array.from({length: options.worksheetCount}, () => {
         const targetNum = getRandomInt(1000000, 9999999).toString();
         const clues = targetNum.split('').map((digit, i) => ({ id: i+1, text: `${i+1}. rakam: ${digit}`}));
-        return { title: 'Gizli Telefon Numarası (Hızlı Mod)', prompt: 'İpuçlarını çöz ve numarayı bul.', instruction: 'Her ipucu bir rakama karşılık geliyor.', clues: clues, solution: [{punctuationMark: '#', number: parseInt(targetNum)}], pedagogicalNote: 'Mantıksal takip.', imagePrompt: 'Telefon' };
+        return { title: 'Gizli Telefon Numarası (Hızlı Mod)', prompt: 'İpuçlarını çöz ve numarayı bul.', instruction: 'Her ipucu bir rakama karşılık geliyor.', clues: clues, solution: [{punctuationMark: '#', number: parseInt(targetNum)}], pedagogicalNote: 'Mantıksal takip.', imagePrompt: 'Telephone Dial' };
     });
 };
 export const generateOfflineShapeNumberPattern = async (options: GeneratorOptions): Promise<ShapeNumberPatternData[]> => {
     const {itemCount, worksheetCount} = options;
-    return Array.from({length: worksheetCount}, () => ({ title: 'Şekilli Sayı Örüntüsü (Hızlı Mod)', instruction: "Şekillerin köşelerindeki sayıları toplayıp '?' yerine gelecek sayıyı yazın.", pedagogicalNote: "Görsel ve sayısal örüntüleri birleştirerek problem çözme.", imagePrompt: 'Örüntü', patterns: Array.from({length: itemCount || 3}, () => { const left = getRandomInt(1, 10); const right = getRandomInt(1, 10); const top = left + right; return { shapes: [ { type: 'triangle', numbers: [left, right, top] }, { type: 'triangle', numbers: [left+2, right+2, top+4] }, { type: 'triangle', numbers: [left+5, right+5, '?'] } ] }; }) }))
+    return Array.from({length: worksheetCount}, () => ({ title: 'Şekilli Sayı Örüntüsü (Hızlı Mod)', instruction: "Şekillerin köşelerindeki sayıları toplayıp '?' yerine gelecek sayıyı yazın.", pedagogicalNote: "Görsel ve sayısal örüntüleri birleştirerek problem çözme.", imagePrompt: 'Geometric Pattern Numbers', patterns: Array.from({length: itemCount || 3}, () => { const left = getRandomInt(1, 10); const right = getRandomInt(1, 10); const top = left + right; return { shapes: [ { type: 'triangle', numbers: [left, right, top] }, { type: 'triangle', numbers: [left+2, right+2, top+4] }, { type: 'triangle', numbers: [left+5, right+5, '?'] } ] }; }) }))
 };
 export const generateOfflineRoundingConnect = async (options: GeneratorOptions): Promise<RoundingConnectData[]> => {
     const { itemCount, worksheetCount, gridSize } = options;
@@ -725,7 +737,7 @@ export const generateOfflineRoundingConnect = async (options: GeneratorOptions):
             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
             numbers.push({ value: base, group: j, x: p2.x, y: p2.y });
         }
-        results.push({ title: 'Sayı Yuvarlama Bağlamaca (Hızlı Mod)', prompt: 'Sayıları en yakın onluğa yuvarlayarak eşleştirin.', instruction: "Sayıları en yakın onluk değerleriyle çizgilerle birleştirin.", pedagogicalNote: "Sayı yuvarlama pratiği ve mantıksal eşleştirme.", example: 'Örn: 23 → 20, 48 → 50', imagePrompt: 'Yuvarlama', numbers });
+        results.push({ title: 'Sayı Yuvarlama Bağlamaca (Hızlı Mod)', prompt: 'Sayıları en yakın onluğa yuvarlayarak eşleştirin.', instruction: "Sayıları en yakın onluk değerleriyle çizgilerle birleştirin.", pedagogicalNote: "Sayı yuvarlama pratiği ve mantıksal eşleştirme.", example: 'Örn: 23 → 20, 48 → 50', imagePrompt: 'Rounding Numbers', numbers });
     }
     return results;
 };
@@ -745,7 +757,7 @@ export const generateOfflineArithmeticConnect = async (options: GeneratorOptions
              const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
              if (Math.random() > 0.5) { const n2 = target + getRandomInt(1, 5); expressions.push({ text: `${n2} - ${n2-target}`, value: target, group: j, x: p2.x, y: p2.y }); } else { expressions.push({ text: `${target}`, value: target, group: j, x: p2.x, y: p2.y }); }
         }
-        results.push({ title: 'İşlem Bağlamaca (Hızlı Mod)', prompt: 'Aynı sonucu veren işlemleri eşleştirin.', instruction: "Sonuçları aynı olan işlemleri veya sayıları çizgilerle birleştirin.", pedagogicalNote: "Zihinden işlem yapma ve denklik kavramı.", example: 'Örn: 5+3 = 8', imagePrompt: 'Eşleştirme', expressions });
+        results.push({ title: 'İşlem Bağlamaca (Hızlı Mod)', prompt: 'Aynı sonucu veren işlemleri eşleştirin.', instruction: "Sonuçları aynı olan işlemleri veya sayıları çizgilerle birleştirin.", pedagogicalNote: "Zihinden işlem yapma ve denklik kavramı.", example: 'Örn: 5+3 = 8', imagePrompt: 'Math Connections', expressions });
     }
     return results;
 };
@@ -765,7 +777,7 @@ export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorO
             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
             points.push({ label: toRoman(n), pairId: n, x: p2.x, y: p2.y });
         }
-        results.push({ title: 'Romen - Arap Rakamı Eşleştirme', prompt: 'Eşdeğer rakamları birleştir.', instruction: '', pedagogicalNote: '', imagePrompt: 'Romen Rakamı', gridDim: dim, points });
+        results.push({ title: 'Romen - Arap Rakamı Eşleştirme', prompt: 'Eşdeğer rakamları birleştir.', instruction: '', pedagogicalNote: '', imagePrompt: 'Roman Numerals', gridDim: dim, points });
     }
     return results;
 }
@@ -785,7 +797,7 @@ export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptio
              const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
              points.push({ label: roman, x: p2.x, y: p2.y });
         }
-        results.push({ title: 'Romen Rakamı Bağlama (Hızlı Mod)', instruction: "Aynı Romen rakamlarını birbirine bağlayın.", pedagogicalNote: "Romen rakamlarını tanıma ve uzamsal planlama.", imagePrompt: 'Romen Rakamı', puzzles: [{title: 'Bulmaca', gridDim: dim, points}] });
+        results.push({ title: 'Romen Rakamı Bağlama (Hızlı Mod)', instruction: "Aynı Romen rakamlarını birbirine bağlayın.", pedagogicalNote: "Romen rakamlarını tanıma ve uzamsal planlama.", imagePrompt: 'Roman Numerals', puzzles: [{title: 'Bulmaca', gridDim: dim, points}] });
     }
     return results;
 }
@@ -806,7 +818,7 @@ export const generateOfflineWeightConnect = async (options: GeneratorOptions): P
             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
             points.push({ label: pair.l2, pairId: j, x: p2.x, y: p2.y, imagePrompt: pair.img });
         }
-        results.push({ title: 'Ağırlık Eşleştirme (Hızlı Mod)', prompt: 'Eşit ağırlıkları birleştir.', instruction: 'Birbiriyle eşit olan ağırlık değerlerini çizgilerle birleştirin.', pedagogicalNote: 'Ölçü birimleri dönüşümü ve görsel eşleştirme.', imagePrompt: 'Terazi', gridDim: dim, points });
+        results.push({ title: 'Ağırlık Eşleştirme (Hızlı Mod)', prompt: 'Eşit ağırlıkları birleştir.', instruction: 'Birbiriyle eşit olan ağırlık değerlerini çizgilerle birleştirin.', pedagogicalNote: 'Ölçü birimleri dönüşümü ve görsel eşleştirme.', imagePrompt: 'Weight Scale', gridDim: dim, points });
     }
     return results;
 }
@@ -827,7 +839,7 @@ export const generateOfflineLengthConnect = async (options: GeneratorOptions): P
             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
             points.push({ label: pair.l2, pairId: j, x: p2.x, y: p2.y, imagePrompt: pair.img });
         }
-        results.push({ title: 'Uzunluk Eşleştirme (Hızlı Mod)', prompt: 'Eşit uzunlukları birleştir.', instruction: 'Birbiriyle eşit olan uzunluk ölçülerini eşleştirin.', pedagogicalNote: 'Uzunluk ölçüleri dönüşümü ve görsel algı.', imagePrompt: 'Cetvel', gridDim: dim, points });
+        results.push({ title: 'Uzunluk Eşleştirme (Hızlı Mod)', prompt: 'Eşit uzunlukları birleştir.', instruction: 'Birbiriyle eşit olan uzunluk ölçülerini eşleştirin.', pedagogicalNote: 'Uzunluk ölçüleri dönüşümü ve görsel algı.', imagePrompt: 'Measuring Ruler', gridDim: dim, points });
     }
     return results;
 }
