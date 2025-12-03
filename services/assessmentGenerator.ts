@@ -1,5 +1,4 @@
 
-
 import { generateWithSchema } from './geminiClient';
 import { Type } from "@google/genai";
 import { AssessmentProfile, AssessmentReport, ActivityType } from '../types';
@@ -163,7 +162,8 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     };
 
     try {
-        return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview') as unknown as AssessmentReport;
+        // Using gemini-2.5-flash for free tier compatibility instead of gemini-3-pro-preview
+        return await generateWithSchema(prompt, schema, 'gemini-2.5-flash') as unknown as AssessmentReport;
     } catch (error) {
         console.warn("AI Assessment Error, falling back:", error);
         return generateOfflineAssessmentReport(profile);
