@@ -284,13 +284,30 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                 <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showPageNumbers ? 'left-6' : 'left-1'}`}></div>
                                             </div>
                                         </label>
-                                        <label className="flex items-center justify-between cursor-pointer group">
-                                            <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Filigran (Logo)</span>
-                                            <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showWatermark ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings({...settings, showWatermark: e.target.checked})} className="hidden" />
-                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showWatermark ? 'left-6' : 'left-1'}`}></div>
-                                            </div>
-                                        </label>
+                                        <div className="space-y-2">
+                                            <label className="flex items-center justify-between cursor-pointer group">
+                                                <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Filigran (Logo)</span>
+                                                <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showWatermark ? 'bg-green-500' : 'bg-zinc-300'}`}>
+                                                    <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings({...settings, showWatermark: e.target.checked})} className="hidden" />
+                                                    <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showWatermark ? 'left-6' : 'left-1'}`}></div>
+                                                </div>
+                                            </label>
+                                            {settings.showWatermark && (
+                                                <div className="bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                                                    <div className="flex justify-between mb-1">
+                                                        <span className="text-xs font-bold text-zinc-500">Opaklık</span>
+                                                        <span className="text-xs font-mono text-zinc-500">{Math.round((settings.watermarkOpacity || 0.05) * 100)}%</span>
+                                                    </div>
+                                                    <input 
+                                                        type="range" 
+                                                        min="0.01" max="0.2" step="0.01" 
+                                                        value={settings.watermarkOpacity || 0.05} 
+                                                        onChange={(e) => setSettings({...settings, watermarkOpacity: parseFloat(e.target.value)})}
+                                                        className="w-full h-1 bg-zinc-300 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </>
                             )}

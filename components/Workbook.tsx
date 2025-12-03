@@ -1,6 +1,4 @@
 
-
-
 import React from 'react';
 import { CollectionItem, WorkbookSettings, SavedAssessment, ActivityType } from '../types';
 import Worksheet from './Worksheet';
@@ -23,7 +21,10 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         if (!settings.showWatermark) return null;
         return (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden print:z-0">
-                <div className="transform -rotate-45 opacity-[0.03] w-[70%] grayscale">
+                <div 
+                    className="transform -rotate-45 w-[70%] grayscale" 
+                    style={{ opacity: settings.watermarkOpacity || 0.05 }}
+                >
                     {settings.logoUrl ? (
                         <img src={settings.logoUrl} className="w-full h-auto" />
                     ) : (

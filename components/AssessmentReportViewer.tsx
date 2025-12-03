@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 import { SavedAssessment, AssessmentReport } from '../types';
 import { RadarChart } from './RadarChart';
@@ -15,6 +14,7 @@ interface AssessmentReportViewerProps {
     isSaving?: boolean;
     isSaved?: boolean;
     onAddToWorkbook?: (assessment: SavedAssessment) => void;
+    onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
 }
 
 export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({ 
@@ -24,7 +24,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     onManualSave,
     isSaving,
     isSaved,
-    onAddToWorkbook
+    onAddToWorkbook,
+    onAutoGenerateWorkbook
 }) => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
@@ -76,6 +77,15 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 
                 {/* TOOLBAR */}
                 <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 border-b border-zinc-200 no-print flex-wrap">
+                    {onAutoGenerateWorkbook && (
+                        <button 
+                            onClick={() => onAutoGenerateWorkbook(report)}
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-sm font-bold hover:shadow-lg transition-all shadow-md"
+                        >
+                            <i className="fa-solid fa-wand-magic-sparkles"></i> Akıllı Rota (Telafi Kitapçığı)
+                        </button>
+                    )}
+                    
                     {onAddToWorkbook && (
                         <button 
                             onClick={(e) => {
@@ -91,7 +101,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                             }}
                             className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-all shadow-sm"
                         >
-                            <i className="fa-solid fa-plus-circle"></i> Kitapçığa Ekle
+                            <i className="fa-solid fa-plus-circle"></i> Rapora Ekle
                         </button>
                     )}
                     {onManualSave && (
@@ -100,19 +110,11 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                             <span className="hidden sm:inline">{isSaved ? 'Kaydedildi' : 'Kaydet'}</span>
                         </button>
                     )}
-                    {user && (
-                        <button 
-                            onClick={() => setIsShareModalOpen(true)} 
-                            className="flex items-center gap-2 px-4 py-2 bg-white text-zinc-700 border border-zinc-300 rounded-lg text-sm font-bold hover:bg-zinc-100 transition-all shadow-sm"
-                        >
-                            <i className="fa-solid fa-share-nodes text-blue-500"></i> Paylaş
-                        </button>
-                    )}
                     <button 
                         onClick={handlePrintReport} 
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                        className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
                     >
-                        <i className="fa-solid fa-print"></i> Yazdır / PDF
+                        <i className="fa-solid fa-print"></i> Yazdır
                     </button>
                 </div>
 

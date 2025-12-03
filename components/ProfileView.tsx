@@ -6,6 +6,7 @@ import { assessmentService } from '../services/assessmentService';
 import { worksheetService } from '../services/worksheetService';
 import { ShareModal } from './ShareModal';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
+import { LineChart } from './LineChart';
 
 // --- BENTO COMPONENTS ---
 
@@ -149,6 +150,20 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
             mostUsedCount
         };
     }, [user, worksheets]);
+
+    // Prepare chart data from assessments
+    const chartData = useMemo(() => {
+        if (!assessments || assessments.length === 0) return [];
+        // Sort by date ascending
+        const sorted = [...assessments].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        
+        return sorted.map(a => ({
+            date: a.createdAt,
+            reading: a.report.scores.reading,
+            math: a.report.scores.math,
+            attention: a.report.scores.attention
+        }));
+    }, [assessments]);
 
 
     const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -431,40 +446,56 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
 
                             {/* EVALUATIONS TAB */}
                             {activeTab === 'evaluations' && (
-                                <BentoCard title="Değerlendirme Raporları" icon="fa-solid fa-file-medical" iconColor="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
-                                    {assessments.length === 0 ? (
-                                        <div className="p-16 text-center flex flex-col items-center justify-center">
-                                            <div className="w-16 h-16 bg-zinc-50 dark:bg-zinc-700 rounded-full flex items-center justify-center mb-4 text-zinc-300 text-3xl"><i className="fa-solid fa-clipboard-list"></i></div>
-                                            <h3 className="text-lg font-bold text-zinc-500">Kayıt Bulunamadı</h3>
-                                            <p className="text-zinc-400 text-sm mt-1">Henüz bir değerlendirme raporu oluşturmadınız.</p>
+                                <div className="space-y-6">
+                                    {/* PROGRESS CHART */}
+                                    <BentoCard title="Gelişim Grafiği (Son Değerlendirmeler)" icon="fa-solid fa-chart-line" iconColor="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                        <div className="h-64 mt-4">
+                                            <LineChart 
+                                                data={chartData} 
+                                                lines={[
+                                                    { key: 'reading', color: '#3B82F6', label: 'Okuma' },
+                                                    { key: 'math', color: '#EF4444', label: 'Matematik' },
+                                                    { key: 'attention', color: '#10B981', label: 'Dikkat' }
+                                                ]} 
+                                            />
                                         </div>
-                                    ) : (
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left text-sm">
-                                                <thead className="bg-zinc-50 dark:bg-zinc-700/50 border-b border-zinc-200 dark:border-zinc-700">
-                                                    <tr>
-                                                        <th className="p-4 font-bold text-zinc-500 dark:text-zinc-400">Öğrenci</th>
-                                                        <th className="p-4 font-bold text-zinc-500 dark:text-zinc-400">Sınıf</th>
-                                                        <th className="p-4 font-bold text-zinc-500 dark:text-zinc-400">Tarih</th>
-                                                        <th className="p-4"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
-                                                    {assessments.map(a => (
-                                                        <tr key={a.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors">
-                                                            <td className="p-4 font-bold text-zinc-800 dark:text-zinc-100">{a.studentName}</td>
-                                                            <td className="p-4 text-zinc-600 dark:text-zinc-400">{a.grade}</td>
-                                                            <td className="p-4 text-zinc-500">{new Date(a.createdAt).toLocaleDateString('tr-TR')}</td>
-                                                            <td className="p-4 text-right">
-                                                                <button onClick={() => setSelectedAssessment(a)} className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">Görüntüle</button>
-                                                            </td>
+                                    </BentoCard>
+
+                                    <BentoCard title="Değerlendirme Raporları" icon="fa-solid fa-file-medical" iconColor="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                                        {assessments.length === 0 ? (
+                                            <div className="p-16 text-center flex flex-col items-center justify-center">
+                                                <div className="w-16 h-16 bg-zinc-50 dark:bg-zinc-700 rounded-full flex items-center justify-center mb-4 text-zinc-300 text-3xl"><i className="fa-solid fa-clipboard-list"></i></div>
+                                                <h3 className="text-lg font-bold text-zinc-500">Kayıt Bulunamadı</h3>
+                                                <p className="text-zinc-400 text-sm mt-1">Henüz bir değerlendirme raporu oluşturmadınız.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left text-sm">
+                                                    <thead className="bg-zinc-50 dark:bg-zinc-700/50 border-b border-zinc-200 dark:border-zinc-700">
+                                                        <tr>
+                                                            <th className="p-4 font-bold text-zinc-500 dark:text-zinc-400">Öğrenci</th>
+                                                            <th className="p-4 font-bold text-zinc-500 dark:text-zinc-400">Sınıf</th>
+                                                            <th className="p-4 font-bold text-zinc-500 dark:text-zinc-400">Tarih</th>
+                                                            <th className="p-4"></th>
                                                         </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )}
-                                </BentoCard>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
+                                                        {assessments.map(a => (
+                                                            <tr key={a.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors">
+                                                                <td className="p-4 font-bold text-zinc-800 dark:text-zinc-100">{a.studentName}</td>
+                                                                <td className="p-4 text-zinc-600 dark:text-zinc-400">{a.grade}</td>
+                                                                <td className="p-4 text-zinc-500">{new Date(a.createdAt).toLocaleDateString('tr-TR')}</td>
+                                                                <td className="p-4 text-right">
+                                                                    <button onClick={() => setSelectedAssessment(a)} className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">Görüntüle</button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </BentoCard>
+                                </div>
                             )}
 
                             {/* SETTINGS TAB */}

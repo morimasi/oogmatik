@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -14,6 +14,7 @@ import { worksheetService } from './services/worksheetService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
 import { StudentInfoModal } from './components/StudentInfoModal';
+import * as offlineGenerators from './services/offlineGenerators'; // Import directly for auto-generation
 
 // Lazy Loaded Components
 const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
@@ -22,7 +23,7 @@ const MessagesView = lazy(() => import('./components/MessagesView').then(module 
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
-    scale: 1, // Default scale
+    scale: 1, 
     borderColor: '#d4d4d8',
     borderWidth: 1,
     margin: 20, 
@@ -33,9 +34,7 @@ const initialStyleSettings: StyleSettings = {
     contentAlign: 'center',
     fontWeight: 'normal',
     fontStyle: 'normal',
-    visualStyle: 'card', // Updated default style
-    
-    // Visibility Flags - All set to FALSE by default as requested
+    visualStyle: 'card', 
     showPedagogicalNote: false,
     showMascot: false,
     showStudentInfo: false,
@@ -106,6 +105,11 @@ const LoadingSpinner = () => (
     </div>
 );
 
+// Helper for Pascal Case (for generator lookup)
+const toPascalCase = (str: string): string => {
+    return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+};
+
 const AppContent: React.FC = () => {
   const { user, logout } = useAuth();
   const [currentView, setCurrentView] = useState<View>('generator');
@@ -115,10 +119,8 @@ const AppContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  // New State for Hover-based Expansion
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   
-  // ZEN MODE STATE
   const [zenMode, setZenMode] = useState(false);
 
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
@@ -127,7 +129,6 @@ const AppContent: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isTourOpen, setIsTourOpen] = useState(false);
   
-  // Student Info State
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
@@ -144,7 +145,8 @@ const AppContent: React.FC = () => {
       coverStyle: 'centered',
       showTOC: true,
       showPageNumbers: true,
-      showWatermark: false
+      showWatermark: false,
+      watermarkOpacity: 0.05
   });
   
   const [theme, setTheme] = useState<AppTheme>(() => {
@@ -152,7 +154,6 @@ const AppContent: React.FC = () => {
           const storedTheme = localStorage.getItem('app-theme');
           return (storedTheme as AppTheme) || 'anthracite';
       } catch (e) {
-          console.warn("LocalStorage access failed", e);
           return 'anthracite';
       }
   });
@@ -170,7 +171,7 @@ const AppContent: React.FC = () => {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-      console.log("🔥 Firebase başlatıldı.");
+      // console.log("🔥 App Initialized");
   }, []);
 
   const refreshNotifications = useCallback(async () => {
@@ -241,19 +242,6 @@ const AppContent: React.FC = () => {
       }
   }, [uiSettings]);
 
-  useEffect(() => {
-      try {
-          const stored = sessionStorage.getItem('sessionHistory');
-          if (stored) {
-              try {
-                  setHistoryItems(JSON.parse(stored));
-              } catch (parseError) {
-                  sessionStorage.removeItem('sessionHistory');
-              }
-          }
-      } catch (e) { console.error("SessionStorage access failed:", e); }
-  }, []);
-
   const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
       const activity = ACTIVITIES.find(a => a.id === activityType);
       const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
@@ -292,7 +280,7 @@ const AppContent: React.FC = () => {
             activity.icon,
             { id: category.id, title: category.title },
             styleSettings,
-            studentProfile || undefined // Pass student profile if exists
+            studentProfile || undefined
         );
         alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
     } catch (e: any) {
@@ -325,17 +313,15 @@ const AppContent: React.FC = () => {
 
   const handleAddToWorkbook = () => {
         if (selectedActivity && worksheetData) {
-            // Flatten the worksheetData array into individual pages
             const newItems: CollectionItem[] = worksheetData.map(sheet => ({
                 id: crypto.randomUUID(),
                 activityType: selectedActivity,
                 data: sheet,
-                settings: { ...styleSettings }, // Snapshot settings
+                settings: { ...styleSettings },
                 title: sheet.title || ACTIVITIES.find(a => a.id === selectedActivity)?.title || 'Etkinlik'
             }));
             setWorkbookItems(prev => [...prev, ...newItems]);
             
-            // Visual feedback
             const btn = document.getElementById('add-to-wb-btn');
             if(btn) {
                 btn.classList.add('scale-125', 'bg-green-500', 'text-white');
@@ -343,6 +329,88 @@ const AppContent: React.FC = () => {
             }
         }
   };
+
+  // --- SMART ROUTE: AUTO WORKBOOK GENERATION ---
+  const handleAutoGenerateWorkbook = async (report: AssessmentReport) => {
+      setIsLoading(true);
+      setCurrentView('workbook'); // Switch to view immediately to show progress implicitly
+      
+      const newItems: CollectionItem[] = [];
+      
+      // Default Generator Options for robustness
+      const defaultOptions: GeneratorOptions = {
+          mode: 'fast',
+          difficulty: 'Orta',
+          worksheetCount: 1,
+          itemCount: 10,
+          gridSize: 10,
+          operationType: 'mixed',
+          numberRange: '1-20',
+      };
+
+      try {
+          // Add Report Cover if available
+          const reportItem: CollectionItem = {
+              id: crypto.randomUUID(),
+              activityType: ActivityType.ASSESSMENT_REPORT,
+              data: { 
+                  report, 
+                  studentName: studentProfile?.name || 'Öğrenci', 
+                  createdAt: new Date().toISOString(),
+                  grade: studentProfile?.grade || '1. Sınıf'
+              },
+              settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
+              title: `Değerlendirme Raporu`
+          };
+          newItems.push(reportItem);
+
+          // Generate activities from roadmap
+          for (const roadItem of report.roadmap) {
+              const activityId = roadItem.activityId as ActivityType;
+              const pascalName = toPascalCase(activityId);
+              const generatorName = `generateOffline${pascalName}`;
+              
+              // @ts-ignore - Dynamic lookup of offline generators
+              const generator = offlineGenerators[generatorName];
+              
+              if (generator) {
+                  try {
+                      // Generate specific content
+                      const generatedData = await generator(defaultOptions);
+                      
+                      // Map to workbook items
+                      generatedData.forEach((sheet: any) => {
+                          newItems.push({
+                              id: crypto.randomUUID(),
+                              activityType: activityId,
+                              data: sheet,
+                              settings: { ...styleSettings },
+                              title: ACTIVITIES.find(a => a.id === activityId)?.title || activityId
+                          });
+                      });
+                  } catch (genErr) {
+                      console.error(`Failed to auto-generate ${activityId}`, genErr);
+                  }
+              }
+          }
+          
+          setWorkbookItems(newItems);
+          setWorkbookSettings(prev => ({
+              ...prev,
+              title: `Kişisel Gelişim Planı`,
+              studentName: studentProfile?.name || '',
+              teacherNote: "Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur."
+          }));
+
+      } catch (e) {
+          console.error("Auto generation failed", e);
+          alert("Otomatik kitapçık oluşturulurken bir hata meydana geldi.");
+      } finally {
+          setIsLoading(false);
+      }
+  };
+
+  const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
 
   if (currentView === 'admin') {
       return (
@@ -371,7 +439,6 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
-      {/* HEADER IS HIDDEN IN ZEN MODE */}
       <header className={`relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 print:hidden transition-all duration-500 ${zenMode ? '-mt-20 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
         <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
@@ -474,7 +541,6 @@ const AppContent: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
         
-        {/* Sidebar Container with Hover Listener - Hidden in Zen Mode */}
         <div 
             onMouseEnter={() => setIsSidebarExpanded(true)} 
             className={`transition-all duration-500 ease-in-out h-full ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}
@@ -495,11 +561,19 @@ const AppContent: React.FC = () => {
             />
         </div>
         
-        {/* Content Container with Hover Listener */}
         <div 
             className="flex-1 flex flex-col overflow-hidden" 
             onMouseEnter={() => setIsSidebarExpanded(false)}
         >
+            {/* Main Content Render Logic */}
+            {isLoading && currentView === 'workbook' && (
+                <div className="flex flex-col items-center justify-center h-full w-full bg-zinc-50 dark:bg-zinc-900 z-50">
+                    <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                    <h3 className="text-xl font-bold text-indigo-600">Kitapçık Hazırlanıyor...</h3>
+                    <p className="text-zinc-500">Kişiselleştirilmiş materyaller oluşturuluyor.</p>
+                </div>
+            )}
+
             <ContentArea
               currentView={currentView}
               onBackToGenerator={() => { setCurrentView('generator'); setSelectedActivity(null); setWorksheetData(null); }}
@@ -523,6 +597,31 @@ const AppContent: React.FC = () => {
               zenMode={zenMode}
               toggleZenMode={() => setZenMode(!zenMode)}
             />
+            
+            {/* Assessment View Integration */}
+            {currentView === 'assessment' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-40 overflow-y-auto">
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <AssessmentModule 
+                            onBack={() => setCurrentView('generator')}
+                            onSelectActivity={handleSelectActivity}
+                            onAddToWorkbook={(report) => {
+                                // Add report cover page to workbook
+                                const reportItem: CollectionItem = {
+                                    id: crypto.randomUUID(),
+                                    activityType: ActivityType.ASSESSMENT_REPORT,
+                                    data: { report, studentName: studentProfile?.name || 'Öğrenci', createdAt: new Date().toISOString(), grade: studentProfile?.grade || '1. Sınıf' },
+                                    settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
+                                    title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`
+                                };
+                                setWorkbookItems(prev => [...prev, reportItem]);
+                                // Auto-generate workbook content
+                                handleAutoGenerateWorkbook(report.report); 
+                            }}
+                        />
+                    </Suspense>
+                </div>
+            )}
         </div>
       </div>
       
@@ -602,7 +701,6 @@ const AppContent: React.FC = () => {
 
       <Modal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} title="Geliştirici & İletişim">
         <div className="space-y-6">
-            {/* Header Section */}
             <div className="flex flex-col items-center p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
                 <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl shadow-lg mb-4">
                     <i className="fa-solid fa-code"></i>
@@ -611,7 +709,6 @@ const AppContent: React.FC = () => {
                 <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Full Stack Developer & Eğitim Teknoloğu</p>
             </div>
 
-            {/* Contact Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <a href="mailto:morimasi@gmail.com" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group bg-white dark:bg-zinc-800">
                     <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -654,7 +751,6 @@ const AppContent: React.FC = () => {
                 </div>
             </div>
 
-            {/* Premium Call-to-Action */}
             <div className="relative overflow-hidden rounded-2xl bg-zinc-900 text-white p-6 shadow-xl border border-zinc-700 group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <i className="fa-solid fa-wand-magic-sparkles text-8xl"></i>

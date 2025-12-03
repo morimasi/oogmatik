@@ -412,4 +412,5 @@ export interface WorkbookSettings {
     showTOC: boolean; // Table of Contents
     showPageNumbers: boolean;
     showWatermark: boolean;
+    watermarkOpacity: number; // 0.0 to 1.0
 }
