@@ -192,10 +192,10 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
     const names = ["Ali", "Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Mert", "Duru", "Kerem", "Defne"];
     const items = ["elma", "kalem", "ceviz", "kitap", "bilye", "lira", "şeker", "kurabiye", "balon", "top"];
     const logicTemplates = [
-        (n1: number, n2: number, name: string) => ({ text: `${name} ${n1} yaşındadır. Babasının yaşı, ${name}'nin yaşının 3 katından 4 fazladır. Babası kaç yaşındadır?`, ans: (n1 * 3) + 4, hint: "Çarpma ve Toplama", keywords: `father age ${name}` }),
-        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}'nin ${n1} lirası vardı. Tanesi ${n2} lira olan ${item}lardan 2 tane aldı. Geriye kaç lirası kaldı?`, ans: n1 - (n2 * 2), hint: "Çarpma ve Çıkarma", keywords: `money buying ${item}` }),
-        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}, ${n1 * n2} tane ${item}sını ${n2} arkadaşına eşit olarak paylaştırdı. Her birine kaç ${item} düşer?`, ans: n1, hint: "Bölme", keywords: `sharing ${item} friends` }),
-        (n1: number, n2: number, name: string, item: string) => ({ text: `${name} sabah ${n1} tane, öğleden sonra ${n2} tane ${item} topladı. Akşam ${Math.floor(n1/2)} tanesini yedi. Geriye kaç ${item} kaldı?`, ans: n1 + n2 - Math.floor(n1/2), hint: "Toplama ve Çıkarma", keywords: `collecting ${item}` })
+        (n1: number, n2: number, name: string) => ({ text: `${name} ${n1} yaşındadır. Babasının yaşı, ${name}'nin yaşının 3 katından 4 fazladır. Babası kaç yaşındadır?`, ans: (n1 * 3) + 4, hint: "Çarpma ve Toplama", keywords: `Father and son standing ${name}` }),
+        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}'nin ${n1} lirası vardı. Tanesi ${n2} lira olan ${item}lardan 2 tane aldı. Geriye kaç lirası kaldı?`, ans: n1 - (n2 * 2), hint: "Çarpma ve Çıkarma", keywords: `Buying ${item} with money` }),
+        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}, ${n1 * n2} tane ${item}sını ${n2} arkadaşına eşit olarak paylaştırdı. Her birine kaç ${item} düşer?`, ans: n1, hint: "Bölme", keywords: `Sharing ${item} with friends` }),
+        (n1: number, n2: number, name: string, item: string) => ({ text: `${name} sabah ${n1} tane, öğleden sonra ${n2} tane ${item} topladı. Akşam ${Math.floor(n1/2)} tanesini yedi. Geriye kaç ${item} kaldı?`, ans: n1 + n2 - Math.floor(n1/2), hint: "Toplama ve Çıkarma", keywords: `Collecting ${item} basket` })
     ];
 
     for(let i=0; i<worksheetCount; i++) {
@@ -224,7 +224,7 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
             title: 'Problem Çözme Stratejileri',
             instruction: 'Problemleri 4 adımda (Anlama, Planlama, Çözme, Kontrol) çözün.',
             pedagogicalNote: 'Polya\'nın problem çözme basamaklarını kullanarak analitik düşünme becerisi.',
-            imagePrompt: 'Problem Solving Student',
+            imagePrompt: 'Student Thinking Math',
             problems
         });
     }
@@ -233,7 +233,13 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
 
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty, operations, numberRange } = options;
-    const objectsPool = shuffle(EMOJIS.slice(0, 30)); // Shuffle pool
+    
+    // More specific object pools for image generation
+    const fruitObjects = ["Elma", "Armut", "Muz", "Çilek", "Kiraz", "Karpuz"];
+    const animalObjects = ["Kedi", "Köpek", "Tavşan", "Kuş", "Balık"];
+    const schoolObjects = ["Kalem", "Kitap", "Silgi", "Cetvel", "Çanta"];
+    
+    const objectsPool = shuffle([...fruitObjects, ...animalObjects, ...schoolObjects]);
     
     let valueMin = 1, valueMax = 10;
     if (numberRange) {
@@ -271,6 +277,12 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
             let question = `İpucu: ${currentObjects[0]}=${values[0]}, ${currentObjects[1]}=${values[1]}, ${currentObjects[2]}=${values[2]}`;
             let answer = 0;
             
+            // Build object list with proper image prompts for each
+            const objectList = currentObjects.map((name, idx) => ({
+                name,
+                imagePrompt: name // Pass the specific name "Elma", "Kedi" etc.
+            }));
+            
             if (op === '+') { answer = val1 + val2; } 
             else if (op === '-') { 
                 if (val1 < val2) { [val1, val2] = [val2, val1]; problemStr = `${currentObjects[idx2]} ${op} ${currentObjects[idx1]} = ?`; } 
@@ -284,7 +296,12 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
                 question = `İpucu: ${currentObjects[idx2]}=${val2}. (Bölünen sayı ${product})`; 
                 answer = val1; 
             }
-            return { problem: problemStr, question, answer: answer.toString() };
+            return { 
+                problem: problemStr, 
+                question, 
+                answer: answer.toString(),
+                objects: objectList
+            };
         });
         results.push({ 
             title: `Matematik Bulmacası (${difficulty})`, 
@@ -806,7 +823,7 @@ export const generateOfflineWeightConnect = async (options: GeneratorOptions): P
     const results: WeightConnectData[] = [];
     const dim = gridSize || 6;
     const pairCount = Math.floor((itemCount || 6) / 2);
-    const pairsPool = [ {l1: '1 kg', l2: '1000 g', img: '⚖️'}, {l1: '2000 g', l2: '2 kg', img: '🏋️'} ];
+    const pairsPool = [ {l1: '1 kg', l2: '1000 g', img: 'Weight Scale kg'}, {l1: '2000 g', l2: '2 kg', img: 'Heavy weight'} ];
     for(let i=0; i<worksheetCount; i++) {
         const placements = generateSmartConnectGrid(dim, pairCount);
         const points: WeightConnectData['points'] = [];
@@ -827,7 +844,7 @@ export const generateOfflineLengthConnect = async (options: GeneratorOptions): P
     const results: LengthConnectData[] = [];
     const dim = gridSize || 6;
     const pairCount = Math.floor((itemCount || 6) / 2);
-    const pairsPool = [ {l1: '1 m', l2: '100 cm', img: '📏'}, {l1: '200 cm', l2: '2 m', img: '🚪'} ];
+    const pairsPool = [ {l1: '1 m', l2: '100 cm', img: 'Measuring tape'}, {l1: '200 cm', l2: '2 m', img: 'Door height'} ];
     for(let i=0; i<worksheetCount; i++) {
         const placements = generateSmartConnectGrid(dim, pairCount);
         const points: LengthConnectData['points'] = [];

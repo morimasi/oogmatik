@@ -258,7 +258,7 @@ export const generateOfflineResfebe = async (options: GeneratorOptions): Promise
          const start = (i * count) % pool.length;
          
          const puzzles = pool.slice(start, start + count).map(word => ({
-             clues: wordToRebus(word), 
+             clues: wordToRebus(word).map(c => ({...c, imagePrompt: c.value})), // Use value as image prompt
              answer: word
          }));
          return {

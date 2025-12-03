@@ -55,9 +55,9 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 let contentForPrompt = prompt || '';
                 
                 // If prompt is too short or generic, prioritize the description text
-                if (!contentForPrompt || contentForPrompt.length < 4 || contentForPrompt === 'Resim' || contentForPrompt === 'Nesne') {
+                if (!contentForPrompt || contentForPrompt.length < 4 || contentForPrompt === 'Resim' || contentForPrompt === 'Nesne' || contentForPrompt === 'Object') {
                     contentForPrompt = safeDesc;
-                } else if (safeDesc && !contentForPrompt.includes(safeDesc)) {
+                } else if (safeDesc && !contentForPrompt.includes(safeDesc) && safeDesc.length > 1) {
                     // Combine them for better context: "running child" (prompt) + "Ali okula koşuyor" (desc)
                     contentForPrompt = `${contentForPrompt} ${safeDesc}`;
                 }
@@ -65,7 +65,7 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 if (contentForPrompt && contentForPrompt.length > 1) {
                     // We append styling keywords to ensure consistent, child-friendly vector art style
                     // Using 'children's book illustration' style generally yields safe and relevant results
-                    const finalPrompt = `${contentForPrompt}, educational vector art, flat design, white background, high contrast, colorful, cute style, clear lines`;
+                    const finalPrompt = `${contentForPrompt}, simple educational vector illustration, flat design, white background, isolated object, colorful, cute style, clear lines`;
                     const encodedPrompt = encodeURIComponent(finalPrompt);
                     
                     // Pollinations URL construction with seed for consistency

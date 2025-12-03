@@ -106,7 +106,7 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             mainIdea: 'Dikkatli okuma, detayları fark etme ve çıkarım yapma.', 
             setting: chosenValues.place,
             pedagogicalNote: `${difficulty} seviyesinde okuma anlama. 5N1K soruları ve çıkarım yapma becerileri desteklenmektedir.`,
-            imagePrompt: `${chosenValues.character} in ${chosenValues.place} with a ${chosenValues.object}`
+            imagePrompt: `${chosenValues.character} character in ${chosenValues.place} setting holding ${chosenValues.object}`
         });
     }
     return results;
@@ -122,7 +122,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
         // Define theme-based hints for better context if a topic is provided
         let specificHints = null;
         let themeTitle = "Hikaye Atölyesi";
-        let imagePrompt = `Creative writing inspiration`;
+        let imagePrompt = `Creative writing inspiration notebook`;
 
         if (topic === 'space') {
             specificHints = {
@@ -132,7 +132,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Yakıt bitti', 'İletişim koptu', 'Meteor yaklaşıyor'], 1)[0]
             };
             themeTitle = "Uzay Macerası";
-            imagePrompt = "Astronaut in space rocket ship";
+            imagePrompt = "Astronaut in space rocket ship planets";
         } else if (topic === 'animals') {
             specificHints = {
                 who: getRandomItems(['Aslan Kral', 'Minik Tavşan', 'Bilge Baykuş'], 1)[0],
@@ -141,7 +141,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Yuvasını kaybetti', 'Karnı acıktı', 'Arkadaşını bulamadı'], 1)[0]
             };
             themeTitle = "Hayvanlar Alemi";
-            imagePrompt = "Forest animals lion rabbit owl";
+            imagePrompt = "Forest animals lion rabbit owl woods";
         } else if (topic === 'school') {
             specificHints = {
                 who: getRandomItems(['Yeni Öğrenci', 'Öğretmen', 'Yaramaz Can'], 1)[0],
@@ -150,7 +150,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Ödevini unuttu', 'Topu patladı', 'Geç kaldı'], 1)[0]
             };
             themeTitle = "Okul Hikayesi";
-            imagePrompt = "School classroom students";
+            imagePrompt = "School classroom students books blackboard";
         } else if (topic === 'nature') {
             specificHints = {
                 who: getRandomItems(['Doğa Kaşifi', 'Kampçı', 'Dağcı Ali'], 1)[0],
@@ -159,7 +159,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Çadırı uçtu', 'Yolu kaybetti', 'Ayı gördü'], 1)[0]
             };
             themeTitle = "Doğa Gezisi";
-            imagePrompt = "Camping tent nature mountains";
+            imagePrompt = "Camping tent nature mountains river";
         } else if (topic === 'fantasy') {
             specificHints = {
                 who: getRandomItems(['Prenses Elif', 'Cesur Şövalye', 'Küçük Ejderha'], 1)[0],
@@ -168,7 +168,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
                 problem: getRandomItems(['Asası kırıldı', 'Ejderha uyandı', 'Büyü bozuldu'], 1)[0]
             };
             themeTitle = "Masal Diyarı";
-            imagePrompt = "Fantasy castle dragon princess";
+            imagePrompt = "Fantasy castle dragon princess magic";
         }
 
         const hints = specificHints || {
@@ -240,7 +240,7 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
              },
              analysisQuestions: [], // Deprecated
              pedagogicalNote: "Hikaye unsurlarını ayrıştırma, analiz etme ve özetleme becerisi.",
-             imagePrompt: `Story map path journey`
+             imagePrompt: `Story map path journey ${chosenValues.place}`
          };
     });
 };
@@ -253,30 +253,30 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
     const sequences = [
         { 
             steps: [
-                { desc: 'Çiftçi tarlayı sürdü.', order: 1 },
-                { desc: 'Tohumları toprağa ekti.', order: 2 },
-                { desc: 'Yağmur yağdı ve tohumlar filizlendi.', order: 3 },
-                { desc: 'Başaklar büyüdü ve sarardı.', order: 4 },
-                { desc: 'Çiftçi buğdayları hasat etti.', order: 5 },
-                { desc: 'Değirmende un yapıldı.', order: 6 }
+                { desc: 'Çiftçi tarlayı sürdü.', order: 1, img: 'Farmer plowing field tractor' },
+                { desc: 'Tohumları toprağa ekti.', order: 2, img: 'Farmer planting seeds soil' },
+                { desc: 'Yağmur yağdı ve tohumlar filizlendi.', order: 3, img: 'Rain watering small plant sprout' },
+                { desc: 'Başaklar büyüdü ve sarardı.', order: 4, img: 'Golden wheat field' },
+                { desc: 'Çiftçi buğdayları hasat etti.', order: 5, img: 'Farmer harvesting wheat' },
+                { desc: 'Değirmende un yapıldı.', order: 6, img: 'Flour mill windmill sacks of flour' }
             ]
         },
         {
             steps: [
-                { desc: 'Ayşe kütüphaneye gitti.', order: 1 },
-                { desc: 'İstediği kitabı raflarda aradı.', order: 2 },
-                { desc: 'Kitabı bulup masaya oturdu.', order: 3 },
-                { desc: 'Okumaya başladı ve çok beğendi.', order: 4 },
-                { desc: 'Kitabı ödünç almak için görevliye gitti.', order: 5 }
+                { desc: 'Ayşe kütüphaneye gitti.', order: 1, img: 'Girl walking to library building' },
+                { desc: 'İstediği kitabı raflarda aradı.', order: 2, img: 'Girl looking at bookshelves' },
+                { desc: 'Kitabı bulup masaya oturdu.', order: 3, img: 'Girl sitting at table with book' },
+                { desc: 'Okumaya başladı ve çok beğendi.', order: 4, img: 'Girl reading book happily' },
+                { desc: 'Kitabı ödünç almak için görevliye gitti.', order: 5, img: 'Girl checking out book at desk' }
             ]
         },
         {
             steps: [
-                { desc: 'Kek için malzemeleri hazırladık.', order: 1 },
-                { desc: 'Yumurta ve şekeri çırptık.', order: 2 },
-                { desc: 'Un ve sütü ekleyip karıştırdık.', order: 3 },
-                { desc: 'Karışımı kalıba döküp fırına verdik.', order: 4 },
-                { desc: 'Mis gibi kokan keki fırından çıkardık.', order: 5 }
+                { desc: 'Kek için malzemeleri hazırladık.', order: 1, img: 'Baking ingredients flour eggs sugar on table' },
+                { desc: 'Yumurta ve şekeri çırptık.', order: 2, img: 'Whisking eggs and sugar in bowl' },
+                { desc: 'Un ve sütü ekleyip karıştırdık.', order: 3, img: 'Mixing flour milk batter in bowl' },
+                { desc: 'Karışımı kalıba döküp fırına verdik.', order: 4, img: 'Putting cake pan into oven' },
+                { desc: 'Mis gibi kokan keki fırından çıkardık.', order: 5, img: 'Fresh baked cake out of oven' }
             ]
         }
     ];
@@ -295,8 +295,8 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
                 id: crypto.randomUUID(), 
                 description: step.desc,
                 order: step.order,
-                // Crucial fix: Use the step description as the image prompt
-                imagePrompt: `${step.desc}`, 
+                // Crucial fix: Use the specific image prompt defined in the data
+                imagePrompt: step.img || step.desc, 
                 imageBase64: '' 
             }))),
             transitionWords: ['İlk önce', 'Sonra', 'Daha sonra', 'Bunun üzerine', 'En sonunda'],
