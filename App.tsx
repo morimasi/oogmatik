@@ -580,52 +580,98 @@ const AppContent: React.FC = () => {
       </Modal>
 
       <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">
-        <div className="text-center space-y-4">
-            <DyslexiaLogo className="h-12 w-auto mx-auto mb-4" />
-            <p>
-                Bursa Disleksi Ai, disleksi ve öğrenme güçlüğü yaşayan bireylerin eğitimine destek olmak amacıyla geliştirilmiş yapay zeka destekli bir platformdur.
-            </p>
-            <p>
-                Eğitmenler ve aileler için özelleştirilebilir, eğlenceli ve bilimsel temelli etkinlikler sunarak öğrenme sürecini kolaylaştırmayı hedefler.
-            </p>
-            <div className="pt-4 border-t border-[var(--border-color)]">
-                <p className="text-xs text-zinc-500">Versiyon 1.0.0</p>
+        <div className="text-center space-y-6">
+            <DyslexiaLogo className="h-16 w-auto mx-auto" />
+            <div className="space-y-4 text-zinc-600 dark:text-zinc-300">
+                <p className="leading-relaxed">
+                    Bursa Disleksi AI, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini desteklemek, eğitmen ve ailelere kişiselleştirilmiş, bilimsel temelli materyaller sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.
+                </p>
+                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                    <p className="text-xs font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-widest mb-1">Resmi Web Sitesi</p>
+                    <a href="https://www.bursadisleksi.com" target="_blank" rel="noopener noreferrer" className="text-xl font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                        www.bursadisleksi.com
+                    </a>
+                </div>
+            </div>
+            <div className="pt-6 border-t border-[var(--border-color)]">
+                <p className="text-xs text-zinc-500">Versiyon 1.0.3</p>
                 <p className="text-xs text-zinc-500">© 2024 Bursa Disleksi</p>
             </div>
         </div>
       </Modal>
 
-      <Modal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} title="Geliştirici İletişim">
-        <div className="text-center space-y-6">
-            <div>
-                <h3 className="text-xl font-bold mb-3 text-[var(--text-primary)]">Uygulama Geliştiricisi</h3>
-                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-                    Uygulama ile ilgili her türlü soru, öneri veya geri bildiriminiz için bizimle iletişime geçiniz.
-                </p>
+      <Modal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} title="Geliştirici & İletişim">
+        <div className="space-y-6">
+            {/* Header Section */}
+            <div className="flex flex-col items-center p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl shadow-lg mb-4">
+                    <i className="fa-solid fa-code"></i>
+                </div>
+                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Barış Mutlu Altunel</h3>
+                <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Full Stack Developer & Eğitim Teknoloğu</p>
             </div>
 
-            <div className="bg-[var(--bg-inset)] p-4 rounded-xl border border-[var(--border-color)] space-y-3">
-                <div className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">E-posta</span>
-                    <a href="mailto:morimasi@gmail.com" className="text-[var(--accent-color)] font-bold hover:underline">morimasi@gmail.com</a>
-                </div>
-                <div className="flex justify-center gap-3 flex-wrap">
-                    <span className="bg-[var(--bg-primary)] border border-[var(--border-color)] px-3 py-1 rounded-full text-sm font-medium">
-                        <i className="fa-brands fa-instagram mr-1"></i> @bbmaltunel
-                    </span>
-                    <span className="bg-[var(--bg-primary)] border border-[var(--border-color)] px-3 py-1 rounded-full text-sm font-medium">
-                        <i className="fa-brands fa-x-twitter mr-1"></i> @barismutlualtunel
-                    </span>
+            {/* Contact Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <a href="mailto:morimasi@gmail.com" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group bg-white dark:bg-zinc-800">
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i className="fa-solid fa-envelope"></i>
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-zinc-400 uppercase">E-posta</p>
+                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">morimasi@gmail.com</p>
+                    </div>
+                </a>
+                
+                <a href="https://twitter.com/barismutlualtunel" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group bg-white dark:bg-zinc-800">
+                    <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i className="fa-brands fa-x-twitter"></i>
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-zinc-400 uppercase">Twitter / X</p>
+                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">@barismutlualtunel</p>
+                    </div>
+                </a>
+
+                <a href="https://instagram.com/bbmaltunel" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-pink-500 hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-all group bg-white dark:bg-zinc-800">
+                    <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i className="fa-brands fa-instagram"></i>
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-zinc-400 uppercase">Instagram</p>
+                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">@bbmaltunel</p>
+                    </div>
+                </a>
+
+                <div className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 opacity-80">
+                    <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 flex items-center justify-center">
+                        <i className="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-zinc-400 uppercase">Konum</p>
+                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Bursa, Türkiye</p>
+                    </div>
                 </div>
             </div>
 
-            <div className="bg-gradient-to-br from-yellow-600 to-amber-700 p-6 rounded-xl shadow-lg text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+            {/* Premium Call-to-Action */}
+            <div className="relative overflow-hidden rounded-2xl bg-zinc-900 text-white p-6 shadow-xl border border-zinc-700 group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i className="fa-solid fa-wand-magic-sparkles text-8xl"></i>
+                </div>
                 <div className="relative z-10">
-                    <h4 className="font-bold text-lg mb-2">Dijital Eğitim Materyali Projeleriniz İçin</h4>
-                    <p className="text-sm text-yellow-100 leading-relaxed">
-                        Belirlediğiniz bir alanda, istediğiniz mantıklı işlevlere sahip özgür, güvenli ve eğitsel dijital ürün çözümleri için lütfen iletişime geçiniz.
+                    <div className="flex items-center gap-2 mb-3 text-amber-400">
+                        <i className="fa-solid fa-lightbulb"></i>
+                        <span className="text-xs font-bold uppercase tracking-wider">Proje Geliştirme</span>
+                    </div>
+                    <h4 className="text-lg font-bold mb-2">Dijital Eğitim Materyali Projeleri</h4>
+                    <p className="text-sm text-zinc-300 leading-relaxed mb-4">
+                        Kurumunuza özel, yapay zeka destekli ve modern arayüze sahip dijital eğitim çözümleri için profesyonel destek alın.
                     </p>
+                    <a href="mailto:morimasi@gmail.com?subject=Proje%20Talebi" className="inline-flex items-center gap-2 text-xs font-bold bg-white text-black px-5 py-2.5 rounded-lg hover:bg-zinc-200 transition-colors shadow-lg">
+                        <span>Teklif Al</span>
+                        <i className="fa-solid fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
