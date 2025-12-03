@@ -516,14 +516,14 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
             const leftIcon = EMOJI_MAP[pair.word] || pair.word.charAt(0);
             const rightIcon = EMOJI_MAP[pair.match] || pair.match.charAt(0);
 
-            // Use WORD directly in image prompt to ensure relevance
+            // FIX: Pass the exact word as the prompt to ensure correct image generation
             points.push({ 
                 word: pair.word, 
                 pairId: idx, 
                 x: 0, 
                 y: idx, 
                 color: colors[idx % colors.length],
-                imagePrompt: pair.word // IMPORTANT FIX
+                imagePrompt: pair.word 
             });
             
             points.push({ 
@@ -532,7 +532,7 @@ export const generateOfflineWordConnect = async (options: GeneratorOptions): Pro
                 x: 1, 
                 y: rightSideIndices[idx], 
                 color: colors[idx % colors.length],
-                imagePrompt: pair.match // IMPORTANT FIX
+                imagePrompt: pair.match 
             });
         });
         
@@ -612,6 +612,7 @@ export const generateOfflineVisualOddOneOutThemed = async (options: GeneratorOpt
 
             if (!oddItem || mainItems.length < 3) { j--; continue; }
 
+            // Pass item name as imagePrompt for correct generation
             const items = shuffle([
                 ...mainItems.map(desc => ({ description: desc, imagePrompt: desc, isOdd: false })),
                 { description: oddItem, imagePrompt: oddItem, isOdd: true }

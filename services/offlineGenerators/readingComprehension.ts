@@ -106,7 +106,7 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             mainIdea: 'Dikkatli okuma, detayları fark etme ve çıkarım yapma.', 
             setting: chosenValues.place,
             pedagogicalNote: `${difficulty} seviyesinde okuma anlama. 5N1K soruları ve çıkarım yapma becerileri desteklenmektedir.`,
-            imagePrompt: `${chosenValues.character} character in ${chosenValues.place} setting holding ${chosenValues.object}`
+            imagePrompt: `${chosenValues.character} in ${chosenValues.place} with a ${chosenValues.object}` // Precise prompt
         });
     }
     return results;
@@ -218,7 +218,7 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
             })),
             questions: [], // Deprecated field kept for type compatibility if needed
             pedagogicalNote: "Bilinmeyen kelimelerin anlamını bağlam ipuçlarını kullanarak tahmin etme stratejisi.",
-            imagePrompt: `Character reading dictionary magnifying glass`
+            imagePrompt: `${chosenValues.character} reading a book`
         };
     });
 };
@@ -382,7 +382,7 @@ export const generateOfflineProverbFillInTheBlank = async (o: GeneratorOptions):
             meaning: 'Eksik kelimeleri bularak atasözlerini tamamla.',
             usagePrompt: 'Bir tanesini seç ve resmini çiz.',
             pedagogicalNote: "Kültürel bellek ve cümle tamamlama.",
-            imagePrompt: "Proverb wisdom old parchment"
+            imagePrompt: "Old parchment wisdom"
         };
     });
 };

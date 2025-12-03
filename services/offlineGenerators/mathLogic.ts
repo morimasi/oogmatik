@@ -178,7 +178,7 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
             title: 'Dört İşlem Alıştırmaları',
             instruction: 'Aşağıdaki işlemleri dikkatlice yapın.',
             pedagogicalNote: 'İşlem akıcılığı, eldeli/eldesiz toplama ve onluk bozma becerilerini geliştirir.',
-            imagePrompt: 'Arithmetic Operations',
+            imagePrompt: 'Arithmetic Operations Math',
             isVertical: true,
             operations: operationsList
         });
@@ -192,7 +192,7 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
     const names = ["Ali", "Ayşe", "Mehmet", "Zeynep", "Can", "Elif", "Mert", "Duru", "Kerem", "Defne"];
     const items = ["elma", "kalem", "ceviz", "kitap", "bilye", "lira", "şeker", "kurabiye", "balon", "top"];
     const logicTemplates = [
-        (n1: number, n2: number, name: string) => ({ text: `${name} ${n1} yaşındadır. Babasının yaşı, ${name}'nin yaşının 3 katından 4 fazladır. Babası kaç yaşındadır?`, ans: (n1 * 3) + 4, hint: "Çarpma ve Toplama", keywords: `Father and son standing ${name}` }),
+        (n1: number, n2: number, name: string) => ({ text: `${name} ${n1} yaşındadır. Babasının yaşı, ${name}'nin yaşının 3 katından 4 fazladır. Babası kaç yaşındadır?`, ans: (n1 * 3) + 4, hint: "Çarpma ve Toplama", keywords: `Father and son ${name} illustration` }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `${name}'nin ${n1} lirası vardı. Tanesi ${n2} lira olan ${item}lardan 2 tane aldı. Geriye kaç lirası kaldı?`, ans: n1 - (n2 * 2), hint: "Çarpma ve Çıkarma", keywords: `Buying ${item} with money` }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `${name}, ${n1 * n2} tane ${item}sını ${n2} arkadaşına eşit olarak paylaştırdı. Her birine kaç ${item} düşer?`, ans: n1, hint: "Bölme", keywords: `Sharing ${item} with friends` }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `${name} sabah ${n1} tane, öğleden sonra ${n2} tane ${item} topladı. Akşam ${Math.floor(n1/2)} tanesini yedi. Geriye kaç ${item} kaldı?`, ans: n1 + n2 - Math.floor(n1/2), hint: "Toplama ve Çıkarma", keywords: `Collecting ${item} basket` })
@@ -224,7 +224,7 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
             title: 'Problem Çözme Stratejileri',
             instruction: 'Problemleri 4 adımda (Anlama, Planlama, Çözme, Kontrol) çözün.',
             pedagogicalNote: 'Polya\'nın problem çözme basamaklarını kullanarak analitik düşünme becerisi.',
-            imagePrompt: 'Student Thinking Math',
+            imagePrompt: 'Problem Solving Student',
             problems
         });
     }
@@ -833,6 +833,7 @@ export const generateOfflineWeightConnect = async (options: GeneratorOptions): P
             const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
             points.push({ label: pair.l1, pairId: j, x: p1.x, y: p1.y });
             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
+            // Use specific prompt
             points.push({ label: pair.l2, pairId: j, x: p2.x, y: p2.y, imagePrompt: pair.img });
         }
         results.push({ title: 'Ağırlık Eşleştirme (Hızlı Mod)', prompt: 'Eşit ağırlıkları birleştir.', instruction: 'Birbiriyle eşit olan ağırlık değerlerini çizgilerle birleştirin.', pedagogicalNote: 'Ölçü birimleri dönüşümü ve görsel eşleştirme.', imagePrompt: 'Weight Scale', gridDim: dim, points });
@@ -854,6 +855,7 @@ export const generateOfflineLengthConnect = async (options: GeneratorOptions): P
             const p1 = placements.find(p => p.pairIndex === j && p.isStart)!;
             points.push({ label: pair.l1, pairId: j, x: p1.x, y: p1.y });
             const p2 = placements.find(p => p.pairIndex === j && !p.isStart)!;
+            // Use specific prompt
             points.push({ label: pair.l2, pairId: j, x: p2.x, y: p2.y, imagePrompt: pair.img });
         }
         results.push({ title: 'Uzunluk Eşleştirme (Hızlı Mod)', prompt: 'Eşit uzunlukları birleştir.', instruction: 'Birbiriyle eşit olan uzunluk ölçülerini eşleştirin.', pedagogicalNote: 'Uzunluk ölçüleri dönüşümü ve görsel algı.', imagePrompt: 'Measuring Ruler', gridDim: dim, points });

@@ -156,7 +156,7 @@ export const generateOfflineAnagram = async (options: GeneratorOptions): Promise
             pedagogicalNote: "Kelime türetme, harf dizilimi ve fonolojik farkındalık çalışması.",
             imagePrompt: 'Scrabble Tiles',
             prompt: 'Harfleri doğru sıraya diz.',
-            // Ensure the image prompt is just the word itself for best matching
+            // Pass WORD as imagePrompt to get relevant visual hint
             anagrams: sheetWords.map(word => ({ word, scrambled: shuffle(word.split('')).join(''), imageBase64: '', imagePrompt: word })),
             sentencePrompt: 'Bulduğun kelimelerden üç tanesi ile bir hikaye cümlesi kur.'
         });
@@ -228,8 +228,7 @@ export const generateOfflineCrossword = async (options: GeneratorOptions): Promi
             text: `Bu kelime ${p.word.length} harflidir.`,
             start: { row: p.row + offsetR, col: p.col + offsetC },
             word: p.word.toUpperCase(),
-            // Ensure the image matches the word
-            imagePrompt: p.word
+            imagePrompt: p.word // Specific image prompt
         }));
 
         results.push({
@@ -258,7 +257,8 @@ export const generateOfflineResfebe = async (options: GeneratorOptions): Promise
          const start = (i * count) % pool.length;
          
          const puzzles = pool.slice(start, start + count).map(word => ({
-             clues: wordToRebus(word).map(c => ({...c, imagePrompt: c.value})), // Use value as image prompt
+             // Pass value as imagePrompt so ImageDisplay can generate relevant art
+             clues: wordToRebus(word).map(c => ({...c, imagePrompt: c.value})), 
              answer: word
          }));
          return {
