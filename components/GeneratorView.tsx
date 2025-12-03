@@ -356,7 +356,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             </div>
 
             {/* Settings Body */}
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0">
                 {/* Mode Switcher */}
                 <div className="mb-6">
                     <Label icon="fa-robot">Üretim Modu</Label>

@@ -477,7 +477,7 @@ const AppContent: React.FC = () => {
         {/* Sidebar Container with Hover Listener - Hidden in Zen Mode */}
         <div 
             onMouseEnter={() => setIsSidebarExpanded(true)} 
-            className={`transition-all duration-500 ease-in-out ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}
+            className={`transition-all duration-500 ease-in-out h-full ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}
         >
             <Sidebar
                 isSidebarOpen={isSidebarOpen}
