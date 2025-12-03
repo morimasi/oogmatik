@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { User, FeedbackItem, Message, ActivityStats, UserRole, ActivityType } from '../types';
+import { User, FeedbackItem, Message, ActivityStats, UserRole, ActivityType, FeedbackStatus, FeedbackCategory } from '../types';
 import { authService } from '../services/authService';
 import { messagingService } from '../services/messagingService';
 import { statsService } from '../services/statsService';
@@ -150,9 +150,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     };
 
     // --- FEEDBACK ACTIONS ---
-    const handleMarkFeedbackRead = async (id: string) => {
-        await messagingService.updateFeedbackStatus(id, 'read');
-        loadData();
+    const handleUpdateFeedbackStatus = async (id: string, status: FeedbackStatus) => {
+        await messagingService.updateFeedbackStatus(id, status);
+        // Optimistic update
+        setFeedbacks(prev => prev.map(f => f.id === id ? { ...f, status } : f));
     };
 
     const handleDeleteFeedback = async (id: string) => {
@@ -215,6 +216,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const usersTotalPages = Math.ceil(usersCount / PAGE_SIZE);
 
     if (!user || user.role !== 'admin') return <div className="p-8 text-center text-red-600">Yetkisiz Erişim</div>;
+
+    // --- HELPER UI ---
+    const CategoryBadge = ({ cat }: { cat: FeedbackCategory }) => {
+        switch(cat) {
+            case 'bug': return <span className="text-[10px] font-bold bg-red-100 text-red-600 px-2 py-1 rounded-full"><i className="fa-solid fa-bug mr-1"></i>Hata</span>;
+            case 'feature': return <span className="text-[10px] font-bold bg-blue-100 text-blue-600 px-2 py-1 rounded-full"><i className="fa-solid fa-lightbulb mr-1"></i>İstek</span>;
+            case 'content': return <span className="text-[10px] font-bold bg-amber-100 text-amber-600 px-2 py-1 rounded-full"><i className="fa-solid fa-file-pen mr-1"></i>İçerik</span>;
+            default: return <span className="text-[10px] font-bold bg-zinc-100 text-zinc-600 px-2 py-1 rounded-full"><i className="fa-solid fa-comment mr-1"></i>Genel</span>;
+        }
+    };
 
     // --- INSPECTOR MODE RENDER ---
     if (inspectingUser) {
@@ -279,7 +290,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                 </div>
                 <div className="flex gap-2">
                     <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'users' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}>Kullanıcılar</button>
-                    <button onClick={() => setActiveTab('feedbacks')} className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'feedbacks' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}>Mesajlar</button>
+                    <button onClick={() => setActiveTab('feedbacks')} className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'feedbacks' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}>Geri Bildirim</button>
                     <button onClick={() => setActiveTab('stats')} className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'stats' ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}>Analiz</button>
                 </div>
             </header>
@@ -385,43 +396,66 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
 
                     {/* FEEDBACKS TAB */}
                     {activeTab === 'feedbacks' && (
-                         <BentoCard className="min-h-[600px] p-0" title="Gelen Kutusu" icon="fa-solid fa-inbox" iconColor="bg-orange-100 text-orange-600">
+                         <BentoCard className="min-h-[600px] p-0" title="Geri Bildirimler" icon="fa-solid fa-comments" iconColor="bg-orange-100 text-orange-600">
                             <div className="flex justify-between items-center px-6 mb-4">
-                                <p className="text-sm text-zinc-500 font-bold">{feedbacksCount} Mesaj</p>
+                                <p className="text-sm text-zinc-500 font-bold">{feedbacksCount} Kayıt</p>
                                 <button onClick={() => loadData('feedbacks')} className="text-indigo-600 text-sm font-bold hover:underline">Yenile</button>
                             </div>
                             
                             <div className="flex-1 overflow-y-auto px-6 space-y-4 pb-6">
                                 {loading.feedbacks ? <div className="flex justify-center p-12"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div> : feedbacks.length === 0 ? <div className="text-center text-zinc-400 p-12">Mesaj yok.</div> :
                                 feedbacks.map(fb => (
-                                    <div key={fb.id} className={`p-4 rounded-2xl border transition-all ${fb.status === 'new' ? 'bg-white border-blue-200 shadow-sm' : 'bg-zinc-50 border-zinc-100 opacity-80'}`}>
+                                    <div key={fb.id} className={`p-4 rounded-2xl border transition-all ${fb.status === 'new' ? 'bg-white border-blue-200 shadow-sm ring-1 ring-blue-100' : 'bg-zinc-50 border-zinc-100'}`}>
                                         <div className="flex justify-between items-start">
-                                            <div className="flex gap-3">
-                                                <div className={`w-2 h-2 mt-2 rounded-full ${fb.status === 'new' ? 'bg-blue-500' : 'bg-zinc-300'}`}></div>
-                                                <div>
-                                                    <div className="flex items-center gap-2 mb-1">
+                                            <div className="flex gap-4">
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <div className={`w-3 h-3 rounded-full ${fb.status === 'new' ? 'bg-blue-500 animate-pulse' : (fb.status === 'resolved' ? 'bg-green-500' : 'bg-zinc-300')}`}></div>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                                                        <CategoryBadge cat={fb.category} />
                                                         <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">{fb.activityTitle || 'Genel'}</h4>
-                                                        {fb.status === 'replied' && <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold uppercase">Yanıtlandı</span>}
+                                                        <span className="text-xs text-zinc-400">{new Date(fb.timestamp).toLocaleString()}</span>
                                                     </div>
-                                                    <div className="flex text-yellow-400 text-xs mb-2">{Array.from({length:5}).map((_,i) => <i key={i} className={`${i<fb.rating?'fa-solid':'fa-regular'} fa-star`}></i>)}</div>
-                                                    <p className="text-zinc-700 dark:text-zinc-300 text-sm mb-3">{fb.message}</p>
+                                                    
+                                                    <p className="text-zinc-700 dark:text-zinc-300 text-sm mb-3 bg-zinc-50 p-2 rounded border border-zinc-100">
+                                                        {fb.message}
+                                                    </p>
+                                                    
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <span className="text-xs font-bold text-zinc-500">Puan:</span>
+                                                        <div className="flex text-yellow-400 text-xs">{Array.from({length:5}).map((_,i) => <i key={i} className={`${i<fb.rating?'fa-solid':'fa-regular'} fa-star`}></i>)}</div>
+                                                    </div>
+
                                                     {fb.adminReply && (
-                                                        <div className="bg-indigo-50 p-3 rounded-lg text-xs text-indigo-800 mb-2">
-                                                            <span className="font-bold">Yanıt:</span> {fb.adminReply}
+                                                        <div className="bg-indigo-50 p-3 rounded-lg text-xs text-indigo-800 mb-2 border-l-4 border-indigo-300">
+                                                            <span className="font-bold block mb-1">Yanıtınız:</span> {fb.adminReply}
                                                         </div>
                                                     )}
-                                                    <div className="flex justify-between items-center text-xs text-zinc-400 font-medium gap-4">
-                                                        <span>{fb.userName} ({fb.userEmail})</span>
-                                                        <span>{new Date(fb.timestamp).toLocaleString()}</span>
+                                                    
+                                                    <div className="text-xs text-zinc-400 font-medium">
+                                                        Gönderen: {fb.userName} ({fb.userEmail})
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col gap-1">
-                                                {fb.status === 'new' && (
-                                                    <button onClick={() => handleMarkFeedbackRead(fb.id)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded" title="Okundu İşaretle"><i className="fa-solid fa-check"></i></button>
-                                                )}
-                                                <button onClick={() => handleReplyFeedback(fb.id)} className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded" title="Yanıtla"><i className="fa-solid fa-reply"></i></button>
-                                                <button onClick={() => handleDeleteFeedback(fb.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded" title="Sil"><i className="fa-solid fa-trash"></i></button>
+                                            
+                                            <div className="flex flex-col gap-2 items-end">
+                                                <select 
+                                                    value={fb.status}
+                                                    onChange={(e) => handleUpdateFeedbackStatus(fb.id, e.target.value as any)}
+                                                    className={`text-xs font-bold px-2 py-1 rounded border cursor-pointer outline-none ${fb.status === 'resolved' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-white border-zinc-300'}`}
+                                                >
+                                                    <option value="new">Yeni</option>
+                                                    <option value="read">Okundu</option>
+                                                    <option value="in-progress">İnceleniyor</option>
+                                                    <option value="resolved">Çözüldü</option>
+                                                    <option value="archived">Arşiv</option>
+                                                </select>
+
+                                                <div className="flex gap-1">
+                                                    <button onClick={() => handleReplyFeedback(fb.id)} className="p-2 text-indigo-500 hover:bg-indigo-50 rounded transition-colors" title="Yanıtla"><i className="fa-solid fa-reply"></i></button>
+                                                    <button onClick={() => handleDeleteFeedback(fb.id)} className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors" title="Sil"><i className="fa-solid fa-trash"></i></button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

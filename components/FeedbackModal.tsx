@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ActivityType } from '../types';
+import { ActivityType, FeedbackCategory } from '../types';
 import { messagingService } from '../services/messagingService';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,9 +11,17 @@ interface FeedbackModalProps {
   activityTitle?: string;
 }
 
+const CATEGORIES: { id: FeedbackCategory; label: string; icon: string; desc: string }[] = [
+    { id: 'general', label: 'Genel Görüş', icon: 'fa-comment', desc: 'Deneyimleriniz ve önerileriniz.' },
+    { id: 'bug', label: 'Hata Bildirimi', icon: 'fa-bug', desc: 'Çalışmayan bir özellik veya hata.' },
+    { id: 'feature', label: 'Özellik İsteği', icon: 'fa-lightbulb', desc: 'Uygulamada görmek istediğiniz yenilikler.' },
+    { id: 'content', label: 'İçerik Hatası', icon: 'fa-circle-exclamation', desc: 'Sorularda veya metinlerde yanlışlık.' },
+];
+
 export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, activityType, activityTitle }) => {
   const { user } = useAuth();
   const [rating, setRating] = useState<number>(0);
+  const [category, setCategory] = useState<FeedbackCategory>('general');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState(user?.email || '');
   const [isSending, setIsSending] = useState(false);
@@ -33,17 +41,15 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
           activityType: activityType || 'Genel',
           activityTitle: activityTitle || 'Genel Uygulama',
           rating,
+          category,
           message
       });
       
       setShowSuccess(true);
+      // Wait for user to read success msg or close manually
       setTimeout(() => {
-          setShowSuccess(false);
-          setMessage('');
-          setRating(0);
-          setIsSending(false);
-          onClose();
-      }, 2000);
+          handleClose();
+      }, 2500);
 
     } catch (err) {
       console.error("Feedback send error:", err);
@@ -52,15 +58,29 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
     }
   };
 
+  const handleClose = () => {
+      setShowSuccess(false);
+      setMessage('');
+      setRating(0);
+      setCategory('general');
+      setIsSending(false);
+      onClose();
+  }
+
   if (showSuccess) {
       return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl p-8 text-center animate-bounce-in">
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i className="fa-solid fa-check text-3xl text-green-600 dark:text-green-400"></i>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl p-8 text-center animate-in zoom-in duration-300 max-w-sm w-full border border-zinc-200 dark:border-zinc-700">
+                <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 ring-8 ring-green-50 dark:ring-green-900/10">
+                    <i className="fa-solid fa-check text-4xl text-green-600 dark:text-green-400"></i>
                 </div>
-                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Teşekkürler!</h3>
-                <p className="text-zinc-500 dark:text-zinc-400">Geri bildiriminiz yöneticiye iletildi.</p>
+                <h3 className="text-2xl font-black text-zinc-800 dark:text-zinc-100 mb-2">Teşekkürler!</h3>
+                <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed mb-6">
+                    Geri bildiriminiz başarıyla alındı. Gelişimimize katkıda bulunduğunuz için minnettarız.
+                </p>
+                <button onClick={handleClose} className="w-full py-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 rounded-xl font-bold transition-colors">
+                    Kapat
+                </button>
             </div>
         </div>
       );
@@ -68,103 +88,131 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, a
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
-      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl w-full max-w-md flex flex-col border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col border border-zinc-200 dark:border-zinc-700 overflow-hidden max-h-[90vh]">
         
         {/* Header */}
-        <div className="bg-indigo-600 p-4 flex justify-between items-center">
-          <h3 className="text-white font-bold text-lg flex items-center gap-2">
-            <i className="fa-solid fa-comment-dots"></i> Geri Bildirim
-          </h3>
-          <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
-            <i className="fa-solid fa-times text-xl"></i>
+        <div className="bg-zinc-900 dark:bg-black p-5 flex justify-between items-center shrink-0">
+          <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center text-white">
+                  <i className="fa-solid fa-comment-dots text-xl"></i>
+              </div>
+              <div>
+                  <h3 className="text-white font-bold text-lg">Geri Bildirim</h3>
+                  <p className="text-zinc-400 text-xs">Fikirleriniz bizim için değerli</p>
+              </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+            <i className="fa-solid fa-times"></i>
           </button>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              İlgili Etkinlik
-            </label>
-            <div className="p-2 bg-zinc-100 dark:bg-zinc-700/50 rounded text-zinc-600 dark:text-zinc-300 text-sm font-semibold">
-              {activityTitle || 'Genel Uygulama Geri Bildirimi'}
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Category Selection */}
+            <div>
+                <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Bildirim Türü</label>
+                <div className="grid grid-cols-2 gap-3">
+                    {CATEGORIES.map(cat => (
+                        <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setCategory(cat.id)}
+                            className={`p-3 rounded-xl border-2 text-left transition-all relative overflow-hidden group ${category === cat.id ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
+                        >
+                            <div className="flex items-center gap-3 mb-1 relative z-10">
+                                <i className={`fa-solid ${cat.icon} ${category === cat.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400'}`}></i>
+                                <span className={`font-bold text-sm ${category === cat.id ? 'text-indigo-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>{cat.label}</span>
+                            </div>
+                            <p className="text-[10px] text-zinc-500 leading-tight relative z-10 pl-7">{cat.desc}</p>
+                            {category === cat.id && <div className="absolute top-0 right-0 w-8 h-8 bg-indigo-600 transform translate-x-4 -translate-y-4 rotate-45"></div>}
+                        </button>
+                    ))}
+                </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Memnuniyetiniz
-            </label>
-            <div className="flex gap-2 justify-center">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  className={`text-2xl transition-transform hover:scale-110 focus:outline-none ${rating >= star ? 'text-yellow-400' : 'text-zinc-300 dark:text-zinc-600'}`}
-                >
-                  <i className="fa-solid fa-star"></i>
-                </button>
-              ))}
+            {/* Context Info */}
+            <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-700/30 rounded-xl border border-zinc-200 dark:border-zinc-600">
+                <i className="fa-solid fa-layer-group text-zinc-400"></i>
+                <div className="flex-1">
+                    <p className="text-xs text-zinc-500 font-bold uppercase">İlgili Bağlam</p>
+                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 truncate">{activityTitle || 'Genel Uygulama'}</p>
+                </div>
             </div>
-          </div>
 
-          <div>
-             <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              E-posta Adresiniz {user ? '(Otomatik)' : '(İsteğe bağlı)'}
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={!!user}
-              className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all disabled:opacity-60"
-              placeholder="ornek@email.com"
-            />
-          </div>
+            {/* Rating */}
+            <div>
+                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Memnuniyet Düzeyiniz</label>
+                <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    className={`flex-1 py-2 rounded-lg text-xl transition-all border-2 ${rating >= star ? 'border-yellow-400 bg-yellow-50 text-yellow-500' : 'border-zinc-200 text-zinc-300 hover:border-zinc-300'}`}
+                    >
+                    <i className="fa-solid fa-star"></i>
+                    </button>
+                ))}
+                </div>
+            </div>
 
-          <div>
-            <label htmlFor="message" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              Mesajınız / Hata Bildirimi
-            </label>
-            <textarea
-              id="message"
-              required
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={4}
-              className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
-              placeholder="Fikirlerinizi veya karşılaştığınız hatayı detaylandırın..."
-            ></textarea>
-          </div>
+            {/* Message */}
+            <div>
+                <label htmlFor="message" className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                Mesajınız <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                id="message"
+                required
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-700 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all resize-none text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400"
+                placeholder={category === 'bug' ? 'Hata nerede oluştu? Adımları tarif edebilir misiniz?' : 'Düşüncelerinizi paylaşın...'}
+                ></textarea>
+            </div>
 
-          <div className="pt-2">
+            {/* Email (If not logged in) */}
+            {!user && (
+                <div>
+                    <label htmlFor="email" className="block text-xs font-bold text-zinc-500 uppercase mb-2">E-posta (İsteğe Bağlı)</label>
+                    <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full p-3 border-2 border-zinc-200 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-700 focus:border-indigo-500 outline-none text-zinc-800 dark:text-zinc-100"
+                        placeholder="Size geri dönmemizi isterseniz..."
+                    />
+                </div>
+            )}
+
+            </form>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="p-5 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 shrink-0">
             <button
-              type="submit"
-              disabled={isSending}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              onClick={handleSubmit}
+              disabled={isSending || !message.trim()}
+              className="w-full bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.98]"
             >
               {isSending ? (
                 <>
-                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Gönderiliyor...</span>
+                   <i className="fa-solid fa-circle-notch fa-spin"></i>
+                   <span>Gönderiliyor...</span>
                 </>
               ) : (
                 <>
+                  <span>Gönder</span>
                   <i className="fa-solid fa-paper-plane"></i>
-                  <span>Yöneticiye İlet</span>
                 </>
               )}
             </button>
-            <p className="text-xs text-zinc-400 text-center mt-2">
-              *Mesajınız doğrudan sistem üzerinden yöneticiye iletilecektir.
-            </p>
-          </div>
-        </form>
+        </div>
+
       </div>
     </div>
   );

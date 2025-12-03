@@ -204,7 +204,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                     <div>
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Kapak Teması</label>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {['modern', 'classic', 'fun', 'minimal', 'academic', 'artistic'].map(t => (
+                                            {['modern', 'classic', 'fun', 'minimal', 'academic', 'artistic', 'space', 'nature', 'geometric'].map(t => (
                                                 <button 
                                                     key={t} 
                                                     onClick={() => setSettings({...settings, theme: t as any})}
@@ -282,6 +282,13 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                             <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showPageNumbers ? 'bg-green-500' : 'bg-zinc-300'}`}>
                                                 <input type="checkbox" checked={settings.showPageNumbers} onChange={e => setSettings({...settings, showPageNumbers: e.target.checked})} className="hidden" />
                                                 <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showPageNumbers ? 'left-6' : 'left-1'}`}></div>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center justify-between cursor-pointer group">
+                                            <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Arka Kapak</span>
+                                            <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showBackCover ? 'bg-green-500' : 'bg-zinc-300'}`}>
+                                                <input type="checkbox" checked={settings.showBackCover} onChange={e => setSettings({...settings, showBackCover: e.target.checked})} className="hidden" />
+                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showBackCover ? 'left-6' : 'left-1'}`}></div>
                                             </div>
                                         </label>
                                         <div className="space-y-2">

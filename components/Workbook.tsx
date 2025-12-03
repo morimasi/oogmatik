@@ -56,7 +56,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
             <DyslexiaLogo className="h-20 w-auto text-current" />
         );
 
-        // --- MODERN THEME ---
+        // --- MODERN THEME (Clean, Left-Aligned) ---
         if (settings.theme === 'modern') {
             return (
                 <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-white overflow-hidden" 
@@ -95,7 +95,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
             );
         }
 
-        // --- ACADEMIC THEME ---
+        // --- ACADEMIC THEME (Serif, Classic) ---
         if (settings.theme === 'academic') {
             return (
                 <div className="worksheet-page relative flex flex-col p-16 shadow-2xl print:shadow-none mb-8 break-after-page bg-white" 
@@ -120,7 +120,116 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
             );
         }
 
-        // --- ARTISTIC THEME ---
+        // --- SPACE THEME (Dark, Stars, Future) ---
+        if (settings.theme === 'space') {
+            return (
+                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-[#0B0D17] text-white overflow-hidden" 
+                     style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
+                    
+                    {/* Stars Background */}
+                    <div className="absolute inset-0 opacity-50" style={{backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '50px 50px'}}></div>
+                    <div className="absolute inset-0 opacity-30" style={{backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '30px 30px', backgroundPosition: '15px 15px'}}></div>
+                    
+                    {/* Planet Decoration */}
+                    <div className="absolute top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br from-indigo-500 to-purple-900 opacity-80 blur-xl"></div>
+                    <div className="absolute bottom-20 -left-20 w-80 h-80 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-500 opacity-20 blur-2xl"></div>
+
+                    <div className="relative z-10 p-16 flex flex-col h-full justify-between">
+                        <div className="flex justify-between items-start">
+                            <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/20">
+                                {settings.logoUrl ? <img src={settings.logoUrl} className="h-16 w-auto brightness-0 invert" /> : <DyslexiaLogo className="h-12 w-auto text-white" />}
+                            </div>
+                            <div className="text-right text-cyan-200">
+                                <i className="fa-solid fa-rocket text-3xl mb-2 block"></i>
+                                <span className="font-mono">{settings.year}</span>
+                            </div>
+                        </div>
+
+                        <div className="text-center space-y-6 bg-black/30 p-8 rounded-3xl backdrop-blur-md border border-white/10">
+                            <span className="text-cyan-400 uppercase tracking-[0.3em] text-sm font-bold">Öğrenme Yolculuğu</span>
+                            <h1 className="text-6xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-indigo-200 to-purple-200" style={{filter: 'drop-shadow(0 0 10px rgba(99, 102, 241, 0.5))'}}>
+                                {settings.title}
+                            </h1>
+                            <div className="w-20 h-1 bg-gradient-to-r from-cyan-500 to-purple-500 mx-auto rounded-full"></div>
+                            <h2 className="text-3xl font-bold text-white">{settings.studentName}</h2>
+                        </div>
+
+                        <div className="text-center opacity-60 text-sm font-mono">
+                            {settings.schoolName || 'Bursa Disleksi AI'} • Bilgi Evrenine Yolculuk
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- NATURE THEME (Organic, Peaceful) ---
+        if (settings.theme === 'nature') {
+            return (
+                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-[#F0FDF4] overflow-hidden" 
+                     style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
+                    
+                    {/* SVG Hills */}
+                    <div className="absolute bottom-0 left-0 w-full">
+                        <svg viewBox="0 0 1440 320" className="w-full h-auto block opacity-80" preserveAspectRatio="none">
+                            <path fill="#22c55e" fillOpacity="0.4" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,250.7C960,235,1056,181,1152,165.3C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                            <path fill="#15803d" fillOpacity="0.6" d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,170.7C672,149,768,139,864,154.7C960,171,1056,213,1152,218.7C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                        </svg>
+                    </div>
+
+                    <div className="relative z-10 p-16 flex flex-col h-full items-center text-center">
+                        <div className="mb-12">
+                            {logoComponent}
+                        </div>
+                        
+                        <div className="border-4 border-green-800/20 p-8 rounded-full aspect-square flex flex-col justify-center items-center w-[400px] bg-white/50 backdrop-blur-sm shadow-xl">
+                            <span className="text-green-600 font-serif italic text-xl mb-2">Benim Kitabım</span>
+                            <h1 className="text-5xl font-black text-green-900 mb-4">{settings.title}</h1>
+                            <div className="w-16 h-1 bg-green-600 rounded-full mb-4"></div>
+                            <h2 className="text-2xl font-bold text-green-800">{settings.studentName}</h2>
+                        </div>
+
+                        <div className="mt-auto mb-16 p-4 bg-white/80 rounded-xl shadow-sm border border-green-100">
+                            <p className="text-green-800 font-bold">{settings.schoolName}</p>
+                            <p className="text-green-600 text-sm">{settings.year}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- GEOMETRIC THEME (Publisher Style) ---
+        if (settings.theme === 'geometric') {
+            return (
+                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-white overflow-hidden" 
+                     style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
+                    
+                    {/* Geometric Shapes */}
+                    <div className="absolute top-0 right-0 w-[60%] h-full bg-zinc-100 transform -skew-x-12 translate-x-20 origin-top"></div>
+                    <div className="absolute top-0 right-0 w-[20%] h-full bg-zinc-900 transform -skew-x-12 translate-x-32 origin-top"></div>
+                    
+                    <div className="absolute bottom-10 right-10 z-20">
+                        <div className="text-8xl font-black text-white/10 uppercase tracking-tighter rotate-90 origin-bottom-right">{settings.year}</div>
+                    </div>
+
+                    <div className="relative z-10 p-16 flex flex-col h-full justify-center items-start">
+                        <div className="mb-12 scale-110">{logoComponent}</div>
+                        
+                        <div className="bg-white p-8 shadow-2xl border-l-8 border-zinc-900 max-w-lg">
+                            <span className="text-zinc-400 font-bold tracking-widest text-xs uppercase block mb-2">Eğitim Materyali</span>
+                            <h1 className="text-6xl font-black text-zinc-900 leading-none mb-4">{settings.title}</h1>
+                            <p className="text-xl text-zinc-500 font-medium">{settings.studentName}</p>
+                        </div>
+
+                        <div className="mt-auto">
+                            <p className="font-bold text-zinc-900 text-lg">{settings.schoolName}</p>
+                            <p className="text-zinc-500 text-sm">{settings.teacherNote}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- ARTISTIC THEME (Fallback / Abstract) ---
         if (settings.theme === 'artistic') {
             return (
                 <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-zinc-900 text-white" 
@@ -167,6 +276,43 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         );
     };
 
+    const renderBackCover = () => {
+        if (!settings.showBackCover) return null;
+
+        const isDark = settings.theme === 'space' || settings.theme === 'artistic';
+        const bgColor = isDark ? '#18181b' : '#ffffff';
+        const textColor = isDark ? '#ffffff' : '#000000';
+
+        return (
+            <div className="worksheet-page relative flex flex-col items-center justify-center p-16 shadow-2xl print:shadow-none mb-8 break-before-page bg-white" 
+                 style={{ width: '210mm', minHeight: '297mm', margin: '0 auto', backgroundColor: bgColor, color: textColor }}>
+                
+                {/* Decorative Center */}
+                <div className="text-center space-y-6">
+                    <div className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl mb-4 ${isDark ? 'bg-white/10 text-white' : 'bg-zinc-100 text-zinc-800'}`}>
+                        <i className="fa-solid fa-trophy"></i>
+                    </div>
+                    <h2 className="text-3xl font-bold">Harika İş Çıkardın!</h2>
+                    <p className="text-lg opacity-70 max-w-md mx-auto">
+                        Bu kitapçığı tamamlayarak büyük bir başarıya imza attın. Öğrenme yolculuğunda başarılar dileriz.
+                    </p>
+                </div>
+
+                {/* Footer Info */}
+                <div className="absolute bottom-16 w-full text-center">
+                    <div className="w-16 h-1 mx-auto mb-6" style={{ backgroundColor: accent }}></div>
+                    {settings.logoUrl ? (
+                        <img src={settings.logoUrl} className="h-12 w-auto mx-auto mb-4 object-contain opacity-50 grayscale" />
+                    ) : (
+                        <div className="text-2xl font-black opacity-30 mb-2">BURSA DİSLEKSİ AI</div>
+                    )}
+                    <p className="text-xs font-mono opacity-50">www.bursadisleksi.com</p>
+                    <p className="text-xs font-mono opacity-50 mt-1">{settings.schoolName}</p>
+                </div>
+            </div>
+        );
+    };
+
     const renderTableOfContents = () => {
         if (!settings.showTOC || items.length === 0) return null;
         
@@ -178,15 +324,16 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                     <h2 className="text-3xl font-black text-zinc-800 uppercase tracking-widest">İçindekiler</h2>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {items.map((item, index) => (
-                        <div key={item.id} className="flex items-end justify-between group">
-                            <div className="flex items-end gap-3 flex-1 overflow-hidden">
-                                <span className="font-bold text-zinc-400 w-6 text-right">{index + 1}.</span>
-                                <span className="text-lg font-bold text-zinc-800 truncate">{item.title}</span>
-                                <div className="flex-1 border-b-2 border-dotted border-zinc-300 mx-2 relative -top-1 opacity-50"></div>
-                            </div>
-                            <span className="font-bold text-lg" style={{ color: accent }}>{index + (settings.showTOC ? 3 : 2)}</span>
+                        <div key={item.id} className="flex items-end justify-between group text-zinc-800">
+                            <span className="font-bold text-zinc-400 w-8 text-right mr-4">{index + 1}.</span>
+                            <span className="text-lg font-bold truncate shrink-0 max-w-[70%]">{item.title}</span>
+                            
+                            {/* Dot Leader */}
+                            <div className="flex-1 mx-2 border-b-2 border-dotted border-zinc-300 relative -top-1 opacity-50"></div>
+                            
+                            <span className="font-bold text-lg w-8 text-right" style={{ color: accent }}>{index + (settings.showTOC ? 3 : 2)}</span>
                         </div>
                     ))}
                 </div>
@@ -281,6 +428,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                     @page { margin: 0; size: A4; }
                     body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                     .break-after-page { break-after: page; page-break-after: always; }
+                    .break-before-page { break-before: page; page-break-before: always; }
                     .workbook-container { display: block; padding: 0; background: white; }
                     /* Force background colors for cover themes */
                     .worksheet-page { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -317,6 +465,9 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                     </div>
                 </div>
             ))}
+
+            {/* 4. Back Cover */}
+            {renderBackCover()}
         </div>
     );
 };

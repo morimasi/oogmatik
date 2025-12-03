@@ -277,6 +277,9 @@ export interface User {
     };
 }
 
+export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'content';
+export type FeedbackStatus = 'new' | 'read' | 'in-progress' | 'resolved' | 'archived';
+
 export interface FeedbackItem {
     id: string;
     userId?: string;
@@ -285,9 +288,10 @@ export interface FeedbackItem {
     activityType: string | null;
     activityTitle?: string;
     rating: number;
+    category: FeedbackCategory; 
     message: string;
     timestamp: string;
-    status: 'new' | 'read' | 'archived' | 'replied';
+    status: FeedbackStatus; 
     adminReply?: string;
 }
 
@@ -336,7 +340,7 @@ export interface AssessmentReport {
     analysis: {
         strengths: string[];
         weaknesses: string[];
-        errorAnalysis?: string[]; // Detailed pedagogical analysis of errors
+        errorAnalysis?: string[]; 
     };
     roadmap: {
         activityId: string;
@@ -364,7 +368,7 @@ export interface SavedWorksheet {
     userId: string;
     name: string;
     activityType: ActivityType;
-    worksheetData: any; // Using 'any' to avoid circular ref complexity for now
+    worksheetData: any; 
     createdAt: string;
     icon: string;
     category: { id: string; title: string };
@@ -372,7 +376,7 @@ export interface SavedWorksheet {
     sharedByName?: string;
     sharedWith?: string;
     styleSettings?: StyleSettings;
-    studentProfile?: StudentProfile; // New field
+    studentProfile?: StudentProfile; 
 }
 
 export interface BaseActivityData {
@@ -390,7 +394,7 @@ export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 
 export interface CollectionItem {
     id: string;
     activityType: ActivityType;
-    data: any; // SingleWorksheetData or AssessmentReport
+    data: any; 
     settings: StyleSettings;
     title: string;
 }
@@ -403,14 +407,28 @@ export interface WorkbookSettings {
     teacherNote: string;
     
     // Updated Professional Settings
-    theme: 'modern' | 'classic' | 'fun' | 'minimal' | 'academic' | 'artistic';
-    accentColor: string; // Hex color for highlights
-    logoUrl?: string; // Custom logo upload
+    theme: 'modern' | 'classic' | 'fun' | 'minimal' | 'academic' | 'artistic' | 'space' | 'nature' | 'geometric';
+    accentColor: string; 
+    logoUrl?: string; 
     coverStyle: 'centered' | 'left' | 'split';
     
     // Visibility
-    showTOC: boolean; // Table of Contents
+    showTOC: boolean; 
     showPageNumbers: boolean;
     showWatermark: boolean;
-    watermarkOpacity: number; // 0.0 to 1.0
+    watermarkOpacity: number; 
+    showBackCover: boolean; // New
+}
+
+export type SingleWorksheetData = BaseActivityData & Record<string, any>;
+export type WorksheetData = SingleWorksheetData[];
+
+export interface HistoryItem {
+    id: string;
+    userId: string;
+    activityType: ActivityType;
+    data: WorksheetData;
+    timestamp: string;
+    title: string;
+    category: { id: string; title: string };
 }

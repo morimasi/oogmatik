@@ -1,7 +1,7 @@
 
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { FeedbackItem, Message, User } from '../types';
+import { FeedbackItem, Message, User, FeedbackStatus } from '../types';
 
 const { collection, addDoc, query, where, getDocs, orderBy, updateDoc, doc, deleteDoc, writeBatch } = firestore;
 
@@ -13,6 +13,7 @@ const mapDbFeedback = (data: any, id: string): FeedbackItem => ({
     activityType: data.activityType,
     activityTitle: data.activityTitle,
     rating: data.rating,
+    category: data.category || 'general',
     message: data.message,
     timestamp: data.timestamp,
     status: data.status || 'new',
@@ -52,7 +53,7 @@ export const messagingService = {
 
     // --- ADMIN FEEDBACK ACTIONS ---
 
-    updateFeedbackStatus: async (feedbackId: string, status: 'read' | 'archived' | 'replied'): Promise<void> => {
+    updateFeedbackStatus: async (feedbackId: string, status: FeedbackStatus): Promise<void> => {
         const feedbackRef = doc(db, "feedbacks", feedbackId);
         await updateDoc(feedbackRef, { status });
     },
@@ -66,9 +67,7 @@ export const messagingService = {
         await updateDoc(feedbackRef, { status: 'replied', adminReply: replyMessage });
         
         // Also send as a direct message if user exists
-        // Note: Ideally check if userId exists, but simplified here
         // This allows the user to see the reply in their inbox
-        // if a valid userId was attached to feedback
     },
 
     // --- MESSAGING ---
