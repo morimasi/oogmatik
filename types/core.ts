@@ -133,6 +133,9 @@ export enum ActivityType {
   // --- REPORT ---
   ASSESSMENT_REPORT = 'ASSESSMENT_REPORT',
 
+  // --- WORKBOOK ---
+  WORKBOOK = 'WORKBOOK',
+
   // --- DYSCALCULIA ACTIVITIES ---
   NUMBER_SENSE = 'NUMBER_SENSE',
   ARITHMETIC_FLUENCY = 'ARITHMETIC_FLUENCY',
@@ -376,7 +379,10 @@ export interface SavedWorksheet {
     sharedByName?: string;
     sharedWith?: string;
     styleSettings?: StyleSettings;
-    studentProfile?: StudentProfile; 
+    studentProfile?: StudentProfile;
+    // Workbook specific fields
+    workbookItems?: CollectionItem[];
+    workbookSettings?: WorkbookSettings;
 }
 
 export interface BaseActivityData {

@@ -146,7 +146,8 @@ const AppContent: React.FC = () => {
       showTOC: true,
       showPageNumbers: true,
       showWatermark: false,
-      watermarkOpacity: 0.05
+      watermarkOpacity: 0.05,
+      showBackCover: true
   });
   
   const [theme, setTheme] = useState<AppTheme>(() => {
@@ -290,17 +291,25 @@ const AppContent: React.FC = () => {
   };
 
   const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
-    setSelectedActivity(worksheet.activityType);
-    setWorksheetData(worksheet.worksheetData);
-    if (worksheet.styleSettings) {
-        setStyleSettings(worksheet.styleSettings);
-    }
-    if (worksheet.studentProfile) {
-        setStudentProfile(worksheet.studentProfile);
+    if (worksheet.activityType === ActivityType.WORKBOOK) {
+        if (worksheet.workbookItems && worksheet.workbookSettings) {
+            setWorkbookItems(worksheet.workbookItems);
+            setWorkbookSettings(worksheet.workbookSettings);
+            setCurrentView('workbook');
+        }
     } else {
-        setStudentProfile(null);
+        setSelectedActivity(worksheet.activityType);
+        setWorksheetData(worksheet.worksheetData);
+        if (worksheet.styleSettings) {
+            setStyleSettings(worksheet.styleSettings);
+        }
+        if (worksheet.studentProfile) {
+            setStudentProfile(worksheet.studentProfile);
+        } else {
+            setStudentProfile(null);
+        }
+        setCurrentView('generator');
     }
-    setCurrentView('generator');
   };
 
   const handleSelectActivity = (activityType: ActivityType | null) => {

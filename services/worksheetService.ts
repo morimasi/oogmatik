@@ -1,6 +1,7 @@
+
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile } from '../types';
+import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types';
 
 const { collection, addDoc, query, where, getDocs, orderBy, deleteDoc, doc, updateDoc, increment } = firestore;
 
@@ -42,7 +43,10 @@ const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     sharedByName: docData.sharedByName,
     sharedWith: docData.sharedWith,
     styleSettings: docData.styleSettings, // Load style settings if present
-    studentProfile: docData.studentProfile // Load student profile if present
+    studentProfile: docData.studentProfile, // Load student profile if present
+    // Workbook specific fields
+    workbookItems: docData.workbookItems ? JSON.parse(docData.workbookItems) : undefined,
+    workbookSettings: docData.workbookSettings
 });
 
 export const worksheetService = {
@@ -96,6 +100,36 @@ export const worksheetService = {
             };
         } catch (error) {
             console.error("Error saving worksheet:", error);
+            throw error;
+        }
+    },
+
+    saveWorkbook: async (
+        userId: string,
+        settings: WorkbookSettings,
+        items: CollectionItem[]
+    ): Promise<SavedWorksheet> => {
+        try {
+            const payload: any = {
+                userId,
+                name: settings.title || 'Adsız Kitapçık',
+                activityType: ActivityType.WORKBOOK,
+                worksheetData: "[]", // Empty for workbooks
+                icon: 'fa-solid fa-book-journal-whills',
+                category: { id: 'workbook', title: 'Çalışma Kitapçığı' },
+                createdAt: new Date().toISOString(),
+                workbookSettings: settings,
+                workbookItems: serializeData(items) // Serialize complex items array
+            };
+
+            const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
+
+            const userRef = doc(db, "users", userId);
+            updateDoc(userRef, { worksheetCount: increment(1) }).catch(console.warn);
+
+            return mapDbToWorksheet(payload, docRef.id);
+        } catch (error) {
+            console.error("Error saving workbook:", error);
             throw error;
         }
     },
@@ -160,6 +194,10 @@ export const worksheetService = {
             }
             if (worksheet.studentProfile) {
                 sharedPayload.studentProfile = worksheet.studentProfile;
+            }
+            if (worksheet.activityType === ActivityType.WORKBOOK) {
+                sharedPayload.workbookItems = serializeData(worksheet.workbookItems);
+                sharedPayload.workbookSettings = worksheet.workbookSettings;
             }
 
             await addDoc(collection(db, "saved_worksheets"), sharedPayload);

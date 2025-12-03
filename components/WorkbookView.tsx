@@ -2,6 +2,8 @@
 import React, { useState, useRef } from 'react';
 import { CollectionItem, WorkbookSettings } from '../types';
 import Workbook from './Workbook';
+import { worksheetService } from '../services/worksheetService';
+import { useAuth } from '../context/AuthContext';
 
 interface WorkbookViewProps {
     items: CollectionItem[];
@@ -14,8 +16,10 @@ interface WorkbookViewProps {
 const COLORS = ['#4f46e5', '#ef4444', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#06b6d4', '#1f2937'];
 
 export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, settings, setSettings, onBack }) => {
+    const { user } = useAuth();
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
     const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
+    const [isSaving, setIsSaving] = useState(false);
     
     // Drag & Drop State
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -54,6 +58,28 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         document.title = settings.title.replace(/ /g, '_') || 'Kitapcik';
         window.print();
         document.title = originalTitle;
+    };
+
+    const handleSave = async () => {
+        if (!user) {
+            alert("Kaydetmek için lütfen giriş yapın.");
+            return;
+        }
+        if (items.length === 0) {
+            alert("Kitapçık boş. Lütfen önce içerik ekleyin.");
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            await worksheetService.saveWorkbook(user.id, settings, items);
+            alert(`"${settings.title}" başarıyla arşivinize kaydedildi.`);
+        } catch (error) {
+            console.error("Save failed:", error);
+            alert("Kaydetme sırasında bir hata oluştu.");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,9 +129,19 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                         </button>
                     </div>
                     {viewMode === 'preview' && (
-                        <button onClick={handlePrint} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95">
-                            <i className="fa-solid fa-print"></i> Yazdır
-                        </button>
+                        <>
+                            <button 
+                                onClick={handleSave} 
+                                disabled={isSaving}
+                                className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>} 
+                                Kaydet
+                            </button>
+                            <button onClick={handlePrint} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95">
+                                <i className="fa-solid fa-print"></i> Yazdır
+                            </button>
+                        </>
                     )}
                 </div>
             </div>

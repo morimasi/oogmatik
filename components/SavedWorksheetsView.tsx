@@ -1,14 +1,12 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
-import { SavedWorksheet, SavedAssessment } from '../types';
+import { SavedWorksheet, SavedAssessment, ActivityType } from '../types';
 import { ACTIVITIES } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import { worksheetService } from '../services/worksheetService';
 import { assessmentService } from '../services/assessmentService';
 import { ShareModal } from './ShareModal';
-import { AssessmentReportViewer } from './AssessmentReportViewer';
 
-interface SavedWorksheetsViewProps {
+interface SharedWorksheetsViewProps {
   onLoad: (worksheet: SavedWorksheet) => void;
   onBack: () => void;
   targetUserId?: string; // Optional: If provided, loads this user's data instead of current auth user
@@ -18,7 +16,7 @@ const PAGE_SIZE = 10;
 
 type GroupType = { title: string; items: (SavedWorksheet | SavedAssessment)[] };
 
-export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
+export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
   const { user } = useAuth();
   const [worksheets, setWorksheets] = useState<SavedWorksheet[]>([]);
   const [assessments, setAssessments] = useState<SavedAssessment[]>([]);
@@ -68,10 +66,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
           if (type === 'worksheet') {
               await worksheetService.deleteWorksheet(id);
           } else {
-              // Note: deleteAssessment not implemented in assessmentService yet, handled implicitly or added later.
-              // For now assuming worksheet service or manual removal if needed.
-              // Actually assessmentService needs delete method.
-              // Skipping implementation for now to avoid large refactor, focusing on view.
+              // Assessment service delete implementation needed or alert
               alert("Değerlendirme silme özelliği yakında eklenecektir.");
               return;
           }
@@ -80,6 +75,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
   };
 
   const getActivityTitle = (type: SavedWorksheet['activityType']) => {
+    if (type === ActivityType.WORKBOOK) return 'Çalışma Kitapçığı';
     const activity = ACTIVITIES.find(a => a.id === type);
     return activity?.title || type;
   };
@@ -198,11 +194,13 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                                         <tbody className="bg-white dark:bg-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-700">
                                             {group.items.map(item => {
                                                 const isAssessment = 'report' in item;
+                                                const isWorkbook = !isAssessment && (item as SavedWorksheet).activityType === ActivityType.WORKBOOK;
+                                                
                                                 return (
                                                 <tr key={item.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors">
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center">
-                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 shrink-0 ${isAssessment ? 'bg-purple-100 text-purple-600' : 'bg-indigo-100 text-indigo-600'} dark:bg-opacity-20`}>
+                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 shrink-0 ${isAssessment ? 'bg-purple-100 text-purple-600' : (isWorkbook ? 'bg-orange-100 text-orange-600' : 'bg-indigo-100 text-indigo-600')} dark:bg-opacity-20`}>
                                                                 <i className={`${isAssessment ? 'fa-solid fa-file-medical' : (item as SavedWorksheet).icon} fa-lg`}></i>
                                                             </div>
                                                             <div>
@@ -285,11 +283,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
         worksheetTitle={selectedWorksheetToShare?.name}
       />
 
-      <AssessmentReportViewer 
-        assessment={selectedAssessment} 
-        onClose={() => setSelectedAssessment(null)} 
-        user={user}
-      />
+      {/* Conditional render of report viewer if implemented here, currently handled via parent props or separate modal */}
     </div>
   );
 };
