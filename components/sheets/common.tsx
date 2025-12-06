@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
 import { EditableElement, EditableText } from '../Editable'; 
@@ -27,13 +27,13 @@ interface ImageDisplayProps {
     className?: string;
 }
 
-// Enhanced ImageDisplay with Context-Aware AI Generation
+// Enhanced ImageDisplay with Context-Aware AI Generation, Memoization, and Lazy Loading
 export const ImageDisplay = React.memo(({ base64, description, prompt, className = "w-full h-32" }: ImageDisplayProps) => {
     let safeDesc = '';
     try { if (description) safeDesc = String(description); } catch (e) { safeDesc = ''; }
 
-    // Generate a consistent seed based on description to ensure the image doesn't flicker on re-renders
-    const seed = safeDesc.length > 0 ? safeDesc.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : Math.floor(Math.random() * 1000);
+    // Use memo to prevent seed re-generation on every render
+    const seed = useMemo(() => safeDesc.length > 0 ? safeDesc.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : Math.floor(Math.random() * 1000), [safeDesc]);
 
     return (
         <div className={`image-display-container ${className} relative overflow-hidden bg-white`}>
@@ -46,14 +46,10 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 }
                 
                 if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
-                    return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" />;
+                    return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" loading="lazy" />;
                 }
 
                 // 2. Priority: AI Generation (Pollinations.ai)
-                // FIX: Context-Aware Prompt Logic
-                // If the prompt is generic, ignore it and use the description.
-                // Combine them for better context if specific.
-                
                 let contentForPrompt = prompt || '';
                 const genericKeywords = ['Resim', 'Nesne', 'Object', 'Image', 'Puzzle', 'Game', 'Math', 'Shape', 'Pattern'];
                 
@@ -61,18 +57,13 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 if (!contentForPrompt || contentForPrompt.length < 4 || genericKeywords.includes(contentForPrompt)) {
                     contentForPrompt = safeDesc;
                 } else if (safeDesc && !contentForPrompt.includes(safeDesc) && safeDesc.length > 1) {
-                    // Combine specific prompt with description: "running child" (prompt) + "Ali okula koşuyor" (desc)
                     contentForPrompt = `${contentForPrompt} ${safeDesc}`;
                 }
 
                 // If we still don't have a good prompt (empty desc), fallback to emoji
                 if (contentForPrompt && contentForPrompt.length > 1) {
-                    // We append styling keywords to ensure consistent, child-friendly vector art style
-                    // 'simple educational vector illustration' ensures it looks like a worksheet graphic, not a photo.
                     const finalPrompt = `${contentForPrompt}, simple educational vector illustration, flat design, white background, isolated object, colorful, cute style, clear lines, high contrast`;
                     const encodedPrompt = encodeURIComponent(finalPrompt);
-                    
-                    // Pollinations URL construction with seed for consistency
                     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
                     
                     return (
@@ -82,7 +73,6 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                             className="object-contain w-full h-full" 
                             loading="lazy"
                             onError={(e) => {
-                                // Fallback to emoji if image fails to load
                                 e.currentTarget.style.display = 'none';
                                 e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden');
                             }}
@@ -107,7 +97,7 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 );
             })()}
             
-            {/* Immediate Fallback Element (displayed if image errors or no prompt) */}
+            {/* Immediate Fallback Element */}
             <div className="fallback-icon hidden absolute inset-0 flex items-center justify-center bg-zinc-50">
                  <span className="text-2xl opacity-50">{safeDesc ? safeDesc.charAt(0).toUpperCase() : '?'}</span>
             </div>
@@ -187,13 +177,10 @@ export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: Shap
 });
 
 export const Matchstick = React.memo(({ x1, y1, x2, y2, color, strokeWidth = 4 }: { x1: number, y1: number, x2: number, y2: number, color?: string, strokeWidth?: number }) => {
-    // Realistic Matchstick Rendering
     return (
         <g>
-            {/* Stick Body */}
             <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d4d4d4" strokeWidth={strokeWidth} strokeLinecap="round" />
             <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color || "#f59e0b"} strokeWidth={strokeWidth - 2} strokeLinecap="round" />
-            {/* Head (Red/Brown dot at start) */}
             <circle cx={x1} cy={y1} r={strokeWidth} fill="#78350f" /> 
         </g>
     );
@@ -241,8 +228,7 @@ export const ShapeDisplay = React.memo(({ shapes }: { shapes: ShapeType[] }) => 
     <div className="flex gap-1 text-black">{shapes.map((s, i) => <Shape key={i} name={s} className="w-6 h-6" />)}</div>
 ));
 
-// CagedGridSvg for Kendoku
-export const CagedGridSvg = ({ size, cages, gridData }: { size: number, cages: any[], gridData: (number|null)[][] }) => {
+export const CagedGridSvg = React.memo(({ size, cages, gridData }: { size: number, cages: any[], gridData: (number|null)[][] }) => {
     const cellSize = 50;
     const totalSize = size * cellSize;
 
@@ -255,9 +241,7 @@ export const CagedGridSvg = ({ size, cages, gridData }: { size: number, cages: a
             </defs>
             <rect width={totalSize} height={totalSize} fill="url(#grid)" stroke="#000" strokeWidth="2" />
 
-            {/* Cages */}
             {cages.map((cage, idx) => {
-                // Determine boundaries of cage cells to draw thick outline
                 const pathInstructions: string[] = [];
                 cage.cells.forEach((cell: any) => {
                     const r = cell.row;
@@ -265,7 +249,6 @@ export const CagedGridSvg = ({ size, cages, gridData }: { size: number, cages: a
                     const x = c * cellSize;
                     const y = r * cellSize;
                     
-                    // Check neighbors to see if we need a border
                     const hasTop = cage.cells.some((oc: any) => oc.row === r - 1 && oc.col === c);
                     const hasBottom = cage.cells.some((oc: any) => oc.row === r + 1 && oc.col === c);
                     const hasLeft = cage.cells.some((oc: any) => oc.row === r && oc.col === c - 1);
@@ -277,7 +260,6 @@ export const CagedGridSvg = ({ size, cages, gridData }: { size: number, cages: a
                     if (!hasRight) pathInstructions.push(`M ${x + cellSize} ${y} L ${x + cellSize} ${y + cellSize}`);
                 });
 
-                // Top-left cell for label
                 const sortedCells = [...cage.cells].sort((a: any,b: any) => (a.row - b.row) || (a.col - b.col));
                 const first = sortedCells[0];
                 const labelX = first.col * cellSize + 2;
@@ -291,7 +273,6 @@ export const CagedGridSvg = ({ size, cages, gridData }: { size: number, cages: a
                 );
             })}
 
-            {/* Numbers */}
             {gridData.map((row, r) => 
                 row.map((val, c) => (
                     val !== null ? (
@@ -303,4 +284,4 @@ export const CagedGridSvg = ({ size, cages, gridData }: { size: number, cages: a
             )}
         </svg>
     );
-};
+});

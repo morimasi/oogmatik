@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { CollectionItem, WorkbookSettings } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
@@ -15,6 +15,49 @@ interface WorkbookViewProps {
 
 const COLORS = ['#4f46e5', '#ef4444', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#06b6d4', '#1f2937'];
 
+// Memoized Item Component to prevent re-renders of the entire list on drag
+const SortablePageItem = React.memo(({ 
+    item, 
+    index, 
+    isDragging, 
+    onDragStart, 
+    onDragOver, 
+    onDragEnd, 
+    onRemove 
+}: { 
+    item: CollectionItem, 
+    index: number, 
+    isDragging: boolean,
+    onDragStart: (idx: number) => void,
+    onDragOver: (e: React.DragEvent, idx: number) => void,
+    onDragEnd: () => void,
+    onRemove: (id: string) => void
+}) => {
+    return (
+        <div 
+            draggable
+            onDragStart={() => onDragStart(index)}
+            onDragOver={(e) => onDragOver(e, index)}
+            onDragEnd={onDragEnd}
+            className={`group flex items-center gap-3 p-3 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-400 transition-all ${isDragging ? 'opacity-50 border-dashed border-indigo-500' : ''}`}
+        >
+            <div className="w-6 h-6 flex items-center justify-center text-zinc-400">
+                <i className="fa-solid fa-grip-vertical"></i>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-indigo-600 text-xs shrink-0">
+                {index + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">{item.title}</p>
+                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{item.activityType}</p>
+            </div>
+            <button onClick={() => onRemove(item.id)} className="text-zinc-300 hover:text-red-500 p-2 transition-colors">
+                <i className="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    );
+});
+
 export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, settings, setSettings, onBack }) => {
     const { user } = useAuth();
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
@@ -25,33 +68,39 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleRemoveItem = (id: string) => {
+    const handleRemoveItem = useCallback((id: string) => {
         if(confirm('Bu sayfayı kitapçıktan çıkarmak istediğinize emin misiniz?')) {
             setItems(prev => prev.filter(i => i.id !== id));
         }
-    };
+    }, [setItems]);
 
-    // HTML5 Drag & Drop Handlers
-    const handleDragStart = (index: number) => {
+    // HTML5 Drag & Drop Handlers (Memoized)
+    const handleDragStart = useCallback((index: number) => {
         setDraggedItemIndex(index);
-    };
+    }, []);
 
-    const handleDragOver = (e: React.DragEvent, index: number) => {
+    const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
         e.preventDefault();
-        if (draggedItemIndex === null || draggedItemIndex === index) return;
-        
-        // Reorder list visually
-        const newItems = [...items];
-        const draggedItem = newItems[draggedItemIndex];
-        newItems.splice(draggedItemIndex, 1);
-        newItems.splice(index, 0, draggedItem);
-        setItems(newItems);
-        setDraggedItemIndex(index);
-    };
+        // We rely on local state for visual feedback, but actual reordering only happens if we track it correctly.
+        // To avoid flicker, we need to check current drag index.
+        // Since accessing draggedItemIndex inside callback requires dependency, we use functional update pattern if possible or ref.
+        // However, standard React DND pattern usually updates list. 
+        // For performance, we only update if index changes.
+        setItems(prevItems => {
+            if (draggedItemIndex === null || draggedItemIndex === index) return prevItems;
+            
+            const newItems = [...prevItems];
+            const draggedItem = newItems[draggedItemIndex];
+            newItems.splice(draggedItemIndex, 1);
+            newItems.splice(index, 0, draggedItem);
+            setDraggedItemIndex(index); // Update index to current
+            return newItems;
+        });
+    }, [draggedItemIndex, setItems]);
 
-    const handleDragEnd = () => {
+    const handleDragEnd = useCallback(() => {
         setDraggedItemIndex(null);
-    };
+    }, []);
 
     const handlePrint = () => {
         const originalTitle = document.title;
@@ -87,7 +136,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         if (file) {
             const reader = new FileReader();
             reader.onload = (ev) => {
-                setSettings({ ...settings, logoUrl: ev.target?.result as string });
+                setSettings(prev => ({ ...prev, logoUrl: ev.target?.result as string }));
             };
             reader.readAsDataURL(file);
         }
@@ -175,21 +224,21 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Kitapçık Başlığı</label>
-                                            <input type="text" value={settings.title} onChange={e => setSettings({...settings, title: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Örn: Tatil Kitabım" />
+                                            <input type="text" value={settings.title} onChange={e => setSettings(s => ({...s, title: e.target.value}))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Örn: Tatil Kitabım" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Öğrenci</label>
-                                                <input type="text" value={settings.studentName} onChange={e => setSettings({...settings, studentName: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ad Soyad" />
+                                                <input type="text" value={settings.studentName} onChange={e => setSettings(s => ({...s, studentName: e.target.value}))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ad Soyad" />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yıl / Dönem</label>
-                                                <input type="text" value={settings.year} onChange={e => setSettings({...settings, year: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="2024-2025" />
+                                                <input type="text" value={settings.year} onChange={e => setSettings(s => ({...s, year: e.target.value}))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="2024-2025" />
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Eğitmen Notu</label>
-                                            <textarea value={settings.teacherNote} onChange={e => setSettings({...settings, teacherNote: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none" placeholder="Öğrenciye bir not bırakın..." />
+                                            <textarea value={settings.teacherNote} onChange={e => setSettings(s => ({...s, teacherNote: e.target.value}))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none" placeholder="Öğrenciye bir not bırakın..." />
                                         </div>
                                     </div>
 
@@ -201,28 +250,16 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                         
                                         <div className="space-y-2">
                                             {items.map((item, index) => (
-                                                <div 
+                                                <SortablePageItem
                                                     key={item.id}
-                                                    draggable
-                                                    onDragStart={() => handleDragStart(index)}
-                                                    onDragOver={(e) => handleDragOver(e, index)}
+                                                    item={item}
+                                                    index={index}
+                                                    isDragging={draggedItemIndex === index}
+                                                    onDragStart={handleDragStart}
+                                                    onDragOver={handleDragOver}
                                                     onDragEnd={handleDragEnd}
-                                                    className={`group flex items-center gap-3 p-3 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-400 transition-all ${draggedItemIndex === index ? 'opacity-50 border-dashed border-indigo-500' : ''}`}
-                                                >
-                                                    <div className="w-6 h-6 flex items-center justify-center text-zinc-400">
-                                                        <i className="fa-solid fa-grip-vertical"></i>
-                                                    </div>
-                                                    <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-indigo-600 text-xs shrink-0">
-                                                        {index + 1}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">{item.title}</p>
-                                                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{item.activityType}</p>
-                                                    </div>
-                                                    <button onClick={() => handleRemoveItem(item.id)} className="text-zinc-300 hover:text-red-500 p-2 transition-colors">
-                                                        <i className="fa-solid fa-trash"></i>
-                                                    </button>
-                                                </div>
+                                                    onRemove={handleRemoveItem}
+                                                />
                                             ))}
                                             {items.length === 0 && (
                                                 <div className="text-center py-8 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-400 text-sm">
@@ -243,7 +280,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                             {['modern', 'classic', 'fun', 'minimal', 'academic', 'artistic', 'space', 'nature', 'geometric'].map(t => (
                                                 <button 
                                                     key={t} 
-                                                    onClick={() => setSettings({...settings, theme: t as any})}
+                                                    onClick={() => setSettings(s => ({...s, theme: t as any}))}
                                                     className={`p-3 rounded-xl border-2 text-sm font-bold capitalize transition-all text-left flex items-center gap-2 ${settings.theme === t ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-700 text-zinc-600 hover:border-zinc-300'}`}
                                                 >
                                                     <div className={`w-3 h-3 rounded-full ${settings.theme === t ? 'bg-indigo-500' : 'bg-zinc-300'}`}></div>
@@ -260,7 +297,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                             {COLORS.map(c => (
                                                 <button 
                                                     key={c}
-                                                    onClick={() => setSettings({...settings, accentColor: c})}
+                                                    onClick={() => setSettings(s => ({...s, accentColor: c}))}
                                                     className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110 ${settings.accentColor === c ? 'border-zinc-900 dark:border-white ring-2 ring-offset-2 ring-zinc-300' : 'border-transparent'}`}
                                                     style={{ backgroundColor: c }}
                                                 >
@@ -268,7 +305,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                 </button>
                                             ))}
                                             <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-200 cursor-pointer">
-                                                <input type="color" value={settings.accentColor} onChange={e => setSettings({...settings, accentColor: e.target.value})} className="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer" />
+                                                <input type="color" value={settings.accentColor} onChange={e => setSettings(s => ({...s, accentColor: e.target.value}))} className="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer" />
                                             </div>
                                         </div>
                                     </div>
@@ -284,7 +321,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                 Logo Seç
                                             </button>
                                             <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
-                                            {settings.logoUrl && <button onClick={() => setSettings({...settings, logoUrl: undefined})} className="text-red-500 text-sm hover:underline">Kaldır</button>}
+                                            {settings.logoUrl && <button onClick={() => setSettings(s => ({...s, logoUrl: undefined}))} className="text-red-500 text-sm hover:underline">Kaldır</button>}
                                         </div>
                                     </div>
 
@@ -295,7 +332,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                             {['centered', 'left', 'split'].map(layout => (
                                                 <button
                                                     key={layout}
-                                                    onClick={() => setSettings({...settings, coverStyle: layout as any})}
+                                                    onClick={() => setSettings(s => ({...s, coverStyle: layout as any}))}
                                                     className={`flex-1 py-2 text-xs font-bold uppercase rounded-md transition-all ${settings.coverStyle === layout ? 'bg-white shadow-sm text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}
                                                 >
                                                     {layout}
@@ -309,21 +346,21 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                         <label className="flex items-center justify-between cursor-pointer group">
                                             <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">İçindekiler Tablosu</span>
                                             <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showTOC ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                <input type="checkbox" checked={settings.showTOC} onChange={e => setSettings({...settings, showTOC: e.target.checked})} className="hidden" />
+                                                <input type="checkbox" checked={settings.showTOC} onChange={e => setSettings(s => ({...s, showTOC: e.target.checked}))} className="hidden" />
                                                 <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showTOC ? 'left-6' : 'left-1'}`}></div>
                                             </div>
                                         </label>
                                         <label className="flex items-center justify-between cursor-pointer group">
                                             <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Sayfa Numaraları</span>
                                             <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showPageNumbers ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                <input type="checkbox" checked={settings.showPageNumbers} onChange={e => setSettings({...settings, showPageNumbers: e.target.checked})} className="hidden" />
+                                                <input type="checkbox" checked={settings.showPageNumbers} onChange={e => setSettings(s => ({...s, showPageNumbers: e.target.checked}))} className="hidden" />
                                                 <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showPageNumbers ? 'left-6' : 'left-1'}`}></div>
                                             </div>
                                         </label>
                                         <label className="flex items-center justify-between cursor-pointer group">
                                             <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Arka Kapak</span>
                                             <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showBackCover ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                <input type="checkbox" checked={settings.showBackCover} onChange={e => setSettings({...settings, showBackCover: e.target.checked})} className="hidden" />
+                                                <input type="checkbox" checked={settings.showBackCover} onChange={e => setSettings(s => ({...s, showBackCover: e.target.checked}))} className="hidden" />
                                                 <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showBackCover ? 'left-6' : 'left-1'}`}></div>
                                             </div>
                                         </label>
@@ -331,7 +368,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                             <label className="flex items-center justify-between cursor-pointer group">
                                                 <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Filigran (Logo)</span>
                                                 <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showWatermark ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                    <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings({...settings, showWatermark: e.target.checked})} className="hidden" />
+                                                    <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings(s => ({...s, showWatermark: e.target.checked}))} className="hidden" />
                                                     <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showWatermark ? 'left-6' : 'left-1'}`}></div>
                                                 </div>
                                             </label>
@@ -345,7 +382,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                         type="range" 
                                                         min="0.01" max="0.2" step="0.01" 
                                                         value={settings.watermarkOpacity || 0.05} 
-                                                        onChange={(e) => setSettings({...settings, watermarkOpacity: parseFloat(e.target.value)})}
+                                                        onChange={(e) => setSettings(s => ({...s, watermarkOpacity: parseFloat(e.target.value)}))}
                                                         className="w-full h-1 bg-zinc-300 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                                                     />
                                                 </div>
@@ -359,14 +396,16 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
                     {/* Right: Live Preview */}
                     <div className="flex-1 bg-zinc-100 dark:bg-zinc-950 p-8 overflow-auto flex justify-center custom-scrollbar">
-                        <div className="scale-[0.6] sm:scale-[0.7] md:scale-[0.8] origin-top transition-transform duration-300">
+                        <div className="scale-[0.6] sm:scale-[0.7] md:scale-[0.8] origin-top transition-transform duration-300" style={{ contentVisibility: 'auto' }}>
                             <Workbook items={items} settings={settings} />
                         </div>
                     </div>
                 </div>
             ) : (
                 <div className="flex-1 overflow-auto bg-zinc-200 dark:bg-zinc-950 p-8 flex justify-center custom-scrollbar">
-                    <Workbook items={items} settings={settings} />
+                     <div style={{ contentVisibility: 'auto' }}>
+                        <Workbook items={items} settings={settings} />
+                     </div>
                 </div>
             )}
         </div>

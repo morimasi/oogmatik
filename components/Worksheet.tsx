@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
 import * as MemoryAttentionSheets from './sheets/MemoryAttentionSheets';
@@ -19,214 +19,8 @@ interface WorksheetProps {
     studentProfile?: StudentProfile | null;
 }
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
-    const { isEditMode } = useEditable();
-
-    if (!data || !activityType || data.length === 0) return null;
-
-    const isLandscape = settings.orientation === 'landscape';
-    const pageWidth = isLandscape ? '297mm' : '210mm';
-    const pageHeight = isLandscape ? '210mm' : '297mm';
-
-    // Base styles applied to the A4 container
-    const pageStyle = {
-        width: pageWidth,
-        minHeight: pageHeight,
-        padding: `max(10mm, var(--worksheet-margin))`, // Ensure print safety margin
-        position: 'relative' as const,
-        backgroundColor: 'white',
-        color: 'black',
-        boxSizing: 'border-box' as const,
-        overflow: 'hidden', // Clip content that scales out of bounds
-        ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
-    };
-
-    // CSS Variables for internal content to react instantly to toolbar settings
-    const variableStyle = {
-        '--worksheet-font-size': `${settings.fontSize}px`,
-        '--worksheet-border-color': settings.borderColor,
-        '--worksheet-border-width': `${settings.borderWidth}px`,
-        '--worksheet-margin': `${settings.margin}px`,
-        '--worksheet-gap': `${settings.gap}px`,
-        
-        // Advanced Typography
-        '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
-        '--worksheet-line-height': settings.lineHeight || 1.6,
-        '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
-        
-        '--dynamic-cols': settings.columns,
-        '--content-align': settings.contentAlign || 'center',
-        '--font-weight': settings.fontWeight || 'normal',
-        '--font-style': settings.fontStyle || 'normal',
-        
-        // Visibility Flags (Passed as CSS variables for deep children to use)
-        '--display-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
-        '--display-mascot': settings.showMascot ? 'block' : 'none',
-        '--display-student-info': settings.showStudentInfo ? 'flex' : 'none',
-        '--display-footer': settings.showFooter ? 'flex' : 'none',
-        '--display-title': settings.showTitle ? 'block' : 'none',
-        '--display-instruction': settings.showInstruction ? 'block' : 'none',
-        '--display-image': settings.showImage ? 'block' : 'none',
-        
-        '--scale': settings.scale,
-    } as React.CSSProperties;
-
-    // Apply visual style class to the wrapper
-    const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
-
-    return (
-        <div className={`flex flex-col items-center bg-transparent w-full ${visualStyleClass}`} style={variableStyle}>
-            {/* Inject dynamic print styles */}
-            <style>{`
-                /* Dynamic Grid System for Items using CSS Columns */
-                .dynamic-grid {
-                    column-count: var(--dynamic-cols);
-                    column-gap: var(--worksheet-gap);
-                    width: 100%;
-                }
-                
-                /* Ensure items don't break inside */
-                .dynamic-grid > * {
-                    break-inside: avoid;
-                    page-break-inside: avoid;
-                    margin-bottom: var(--worksheet-gap);
-                    display: inline-block;
-                    width: 100%;
-                }
-
-                /* Typography Application */
-                .worksheet-content {
-                    font-family: var(--worksheet-font-family), sans-serif;
-                    font-size: var(--worksheet-font-size);
-                    font-weight: var(--font-weight);
-                    font-style: var(--font-style);
-                    line-height: var(--worksheet-line-height);
-                    letter-spacing: var(--worksheet-letter-spacing);
-                    text-align: var(--content-align);
-                }
-
-                @media print {
-                    @page { 
-                        size: ${settings.orientation}; 
-                        margin: 0mm; 
-                    }
-                    body, html {
-                        background: white !important;
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                    }
-                    
-                    .worksheet-item {
-                        break-after: page !important;
-                        page-break-after: always !important;
-                        margin: 0 !important;
-                        box-shadow: none !important;
-                        border: none !important; /* Remove screen helper borders if any */
-                        overflow: visible !important; /* Let content flow to next page naturally */
-                        height: auto !important; /* Allow height to expand */
-                        display: block !important;
-                    }
-                    
-                    .no-print { display: none !important; }
-                }
-            `}</style>
-
-            <div className="flex flex-col gap-10 w-full items-center">
-                {/* 
-                   We treat all data items as a continuous flow. 
-                   Usually generators return 1 array item = 1 page concept.
-                   But for "smart flow", we render them inside one big container if possible,
-                   OR we render multiple pages as before.
-                   
-                   Current Generator logic returns Array<SingleWorksheetData>.
-                   Each element in this array is treated as a separate "Worksheet Page".
-                   
-                   To support "50 items flow", we assume the generator returns 1 large SingleWorksheetData object
-                   containing all 50 items in its internal array (e.g. data.operations), OR
-                   it returns multiple pages.
-                   
-                   Here we just render whatever the generator gave us as pages.
-                */}
-                {data.map((sheetData, index) => (
-                    <div 
-                        key={index} 
-                        className="worksheet-item worksheet-texture realistic-shadow transition-all duration-300 ease-in-out"
-                        style={pageStyle}
-                    >
-                        {/* EDIT MODE OVERLAYS */}
-                        {isEditMode && (
-                            <>
-                                {/* Grid Pattern Overlay */}
-                                <div className="absolute inset-0 edit-grid-overlay z-0"></div>
-                                {/* Safety Margin Indicator (e.g. 5mm from edge) */}
-                                <div className="absolute inset-[5mm] print-safety-margin z-0"></div>
-                                {/* Page Number Hint */}
-                                <div className="absolute top-2 right-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded shadow-sm opacity-50 pointer-events-none edit-handle">
-                                    Sayfa {index + 1}
-                                </div>
-                            </>
-                        )}
-
-                        {/* 
-                           CONTENT SCALER 
-                           Scales content to fit the A4 page.
-                           Transform Origin: Top Left + Inverse Width Calculation ensures perfect centering and fit.
-                        */}
-                        <div 
-                            className="worksheet-scaler worksheet-content relative z-10"
-                            style={{
-                                transform: `scale(${settings.scale})`,
-                                transformOrigin: 'top left', 
-                                width: `calc(100% / ${settings.scale})`,
-                            }}
-                        >
-                            {/* Student Info Header Injection (Minimal & Professional) */}
-                            <div className="mb-8 pb-2 border-b-2 border-zinc-800 text-xs font-bold text-zinc-900 uppercase tracking-widest flex justify-between items-center print:flex" style={{ display: 'var(--display-student-info)' }}>
-                                <div className="flex items-center gap-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] text-zinc-500">Adı Soyadı</span>
-                                        <span className="text-sm font-black"><EditableText value={studentProfile?.name || '................................'} tag="span" /></span>
-                                    </div>
-                                    {studentProfile?.school && (
-                                        <div className="flex flex-col border-l pl-4 border-zinc-300">
-                                            <span className="text-[10px] text-zinc-500">Okul</span>
-                                            <span className="text-sm"><EditableText value={studentProfile.school} tag="span" /></span>
-                                        </div>
-                                    )}
-                                    {studentProfile?.grade && (
-                                        <div className="flex flex-col border-l pl-4 border-zinc-300">
-                                            <span className="text-[10px] text-zinc-500">Sınıf</span>
-                                            <span className="text-sm"><EditableText value={studentProfile.grade} tag="span" /></span>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex flex-col text-right">
-                                    <span className="text-[10px] text-zinc-500">Tarih</span>
-                                    <span className="text-sm"><EditableText value={studentProfile?.date || '.../.../....'} tag="span" /></span>
-                                </div>
-                            </div>
-
-                            <EditableElement id="main-content">
-                                <RenderSheet activityType={activityType} data={sheetData} />
-                            </EditableElement>
-                        </div>
-                        
-                        {/* Footer stays at absolute bottom of A4 page, unaffected by content scale */}
-                        <div 
-                            className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black print:opacity-100 pointer-events-none"
-                            style={{ display: 'var(--display-footer)' }}
-                        >
-                            <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
-                            <span>{new Date().toLocaleDateString('tr-TR')}</span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
-
-const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data: SingleWorksheetData }) => {
+// 1. Optimize RenderSheet with React.memo to prevent re-rendering heavy SVG/Logic logic when only styles change.
+const RenderSheet = React.memo(({ activityType, data }: { activityType: ActivityType, data: SingleWorksheetData }) => {
     const props = { data: data as any };
 
     switch (activityType) {
@@ -258,7 +52,7 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         case ActivityType.ROMAN_NUMERAL_STAR_HUNT: return <MathLogicSheets.RomanNumeralStarHuntSheet {...props} />;
         case ActivityType.ROMAN_NUMERAL_CONNECT: return <VisualPerceptionSheets.RomanNumeralConnectSheet {...props} />;
         case ActivityType.ROUNDING_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />;
-        case ActivityType.ARITHMETIC_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />; // Reusing RoundingConnectSheet logic
+        case ActivityType.ARITHMETIC_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />; 
         case ActivityType.ROMAN_NUMERAL_MULTIPLICATION: return <MathLogicSheets.RomanNumeralMultiplicationSheet {...props} />;
         case ActivityType.KENDOKU: return <MathLogicSheets.KendokuSheet {...props} />;
         case ActivityType.OPERATION_SQUARE_FILL_IN: return <MathLogicSheets.OperationSquareSheet {...props} />;
@@ -392,6 +186,189 @@ const RenderSheet = ({ activityType, data }: { activityType: ActivityType, data:
         default:
             return <div>Bu etkinlik türü henüz desteklenmiyor veya geliştirme aşamasında: {activityType}</div>;
     }
+}, (prevProps, nextProps) => {
+    // Custom comparator to avoid re-rendering the sheet logic if data hasn't changed.
+    // Style changes are handled by the wrapper, but the internal sheet logic usually only depends on `data`.
+    return prevProps.data === nextProps.data && prevProps.activityType === nextProps.activityType;
+});
+
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
+    const { isEditMode } = useEditable();
+
+    // Memoize heavy calculations
+    const pageStyle = useMemo(() => {
+        const isLandscape = settings.orientation === 'landscape';
+        const pageWidth = isLandscape ? '297mm' : '210mm';
+        const pageHeight = isLandscape ? '210mm' : '297mm';
+        
+        return {
+            width: pageWidth,
+            minHeight: pageHeight,
+            padding: `max(10mm, var(--worksheet-margin))`,
+            position: 'relative' as const,
+            backgroundColor: 'white',
+            color: 'black',
+            boxSizing: 'border-box' as const,
+            overflow: 'hidden',
+            ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
+        };
+    }, [settings.orientation, settings.themeBorder, settings.borderColor, settings.borderWidth]);
+
+    const variableStyle = useMemo(() => ({
+        '--worksheet-font-size': `${settings.fontSize}px`,
+        '--worksheet-border-color': settings.borderColor,
+        '--worksheet-border-width': `${settings.borderWidth}px`,
+        '--worksheet-margin': `${settings.margin}px`,
+        '--worksheet-gap': `${settings.gap}px`,
+        '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
+        '--worksheet-line-height': settings.lineHeight || 1.6,
+        '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
+        '--dynamic-cols': settings.columns,
+        '--content-align': settings.contentAlign || 'center',
+        '--font-weight': settings.fontWeight || 'normal',
+        '--font-style': settings.fontStyle || 'normal',
+        '--display-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
+        '--display-mascot': settings.showMascot ? 'block' : 'none',
+        '--display-student-info': settings.showStudentInfo ? 'flex' : 'none',
+        '--display-footer': settings.showFooter ? 'flex' : 'none',
+        '--display-title': settings.showTitle ? 'block' : 'none',
+        '--display-instruction': settings.showInstruction ? 'block' : 'none',
+        '--display-image': settings.showImage ? 'block' : 'none',
+        '--scale': settings.scale,
+    } as React.CSSProperties), [settings]);
+
+    if (!data || !activityType || data.length === 0) return null;
+
+    // Apply visual style class to the wrapper
+    const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
+
+    return (
+        <div className={`flex flex-col items-center bg-transparent w-full ${visualStyleClass}`} style={variableStyle}>
+            {/* Inject dynamic print styles */}
+            <style>{`
+                /* Dynamic Grid System for Items using CSS Columns */
+                .dynamic-grid {
+                    column-count: var(--dynamic-cols);
+                    column-gap: var(--worksheet-gap);
+                    width: 100%;
+                }
+                
+                /* Ensure items don't break inside */
+                .dynamic-grid > * {
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                    margin-bottom: var(--worksheet-gap);
+                    display: inline-block;
+                    width: 100%;
+                }
+
+                /* Typography Application */
+                .worksheet-content {
+                    font-family: var(--worksheet-font-family), sans-serif;
+                    font-size: var(--worksheet-font-size);
+                    font-weight: var(--font-weight);
+                    font-style: var(--font-style);
+                    line-height: var(--worksheet-line-height);
+                    letter-spacing: var(--worksheet-letter-spacing);
+                    text-align: var(--content-align);
+                }
+
+                @media print {
+                    @page { 
+                        size: ${settings.orientation}; 
+                        margin: 0mm; 
+                    }
+                    body, html {
+                        background: white !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    
+                    .worksheet-item {
+                        break-after: page !important;
+                        page-break-after: always !important;
+                        margin: 0 !important;
+                        box-shadow: none !important;
+                        border: none !important; /* Remove screen helper borders if any */
+                        overflow: visible !important; /* Let content flow to next page naturally */
+                        height: auto !important; /* Allow height to expand */
+                        display: block !important;
+                    }
+                    
+                    .no-print { display: none !important; }
+                }
+            `}</style>
+
+            <div className="flex flex-col gap-10 w-full items-center">
+                {data.map((sheetData, index) => (
+                    <div 
+                        key={index} 
+                        className="worksheet-item worksheet-texture realistic-shadow transition-all duration-300 ease-in-out"
+                        style={pageStyle}
+                    >
+                        {/* EDIT MODE OVERLAYS */}
+                        {isEditMode && (
+                            <>
+                                <div className="absolute inset-0 edit-grid-overlay z-0"></div>
+                                <div className="absolute inset-[5mm] print-safety-margin z-0"></div>
+                                <div className="absolute top-2 right-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded shadow-sm opacity-50 pointer-events-none edit-handle">
+                                    Sayfa {index + 1}
+                                </div>
+                            </>
+                        )}
+
+                        <div 
+                            className="worksheet-scaler worksheet-content relative z-10"
+                            style={{
+                                transform: `scale(${settings.scale})`,
+                                transformOrigin: 'top left', 
+                                width: `calc(100% / ${settings.scale})`,
+                            }}
+                        >
+                            {/* Student Info Header Injection */}
+                            <div className="mb-8 pb-2 border-b-2 border-zinc-800 text-xs font-bold text-zinc-900 uppercase tracking-widest flex justify-between items-center print:flex" style={{ display: 'var(--display-student-info)' }}>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] text-zinc-500">Adı Soyadı</span>
+                                        <span className="text-sm font-black"><EditableText value={studentProfile?.name || '................................'} tag="span" /></span>
+                                    </div>
+                                    {studentProfile?.school && (
+                                        <div className="flex flex-col border-l pl-4 border-zinc-300">
+                                            <span className="text-[10px] text-zinc-500">Okul</span>
+                                            <span className="text-sm"><EditableText value={studentProfile.school} tag="span" /></span>
+                                        </div>
+                                    )}
+                                    {studentProfile?.grade && (
+                                        <div className="flex flex-col border-l pl-4 border-zinc-300">
+                                            <span className="text-[10px] text-zinc-500">Sınıf</span>
+                                            <span className="text-sm"><EditableText value={studentProfile.grade} tag="span" /></span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex flex-col text-right">
+                                    <span className="text-[10px] text-zinc-500">Tarih</span>
+                                    <span className="text-sm"><EditableText value={studentProfile?.date || '.../.../....'} tag="span" /></span>
+                                </div>
+                            </div>
+
+                            <EditableElement id="main-content">
+                                <RenderSheet activityType={activityType} data={sheetData} />
+                            </EditableElement>
+                        </div>
+                        
+                        <div 
+                            className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black print:opacity-100 pointer-events-none"
+                            style={{ display: 'var(--display-footer)' }}
+                        >
+                            <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
+                            <span>{new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 };
 
-export default Worksheet;
+// React.memo to prevent re-rendering entire worksheet logic on every small parent prop change that doesn't affect layout significantly
+export default React.memo(Worksheet);
