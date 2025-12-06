@@ -147,11 +147,11 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
 
-    /* --- AKILLI A4 YAZDIRMA STİLLERİ --- */
+    /* --- KOMPAKT & TEMİZ YAZDIRMA (3MM MARGIN) --- */
     @media print {
         @page {
             size: A4 portrait;
-            margin: 0;
+            margin: 0mm; /* Browser defaultlarını sıfırla, padding ile yöneteceğiz */
         }
 
         body * {
@@ -166,45 +166,67 @@
             position: absolute;
             left: 0;
             top: 0;
-            width: 210mm; /* A4 Genişliği */
+            width: 210mm;
             min-height: 297mm;
+            
+            /* SADECE 3MM KENAR BOŞLUĞU */
+            padding: 3mm;
+            
             background: white;
-            padding: 10mm; /* Güvenli kenar boşluğu */
             box-sizing: border-box;
+            display: block;
             
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            
-            /* Yazı tipi ve renk zorlama */
             color: black !important;
             font-family: 'OpenDyslexic', sans-serif !important;
-            background-image: none !important;
         }
 
-        /* Akıllı Bölünme */
-        .editable-element, .worksheet-item, .break-inside-avoid {
+        /* --- SIFIRLAMA & TEMİZLİK --- */
+        
+        /* Worksheet Item (Ana Kart) Özelliklerini Sıfırla */
+        .worksheet-item {
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            margin: 0 !important;
+            padding: 0 !important; /* Dış padding'i kaldır, 3mm global geçerli */
+            width: 100% !important;
+            height: auto !important;
+            break-after: page;
+            page-break-after: always;
+        }
+
+        /* Editörden gelen padding-[10mm] sınıfını ez */
+        [class*="p-[10mm]"] {
+            padding: 0 !important;
+        }
+
+        /* Gereksiz arka plan ve borderları temizle */
+        .bg-white, .bg-zinc-50, .bg-zinc-100 {
+            background-color: transparent !important;
+        }
+        
+        /* İçerik arası boşlukları makul seviyeye çek */
+        .gap-8 { gap: 1rem !important; }
+        .p-8 { padding: 1rem !important; }
+        .p-16 { padding: 1rem !important; }
+
+        /* Bölünme Kuralları */
+        .break-inside-avoid, .editable-element, table, img, svg {
             break-inside: avoid !important;
             page-break-inside: avoid !important;
-            display: block !important;
-            margin-bottom: 15px;
         }
 
-        /* Renkleri Koru */
+        /* UI Gizleme */
+        .edit-handle, .no-print, .shadow-lg, .shadow-xl, .shadow-2xl {
+            display: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Renkleri Yazıcı Dostu Yap */
         body {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        
-        /* Grid ve Flex Yapılarını Koru (Mobil görünüme düşmesini engelle) */
-        .grid { display: grid !important; }
-        .flex { display: flex !important; }
-        .grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
-        .grid-cols-3 { grid-template-columns: repeat(3, 1fr) !important; }
-        .grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
-        
-        /* Gizlenmesi gerekenler */
-        .edit-handle, .no-print { display: none !important; }
     }
     </style>
 <script type="importmap">

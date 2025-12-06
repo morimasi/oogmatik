@@ -2,7 +2,7 @@
 /**
  * AKILLI A4 YAZDIRMA MOTORU
  * Ekranda görünen içeriği (Worksheet) vektörel olarak klonlar,
- * A4 formatına oturtur ve akıllı sayfa bölmesi yapar.
+ * A4 formatına oturtur (3mm kenar boşluğu ile).
  */
 
 export const printService = {
@@ -28,20 +28,27 @@ export const printService = {
         contentSources.forEach((source) => {
             const clone = source.cloneNode(true) as HTMLElement;
             
-            // a. Stil temizliği (Zoom/Scale etkilerini kaldır)
-            // İçerikteki scaler div'i bul ve transform'u sıfırla
+            // a. Stil temizliği: Scale transform'u kaldır, genişliği otomatiğe al
             const scaler = clone.querySelector('.worksheet-scaler') as HTMLElement;
             if (scaler) {
                 scaler.style.transform = 'none';
                 scaler.style.width = '100%';
                 scaler.style.height = 'auto';
+                scaler.style.padding = '0'; // Remove extra padding from scaler if any
             }
+            
+            // Remove huge paddings from wrapper
+            clone.style.padding = '0';
+            clone.style.margin = '0';
+            clone.style.width = '100%';
+            clone.style.boxShadow = 'none';
+            clone.style.border = 'none';
 
             // b. Gereksiz UI elemanlarını temizle (Editör butonları vb.)
             const toRemove = clone.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, button');
             toRemove.forEach(el => el.remove());
 
-            // c. Form elemanlarının değerlerini senkronize et (React state DOM'a yansımayabilir)
+            // c. Form elemanlarının değerlerini senkronize et
             const originalInputs = source.querySelectorAll('input, textarea, select');
             const clonedInputs = clone.querySelectorAll('input, textarea, select');
             originalInputs.forEach((inp, i) => {
@@ -63,11 +70,9 @@ export const printService = {
         });
 
         // 5. Yazdırma İşlemini Başlat
-        // Küçük bir gecikme, DOM'un render edilmesi ve resimlerin yüklenmesi için iyidir.
         setTimeout(() => {
             window.print();
-            
-            // İşlem bitince alanı temizle (Opsiyonel, debug için açık bırakılabilir)
+            // Temizlik opsiyonel, debug için comment out yapılabilir
             // setTimeout(() => { if(printArea) printArea.remove(); }, 1000);
         }, 500);
     }
