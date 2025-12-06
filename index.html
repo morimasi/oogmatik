@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -147,155 +148,126 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
 
-    /* --- KOMPAKT & TEMİZ YAZDIRMA (3MM MARGIN) --- */
+    /* --- VARSAYILAN GİZLİLİK --- */
+    /* Yazdırma alanı normal ekranda asla görünmemeli */
+    #printable-area {
+        display: none;
+    }
+
+    /* --- YAZDIRMA (PRINT) STİLLERİ --- */
     @media print {
         @page {
             size: A4 portrait;
-            margin: 0mm; /* Browser kenar boşluklarını sıfırla */
+            margin: 0mm;
         }
 
         html, body {
             margin: 0;
             padding: 0;
-            background-color: white !important;
+            background: white !important;
             color: black !important;
             width: 100%;
-            height: auto !important; /* Allow growing */
-            overflow: visible !important; /* CRITICAL for preventing blank pages */
+            height: auto !important;
+            overflow: visible !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
 
-        /* Tüm uygulama arayüzünü gizle */
-        body > *:not(#printable-area) {
+        /* Ana uygulamayı gizle */
+        #root, .no-print, body > *:not(#printable-area) {
             display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            overflow: hidden !important;
         }
 
-        /* Sadece yazdırma alanını göster */
+        /* Yazdırma alanını göster */
         #printable-area {
             display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
-            
-            /* SIMULATE DESKTOP WIDTH & SCALE DOWN TO A4 */
-            width: 1024px !important;  /* Force Desktop Width */
-            min-width: 1024px !important;
-            zoom: 0.75 !important; /* Scale down 1024px to ~794px (A4 width) */
-            /* -moz-transform: scale(0.75); Firefox support if needed */
-            /* -moz-transform-origin: top left; */
-            
-            padding: 3mm; /* TEK GEÇERLİ BOŞLUK BURASI */
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            z-index: 9999 !important;
             background: white !important;
-            box-sizing: border-box;
-            color: black !important;
-            font-family: 'OpenDyslexic', sans-serif !important;
-            z-index: 9999;
-            overflow: visible !important;
+            /* Zoom hilesi yerine transform scale daha güvenli olabilir ama
+               şimdilik mevcut yapıyı bozmamak için zoom tutuyoruz */
+            zoom: 0.75 !important;
+            padding: 3mm !important;
+            box-sizing: border-box !important;
         }
 
         /* --- SIFIRLAMA & TEMİZLİK --- */
         
-        /* Force Black Text on everything to fix Dark Mode invisibility */
         #printable-area * {
-            color: #000 !important;
+            color: #000 !important; /* Force black text */
             background-color: transparent !important;
             box-shadow: none !important;
             text-shadow: none !important;
-            border-color: #000 !important; /* Ensure borders are visible */
+            /* Borderların görünür kalmasını sağla */
+            border-color: #000 !important;
         }
 
-        /* === FORCE TAILWIND DESKTOP CLASSES === */
-        /* This ensures md:grid-cols-2 etc. work even though paper width is technically small */
+        /* FORCE TAILWIND DESKTOP CLASSES TO WORK */
+        #printable-area .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        #printable-area .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+        #printable-area .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+        #printable-area .md\:flex-row { flex-direction: row !important; }
+        #printable-area .md\:gap-4 { gap: 1rem !important; }
+        #printable-area .md\:gap-6 { gap: 1.5rem !important; }
         
-        /* Force Grid Columns */
-        .md\:grid-cols-2, .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-        .md\:grid-cols-3, .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
-        .md\:grid-cols-4, .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
-        
-        /* Force Flex Row */
-        .md\:flex-row, .lg\:flex-row { flex-direction: row !important; }
-        
-        /* Force Gaps (Desktop sizing) */
-        .md\:gap-4, .lg\:gap-4 { gap: 1rem !important; }
-        .md\:gap-6, .lg\:gap-6 { gap: 1.5rem !important; }
-        .md\:gap-8, .lg\:gap-8 { gap: 2rem !important; }
-
-        /* Ensure SVGs and Images are visible */
-        img, svg {
+        /* SVG & IMAGES */
+        #printable-area img, 
+        #printable-area svg {
             filter: grayscale(100%) contrast(150%) !important;
             opacity: 1 !important;
             visibility: visible !important;
             max-width: 100% !important;
         }
-        svg * {
+        #printable-area svg * {
             stroke: #000 !important;
             fill: currentColor;
         }
-        svg text {
-            fill: #000 !important;
+        
+        /* Background Colors handling for specific elements that NEED background (like filled cells) */
+        #printable-area .bg-black, 
+        #printable-area .bg-indigo-500, 
+        #printable-area .bg-zinc-800 {
+            background-color: #ddd !important; /* Make dark backgrounds light grey for saving ink */
+            color: black !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
-        /* Worksheet Item (Ana Kart) Özelliklerini Sıfırla */
+        /* WORKSHEET ITEM RESET */
         .worksheet-item {
             box-shadow: none !important;
             border: none !important;
-            background: transparent !important;
             margin: 0 !important;
-            padding: 0 !important; /* Kart içi boşluğu sıfırla */
+            padding: 0 !important;
             width: 100% !important;
-            height: auto !important;
-            break-after: page;
             page-break-after: always;
-            position: relative !important;
-            top: auto !important;
-            left: auto !important;
-            display: block !important;
-            transform: none !important; /* Disable any scaling transforms */
+            break-after: page;
+            transform: none !important;
         }
 
-        /* Editörden gelen padding-[10mm] sınıfını ez ve sıfırla */
-        .worksheet-item > div {
-            padding: 0 !important; 
-        }
-
-        /* Scaler (Zoom) sıfırlama */
         .worksheet-scaler {
             transform: none !important;
             width: 100% !important;
-            height: auto !important;
             zoom: 1 !important;
-            overflow: visible !important;
         }
 
-        /* Gereksiz arka plan ve borderları temizle */
-        .bg-white, .bg-zinc-50, .bg-zinc-100, .bg-zinc-800, .bg-zinc-900, .dark\:bg-zinc-800, .dark\:bg-zinc-900 {
-            background-color: transparent !important;
-        }
-        
-        /* İçerik arası boşlukları makul seviyeye çek */
-        .gap-8 { gap: 1rem !important; }
-        .p-8 { padding: 0.5rem !important; }
-        .p-16 { padding: 0.5rem !important; }
-
-        /* Bölünme Kuralları */
-        .break-inside-avoid, .editable-element, table, img, svg {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-        }
-
-        /* UI Gizleme */
-        .edit-handle, .no-print, .shadow-lg, .shadow-xl, .shadow-2xl, .edit-grid-overlay, .edit-safety-guide {
+        /* HIDE UI ELEMENTS */
+        .edit-handle, .edit-grid-overlay, .edit-safety-guide, button, .no-print {
             display: none !important;
-            box-shadow: none !important;
         }
         
-        /* Input Visibility */
+        /* INPUT VISIBILITY */
         input, textarea, select {
             border: 1px solid #000 !important;
             color: #000 !important;
             background: transparent !important;
-            -webkit-appearance: none;
             appearance: none;
         }
     }

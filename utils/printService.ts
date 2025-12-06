@@ -1,3 +1,4 @@
+
 /**
  * AKILLI A4 YAZDIRMA MOTORU
  * Ekranda görünen içeriği (Worksheet) vektörel olarak klonlar,
@@ -21,13 +22,10 @@ export const printService = {
         // 3. Yeni yazdırma alanını oluştur
         const printArea = document.createElement('div');
         printArea.id = 'printable-area';
-        // Ensure it doesn't interfere with main app flow but is visible to print
-        printArea.style.position = 'absolute';
-        printArea.style.top = '0';
-        printArea.style.left = '0';
-        // Note: Width and Zoom are handled in index.html @media print CSS
-        printArea.style.zIndex = '9999';
-        printArea.style.backgroundColor = 'white';
+        
+        // ÖNEMLİ: CSS'de (index.html) bu ID için "display: none" tanımlı olmalı (ekranda görünmemesi için).
+        // @media print içinde ise "display: block" olmalı.
+        // Javascript ile inline style VERMİYORUZ ki CSS medya sorguları düzgün çalışsın.
         
         document.body.appendChild(printArea);
 
@@ -35,7 +33,19 @@ export const printService = {
         contentSources.forEach((source) => {
             const clone = source.cloneNode(true) as HTMLElement;
             
-            // a. Stil temizliği: Scale transform'u kaldır, genişliği otomatiğe al
+            // a. Canvas içeriklerini manuel kopyala (cloneNode canvas içeriğini almaz)
+            const originalCanvases = source.querySelectorAll('canvas');
+            const clonedCanvases = clone.querySelectorAll('canvas');
+            originalCanvases.forEach((orig, i) => {
+                if (clonedCanvases[i]) {
+                    const destCtx = clonedCanvases[i].getContext('2d');
+                    if (destCtx) {
+                        destCtx.drawImage(orig, 0, 0);
+                    }
+                }
+            });
+
+            // b. Stil temizliği: Scale transform'u kaldır, genişliği otomatiğe al
             const scaler = clone.querySelector('.worksheet-scaler') as HTMLElement;
             if (scaler) {
                 scaler.style.transform = 'none';
@@ -64,11 +74,11 @@ export const printService = {
                 }
             });
 
-            // b. Gereksiz UI elemanlarını temizle
+            // c. Gereksiz UI elemanlarını temizle
             const toRemove = clone.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, button');
             toRemove.forEach(el => el.remove());
 
-            // c. Form elemanlarının değerlerini senkronize et
+            // d. Form elemanlarının değerlerini senkronize et
             const originalInputs = source.querySelectorAll('input, textarea, select');
             const clonedInputs = clone.querySelectorAll('input, textarea, select');
             
@@ -88,8 +98,7 @@ export const printService = {
                             (clonedEl as HTMLInputElement).checked = true;
                         }
                     } else if (inputEl.tagName === 'SELECT') {
-                        // For select, we often want to print just the selected text, 
-                        // but sticking to input sync:
+                        // For select, we set value and attribute
                         clonedEl.setAttribute('value', inputEl.value);
                         (clonedEl as HTMLSelectElement).value = inputEl.value;
                         
@@ -110,7 +119,7 @@ export const printService = {
                 }
             });
 
-            // d. Klonu ekle
+            // e. Klonu ekle
             printArea.appendChild(clone);
         });
 
@@ -119,8 +128,14 @@ export const printService = {
         setTimeout(() => {
             window.print();
             
-            // Optional: Remove after print dialog closes (or user cancels)
-            // setTimeout(() => { if(printArea) printArea.remove(); }, 2000);
+            // CLEANUP: Yazdırma diyaloğu kapandıktan sonra (veya hemen ardından)
+            // geçici alanı kaldır ki ekran karışmasın.
+            // Bazı tarayıcılarda print bloklayıcı olduğu için bu timeout print sonrası çalışır.
+            setTimeout(() => {
+                if(printArea && printArea.parentNode) {
+                    printArea.parentNode.removeChild(printArea);
+                }
+            }, 1000);
         }, 500);
     }
 };
