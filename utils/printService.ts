@@ -44,7 +44,7 @@ export const printService = {
                 const canvas = await new Promise<HTMLCanvasElement>((resolve, reject) => {
                     const timeoutId = setTimeout(() => {
                         reject(new Error("Sayfa işlenirken zaman aşımına uğradı (60sn). İçerik çok yoğun olabilir."));
-                    }, 60000); // 60 saniye limit
+                    }, 60000); // 60 saniye genel işlem limiti
 
                     html2canvas(element, {
                         scale: 1.5, // Kalite/Performans dengesi
@@ -52,6 +52,7 @@ export const printService = {
                         allowTaint: false,
                         logging: false, // Konsol kirliliğini önle
                         backgroundColor: '#ffffff',
+                        imageTimeout: 15000, // 15 saniye resim/font yükleme zaman aşımı (Donmayı önler)
                         scrollY: 0,
                         windowWidth: document.documentElement.scrollWidth,
                         windowHeight: document.documentElement.scrollHeight,
@@ -65,6 +66,8 @@ export const printService = {
                         resolve(c);
                     }).catch((err) => {
                         clearTimeout(timeoutId);
+                        // Eğer hata font yüklemesiyse yine de devam etmeye çalışabiliriz ama burada reject edip kullanıcıya bildiriyoruz
+                        console.error("html2canvas error:", err);
                         reject(err);
                     });
                 });
@@ -97,6 +100,7 @@ export const printService = {
                         printWindow.print();
                     };
                 } else {
+                    // Fallback popup blocker
                     pdf.save(finalFileName);
                 }
             }

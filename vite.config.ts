@@ -13,6 +13,13 @@ export default defineConfig({
     'process.env.FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID),
     'process.env.FIREBASE_APP_ID': JSON.stringify(process.env.FIREBASE_APP_ID),
   },
+  resolve: {
+    alias: {
+      // Prevent Vite from trying to resolve these node_modules during build since they are in importmap
+      'jspdf': '/src/shims/jspdf.js', 
+      'html2canvas': '/src/shims/html2canvas.js'
+    }
+  },
   build: {
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
