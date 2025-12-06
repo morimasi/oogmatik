@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -287,18 +286,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             </>
                         )}
 
-                        {/* Content Wrapper applying the mandatory print margin */}
-                        <div className="w-full h-full p-[10mm]">
+                        {/* Content Wrapper applying the mandatory print margin and centering */}
+                        <div className="w-full h-full p-[10mm] flex flex-col justify-center items-center overflow-hidden">
                             <div 
                                 className="worksheet-scaler worksheet-content relative z-10"
                                 style={{
                                     transform: `scale(${settings.scale})`,
-                                    transformOrigin: 'top center', // CENTERED SCALING
-                                    width: `calc(100% / ${settings.scale})`,
+                                    transformOrigin: 'center center',
+                                    // Width calc removed to allow natural flow or centered scaling
                                 }}
                             >
                                 {/* Minimalist Student Header */}
-                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end" style={{ display: 'var(--display-student-info)' }}>
+                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end w-full" style={{ display: 'var(--display-student-info)' }}>
                                     <div className="flex gap-8 text-sm">
                                         <div className="flex gap-2 items-baseline">
                                             <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>

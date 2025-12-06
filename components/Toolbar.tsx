@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
 import { printService } from '../utils/printService';
@@ -97,7 +96,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
              <CompactSlider 
                 icon="fa-magnifying-glass" 
                 title="Ölçek / Zoom" 
-                min={0.5} max={1.5} step={0.1}
+                min={0.5} max={2.0} step={0.1}
                 value={settings.scale} 
                 onChange={(v: number) => onSettingsChange({...settings, scale: v})}
                 displayValue={`${Math.round(settings.scale * 100)}%`}
