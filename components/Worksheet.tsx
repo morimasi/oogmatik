@@ -200,8 +200,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         return {
             width: pageWidth,
             minHeight: pageHeight,
-            // Optimized padding for maximum content
-            padding: `10mm`, 
+            // Reset padding here, handled by internal wrapper
+            padding: `0mm`, 
             position: 'relative' as const,
             backgroundColor: 'white',
             color: 'black',
@@ -281,11 +281,19 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         break-after: page !important;
                         page-break-after: always !important;
                         margin: 0 !important;
+                        padding: 0 !important;
                         box-shadow: none !important;
                         border: none !important; 
                         overflow: visible !important; 
                         height: auto !important; 
                         display: block !important;
+                    }
+                    
+                    /* The class that enforces the 3mm margin + setting margin */
+                    .print-safety-margin {
+                        padding: calc(3mm + var(--worksheet-margin)) !important;
+                        width: 100% !important;
+                        box-sizing: border-box !important;
                     }
                     
                     .no-print { display: none !important; }
@@ -307,53 +315,57 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         className="worksheet-item bg-white transition-all duration-300 ease-in-out shadow-lg"
                         style={pageStyle}
                     >
+                        {/* Visual Guide for Edit Mode (Renamed from print-safety-margin) */}
                         {isEditMode && (
                             <>
                                 <div className="absolute inset-0 edit-grid-overlay z-0"></div>
-                                <div className="absolute inset-[5mm] print-safety-margin z-0"></div>
+                                <div className="absolute inset-[5mm] edit-safety-guide z-0"></div>
                                 <div className="absolute top-2 right-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded shadow-sm opacity-50 pointer-events-none edit-handle">
                                     Sayfa {index + 1}
                                 </div>
                             </>
                         )}
 
-                        <div 
-                            className="worksheet-scaler worksheet-content relative z-10"
-                            style={{
-                                transform: `scale(${settings.scale})`,
-                                transformOrigin: 'top left', 
-                                width: `calc(100% / ${settings.scale})`,
-                            }}
-                        >
-                            {/* Minimalist Student Header */}
-                            <div className="mb-4 pb-1 border-b border-black flex justify-between items-end print:flex" style={{ display: 'var(--display-student-info)' }}>
-                                <div className="flex gap-8 text-sm">
-                                    <div className="flex gap-2 items-baseline">
-                                        <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
-                                        <EditableText value={studentProfile?.name || ''} tag="span" className="min-w-[150px] border-b border-dotted border-zinc-400" />
+                        {/* Content Wrapper applying the mandatory print margin */}
+                        <div className="print-safety-margin w-full h-full p-[10mm]">
+                            <div 
+                                className="worksheet-scaler worksheet-content relative z-10"
+                                style={{
+                                    transform: `scale(${settings.scale})`,
+                                    transformOrigin: 'top left', 
+                                    width: `calc(100% / ${settings.scale})`,
+                                }}
+                            >
+                                {/* Minimalist Student Header */}
+                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end print:flex" style={{ display: 'var(--display-student-info)' }}>
+                                    <div className="flex gap-8 text-sm">
+                                        <div className="flex gap-2 items-baseline">
+                                            <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
+                                            <EditableText value={studentProfile?.name || ''} tag="span" className="min-w-[150px] border-b border-dotted border-zinc-400" />
+                                        </div>
+                                        <div className="flex gap-2 items-baseline">
+                                            <span className="text-[10px] uppercase font-bold text-zinc-500">Sınıf:</span>
+                                            <EditableText value={studentProfile?.grade || ''} tag="span" className="min-w-[50px] border-b border-dotted border-zinc-400" />
+                                        </div>
                                     </div>
-                                    <div className="flex gap-2 items-baseline">
-                                        <span className="text-[10px] uppercase font-bold text-zinc-500">Sınıf:</span>
-                                        <EditableText value={studentProfile?.grade || ''} tag="span" className="min-w-[50px] border-b border-dotted border-zinc-400" />
+                                    <div className="flex gap-2 items-baseline text-sm">
+                                        <span className="text-[10px] uppercase font-bold text-zinc-500">Tarih:</span>
+                                        <EditableText value={studentProfile?.date || ''} tag="span" className="min-w-[80px] border-b border-dotted border-zinc-400" />
                                     </div>
                                 </div>
-                                <div className="flex gap-2 items-baseline text-sm">
-                                    <span className="text-[10px] uppercase font-bold text-zinc-500">Tarih:</span>
-                                    <EditableText value={studentProfile?.date || ''} tag="span" className="min-w-[80px] border-b border-dotted border-zinc-400" />
-                                </div>
-                            </div>
 
-                            <EditableElement id="main-content">
-                                <RenderSheet activityType={activityType} data={sheetData} />
-                            </EditableElement>
-                        </div>
-                        
-                        <div 
-                            className="absolute bottom-2 left-0 w-full px-8 flex justify-between items-center text-[8px] text-zinc-400 print:text-black pointer-events-none"
-                            style={{ display: 'var(--display-footer)' }}
-                        >
-                            <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
-                            <span>{index + 1}</span>
+                                <EditableElement id="main-content">
+                                    <RenderSheet activityType={activityType} data={sheetData} />
+                                </EditableElement>
+                            </div>
+                            
+                            <div 
+                                className="absolute bottom-2 left-0 w-full px-8 flex justify-between items-center text-[8px] text-zinc-400 print:text-black pointer-events-none"
+                                style={{ display: 'var(--display-footer)' }}
+                            >
+                                <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
+                                <span>{index + 1}</span>
+                            </div>
                         </div>
                     </div>
                 ))}
