@@ -35,10 +35,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onSnapshot
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
+  const [isPrinting, setIsPrinting] = useState(false);
 
-  const handlePrint = () => {
-      // @ts-ignore
-      printService.printWorksheet("Etkinlik");
+  const handleDownloadPdf = async () => {
+      setIsPrinting(true);
+      // Let the UI update before freezing
+      setTimeout(async () => {
+          await printService.downloadAsPdf("Etkinlik");
+          setIsPrinting(false);
+      }, 100);
   };
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
@@ -265,14 +270,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 </button>
             )}
 
-            {/* PRINT BUTTON - RESTORED */}
+            {/* DOWNLOAD PDF BUTTON - REPLACED PRINT */}
             <button 
-                onClick={handlePrint}
-                className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-zinc-800 text-white border-zinc-900 hover:bg-zinc-700"
-                title="Yazdır (A4)"
+                onClick={handleDownloadPdf}
+                disabled={isPrinting}
+                className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border border-zinc-900 ${isPrinting ? 'bg-zinc-200 text-zinc-500 cursor-wait' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
+                title="PDF Olarak İndir"
             >
-                <i className="fa-solid fa-print"></i>
-                <span className="hidden sm:inline">Yazdır</span>
+                {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
+                <span className="hidden sm:inline">{isPrinting ? 'Hazırlanıyor...' : 'PDF İndir'}</span>
             </button>
 
             {onAddToWorkbook && (
