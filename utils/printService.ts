@@ -1,4 +1,3 @@
-
 import { WorkbookSettings } from "../types";
 
 export interface PrintSettings {
@@ -33,7 +32,6 @@ export const printService = {
         if (!doc) return;
 
         // 2. Gather Content
-        // We select the actual worksheet pages rendered in the DOM
         const pages = document.querySelectorAll('.worksheet-item');
         if (pages.length === 0) {
             alert("Yazdırılacak içerik bulunamadı.");
@@ -53,7 +51,6 @@ export const printService = {
 
         // Calculate Scale Factor
         // Base zoom for A4 fitting is approx 0.775 (794px / 1024px)
-        // We multiply this by the user's custom scale setting
         const baseFitRatio = 0.775;
         const userScaleRatio = settings.scale / 100;
         const finalZoom = baseFitRatio * userScaleRatio;
@@ -69,42 +66,40 @@ export const printService = {
                     body { 
                         margin: 0; 
                         padding: 0; 
-                        background: white; 
-                        -webkit-print-color-adjust: exact; 
-                        print-color-adjust: exact;
+                        background: white !important; 
+                        color: black !important;
+                        -webkit-print-color-adjust: exact !important; 
+                        print-color-adjust: exact !important;
                         width: 100%;
                     }
                     
                     /* Page Break Control & Scaling */
                     .print-page {
-                        /* Force a desktop-like width for the container */
                         width: 1024px !important;
                         min-width: 1024px !important;
-                        
-                        /* Apply calculated zoom */
                         zoom: ${finalZoom};
-                        
                         page-break-after: always;
                         position: relative;
-                        overflow: visible; 
-                        background: white;
+                        overflow: visible !important; 
+                        background: white !important;
                         margin: 0;
                         display: block;
+                        color: black !important;
                     }
                     .print-page:last-child {
                         page-break-after: auto;
                     }
                     
-                    /* Content Scaling Logic */
                     .print-content-wrapper {
                         width: 100%;
                         height: 100%;
                         padding: 0; 
                         box-sizing: border-box;
+                        overflow: visible !important;
                     }
 
                     /* HIDE UI ELEMENTS */
-                    .edit-handle, .no-print, .edit-grid-overlay, .print-safety-margin, button {
+                    .edit-handle, .no-print, .edit-grid-overlay, .edit-safety-guide, button {
                         display: none !important;
                     }
 
@@ -118,19 +113,35 @@ export const printService = {
                     /* GRID & FLEX ENFORCEMENT */
                     .grid, .dynamic-grid { display: grid !important; }
                     .flex { display: flex !important; }
-                    
-                    /* Force columns to stay side-by-side */
                     .grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
                     .grid-cols-3 { grid-template-columns: repeat(3, 1fr) !important; }
                     .grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
                     
-                    /* Prevent breaking inside elements */
                     .break-inside-avoid {
                         break-inside: avoid !important;
                         page-break-inside: avoid !important;
                     }
 
-                    /* ECO MODE STYLES */
+                    /* COLOR CORRECTION FOR PRINT (Fix White Text Issue) */
+                    [class*="text-white"], 
+                    [class*="text-zinc-50"], 
+                    [class*="text-zinc-100"], 
+                    [class*="text-zinc-200"],
+                    [class*="text-zinc-300"],
+                    [class*="dark:text-white"],
+                    [class*="dark:text-zinc-100"],
+                    [class*="dark:text-zinc-200"] {
+                        color: black !important;
+                    }
+                    
+                    /* Ensure inputs are visible */
+                    input, textarea, select {
+                        color: black !important;
+                        background: transparent !important;
+                        border-color: #e5e7eb !important;
+                    }
+
+                    /* ECO MODE */
                     body.eco-mode {
                         color: black !important;
                     }
@@ -141,20 +152,14 @@ export const printService = {
                     }
                     body.eco-mode [class*="bg-"] {
                         background-color: transparent !important;
-                        /* Keep borders for boxes that lost background */
                         border: 1px solid #000 !important; 
-                    }
-                    body.eco-mode [class*="text-"] {
-                        color: black !important;
                     }
                     body.eco-mode svg {
                         fill: white !important;
                         stroke: black !important;
                     }
-                    /* Exception for Eco Mode: Keep intentional black fills */
                     body.eco-mode svg [fill="#000"], 
-                    body.eco-mode svg [fill="black"], 
-                    body.eco-mode svg [fill="#000000"] {
+                    body.eco-mode svg [fill="black"] {
                         fill: black !important;
                     }
                     body.eco-mode img {
@@ -162,7 +167,6 @@ export const printService = {
                     }
                 }
                 
-                /* Reset Scale for Print since we use zoom on container */
                 .worksheet-scaler {
                     transform: none !important;
                     width: 100% !important;
@@ -173,14 +177,37 @@ export const printService = {
         doc.write('</head><body class="' + (settings.ecoMode ? 'eco-mode' : '') + '">');
 
         // 4. Clone and Inject Pages
-        pages.forEach((page, index) => {
+        pages.forEach((page) => {
             const clone = page.cloneNode(true) as HTMLElement;
             
-            // Remove edit-mode overlays from clone
-            const overlays = clone.querySelectorAll('.edit-grid-overlay, .print-safety-margin, .edit-handle');
+            // SYNC INPUT VALUES (Fix for blank inputs)
+            // React state doesn't update the DOM 'value' attribute, so cloning misses it.
+            // We must manually copy values from source to clone.
+            const originalInputs = page.querySelectorAll('input, textarea, select');
+            const clonedInputs = clone.querySelectorAll('input, textarea, select');
+            
+            originalInputs.forEach((input, i) => {
+                if (clonedInputs[i]) {
+                    const val = (input as HTMLInputElement).value;
+                    if ((input as HTMLInputElement).type === 'checkbox' || (input as HTMLInputElement).type === 'radio') {
+                         if((input as HTMLInputElement).checked) {
+                             (clonedInputs[i] as HTMLInputElement).setAttribute('checked', 'checked');
+                         }
+                    } else {
+                        (clonedInputs[i] as HTMLInputElement).setAttribute('value', val);
+                        (clonedInputs[i] as HTMLInputElement).value = val;
+                        // For textarea
+                        if (input.tagName === 'TEXTAREA') {
+                            clonedInputs[i].textContent = val;
+                        }
+                    }
+                }
+            });
+
+            // Remove edit-mode overlays
+            const overlays = clone.querySelectorAll('.edit-grid-overlay, .edit-safety-guide, .edit-handle');
             overlays.forEach(el => el.remove());
 
-            // Wrap in print-page container to enforce desktop simulation logic
             const pageContainer = doc.createElement('div');
             pageContainer.className = 'print-page';
             
@@ -189,12 +216,10 @@ export const printService = {
             contentWrapper.appendChild(clone);
             
             pageContainer.appendChild(contentWrapper);
-            
-            // Inject into body
             doc.body.appendChild(pageContainer);
         });
 
-        // 5. Optional: Answer Key Placeholder Page
+        // 5. Answer Key Placeholder
         if (settings.includeAnswerKeyPlaceholder) {
             const answerPage = doc.createElement('div');
             answerPage.className = 'print-page';
@@ -218,10 +243,9 @@ export const printService = {
             iframe.contentWindow?.focus();
             iframe.contentWindow?.print();
             
-            // Cleanup after print dialog closes (or user cancels)
             setTimeout(() => {
                document.body.removeChild(iframe);
             }, 5000); 
-        }, 800); // Wait slightly longer for styles and images to settle
+        }, 1000); 
     }
 };
