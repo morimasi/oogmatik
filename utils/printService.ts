@@ -25,45 +25,61 @@ export const printService = {
 
         // UI Temizliği - Ekran görüntüsüne girmemesi gerekenleri gizle
         const uiElements = document.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, .no-print');
-        uiElements.forEach((el: any) => el.style.visibility = 'hidden'); // display:none yerine visibility kullanıyoruz layout bozulmasın diye
+        uiElements.forEach((el: any) => el.style.visibility = 'hidden');
 
         try {
             // 2. PDF Ayarları (A4)
+            // @ts-ignore
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pageWidth = 210;
             const pageHeight = 297;
-            const margin = 0; // Kenar boşluğunu sıfırladık, içerik zaten marginli
+            const margin = 0; 
             const printableWidth = pageWidth;
             const printableHeight = pageHeight;
 
             for (let i = 0; i < elements.length; i++) {
                 const element = elements[i] as HTMLElement;
 
-                // 3. Ekran Görüntüsü Al
-                // Scale 1.5 performans ve kalite dengesi için idealdir. 2 ve üzeri tarayıcıyı kilitler.
-                const canvas = await html2canvas(element, {
-                    scale: 1.5, 
-                    useCORS: true,
-                    allowTaint: false,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    scrollY: 0, // Önemli: Sayfa kaydırılmışsa bile en üstten al
-                    windowWidth: document.documentElement.scrollWidth,
-                    windowHeight: document.documentElement.scrollHeight
+                // 3. Ekran Görüntüsü Al (Timeout Korumalı)
+                const canvas = await new Promise<HTMLCanvasElement>((resolve, reject) => {
+                    const timeoutId = setTimeout(() => {
+                        reject(new Error("Sayfa işlenirken zaman aşımına uğradı (60sn). İçerik çok yoğun olabilir."));
+                    }, 60000); // 60 saniye limit
+
+                    html2canvas(element, {
+                        scale: 1.5, // Kalite/Performans dengesi
+                        useCORS: true, // Dış kaynaklı görseller için
+                        allowTaint: false,
+                        logging: false, // Konsol kirliliğini önle
+                        backgroundColor: '#ffffff',
+                        scrollY: 0,
+                        windowWidth: document.documentElement.scrollWidth,
+                        windowHeight: document.documentElement.scrollHeight,
+                        onclone: (clonedDoc) => {
+                            // Klonlanan dökümanda ekstra temizlik yapılabilir
+                            const clonedUi = clonedDoc.querySelectorAll('.edit-handle, .edit-grid-overlay');
+                            clonedUi.forEach((el: any) => el.style.visibility = 'hidden');
+                        }
+                    }).then((c) => {
+                        clearTimeout(timeoutId);
+                        resolve(c);
+                    }).catch((err) => {
+                        clearTimeout(timeoutId);
+                        reject(err);
+                    });
                 });
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.85); // JPEG ve 0.85 kalite ile dosya boyutu optimizasyonu
+                const imgData = canvas.toDataURL('image/jpeg', 0.85);
                 const imgWidth = canvas.width;
                 const imgHeight = canvas.height;
 
-                // 4. Boyut Hesaplama (PDF sayfasına sığdır)
+                // 4. Boyut Hesaplama
                 const ratio = printableWidth / imgWidth;
                 const scaledHeight = imgHeight * ratio;
 
                 // 5. Sayfaya Ekle
                 if (i > 0) pdf.addPage();
                 
-                // Tek sayfa olarak sığdır
                 pdf.addImage(imgData, 'JPEG', margin, margin, printableWidth, Math.min(scaledHeight, printableHeight));
             }
 
@@ -77,12 +93,10 @@ export const printService = {
                 const blobUrl = URL.createObjectURL(pdfBlob);
                 const printWindow = window.open(blobUrl, '_blank');
                 if (printWindow) {
-                    // Otomatik yazdırma penceresini açmayı dene
                     printWindow.onload = () => {
                         printWindow.print();
                     };
                 } else {
-                    // Pop-up engellendiyse indirme yöntemine geç
                     pdf.save(finalFileName);
                 }
             }
@@ -93,7 +107,6 @@ export const printService = {
         } finally {
             // UI Elementlerini Geri Getir
             uiElements.forEach((el: any) => el.style.visibility = '');
-            // Scroll pozisyonunu geri yükle
             window.scrollTo(0, originalScrollPos);
         }
     }
