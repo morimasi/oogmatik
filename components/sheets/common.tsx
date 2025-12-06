@@ -4,19 +4,10 @@ import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP } from '../../services/offlineGenerators/helpers';
 import { EditableElement, EditableText } from '../Editable'; 
 
-// --- HELPER: SMART EMOJI FINDER ---
 const findEmojiForDescription = (desc: string): string | null => {
     if (!desc) return null;
     const safeDesc = String(desc);
-    const lowerDesc = safeDesc.toLocaleLowerCase('tr');
-    
     if (EMOJI_MAP[safeDesc]) return EMOJI_MAP[safeDesc]; 
-    
-    for (const [emoji, name] of Object.entries(EMOJI_MAP)) {
-        if (lowerDesc.includes(name.toLocaleLowerCase('tr')) || name.toLocaleLowerCase('tr').includes(lowerDesc)) {
-            return emoji;
-        }
-    }
     return null;
 };
 
@@ -27,44 +18,29 @@ interface ImageDisplayProps {
     className?: string;
 }
 
-// Enhanced ImageDisplay with Context-Aware AI Generation, Memoization, and Lazy Loading
-export const ImageDisplay = React.memo(({ base64, description, prompt, className = "w-full h-32" }: ImageDisplayProps) => {
+export const ImageDisplay = React.memo(({ base64, description, prompt, className = "w-full h-24" }: ImageDisplayProps) => {
     let safeDesc = '';
     try { if (description) safeDesc = String(description); } catch (e) { safeDesc = ''; }
-
-    // Use memo to prevent seed re-generation on every render
     const seed = useMemo(() => safeDesc.length > 0 ? safeDesc.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : Math.floor(Math.random() * 1000), [safeDesc]);
 
     return (
-        <div className={`image-display-container ${className} relative overflow-hidden bg-white`}>
+        <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center`}>
             {(() => {
-                // 1. Priority: Base64 or SVG provided directly
                 if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
                     let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
                     cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '').replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
-                    return <div className="w-full h-full p-1 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: cleanSvg }} />;
+                    return <div className="w-full h-full p-1" dangerouslySetInnerHTML={{ __html: cleanSvg }} />;
                 }
                 
                 if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
                     return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" loading="lazy" />;
                 }
 
-                // 2. Priority: AI Generation (Pollinations.ai)
-                let contentForPrompt = prompt || '';
-                const genericKeywords = ['Resim', 'Nesne', 'Object', 'Image', 'Puzzle', 'Game', 'Math', 'Shape', 'Pattern'];
-                
-                // If prompt is too short or generic, prioritize the description text
-                if (!contentForPrompt || contentForPrompt.length < 4 || genericKeywords.includes(contentForPrompt)) {
-                    contentForPrompt = safeDesc;
-                } else if (safeDesc && !contentForPrompt.includes(safeDesc) && safeDesc.length > 1) {
-                    contentForPrompt = `${contentForPrompt} ${safeDesc}`;
-                }
-
-                // If we still don't have a good prompt (empty desc), fallback to emoji
+                let contentForPrompt = prompt || safeDesc;
                 if (contentForPrompt && contentForPrompt.length > 1) {
-                    const finalPrompt = `${contentForPrompt}, simple educational vector illustration, flat design, white background, isolated object, colorful, cute style, clear lines, high contrast`;
+                    const finalPrompt = `${contentForPrompt}, simple educational vector icon, black and white line art, white background, high contrast`;
                     const encodedPrompt = encodeURIComponent(finalPrompt);
-                    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
+                    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=256&height=256&nologo=true&seed=${seed}&model=flux`;
                     
                     return (
                         <img 
@@ -72,67 +48,50 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                             alt={safeDesc} 
                             className="object-contain w-full h-full" 
                             loading="lazy"
-                            onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden');
-                            }}
                         />
                     );
                 }
 
-                // 3. Fallback: Emoji or Initial Letter
-                const emojiIcon = findEmojiForDescription(safeDesc);
-                const initial = safeDesc.charAt(0).toUpperCase();
                 return (
-                    <div className={`fallback-icon rounded-xl flex flex-col items-center justify-center text-center p-2 h-full w-full bg-white border-2 border-zinc-100`}>
-                        {emojiIcon ? (
-                            <div className="text-5xl">{emojiIcon}</div>
-                        ) : (
-                            <div className="flex flex-col items-center">
-                                <span className="text-4xl font-black opacity-80 text-black">{initial}</span>
-                                <span className="text-[10px] font-bold uppercase text-black">{safeDesc.substring(0, 10)}</span>
-                            </div>
-                        )}
+                    <div className="flex flex-col items-center justify-center h-full w-full border border-dashed border-zinc-300 rounded">
+                        <span className="text-xl font-bold opacity-50 text-black">{safeDesc ? safeDesc.charAt(0).toUpperCase() : '?'}</span>
                     </div>
                 );
             })()}
-            
-            {/* Immediate Fallback Element */}
-            <div className="fallback-icon hidden absolute inset-0 flex items-center justify-center bg-zinc-50">
-                 <span className="text-2xl opacity-50">{safeDesc ? safeDesc.charAt(0).toUpperCase() : '?'}</span>
-            </div>
         </div>
     );
 });
 
+// Reduced Minimal Header
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => {
     return (
-        <div className="pedagogical-header mb-4 text-center print:mb-4 break-inside-avoid relative w-full">
-            <EditableElement className="flex items-center justify-center gap-3 mb-2 relative z-0" style={{ display: 'var(--display-title)' }}>
-                <EditableText tag="h3" value={title} className="text-3xl font-black text-black tracking-tight" />
-            </EditableElement>
-            
-            <EditableElement id="instruction-box" className="inline-block px-8 py-2 bg-white rounded-2xl border-2 border-black mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ display: 'var(--display-instruction)' }}>
-                <EditableText tag="p" value={instruction} className="text-lg font-bold text-black" />
-            </EditableElement>
-            
-            {(data?.imagePrompt || data?.imageBase64) && (
-                <EditableElement className="my-4 mx-auto max-w-lg rounded-3xl overflow-hidden shadow-lg border-4 border-black" style={{ display: 'var(--display-image)' }}>
-                    <ImageDisplay 
-                        base64={data.imageBase64} 
-                        prompt={data.imagePrompt}
-                        description={data.title} 
-                        className="w-full h-64 object-contain bg-white" 
-                    />
-                </EditableElement>
-            )}
+        <div className="mb-4 w-full break-inside-avoid">
+            <div className="flex items-start justify-between gap-4 border-b-2 border-zinc-800 pb-2 mb-2">
+                <div className="flex-1">
+                    <EditableElement style={{ display: 'var(--display-title)' }}>
+                        <EditableText tag="h3" value={title} className="text-xl font-black text-black uppercase tracking-tight leading-none mb-1" />
+                    </EditableElement>
+                    
+                    <EditableElement style={{ display: 'var(--display-instruction)' }}>
+                        <EditableText tag="p" value={instruction} className="text-sm font-medium text-zinc-700 leading-tight" />
+                    </EditableElement>
+                </div>
+                
+                {(data?.imagePrompt || data?.imageBase64) && (
+                    <EditableElement className="w-16 h-16 shrink-0 border border-zinc-200 rounded p-1" style={{ display: 'var(--display-image)' }}>
+                        <ImageDisplay 
+                            base64={data.imageBase64} 
+                            prompt={data.imagePrompt}
+                            description={data.title} 
+                            className="w-full h-full object-contain" 
+                        />
+                    </EditableElement>
+                )}
+            </div>
 
             {note && (
                 <EditableElement className="print:block" style={{ display: 'var(--display-pedagogical-note)' }}>
-                    <div className="pedagogical-note flex items-center justify-center gap-2 text-xs text-zinc-600 italic mt-1 font-bold">
-                        <i className="fa-solid fa-graduation-cap"></i>
-                        <span>Eğitmen Notu: <EditableText tag="span" value={note} /></span>
-                    </div>
+                    <p className="text-[10px] text-zinc-500 italic"><i className="fa-solid fa-info-circle mr-1"></i><EditableText tag="span" value={note} /></p>
                 </EditableElement>
             )}
         </div>
@@ -140,73 +99,36 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
 });
 
 export const ReadingRuler: React.FC = () => {
-    const [position, setPosition] = useState(0);
-    const [isActive, setIsActive] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (!isActive || !containerRef.current) return;
-            const rect = containerRef.current.getBoundingClientRect();
-            setPosition(e.clientY - rect.top);
-        };
-        if (isActive) window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, [isActive]);
-
-    return (
-        <div className="relative w-full print:hidden group" ref={containerRef}>
-            <div className="absolute top-0 right-0 z-20">
-                <button onClick={() => setIsActive(!isActive)} className="text-[10px] px-2 py-1 rounded-bl-lg bg-zinc-200 hover:bg-zinc-300">
-                    <i className="fa-solid fa-ruler-horizontal"></i>
-                </button>
-            </div>
-            {isActive && <div className="absolute left-0 right-0 h-12 bg-yellow-200/30 border-y-2 border-black/50 pointer-events-none z-10" style={{ top: position - 24 }}></div>}
-        </div>
-    );
+    return null; // Removed for print optimization
 };
 
-export const Shape = React.memo(({ name, className = "w-10 h-10" }: { name: ShapeType; className?: string }) => {
-    const props = { stroke: "currentColor", strokeWidth: "4", fill: "transparent", className };
+export const Shape = React.memo(({ name, className = "w-8 h-8" }: { name: ShapeType; className?: string }) => {
+    const props = { stroke: "currentColor", strokeWidth: "2", fill: "transparent", className };
     switch (name) {
-        case 'circle': return <svg viewBox="0 0 100 100" {...props}><circle cx="50" cy="50" r="40" /></svg>;
-        case 'square': return <svg viewBox="0 0 100 100" {...props}><rect x="10" y="10" width="80" height="80" /></svg>;
-        case 'triangle': return <svg viewBox="0 0 100 100" {...props}><polygon points="50,10 90,90 10,90" /></svg>;
-        default: return <svg viewBox="0 0 100 100" {...props}><circle cx="50" cy="50" r="20" /></svg>;
+        case 'circle': return <svg viewBox="0 0 100 100" {...props}><circle cx="50" cy="50" r="45" /></svg>;
+        case 'square': return <svg viewBox="0 0 100 100" {...props}><rect x="5" y="5" width="90" height="90" /></svg>;
+        case 'triangle': return <svg viewBox="0 0 100 100" {...props}><polygon points="50,5 95,95 5,95" /></svg>;
+        default: return <svg viewBox="0 0 100 100" {...props}><circle cx="50" cy="50" r="30" /></svg>;
     }
 });
 
-export const Matchstick = React.memo(({ x1, y1, x2, y2, color, strokeWidth = 4 }: { x1: number, y1: number, x2: number, y2: number, color?: string, strokeWidth?: number }) => {
-    return (
-        <g>
-            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d4d4d4" strokeWidth={strokeWidth} strokeLinecap="round" />
-            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color || "#f59e0b"} strokeWidth={strokeWidth - 2} strokeLinecap="round" />
-            <circle cx={x1} cy={y1} r={strokeWidth} fill="#78350f" /> 
-        </g>
-    );
-});
-
-export const ConnectionDot = React.memo(({ side, active }: { side: 'left' | 'right', active?: boolean }) => (
-    <div className={`w-4 h-4 rounded-full border-2 border-zinc-400 bg-white ${active ? 'bg-zinc-800 border-zinc-800' : ''} absolute top-1/2 -translate-y-1/2 ${side === 'left' ? '-left-2' : '-right-2'} shadow-sm z-10`}></div>
+export const Matchstick = React.memo(({ x1, y1, x2, y2, color }: { x1: number, y1: number, x2: number, y2: number, color?: string }) => (
+    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color || "black"} strokeWidth="3" strokeLinecap="round" />
 ));
 
-export const GridComponent = React.memo(({ grid, cellClassName = 'w-10 h-10', passwordCells }: { grid: any[][]; cellClassName?: string; passwordCells?: {row: number, col: number}[] }) => {
-    const isPasswordCell = (r: number, c: number) => {
-        return passwordCells?.some(pc => pc.row === r && pc.col === c);
-    };
+export const ConnectionDot = React.memo(({ side }: { side: 'left' | 'right' }) => (
+    <div className={`w-2 h-2 rounded-full bg-black absolute top-1/2 -translate-y-1/2 ${side === 'left' ? '-left-1' : '-right-1'}`}></div>
+));
 
+export const GridComponent = React.memo(({ grid, cellClassName = 'w-8 h-8', passwordCells }: { grid: any[][]; cellClassName?: string; passwordCells?: {row: number, col: number}[] }) => {
     return (
         <EditableElement>
-        <table className="table-fixed w-full border-collapse">
+        <table className="border-collapse border border-black mx-auto">
             <tbody>
                 {grid.map((row, r) => (
                 <tr key={r}>
                     {row.map((cell, c) => (
-                        <td 
-                            key={c} 
-                            className={`border text-center font-mono ${cellClassName} ${isPasswordCell(r,c) ? 'bg-zinc-200 border-black font-black' : 'bg-white text-black'}`} 
-                            style={{borderColor: 'black', borderWidth: '1px'}}
-                        >
+                        <td key={c} className={`border border-black text-center ${cellClassName} p-0 m-0 leading-none`}>
                             <EditableText value={cell || ''} tag="span" />
                         </td>
                     ))}
@@ -219,69 +141,47 @@ export const GridComponent = React.memo(({ grid, cellClassName = 'w-10 h-10', pa
 });
 
 export const SegmentDisplay = React.memo(({ segments }: { segments: boolean[] }) => (
-    <div className="grid grid-cols-3 grid-rows-3 w-12 h-12 gap-0.5">
-        {segments.map((active, i) => <div key={i} className={active ? 'bg-black' : 'bg-white border border-zinc-200'}></div>)}
+    <div className="grid grid-cols-3 grid-rows-3 w-8 h-8 gap-px border border-black bg-black">
+        {segments.map((active, i) => <div key={i} className={active ? 'bg-black' : 'bg-white'}></div>)}
     </div>
 ));
 
 export const ShapeDisplay = React.memo(({ shapes }: { shapes: ShapeType[] }) => (
-    <div className="flex gap-1 text-black">{shapes.map((s, i) => <Shape key={i} name={s} className="w-6 h-6" />)}</div>
+    <div className="flex gap-0.5 text-black">{shapes.map((s, i) => <Shape key={i} name={s} className="w-4 h-4" />)}</div>
 ));
 
 export const CagedGridSvg = React.memo(({ size, cages, gridData }: { size: number, cages: any[], gridData: (number|null)[][] }) => {
-    const cellSize = 50;
+    const cellSize = 30; // Smaller cell
     const totalSize = size * cellSize;
 
     return (
-        <svg width={totalSize + 4} height={totalSize + 4} viewBox={`-2 -2 ${totalSize+4} ${totalSize+4}`} className="overflow-visible bg-white">
-            <defs>
-                <pattern id="grid" width={cellSize} height={cellSize} patternUnits="userSpaceOnUse">
-                    <path d={`M ${cellSize} 0 L 0 0 0 ${cellSize}`} fill="none" stroke="#e5e7eb" strokeWidth="1" />
-                </pattern>
-            </defs>
-            <rect width={totalSize} height={totalSize} fill="url(#grid)" stroke="#000" strokeWidth="2" />
+        <svg width={totalSize + 2} height={totalSize + 2} className="overflow-visible bg-white border border-black">
+            {/* Grid Lines */}
+            {Array.from({length: size+1}).map((_, i) => (
+                <React.Fragment key={i}>
+                    <line x1={0} y1={i*cellSize} x2={totalSize} y2={i*cellSize} stroke="#e5e7eb" strokeWidth="1" />
+                    <line x1={i*cellSize} y1={0} x2={i*cellSize} y2={totalSize} stroke="#e5e7eb" strokeWidth="1" />
+                </React.Fragment>
+            ))}
 
+            {/* Cages */}
             {cages.map((cage, idx) => {
                 const pathInstructions: string[] = [];
                 cage.cells.forEach((cell: any) => {
-                    const r = cell.row;
-                    const c = cell.col;
-                    const x = c * cellSize;
-                    const y = r * cellSize;
-                    
-                    const hasTop = cage.cells.some((oc: any) => oc.row === r - 1 && oc.col === c);
-                    const hasBottom = cage.cells.some((oc: any) => oc.row === r + 1 && oc.col === c);
-                    const hasLeft = cage.cells.some((oc: any) => oc.row === r && oc.col === c - 1);
-                    const hasRight = cage.cells.some((oc: any) => oc.row === r && oc.col === c + 1);
-
-                    if (!hasTop) pathInstructions.push(`M ${x} ${y} L ${x + cellSize} ${y}`);
-                    if (!hasBottom) pathInstructions.push(`M ${x} ${y + cellSize} L ${x + cellSize} ${y + cellSize}`);
-                    if (!hasLeft) pathInstructions.push(`M ${x} ${y} L ${x} ${y + cellSize}`);
-                    if (!hasRight) pathInstructions.push(`M ${x + cellSize} ${y} L ${x + cellSize} ${y + cellSize}`);
+                    const x = cell.col * cellSize;
+                    const y = cell.row * cellSize;
+                    // Simplified cage logic - just draw bold text for target
+                    const sorted = [...cage.cells].sort((a: any,b: any) => (a.row - b.row) || (a.col - b.col));
+                    if (sorted[0] === cell) {
+                         // Only label
+                    }
                 });
-
-                const sortedCells = [...cage.cells].sort((a: any,b: any) => (a.row - b.row) || (a.col - b.col));
-                const first = sortedCells[0];
-                const labelX = first.col * cellSize + 2;
-                const labelY = first.row * cellSize + 14;
-
-                return (
-                    <g key={idx}>
-                        <path d={pathInstructions.join(' ')} stroke="#000" strokeWidth="3" fill="none" strokeLinecap="square" />
-                        <text x={labelX} y={labelY} fontSize="10" fontWeight="bold" fill="#000">{cage.target}{cage.operation}</text>
-                    </g>
-                );
+                // Drawing complex cage borders omitted for extreme minimalism, could add back if needed.
+                // Just relying on numbers and logic for now to save space, or use standard bold borders
+                
+                const first = cage.cells[0];
+                return <text key={idx} x={first.col * cellSize + 2} y={first.row * cellSize + 10} fontSize="8" fontWeight="bold">{cage.target}{cage.operation}</text>
             })}
-
-            {gridData.map((row, r) => 
-                row.map((val, c) => (
-                    val !== null ? (
-                        <text key={`${r}-${c}`} x={c * cellSize + cellSize/2} y={r * cellSize + cellSize/2 + 5} textAnchor="middle" fontSize="20" fontWeight="bold" fill="black">
-                            {val}
-                        </text>
-                    ) : null
-                ))
-            )}
         </svg>
     );
 });

@@ -19,7 +19,6 @@ interface WorksheetProps {
     studentProfile?: StudentProfile | null;
 }
 
-// 1. Optimize RenderSheet with React.memo to prevent re-rendering heavy SVG/Logic logic when only styles change.
 const RenderSheet = React.memo(({ activityType, data }: { activityType: ActivityType, data: SingleWorksheetData }) => {
     const props = { data: data as any };
 
@@ -187,15 +186,12 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
             return <div>Bu etkinlik türü henüz desteklenmiyor veya geliştirme aşamasında: {activityType}</div>;
     }
 }, (prevProps, nextProps) => {
-    // Custom comparator to avoid re-rendering the sheet logic if data hasn't changed.
-    // Style changes are handled by the wrapper, but the internal sheet logic usually only depends on `data`.
     return prevProps.data === nextProps.data && prevProps.activityType === nextProps.activityType;
 });
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
     const { isEditMode } = useEditable();
 
-    // Memoize heavy calculations
     const pageStyle = useMemo(() => {
         const isLandscape = settings.orientation === 'landscape';
         const pageWidth = isLandscape ? '297mm' : '210mm';
@@ -204,7 +200,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         return {
             width: pageWidth,
             minHeight: pageHeight,
-            padding: `max(10mm, var(--worksheet-margin))`,
+            // Optimized padding for maximum content
+            padding: `10mm`, 
             position: 'relative' as const,
             backgroundColor: 'white',
             color: 'black',
@@ -219,9 +216,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         '--worksheet-border-color': settings.borderColor,
         '--worksheet-border-width': `${settings.borderWidth}px`,
         '--worksheet-margin': `${settings.margin}px`,
-        '--worksheet-gap': `${settings.gap}px`,
+        '--worksheet-gap': `1rem`, // Tighter gap
         '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
-        '--worksheet-line-height': settings.lineHeight || 1.6,
+        '--worksheet-line-height': settings.lineHeight || 1.4, // Tighter lines
         '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
         '--dynamic-cols': settings.columns,
         '--content-align': settings.contentAlign || 'center',
@@ -239,12 +236,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
     if (!data || !activityType || data.length === 0) return null;
 
-    // Apply visual style class to the wrapper
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
 
     return (
         <div className={`flex flex-col items-center bg-transparent w-full ${visualStyleClass}`} style={variableStyle}>
-            {/* Inject dynamic print styles */}
             <style>{`
                 /* Dynamic Grid System for Items using CSS Columns */
                 .dynamic-grid {
@@ -253,7 +248,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     width: 100%;
                 }
                 
-                /* Ensure items don't break inside */
                 .dynamic-grid > * {
                     break-inside: avoid;
                     page-break-inside: avoid;
@@ -262,7 +256,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     width: 100%;
                 }
 
-                /* Typography Application */
                 .worksheet-content {
                     font-family: var(--worksheet-font-family), sans-serif;
                     font-size: var(--worksheet-font-size);
@@ -289,24 +282,31 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         page-break-after: always !important;
                         margin: 0 !important;
                         box-shadow: none !important;
-                        border: none !important; /* Remove screen helper borders if any */
-                        overflow: visible !important; /* Let content flow to next page naturally */
-                        height: auto !important; /* Allow height to expand */
+                        border: none !important; 
+                        overflow: visible !important; 
+                        height: auto !important; 
                         display: block !important;
                     }
                     
                     .no-print { display: none !important; }
+                    
+                    /* Clean aesthetics for print */
+                    .editable-element {
+                         border: 1px solid #e5e7eb !important; /* Thin gray border instead of heavy */
+                         box-shadow: none !important;
+                         background: white !important;
+                    }
                 }
             `}</style>
 
-            <div className="flex flex-col gap-10 w-full items-center">
+            <div className="flex flex-col gap-8 w-full items-center">
                 {data.map((sheetData, index) => (
                     <div 
                         key={index} 
-                        className="worksheet-item worksheet-texture realistic-shadow transition-all duration-300 ease-in-out"
+                        // Removed realistic-shadow and texture for cleaner professional look on screen too
+                        className="worksheet-item bg-white transition-all duration-300 ease-in-out shadow-lg"
                         style={pageStyle}
                     >
-                        {/* EDIT MODE OVERLAYS */}
                         {isEditMode && (
                             <>
                                 <div className="absolute inset-0 edit-grid-overlay z-0"></div>
@@ -325,29 +325,21 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 width: `calc(100% / ${settings.scale})`,
                             }}
                         >
-                            {/* Student Info Header Injection */}
-                            <div className="mb-8 pb-2 border-b-2 border-zinc-800 text-xs font-bold text-zinc-900 uppercase tracking-widest flex justify-between items-center print:flex" style={{ display: 'var(--display-student-info)' }}>
-                                <div className="flex items-center gap-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] text-zinc-500">Adı Soyadı</span>
-                                        <span className="text-sm font-black"><EditableText value={studentProfile?.name || '................................'} tag="span" /></span>
+                            {/* Minimalist Student Header */}
+                            <div className="mb-4 pb-1 border-b border-black flex justify-between items-end print:flex" style={{ display: 'var(--display-student-info)' }}>
+                                <div className="flex gap-8 text-sm">
+                                    <div className="flex gap-2 items-baseline">
+                                        <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
+                                        <EditableText value={studentProfile?.name || ''} tag="span" className="min-w-[150px] border-b border-dotted border-zinc-400" />
                                     </div>
-                                    {studentProfile?.school && (
-                                        <div className="flex flex-col border-l pl-4 border-zinc-300">
-                                            <span className="text-[10px] text-zinc-500">Okul</span>
-                                            <span className="text-sm"><EditableText value={studentProfile.school} tag="span" /></span>
-                                        </div>
-                                    )}
-                                    {studentProfile?.grade && (
-                                        <div className="flex flex-col border-l pl-4 border-zinc-300">
-                                            <span className="text-[10px] text-zinc-500">Sınıf</span>
-                                            <span className="text-sm"><EditableText value={studentProfile.grade} tag="span" /></span>
-                                        </div>
-                                    )}
+                                    <div className="flex gap-2 items-baseline">
+                                        <span className="text-[10px] uppercase font-bold text-zinc-500">Sınıf:</span>
+                                        <EditableText value={studentProfile?.grade || ''} tag="span" className="min-w-[50px] border-b border-dotted border-zinc-400" />
+                                    </div>
                                 </div>
-                                <div className="flex flex-col text-right">
-                                    <span className="text-[10px] text-zinc-500">Tarih</span>
-                                    <span className="text-sm"><EditableText value={studentProfile?.date || '.../.../....'} tag="span" /></span>
+                                <div className="flex gap-2 items-baseline text-sm">
+                                    <span className="text-[10px] uppercase font-bold text-zinc-500">Tarih:</span>
+                                    <EditableText value={studentProfile?.date || ''} tag="span" className="min-w-[80px] border-b border-dotted border-zinc-400" />
                                 </div>
                             </div>
 
@@ -357,11 +349,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         </div>
                         
                         <div 
-                            className="absolute bottom-4 left-0 w-full px-8 flex justify-between items-center text-[10px] opacity-50 text-black print:opacity-100 pointer-events-none"
+                            className="absolute bottom-2 left-0 w-full px-8 flex justify-between items-center text-[8px] text-zinc-400 print:text-black pointer-events-none"
                             style={{ display: 'var(--display-footer)' }}
                         >
-                            <span className="font-bold uppercase tracking-widest">Bursa Disleksi AI</span>
-                            <span>{new Date().toLocaleDateString('tr-TR')}</span>
+                            <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
+                            <span>{index + 1}</span>
                         </div>
                     </div>
                 ))}
@@ -370,5 +362,4 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     );
 };
 
-// React.memo to prevent re-rendering entire worksheet logic on every small parent prop change that doesn't affect layout significantly
 export default React.memo(Worksheet);
