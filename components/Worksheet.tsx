@@ -286,7 +286,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             </>
                         )}
 
-                        {/* Content Wrapper applying margin */}
+                        {/* Content Wrapper applying the mandatory print margin */}
                         <div className="w-full h-full p-[10mm]">
                             <div 
                                 className="worksheet-scaler worksheet-content relative z-10"

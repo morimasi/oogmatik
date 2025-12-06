@@ -458,7 +458,7 @@ export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) 
                                 {(task.grid || []).flat().map((cell, i) => (
                                     <div key={i} className="w-[50px] h-[50px] bg-white flex items-center justify-center text-xl font-bold relative">
                                         {cell === 'S' && <div className="w-8 h-8 bg-green-500 rounded-full text-white flex items-center justify-center text-xs">BAŞLA</div>}
-                                        {cell === 'E' && <div className="w-8 h-8 bg-red-500 rounded-full text-white flex items-center justify-center text-xs opacity-0 print:opacity-0">BİTİŞ</div>} 
+                                        {cell === 'E' && <div className="w-8 h-8 bg-red-500 rounded-full text-white flex items-center justify-center text-xs">BİTİŞ</div>} 
                                         {/* End is hidden for student to find */}
                                     </div>
                                 ))}

@@ -127,7 +127,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       id="tour-sidebar"
-      className={`fixed inset-y-0 left-0 z-30 transform bg-[var(--bg-paper)] backdrop-blur-md shadow-xl transition-all duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-[var(--border-color)] print:hidden h-full flex flex-col ${
+      className={`fixed inset-y-0 left-0 z-30 transform bg-[var(--bg-paper)] backdrop-blur-md shadow-xl transition-all duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-[var(--border-color)] h-full flex flex-col ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       } ${isExpanded ? 'w-80' : 'w-24'}`}
     >

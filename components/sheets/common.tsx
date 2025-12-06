@@ -77,11 +77,11 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
         <div className="mb-4 w-full break-inside-avoid pedagogical-header">
             <div className="flex items-start justify-between gap-4 border-b-2 border-zinc-800 pb-2 mb-2">
                 <div className="flex-1">
-                    <EditableElement className="print-header-title" style={{ display: 'var(--display-title)' }}>
+                    <EditableElement style={{ display: 'var(--display-title)' }}>
                         <EditableText tag="h3" value={title} className="text-xl font-black text-black uppercase tracking-tight leading-none mb-1" />
                     </EditableElement>
                     
-                    <EditableElement className="print-header-instruction" style={{ display: 'var(--display-instruction)' }}>
+                    <EditableElement style={{ display: 'var(--display-instruction)' }}>
                         <EditableText tag="p" value={instruction} className="text-sm font-medium text-zinc-700 leading-tight" />
                     </EditableElement>
                 </div>
@@ -99,7 +99,7 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
             </div>
 
             {note && (
-                <EditableElement className="print:block" style={{ display: 'var(--display-pedagogical-note)' }}>
+                <EditableElement style={{ display: 'var(--display-pedagogical-note)' }}>
                     <p className="text-[10px] text-zinc-500 italic"><i className="fa-solid fa-info-circle mr-1"></i><EditableText tag="span" value={note} /></p>
                 </EditableElement>
             )}
@@ -108,7 +108,7 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
 });
 
 export const ReadingRuler: React.FC = () => {
-    return null; // Removed for print optimization
+    return null; 
 };
 
 export const Shape = React.memo(({ name, className = "w-8 h-8" }: { name: ShapeType; className?: string }) => {

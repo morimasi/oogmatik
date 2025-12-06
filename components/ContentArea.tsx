@@ -422,7 +422,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 
                 {worksheetData && (
                     <div 
-                        className={`printable-content-parent transition-transform duration-75 ease-out will-change-transform`}
+                        className={`content-preview-wrapper transition-transform duration-75 ease-out will-change-transform`}
                         style={{ 
                             transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
                             transformOrigin: 'top center', 

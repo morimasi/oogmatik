@@ -92,7 +92,7 @@ const tourSteps: TourStep[] = [
     { targetId: 'tour-sidebar', title: 'Etkinlik Menüsü', content: 'Uygulamanın kalbi burası! Üretmek istediğiniz etkinlik kategorisini ve türünü bu menüden seçin. Seçim yaptıktan sonra ayar ekranı açılacaktır.', position: 'right' },
     { targetId: 'tour-search', title: 'Hızlı Arama', content: 'Yüzlerce etkinlik arasında kaybolmayın. Aradığınız bir etkinliğe buradan hızlıca ulaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-content', title: 'İçerik Alanı', content: 'Seçtiğiniz etkinlik ayarları ve ürettiğiniz çalışma kağıtlarınız bu ana alanda görüntülenir.', position: 'left' },
-    { targetId: 'tour-toolbar', title: 'Araç Çubuğu', content: 'Etkinlik oluşturulduktan sonra, bu araç çubuğu belirir. Yazdırma, kaydetme, paylaşma ve görünüm ayarlarını (ölçek, kenar boşluğu vb.) buradan yapabilirsiniz.', position: 'bottom' },
+    { targetId: 'tour-toolbar', title: 'Araç Çubuğu', content: 'Etkinlik oluşturulduktan sonra, bu araç çubuğu belirir. Kaydetme, paylaşma ve görünüm ayarlarını (ölçek, kenar boşluğu vb.) buradan yapabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-workbook-btn', title: 'Çalışma Kitapçığı', content: 'Buradan farklı etkinlikleri biriktirip, tek seferde basabileceğiniz bir kitapçık oluşturabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-favorites-btn', title: 'Favoriler', content: 'En çok kullanılan etkinliklere buradan hızlıca ulaşabilirsiniz.', position: 'bottom' },
     { targetId: 'tour-archive-btn', title: 'Arşiv', content: 'Kaydettiğiniz tüm etkinliklere buradan ulaşabilir, tekrar açabilir veya arkadaşlarınızla paylaşabilirsiniz.', position: 'bottom' },
@@ -464,7 +464,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
       
-      <header className={`relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 print:hidden transition-all duration-500 ${zenMode ? '-mt-20 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
+      <header className={`relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 transition-all duration-500 ${zenMode ? '-mt-20 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
         <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] mr-3 p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars fa-lg"></i></button>

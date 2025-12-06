@@ -154,13 +154,13 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
                         <div className="p-4 bg-green-50 rounded-xl border border-green-200 break-inside-avoid">
                             <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
-                            <ul className="list-disc list-inside text-sm space-y-1 text-green-900">
+                            <ul className="list-disc list-inside text-sm text-green-900 space-y-1">
                                 {report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                             </ul>
                         </div>
                         <div className="p-4 bg-rose-50 rounded-xl border border-rose-200 break-inside-avoid">
                             <h4 className="font-bold text-rose-800 mb-2 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
-                            <ul className="list-disc list-inside text-sm space-y-1 text-rose-900">
+                            <ul className="list-disc list-inside text-sm text-rose-900 space-y-1">
                                 {report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
                             </ul>
                         </div>

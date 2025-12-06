@@ -41,7 +41,7 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
     return (
         <div className="w-full">
             {/* PAGE 1: MEMORIZE */}
-            <div className="flex flex-col min-h-[1000px] relative break-after-page print:break-after-page">
+            <div className="flex flex-col min-h-[500px] relative">
                 <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Kelimeleri dikkatlice oku ve ezberle." note={data.pedagogicalNote} data={data} />
                 
                 <div className="flex-1 flex flex-col items-center justify-center">
@@ -56,14 +56,10 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
                         </div>
                     </div>
                 </div>
-                
-                <div className="text-center text-xs text-black mt-4 font-mono uppercase tracking-widest border-t-2 border-black pt-2">
-                    Sayfa 1 / 2 - Ezberleme Bölümü (Test İçin Sayfayı Çevirin)
-                </div>
             </div>
 
             {/* PAGE 2: TEST */}
-            <div className="flex flex-col min-h-[1000px] relative pt-8">
+            <div className="flex flex-col min-h-[500px] relative pt-8">
                 <PedagogicalHeader title={`${data.title} - TEST`} instruction="2. AŞAMA: Aklında kalan kelimeleri bul ve kutucuğu işaretle." />
                 
                 <div className="flex-1">
@@ -79,10 +75,6 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
                     </div>
                     <ScoreTable />
                 </div>
-
-                <div className="text-center text-xs text-black mt-4 font-mono uppercase tracking-widest border-t-2 border-black pt-2">
-                    Sayfa 2 / 2 - Hatırlama Testi
-                </div>
             </div>
         </div>
     );
@@ -92,7 +84,7 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
     return (
         <div className="w-full">
             {/* PAGE 1: MEMORIZE */}
-            <div className="flex flex-col min-h-[1000px] relative break-after-page print:break-after-page">
+            <div className="flex flex-col min-h-[500px] relative">
                 <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Görselleri dikkatlice incele ve yerlerini ezberle." note={data.pedagogicalNote} data={data} />
                 
                 <div className="flex-1 flex flex-col items-center justify-center">
@@ -108,14 +100,10 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
                         ))}
                     </div>
                 </div>
-                
-                <div className="text-center text-xs text-black mt-4 font-mono uppercase tracking-widest border-t-2 border-black pt-2">
-                    Sayfa 1 / 2 - Görsel Hafıza
-                </div>
             </div>
 
             {/* PAGE 2: TEST */}
-            <div className="flex flex-col min-h-[1000px] relative pt-8">
+            <div className="flex flex-col min-h-[500px] relative pt-8">
                 <PedagogicalHeader title={`${data.title} - TEST`} instruction="2. AŞAMA: Bir önceki sayfada gördüğün resimleri işaretle." />
                 
                 <div className="flex-1">
@@ -133,10 +121,6 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
                     </div>
                     <ScoreTable />
                 </div>
-
-                <div className="text-center text-xs text-black mt-4 font-mono uppercase tracking-widest border-t-2 border-black pt-2">
-                    Sayfa 2 / 2 - Hatırlama Testi
-                </div>
             </div>
         </div>
     );
@@ -146,7 +130,7 @@ export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ 
     return (
         <div className="w-full">
             {/* PAGE 1 */}
-            <div className="flex flex-col min-h-[1000px] relative break-after-page print:break-after-page">
+            <div className="flex flex-col min-h-[500px] relative">
                 <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." note={data.pedagogicalNote} data={data} />
                 
                 <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 items-center justify-center p-4">
@@ -157,11 +141,10 @@ export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ 
                         </EditableElement>
                     ))}
                 </div>
-                <div className="text-center text-xs text-black border-t-2 border-black pt-2">Sayfa 1 / 2</div>
             </div>
 
             {/* PAGE 2 */}
-            <div className="flex flex-col min-h-[1000px] relative pt-8">
+            <div className="flex flex-col min-h-[500px] relative pt-8">
                 <PedagogicalHeader title={`${data.title} - KİMİ GÖRDÜN?`} instruction="Daha önce gördüğün karakterlerin altındaki kutucuğu işaretle." />
                 
                 <div className="flex-1 grid grid-cols-3 md:grid-cols-4 gap-6 p-4">
@@ -188,7 +171,7 @@ export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data
     return (
         <div className="w-full">
             {/* PAGE 1 */}
-            <div className="flex flex-col min-h-[1000px] relative break-after-page print:break-after-page">
+            <div className="flex flex-col min-h-[500px] relative">
                 <PedagogicalHeader title={data.title} instruction="Renk çemberindeki nesnelerin yerini ve rengini ezberle." note={data.pedagogicalNote} data={data} />
                 
                 <div className="flex-1 flex items-center justify-center">
@@ -221,11 +204,10 @@ export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data
                         </svg>
                     </EditableElement>
                 </div>
-                <div className="text-center text-xs text-black border-t-2 border-black pt-2">Sayfa 1 / 2</div>
             </div>
 
             {/* PAGE 2 */}
-            <div className="flex flex-col min-h-[1000px] relative pt-8">
+            <div className="flex flex-col min-h-[500px] relative pt-8">
                 <PedagogicalHeader title={`${data.title} - BOŞ ÇEMBER`} instruction="Çemberi aklında kaldığı gibi boya ve nesneleri çiz." />
                 
                 <div className="flex-1 flex flex-col items-center justify-center">
@@ -257,7 +239,7 @@ export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data
 export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }> = ({ data }) => (
     <div className="w-full">
         {/* Page 1 */}
-        <div className="min-h-[1000px] break-after-page print:break-after-page flex flex-col">
+        <div className="min-h-[500px] flex flex-col">
             <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." note={data.pedagogicalNote} data={data} />
             
             <div className="flex-1 flex items-center justify-center p-8">
@@ -265,11 +247,10 @@ export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }>
                     {data.sceneDescription}
                 </div>
             </div>
-            <div className="text-center text-xs border-t-2 border-black pt-2 mt-4">Sayfa 1 - Okuma</div>
         </div>
         
         {/* Page 2 */}
-        <div className="min-h-[1000px] flex flex-col pt-8">
+        <div className="min-h-[500px] flex flex-col pt-8">
             <PedagogicalHeader title="HATIRLAMA TESTİ" instruction="Metne bakmadan soruları cevapla." />
             
             <div className="flex-1 space-y-8 mt-8">
@@ -499,7 +480,7 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
-            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {data.puzzles.map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 shadow-sm break-inside-avoid flex flex-col h-full">
                         {/* Riddle Text */}
@@ -535,10 +516,6 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
                     </EditableElement>
                 ))}
             </div>
-            {/* Answer Key Strip (For Print) */}
-            <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
-                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
-            </div>
         </div>
     );
 };
@@ -547,7 +524,7 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
-            <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {data.puzzles.map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 shadow-md break-inside-avoid flex flex-col h-full relative">
                         {/* Riddle Box */}
@@ -582,10 +559,6 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
                         </div>
                     </EditableElement>
                 ))}
-            </div>
-            {/* Answer Key Strip (For Print) */}
-            <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
-                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
             </div>
         </div>
     );

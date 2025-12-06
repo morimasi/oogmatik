@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
+import { printService } from '../utils/printService';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -33,7 +34,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
     isEditMode,
     onSnapshot
 }) => {
-  const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type' | 'theme'>('none');
+  const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
+
+  const handlePrint = () => {
+      // @ts-ignore
+      printService.printWorksheet("Etkinlik");
+  };
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
       <div className="flex items-center gap-1.5 group" title={title}>
@@ -211,14 +217,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
              {/* Visibility Dropdown (Enhanced) */}
              <div className="relative">
                  <button
-                    onClick={() => setActiveMenu(activeMenu === 'print' ? 'none' : 'print')}
-                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'print' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                    onClick={() => setActiveMenu(activeMenu === 'visibility' ? 'none' : 'visibility')}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${activeMenu === 'visibility' ? 'bg-[var(--accent-color)] text-black' : 'bg-[var(--bg-inset)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                     title="Sayfa Bileşenleri"
                  >
                      <i className="fa-solid fa-eye"></i> Görünürlük
                  </button>
                  
-                 {activeMenu === 'print' && (
+                 {activeMenu === 'visibility' && (
                      <div className="absolute top-full left-0 mt-2 w-64 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 animate-in fade-in zoom-in-95">
                          <h4 className="text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Sayfa Bileşenleri</h4>
                          <div className="grid grid-cols-2 gap-2">
@@ -259,16 +265,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 </button>
             )}
 
-            {/* SNAPSHOT BUTTON */}
-            {onSnapshot && (
-                <button 
-                    onClick={onSnapshot}
-                    className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-zinc-800 text-white border-zinc-900 hover:bg-zinc-700"
-                    title="Ekran Görüntüsü Al"
-                >
-                    <i className="fa-solid fa-camera"></i>
-                </button>
-            )}
+            {/* PRINT BUTTON - RESTORED */}
+            <button 
+                onClick={handlePrint}
+                className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-zinc-800 text-white border-zinc-900 hover:bg-zinc-700"
+                title="Yazdır (A4)"
+            >
+                <i className="fa-solid fa-print"></i>
+                <span className="hidden sm:inline">Yazdır</span>
+            </button>
 
             {onAddToWorkbook && (
                 <button 

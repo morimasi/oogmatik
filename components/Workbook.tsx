@@ -424,7 +424,6 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
     return (
         <div className="workbook-container w-full flex flex-col items-center gap-8 bg-zinc-100 dark:bg-zinc-900 py-8">
             <style>{`
-                /* Removed @media print blocks as printing is disabled */
             `}</style>
 
             {/* 1. Cover Page */}

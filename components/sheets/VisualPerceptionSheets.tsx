@@ -36,7 +36,7 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
 export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex flex-col md:flex-row print:flex-row gap-8 justify-center items-start">
+        <div className="flex flex-col md:flex-row gap-8 justify-center items-start">
             {/* List 1 */}
             <EditableElement className="flex-1 bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-full">
                 <h4 className="font-bold text-center mb-4 text-white bg-black py-1 rounded uppercase tracking-wider"><EditableText value={data.box1Title} tag="span" /></h4>
@@ -50,7 +50,7 @@ export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ da
                 </ul>
             </EditableElement>
             
-            <div className="hidden md:flex print:flex flex-col justify-center self-center text-zinc-300">
+            <div className="hidden md:flex flex-col justify-center self-center text-zinc-300">
                 <i className="fa-solid fa-right-left text-4xl"></i>
             </div>
 
@@ -82,7 +82,7 @@ export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ da
 export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex justify-between gap-12 mt-8 relative print:gap-16 max-w-3xl mx-auto">
+        <div className="flex justify-between gap-12 mt-8 relative max-w-3xl mx-auto">
              {/* Center Line Guide */}
             <div className="absolute inset-0 flex justify-center items-center opacity-10 pointer-events-none">
                 <div className="h-full border-r-2 border-dashed border-black"></div>
@@ -179,7 +179,7 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             <div className="space-y-12">
                 {(data.drawings || []).map((drawing, index) => (
-                    <EditableElement key={index} className="flex flex-col md:flex-row print:flex-row gap-8 items-center justify-center p-6 bg-zinc-50 rounded-3xl break-inside-avoid border-2 border-zinc-200">
+                    <EditableElement key={index} className="flex flex-col md:flex-row gap-8 items-center justify-center p-6 bg-zinc-50 rounded-3xl break-inside-avoid border-2 border-zinc-200">
                         {renderGrid(drawing.lines, true)}
                         <div className="flex flex-col items-center justify-center gap-2 text-zinc-300">
                             <i className="fa-solid fa-pen-nib text-2xl"></i>
@@ -240,7 +240,7 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            <EditableElement className="flex flex-col md:flex-row print:flex-row gap-12 justify-center items-start break-inside-avoid mt-8">
+            <EditableElement className="flex flex-col md:flex-row gap-12 justify-center items-start break-inside-avoid mt-8">
                 
                 {/* Target Pattern (Left Side) */}
                 <div className="flex flex-col items-center">
@@ -254,7 +254,7 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
                     </div>
                 </div>
 
-                <div className="text-zinc-300 hidden md:flex print:flex flex-col justify-center h-full pt-16">
+                <div className="text-zinc-300 hidden md:flex flex-col justify-center h-full pt-16">
                     <i className="fa-solid fa-paintbrush text-2xl"></i>
                 </div>
                 
@@ -443,7 +443,7 @@ export const WordConnectSheet: React.FC<{ data: WordConnectData }> = ({ data }) 
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
             
-            <div className="flex justify-between items-stretch gap-12 mt-8 relative max-w-4xl mx-auto print:gap-8">
+            <div className="flex justify-between items-stretch gap-12 mt-8 relative max-w-4xl mx-auto">
                 <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
                     <div className="h-full border-r-2 border-dashed border-zinc-300"></div>
                 </div>
@@ -523,8 +523,7 @@ export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = (
 export const ProfessionConnectSheet: React.FC<{ data: ProfessionConnectData }> = ({ data }) => (
      <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        {/* ADDED print:grid-cols-2 print:gap-8 */}
-        <div className="grid grid-cols-2 gap-12 max-w-4xl mx-auto relative print:grid-cols-2 print:gap-8 mt-8">
+        <div className="grid grid-cols-2 gap-12 max-w-4xl mx-auto relative mt-8">
             <div className="space-y-8">
                 {data.points.filter(p => p.x === 0).map((p, i) => (
                     <EditableElement key={i} className="flex items-center gap-4 p-4 border-2 border-black rounded-xl bg-white relative shadow-sm h-24">
