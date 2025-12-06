@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { AssessmentProfile, SavedAssessment, ActivityType, TestCategory } from '../types';
+import { AssessmentProfile, SavedAssessment, ActivityType, TestCategory, AssessmentReport } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { assessmentService } from '../services/assessmentService';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
@@ -12,9 +12,10 @@ interface AssessmentModuleProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
     onAddToWorkbook?: (assessment: SavedAssessment) => void;
+    onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
 }
 
-export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook }) => {
+export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }) => {
     const { user } = useAuth();
     const [step, setStep] = useState<'profile' | 'test-intro' | 'testing' | 'generating' | 'report'>('profile');
     
@@ -592,6 +593,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 onClose={onBack} 
                 user={user}
                 onAddToWorkbook={onAddToWorkbook}
+                onAutoGenerateWorkbook={onAutoGenerateWorkbook}
                 onManualSave={handleManualSave}
                 isSaving={isSaving}
                 isSaved={isSaved}

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -359,17 +359,22 @@ const AppContent: React.FC = () => {
 
       try {
           // Add Report Cover if available
+          // We need a SavedAssessment like structure but constructed from the report data
           const reportItem: CollectionItem = {
               id: crypto.randomUUID(),
               activityType: ActivityType.ASSESSMENT_REPORT,
-              data: { 
-                  report, 
-                  studentName: studentProfile?.name || 'Öğrenci', 
+              data: { // Construct a SavedAssessment-like object manually for the viewer
+                  id: 'temp-report',
+                  userId: user?.id || 'guest',
+                  studentName: studentProfile?.name || 'Öğrenci',
+                  gender: 'Erkek', // Default
+                  age: 7, // Default
+                  grade: studentProfile?.grade || '1. Sınıf',
                   createdAt: new Date().toISOString(),
-                  grade: studentProfile?.grade || '1. Sınıf'
-              },
+                  report: report // The actual report content
+              } as SavedAssessment, 
               settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
-              title: `Değerlendirme Raporu`
+              title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`
           };
           newItems.push(reportItem);
 
@@ -417,6 +422,17 @@ const AppContent: React.FC = () => {
       } finally {
           setIsLoading(false);
       }
+  };
+
+  const handleAddToWorkbookFromReport = (assessment: SavedAssessment) => {
+        const newItem: CollectionItem = {
+            id: crypto.randomUUID(),
+            activityType: ActivityType.ASSESSMENT_REPORT, 
+            data: assessment, // Pass the full SavedAssessment object
+            settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
+            title: `Rapor: ${assessment.studentName}`
+        };
+        setWorkbookItems(prev => [...prev, newItem]);
   };
 
   const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
@@ -614,19 +630,8 @@ const AppContent: React.FC = () => {
                         <AssessmentModule 
                             onBack={() => setCurrentView('generator')}
                             onSelectActivity={handleSelectActivity}
-                            onAddToWorkbook={(report) => {
-                                // Add report cover page to workbook
-                                const reportItem: CollectionItem = {
-                                    id: crypto.randomUUID(),
-                                    activityType: ActivityType.ASSESSMENT_REPORT,
-                                    data: { report, studentName: studentProfile?.name || 'Öğrenci', createdAt: new Date().toISOString(), grade: studentProfile?.grade || '1. Sınıf' },
-                                    settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
-                                    title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`
-                                };
-                                setWorkbookItems(prev => [...prev, reportItem]);
-                                // Auto-generate workbook content
-                                handleAutoGenerateWorkbook(report.report); 
-                            }}
+                            onAddToWorkbook={handleAddToWorkbookFromReport}
+                            onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
                         />
                     </Suspense>
                 </div>
