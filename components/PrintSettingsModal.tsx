@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { printService, PrintSettings } from '../utils/printService';
 
 interface PrintSettingsModalProps {
@@ -24,12 +25,13 @@ export const PrintSettingsModal: React.FC<PrintSettingsModalProps> = ({ isOpen, 
         printService.printWorksheet(settings);
     };
 
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl w-full max-w-2xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden transform transition-all scale-100">
+    // Use Portal to render outside of parent container stacking contexts
+    return createPortal(
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl w-full max-w-2xl border border-zinc-200 dark:border-zinc-700 flex flex-col overflow-hidden transform transition-all scale-100 max-h-[90vh]">
                 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-800/50">
+                <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-800/50 shrink-0">
                     <div>
                         <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                             <i className="fa-solid fa-print text-indigo-600"></i> Yazdırma Merkezi
@@ -41,7 +43,7 @@ export const PrintSettingsModal: React.FC<PrintSettingsModalProps> = ({ isOpen, 
                     </button>
                 </div>
 
-                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto custom-scrollbar">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         
                         {/* Left Column: Basic Info */}
@@ -138,7 +140,7 @@ export const PrintSettingsModal: React.FC<PrintSettingsModalProps> = ({ isOpen, 
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+                <div className="p-6 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center shrink-0">
                     <div className="text-xs text-zinc-500">
                         <i className="fa-solid fa-circle-info mr-1"></i>
                         Tarayıcı yazdırma penceresi açılacaktır.
@@ -157,6 +159,7 @@ export const PrintSettingsModal: React.FC<PrintSettingsModalProps> = ({ isOpen, 
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
