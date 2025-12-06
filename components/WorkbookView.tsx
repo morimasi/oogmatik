@@ -125,9 +125,15 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         setIsPrinting(true);
         // Delay to allow UI update
         setTimeout(async () => {
-            // Target all pages in the workbook
-            await printService.generatePdf('.worksheet-item', settings.title || 'Kitapcik', { action });
-            setIsPrinting(false);
+            try {
+                // Target all pages in the workbook
+                await printService.generatePdf('.worksheet-item', settings.title || 'Kitapcik', { action });
+            } catch (error) {
+                console.error("Kitapçık oluşturma hatası:", error);
+                alert("Kitapçık oluşturulurken bir hata meydana geldi.");
+            } finally {
+                setIsPrinting(false);
+            }
         }, 100);
     };
 

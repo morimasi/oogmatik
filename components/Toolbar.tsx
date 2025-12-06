@@ -41,8 +41,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
       setIsProcessing(true);
       // Wait for React to render any pending updates
       setTimeout(async () => {
-          await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
-          setIsProcessing(false);
+          try {
+              await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
+          } catch (error) {
+              console.error("İşlem hatası:", error);
+              alert("İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.");
+          } finally {
+              setIsProcessing(false);
+          }
       }, 100);
   };
 
