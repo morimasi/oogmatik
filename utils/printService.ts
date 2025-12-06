@@ -48,6 +48,7 @@ export const printService = {
 
         // Add Print-Specific CSS (Iframe Isolation & Eco Mode)
         // CRITICAL: Force display settings to override any potential hiding logic
+        // Also simulate Desktop Width (1024px) for better layout retention
         doc.write(`
             <style>
                 @media print {
@@ -66,13 +67,20 @@ export const printService = {
                     
                     /* Page Break Control */
                     .print-page {
-                        width: ${settings.orientation === 'landscape' ? '297mm' : '210mm'};
-                        height: ${settings.orientation === 'landscape' ? '210mm' : '297mm'}; /* Strict A4 Height */
+                        /* Force a desktop-like width for the container */
+                        width: 1024px !important;
+                        min-width: 1024px !important;
+                        
+                        /* A4 Dimensions (scaled) */
+                        /* A4 width is approx 794px. 794 / 1024 = ~0.775 */
+                        /* We scale down the container to fit the paper */
+                        zoom: 0.775;
+                        
                         page-break-after: always;
                         position: relative;
-                        overflow: hidden; /* Clip overflow to keep strict A4 */
+                        overflow: visible; /* Allow overflow if needed but clip usually */
                         background: white;
-                        margin: 0 auto;
+                        margin: 0;
                         display: block;
                     }
                     .print-page:last-child {
@@ -83,7 +91,6 @@ export const printService = {
                     .print-content-wrapper {
                         width: 100%;
                         height: 100%;
-                        /* Optional padding inside the A4 sheet */
                         padding: 0; 
                         box-sizing: border-box;
                     }
@@ -94,13 +101,10 @@ export const printService = {
                     }
 
                     /* GRID & FLEX ENFORCEMENT */
-                    /* Ensure grids print as grids, not blocks */
-                    .grid, .dynamic-grid { 
-                        display: grid !important; 
-                    }
+                    .grid, .dynamic-grid { display: grid !important; }
                     .flex { display: flex !important; }
                     
-                    /* Force columns to stay side-by-side */
+                    /* Force columns to stay side-by-side (Redundant with zoom but safe) */
                     .grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
                     .grid-cols-3 { grid-template-columns: repeat(3, 1fr) !important; }
                     .grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
@@ -143,7 +147,7 @@ export const printService = {
                     }
                 }
                 
-                /* Reset Scale for Print */
+                /* Reset Scale for Print since we use zoom on container */
                 .worksheet-scaler {
                     transform: none !important;
                     width: 100% !important;
@@ -171,7 +175,7 @@ export const printService = {
                 else if (header) (header as HTMLElement).style.display = 'none';
             }
 
-            // Wrap in print-page container to enforce A4 logic
+            // Wrap in print-page container to enforce desktop simulation logic
             const pageContainer = doc.createElement('div');
             pageContainer.className = 'print-page';
             
@@ -210,7 +214,6 @@ export const printService = {
             iframe.contentWindow?.print();
             
             // Cleanup after print dialog closes (or user cancels)
-            // Note: Detecting print dialog close is tricky cross-browser, but removing after a delay is safe enough
             setTimeout(() => {
                document.body.removeChild(iframe);
             }, 5000); 
