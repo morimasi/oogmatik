@@ -1,8 +1,7 @@
-
 /**
  * AKILLI A4 YAZDIRMA MOTORU
  * Ekranda görünen içeriği (Worksheet) vektörel olarak klonlar,
- * A4 formatına oturtur (3mm kenar boşluğu ile).
+ * A4 formatına oturtur ve zoom ile genişliği simüle eder.
  */
 
 export const printService = {
@@ -26,7 +25,7 @@ export const printService = {
         printArea.style.position = 'absolute';
         printArea.style.top = '0';
         printArea.style.left = '0';
-        printArea.style.width = '100%';
+        // Note: Width and Zoom are handled in index.html @media print CSS
         printArea.style.zIndex = '9999';
         printArea.style.backgroundColor = 'white';
         

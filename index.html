@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -178,8 +177,14 @@
             position: absolute;
             left: 0;
             top: 0;
-            width: 210mm;
-            min-height: 297mm;
+            
+            /* SIMULATE DESKTOP WIDTH & SCALE DOWN TO A4 */
+            width: 1024px !important;  /* Force Desktop Width */
+            min-width: 1024px !important;
+            zoom: 0.75 !important; /* Scale down 1024px to ~794px (A4 width) */
+            /* -moz-transform: scale(0.75); Firefox support if needed */
+            /* -moz-transform-origin: top left; */
+            
             padding: 3mm; /* TEK GEÇERLİ BOŞLUK BURASI */
             background: white !important;
             box-sizing: border-box;
@@ -199,6 +204,22 @@
             text-shadow: none !important;
             border-color: #000 !important; /* Ensure borders are visible */
         }
+
+        /* === FORCE TAILWIND DESKTOP CLASSES === */
+        /* This ensures md:grid-cols-2 etc. work even though paper width is technically small */
+        
+        /* Force Grid Columns */
+        .md\:grid-cols-2, .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        .md\:grid-cols-3, .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+        .md\:grid-cols-4, .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+        
+        /* Force Flex Row */
+        .md\:flex-row, .lg\:flex-row { flex-direction: row !important; }
+        
+        /* Force Gaps (Desktop sizing) */
+        .md\:gap-4, .lg\:gap-4 { gap: 1rem !important; }
+        .md\:gap-6, .lg\:gap-6 { gap: 1.5rem !important; }
+        .md\:gap-8, .lg\:gap-8 { gap: 2rem !important; }
 
         /* Ensure SVGs and Images are visible */
         img, svg {
