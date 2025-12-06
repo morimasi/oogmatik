@@ -35,23 +35,10 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onSnapshot
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [isPrinting, setIsPrinting] = useState(false);
 
-  const handleDownloadPdf = async () => {
-      setIsDownloading(true);
-      setTimeout(async () => {
-          await printService.downloadAsPdf("Etkinlik");
-          setIsDownloading(false);
-      }, 100);
-  };
-
-  const handlePrint = async () => {
-      setIsPrinting(true);
-      setTimeout(async () => {
-          await printService.printPdf("Etkinlik");
-          setIsPrinting(false);
-      }, 100);
+  const handlePrint = () => {
+      // @ts-ignore
+      printService.printWorksheet("Etkinlik");
   };
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
@@ -105,7 +92,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
              <CompactSlider 
                 icon="fa-magnifying-glass" 
                 title="Ölçek / Zoom" 
-                min={0.5} max={2.0} step={0.1}
+                min={0.5} max={1.5} step={0.1}
                 value={settings.scale} 
                 onChange={(v: number) => onSettingsChange({...settings, scale: v})}
                 displayValue={`${Math.round(settings.scale * 100)}%`}
@@ -278,26 +265,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 </button>
             )}
 
-            {/* PRINT BUTTON - NEW */}
+            {/* PRINT BUTTON - RESTORED */}
             <button 
                 onClick={handlePrint}
-                disabled={isPrinting || isDownloading}
-                className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border border-zinc-900 ${isPrinting ? 'bg-zinc-200 text-zinc-500 cursor-wait' : 'bg-white text-zinc-900 hover:bg-zinc-50'}`}
-                title="Yazdır"
+                className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-zinc-800 text-white border-zinc-900 hover:bg-zinc-700"
+                title="Yazdır (A4)"
             >
-                {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-print"></i>}
-                <span className="hidden sm:inline">{isPrinting ? 'Hazırlanıyor...' : 'Yazdır'}</span>
-            </button>
-
-            {/* DOWNLOAD PDF BUTTON */}
-            <button 
-                onClick={handleDownloadPdf}
-                disabled={isDownloading || isPrinting}
-                className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border border-zinc-900 ${isDownloading ? 'bg-zinc-200 text-zinc-500 cursor-wait' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}
-                title="PDF Olarak İndir"
-            >
-                {isDownloading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
-                <span className="hidden sm:inline">{isDownloading ? 'İndiriliyor...' : 'İndir'}</span>
+                <i className="fa-solid fa-print"></i>
+                <span className="hidden sm:inline">Yazdır</span>
             </button>
 
             {onAddToWorkbook && (

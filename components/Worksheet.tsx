@@ -17,7 +17,6 @@ interface WorksheetProps {
     data: WorksheetData;
     settings: StyleSettings;
     studentProfile?: StudentProfile | null;
-    disablePrintClass?: boolean;
 }
 
 const RenderSheet = React.memo(({ activityType, data }: { activityType: ActivityType, data: SingleWorksheetData }) => {
@@ -190,7 +189,7 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
     return prevProps.data === nextProps.data && prevProps.activityType === nextProps.activityType;
 });
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, disablePrintClass = false }) => {
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
     const { isEditMode } = useEditable();
 
     const pageStyle = useMemo(() => {
@@ -272,9 +271,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 {data.map((sheetData, index) => (
                     <div 
                         key={index} 
-                        id={`worksheet-page-${index}`}
-                        // If inside a workbook, we don't want this inner div to be the print target
-                        className={`${disablePrintClass ? '' : 'worksheet-item'} bg-white transition-all duration-300 ease-in-out shadow-lg`}
+                        // Removed realistic-shadow and texture for cleaner professional look on screen too
+                        className="worksheet-item bg-white transition-all duration-300 ease-in-out shadow-lg"
                         style={pageStyle}
                     >
                         {/* Visual Guide for Edit Mode */}
@@ -288,18 +286,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             </>
                         )}
 
-                        {/* Content Wrapper applying the mandatory print margin and centering */}
-                        <div className="w-full h-full p-[10mm] flex flex-col justify-center items-center overflow-hidden">
+                        {/* Content Wrapper applying the mandatory print margin */}
+                        <div className="w-full h-full p-[10mm]">
                             <div 
                                 className="worksheet-scaler worksheet-content relative z-10"
                                 style={{
                                     transform: `scale(${settings.scale})`,
-                                    transformOrigin: 'center center',
-                                    // Width calc removed to allow natural flow or centered scaling
+                                    transformOrigin: 'top center', // CENTERED SCALING
+                                    width: `calc(100% / ${settings.scale})`,
                                 }}
                             >
                                 {/* Minimalist Student Header */}
-                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end w-full" style={{ display: 'var(--display-student-info)' }}>
+                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end" style={{ display: 'var(--display-student-info)' }}>
                                     <div className="flex gap-8 text-sm">
                                         <div className="flex gap-2 items-baseline">
                                             <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>

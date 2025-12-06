@@ -5,7 +5,6 @@ import { RadarChart } from './RadarChart';
 import { ACTIVITIES } from '../constants';
 import { ShareModal } from './ShareModal';
 import { assessmentService } from '../services/assessmentService';
-import { printService } from '../utils/printService';
 
 interface AssessmentReportViewerProps {
     assessment: SavedAssessment | null;
@@ -29,7 +28,6 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     onAutoGenerateWorkbook
 }) => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const [isPrinting, setIsPrinting] = useState(false);
 
     if (!assessment) return null;
 
@@ -58,16 +56,6 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
         }
     };
 
-    const handlePrint = async () => {
-        setIsPrinting(true);
-        setTimeout(async () => {
-            // Target the specific report container by adding a unique class locally or reusing 'worksheet-item' concept
-            // Here we use 'worksheet-item' class on the container div below to make it compatible with printService
-            await printService.printPdf(`${assessment.studentName}-Rapor`);
-            setIsPrinting(false);
-        }, 100);
-    };
-
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
             <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative" onClick={e => e.stopPropagation()}>
@@ -82,15 +70,6 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 
                 {/* TOOLBAR */}
                 <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 border-b border-zinc-200 flex-wrap">
-                    <button 
-                        onClick={handlePrint}
-                        disabled={isPrinting}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-300 text-zinc-700 rounded-lg text-sm font-bold hover:bg-zinc-100 transition-all shadow-sm"
-                    >
-                        {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-print"></i>}
-                        Yazdır
-                    </button>
-
                     {onAutoGenerateWorkbook && (
                         <button 
                             onClick={() => onAutoGenerateWorkbook(report)}
@@ -126,8 +105,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                     )}
                 </div>
 
-                {/* REPORT CONTENT - Added 'worksheet-item' class for the print service to detect it */}
-                <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar text-black worksheet-item bg-white">
+                {/* REPORT CONTENT */}
+                <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar text-black">
                     <div className="mb-8 border-b-2 border-zinc-800 pb-4">
                         <h1 className="text-3xl font-black text-black">Özel Eğitim Tanılama ve Raporlama</h1>
                         <div className="flex justify-between mt-4 text-black"><p><strong>Öğrenci:</strong> {assessment.studentName}</p><p><strong>Tarih:</strong> {new Date(assessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
