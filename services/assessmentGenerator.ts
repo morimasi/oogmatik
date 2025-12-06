@@ -1,110 +1,98 @@
 
+
+
 import { generateWithSchema } from './geminiClient';
 import { Type } from "@google/genai";
 import { AssessmentProfile, AssessmentReport, ActivityType } from '../types';
 
-// Offline Heuristic Generator (Enhanced with basic error assumption)
+// Offline Heuristic Generator (Backup)
 const generateOfflineAssessmentReport = (profile: AssessmentProfile): AssessmentReport => {
     const results = profile.testResults || {};
     
     const getScore = (key: string) => {
         const res = results[key];
         if (!res) return 0;
-        return Math.max(0, 100 - res.accuracy); // Risk Score (Inverse of accuracy)
+        return Math.max(0, res.accuracy); 
     };
 
     const scores = {
-        reading: getScore('reading'),
-        writing: 0, 
-        math: getScore('math'),
+        reading: getScore('linguistic'),
+        math: getScore('logical'),
         attention: getScore('attention'),
-        cognitive: getScore('cognitive')
+        cognitive: getScore('spatial'),
+        writing: 0
     };
 
-    // Analysis
-    const strengths: string[] = [];
-    const weaknesses: string[] = [];
-    const errorAnalysis: string[] = [];
-    
-    if (scores.reading < 30) {
-        strengths.push("Okuma becerileri sınıf düzeyine uygun.");
-    } else {
-        weaknesses.push("Kelime tanıma ve akıcı okumada destek ihtiyacı.");
-        errorAnalysis.push("Okuma hataları genellikle harf karıştırma veya hece atlama kaynaklı olabilir.");
-    }
-
-    if (scores.math < 30) {
-        strengths.push("Sayısal işlem ve mantık yürütme becerisi güçlü.");
-    } else {
-        weaknesses.push("Temel matematiksel kavramlarda eksiklikler.");
-        errorAnalysis.push("İşlem hataları, dikkatsizlikten ziyade kavramsal yanılgılardan kaynaklanıyor olabilir.");
-    }
-
-    // Roadmap Recommendation
-    const roadmap = [];
-    if (scores.reading > 30) roadmap.push({ activityId: ActivityType.READING_FLOW, reason: "Okuma akıcılığını ve harf farkındalığını artırmak için.", frequency: "Hergün 15 dk" });
-    if (scores.attention > 30) roadmap.push({ activityId: ActivityType.BURDON_TEST, reason: "Sürdürülebilir dikkat süresini uzatmak için.", frequency: "Haftada 3 kez" });
-    if (scores.math > 30) roadmap.push({ activityId: ActivityType.NUMBER_SENSE, reason: "Sayı hissi ve temel kavramları pekiştirmek için.", frequency: "Haftada 3 kez" });
-    
-    if (roadmap.length < 3) {
-        roadmap.push({ activityId: ActivityType.STORY_COMPREHENSION, reason: "Okuduğunu anlama ve çıkarım yapma becerisi için.", frequency: "Haftada 2 kez" });
-    }
+    // Simple Heuristic Logic
+    const strengths = [];
+    const weaknesses = [];
+    if (scores.reading > 80) strengths.push("Sözel ve dilsel becerileri yaşıtlarına göre ileri düzeyde.");
+    if (scores.math > 80) strengths.push("Mantıksal çıkarım ve sayısal işlem yeteneği güçlü.");
+    if (scores.reading < 50) weaknesses.push("Okuduğunu anlama ve kelime dağarcığında desteklenmeli.");
+    if (scores.attention < 50) weaknesses.push("Görsel dikkat ve odaklanma süresinde dalgalanmalar mevcut.");
 
     return {
-        overallSummary: "Bu rapor, çevrimdışı algoritmalarla oluşturulmuştur. Öğrencinin temel alanlardaki performansı sınıf düzeyine göre değerlendirilmiştir. Detaylı pedagojik analiz için lütfen çevrimiçi modu kullanın.",
+        overallSummary: "Öğrencinin performansı genel olarak değerlendirilmiştir. Bu rapor çevrimdışı modda oluşturulduğu için detaylı çoklu zeka analizi içermemektedir. Daha kapsamlı analiz için internet bağlantısını kontrol ediniz.",
         scores,
         chartData: [
-            { label: "Okuma", value: scores.reading, fullMark: 100 },
-            { label: "Matematik", value: scores.math, fullMark: 100 },
+            { label: "Sözel", value: scores.reading, fullMark: 100 },
+            { label: "Mantıksal", value: scores.math, fullMark: 100 },
+            { label: "Görsel", value: scores.cognitive, fullMark: 100 },
             { label: "Dikkat", value: scores.attention, fullMark: 100 },
-            { label: "Bilişsel", value: scores.cognitive, fullMark: 100 },
         ],
-        analysis: { strengths, weaknesses, errorAnalysis },
-        roadmap: roadmap
+        analysis: { strengths, weaknesses, errorAnalysis: ["Detaylı analiz için online mod gereklidir."] },
+        roadmap: [
+             { activityId: ActivityType.READING_FLOW, reason: "Temel okuma becerisi.", frequency: "Günlük" }
+        ]
     };
 };
 
 export const generateAssessmentReport = async (profile: AssessmentProfile): Promise<AssessmentReport> => {
     let testResultsDesc = "İnteraktif test verisi yok.";
     if (profile.testResults && Object.keys(profile.testResults).length > 0) {
-        testResultsDesc = "TEST BATARYASI SONUÇLARI:\n";
+        testResultsDesc = "ÇOKLU ZEKA TEST SONUÇLARI:\n";
         for(const [key, result] of Object.entries(profile.testResults)) {
-            testResultsDesc += `- ${result.name} (${key}): Skor ${result.score}/${result.total}, Doğruluk %${result.accuracy.toFixed(1)}. (Süre: ${result.duration}sn)\n`;
+            testResultsDesc += `- ${result.name} (${key}): Skor ${result.score}/${result.total}, Doğruluk %${result.accuracy.toFixed(1)}.\n`;
         }
     }
 
-    // New Prompt for Senior Specialist Role
+    // Enhanced Professional Prompt
     const prompt = `
-    [ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI ve PEDAGOG]
+    [ROL: EĞİTİM PSİKOLOĞU VE ÖLÇME DEĞERLENDİRME UZMANI]
     
-    GÖREV: Aşağıdaki öğrenci profilini ve test performans verilerini analiz ederek, profesyonel bir "Tanılama ve Destek Raporu" oluştur. Rapor, resmi bir dille yazılmalı ve veli/öğretmen için rehber niteliği taşımalıdır.
+    GÖREV: Aşağıdaki öğrenci profilini ve **Çoklu Zeka Testi** sonuçlarını analiz ederek, veli ve öğretmen için profesyonel, akademik dille yazılmış, yönlendirici bir "Tanılama ve Bireysel Gelişim Raporu" oluştur.
     
     ÖĞRENCİ PROFİLİ:
     - İsim: ${profile.studentName}
     - Yaş: ${profile.age}
     - Sınıf: ${profile.grade}
-    - Cinsiyet: ${profile.gender}
-    - Eğitmen Gözlemleri: ${profile.observations.join(', ') || "Ek gözlem belirtilmemiş."}
+    - Eğitmen Gözlemleri: ${profile.observations.join(', ') || "Belirtilmemiş."}
     
     ${testResultsDesc}
     
-    ANALİZ BEKLENTİLERİ:
-    1. **HATA ANALİZİ (Kritik):** Sadece skorlara bakma. Öğrencinin yaşına ve sınıf düzeyine göre yapması beklenen beceriler ile test sonuçlarını karşılaştır. Düşük skorların altında yatan olası bilişsel nedenleri (örn: İşleyen bellek zayıflığı, fonolojik farkındalık eksikliği, görsel-uzamsal algı güçlüğü) belirle. Hata analizini 'analysis.errorAnalysis' alanına liste olarak ekle.
-    2. **PEDAGOJİK YORUM:** Öğrenme stilini belirle. Güçlü yönlerini, zayıf yönlerini telafi etmek için nasıl kullanabileceğini açıkla.
-    3. **RİSK SKORLAMASI:** Aşağıdaki alanlarda 0-100 arası "Destek İhtiyacı/Risk" puanı ver (0=Risk Yok, 100=Acil Destek Gerekli).
+    ANALİZ YÖNERGESİ:
+    1. **Bütüncül Değerlendirme:** Sadece skorları listeleme. Öğrencinin baskın zeka alanlarını (Gardner'ın kuramına göre) belirle ve öğrenme stilini tanımla (Örn: "Görsel ve Kinestetik öğrenici").
+    2. **Hata Analizi (Root Cause Analysis):** Düşük skorların altındaki bilişsel nedenleri tahmin et. (Örn: Mantıksal skoru düşükse; "Sıralı işlemleme veya çalışma belleği sınırlılığı olabilir" gibi profesyonel yorumlar yap).
+    3. **Kişiselleştirilmiş Rota:** Zayıf alanları geliştirmek için GÜÇLÜ alanlarını nasıl kullanabileceğini öner. (Örn: Müziksel zekası yüksek ama okuması zayıfsa; "Ritmik okuma çalışmaları yapılmalı" de).
     
     ÇIKTI FORMATI (JSON):
     {
-      "overallSummary": "Profesyonel özet metni. (3-4 cümle)",
+      "overallSummary": "Profesyonel özet metni. Öğrenme stili ve genel potansiyel hakkında 3-4 cümle.",
       "scores": { "reading": 0-100, "writing": 0-100, "math": 0-100, "attention": 0-100, "cognitive": 0-100 },
-      "chartData": [ { "label": "Okuma", "value": 0-100, "fullMark": 100 }, ... ],
+      "chartData": [ 
+          { "label": "Sözel-Dilsel", "value": 0-100, "fullMark": 100 }, 
+          { "label": "Mantıksal-Mat.", "value": 0-100, "fullMark": 100 },
+          { "label": "Görsel-Uzamsal", "value": 0-100, "fullMark": 100 },
+          { "label": "Doğacı", "value": 0-100, "fullMark": 100 },
+          { "label": "Müziksel", "value": 0-100, "fullMark": 100 }
+      ],
       "analysis": {
-        "strengths": ["Güçlü yön 1", ...],
+        "strengths": ["Güçlü yön 1 (Zeka türü bağlamında)", ...],
         "weaknesses": ["Gelişim alanı 1", ...],
-        "errorAnalysis": ["Hata analizi 1 (Örn: Okuma hataları heceleme aşamasındaki takılmalardan kaynaklanıyor...)", ...]
+        "errorAnalysis": ["Hata analizi 1 (Bilişsel süreç analizi)", ...]
       },
       "roadmap": [
-        { "activityId": "ACTIVITY_ENUM_CODE", "reason": "Neden bu etkinlik?", "frequency": "Uygulama sıklığı" }
+        { "activityId": "ACTIVITY_ENUM_CODE", "reason": "Neden bu etkinlik? (Zeka türüne atıfla)", "frequency": "Sıklık" }
       ]
     }
     `;
@@ -162,7 +150,7 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     };
 
     try {
-        // Using gemini-2.5-flash for free tier compatibility instead of gemini-3-pro-preview
+        // Using gemini-2.5-flash for generic availability
         return await generateWithSchema(prompt, schema, 'gemini-2.5-flash') as unknown as AssessmentReport;
     } catch (error) {
         console.warn("AI Assessment Error, falling back:", error);

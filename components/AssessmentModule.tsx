@@ -1,7 +1,8 @@
 
 
+
 import React, { useState } from 'react';
-import { AssessmentProfile, SavedAssessment, ActivityType } from '../types';
+import { AssessmentProfile, SavedAssessment, ActivityType, TestCategory } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { assessmentService } from '../services/assessmentService';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
@@ -54,39 +55,46 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         }));
     };
 
-    // --- DYNAMIC TEST GENERATOR ENGINE ---
+    // --- ADVANCED DYNAMIC TEST GENERATOR ENGINE (MULTIPLE INTELLIGENCES) ---
     const prepareTests = () => {
         const gradeNum = parseInt(profile.grade.split('.')[0]);
         const battery = [];
 
-        // 1. DYNAMIC READING TEST
-        battery.push(generateReadingTest(gradeNum));
+        // 1. LINGUISTIC (Sözel-Dilsel)
+        battery.push(generateLinguisticTest(gradeNum));
 
-        // 2. DYNAMIC MATH TEST
-        battery.push(generateMathTest(gradeNum));
+        // 2. LOGICAL-MATHEMATICAL (Mantıksal)
+        battery.push(generateLogicalTest(gradeNum));
 
-        // 3. ATTENTION TEST (Visual Perception)
+        // 3. VISUAL-SPATIAL (Görsel-Uzamsal)
+        battery.push(generateVisualTest(gradeNum));
+
+        // 4. ATTENTION & MEMORY (Standard Cognitive)
         battery.push(generateAttentionTest(gradeNum));
+
+        // 5. NATURALISTIC (Doğacı - Sınıflandırma)
+        battery.push(generateNaturalisticTest(gradeNum));
+        
+        // 6. MUSICAL-RHYTHMIC (Müziksel - Ritim/Kafiye)
+        battery.push(generateMusicalTest(gradeNum));
 
         setTestBattery(battery);
     };
 
-    const generateReadingTest = (grade: number) => {
+    // --- GENERATORS PER INTELLIGENCE TYPE ---
+
+    const generateLinguisticTest = (grade: number) => {
         let questions: any[] = [];
         const easyPool = TR_VOCAB.easy_words;
         
         if (grade === 1) {
-            // Level 1: Harf ve Ses Farkındalığı
-            // Q1: Benzer harfleri ayırt etme
             const letters = getRandomItems(['b', 'd', 'p', 'm', 'n'], 1);
             questions.push({
                 type: 'multiple-choice',
                 text: `Aşağıdakilerden hangisi "${letters[0].toUpperCase()}" harfinin küçüğüdür?`,
-                options: shuffle([letters[0], 'k', 's', 't']), // Assuming lowercase match check visually or conceptually
+                options: shuffle([letters[0], 'k', 's', 't']),
                 correct: letters[0]
             });
-            
-            // Q2: Görsel okuma (Basit Kelime)
             const word = getRandomItems(easyPool, 1)[0];
             questions.push({
                 type: 'multiple-choice',
@@ -94,188 +102,120 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 options: shuffle([word, getRandomItems(easyPool, 1)[0], getRandomItems(easyPool, 1)[0]]),
                 correct: word
             });
-
-            // Q3: İlk ses
-            const word2 = getRandomItems(easyPool, 1)[0];
-            questions.push({
-                type: 'multiple-choice',
-                text: `"${word2}" kelimesi hangi sesle başlar?`,
-                options: shuffle([word2[0], 'z', 'k', 'a']),
-                correct: word2[0]
-            });
-
         } else if (grade <= 3) {
-            // Level 2-3: Kelime ve Cümle Anlama
-            // Story Text
-            const story = "Ayşe bahçeye çıktı. Ağaçta kırmızı bir elma gördü. Elmayı almak için zıpladı ama yetişemedi.";
-            questions.push({ type: 'text-read', content: story });
-            
-            // Literal Comprehension
             questions.push({
                 type: 'multiple-choice',
-                text: "Ayşe ağaçta ne gördü?",
-                options: shuffle(["Kırmızı Elma", "Sarı Armut", "Mavi Kuş", "Yeşil Yaprak"]),
-                correct: "Kırmızı Elma"
+                text: "Hangi kelime diğerlerinden farklıdır?",
+                options: shuffle(["Elma", "Armut", "Muz", "Kedi"]),
+                correct: "Kedi"
             });
-
-            // Sentence Completion (Cloze)
-            const sentenceTemplates: any[] = [
-                { t: "Hava çok soğuktu, bu yüzden {clothing} giydim.", c: ["montumu", "mayomu", "gözlüğümü"], a: "montumu" },
-                { t: "Acıktığım için mutfağa gidip {food} yedim.", f: ["elma", "sandalye", "tabak"], a: "elma" }
-            ];
-            const tmpl = getRandomItems(sentenceTemplates, 1)[0];
-            const qText = tmpl.t.replace(/\{.*?\}/g, '_____');
-            
-            questions.push({
+             questions.push({
                 type: 'multiple-choice',
-                text: `Cümleyi en iyi tamamlayan kelime hangisidir?\n"${qText}"`,
-                options: shuffle(tmpl.c || tmpl.f),
-                correct: tmpl.a
+                text: "Eş anlamlısını bul: 'Yürekli'",
+                options: shuffle(["Cesur", "Korkak", "Hızlı", "Sessiz"]),
+                correct: "Cesur"
             });
-
         } else {
-            // Level 4-6: Paragraf Analizi ve Çıkarım
-            const story = "Uzun yıllar önce, uzak bir köyde, herkesin birbirine yardım ettiği bir gelenek vardı. Kimin tarlası sürülecekse, tüm köylü toplanır, işi bir günde bitirirdi. Buna 'imece' denirdi. Ancak zamanla teknoloji gelişti, traktörler geldi ve insanlar birbirine daha az ihtiyaç duymaya başladı.";
-            questions.push({ type: 'text-read', content: story });
-
-            // Main Idea
             questions.push({
                 type: 'multiple-choice',
-                text: "Bu parçanın ana fikri nedir?",
-                options: shuffle([
-                    "Teknolojinin gelişimi toplumsal dayanışmayı zayıflatabilir.",
-                    "Traktörler tarım için çok faydalıdır.",
-                    "Köy hayatı çok zordur.",
-                    "İmece sadece tarlada yapılır."
-                ]),
-                correct: "Teknolojinin gelişimi toplumsal dayanışmayı zayıflatabilir."
+                text: "Aşağıdaki cümlede hangi duygu hakimdir? 'Ayşe, sınav sonucunu görünce yerinden zıpladı ve çığlık attı.'",
+                options: shuffle(["Sevinç", "Üzüntü", "Korku", "Öfke"]),
+                correct: "Sevinç"
             });
-
-            // Inference
             questions.push({
                 type: 'multiple-choice',
-                text: "İmece geleneğinin azalmasının sebebi ne olabilir?",
-                options: shuffle([
-                    "İnsanların artık işlerini makinelerle yapabilmesi.",
-                    "Köylülerin birbirine küsmesi.",
-                    "Tarlaların verimsizleşmesi.",
-                    "Köyden kente göç olması."
-                ]),
-                correct: "İnsanların artık işlerini makinelerle yapabilmesi."
+                text: "Analoji: 'Kitap' için 'Yazar' ne ise, 'Bina' için _____ odur.",
+                options: shuffle(["Mimar", "Tuğla", "Kapı", "Şehir"]),
+                correct: "Mimar"
             });
         }
 
-        return {
-            id: 'reading',
-            name: 'Okuma ve Anlama',
-            questions
-        };
+        return { id: 'linguistic', name: 'Sözel-Dilsel Zeka', questions };
     };
 
-    const generateMathTest = (grade: number) => {
+    const generateLogicalTest = (grade: number) => {
         const questions = [];
-        
         if (grade === 1) {
-            // Basic Addition/Subtraction (0-20)
-            const n1 = getRandomInt(1, 10);
-            const n2 = getRandomInt(1, 10);
-            questions.push({
-                type: 'multiple-choice',
-                text: `${n1} + ${n2} = ?`,
-                options: shuffle([n1+n2, n1+n2+1, n1+n2-1, n1+n2+2]),
-                correct: n1+n2
-            });
-            // Pattern
-            questions.push({
-                type: 'multiple-choice',
-                text: "Örüntüyü tamamla: 2, 4, 6, 8, ?",
-                options: shuffle([9, 10, 11, 12]),
-                correct: 10
-            });
+            questions.push({ type: 'multiple-choice', text: "2, 4, 6, ?", options: ["8", "7", "9", "5"], correct: "8" });
+            questions.push({ type: 'multiple-choice', text: "Hangi şekil 3 kenarlıdır?", options: ["Üçgen", "Kare", "Daire"], correct: "Üçgen" });
+        } else if (grade <= 3) {
+            questions.push({ type: 'multiple-choice', text: "Bir çiftlikte 3 inek ve 2 tavuk var. Toplam kaç ayak vardır?", options: ["20", "16", "14", "12"], correct: "16" });
+            questions.push({ type: 'multiple-choice', text: "Örüntüyü tamamla: ▲ ■ ▲ ■ ?", options: ["▲", "■", "●", "★"], correct: "▲" });
+        } else {
+            questions.push({ type: 'multiple-choice', text: "Ali, Veli'den uzun, Veli de Can'dan uzundur. En kısa kimdir?", options: ["Can", "Veli", "Ali", "Bilinemez"], correct: "Can" });
+            questions.push({ type: 'multiple-choice', text: "Bir kutuda 3 kırmızı, 2 mavi top var. Rastgele çekilen topun mavi olma ihtimali nedir?", options: ["2/5", "3/5", "1/2", "1/5"], correct: "2/5" });
+        }
+        return { id: 'logical', name: 'Mantıksal-Matematiksel Zeka', questions };
+    };
 
-        } else if (grade === 2) {
-            // Addition with regrouping possibility (0-100)
-            const n1 = getRandomInt(15, 45);
-            const n2 = getRandomInt(15, 45);
+    const generateVisualTest = (grade: number) => {
+        const questions = [];
+        // Visual questions use simple text-based graphics or unicode for now
+        if (grade <= 2) {
             questions.push({
                 type: 'multiple-choice',
-                text: `${n1} + ${n2} = ?`,
-                options: shuffle([n1+n2, n1+n2+10, n1+n2-1, n1+n2+5]),
-                correct: n1+n2
+                text: "Aşağıdaki şeklin aynısı hangisidir? ( d )",
+                options: ["b", "d", "p", "q"],
+                correct: "d"
             });
-            // Basic Multiplication Concept
+        } else {
             questions.push({
                 type: 'multiple-choice',
-                text: "3 tane 5 kaç eder?",
-                options: shuffle([15, 12, 10, 20]),
-                correct: 15
+                text: "Zihinsel Döndürme: 'L' şeklini saat yönünde bir kez çevirirsen nasıl görünür?",
+                options: ["L", "Γ", "⅃", "LUT"], // Symbol approximations
+                correct: "Γ" // Not exact but illustrative logic
             });
-
-        } else if (grade === 3) {
-            // Multiplication / Division
-            const n1 = getRandomInt(4, 9);
-            const n2 = getRandomInt(3, 9);
             questions.push({
                 type: 'multiple-choice',
-                text: `${n1} x ${n2} = ?`,
-                options: shuffle([n1*n2, (n1*n2)+n1, (n1*n2)-n2, (n1+1)*n2]),
-                correct: n1*n2
-            });
-            // Simple Division Logic
-            questions.push({
-                type: 'multiple-choice',
-                text: "20 elmayı 4 kişiye eşit paylaştırırsak, her birine kaç elma düşer?",
-                options: shuffle([4, 5, 6, 10]),
-                correct: 5
-            });
-
-        } else if (grade === 4) {
-            // Fractions
-            questions.push({
-                type: 'multiple-choice',
-                text: "Aşağıdaki kesirlerden hangisi 'Yarım'ı ifade eder?",
-                options: shuffle(["1/2", "1/4", "3/4", "1/3"]),
-                correct: "1/2"
-            });
-            // Multi-step Problem
-            questions.push({
-                type: 'multiple-choice',
-                text: "Ali'nin 50 lirası var. Tanesi 5 lira olan kalemlerden 3 tane aldı. Geriye kaç lirası kaldı?",
-                options: shuffle([35, 45, 15, 25]),
-                correct: 35
-            });
-
-        } else { // Grade 5-6
-            // Decimals / Percentages / Logic
-            questions.push({
-                type: 'multiple-choice',
-                text: "Bir pastanın %25'i yenirse geriye ne kadarı kalır?",
-                options: shuffle(["%75", "%50", "%25", "%80"]),
-                correct: "%75"
-            });
-            // Algebra Logic
-            questions.push({
-                type: 'multiple-choice',
-                text: "Hangi sayının 3 katının 5 fazlası 20 eder?",
-                options: shuffle([5, 4, 6, 3]),
-                correct: 5
+                text: "Kuş bakışı görünüm: Bir bardağa tam tepeden bakarsan ne görürsün?",
+                options: ["Daire", "Kare", "Üçgen", "Dikdörtgen"],
+                correct: "Daire"
             });
         }
+        return { id: 'spatial', name: 'Görsel-Uzamsal Zeka', questions };
+    };
 
-        return {
-            id: 'math',
-            name: 'Matematik & Mantık',
-            questions
-        };
+    const generateNaturalisticTest = (grade: number) => {
+        const questions = [];
+        questions.push({
+            type: 'multiple-choice',
+            text: "Hangisi kış uykusuna yatar?",
+            options: shuffle(["Ayı", "Kedi", "Kuş", "At"]),
+            correct: "Ayı"
+        });
+        if (grade > 2) {
+            questions.push({
+                type: 'multiple-choice',
+                text: "Hangisi bir bitkinin büyümesi için gerekli DEĞİLDİR?",
+                options: shuffle(["Çikolata", "Su", "Güneş", "Toprak"]),
+                correct: "Çikolata"
+            });
+        }
+        return { id: 'naturalistic', name: 'Doğacı Zeka', questions };
+    };
+    
+    const generateMusicalTest = (grade: number) => {
+        const questions = [];
+        questions.push({
+            type: 'multiple-choice',
+            text: "Hangi kelime 'Masa' ile kafiyelidir (benzer sesle biter)?",
+            options: shuffle(["Kasa", "Kapı", "Sandalye", "Mavi"]),
+            correct: "Kasa"
+        });
+        questions.push({
+            type: 'multiple-choice',
+            text: "Ritim Tamamlama: Dum-Tek-Dum-Tek-Dum-?",
+            options: shuffle(["Tek", "Dum", "Tıs", "Bom"]),
+            correct: "Tek"
+        });
+        return { id: 'musical', name: 'Müziksel-Ritmik Zeka', questions };
     };
 
     const generateAttentionTest = (grade: number) => {
-        // Standard Visual Attention Test (Difficulty scales slightly)
         const isHard = grade > 3;
-        
         return {
-            id: 'attention',
-            name: 'Dikkat & Görsel Algı',
+            id: 'attention', // Mapped to specific logic if needed, or treat as general cognitive
+            name: 'Dikkat & Konsantrasyon',
             questions: [
                 {
                     type: 'multiple-choice',
@@ -306,7 +246,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             testId: currentTest.id,
             questionIdx: currentQuestionIndex,
             isCorrect,
-            time: 0 // Placeholder
+            time: 0 
         }]);
 
         // Next Question or Next Test
@@ -333,18 +273,13 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             compiledResults[test.id] = {
                 id: test.id,
                 name: test.name,
-                score: correctCount * 10,
+                score: correctCount * 10, // Scale appropriately
                 total: test.questions.length * 10,
                 accuracy: test.questions.length > 0 ? (correctCount / test.questions.length) * 100 : 0,
                 duration: 0,
                 timestamp: Date.now()
             };
         });
-
-        // Add dummy scores for missing cognitive areas to satisfy report generator requirements if needed
-        if (!compiledResults['cognitive']) {
-             compiledResults['cognitive'] = { id: 'cognitive', name: 'Bilişsel Performans', score: 0, total: 0, accuracy: 80, duration: 0, timestamp: Date.now() }; // Baseline assumption
-        }
 
         const finalProfile = { ...profile, testResults: compiledResults };
         setProfile(finalProfile);
@@ -423,7 +358,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     <div>
                         <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-3">Eğitmen Gözlemleri (Varsa İşaretleyin)</label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {['Okumada güçlük', 'Yazı bozukluğu (Disgrafi)', 'Matematikte zorlanma (Diskalkuli)', 'Dikkat eksikliği', 'Aşırı hareketlilik', 'Harfleri karıştırma'].map(obs => (
+                            {['Okumada güçlük', 'Yazı bozukluğu (Disgrafi)', 'Matematikte zorlanma (Diskalkuli)', 'Dikkat eksikliği', 'Aşırı hareketlilik', 'Harfleri karıştırma', 'Sosyal iletişimde zorluk', 'Yönleri karıştırma'].map(obs => (
                                 <button key={obs} type="button" onClick={() => toggleObservation(obs)}
                                     className={`text-left p-3 rounded-lg border transition-all text-sm ${profile.observations.includes(obs) ? 'bg-amber-50 border-amber-400 text-amber-900' : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'}`}>
                                     <i className={`fa-solid ${profile.observations.includes(obs) ? 'fa-check-square' : 'fa-square'} mr-2`}></i>
@@ -453,7 +388,10 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                         <i className="fa-solid fa-rocket"></i>
                     </div>
                     <h2 className="text-2xl font-black text-zinc-800 mb-2">Hazır mısın {profile.studentName.split(' ')[0]}?</h2>
-                    <p className="text-zinc-500 mb-8">Senin için <strong>{profile.grade}</strong> seviyesinde özel sorular hazırladık. Toplam {testBattery.length} bölümden oluşuyor.</p>
+                    <p className="text-zinc-500 mb-8">
+                        Senin için <strong>{profile.grade}</strong> seviyesinde ve farklı zeka alanlarını ölçen özel sorular hazırladık. 
+                        Toplam {testBattery.length} bölümden oluşuyor.
+                    </p>
                     <button onClick={() => setStep('testing')} className="px-8 py-3 bg-indigo-600 text-white rounded-full font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-300">
                         Başla!
                     </button>
@@ -502,7 +440,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             <div className="flex flex-col items-center justify-center h-full mt-20">
                 <div className="w-24 h-24 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
                 <h3 className="text-xl font-bold text-zinc-800">Yapay Zeka Analiz Yapıyor...</h3>
-                <p className="text-zinc-500 mt-2">Cevaplarını inceliyor ve raporunu hazırlıyorum.</p>
+                <p className="text-zinc-500 mt-2">Tüm zeka alanlarındaki performansını inceliyorum.</p>
             </div>
         );
     }

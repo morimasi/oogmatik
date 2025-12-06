@@ -56,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         try {
             // Streaming yanıtı başlat
-            const { stream } = await ai.models.generateContentStream({
+            const stream = await ai.models.generateContentStream({
                 model: selectedModel, 
                 contents: prompt, // Only the user prompt here
                 config: {

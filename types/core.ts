@@ -309,7 +309,16 @@ export interface Message {
     relatedFeedbackId?: string;
 }
 
-export type TestCategory = 'reading' | 'math' | 'attention' | 'visual' | 'cognitive';
+// Updated Test Categories for Multiple Intelligences
+export type TestCategory = 
+    | 'linguistic'        // Sözel-Dilsel
+    | 'logical'           // Mantıksal-Matematiksel
+    | 'spatial'           // Görsel-Uzamsal
+    | 'musical'           // Müziksel-Ritmik
+    | 'kinesthetic'       // Bedensel-Kinestetik
+    | 'naturalistic'      // Doğacı
+    | 'interpersonal'     // Sosyal (Kişilerarası)
+    | 'intrapersonal';    // İçsel (Öze dönük)
 
 export interface TestResult {
     id: TestCategory;
@@ -332,13 +341,7 @@ export interface AssessmentProfile {
 
 export interface AssessmentReport {
     overallSummary: string;
-    scores: {
-        reading: number;
-        writing: number;
-        math: number;
-        attention: number;
-        cognitive: number;
-    };
+    scores: Record<string, number>; // Generic key access for dynamic scores
     chartData?: { label: string; value: number; fullMark: number }[];
     analysis: {
         strengths: string[];
@@ -383,6 +386,7 @@ export interface SavedWorksheet {
     // Workbook specific fields
     workbookItems?: CollectionItem[];
     workbookSettings?: WorkbookSettings;
+    watermarkOpacity?: number; // Added
 }
 
 export interface BaseActivityData {
