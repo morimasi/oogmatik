@@ -4,6 +4,7 @@ import { CollectionItem, WorkbookSettings } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { useAuth } from '../context/AuthContext';
+import { printService } from '../utils/printService';
 
 interface WorkbookViewProps {
     items: CollectionItem[];
@@ -63,6 +64,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
     const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
     const [isSaving, setIsSaving] = useState(false);
+    const [isPrinting, setIsPrinting] = useState(false);
     
     // Drag & Drop State
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -81,11 +83,6 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
     const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
         e.preventDefault();
-        // We rely on local state for visual feedback, but actual reordering only happens if we track it correctly.
-        // To avoid flicker, we need to check current drag index.
-        // Since accessing draggedItemIndex inside callback requires dependency, we use functional update pattern if possible or ref.
-        // However, standard React DND pattern usually updates list. 
-        // For performance, we only update if index changes.
         setItems(prevItems => {
             if (draggedItemIndex === null || draggedItemIndex === index) return prevItems;
             
@@ -93,7 +90,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
             const draggedItem = newItems[draggedItemIndex];
             newItems.splice(draggedItemIndex, 1);
             newItems.splice(index, 0, draggedItem);
-            setDraggedItemIndex(index); // Update index to current
+            setDraggedItemIndex(index); 
             return newItems;
         });
     }, [draggedItemIndex, setItems]);
@@ -122,6 +119,16 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleAction = async (action: 'print' | 'download') => {
+        setIsPrinting(true);
+        // Delay to allow UI update
+        setTimeout(async () => {
+            // Target all pages in the workbook
+            await printService.generatePdf('.worksheet-item', settings.title || 'Kitapcik', { action });
+            setIsPrinting(false);
+        }, 100);
     };
 
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,6 +179,21 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                     </div>
                     {viewMode === 'preview' && (
                         <>
+                            <button 
+                                onClick={() => handleAction('download')}
+                                disabled={isPrinting}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
+                                PDF İndir
+                            </button>
+                            <button 
+                                onClick={() => handleAction('print')}
+                                disabled={isPrinting}
+                                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-900 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                <i className="fa-solid fa-print"></i> Yazdır
+                            </button>
                             <button 
                                 onClick={handleSave} 
                                 disabled={isSaving}

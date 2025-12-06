@@ -5,6 +5,7 @@ import { RadarChart } from './RadarChart';
 import { ACTIVITIES } from '../constants';
 import { ShareModal } from './ShareModal';
 import { assessmentService } from '../services/assessmentService';
+import { printService } from '../utils/printService';
 
 interface AssessmentReportViewerProps {
     assessment: SavedAssessment | null;
@@ -28,6 +29,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     onAutoGenerateWorkbook
 }) => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isPrinting, setIsPrinting] = useState(false);
 
     if (!assessment) return null;
 
@@ -56,6 +58,15 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
         }
     };
 
+    const handleAction = async (action: 'print' | 'download') => {
+        setIsPrinting(true);
+        setTimeout(async () => {
+            // Target the specific report content via ID
+            await printService.generatePdf('#report-content-area', `${assessment.studentName}-Rapor`, { action });
+            setIsPrinting(false);
+        }, 100);
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
             <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative" onClick={e => e.stopPropagation()}>
@@ -70,12 +81,30 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 
                 {/* TOOLBAR */}
                 <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 border-b border-zinc-200 flex-wrap">
+                    <button 
+                        onClick={() => handleAction('download')}
+                        disabled={isPrinting}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-bold hover:bg-red-200 disabled:opacity-50"
+                    >
+                        {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
+                        PDF İndir
+                    </button>
+                    <button 
+                        onClick={() => handleAction('print')}
+                        disabled={isPrinting}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-zinc-200 text-zinc-700 rounded-lg text-sm font-bold hover:bg-zinc-300 disabled:opacity-50"
+                    >
+                        <i className="fa-solid fa-print"></i> Yazdır
+                    </button>
+
+                    <div className="h-6 w-px bg-zinc-300 mx-2"></div>
+
                     {onAutoGenerateWorkbook && (
                         <button 
                             onClick={() => onAutoGenerateWorkbook(report)}
                             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-sm font-bold hover:shadow-lg transition-all shadow-md"
                         >
-                            <i className="fa-solid fa-wand-magic-sparkles"></i> Akıllı Rota (Telafi Kitapçığı)
+                            <i className="fa-solid fa-wand-magic-sparkles"></i> Akıllı Rota
                         </button>
                     )}
                     
@@ -106,8 +135,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 </div>
 
                 {/* REPORT CONTENT */}
-                <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar text-black">
-                    <div className="mb-8 border-b-2 border-zinc-800 pb-4">
+                <div id="report-content-area" className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar text-black bg-white">
+                    <div className="worksheet-item mb-8 border-b-2 border-zinc-800 pb-4">
                         <h1 className="text-3xl font-black text-black">Özel Eğitim Tanılama ve Raporlama</h1>
                         <div className="flex justify-between mt-4 text-black"><p><strong>Öğrenci:</strong> {assessment.studentName}</p><p><strong>Tarih:</strong> {new Date(assessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
                     </div>

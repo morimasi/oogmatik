@@ -1,141 +1,136 @@
 
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+
 /**
- * AKILLI A4 YAZDIRMA MOTORU
- * Ekranda görünen içeriği (Worksheet) vektörel olarak klonlar,
- * A4 formatına oturtur ve zoom ile genişliği simüle eder.
+ * Gelişmiş PDF ve Yazdırma Servisi
+ * İçeriği resim olarak yakalar, A4 boyutuna ölçekler ve taşan kısımları
+ * bir sonraki sayfaya kesip yapıştırarak süreklilik sağlar.
  */
 
+interface PrintOptions {
+    fileName?: string;
+    action: 'download' | 'print';
+}
+
 export const printService = {
-    printWorksheet: (title: string = "Etkinlik") => {
-        // 1. Yazdırılacak kaynağı bul (Genellikle .worksheet-item veya ana kapsayıcı)
-        const contentSources = document.querySelectorAll('.worksheet-item');
-        
-        if (!contentSources || contentSources.length === 0) {
-            alert("Yazdırılacak içerik bulunamadı.");
+    /**
+     * Hedef seçiciye (.worksheet-item vb.) sahip elementleri bulur,
+     * her birini resme dönüştürür ve PDF'e basar.
+     */
+    generatePdf: async (elementSelector: string = '.worksheet-item', title: string = "Dokuman", options: PrintOptions) => {
+        // 1. Elementleri Bul
+        const elements = document.querySelectorAll(elementSelector);
+        if (!elements || elements.length === 0) {
+            alert("İçerik bulunamadı.");
             return;
         }
 
-        // 2. Varsa eski yazdırma alanını temizle
-        const oldArea = document.getElementById('printable-area');
-        if (oldArea) oldArea.remove();
+        // 2. PDF Ayarları (A4)
+        // A4 Boyutu: 210mm x 297mm
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 3; // 3mm kenar boşluğu
+        const printableWidth = pageWidth - (margin * 2);
+        const printableHeight = pageHeight - (margin * 2);
 
-        // 3. Yeni yazdırma alanını oluştur
-        const printArea = document.createElement('div');
-        printArea.id = 'printable-area';
-        
-        // ÖNEMLİ: CSS'de (index.html) bu ID için "display: none" tanımlı olmalı (ekranda görünmemesi için).
-        // @media print içinde ise "display: block" olmalı.
-        // Javascript ile inline style VERMİYORUZ ki CSS medya sorguları düzgün çalışsın.
-        
-        document.body.appendChild(printArea);
+        // UI Temizliği (Geçici)
+        const uiElements = document.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, .no-print');
+        uiElements.forEach((el: any) => el.style.display = 'none');
 
-        // 4. İçerikleri Klonla ve İşle
-        contentSources.forEach((source) => {
-            const clone = source.cloneNode(true) as HTMLElement;
-            
-            // a. Canvas içeriklerini manuel kopyala (cloneNode canvas içeriğini almaz)
-            const originalCanvases = source.querySelectorAll('canvas');
-            const clonedCanvases = clone.querySelectorAll('canvas');
-            originalCanvases.forEach((orig, i) => {
-                if (clonedCanvases[i]) {
-                    const destCtx = clonedCanvases[i].getContext('2d');
-                    if (destCtx) {
-                        destCtx.drawImage(orig, 0, 0);
-                    }
-                }
-            });
+        try {
+            for (let i = 0; i < elements.length; i++) {
+                const element = elements[i] as HTMLElement;
 
-            // b. Stil temizliği: Scale transform'u kaldır, genişliği otomatiğe al
-            const scaler = clone.querySelector('.worksheet-scaler') as HTMLElement;
-            if (scaler) {
-                scaler.style.transform = 'none';
-                scaler.style.width = '100%';
-                scaler.style.height = 'auto';
-                scaler.style.padding = '0';
-                scaler.style.overflow = 'visible'; 
-                // Force color black on scaler to cascade down
-                scaler.style.color = 'black';
-            }
-            
-            // Remove huge paddings from wrapper
-            clone.style.padding = '0';
-            clone.style.margin = '0';
-            clone.style.width = '100%';
-            clone.style.boxShadow = 'none';
-            clone.style.border = 'none';
-            clone.style.overflow = 'visible';
-            clone.style.color = 'black'; // Force black text on root of clone
-            
-            // İç divlerdeki editör paddinglerini temizle (p-[10mm] vb.)
-            const innerDivs = clone.querySelectorAll('div');
-            innerDivs.forEach(div => {
-                if (div.className.includes('p-[')) {
-                    div.style.padding = '0';
-                }
-            });
+                // 3. Yüksek Kaliteli Ekran Görüntüsü Al (Scale 2 = 144 DPI civarı, net metin için ideal)
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff', // Arka planı beyaz zorla
+                    // Scroll edilmiş veya gizli alanları da yakalamak için
+                    windowWidth: element.scrollWidth,
+                    windowHeight: element.scrollHeight
+                });
 
-            // c. Gereksiz UI elemanlarını temizle
-            const toRemove = clone.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, button');
-            toRemove.forEach(el => el.remove());
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
 
-            // d. Form elemanlarının değerlerini senkronize et
-            const originalInputs = source.querySelectorAll('input, textarea, select');
-            const clonedInputs = clone.querySelectorAll('input, textarea, select');
-            
-            originalInputs.forEach((inp, i) => {
-                if (clonedInputs[i]) {
-                    const inputEl = inp as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-                    const clonedEl = clonedInputs[i] as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-                    
-                    // Force input styling for print visibility
-                    clonedEl.style.color = 'black';
-                    clonedEl.style.borderColor = 'black';
-                    clonedEl.style.backgroundColor = 'transparent';
+                // 4. Boyut Hesaplama (Aspect Ratio Koru)
+                // Resmi sayfa genişliğine (marginler hariç) sığdır
+                const ratio = printableWidth / imgWidth;
+                const scaledHeight = imgHeight * ratio;
 
-                    if (inputEl.type === 'checkbox' || inputEl.type === 'radio') {
-                        if ((inputEl as HTMLInputElement).checked) {
-                            clonedEl.setAttribute('checked', 'checked');
-                            (clonedEl as HTMLInputElement).checked = true;
-                        }
-                    } else if (inputEl.tagName === 'SELECT') {
-                        // For select, we set value and attribute
-                        clonedEl.setAttribute('value', inputEl.value);
-                        (clonedEl as HTMLSelectElement).value = inputEl.value;
+                // 5. Sayfalara Bölme ve Yerleştirme Mantığı
+                let heightLeft = scaledHeight;
+                let position = margin; // Sayfa başı pozisyonu
+                let pageDataPosition = 0; // Resmin kaynak Y pozisyonu (PDF koordinat sisteminde değil, mantıksal)
+
+                // İlk Sayfa Ekleme (Eğer i > 0 ise yeni sayfa aç, ilk eleman için zaten sayfa var)
+                if (i > 0) pdf.addPage();
+
+                // Tek sayfa mı, çoklu sayfa mı?
+                if (scaledHeight <= printableHeight) {
+                    // Sayfaya sığıyor, tek seferde bas
+                    pdf.addImage(imgData, 'PNG', margin, margin, printableWidth, scaledHeight);
+                } else {
+                    // Sayfaya sığmıyor, keserek bas (Slicing)
+                    // Döngü: İçerik bitene kadar
+                    while (heightLeft > 0) {
+                        // Mevcut sayfaya resmi bas
+                        // position değeri negatifleşerek resmi yukarı kaydırır, böylece "pencere" aşağı iner.
+                        pdf.addImage(imgData, 'PNG', margin, position, printableWidth, scaledHeight);
                         
-                        // Set selected attribute on the correct option
-                        const options = clonedEl.querySelectorAll('option');
-                        options.forEach(opt => {
-                            if(opt.value === inputEl.value) opt.setAttribute('selected', 'selected');
-                        });
-                    } else {
-                        // Text, Number, Textarea
-                        clonedEl.setAttribute('value', inputEl.value);
-                        clonedEl.value = inputEl.value;
-                        if (inputEl.tagName === 'TEXTAREA') {
-                            clonedEl.textContent = inputEl.value;
-                            clonedEl.innerHTML = inputEl.value; // For good measure
+                        heightLeft -= printableHeight;
+                        position -= pageHeight; // Bir sonraki sayfa için resmi yukarı ötele (Maskeleme mantığı)
+
+                        // Eğer hala içerik kaldıysa yeni sayfa ekle
+                        if (heightLeft > 0) {
+                            pdf.addPage();
+                            // Yeni sayfada yine üstten başla (ancak resim koordinatı yukarı kaymış olacak)
+                            position = margin - (pageHeight * Math.ceil((scaledHeight - heightLeft) / pageHeight)) ;
+                            // Basitleştirilmiş: Sadece bir önceki pozisyondan pageHeight kadar daha yukarıda başla
+                            // addImage(..., y) -> y negatif oldukça resmin alt kısımları görünür.
+                            
+                            // Düzeltme: While döngüsündeki position zaten kümülatif azalıyor. 
+                            // Ancak jspdf addPage() koordinatları sıfırlar.
+                            // position değişkeni, o anki sayfadaki Y koordinatıdır.
+                            // İlk sayfa: y = margin. Resim (0,0)'dan başlar.
+                            // İkinci sayfa: y = margin - 297. Resim (-297)'den başlar (yani üst kısmı sayfa dışında kalır).
                         }
                     }
                 }
-            });
+            }
 
-            // e. Klonu ekle
-            printArea.appendChild(clone);
-        });
+            // 6. Çıktı İşlemi
+            if (options.action === 'download') {
+                pdf.save(`${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+            } else {
+                const pdfBlob = pdf.output('blob');
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                window.open(blobUrl, '_blank');
+            }
 
-        // 5. Yazdırma İşlemini Başlat
-        // Small timeout to allow DOM to settle and images to be ready
-        setTimeout(() => {
-            window.print();
-            
-            // CLEANUP: Yazdırma diyaloğu kapandıktan sonra (veya hemen ardından)
-            // geçici alanı kaldır ki ekran karışmasın.
-            // Bazı tarayıcılarda print bloklayıcı olduğu için bu timeout print sonrası çalışır.
-            setTimeout(() => {
-                if(printArea && printArea.parentNode) {
-                    printArea.parentNode.removeChild(printArea);
-                }
-            }, 1000);
-        }, 500);
+        } catch (error) {
+            console.error("PDF Oluşturma Hatası:", error);
+            alert("PDF oluşturulurken bir hata meydana geldi.");
+        } finally {
+            // UI Elementlerini Geri Getir
+            uiElements.forEach((el: any) => el.style.display = '');
+        }
+    },
+
+    /**
+     * Eski fonksiyonlar (Geri uyumluluk için, artık yenisine yönlendiriyor)
+     */
+    printWorksheet: (title: string) => {
+        printService.generatePdf('.worksheet-item', title, { action: 'print' });
+    },
+    
+    downloadAsPdf: (title: string) => {
+        printService.generatePdf('.worksheet-item', title, { action: 'download' });
     }
 };

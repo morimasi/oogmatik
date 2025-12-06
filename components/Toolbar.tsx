@@ -35,10 +35,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onSnapshot
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handlePrint = () => {
-      // @ts-ignore
-      printService.printWorksheet("Etkinlik");
+  const handleAction = async (action: 'print' | 'download') => {
+      setIsProcessing(true);
+      // Wait for React to render any pending updates
+      setTimeout(async () => {
+          await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
+          setIsProcessing(false);
+      }, 100);
   };
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
@@ -92,7 +97,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
              <CompactSlider 
                 icon="fa-magnifying-glass" 
                 title="Ölçek / Zoom" 
-                min={0.5} max={1.5} step={0.1}
+                min={0.5} max={2.0} step={0.1}
                 value={settings.scale} 
                 onChange={(v: number) => onSettingsChange({...settings, scale: v})}
                 displayValue={`${Math.round(settings.scale * 100)}%`}
@@ -248,6 +253,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             {onToggleEdit && (
                 <button 
                     onClick={onToggleEdit}
+                    disabled={isProcessing}
                     className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200 animate-pulse' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
                     title={isEditMode ? "Düzenlemeyi Bitir ve Kaydet" : "Düzenleme Modu"}
                 >
@@ -265,13 +271,25 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 </button>
             )}
 
-            {/* PRINT BUTTON - RESTORED */}
+            {/* DOWNLOAD PDF BUTTON */}
             <button 
-                onClick={handlePrint}
-                className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-zinc-800 text-white border-zinc-900 hover:bg-zinc-700"
+                onClick={() => handleAction('download')}
+                disabled={isProcessing}
+                className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-red-600 text-white border-red-700 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="PDF İndir"
+            >
+                {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
+                <span className="hidden sm:inline">PDF İndir</span>
+            </button>
+
+            {/* PRINT BUTTON */}
+            <button 
+                onClick={() => handleAction('print')}
+                disabled={isProcessing}
+                className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-zinc-800 text-white border-zinc-900 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Yazdır (A4)"
             >
-                <i className="fa-solid fa-print"></i>
+                {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-print"></i>}
                 <span className="hidden sm:inline">Yazdır</span>
             </button>
 
@@ -279,7 +297,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 <button 
                     id="add-to-wb-btn"
                     onClick={onAddToWorkbook}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg transition-all bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50 hover:text-emerald-300 relative"
+                    disabled={isProcessing}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg transition-all bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50 hover:text-emerald-300 relative disabled:opacity-50"
                     title="Kitapçığa Ekle"
                 >
                     <i className="fa-solid fa-plus-circle"></i>
@@ -289,7 +308,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
             {onViewWorkbook && (
                 <button 
                     onClick={onViewWorkbook}
-                    className="px-3 py-1.5 bg-[var(--bg-inset)] border border-[var(--border-color)] rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 hover:bg-[var(--bg-paper)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    disabled={isProcessing}
+                    className="px-3 py-1.5 bg-[var(--bg-inset)] border border-[var(--border-color)] rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 hover:bg-[var(--bg-paper)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-50"
                     title="Kitapçığı Görüntüle"
                 >
                     <i className="fa-solid fa-book-open"></i>
@@ -318,12 +338,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
             
             <div className="w-px h-4 bg-zinc-600 mx-1"></div>
             
-             <button onClick={onSave} className="px-3 py-1.5 text-emerald-400 bg-emerald-900/20 hover:bg-emerald-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5" title="Arşive Kaydet">
+             <button onClick={onSave} disabled={isProcessing} className="px-3 py-1.5 text-emerald-400 bg-emerald-900/20 hover:bg-emerald-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50" title="Arşive Kaydet">
                 <i className="fa-solid fa-save"></i>
                 <span className="hidden sm:inline">Kaydet</span>
             </button>
 
-            <button onClick={onShare} className="px-3 py-1.5 text-violet-400 bg-violet-900/20 hover:bg-violet-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5" title="Paylaş">
+            <button onClick={onShare} disabled={isProcessing} className="px-3 py-1.5 text-violet-400 bg-violet-900/20 hover:bg-violet-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50" title="Paylaş">
                 <i className="fa-solid fa-share-nodes"></i>
                 <span className="hidden sm:inline">Paylaş</span>
             </button>
