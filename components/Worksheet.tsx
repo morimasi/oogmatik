@@ -17,6 +17,7 @@ interface WorksheetProps {
     data: WorksheetData;
     settings: StyleSettings;
     studentProfile?: StudentProfile | null;
+    disablePrintClass?: boolean;
 }
 
 const RenderSheet = React.memo(({ activityType, data }: { activityType: ActivityType, data: SingleWorksheetData }) => {
@@ -189,7 +190,7 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
     return prevProps.data === nextProps.data && prevProps.activityType === nextProps.activityType;
 });
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, disablePrintClass = false }) => {
     const { isEditMode } = useEditable();
 
     const pageStyle = useMemo(() => {
@@ -271,8 +272,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 {data.map((sheetData, index) => (
                     <div 
                         key={index} 
-                        // Removed realistic-shadow and texture for cleaner professional look on screen too
-                        className="worksheet-item bg-white transition-all duration-300 ease-in-out shadow-lg"
+                        // If inside a workbook, we don't want this inner div to be the print target
+                        className={`${disablePrintClass ? '' : 'worksheet-item'} bg-white transition-all duration-300 ease-in-out shadow-lg`}
                         style={pageStyle}
                     >
                         {/* Visual Guide for Edit Mode */}

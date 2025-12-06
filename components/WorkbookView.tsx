@@ -4,6 +4,7 @@ import { CollectionItem, WorkbookSettings } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { useAuth } from '../context/AuthContext';
+import { printService } from '../utils/printService';
 
 interface WorkbookViewProps {
     items: CollectionItem[];
@@ -49,7 +50,7 @@ const SortablePageItem = React.memo(({
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">{item.title}</p>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{item.activityType}</p>
+                <p className="text-zinc-500 text-[10px] uppercase tracking-wider">{item.activityType}</p>
             </div>
             <button onClick={() => onRemove(item.id)} className="text-zinc-300 hover:text-red-500 p-2 transition-colors">
                 <i className="fa-solid fa-trash"></i>
@@ -63,6 +64,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
     const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
     const [isSaving, setIsSaving] = useState(false);
+    const [isPrinting, setIsPrinting] = useState(false);
     
     // Drag & Drop State
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -81,11 +83,6 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
     const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
         e.preventDefault();
-        // We rely on local state for visual feedback, but actual reordering only happens if we track it correctly.
-        // To avoid flicker, we need to check current drag index.
-        // Since accessing draggedItemIndex inside callback requires dependency, we use functional update pattern if possible or ref.
-        // However, standard React DND pattern usually updates list. 
-        // For performance, we only update if index changes.
         setItems(prevItems => {
             if (draggedItemIndex === null || draggedItemIndex === index) return prevItems;
             
@@ -93,7 +90,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
             const draggedItem = newItems[draggedItemIndex];
             newItems.splice(draggedItemIndex, 1);
             newItems.splice(index, 0, draggedItem);
-            setDraggedItemIndex(index); // Update index to current
+            setDraggedItemIndex(index); 
             return newItems;
         });
     }, [draggedItemIndex, setItems]);
@@ -124,6 +121,20 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         }
     };
 
+    const handleDownloadPdf = async () => {
+        if (items.length === 0) {
+            alert("Kitapçık boş.");
+            return;
+        }
+        
+        setIsPrinting(true);
+        // Wait for UI update
+        setTimeout(async () => {
+            await printService.downloadAsPdf(settings.title || "Calisma_Kitapcigi");
+            setIsPrinting(false);
+        }, 200);
+    };
+
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -140,7 +151,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
             {/* Top Toolbar */}
             <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 shadow-sm shrink-0">
                 <div className="flex items-center gap-4">
-                    <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center gap-2 text-sm font-bold">
+                    <button onClick={onBack} disabled={isPrinting} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center gap-2 text-sm font-bold disabled:opacity-50">
                         <i className="fa-solid fa-arrow-left"></i> Geri
                     </button>
                     <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-600"></div>
@@ -159,12 +170,14 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                     <div className="bg-zinc-100 dark:bg-zinc-700 p-1 rounded-lg flex">
                         <button 
                             onClick={() => setViewMode('edit')}
+                            disabled={isPrinting}
                             className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${viewMode === 'edit' ? 'bg-white dark:bg-zinc-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'}`}
                         >
                             <i className="fa-solid fa-pen-ruler"></i> Düzenle
                         </button>
                         <button 
                             onClick={() => setViewMode('preview')}
+                            disabled={isPrinting}
                             className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${viewMode === 'preview' ? 'bg-white dark:bg-zinc-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'}`}
                         >
                             <i className="fa-solid fa-eye"></i> Önizle
@@ -173,12 +186,21 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                     {viewMode === 'preview' && (
                         <>
                             <button 
+                                onClick={handleDownloadPdf}
+                                disabled={isPrinting || isSaving}
+                                className="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-lg shadow-sm flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
+                                <span>{isPrinting ? 'Hazırlanıyor...' : 'PDF İndir'}</span>
+                            </button>
+
+                            <button 
                                 onClick={handleSave} 
-                                disabled={isSaving}
+                                disabled={isSaving || isPrinting}
                                 className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>} 
-                                Kaydet
+                                <span>Kaydet</span>
                             </button>
                         </>
                     )}
