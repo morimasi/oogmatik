@@ -36,6 +36,7 @@ export const printService = {
                 scaler.style.width = '100%';
                 scaler.style.height = 'auto';
                 scaler.style.padding = '0'; // Remove extra padding from scaler if any
+                scaler.style.overflow = 'visible'; // Ensure no clipping
             }
             
             // Remove huge paddings from wrapper
@@ -44,6 +45,7 @@ export const printService = {
             clone.style.width = '100%';
             clone.style.boxShadow = 'none';
             clone.style.border = 'none';
+            clone.style.overflow = 'visible';
             
             // İç divlerdeki editör paddinglerini temizle (p-[10mm] vb.)
             const innerDivs = clone.querySelectorAll('div');

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -154,10 +155,16 @@
             margin: 0mm; /* Browser kenar boşluklarını sıfırla */
         }
 
-        body {
+        html, body {
             margin: 0;
             padding: 0;
             background-color: white !important;
+            color: black !important;
+            width: 100%;
+            height: auto;
+            overflow: visible !important; /* CRITICAL for blank pages */
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
         /* Tüm uygulama arayüzünü gizle */
@@ -174,14 +181,44 @@
             width: 210mm;
             min-height: 297mm;
             padding: 3mm; /* TEK GEÇERLİ BOŞLUK BURASI */
-            background: white;
+            background: white !important;
             box-sizing: border-box;
             color: black !important;
             font-family: 'OpenDyslexic', sans-serif !important;
+            z-index: 9999;
+            overflow: visible !important;
         }
 
         /* --- SIFIRLAMA & TEMİZLİK --- */
         
+        /* Force Black Text on everything to fix Dark Mode invisibility */
+        #printable-area * {
+            color: #000 !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        /* Re-enable borders but black */
+        [class*="border-"] {
+            border-color: #000 !important;
+        }
+
+        /* Ensure SVGs and Images are visible */
+        img, svg {
+            filter: grayscale(100%) !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        svg * {
+            stroke: #000 !important;
+            /* Don't force fill on all SVG parts, complex shapes need logic, 
+               but default text should be black */
+        }
+        svg text {
+            fill: #000 !important;
+        }
+
         /* Worksheet Item (Ana Kart) Özelliklerini Sıfırla */
         .worksheet-item {
             box-shadow: none !important;
@@ -196,6 +233,7 @@
             position: relative !important;
             top: auto !important;
             left: auto !important;
+            display: block !important;
         }
 
         /* Editörden gelen padding-[10mm] sınıfını ez ve sıfırla */
@@ -212,7 +250,7 @@
         }
 
         /* Gereksiz arka plan ve borderları temizle */
-        .bg-white, .bg-zinc-50, .bg-zinc-100 {
+        .bg-white, .bg-zinc-50, .bg-zinc-100, .bg-zinc-800, .bg-zinc-900, .dark\:bg-zinc-800, .dark\:bg-zinc-900 {
             background-color: transparent !important;
         }
         
@@ -231,12 +269,6 @@
         .edit-handle, .no-print, .shadow-lg, .shadow-xl, .shadow-2xl, .edit-grid-overlay, .edit-safety-guide {
             display: none !important;
             box-shadow: none !important;
-        }
-        
-        /* Renkleri Yazıcı Dostu Yap */
-        body {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
         }
     }
     </style>
