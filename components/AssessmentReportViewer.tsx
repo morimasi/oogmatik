@@ -105,16 +105,16 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                         </button>
                     )}
                     {onManualSave && (
-                        <button onClick={onManualSave} disabled={isSaving} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${isSaved ? 'bg-green-100 text-green-700' : 'bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-100'}`}>
+                        <button onClick={onManualSave} disabled={isSaving || isSaved} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${isSaved ? 'bg-green-100 text-green-700 border border-green-200 cursor-default' : 'bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-100 hover:text-indigo-600'}`}>
                             {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>}
-                            <span className="hidden sm:inline">{isSaved ? 'Kaydedildi' : 'Kaydet'}</span>
+                            <span className="hidden sm:inline">{isSaved ? 'Arşive Kaydedildi' : 'Raporu Kaydet'}</span>
                         </button>
                     )}
                     <button 
                         onClick={handlePrintReport} 
                         className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all"
                     >
-                        <i className="fa-solid fa-print"></i> Yazdır
+                        <i className="fa-solid fa-file-pdf"></i> PDF İndir / Yazdır
                     </button>
                 </div>
 

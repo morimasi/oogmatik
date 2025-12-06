@@ -34,6 +34,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const [testBattery, setTestBattery] = useState<any[]>([]);
     const [answers, setAnswers] = useState<any[]>([]);
     const [generatedReport, setGeneratedReport] = useState<SavedAssessment | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
 
     // Profile Handlers
     const grades = ['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf'];
@@ -422,6 +424,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             
             if (user) {
                 await assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, report);
+                setIsSaved(true);
             }
             
             setGeneratedReport(savedAssessment);
@@ -430,6 +433,26 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             console.error(error);
             alert("Rapor oluşturulurken bir hata oluştu.");
             setStep('profile');
+        }
+    };
+
+    const handleManualSave = async () => {
+        if (!user) {
+            alert("Kaydetmek için lütfen giriş yapın.");
+            return;
+        }
+        if (!generatedReport) return;
+
+        setIsSaving(true);
+        try {
+            await assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, generatedReport.report);
+            setIsSaved(true);
+            alert("Rapor başarıyla arşive kaydedildi.");
+        } catch (e) {
+            console.error(e);
+            alert("Kaydetme sırasında hata oluştu.");
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -569,6 +592,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 onClose={onBack} 
                 user={user}
                 onAddToWorkbook={onAddToWorkbook}
+                onManualSave={handleManualSave}
+                isSaving={isSaving}
+                isSaved={isSaved}
             />
         );
     }
