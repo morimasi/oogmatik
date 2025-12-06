@@ -53,234 +53,244 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         }));
     };
 
+    // --- HELPER: PICK RANDOM QUESTIONS ---
+    const getRandomQuestions = (pool: any[], count: number) => {
+        return shuffle(pool).slice(0, count);
+    };
+
     // --- ADVANCED DYNAMIC TEST GENERATOR ENGINE (MULTIPLE INTELLIGENCES) ---
     const prepareTests = () => {
         const gradeNum = parseInt(profile.grade.split('.')[0]) || 1;
         const battery = [];
 
+        // Her modülden 4-5 soru seçerek toplam 40-50 soruluk kapsamlı bir test oluştur.
+        const qPerModule = 5; 
+
         // 1. LINGUISTIC (Sözel-Dilsel)
-        battery.push(generateLinguisticTest(gradeNum));
+        battery.push(generateLinguisticTest(gradeNum, qPerModule));
 
         // 2. LOGICAL-MATHEMATICAL (Mantıksal)
-        battery.push(generateLogicalTest(gradeNum));
+        battery.push(generateLogicalTest(gradeNum, qPerModule));
 
         // 3. VISUAL-SPATIAL (Görsel-Uzamsal)
-        battery.push(generateVisualTest(gradeNum));
+        battery.push(generateVisualTest(gradeNum, qPerModule));
 
         // 4. KINESTHETIC (Bedensel)
-        battery.push(generateKinestheticTest(gradeNum));
+        battery.push(generateKinestheticTest(gradeNum, qPerModule));
         
         // 5. MUSICAL (Müziksel)
-        battery.push(generateMusicalTest(gradeNum));
+        battery.push(generateMusicalTest(gradeNum, qPerModule));
         
         // 6. NATURALISTIC (Doğacı)
-        battery.push(generateNaturalisticTest(gradeNum));
+        battery.push(generateNaturalisticTest(gradeNum, qPerModule));
         
         // 7. INTERPERSONAL (Sosyal)
-        battery.push(generateInterpersonalTest(gradeNum));
+        battery.push(generateInterpersonalTest(gradeNum, qPerModule));
         
         // 8. INTRAPERSONAL (İçsel)
-        battery.push(generateIntrapersonalTest(gradeNum));
+        battery.push(generateIntrapersonalTest(gradeNum, qPerModule));
         
-        // 9. ATTENTION (Dikkat)
-        battery.push(generateAttentionTest(gradeNum));
+        // 9. ATTENTION (Dikkat - Ekstra)
+        battery.push(generateAttentionTest(gradeNum, 4));
 
         setTestBattery(battery);
     };
 
     // --- GENERATORS PER INTELLIGENCE TYPE ---
 
-    const generateLinguisticTest = (grade: number) => {
-        let questions: any[] = [];
-        const easyPool = TR_VOCAB.easy_words;
+    const generateLinguisticTest = (grade: number, count: number) => {
+        const pool = [];
         
-        if (grade === 1) {
-            const letters = getRandomItems(['b', 'd', 'p', 'm', 'n'], 1);
-            questions.push({
-                type: 'multiple-choice',
-                text: `Aşağıdakilerden hangisi "${letters[0].toUpperCase()}" harfinin küçüğüdür?`,
-                options: shuffle([letters[0], 'k', 's', 't']),
-                correct: letters[0]
-            });
-            const word = getRandomItems(easyPool, 1)[0];
-            questions.push({
-                type: 'multiple-choice',
-                text: `Görseldeki nesnenin adı nedir? (${word})`,
-                options: shuffle([word, getRandomItems(easyPool, 1)[0], getRandomItems(easyPool, 1)[0]]),
-                correct: word
-            });
-        } else if (grade <= 3) {
-            questions.push({
-                type: 'multiple-choice',
-                text: "Hangi kelime diğerlerinden farklıdır?",
-                options: shuffle(["Elma", "Armut", "Muz", "Kedi"]),
-                correct: "Kedi"
-            });
-             questions.push({
-                type: 'multiple-choice',
-                text: "Eş anlamlısını bul: 'Yürekli'",
-                options: shuffle(["Cesur", "Korkak", "Hızlı", "Sessiz"]),
-                correct: "Cesur"
-            });
-        } else {
-            questions.push({
-                type: 'multiple-choice',
-                text: "Aşağıdaki cümlede hangi duygu hakimdir? 'Ayşe, sınav sonucunu görünce yerinden zıpladı ve çığlık attı.'",
-                options: shuffle(["Sevinç", "Üzüntü", "Korku", "Öfke"]),
-                correct: "Sevinç"
-            });
-            questions.push({
-                type: 'multiple-choice',
-                text: "Analoji: 'Kitap' için 'Yazar' ne ise, 'Bina' için _____ odur.",
-                options: shuffle(["Mimar", "Tuğla", "Kapı", "Şehir"]),
-                correct: "Mimar"
-            });
-        }
-
-        return { id: 'linguistic', name: 'Sözel-Dilsel Zeka', questions };
-    };
-
-    const generateLogicalTest = (grade: number) => {
-        const questions = [];
-        if (grade === 1) {
-            questions.push({ type: 'multiple-choice', text: "2, 4, 6, ?", options: ["8", "7", "9", "5"], correct: "8" });
-            questions.push({ type: 'multiple-choice', text: "Hangi şekil 3 kenarlıdır?", options: ["Üçgen", "Kare", "Daire"], correct: "Üçgen" });
-        } else if (grade <= 3) {
-            questions.push({ type: 'multiple-choice', text: "Bir çiftlikte 3 inek ve 2 tavuk var. Toplam kaç ayak vardır?", options: ["20", "16", "14", "12"], correct: "16" });
-            questions.push({ type: 'multiple-choice', text: "Örüntüyü tamamla: ▲ ■ ▲ ■ ?", options: ["▲", "■", "●", "★"], correct: "▲" });
-        } else {
-            questions.push({ type: 'multiple-choice', text: "Ali, Veli'den uzun, Veli de Can'dan uzundur. En kısa kimdir?", options: ["Can", "Veli", "Ali", "Bilinemez"], correct: "Can" });
-            questions.push({ type: 'multiple-choice', text: "Bir kutuda 3 kırmızı, 2 mavi top var. Rastgele çekilen topun mavi olma ihtimali nedir?", options: ["2/5", "3/5", "1/2", "1/5"], correct: "2/5" });
-        }
-        return { id: 'logical', name: 'Mantıksal-Matematiksel Zeka', questions };
-    };
-
-    const generateVisualTest = (grade: number) => {
-        const questions = [];
-        // Visual questions use simple text-based graphics or unicode for now
-        if (grade <= 2) {
-            questions.push({
-                type: 'multiple-choice',
-                text: "Aşağıdaki şeklin aynısı hangisidir? ( d )",
-                options: ["b", "d", "p", "q"],
-                correct: "d"
-            });
-        } else {
-            questions.push({
-                type: 'multiple-choice',
-                text: "Zihinsel Döndürme: 'L' şeklini saat yönünde bir kez çevirirsen nasıl görünür?",
-                options: ["L", "Γ", "⅃", "LUT"], // Symbol approximations
-                correct: "Γ" 
-            });
-            questions.push({
-                type: 'multiple-choice',
-                text: "Kuş bakışı görünüm: Bir bardağa tam tepeden bakarsan ne görürsün?",
-                options: ["Daire", "Kare", "Üçgen", "Dikdörtgen"],
-                correct: "Daire"
-            });
-        }
-        return { id: 'spatial', name: 'Görsel-Uzamsal Zeka', questions };
-    };
-
-    const generateKinestheticTest = (grade: number) => {
-        const questions = [];
         if (grade <= 3) {
-             questions.push({
-                type: 'multiple-choice',
-                text: "Sağ elini havaya kaldırdın. Aynaya bakarsan hangi elin havada görünür?",
-                options: ["Sol el", "Sağ el", "İkisi de", "Hiçbiri"],
-                correct: "Sol el"
-            });
+            // 1-3. Sınıf
+            pool.push({ type: 'multiple-choice', text: "Hangi kelime 'Hızlı' kelimesinin zıttıdır?", options: ["Yavaş", "Koşan", "Süratli", "Çabuk"], correct: "Yavaş" });
+            pool.push({ type: 'multiple-choice', text: "Aşağıdakilerden hangisi bir meyvedir?", options: ["Elma", "Pırasa", "Ispanak", "Marul"], correct: "Elma" });
+            pool.push({ type: 'multiple-choice', text: "'Gözlük' kelimesi hangi heceyle başlar?", options: ["Göz", "Lük", "Gözl", "G"], correct: "Göz" });
+            pool.push({ type: 'multiple-choice', text: "Cümleyi tamamla: Ali topu _______ attı.", options: ["kaleye", "yüzdü", "uyudu", "yedi"], correct: "kaleye" });
+            pool.push({ type: 'multiple-choice', text: "Hangisi bir soru cümlesidir?", options: ["Eve geldim", "Okula gidiyor musun", "Çok güzel", "Hızlı koştu"], correct: "Okula gidiyor musun" });
+            pool.push({ type: 'multiple-choice', text: "Hangisi alfabemizin ilk harfidir?", options: ["A", "B", "C", "Z"], correct: "A" });
+            pool.push({ type: 'multiple-choice', text: "'Kitaplık' kelimesinde kaç hece vardır?", options: ["3", "2", "4", "1"], correct: "3" });
+            pool.push({ type: 'multiple-choice', text: "Hangi kelime yanlış yazılmıştır?", options: ["Yalnış", "Herkes", "Kirpik", "Şemsiye"], correct: "Yalnış" });
         } else {
-             questions.push({
-                type: 'multiple-choice',
-                text: "Ayakkabı bağlarken yapılan hareketlerin doğru sırası hangisidir?",
-                options: ["Düğüm at -> Fiyonk yap -> Sıkıştır", "Sıkıştır -> Düğüm at -> Fiyonk yap", "Fiyonk yap -> Düğüm at"],
-                correct: "Düğüm at -> Fiyonk yap -> Sıkıştır"
-            });
+            // 4-6. Sınıf
+            pool.push({ type: 'multiple-choice', text: "Hangi kelime 'Cesur' kelimesinin eş anlamlısıdır?", options: ["Yürekli", "Korkak", "Sessiz", "Hızlı"], correct: "Yürekli" });
+            pool.push({ type: 'multiple-choice', text: "Analoji: 'Yazar' için 'Kitap' ne ise, 'Ressam' için _____ odur.", options: ["Tablo", "Boya", "Fırça", "Müze"], correct: "Tablo" });
+            pool.push({ type: 'multiple-choice', text: "Aşağıdaki cümlede hangi duygu hakimdir? 'Sınavdan yüz aldığını görünce havalara uçtu.'", options: ["Sevinç", "Üzüntü", "Öfke", "Şaşkınlık"], correct: "Sevinç" });
+            pool.push({ type: 'multiple-choice', text: "Deyim Anlamı: 'Göz boyamak' ne demektir?", options: ["Kandırmak, iyi göstermeye çalışmak", "Resim yapmak", "Gözlük takmak", "Makyaj yapmak"], correct: "Kandırmak, iyi göstermeye çalışmak" });
+            pool.push({ type: 'multiple-choice', text: "Hangisi bir 'sebep-sonuç' cümlesidir?", options: ["Yağmur yağdığı için ıslandım.", "Eve gittim ve uyudum.", "Yarın sinemaya gideceğiz.", "Kitap okumayı severim."], correct: "Yağmur yağdığı için ıslandım." });
+            pool.push({ type: 'multiple-choice', text: "Hangi cümlede 'yaz' kelimesi mevsim anlamında kullanılmıştır?", options: ["Bu yaz tatile gideceğiz.", "Tahtaya adını yaz.", "Bana mektup yaz.", "Kaderini yaz."], correct: "Bu yaz tatile gideceğiz." });
+            pool.push({ type: 'multiple-choice', text: "Atasözünü tamamla: 'Sakla samanı, ______ zamanı.'", options: ["gelir", "gider", "biter", "yoktur"], correct: "gelir" });
+            pool.push({ type: 'multiple-choice', text: "Hangisi öznel bir yargıdır?", options: ["Mavi en güzel renktir.", "Türkiye'nin başkenti Ankara'dır.", "Bir hafta yedi gündür.", "Su 100 derecede kaynar."], correct: "Mavi en güzel renktir." });
         }
-        return { id: 'kinesthetic', name: 'Bedensel-Kinestetik Zeka', questions };
+
+        return { id: 'linguistic', name: 'Sözel-Dilsel Zeka', questions: getRandomQuestions(pool, count) };
+    };
+
+    const generateLogicalTest = (grade: number, count: number) => {
+        const pool = [];
+        if (grade <= 3) {
+            pool.push({ type: 'multiple-choice', text: "Örüntüyü tamamla: 2, 4, 6, 8, ?", options: ["10", "9", "12", "11"], correct: "10" });
+            pool.push({ type: 'multiple-choice', text: "Hangi şeklin 3 köşesi vardır?", options: ["Üçgen", "Kare", "Daire", "Dikdörtgen"], correct: "Üçgen" });
+            pool.push({ type: 'multiple-choice', text: "Bir çiftlikte 3 inek ve 2 tavuk var. Toplam kaç ayak vardır?", options: ["16", "14", "20", "10"], correct: "16" });
+            pool.push({ type: 'multiple-choice', text: "5 elman var, 2 tanesini yedin. Kaç elman kaldı?", options: ["3", "2", "7", "5"], correct: "3" });
+            pool.push({ type: 'multiple-choice', text: "Hangisi diğerlerinden daha ağırdır?", options: ["Fil", "Kedi", "Fare", "Tavuk"], correct: "Fil" });
+            pool.push({ type: 'multiple-choice', text: "Saat 3:00. Yarım saat sonra saat kaç olur?", options: ["3:30", "4:00", "2:30", "3:15"], correct: "3:30" });
+            pool.push({ type: 'multiple-choice', text: "10 tane cevizim var. Yarısını kardeşime verdim. Bende kaç ceviz kaldı?", options: ["5", "10", "2", "8"], correct: "5" });
+        } else {
+            pool.push({ type: 'multiple-choice', text: "Mantık: Ali, Veli'den uzundur. Veli, Can'dan uzundur. En kısa kimdir?", options: ["Can", "Veli", "Ali", "Bilinemez"], correct: "Can" });
+            pool.push({ type: 'multiple-choice', text: "Bir kutuda 3 kırmızı, 2 mavi top var. Rastgele çekilen bir topun mavi olma olasılığı nedir?", options: ["2/5", "3/5", "1/2", "1/5"], correct: "2/5" });
+            pool.push({ type: 'multiple-choice', text: "Örüntüyü bul: 1, 4, 9, 16, ?", options: ["25", "20", "30", "24"], correct: "25" });
+            pool.push({ type: 'multiple-choice', text: "Hangisi asal sayıdır?", options: ["17", "15", "21", "9"], correct: "17" });
+            pool.push({ type: 'multiple-choice', text: "Çeyreği 5 olan sayının tamamı kaçtır?", options: ["20", "10", "15", "25"], correct: "20" });
+            pool.push({ type: 'multiple-choice', text: "Bir araç saatte 60 km gidiyor. 3 saatte kaç km gider?", options: ["180", "120", "200", "150"], correct: "180" });
+            pool.push({ type: 'multiple-choice', text: "Hangi sayı hem 2'ye hem 3'e tam bölünür?", options: ["12", "10", "9", "14"], correct: "12" });
+            pool.push({ type: 'multiple-choice', text: "A + B = 10 ve A - B = 2 ise A kaçtır?", options: ["6", "5", "8", "4"], correct: "6" });
+        }
+        return { id: 'logical', name: 'Mantıksal-Matematiksel Zeka', questions: getRandomQuestions(pool, count) };
+    };
+
+    const generateVisualTest = (grade: number, count: number) => {
+        const pool = [];
+        if (grade <= 3) {
+            pool.push({ type: 'multiple-choice', text: "Aşağıdaki şeklin aynısı hangisidir? (b)", options: ["b", "d", "p", "q"], correct: "b" });
+            pool.push({ type: 'multiple-choice', text: "Hangi şekil yuvarlaktır?", options: ["Top", "Kutu", "Kitap", "Masa"], correct: "Top" });
+            pool.push({ type: 'multiple-choice', text: "Yapbozun eksik parçasını tamamla: 🟦 🟦 🟨 🟨 🟦 ?", options: ["🟦", "🟨", "🟥", "⬛"], correct: "🟦" });
+            pool.push({ type: 'multiple-choice', text: "Trafik ışığında 'Dur' anlamına gelen renk hangisidir?", options: ["Kırmızı", "Yeşil", "Sarı", "Mavi"], correct: "Kırmızı" });
+            pool.push({ type: 'multiple-choice', text: "Hangi harf simetriktir (Ortadan katlanınca aynıdır)?", options: ["A", "F", "G", "L"], correct: "A" });
+        } else {
+            pool.push({ type: 'multiple-choice', text: "Zihinsel Döndürme: 'L' şeklini saat yönünde 90 derece çevirirsen neye benzer?", options: ["Γ (Ters L)", "L (Aynı)", "V", "I"], correct: "Γ (Ters L)" });
+            pool.push({ type: 'multiple-choice', text: "Kuş bakışı: Bir bardağa tam tepeden bakarsan ne görürsün?", options: ["Daire", "Kare", "Üçgen", "Dikdörtgen"], correct: "Daire" });
+            pool.push({ type: 'multiple-choice', text: "Harita Bilgisi: Güneşin doğduğu yön hangisidir?", options: ["Doğu", "Batı", "Kuzey", "Güney"], correct: "Doğu" });
+            pool.push({ type: 'multiple-choice', text: "Bir küpün kaç yüzü vardır?", options: ["6", "4", "8", "12"], correct: "6" });
+            pool.push({ type: 'multiple-choice', text: "Hangi şekil diğerlerinden farklıdır? (Üçgen, Kare, Daire, Beşgen)", options: ["Daire", "Kare", "Üçgen", "Beşgen"], correct: "Daire" });
+        }
+        return { id: 'spatial', name: 'Görsel-Uzamsal Zeka', questions: getRandomQuestions(pool, count) };
+    };
+
+    const generateKinestheticTest = (grade: number, count: number) => {
+        const pool = [];
+        pool.push({ type: 'multiple-choice', text: "Ayakkabı bağlarken ilk ne yaparsın?", options: ["Düğüm atarım", "Fiyonk yaparım", "Ayağıma giyerim", "İpi keserim"], correct: "Ayağıma giyerim" });
+        pool.push({ type: 'multiple-choice', text: "Dengenizi sağlamak için ip cambazı ne kullanır?", options: ["Uzun bir çubuk", "Top", "Kitap", "Sandalye"], correct: "Uzun bir çubuk" });
+        pool.push({ type: 'multiple-choice', text: "Hangisi el becerisi gerektirir?", options: ["İğneye iplik geçirmek", "Televizyon izlemek", "Müzik dinlemek", "Uyumak"], correct: "İğneye iplik geçirmek" });
+        pool.push({ type: 'multiple-choice', text: "Sağ elini havaya kaldırıp aynaya bakarsan, aynada hangi elin havada görünür?", options: ["Sol el (Aynadaki görüntünün)", "Sağ el", "Hiçbiri", "İkisi de"], correct: "Sol el (Aynadaki görüntünün)" });
+        pool.push({ type: 'multiple-choice', text: "Futbol oynarken topa neyle vurursun?", options: ["Ayak", "El", "Kafa", "Diz"], correct: "Ayak" });
+        pool.push({ type: 'multiple-choice', text: "Hangi aktivitede tüm vücudunu kullanırsın?", options: ["Yüzme", "Yazı yazma", "Sakız çiğneme", "Göz kırpma"], correct: "Yüzme" });
+        
+        if (grade > 3) {
+             pool.push({ type: 'multiple-choice', text: "Bir şeyi taklit ederek anlatma oyununa ne denir?", options: ["Sessiz Sinema", "Körebe", "Saklambaç", "Satranç"], correct: "Sessiz Sinema" });
+             pool.push({ type: 'multiple-choice', text: "Heykel yaparken en çok neyini kullanırsın?", options: ["Ellerini ve parmaklarını", "Ayaklarını", "Kulaklarını", "Burnunu"], correct: "Ellerini ve parmaklarını" });
+        }
+        
+        return { id: 'kinesthetic', name: 'Bedensel-Kinestetik Zeka', questions: getRandomQuestions(pool, count) };
     }
 
-    const generateNaturalisticTest = (grade: number) => {
-        const questions = [];
-        questions.push({
-            type: 'multiple-choice',
-            text: "Hangisi kış uykusuna yatar?",
-            options: shuffle(["Ayı", "Kedi", "Kuş", "At"]),
-            correct: "Ayı"
-        });
-        if (grade > 2) {
-            questions.push({
-                type: 'multiple-choice',
-                text: "Hangisi bir bitkinin büyümesi için gerekli DEĞİLDİR?",
-                options: shuffle(["Çikolata", "Su", "Güneş", "Toprak"]),
-                correct: "Çikolata"
-            });
+    const generateMusicalTest = (grade: number, count: number) => {
+        const pool = [];
+        pool.push({ type: 'multiple-choice', text: "Hangi kelime 'Masa' ile kafiyelidir?", options: ["Kasa", "Kapı", "Sandalye", "Mavi"], correct: "Kasa" });
+        pool.push({ type: 'multiple-choice', text: "Ritmi tamamla: Dum-Tek-Dum-Tek-Dum-?", options: ["Tek", "Dum", "Tıs", "Bom"], correct: "Tek" });
+        pool.push({ type: 'multiple-choice', text: "Hangisi bir müzik aletidir?", options: ["Gitar", "Tarak", "Kaşık", "Kalem"], correct: "Gitar" });
+        pool.push({ type: 'multiple-choice', text: "Kuş sesi nasıl bir sestir?", options: ["İnce ve tiz", "Kalın ve bas", "Gürültülü", "Mekanik"], correct: "İnce ve tiz" });
+        pool.push({ type: 'multiple-choice', text: "Bir şarkıyı mırıldanmak ne anlama gelir?", options: ["Melodisini söylemek", "Sözlerini okumak", "Bağırmak", "Susmak"], correct: "Melodisini söylemek" });
+        
+        if (grade > 3) {
+             pool.push({ type: 'multiple-choice', text: "Hangi enstrüman vurmalı çalgıdır?", options: ["Davul", "Keman", "Flüt", "Gitar"], correct: "Davul" });
+             pool.push({ type: 'multiple-choice', text: "Müzikte hızın artmasına ne denir?", options: ["Tempo", "Ritim", "Nota", "Sus"], correct: "Tempo" });
         }
-        return { id: 'naturalistic', name: 'Doğacı Zeka', questions };
+
+        return { id: 'musical', name: 'Müziksel-Ritmik Zeka', questions: getRandomQuestions(pool, count) };
+    };
+
+    const generateNaturalisticTest = (grade: number, count: number) => {
+        const pool = [];
+        pool.push({ type: 'multiple-choice', text: "Hangisi kış uykusuna yatar?", options: ["Ayı", "Kedi", "Kuş", "At"], correct: "Ayı" });
+        pool.push({ type: 'multiple-choice', text: "Bir bitkinin büyümesi için hangisi GEREKLİ DEĞİLDİR?", options: ["Çikolata", "Su", "Güneş", "Toprak"], correct: "Çikolata" });
+        pool.push({ type: 'multiple-choice', text: "Hangi hayvan suda yaşar?", options: ["Balık", "Tavşan", "Zürafa", "Kelebek"], correct: "Balık" });
+        pool.push({ type: 'multiple-choice', text: "Sonbaharda ağaçlara ne olur?", options: ["Yapraklarını dökerler", "Çiçek açarlar", "Meyve verirler", "Yeşerirler"], correct: "Yapraklarını dökerler" });
+        pool.push({ type: 'multiple-choice', text: "Hangisi bir doğal afettir?", options: ["Deprem", "Trafik kazası", "Yangın", "Kavga"], correct: "Deprem" });
+        
+        if (grade > 3) {
+            pool.push({ type: 'multiple-choice', text: "Tırtıl büyüyünce neye dönüşür?", options: ["Kelebek", "Sinek", "Arı", "Böcek"], correct: "Kelebek" });
+            pool.push({ type: 'multiple-choice', text: "Hangisi yenilenebilir enerji kaynağıdır?", options: ["Güneş", "Kömür", "Petrol", "Doğalgaz"], correct: "Güneş" });
+            pool.push({ type: 'multiple-choice', text: "Bulutlar neyden oluşur?", options: ["Su buharı", "Pamuk", "Duman", "Kar"], correct: "Su buharı" });
+        }
+
+        return { id: 'naturalistic', name: 'Doğacı Zeka', questions: getRandomQuestions(pool, count) };
     };
     
-    const generateMusicalTest = (grade: number) => {
-        const questions = [];
-        questions.push({
-            type: 'multiple-choice',
-            text: "Hangi kelime 'Masa' ile kafiyelidir (benzer sesle biter)?",
-            options: shuffle(["Kasa", "Kapı", "Sandalye", "Mavi"]),
-            correct: "Kasa"
-        });
-        questions.push({
-            type: 'multiple-choice',
-            text: "Ritim Tamamlama: Dum-Tek-Dum-Tek-Dum-?",
-            options: shuffle(["Tek", "Dum", "Tıs", "Bom"]),
-            correct: "Tek"
-        });
-        return { id: 'musical', name: 'Müziksel-Ritmik Zeka', questions };
-    };
-
-    const generateInterpersonalTest = (grade: number) => {
-        const questions = [];
-        questions.push({
-            type: 'multiple-choice',
-            text: "Arkadaşın oyuncağını kaybetti ve ağlıyor. Ne yaparsın?",
-            options: ["Onunla dalga geçerim", "Bulmasına yardım ederim", "Görmezden gelirim", "Öğretmene şikayet ederim"],
-            correct: "Bulmasına yardım ederim"
-        });
-        return { id: 'interpersonal', name: 'Sosyal Zeka', questions };
+    const generateInterpersonalTest = (grade: number, count: number) => {
+        const pool = [];
+        pool.push({ type: 'multiple-choice', text: "Arkadaşın oyuncağını kaybetti ve ağlıyor. Ne yaparsın?", options: ["Bulmasına yardım ederim", "Onunla dalga geçerim", "Görmezden gelirim", "Öğretmene şikayet ederim"], correct: "Bulmasına yardım ederim" });
+        pool.push({ type: 'multiple-choice', text: "Birisi sana hediye verdiğinde ne dersin?", options: ["Teşekkür ederim", "Bunu sevmedim", "Neden aldın?", "Susarım"], correct: "Teşekkür ederim" });
+        pool.push({ type: 'multiple-choice', text: "Sınıfa yeni bir öğrenci geldi. Ne yapmalısın?", options: ["Onunla tanışıp hoş geldin derim", "Ona bakmam", "Ona gülerim", "Sıramı saklarım"], correct: "Onunla tanışıp hoş geldin derim" });
+        pool.push({ type: 'multiple-choice', text: "Takım oyununda kazanmak için ne önemlidir?", options: ["İşbirliği yapmak", "Tek başına oynamak", "Hile yapmak", "Küsler"], correct: "İşbirliği yapmak" });
+        
+        if (grade > 3) {
+            pool.push({ type: 'multiple-choice', text: "İki arkadaşın kavga ediyor. Ne yaparsın?", options: ["Onları barıştırmaya çalışırım", "Kavgayı izlerim", "Birini tutarım", "Kavgayı kızıştırırım"], correct: "Onları barıştırmaya çalışırım" });
+            pool.push({ type: 'multiple-choice', text: "Bir grup çalışmasında fikrin kabul edilmedi. Tepkin ne olur?", options: ["Diğer fikirlere saygı duyarım", "Küsüp giderim", "Bağırırım", "Çalışmayı bozarım"], correct: "Diğer fikirlere saygı duyarım" });
+        }
+        
+        return { id: 'interpersonal', name: 'Sosyal Zeka', questions: getRandomQuestions(pool, count) };
     }
 
-    const generateIntrapersonalTest = (grade: number) => {
-        const questions = [];
-        questions.push({
-            type: 'multiple-choice',
-            text: "Bir konuda başarısız olduğunda ne düşünürsün?",
-            options: ["Ben yeteneksizim", "Daha çok çalışmalıyım", "Herkes suçlu", "Şanssızım"],
-            correct: "Daha çok çalışmalıyım"
-        });
-        return { id: 'intrapersonal', name: 'İçsel Zeka', questions };
+    const generateIntrapersonalTest = (grade: number, count: number) => {
+        const pool = [];
+        pool.push({ type: 'multiple-choice', text: "Bir konuda başarısız olduğunda ne düşünürsün?", options: ["Daha çok çalışıp tekrar denemeliyim", "Ben yeteneksizim", "Herkes suçlu", "Şanssızım"], correct: "Daha çok çalışıp tekrar denemeliyim" });
+        pool.push({ type: 'multiple-choice', text: "Kendini çok kızgın hissettiğinde ne yaparsın?", options: ["Derin nefes alıp sakinleşmeye çalışırım", "Etrafı kırıp dökerim", "Bağırırım", "Arkadaşıma vururum"], correct: "Derin nefes alıp sakinleşmeye çalışırım" });
+        pool.push({ type: 'multiple-choice', text: "En sevdiğin aktiviteyi seçmen gerekse hangisini seçersin?", options: ["Bana en çok keyif vereni", "Arkadaşımın sevdiğini", "En pahalı olanı", "Rastgele birini"], correct: "Bana en çok keyif vereni" });
+        pool.push({ type: 'multiple-choice', text: "Gelecekte ne olmak istediğine nasıl karar verirsin?", options: ["İlgi ve yeteneklerime göre", "Arkadaşım ne olursa", "Annem ne derse", "Bilmiyorum"], correct: "İlgi ve yeteneklerime göre" });
+        
+        if (grade > 3) {
+             pool.push({ type: 'multiple-choice', text: "Güçlü yönlerini bilmek sana ne kazandırır?", options: ["Hangi alanlarda daha başarılı olacağımı gösterir", "Hiçbir şey", "Hava atmamı sağlar", "Ders çalışmamı engeller"], correct: "Hangi alanlarda daha başarılı olacağımı gösterir" });
+             pool.push({ type: 'multiple-choice', text: "Hata yaptığında kendine ne söylersin?", options: ["Bu bir öğrenme fırsatı", "Ben aptalım", "Bir daha asla yapmamalıyım", "Saklanmalıyım"], correct: "Bu bir öğrenme fırsatı" });
+        }
+
+        return { id: 'intrapersonal', name: 'İçsel Zeka', questions: getRandomQuestions(pool, count) };
     }
 
-    const generateAttentionTest = (grade: number) => {
+    const generateAttentionTest = (grade: number, count: number) => {
         const isHard = grade > 3;
+        const pool = [];
+        
+        pool.push({
+            type: 'multiple-choice',
+            text: 'Aşağıdaki dizide kuralı bozan şekli bul: ⭐ ⭐ ☀️ ⭐ ⭐',
+            options: ['Ortadaki Güneş', '1. Yıldız', 'Sonuncu Yıldız', 'Hepsi Aynı'],
+            correct: 'Ortadaki Güneş'
+        });
+        
+        pool.push({
+            type: 'multiple-choice',
+            text: 'Hangi harf farklıdır? ( b - b - d - b )',
+            options: ['3. d', '1. b', '4. b', 'Hepsi aynı'],
+            correct: '3. d'
+        });
+        
+        pool.push({
+            type: 'multiple-choice',
+            text: 'Hangi sayı dizisi farklıdır? ( 123 - 123 - 132 - 123 )',
+            options: ['132', '123', 'Hepsi aynı', 'Bilinemez'],
+            correct: '132'
+        });
+
+        if (isHard) {
+            pool.push({
+                type: 'multiple-choice',
+                text: 'Hangi iki sayı birbirinin aynısıdır? ( 69 - 96 - 69 - 66 )',
+                options: ['1. ve 3. (69)', '66 ve 96', 'Hiçbiri', 'Hepsi'],
+                correct: '1. ve 3. (69)'
+            });
+            pool.push({
+                type: 'multiple-choice',
+                text: 'Tersten okunuşu kendisiyle aynı olan kelime hangisidir?',
+                options: ['KAYAK', 'KİTAP', 'MASA', 'ELMA'],
+                correct: 'KAYAK'
+            });
+        }
+
         return {
-            id: 'attention', // Mapped to specific logic if needed, or treat as general cognitive
+            id: 'attention', 
             name: 'Dikkat & Konsantrasyon',
-            questions: [
-                {
-                    type: 'multiple-choice',
-                    text: 'Aşağıdaki dizide kuralı bozan şekli bul: ⭐ ⭐ ☀️ ⭐ ⭐',
-                    options: ['1. Yıldız', 'Ortadaki Güneş', 'Sonuncu Yıldız', 'Hepsi Aynı'],
-                    correct: 'Ortadaki Güneş'
-                },
-                {
-                    type: 'multiple-choice',
-                    text: isHard 
-                        ? 'Hangi iki sayı birbirinin aynısıdır? ( 69 - 96 - 69 - 66 )' 
-                        : 'Hangi harf farklıdır? ( b - b - d - b )',
-                    options: isHard ? ['69 ve 96', '69 ve 69', '66 ve 96', 'Yok'] : ['1. b', '3. d', '4. b', 'Hepsi aynı'],
-                    correct: isHard ? '69 ve 69' : '3. d'
-                }
-            ]
+            questions: getRandomQuestions(pool, count)
         };
     };
 
@@ -439,7 +449,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     <h2 className="text-2xl font-black text-zinc-800 mb-2">Hazır mısın {profile.studentName.split(' ')[0]}?</h2>
                     <p className="text-zinc-500 mb-8">
                         Senin için <strong>{profile.grade}</strong> seviyesinde ve farklı zeka alanlarını (Howard Gardner) ölçen özel sorular hazırladık. 
-                        Toplam {testBattery.length} bölümden oluşuyor.
+                        Toplam {testBattery.length} bölümden oluşuyor. Her bölümde yaklaşık 5 soru var.
                     </p>
                     <button onClick={() => setStep('testing')} className="px-8 py-3 bg-indigo-600 text-white rounded-full font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-300">
                         Başla!
@@ -448,11 +458,17 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             );
         }
 
+        // Safety check if questions are empty
+        if (!currentTest || !currentQ) {
+             finishTests();
+             return null;
+        }
+
         return (
             <div className="max-w-3xl mx-auto mt-8 p-6 md:p-12 bg-white rounded-3xl shadow-2xl border border-zinc-200 relative overflow-hidden min-h-[500px] flex flex-col">
                 <div className="absolute top-0 left-0 w-full h-2 bg-zinc-100">
                     <div className="h-full bg-indigo-500 transition-all duration-500" 
-                        style={{width: `${((currentTestIndex * 10 + currentQuestionIndex) / (testBattery.length * 5)) * 100}%`}}></div>
+                        style={{width: `${((currentTestIndex * 5 + currentQuestionIndex) / (testBattery.length * 5)) * 100}%`}}></div>
                 </div>
                 
                 <div className="flex justify-between items-center mb-8">
