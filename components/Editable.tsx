@@ -224,16 +224,19 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
 };
 
 export const EditableText: React.FC<{ 
-    value: string | number; 
+    value: string | number | undefined | null; 
     className?: string; 
     tag?: 'p' | 'span' | 'h1' | 'h2' | 'h3' | 'h4' | 'div';
     onChange?: (val: string) => void; 
     style?: React.CSSProperties;
-}> = ({ value, className = "", tag = 'p', onChange, style }) => {
+    placeholder?: string;
+}> = ({ value, className = "", tag = 'p', onChange, style, placeholder }) => {
     const { isEditMode } = useEditable();
-    const [text, setText] = useState(String(value));
+    // Ensure value is always a string for rendering
+    const safeValue = value === undefined || value === null ? '' : String(value);
+    const [text, setText] = useState(safeValue);
 
-    useEffect(() => { setText(String(value)); }, [value]);
+    useEffect(() => { setText(safeValue); }, [safeValue]);
 
     const Tag = tag as any;
 
@@ -244,7 +247,7 @@ export const EditableText: React.FC<{
 
     return (
         <Tag
-            className={`${className} outline-none border-b border-transparent hover:border-indigo-300 focus:bg-indigo-50/50 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 rounded px-1 transition-all empty:before:content-['...'] cursor-text min-w-[20px] inline-block`}
+            className={`${className} outline-none border-b border-transparent hover:border-indigo-300 focus:bg-indigo-50/50 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 rounded px-1 transition-all cursor-text min-w-[20px] inline-block ${text === '' ? 'empty:before:content-["_"] empty:before:opacity-30' : ''}`}
             style={style}
             contentEditable
             suppressContentEditableWarning
@@ -256,6 +259,7 @@ export const EditableText: React.FC<{
             onKeyDown={(e: React.KeyboardEvent) => e.stopPropagation()} 
             onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
             onClick={(e: React.MouseEvent) => e.preventDefault()}
+            title="Düzenlemek için tıklayın"
         >
             {text}
         </Tag>

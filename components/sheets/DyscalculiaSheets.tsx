@@ -2,6 +2,7 @@
 import React from 'react';
 import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, VisualMathType } from '../../types';
 import { PedagogicalHeader, ImageDisplay, Shape } from './common';
+import { EditableElement, EditableText } from '../Editable';
 
 // --- VISUAL HELPERS ---
 
@@ -47,7 +48,7 @@ const Domino: React.FC<{ count: number }> = ({ count }) => {
     if (count > 9) {
         return (
             <div className="w-12 h-20 border-2 border-black rounded-lg bg-white flex items-center justify-center text-2xl font-bold shadow-sm">
-                {count}
+                <EditableText value={count} tag="span" />
             </div>
         );
     }
@@ -73,6 +74,7 @@ const NumberBond: React.FC<{ whole: number | string; part1: number | string; par
             
             {/* Whole (Top) */}
             <circle cx="80" cy="30" r="25" fill={isAddition ? "#fff" : "#e0e7ff"} stroke="black" strokeWidth="2" />
+            {/* Using foreignObject for editable text inside SVG would be complex, keeping simple text for now or overlay */}
             <text x="80" y="30" dominantBaseline="middle" textAnchor="middle" className="text-xl font-bold">
                 {isAddition ? '?' : whole}
             </text>
@@ -272,9 +274,9 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                                     <div key={i} className="flex flex-col items-center gap-2 relative">
                                         <div className="w-0.5 h-4 bg-black"></div>
                                         {val === ex.target ? (
-                                            <div className="w-10 h-10 border-2 border-indigo-600 bg-white rounded flex items-center justify-center font-bold text-indigo-600">?</div>
+                                            <div className="w-10 h-10 border-2 border-indigo-600 bg-white rounded flex items-center justify-center font-bold text-indigo-600"><EditableText value="?" tag="span" /></div>
                                         ) : (
-                                            <span className="font-bold text-lg">{val}</span>
+                                            <span className="font-bold text-lg"><EditableText value={val} tag="span" /></span>
                                         )}
                                     </div>
                                 ))}
@@ -291,7 +293,7 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                         <div key={idx} className="flex items-center justify-around p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 break-inside-avoid">
                             <div className="flex flex-col items-center gap-2">
                                 <TenFrame count={ex.values[0]} />
-                                <div className="w-10 h-10 border-2 border-dashed border-zinc-300 rounded flex items-center justify-center"></div>
+                                <div className="w-10 h-10 border-2 border-dashed border-zinc-300 rounded flex items-center justify-center"><EditableText value="" tag="span" /></div>
                             </div>
                             
                             <div className="flex flex-col gap-2">
@@ -302,7 +304,7 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
 
                             <div className="flex flex-col items-center gap-2">
                                 <TenFrame count={ex.values[1]} />
-                                <div className="w-10 h-10 border-2 border-dashed border-zinc-300 rounded flex items-center justify-center"></div>
+                                <div className="w-10 h-10 border-2 border-dashed border-zinc-300 rounded flex items-center justify-center"><EditableText value="" tag="span" /></div>
                             </div>
                         </div>
                     )
@@ -345,7 +347,7 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
 
                             {/* Operator (Skip for Number Bond / Grouping) */}
                             {visual !== 'number-bond' && prob.operator !== 'group' && (
-                                <span className="text-3xl font-bold text-zinc-400">{prob.operator}</span>
+                                <span className="text-3xl font-bold text-zinc-400"><EditableText value={prob.operator} tag="span" /></span>
                             )}
 
                             {/* Part 2 (Skip for Grouping / Number Bond handled internally) */}
@@ -368,20 +370,20 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
                                 {prob.operator === 'group' ? (
                                     // Grouping Equation: "3 grup x 4 nesne = 12"
                                     <>
-                                        <span>{prob.num1} grup</span>
+                                        <span><EditableText value={prob.num1} tag="span" /> grup</span>
                                         <span>x</span>
-                                        <span>{prob.num2}</span>
+                                        <span><EditableText value={prob.num2} tag="span" /></span>
                                         <span>=</span>
-                                        <div className="w-16 h-10 border-2 border-zinc-400 rounded bg-white"></div>
+                                        <div className="w-16 h-10 border-2 border-zinc-400 rounded bg-white text-center"><EditableText value="" tag="span" /></div>
                                     </>
                                 ) : (
                                     // Standard Equation
                                     <>
-                                        <span>{prob.num1}</span>
-                                        <span>{prob.operator}</span>
-                                        <span>{prob.num2}</span>
+                                        <span><EditableText value={prob.num1} tag="span" /></span>
+                                        <span><EditableText value={prob.operator} tag="span" /></span>
+                                        <span><EditableText value={prob.num2} tag="span" /></span>
                                         <span>=</span>
-                                        <div className="w-16 h-10 border-2 border-zinc-400 rounded bg-white"></div>
+                                        <div className="w-16 h-10 border-2 border-zinc-400 rounded bg-white text-center"><EditableText value="" tag="span" /></div>
                                     </>
                                 )}
                             </div>
@@ -422,7 +424,7 @@ export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) 
                             <CubeStack counts={data.cubeData} />
                             <div className="mt-6 flex items-center justify-center gap-4">
                                 <span className="font-bold text-lg">Toplam Küp Sayısı:</span>
-                                <div className="w-20 h-10 border-2 border-zinc-400 rounded bg-zinc-50"></div>
+                                <div className="w-20 h-10 border-2 border-zinc-400 rounded bg-zinc-50 text-center"><EditableText value="" tag="span" /></div>
                             </div>
                         </div>
                     )}
@@ -463,7 +465,7 @@ export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) 
                             </div>
                             <div className="mt-6 p-4 bg-indigo-50 rounded-xl border border-indigo-200 max-w-lg text-center">
                                 <span className="font-bold text-indigo-800">Yönergeler:</span>
-                                <p className="mt-2 text-lg leading-relaxed">{task.instruction}</p>
+                                <p className="mt-2 text-lg leading-relaxed"><EditableText value={task.instruction} tag="span" /></p>
                             </div>
                         </div>
                     )}
@@ -518,7 +520,7 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
                         {/* Left Side (Item 1) */}
                         <div className="flex-1 flex justify-center">
                             {visualComponent ? visualComponent : (
-                                <span className="text-3xl font-bold text-zinc-800 dark:text-zinc-200">{pair.item1}</span>
+                                <span className="text-3xl font-bold text-zinc-800 dark:text-zinc-200"><EditableText value={pair.item1} tag="span" /></span>
                             )}
                         </div>
                         
@@ -530,7 +532,7 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
                         {/* Right Side (Item 2 or Empty for user) */}
                         <div className="flex-1 flex justify-center">
                             <div className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 rounded border border-zinc-300 min-w-[80px] text-center">
-                                <span className="text-xl font-medium text-zinc-600 dark:text-zinc-400">{pair.item2}</span>
+                                <span className="text-xl font-medium text-zinc-600 dark:text-zinc-400"><EditableText value={pair.item2} tag="span" /></span>
                             </div>
                         </div>
                     </div>
@@ -570,9 +572,9 @@ export const EstimationSheet: React.FC<{ data: EstimationData }> = ({ data }) =>
                         <p className="text-center font-bold mb-4 text-zinc-500">Tahminin hangisi?</p>
                         <div className="flex justify-center gap-4">
                             {item.options.map((opt, i) => (
-                                <button key={i} className="w-16 h-16 rounded-full border-2 border-indigo-200 hover:bg-indigo-50 font-bold text-xl text-indigo-700 transition-colors">
-                                    {opt}
-                                </button>
+                                <div key={i} className="w-16 h-16 rounded-full border-2 border-indigo-200 hover:bg-indigo-50 font-bold text-xl text-indigo-700 transition-colors flex items-center justify-center cursor-pointer">
+                                    <EditableText value={opt} tag="span" />
+                                </div>
                             ))}
                         </div>
                     </div>

@@ -40,7 +40,7 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData }> = ({ data }) =>
                 <div className="w-full border-t border-dashed border-black pt-2 text-center">
                     <span className="text-xs font-bold uppercase mr-2">Şifre:</span>
                     <div className="inline-flex gap-1">
-                        {Array.from({length: data.hiddenMessage.length}).map((_,i) => <div key={i} className="w-6 h-6 border-b border-black"></div>)}
+                        {Array.from({length: data.hiddenMessage.length}).map((_,i) => <div key={i} className="w-6 h-6 border-b border-black text-center font-bold"><EditableText value="" tag="span" /></div>)}
                     </div>
                 </div>
             )}
@@ -55,7 +55,7 @@ export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
             {data.anagrams.map((item, i) => (
                 <EditableElement key={i} className="flex items-center justify-between border-b border-zinc-300 pb-2 break-inside-avoid">
                     <span className="font-mono text-lg tracking-widest font-bold uppercase"><EditableText value={item.scrambled} tag="span" /></span>
-                    <div className="w-24 h-6 border-b border-black"></div>
+                    <div className="w-24 h-6 border-b border-black text-center"><EditableText value="" tag="span" /></div>
                 </EditableElement>
             ))}
         </div>
@@ -74,8 +74,9 @@ export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => (
                         const c = i % data.grid.length;
                         const clueNum = data.clues.find(cl => cl.start.row === r && cl.start.col === c)?.id;
                         return (
-                            <div key={i} className={`aspect-square relative ${cell === null ? 'bg-black' : 'bg-white'}`}>
+                            <div key={i} className={`aspect-square relative flex items-center justify-center font-bold uppercase ${cell === null ? 'bg-black' : 'bg-white'}`}>
                                 {clueNum && <span className="absolute top-0 left-0 text-[6px] font-bold pl-0.5">{clueNum}</span>}
+                                {cell !== null && <EditableText value="" tag="span" />}
                             </div>
                         )
                     })}
@@ -85,13 +86,13 @@ export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => (
                 <div className="mb-4">
                     <h5 className="font-bold border-b border-black mb-1">Soldan Sağa</h5>
                     <ul className="space-y-1">
-                        {data.clues.filter(c => c.direction === 'across').map(c => <li key={c.id}><strong>{c.id}.</strong> {c.text}</li>)}
+                        {data.clues.filter(c => c.direction === 'across').map(c => <li key={c.id}><strong>{c.id}.</strong> <EditableText value={c.text} tag="span" /></li>)}
                     </ul>
                 </div>
                 <div>
                     <h5 className="font-bold border-b border-black mb-1">Yukarıdan Aşağıya</h5>
                     <ul className="space-y-1">
-                        {data.clues.filter(c => c.direction === 'down').map(c => <li key={c.id}><strong>{c.id}.</strong> {c.text}</li>)}
+                        {data.clues.filter(c => c.direction === 'down').map(c => <li key={c.id}><strong>{c.id}.</strong> <EditableText value={c.text} tag="span" /></li>)}
                     </ul>
                 </div>
             </div>
@@ -125,7 +126,7 @@ const SimpleWordList = ({ items, title }: any) => (
         <div className="grid grid-cols-2 gap-4">
             {items.map((item: any, i: number) => (
                 <EditableElement key={i} className="flex justify-between border-b border-zinc-200 pb-1">
-                    <span>{item.text || item.word}</span>
+                    <span><EditableText value={item.text || item.word} tag="span" /></span>
                     <div className="w-20 border-b border-black"></div>
                 </EditableElement>
             ))}
@@ -139,9 +140,9 @@ export const WordLadderSheet = ({ data }: { data: WordLadderData }) => (
         <div className="flex justify-center gap-8 mt-4">
             {data.ladders.map((l, i) => (
                 <div key={i} className="flex flex-col gap-2 items-center">
-                    <div className="font-bold border border-black px-2">{l.startWord}</div>
-                    {Array.from({length: l.steps}).map((_, k) => <div key={k} className="w-20 h-6 border-b border-black"></div>)}
-                    <div className="font-bold border border-black px-2">{l.endWord}</div>
+                    <div className="font-bold border border-black px-2"><EditableText value={l.startWord} tag="span" /></div>
+                    {Array.from({length: l.steps}).map((_, k) => <div key={k} className="w-20 h-6 border-b border-black text-center"><EditableText value="" tag="span" /></div>)}
+                    <div className="font-bold border border-black px-2"><EditableText value={l.endWord} tag="span" /></div>
                 </div>
             ))}
         </div>
@@ -155,9 +156,9 @@ export const LetterBridgeSheet = ({ data }: { data: LetterBridgeData }) => (
         <div className="grid grid-cols-2 gap-8 mt-4 font-mono text-lg">
             {data.pairs.map((p, i) => (
                 <div key={i} className="flex justify-center gap-1">
-                    <span>{p.word1}</span>
-                    <span className="w-6 border-b border-black inline-block"></span>
-                    <span>{p.word2}</span>
+                    <span><EditableText value={p.word1} tag="span" /></span>
+                    <span className="w-6 border-b border-black inline-block text-center font-bold"><EditableText value="" tag="span" /></span>
+                    <span><EditableText value={p.word2} tag="span" /></span>
                 </div>
             ))}
         </div>
@@ -170,8 +171,8 @@ export const ReverseWordSheet = ({ data }: { data: ReverseWordData }) => (
          <div className="grid grid-cols-3 gap-6 mt-4">
              {data.words.map((w, i) => (
                  <div key={i} className="flex flex-col items-center gap-2">
-                     <span className="font-mono text-lg">{w}</span>
-                     <div className="w-full h-6 border border-zinc-300 rounded"></div>
+                     <span className="font-mono text-lg"><EditableText value={w} tag="span" /></span>
+                     <div className="w-full h-6 border border-zinc-300 rounded text-center"><EditableText value="" tag="span" /></div>
                  </div>
              ))}
          </div>

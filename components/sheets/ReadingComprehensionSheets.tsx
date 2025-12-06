@@ -49,8 +49,8 @@ export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data })
             ].map((box, i) => (
                 <EditableElement key={i} className="bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-xl p-4 min-h-[140px] flex flex-col items-center text-center">
                     <div className="text-zinc-400 mb-2 text-xl"><i className={`fa-solid ${box.icon}`}></i></div>
-                    <h4 className="font-bold text-sm uppercase text-zinc-600 mb-1">{box.title}</h4>
-                    <p className="text-[10px] text-zinc-400 mb-4">({box.hint})</p>
+                    <h4 className="font-bold text-sm uppercase text-zinc-600 mb-1"><EditableText value={box.title} tag="span" /></h4>
+                    <p className="text-[10px] text-zinc-400 mb-4"><EditableText value={`(${box.hint})`} tag="span" /></p>
                     {/* Writing Lines */}
                     <div className="w-full space-y-3 mt-auto">
                         <div className="border-b border-zinc-300 w-full h-1"></div>
@@ -208,6 +208,7 @@ export const WordsInStorySheet: React.FC<{ data: WordsInStoryData }> = ({ data }
                         
                         <div className="bg-white p-4 rounded-xl border-2 border-dashed border-zinc-300 h-28 relative">
                             <span className="absolute top-2 left-2 text-[10px] text-zinc-400 font-bold uppercase">Senin Tahminin</span>
+                            <EditableText value="" tag="div" className="w-full h-full mt-4" placeholder="Buraya yaz..." />
                         </div>
                         
                         <div className="mt-4 flex justify-end">
@@ -237,7 +238,7 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
                 <span className="text-xs font-bold text-zinc-400 uppercase mb-1">HİKAYENİN</span>
                 <span className="text-xl font-black">ANA FİKRİ</span>
                 <div className="w-20 border-b border-zinc-500 mt-2 mb-2"></div>
-                <span className="text-[10px] text-zinc-400">(Buraya Yaz)</span>
+                <EditableText value="(Buraya Yaz)" tag="span" className="text-[10px] text-zinc-400" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-12 relative z-10 h-full">
@@ -260,7 +261,7 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
                             <i className={`fa-solid ${item.icon}`}></i>
                         </div>
                         <h4 className="text-center font-bold text-zinc-800 mb-3 mt-1 uppercase text-xs tracking-widest">{item.title}</h4>
-                        <div className="flex-1 border-b border-zinc-400/20 border-dashed mt-2"></div>
+                        <div className="flex-1 border-b border-zinc-400/20 border-dashed mt-2"><EditableText value="" tag="div" className="w-full h-full" placeholder="..." /></div>
                         <div className="flex-1 border-b border-zinc-400/20 border-dashed mt-4"></div>
                     </EditableElement>
                 ))}
@@ -296,6 +297,7 @@ export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }
                         {i < (data.storyWithBlanks.length - 1) && (
                             <span className="inline-block w-32 border-b-2 border-indigo-300 mx-2 bg-indigo-50/50 rounded px-2 text-center text-indigo-700 font-bold min-h-[1.5em] align-baseline transition-colors hover:bg-indigo-100">
                                 {/* Blank Space */}
+                                <EditableText value="" tag="span" />
                             </span>
                         )}
                     </React.Fragment>
@@ -312,7 +314,7 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
       {/* TRANSITION WORDS HELPER */}
       <EditableElement className="flex justify-center gap-4 mb-6 flex-wrap">
           {(data.transitionWords || []).map((word, i) => (
-              <span key={i} className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider bg-zinc-100 border border-zinc-200 px-3 py-1 rounded-full"><i className="fa-solid fa-link mr-1"></i> {word}</span>
+              <span key={i} className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider bg-zinc-100 border border-zinc-200 px-3 py-1 rounded-full"><i className="fa-solid fa-link mr-1"></i> <EditableText value={word} tag="span" /></span>
           ))}
       </EditableElement>
 
@@ -334,7 +336,7 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
                 />
                 
                 {/* Number Circle Placeholder */}
-                <div className="absolute bottom-2 right-2 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center border border-zinc-200 shadow-sm text-zinc-400 font-bold">?</div>
+                <div className="absolute bottom-2 right-2 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center border border-zinc-200 shadow-sm text-zinc-400 font-bold"><EditableText value="?" tag="span" /></div>
             </div>
             
             <div className="min-h-[4rem] flex items-center justify-center text-center px-2">
@@ -356,6 +358,8 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
             <React.Fragment key={index}>
                 <div className="w-16 h-16 md:w-20 md:h-20 border-2 border-zinc-300 bg-white rounded-xl flex items-center justify-center shadow-inner relative">
                     <span className="text-4xl font-black text-zinc-100 select-none absolute inset-0 flex items-center justify-center">{index + 1}</span>
+                    {/* Add editable space for answer */}
+                    <div className="absolute inset-0 flex items-center justify-center z-10 text-2xl font-bold"><EditableText value="" tag="span" /></div>
                 </div>
                 {index < ((data.panels || []).length - 1) && <i className="fa-solid fa-arrow-right text-zinc-300 text-xl"></i>}
             </React.Fragment>

@@ -24,7 +24,14 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
     const seed = useMemo(() => safeDesc.length > 0 ? safeDesc.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : Math.floor(Math.random() * 1000), [safeDesc]);
 
     return (
-        <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center`}>
+        <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center group`}>
+            {/* Editable Label Overlay if description provided */}
+            {safeDesc && (
+                <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-1 text-[8px] text-center opacity-0 group-hover:opacity-100 transition-opacity z-10 edit-handle">
+                    <EditableText value={safeDesc} tag="span" />
+                </div>
+            )}
+            
             {(() => {
                 if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
                     let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
@@ -54,7 +61,9 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
 
                 return (
                     <div className="flex flex-col items-center justify-center h-full w-full border border-dashed border-zinc-300 rounded">
-                        <span className="text-xl font-bold opacity-50 text-black">{safeDesc ? safeDesc.charAt(0).toUpperCase() : '?'}</span>
+                        <span className="text-xl font-bold opacity-50 text-black">
+                            <EditableText value={safeDesc ? safeDesc.charAt(0).toUpperCase() : '?'} tag="span" />
+                        </span>
                     </div>
                 );
             })()}
@@ -129,6 +138,7 @@ export const GridComponent = React.memo(({ grid, cellClassName = 'w-8 h-8', pass
                 <tr key={r}>
                     {row.map((cell, c) => (
                         <td key={c} className={`border border-black text-center ${cellClassName} p-0 m-0 leading-none`}>
+                            {/* Make every cell editable */}
                             <EditableText value={cell || ''} tag="span" />
                         </td>
                     ))}
@@ -166,20 +176,8 @@ export const CagedGridSvg = React.memo(({ size, cages, gridData }: { size: numbe
 
             {/* Cages */}
             {cages.map((cage, idx) => {
-                const pathInstructions: string[] = [];
-                cage.cells.forEach((cell: any) => {
-                    const x = cell.col * cellSize;
-                    const y = cell.row * cellSize;
-                    // Simplified cage logic - just draw bold text for target
-                    const sorted = [...cage.cells].sort((a: any,b: any) => (a.row - b.row) || (a.col - b.col));
-                    if (sorted[0] === cell) {
-                         // Only label
-                    }
-                });
-                // Drawing complex cage borders omitted for extreme minimalism, could add back if needed.
-                // Just relying on numbers and logic for now to save space, or use standard bold borders
-                
                 const first = cage.cells[0];
+                // Using text logic instead of complex drawing for editability
                 return <text key={idx} x={first.col * cellSize + 2} y={first.row * cellSize + 10} fontSize="8" fontWeight="bold">{cage.target}{cage.operation}</text>
             })}
         </svg>
