@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -271,6 +272,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 {data.map((sheetData, index) => (
                     <div 
                         key={index} 
+                        id={`worksheet-page-${index}`}
                         // If inside a workbook, we don't want this inner div to be the print target
                         className={`${disablePrintClass ? '' : 'worksheet-item'} bg-white transition-all duration-300 ease-in-out shadow-lg`}
                         style={pageStyle}
