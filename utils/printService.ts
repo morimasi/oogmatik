@@ -29,6 +29,7 @@ export const printService = {
             const clone = source.cloneNode(true) as HTMLElement;
             
             // a. Stil temizliği: Scale transform'u kaldır, genişliği otomatiğe al
+            // Bu kısım CSS ile de destekleniyor (@media print .worksheet-scaler) ancak JS ile de garantiye alıyoruz.
             const scaler = clone.querySelector('.worksheet-scaler') as HTMLElement;
             if (scaler) {
                 scaler.style.transform = 'none';
@@ -43,6 +44,15 @@ export const printService = {
             clone.style.width = '100%';
             clone.style.boxShadow = 'none';
             clone.style.border = 'none';
+            
+            // İç divlerdeki editör paddinglerini temizle (p-[10mm] vb.)
+            const innerDivs = clone.querySelectorAll('div');
+            innerDivs.forEach(div => {
+                // Tailwind p-[10mm] gibi sınıfları etkisiz hale getirmek için style override
+                if (div.className.includes('p-[')) {
+                    div.style.padding = '0';
+                }
+            });
 
             // b. Gereksiz UI elemanlarını temizle (Editör butonları vb.)
             const toRemove = clone.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, button');

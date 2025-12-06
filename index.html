@@ -151,31 +151,31 @@
     @media print {
         @page {
             size: A4 portrait;
-            margin: 0mm; /* Browser defaultlarını sıfırla, padding ile yöneteceğiz */
+            margin: 0mm; /* Browser kenar boşluklarını sıfırla */
         }
 
-        body * {
-            visibility: hidden;
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white !important;
         }
 
-        #printable-area, #printable-area * {
-            visibility: visible;
+        /* Tüm uygulama arayüzünü gizle */
+        body > *:not(#printable-area) {
+            display: none !important;
         }
 
+        /* Sadece yazdırma alanını göster */
         #printable-area {
+            display: block !important;
             position: absolute;
             left: 0;
             top: 0;
             width: 210mm;
             min-height: 297mm;
-            
-            /* SADECE 3MM KENAR BOŞLUĞU */
-            padding: 3mm;
-            
+            padding: 3mm; /* TEK GEÇERLİ BOŞLUK BURASI */
             background: white;
             box-sizing: border-box;
-            display: block;
-            
             color: black !important;
             font-family: 'OpenDyslexic', sans-serif !important;
         }
@@ -188,16 +188,27 @@
             border: none !important;
             background: transparent !important;
             margin: 0 !important;
-            padding: 0 !important; /* Dış padding'i kaldır, 3mm global geçerli */
+            padding: 0 !important; /* Kart içi boşluğu sıfırla */
             width: 100% !important;
             height: auto !important;
             break-after: page;
             page-break-after: always;
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
         }
 
-        /* Editörden gelen padding-[10mm] sınıfını ez */
-        [class*="p-[10mm]"] {
-            padding: 0 !important;
+        /* Editörden gelen padding-[10mm] sınıfını ez ve sıfırla */
+        .worksheet-item > div {
+            padding: 0 !important; 
+        }
+
+        /* Scaler (Zoom) sıfırlama */
+        .worksheet-scaler {
+            transform: none !important;
+            width: 100% !important;
+            height: auto !important;
+            zoom: 1 !important;
         }
 
         /* Gereksiz arka plan ve borderları temizle */
@@ -207,8 +218,8 @@
         
         /* İçerik arası boşlukları makul seviyeye çek */
         .gap-8 { gap: 1rem !important; }
-        .p-8 { padding: 1rem !important; }
-        .p-16 { padding: 1rem !important; }
+        .p-8 { padding: 0.5rem !important; }
+        .p-16 { padding: 0.5rem !important; }
 
         /* Bölünme Kuralları */
         .break-inside-avoid, .editable-element, table, img, svg {
@@ -217,7 +228,7 @@
         }
 
         /* UI Gizleme */
-        .edit-handle, .no-print, .shadow-lg, .shadow-xl, .shadow-2xl {
+        .edit-handle, .no-print, .shadow-lg, .shadow-xl, .shadow-2xl, .edit-grid-overlay, .edit-safety-guide {
             display: none !important;
             box-shadow: none !important;
         }
