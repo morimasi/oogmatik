@@ -128,9 +128,21 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         }
         
         setIsPrinting(true);
-        // Wait for UI update
         setTimeout(async () => {
             await printService.downloadAsPdf(settings.title || "Calisma_Kitapcigi");
+            setIsPrinting(false);
+        }, 200);
+    };
+
+    const handlePrint = async () => {
+        if (items.length === 0) {
+            alert("Kitapçık boş.");
+            return;
+        }
+        
+        setIsPrinting(true);
+        setTimeout(async () => {
+            await printService.printPdf(settings.title || "Calisma_Kitapcigi");
             setIsPrinting(false);
         }, 200);
     };
@@ -186,12 +198,20 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                     {viewMode === 'preview' && (
                         <>
                             <button 
+                                onClick={handlePrint}
+                                disabled={isPrinting || isSaving}
+                                className="px-4 py-2 bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-700 font-bold rounded-lg shadow-sm flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <i className="fa-solid fa-print"></i> Yazdır
+                            </button>
+
+                            <button 
                                 onClick={handleDownloadPdf}
                                 disabled={isPrinting || isSaving}
                                 className="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-lg shadow-sm flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
-                                <span>{isPrinting ? 'Hazırlanıyor...' : 'PDF İndir'}</span>
+                                <span>{isPrinting ? 'Hazırlanıyor...' : 'İndir'}</span>
                             </button>
 
                             <button 
