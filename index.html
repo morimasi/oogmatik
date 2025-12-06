@@ -161,8 +161,8 @@
             background-color: white !important;
             color: black !important;
             width: 100%;
-            height: auto;
-            overflow: visible !important; /* CRITICAL for blank pages */
+            height: auto !important; /* Allow growing */
+            overflow: visible !important; /* CRITICAL for preventing blank pages */
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
@@ -197,23 +197,19 @@
             background-color: transparent !important;
             box-shadow: none !important;
             text-shadow: none !important;
-        }
-
-        /* Re-enable borders but black */
-        [class*="border-"] {
-            border-color: #000 !important;
+            border-color: #000 !important; /* Ensure borders are visible */
         }
 
         /* Ensure SVGs and Images are visible */
         img, svg {
-            filter: grayscale(100%) !important;
+            filter: grayscale(100%) contrast(150%) !important;
             opacity: 1 !important;
             visibility: visible !important;
+            max-width: 100% !important;
         }
         svg * {
             stroke: #000 !important;
-            /* Don't force fill on all SVG parts, complex shapes need logic, 
-               but default text should be black */
+            fill: currentColor;
         }
         svg text {
             fill: #000 !important;
@@ -234,6 +230,7 @@
             top: auto !important;
             left: auto !important;
             display: block !important;
+            transform: none !important; /* Disable any scaling transforms */
         }
 
         /* Editörden gelen padding-[10mm] sınıfını ez ve sıfırla */
@@ -247,6 +244,7 @@
             width: 100% !important;
             height: auto !important;
             zoom: 1 !important;
+            overflow: visible !important;
         }
 
         /* Gereksiz arka plan ve borderları temizle */
@@ -269,6 +267,15 @@
         .edit-handle, .no-print, .shadow-lg, .shadow-xl, .shadow-2xl, .edit-grid-overlay, .edit-safety-guide {
             display: none !important;
             box-shadow: none !important;
+        }
+        
+        /* Input Visibility */
+        input, textarea, select {
+            border: 1px solid #000 !important;
+            color: #000 !important;
+            background: transparent !important;
+            -webkit-appearance: none;
+            appearance: none;
         }
     }
     </style>

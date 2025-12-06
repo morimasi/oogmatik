@@ -22,6 +22,14 @@ export const printService = {
         // 3. Yeni yazdırma alanını oluştur
         const printArea = document.createElement('div');
         printArea.id = 'printable-area';
+        // Ensure it doesn't interfere with main app flow but is visible to print
+        printArea.style.position = 'absolute';
+        printArea.style.top = '0';
+        printArea.style.left = '0';
+        printArea.style.width = '100%';
+        printArea.style.zIndex = '9999';
+        printArea.style.backgroundColor = 'white';
+        
         document.body.appendChild(printArea);
 
         // 4. İçerikleri Klonla ve İşle
@@ -29,14 +37,15 @@ export const printService = {
             const clone = source.cloneNode(true) as HTMLElement;
             
             // a. Stil temizliği: Scale transform'u kaldır, genişliği otomatiğe al
-            // Bu kısım CSS ile de destekleniyor (@media print .worksheet-scaler) ancak JS ile de garantiye alıyoruz.
             const scaler = clone.querySelector('.worksheet-scaler') as HTMLElement;
             if (scaler) {
                 scaler.style.transform = 'none';
                 scaler.style.width = '100%';
                 scaler.style.height = 'auto';
-                scaler.style.padding = '0'; // Remove extra padding from scaler if any
-                scaler.style.overflow = 'visible'; // Ensure no clipping
+                scaler.style.padding = '0';
+                scaler.style.overflow = 'visible'; 
+                // Force color black on scaler to cascade down
+                scaler.style.color = 'black';
             }
             
             // Remove huge paddings from wrapper
@@ -46,33 +55,58 @@ export const printService = {
             clone.style.boxShadow = 'none';
             clone.style.border = 'none';
             clone.style.overflow = 'visible';
+            clone.style.color = 'black'; // Force black text on root of clone
             
             // İç divlerdeki editör paddinglerini temizle (p-[10mm] vb.)
             const innerDivs = clone.querySelectorAll('div');
             innerDivs.forEach(div => {
-                // Tailwind p-[10mm] gibi sınıfları etkisiz hale getirmek için style override
                 if (div.className.includes('p-[')) {
                     div.style.padding = '0';
                 }
             });
 
-            // b. Gereksiz UI elemanlarını temizle (Editör butonları vb.)
+            // b. Gereksiz UI elemanlarını temizle
             const toRemove = clone.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, button');
             toRemove.forEach(el => el.remove());
 
             // c. Form elemanlarının değerlerini senkronize et
             const originalInputs = source.querySelectorAll('input, textarea, select');
             const clonedInputs = clone.querySelectorAll('input, textarea, select');
+            
             originalInputs.forEach((inp, i) => {
                 if (clonedInputs[i]) {
-                    const val = (inp as HTMLInputElement).value;
-                    if ((inp as HTMLInputElement).type === 'checkbox' || (inp as HTMLInputElement).type === 'radio') {
-                        if ((inp as HTMLInputElement).checked) {
-                            (clonedInputs[i] as HTMLInputElement).setAttribute('checked', 'checked');
+                    const inputEl = inp as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+                    const clonedEl = clonedInputs[i] as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+                    
+                    // Force input styling for print visibility
+                    clonedEl.style.color = 'black';
+                    clonedEl.style.borderColor = 'black';
+                    clonedEl.style.backgroundColor = 'transparent';
+
+                    if (inputEl.type === 'checkbox' || inputEl.type === 'radio') {
+                        if ((inputEl as HTMLInputElement).checked) {
+                            clonedEl.setAttribute('checked', 'checked');
+                            (clonedEl as HTMLInputElement).checked = true;
                         }
+                    } else if (inputEl.tagName === 'SELECT') {
+                        // For select, we often want to print just the selected text, 
+                        // but sticking to input sync:
+                        clonedEl.setAttribute('value', inputEl.value);
+                        (clonedEl as HTMLSelectElement).value = inputEl.value;
+                        
+                        // Set selected attribute on the correct option
+                        const options = clonedEl.querySelectorAll('option');
+                        options.forEach(opt => {
+                            if(opt.value === inputEl.value) opt.setAttribute('selected', 'selected');
+                        });
                     } else {
-                        (clonedInputs[i] as HTMLInputElement).setAttribute('value', val);
-                        if (inp.tagName === 'TEXTAREA') clonedInputs[i].textContent = val;
+                        // Text, Number, Textarea
+                        clonedEl.setAttribute('value', inputEl.value);
+                        clonedEl.value = inputEl.value;
+                        if (inputEl.tagName === 'TEXTAREA') {
+                            clonedEl.textContent = inputEl.value;
+                            clonedEl.innerHTML = inputEl.value; // For good measure
+                        }
                     }
                 }
             });
@@ -82,10 +116,12 @@ export const printService = {
         });
 
         // 5. Yazdırma İşlemini Başlat
+        // Small timeout to allow DOM to settle and images to be ready
         setTimeout(() => {
             window.print();
-            // Temizlik opsiyonel, debug için comment out yapılabilir
-            // setTimeout(() => { if(printArea) printArea.remove(); }, 1000);
+            
+            // Optional: Remove after print dialog closes (or user cancels)
+            // setTimeout(() => { if(printArea) printArea.remove(); }, 2000);
         }, 500);
     }
 };
