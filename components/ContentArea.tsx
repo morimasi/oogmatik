@@ -264,15 +264,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         }
     };
 
-    const handleDownloadPDF = () => {
-        const originalTitle = document.title;
-        const activityName = activityType ? activityType.replace(/_/g, ' ').toLowerCase() : 'etkinlik';
-        const studentSuffix = studentProfile?.name ? `_${studentProfile.name.replace(/ /g, '_')}` : '';
-        document.title = `BursaDisleksi_${activityName}${studentSuffix}_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}`;
-        window.print();
-        document.title = originalTitle;
-    };
-
     const handleAddToWorkbookFromReport = (assessment: SavedAssessment) => {
         const newItem: CollectionItem = {
             id: crypto.randomUUID(),
@@ -306,7 +297,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       
       {/* 1. TOP BAR (Toolbar & Breadcrumbs) - Fixed Height */}
       {/* Zen Mode active hides breadcrumbs for focus */}
-      <div className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 print:hidden z-20 shadow-sm relative transition-all duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 absolute top-0 left-0 right-0' : ''}`}>
+      <div className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-20 shadow-sm relative transition-all duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 absolute top-0 left-0 right-0' : ''}`}>
           {!zenMode && (
               <nav className="mb-4 flex items-center text-sm text-[var(--text-secondary)]" aria-label="Breadcrumb">
                 <ol className="flex items-center space-x-2">
@@ -333,7 +324,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     onSave={handleSave} 
                     onFeedback={onFeedback}
                     onShare={handleShare}
-                    onDownloadPDF={handleDownloadPDF}
                     onTogglePreview={toggleZenMode}
                     isPreviewMode={zenMode}
                     onAddToWorkbook={onAddToWorkbook}
@@ -348,7 +338,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {/* 2. MAIN CONTENT AREA (Canvas) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
+        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -376,7 +366,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
           {/* Zoom Controls Overlay */}
           {currentView === 'generator' && worksheetData && !zenMode && (
-              <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-700 p-1.5 print:hidden">
+              <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-700 p-1.5">
                   <button onClick={() => setViewZoom(z => Math.max(0.2, z - 0.1))} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-minus"></i></button>
                   <span className="text-xs font-mono font-bold w-12 text-center text-zinc-700 dark:text-zinc-200">{Math.round(viewZoom * 100)}%</span>
                   <button onClick={() => setViewZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-plus"></i></button>
@@ -389,7 +379,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 {error && !error.startsWith("Bilgi:") && (
                     <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 pointer-events-none">
                         <div className="bg-[var(--bg-paper)] border-2 border-red-500/30 rounded-2xl shadow-xl overflow-hidden pointer-events-auto">
-                            <div className="bg-red-500 p-4 flex justify-center">
+                            <div className="bg-red-50 p-4 flex justify-center">
                                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                                     <i className="fa-solid fa-circle-exclamation text-3xl text-white"></i>
                                 </div>

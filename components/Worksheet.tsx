@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -264,46 +265,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     letter-spacing: var(--worksheet-letter-spacing);
                     text-align: var(--content-align);
                 }
-
-                @media print {
-                    @page { 
-                        size: ${settings.orientation}; 
-                        margin: 0mm; 
-                    }
-                    body, html {
-                        background: white !important;
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                    }
-                    
-                    .worksheet-item {
-                        break-after: page !important;
-                        page-break-after: always !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        box-shadow: none !important;
-                        border: none !important; 
-                        overflow: visible !important; 
-                        height: auto !important; 
-                        display: block !important;
-                    }
-                    
-                    /* The class that enforces the 3mm margin + setting margin */
-                    .print-safety-margin {
-                        padding: calc(3mm + var(--worksheet-margin)) !important;
-                        width: 100% !important;
-                        box-sizing: border-box !important;
-                    }
-                    
-                    .no-print { display: none !important; }
-                    
-                    /* Clean aesthetics for print */
-                    .editable-element {
-                         border: 1px solid #e5e7eb !important; /* Thin gray border instead of heavy */
-                         box-shadow: none !important;
-                         background: white !important;
-                    }
-                }
             `}</style>
 
             <div className="flex flex-col gap-8 w-full items-center">
@@ -314,7 +275,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         className="worksheet-item bg-white transition-all duration-300 ease-in-out shadow-lg"
                         style={pageStyle}
                     >
-                        {/* Visual Guide for Edit Mode (Renamed from print-safety-margin) */}
+                        {/* Visual Guide for Edit Mode */}
                         {isEditMode && (
                             <>
                                 <div className="absolute inset-0 edit-grid-overlay z-0"></div>
@@ -325,8 +286,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             </>
                         )}
 
-                        {/* Content Wrapper applying the mandatory print margin */}
-                        <div className="print-safety-margin w-full h-full p-[10mm]">
+                        {/* Content Wrapper applying margin */}
+                        <div className="w-full h-full p-[10mm]">
                             <div 
                                 className="worksheet-scaler worksheet-content relative z-10"
                                 style={{
@@ -335,8 +296,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     width: `calc(100% / ${settings.scale})`,
                                 }}
                             >
-                                {/* Minimalist Student Header - Added print-student-info class */}
-                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end print:flex print-student-info" style={{ display: 'var(--display-student-info)' }}>
+                                {/* Minimalist Student Header */}
+                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end" style={{ display: 'var(--display-student-info)' }}>
                                     <div className="flex gap-8 text-sm">
                                         <div className="flex gap-2 items-baseline">
                                             <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
@@ -359,7 +320,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             </div>
                             
                             <div 
-                                className="absolute bottom-2 left-0 w-full px-8 flex justify-between items-center text-[8px] text-zinc-400 print:text-black pointer-events-none print-page-footer"
+                                className="absolute bottom-2 left-0 w-full px-8 flex justify-between items-center text-[8px] text-zinc-400 pointer-events-none"
                                 style={{ display: 'var(--display-footer)' }}
                             >
                                 <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>

@@ -102,13 +102,6 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         setDraggedItemIndex(null);
     }, []);
 
-    const handlePrint = () => {
-        const originalTitle = document.title;
-        document.title = settings.title.replace(/ /g, '_') || 'Kitapcik';
-        window.print();
-        document.title = originalTitle;
-    };
-
     const handleSave = async () => {
         if (!user) {
             alert("Kaydetmek için lütfen giriş yapın.");
@@ -145,7 +138,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     return (
         <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
             {/* Top Toolbar */}
-            <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 shadow-sm shrink-0 print:hidden">
+            <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 shadow-sm shrink-0">
                 <div className="flex items-center gap-4">
                     <button onClick={onBack} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center gap-2 text-sm font-bold">
                         <i className="fa-solid fa-arrow-left"></i> Geri
@@ -186,9 +179,6 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                             >
                                 {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>} 
                                 Kaydet
-                            </button>
-                            <button onClick={handlePrint} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95">
-                                <i className="fa-solid fa-print"></i> Yazdır
                             </button>
                         </>
                     )}

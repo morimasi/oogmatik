@@ -20,7 +20,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
     const Watermark = () => {
         if (!settings.showWatermark) return null;
         return (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden print:z-0">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
                 <div 
                     className="transform -rotate-45 w-[70%] grayscale" 
                     style={{ opacity: settings.watermarkOpacity || 0.05 }}
@@ -38,7 +38,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
     const PageFooter = ({ pageNum }: { pageNum: number }) => {
         if (!settings.showPageNumbers) return null;
         return (
-            <div className="absolute bottom-6 left-0 w-full px-12 flex justify-between items-end text-[10px] text-zinc-400 font-mono print:text-black print:opacity-50">
+            <div className="absolute bottom-6 left-0 w-full px-12 flex justify-between items-end text-[10px] text-zinc-400 font-mono">
                 <span>{settings.schoolName || 'Bursa Disleksi AI'}</span>
                 <div className="flex items-center gap-2">
                     <span className="font-bold text-sm bg-zinc-100 px-2 py-1 rounded">{pageNum}</span>
@@ -59,7 +59,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         // --- MODERN THEME (Clean, Left-Aligned) ---
         if (settings.theme === 'modern') {
             return (
-                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-white overflow-hidden" 
+                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl mb-8 bg-white overflow-hidden" 
                      style={{ width: '210mm', minHeight: '297mm', margin: '0 auto', borderLeft: `20mm solid ${accent}` }}>
                     
                     <div className="p-16 flex flex-col h-full justify-between">
@@ -98,7 +98,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         // --- ACADEMIC THEME (Serif, Classic) ---
         if (settings.theme === 'academic') {
             return (
-                <div className="worksheet-page relative flex flex-col p-16 shadow-2xl print:shadow-none mb-8 break-after-page bg-white" 
+                <div className="worksheet-page relative flex flex-col p-16 shadow-2xl mb-8 bg-white" 
                      style={{ width: '210mm', minHeight: '297mm', margin: '0 auto', border: `2px solid ${accent}` }}>
                     
                     <div className="border-b-4 pb-8 mb-12 text-center" style={{ borderColor: accent }}>
@@ -123,7 +123,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         // --- SPACE THEME (Dark, Stars, Future) ---
         if (settings.theme === 'space') {
             return (
-                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-[#0B0D17] text-white overflow-hidden" 
+                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl mb-8 bg-[#0B0D17] text-white overflow-hidden" 
                      style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
                     
                     {/* Stars Background */}
@@ -165,7 +165,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         // --- NATURE THEME (Organic, Peaceful) ---
         if (settings.theme === 'nature') {
             return (
-                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-[#F0FDF4] overflow-hidden" 
+                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl mb-8 bg-[#F0FDF4] overflow-hidden" 
                      style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
                     
                     {/* SVG Hills */}
@@ -200,7 +200,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         // --- GEOMETRIC THEME (Publisher Style) ---
         if (settings.theme === 'geometric') {
             return (
-                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-white overflow-hidden" 
+                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl mb-8 bg-white overflow-hidden" 
                      style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
                     
                     {/* Geometric Shapes */}
@@ -232,7 +232,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         // --- ARTISTIC THEME (Fallback / Abstract) ---
         if (settings.theme === 'artistic') {
             return (
-                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl print:shadow-none mb-8 break-after-page bg-zinc-900 text-white" 
+                <div className="worksheet-page relative flex flex-col p-0 shadow-2xl mb-8 bg-zinc-900 text-white" 
                      style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
                     
                     {/* Abstract Shapes */}
@@ -258,7 +258,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
 
         // --- MINIMAL THEME (Default Fallback) ---
         return (
-            <div className="worksheet-page relative flex flex-col justify-center items-center p-16 shadow-2xl print:shadow-none mb-8 break-after-page bg-white" 
+            <div className="worksheet-page relative flex flex-col justify-center items-center p-16 shadow-2xl mb-8 bg-white" 
                  style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
                 
                 <div className="mb-20 scale-125">{logoComponent}</div>
@@ -284,7 +284,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         const textColor = isDark ? '#ffffff' : '#000000';
 
         return (
-            <div className="worksheet-page relative flex flex-col items-center justify-center p-16 shadow-2xl print:shadow-none mb-8 break-before-page bg-white" 
+            <div className="worksheet-page relative flex flex-col items-center justify-center p-16 shadow-2xl mb-8 bg-white" 
                  style={{ width: '210mm', minHeight: '297mm', margin: '0 auto', backgroundColor: bgColor, color: textColor }}>
                 
                 {/* Decorative Center */}
@@ -317,7 +317,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
         if (!settings.showTOC || items.length === 0) return null;
         
         return (
-            <div className="worksheet-page relative p-16 shadow-2xl print:shadow-none mb-8 break-after-page bg-white"
+            <div className="worksheet-page relative p-16 shadow-2xl mb-8 bg-white"
                  style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
                 
                 <div className="text-center mb-12 pb-6 border-b-4" style={{ borderColor: accent }}>
@@ -422,17 +422,9 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
     const contentStartPage = settings.showTOC ? 3 : 2;
 
     return (
-        <div className="workbook-container w-full flex flex-col items-center gap-8 print:gap-0 print:block bg-zinc-100 dark:bg-zinc-900 py-8 print:py-0 print:bg-white">
+        <div className="workbook-container w-full flex flex-col items-center gap-8 bg-zinc-100 dark:bg-zinc-900 py-8">
             <style>{`
-                @media print {
-                    @page { margin: 0; size: A4; }
-                    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    .break-after-page { break-after: page; page-break-after: always; }
-                    .break-before-page { break-before: page; page-break-before: always; }
-                    .workbook-container { display: block; padding: 0; background: white; }
-                    /* Force background colors for cover themes */
-                    .worksheet-page { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                }
+                /* Removed @media print blocks as printing is disabled */
             `}</style>
 
             {/* 1. Cover Page */}
@@ -443,8 +435,8 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
 
             {/* 3. Content Pages */}
             {items.map((item, index) => (
-                <div key={item.id} className="relative break-after-page print:break-after-page mb-8 print:mb-0 w-full flex justify-center">
-                    <div className="relative bg-white shadow-2xl print:shadow-none" style={{ width: '210mm', minHeight: '297mm' }}>
+                <div key={item.id} className="relative mb-8 w-full flex justify-center">
+                    <div className="relative bg-white shadow-2xl" style={{ width: '210mm', minHeight: '297mm' }}>
                         <Watermark />
                         
                         {/* Worksheet / Report Wrapper */}

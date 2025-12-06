@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
-import { PrintSettingsModal } from './PrintSettingsModal';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -9,7 +8,6 @@ interface ToolbarProps {
   onSave: () => void;
   onFeedback?: () => void;
   onShare?: () => void;
-  onDownloadPDF?: () => void;
   onTogglePreview: () => void;
   isPreviewMode: boolean;
   onAddToWorkbook?: () => void;
@@ -26,7 +24,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onSave, 
     onFeedback, 
     onShare, 
-    onDownloadPDF, 
     onTogglePreview, 
     isPreviewMode,
     onAddToWorkbook,
@@ -37,7 +34,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onSnapshot
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type' | 'theme'>('none');
-  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
       <div className="flex items-center gap-1.5 group" title={title}>
@@ -66,7 +62,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   );
 
   return (
-    <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 print:hidden transition-all duration-300 relative">
+    <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 transition-all duration-300 relative">
         
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
              {/* Orientation Toggle */}
@@ -326,18 +322,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 <i className="fa-solid fa-share-nodes"></i>
                 <span className="hidden sm:inline">Paylaş</span>
             </button>
-            
-            <button onClick={() => setIsPrintModalOpen(true)} className="ml-1 bg-zinc-700 hover:bg-zinc-600 text-white text-[10px] font-bold py-1.5 px-2.5 rounded shadow-sm transition-colors flex items-center gap-1.5">
-                <i className="fa-solid fa-print"></i> <span>Yazdır</span>
-            </button>
         </div>
         
         {/* Click outside listener to close menus */}
         {activeMenu !== 'none' && (
             <div className="fixed inset-0 z-40" onClick={() => setActiveMenu('none')}></div>
         )}
-
-        <PrintSettingsModal isOpen={isPrintModalOpen} onClose={() => setIsPrintModalOpen(false)} defaultTitle="Çalışma Kağıdı" />
     </div>
   );
 };
