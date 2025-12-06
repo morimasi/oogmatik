@@ -13,24 +13,12 @@ export default defineConfig({
     'process.env.FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID),
     'process.env.FIREBASE_APP_ID': JSON.stringify(process.env.FIREBASE_APP_ID),
   },
-  resolve: {
-    alias: {
-      // Prevent Vite from trying to resolve these node_modules during build since they are in importmap
-      'jspdf': '/src/shims/jspdf.js', 
-      'html2canvas': '/src/shims/html2canvas.js'
-    }
-  },
   build: {
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
-        external: ['jspdf', 'html2canvas'],
         output: {
             manualChunks: {
                 vendor: ['react', 'react-dom', 'firebase/app', 'firebase/auth', 'firebase/firestore']
-            },
-            paths: {
-                jspdf: 'https://aistudiocdn.com/jspdf@^3.0.4',
-                html2canvas: 'https://aistudiocdn.com/html2canvas@^1.4.1'
             }
         }
     }
