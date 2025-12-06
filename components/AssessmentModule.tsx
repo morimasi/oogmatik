@@ -1,6 +1,4 @@
 
-
-
 import React, { useState } from 'react';
 import { AssessmentProfile, SavedAssessment, ActivityType, TestCategory } from '../types';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
@@ -57,7 +55,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
     // --- ADVANCED DYNAMIC TEST GENERATOR ENGINE (MULTIPLE INTELLIGENCES) ---
     const prepareTests = () => {
-        const gradeNum = parseInt(profile.grade.split('.')[0]);
+        const gradeNum = parseInt(profile.grade.split('.')[0]) || 1;
         const battery = [];
 
         // 1. LINGUISTIC (Sözel-Dilsel)
@@ -69,14 +67,23 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         // 3. VISUAL-SPATIAL (Görsel-Uzamsal)
         battery.push(generateVisualTest(gradeNum));
 
-        // 4. ATTENTION & MEMORY (Standard Cognitive)
-        battery.push(generateAttentionTest(gradeNum));
-
-        // 5. NATURALISTIC (Doğacı - Sınıflandırma)
+        // 4. KINESTHETIC (Bedensel)
+        battery.push(generateKinestheticTest(gradeNum));
+        
+        // 5. MUSICAL (Müziksel)
+        battery.push(generateMusicalTest(gradeNum));
+        
+        // 6. NATURALISTIC (Doğacı)
         battery.push(generateNaturalisticTest(gradeNum));
         
-        // 6. MUSICAL-RHYTHMIC (Müziksel - Ritim/Kafiye)
-        battery.push(generateMusicalTest(gradeNum));
+        // 7. INTERPERSONAL (Sosyal)
+        battery.push(generateInterpersonalTest(gradeNum));
+        
+        // 8. INTRAPERSONAL (İçsel)
+        battery.push(generateIntrapersonalTest(gradeNum));
+        
+        // 9. ATTENTION (Dikkat)
+        battery.push(generateAttentionTest(gradeNum));
 
         setTestBattery(battery);
     };
@@ -163,7 +170,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 type: 'multiple-choice',
                 text: "Zihinsel Döndürme: 'L' şeklini saat yönünde bir kez çevirirsen nasıl görünür?",
                 options: ["L", "Γ", "⅃", "LUT"], // Symbol approximations
-                correct: "Γ" // Not exact but illustrative logic
+                correct: "Γ" 
             });
             questions.push({
                 type: 'multiple-choice',
@@ -174,6 +181,26 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         }
         return { id: 'spatial', name: 'Görsel-Uzamsal Zeka', questions };
     };
+
+    const generateKinestheticTest = (grade: number) => {
+        const questions = [];
+        if (grade <= 3) {
+             questions.push({
+                type: 'multiple-choice',
+                text: "Sağ elini havaya kaldırdın. Aynaya bakarsan hangi elin havada görünür?",
+                options: ["Sol el", "Sağ el", "İkisi de", "Hiçbiri"],
+                correct: "Sol el"
+            });
+        } else {
+             questions.push({
+                type: 'multiple-choice',
+                text: "Ayakkabı bağlarken yapılan hareketlerin doğru sırası hangisidir?",
+                options: ["Düğüm at -> Fiyonk yap -> Sıkıştır", "Sıkıştır -> Düğüm at -> Fiyonk yap", "Fiyonk yap -> Düğüm at"],
+                correct: "Düğüm at -> Fiyonk yap -> Sıkıştır"
+            });
+        }
+        return { id: 'kinesthetic', name: 'Bedensel-Kinestetik Zeka', questions };
+    }
 
     const generateNaturalisticTest = (grade: number) => {
         const questions = [];
@@ -210,6 +237,28 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         });
         return { id: 'musical', name: 'Müziksel-Ritmik Zeka', questions };
     };
+
+    const generateInterpersonalTest = (grade: number) => {
+        const questions = [];
+        questions.push({
+            type: 'multiple-choice',
+            text: "Arkadaşın oyuncağını kaybetti ve ağlıyor. Ne yaparsın?",
+            options: ["Onunla dalga geçerim", "Bulmasına yardım ederim", "Görmezden gelirim", "Öğretmene şikayet ederim"],
+            correct: "Bulmasına yardım ederim"
+        });
+        return { id: 'interpersonal', name: 'Sosyal Zeka', questions };
+    }
+
+    const generateIntrapersonalTest = (grade: number) => {
+        const questions = [];
+        questions.push({
+            type: 'multiple-choice',
+            text: "Bir konuda başarısız olduğunda ne düşünürsün?",
+            options: ["Ben yeteneksizim", "Daha çok çalışmalıyım", "Herkes suçlu", "Şanssızım"],
+            correct: "Daha çok çalışmalıyım"
+        });
+        return { id: 'intrapersonal', name: 'İçsel Zeka', questions };
+    }
 
     const generateAttentionTest = (grade: number) => {
         const isHard = grade > 3;
@@ -273,7 +322,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             compiledResults[test.id] = {
                 id: test.id,
                 name: test.name,
-                score: correctCount * 10, // Scale appropriately
+                score: correctCount * 10, // Scale appropriately based on question count
                 total: test.questions.length * 10,
                 accuracy: test.questions.length > 0 ? (correctCount / test.questions.length) * 100 : 0,
                 duration: 0,
@@ -317,7 +366,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-zinc-800 rounded-2xl shadow-xl mt-8 border border-zinc-200 dark:border-zinc-700">
                 <div className="flex items-center gap-3 mb-6 border-b pb-4 border-zinc-200 dark:border-zinc-700">
                     <button onClick={onBack} className="text-zinc-400 hover:text-zinc-600"><i className="fa-solid fa-arrow-left"></i></button>
-                    <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Öğrenci Tanılama Profili</h2>
+                    <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Çoklu Zeka Değerlendirme Profili</h2>
                 </div>
                 
                 <form onSubmit={handleProfileSubmit} className="space-y-6">
@@ -389,7 +438,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     </div>
                     <h2 className="text-2xl font-black text-zinc-800 mb-2">Hazır mısın {profile.studentName.split(' ')[0]}?</h2>
                     <p className="text-zinc-500 mb-8">
-                        Senin için <strong>{profile.grade}</strong> seviyesinde ve farklı zeka alanlarını ölçen özel sorular hazırladık. 
+                        Senin için <strong>{profile.grade}</strong> seviyesinde ve farklı zeka alanlarını (Howard Gardner) ölçen özel sorular hazırladık. 
                         Toplam {testBattery.length} bölümden oluşuyor.
                     </p>
                     <button onClick={() => setStep('testing')} className="px-8 py-3 bg-indigo-600 text-white rounded-full font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-300">

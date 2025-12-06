@@ -318,7 +318,8 @@ export type TestCategory =
     | 'kinesthetic'       // Bedensel-Kinestetik
     | 'naturalistic'      // Doğacı
     | 'interpersonal'     // Sosyal (Kişilerarası)
-    | 'intrapersonal';    // İçsel (Öze dönük)
+    | 'intrapersonal'     // İçsel (Öze dönük)
+    | 'attention';        // Dikkat (Genel)
 
 export interface TestResult {
     id: TestCategory;
