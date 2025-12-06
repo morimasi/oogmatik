@@ -336,8 +336,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     width: `calc(100% / ${settings.scale})`,
                                 }}
                             >
-                                {/* Minimalist Student Header */}
-                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end print:flex" style={{ display: 'var(--display-student-info)' }}>
+                                {/* Minimalist Student Header - Added print-student-info class */}
+                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end print:flex print-student-info" style={{ display: 'var(--display-student-info)' }}>
                                     <div className="flex gap-8 text-sm">
                                         <div className="flex gap-2 items-baseline">
                                             <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
@@ -360,7 +360,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             </div>
                             
                             <div 
-                                className="absolute bottom-2 left-0 w-full px-8 flex justify-between items-center text-[8px] text-zinc-400 print:text-black pointer-events-none"
+                                className="absolute bottom-2 left-0 w-full px-8 flex justify-between items-center text-[8px] text-zinc-400 print:text-black pointer-events-none print-page-footer"
                                 style={{ display: 'var(--display-footer)' }}
                             >
                                 <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>

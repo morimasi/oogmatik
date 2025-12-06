@@ -74,14 +74,14 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
 // Reduced Minimal Header
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => {
     return (
-        <div className="mb-4 w-full break-inside-avoid">
+        <div className="mb-4 w-full break-inside-avoid pedagogical-header">
             <div className="flex items-start justify-between gap-4 border-b-2 border-zinc-800 pb-2 mb-2">
                 <div className="flex-1">
-                    <EditableElement style={{ display: 'var(--display-title)' }}>
+                    <EditableElement className="print-header-title" style={{ display: 'var(--display-title)' }}>
                         <EditableText tag="h3" value={title} className="text-xl font-black text-black uppercase tracking-tight leading-none mb-1" />
                     </EditableElement>
                     
-                    <EditableElement style={{ display: 'var(--display-instruction)' }}>
+                    <EditableElement className="print-header-instruction" style={{ display: 'var(--display-instruction)' }}>
                         <EditableText tag="p" value={instruction} className="text-sm font-medium text-zinc-700 leading-tight" />
                     </EditableElement>
                 </div>

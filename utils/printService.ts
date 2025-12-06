@@ -5,6 +5,11 @@ export interface PrintSettings {
     title: string;
     studentName?: string;
     showStudentInfo: boolean;
+    showTitle: boolean;
+    showInstructions: boolean;
+    showWatermark: boolean;
+    showPageNumbers: boolean;
+    scale: number; // Percentage (e.g., 100)
     ecoMode: boolean; // Ink Saver
     includeAnswerKeyPlaceholder: boolean; // Adds a blank page for manual answers
     copies: number;
@@ -46,9 +51,14 @@ export const printService = {
             doc.write(style.outerHTML);
         });
 
-        // Add Print-Specific CSS (Iframe Isolation & Eco Mode)
-        // CRITICAL: Force display settings to override any potential hiding logic
-        // Also simulate Desktop Width (1024px) for better layout retention
+        // Calculate Scale Factor
+        // Base zoom for A4 fitting is approx 0.775 (794px / 1024px)
+        // We multiply this by the user's custom scale setting
+        const baseFitRatio = 0.775;
+        const userScaleRatio = settings.scale / 100;
+        const finalZoom = baseFitRatio * userScaleRatio;
+
+        // Add Print-Specific CSS
         doc.write(`
             <style>
                 @media print {
@@ -65,20 +75,18 @@ export const printService = {
                         width: 100%;
                     }
                     
-                    /* Page Break Control */
+                    /* Page Break Control & Scaling */
                     .print-page {
                         /* Force a desktop-like width for the container */
                         width: 1024px !important;
                         min-width: 1024px !important;
                         
-                        /* A4 Dimensions (scaled) */
-                        /* A4 width is approx 794px. 794 / 1024 = ~0.775 */
-                        /* We scale down the container to fit the paper */
-                        zoom: 0.775;
+                        /* Apply calculated zoom */
+                        zoom: ${finalZoom};
                         
                         page-break-after: always;
                         position: relative;
-                        overflow: visible; /* Allow overflow if needed but clip usually */
+                        overflow: visible; 
                         background: white;
                         margin: 0;
                         display: block;
@@ -100,11 +108,18 @@ export const printService = {
                         display: none !important;
                     }
 
+                    /* VISIBILITY TOGGLES */
+                    ${!settings.showStudentInfo ? '.print-student-info { display: none !important; }' : ''}
+                    ${!settings.showTitle ? '.print-header-title { display: none !important; }' : ''}
+                    ${!settings.showInstructions ? '.print-header-instruction { display: none !important; }' : ''}
+                    ${!settings.showWatermark ? '.print-watermark { display: none !important; }' : ''}
+                    ${!settings.showPageNumbers ? '.print-page-footer { display: none !important; }' : ''}
+
                     /* GRID & FLEX ENFORCEMENT */
                     .grid, .dynamic-grid { display: grid !important; }
                     .flex { display: flex !important; }
                     
-                    /* Force columns to stay side-by-side (Redundant with zoom but safe) */
+                    /* Force columns to stay side-by-side */
                     .grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
                     .grid-cols-3 { grid-template-columns: repeat(3, 1fr) !important; }
                     .grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
@@ -164,16 +179,6 @@ export const printService = {
             // Remove edit-mode overlays from clone
             const overlays = clone.querySelectorAll('.edit-grid-overlay, .print-safety-margin, .edit-handle');
             overlays.forEach(el => el.remove());
-
-            // Handle Student Info Visibility via Settings override
-            if (!settings.showStudentInfo) {
-                // Try to find the student info header specifically
-                const header = clone.querySelector('.border-b-2.border-zinc-800'); // Weak selector
-                const specificHeader = clone.querySelector('.worksheet-content > div.mb-4.pb-1.border-b'); // Stronger selector based on Worksheet.tsx
-                
-                if (specificHeader) (specificHeader as HTMLElement).style.display = 'none';
-                else if (header) (header as HTMLElement).style.display = 'none';
-            }
 
             // Wrap in print-page container to enforce desktop simulation logic
             const pageContainer = doc.createElement('div');
