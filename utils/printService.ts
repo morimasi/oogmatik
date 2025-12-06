@@ -32,6 +32,7 @@ export const printService = {
         const pages = document.querySelectorAll('.worksheet-item');
         if (pages.length === 0) {
             alert("Yazdırılacak içerik bulunamadı.");
+            document.body.removeChild(iframe);
             return;
         }
 
@@ -46,12 +47,13 @@ export const printService = {
         });
 
         // Add Print-Specific CSS (Iframe Isolation & Eco Mode)
+        // CRITICAL: Force display settings to override any potential hiding logic
         doc.write(`
             <style>
                 @media print {
                     @page { 
                         size: ${settings.orientation === 'landscape' ? 'landscape' : 'portrait'} A4; 
-                        margin: 0;
+                        margin: 0mm;
                     }
                     body { 
                         margin: 0; 
@@ -59,23 +61,54 @@ export const printService = {
                         background: white; 
                         -webkit-print-color-adjust: exact; 
                         print-color-adjust: exact;
+                        width: 100%;
                     }
+                    
+                    /* Page Break Control */
                     .print-page {
                         width: ${settings.orientation === 'landscape' ? '297mm' : '210mm'};
-                        height: ${settings.orientation === 'landscape' ? '210mm' : '297mm'}; /* Fixed height for page break */
+                        height: ${settings.orientation === 'landscape' ? '210mm' : '297mm'}; /* Strict A4 Height */
                         page-break-after: always;
                         position: relative;
-                        overflow: hidden;
+                        overflow: hidden; /* Clip overflow to keep strict A4 */
                         background: white;
                         margin: 0 auto;
+                        display: block;
                     }
                     .print-page:last-child {
                         page-break-after: auto;
                     }
                     
+                    /* Content Scaling Logic */
+                    .print-content-wrapper {
+                        width: 100%;
+                        height: 100%;
+                        /* Optional padding inside the A4 sheet */
+                        padding: 0; 
+                        box-sizing: border-box;
+                    }
+
                     /* HIDE UI ELEMENTS */
                     .edit-handle, .no-print, .edit-grid-overlay, .print-safety-margin, button {
                         display: none !important;
+                    }
+
+                    /* GRID & FLEX ENFORCEMENT */
+                    /* Ensure grids print as grids, not blocks */
+                    .grid, .dynamic-grid { 
+                        display: grid !important; 
+                    }
+                    .flex { display: flex !important; }
+                    
+                    /* Force columns to stay side-by-side */
+                    .grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
+                    .grid-cols-3 { grid-template-columns: repeat(3, 1fr) !important; }
+                    .grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
+                    
+                    /* Prevent breaking inside elements */
+                    .break-inside-avoid {
+                        break-inside: avoid !important;
+                        page-break-inside: avoid !important;
                     }
 
                     /* ECO MODE STYLES */
@@ -129,16 +162,24 @@ export const printService = {
             overlays.forEach(el => el.remove());
 
             // Handle Student Info Visibility via Settings override
-            // We find the header strip and toggle display
             if (!settings.showStudentInfo) {
-                const header = clone.querySelector('.border-b-2.border-zinc-800'); // Heuristic selector for student header
-                if (header) (header as HTMLElement).style.display = 'none';
+                // Try to find the student info header specifically
+                const header = clone.querySelector('.border-b-2.border-zinc-800'); // Weak selector
+                const specificHeader = clone.querySelector('.worksheet-content > div.mb-4.pb-1.border-b'); // Stronger selector based on Worksheet.tsx
+                
+                if (specificHeader) (specificHeader as HTMLElement).style.display = 'none';
+                else if (header) (header as HTMLElement).style.display = 'none';
             }
 
-            // Wrap in print-page container
+            // Wrap in print-page container to enforce A4 logic
             const pageContainer = doc.createElement('div');
             pageContainer.className = 'print-page';
-            pageContainer.appendChild(clone);
+            
+            const contentWrapper = doc.createElement('div');
+            contentWrapper.className = 'print-content-wrapper';
+            contentWrapper.appendChild(clone);
+            
+            pageContainer.appendChild(contentWrapper);
             
             // Inject into body
             doc.body.appendChild(pageContainer);
@@ -168,11 +209,11 @@ export const printService = {
             iframe.contentWindow?.focus();
             iframe.contentWindow?.print();
             
-            // Cleanup
-            // setTimeout(() => {
-            //    document.body.removeChild(iframe);
-            // }, 1000); 
-            // Keeping iframe briefly helps on some browsers, or remove immediately after print dialog closes
-        }, 500); // Wait for styles to load
+            // Cleanup after print dialog closes (or user cancels)
+            // Note: Detecting print dialog close is tricky cross-browser, but removing after a delay is safe enough
+            setTimeout(() => {
+               document.body.removeChild(iframe);
+            }, 5000); 
+        }, 800); // Wait slightly longer for styles and images to settle
     }
 };

@@ -18,8 +18,6 @@ interface ToolbarProps {
   onToggleEdit?: () => void;
   isEditMode?: boolean;
   onSnapshot?: () => void; 
-  onToggleDraw?: () => void;
-  isDrawMode?: boolean;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -36,9 +34,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onViewWorkbook,
     onToggleEdit,
     isEditMode,
-    onSnapshot,
-    onToggleDraw,
-    isDrawMode
+    onSnapshot
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'print' | 'type' | 'theme'>('none');
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
@@ -246,18 +242,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
       
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
-            {/* DRAW TOGGLE BUTTON */}
-            {onToggleDraw && (
-                <button 
-                    onClick={onToggleDraw}
-                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isDrawMode ? 'bg-purple-600 text-white border-purple-600 ring-2 ring-purple-200 animate-pulse' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
-                    title={isDrawMode ? "Çizim Modundan Çık" : "Dijital Çizim Modu"}
-                >
-                    <i className="fa-solid fa-pencil"></i>
-                    <span className="hidden sm:inline">Çiz</span>
-                </button>
-            )}
-
             {/* EDIT TOGGLE BUTTON */}
             {onToggleEdit && (
                 <button 

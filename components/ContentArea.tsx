@@ -14,7 +14,6 @@ import { ShareModal } from './ShareModal';
 import { worksheetService } from '../services/worksheetService';
 import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
-import { DrawLayer } from './DrawLayer';
 // @ts-ignore
 import html2canvas from 'html2canvas';
 
@@ -40,7 +39,7 @@ interface ContentAreaProps {
   setWorkbookSettings: React.Dispatch<React.SetStateAction<WorkbookSettings>>;
   onAddToWorkbook: () => void;
   studentProfile?: StudentProfile | null;
-  // Zen Mode & Draw Mode
+  // Zen Mode
   zenMode: boolean;
   toggleZenMode: () => void;
 }
@@ -96,7 +95,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false); 
-    const [isDrawMode, setIsDrawMode] = useState(false);
     
     // --- INFINITE CANVAS STATE ---
     const [viewZoom, setViewZoom] = useState(1);
@@ -111,7 +109,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         setViewZoom(1);
         setPan({ x: 0, y: 50 });
         setIsEditMode(false);
-        setIsDrawMode(false);
     }, [activityType]);
 
     // Handle Mouse Wheel Zoom
@@ -128,12 +125,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     // --- PANNING LOGIC ---
     const handleMouseDown = (e: React.MouseEvent) => {
-        // Only allow dragging if clicking on the background (the container)
-        // or explicitly explicitly allow it anywhere not interactive
-        if (currentView !== 'generator' || !worksheetData || isDrawMode) return;
-        
-        // If in edit mode, check if we clicked an editable element first (managed by stopPropagation in EditableElement)
-        // However, if the click bubbles here, it means we clicked background or non-editable area
+        if (currentView !== 'generator' || !worksheetData) return;
         
         // Check if the target is an input or button to avoid blocking interaction
         const target = e.target as HTMLElement;
@@ -346,17 +338,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     isPreviewMode={zenMode}
                     onAddToWorkbook={onAddToWorkbook}
                     workbookItemCount={workbookItems.length}
-                    onToggleEdit={() => {
-                        setIsEditMode(!isEditMode);
-                        if (isDrawMode) setIsDrawMode(false); // Disable draw if edit
-                    }} 
+                    onToggleEdit={() => setIsEditMode(!isEditMode)} 
                     isEditMode={isEditMode} 
                     onSnapshot={handleTakeSnapshot} 
-                    onToggleDraw={() => {
-                        setIsDrawMode(!isDrawMode);
-                        if (isEditMode) setIsEditMode(false); // Disable edit if draw
-                    }}
-                    isDrawMode={isDrawMode}
                 />
           )}
       </div>
@@ -364,7 +348,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {/* 2. MAIN CONTENT AREA (Canvas) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode || isDrawMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
+        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 print:bg-white print:overflow-visible ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -387,11 +371,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           {isEditMode && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
                   <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
-              </div>
-          )}
-          {isDrawMode && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
-                  <i className="fa-solid fa-pencil"></i> Çizim Modu Aktif
               </div>
           )}
 
@@ -464,9 +443,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             position: 'relative'
                         }}
                     >
-                        {/* DRAWING LAYER OVERLAY */}
-                        <DrawLayer isActive={isDrawMode} zoom={viewZoom} />
-
                         <Worksheet 
                             activityType={activityType} 
                             data={worksheetData} 
