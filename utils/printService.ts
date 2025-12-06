@@ -1,4 +1,3 @@
-
 import { WorkbookSettings } from "../types";
 
 export interface PrintSettings {
@@ -72,23 +71,33 @@ export const printService = {
                         -webkit-print-color-adjust: exact !important; 
                         print-color-adjust: exact !important;
                         width: 100%;
+                        height: 100%;
                     }
                     
                     /* Page Break Control & Scaling */
                     .print-page {
-                        width: 1024px !important;
-                        min-width: 1024px !important;
-                        zoom: ${finalZoom};
+                        width: 100%;
+                        height: 100%;
                         page-break-after: always;
                         position: relative;
-                        overflow: visible !important; 
+                        overflow: hidden; 
                         background: white !important;
                         margin: 0;
-                        display: block;
+                        display: flex;
+                        justify-content: center; /* Center horizontally */
+                        align-items: flex-start; /* Align top */
                         color: black !important;
                     }
                     .print-page:last-child {
                         page-break-after: auto;
+                    }
+                    
+                    .print-scale-wrapper {
+                        width: 1024px !important; /* Fixed desktop reference width */
+                        transform: scale(${finalZoom});
+                        transform-origin: top center; /* Scale from center-top */
+                        box-sizing: border-box;
+                        flex-shrink: 0;
                     }
                     
                     .print-content-wrapper {
@@ -212,11 +221,15 @@ export const printService = {
             const pageContainer = doc.createElement('div');
             pageContainer.className = 'print-page';
             
+            const scaleWrapper = doc.createElement('div');
+            scaleWrapper.className = 'print-scale-wrapper';
+
             const contentWrapper = doc.createElement('div');
             contentWrapper.className = 'print-content-wrapper';
             contentWrapper.appendChild(clone);
             
-            pageContainer.appendChild(contentWrapper);
+            scaleWrapper.appendChild(contentWrapper);
+            pageContainer.appendChild(scaleWrapper);
             doc.body.appendChild(pageContainer);
         });
 
@@ -224,8 +237,10 @@ export const printService = {
         if (settings.includeAnswerKeyPlaceholder) {
             const answerPage = doc.createElement('div');
             answerPage.className = 'print-page';
+            // Simple center align for answer page
+            answerPage.style.alignItems = 'center';
             answerPage.innerHTML = `
-                <div style="padding: 20mm; height: 100%; display: flex; flex-direction: column;">
+                <div style="padding: 20mm; width: 100%; max-width: 800px; height: 100%; display: flex; flex-direction: column;">
                     <h1 style="font-size: 24px; font-weight: bold; text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">CEVAP ANAHTARI / NOTLAR</h1>
                     <div style="flex: 1; border: 2px dashed #ccc; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999;">
                         (Bu sayfa öğretmen notları için ayrılmıştır)

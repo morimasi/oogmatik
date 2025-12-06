@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
@@ -332,7 +331,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 className="worksheet-scaler worksheet-content relative z-10"
                                 style={{
                                     transform: `scale(${settings.scale})`,
-                                    transformOrigin: 'top left', 
+                                    transformOrigin: 'top center', // CENTERED SCALING
                                     width: `calc(100% / ${settings.scale})`,
                                 }}
                             >
