@@ -218,20 +218,15 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         const effectiveCols = Math.max(1, Math.round(userCols / scale));
 
         // 1. Cognitive Load Management (Density Control)
-        // Adjust font size based on original user columns to maintain readability/intent
-        // Note: We use userCols here because scale already physically shrinks the text.
-        // We don't want to double-shrink it.
         const densityFactor = Math.pow(userCols, 0.4); 
         const adjustedFontSize = Math.round(baseFontSize / densityFactor);
         
         // 2. Component Morphology (Row vs Column)
-        // Dyslexia-friendly: Avoid wide tracking. If multiple user columns, stack items vertically.
         const itemDirection = userCols > 2 ? 'column' : 'row';
         const itemGap = userCols > 2 ? '0.5rem' : '1rem';
         const itemPadding = userCols > 2 ? '0.5rem' : '1rem';
 
         // 3. Visual Noise Reduction
-        // If high density, simplify borders
         const visualComplexity = userCols > 3 ? 'low' : 'high';
         
         const gridTemplateColumns = `repeat(${effectiveCols}, minmax(0, 1fr))`;
@@ -241,7 +236,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             '--worksheet-border-color': settings.borderColor,
             '--worksheet-border-width': `${settings.borderWidth}px`,
             '--worksheet-margin': `${settings.margin}px`,
-            '--worksheet-gap': `${settings.gap}px`,
+            // Dynamically reduce gap when scaling down to keep it proportional visually
+            '--worksheet-gap': `${Math.max(8, settings.gap * scale)}px`, 
             '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
             '--worksheet-line-height': settings.lineHeight || 1.4,
             '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
@@ -305,7 +301,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     grid-template-columns: var(--grid-columns);
                     gap: var(--worksheet-gap);
                     width: 100%;
-                    align-items: stretch;
+                    align-items: start; /* Changed from stretch to avoid huge gaps */
                 }
                 
                 /* Adaptive Morphology */
@@ -362,16 +358,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             )}
 
                             <div 
-                                className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col"
+                                className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col justify-center"
                                 style={{
                                     transform: `scale(${scale})`,
                                     transformOrigin: 'top left',
                                     width: `${inversePercent}%`,
-                                    height: `${inversePercent}%`
+                                    // Height needs to be auto to flow naturally, but min-height 100% / scale to fill page
+                                    minHeight: `${inversePercent}%`, 
+                                    height: 'auto'
                                 }}
                                 data-complexity={settings.columns > 3 ? 'low' : 'high'}
                             >
-                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end shrink-0" style={{ display: 'var(--display-student-info)' }}>
+                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end shrink-0 w-full" style={{ display: 'var(--display-student-info)' }}>
                                     <div className="flex gap-8 text-sm text-black">
                                         <div className="flex gap-2 items-baseline">
                                             <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
@@ -388,9 +386,22 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     </div>
                                 </div>
 
-                                <EditableElement id="main-content" className="flex-1 overflow-visible">
-                                    <RenderSheet activityType={activityType} data={sheetData} />
+                                <EditableElement id="main-content" className="flex-1 w-full h-full flex flex-col">
+                                    {/* This wrapper ensures centering if content is short */}
+                                    <div className="flex-1 flex flex-col">
+                                        <RenderSheet activityType={activityType} data={sheetData} />
+                                    </div>
                                 </EditableElement>
+                                
+                                {/* Footer inside scaler to flow with content, or keep absolute? 
+                                    If we keep it flow-based (mt-auto), it will be pushed down by min-height. */}
+                                <div 
+                                    className="mt-auto w-full pt-8 px-4 flex justify-between items-center text-[10px] text-zinc-400 pointer-events-none"
+                                    style={{ display: 'var(--display-footer)' }}
+                                >
+                                    <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
+                                    <span className="font-mono">{index + 1} / {data.length}</span>
+                                </div>
                             </div>
                             
                             {(overlayItems || []).filter(item => item.pageIndex === index).map(item => (
@@ -411,14 +422,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     )}
                                 </EditableElement>
                             ))}
-                            
-                            <div 
-                                className="absolute bottom-4 left-0 w-full px-12 flex justify-between items-center text-[10px] text-zinc-400 pointer-events-none"
-                                style={{ display: 'var(--display-footer)' }}
-                            >
-                                <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
-                                <span className="font-mono">{index + 1} / {data.length}</span>
-                            </div>
                         </div>
                     </div>
                 </div>

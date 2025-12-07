@@ -237,18 +237,21 @@
             box-shadow: none !important;
             border: none !important;
             overflow: hidden !important;
-            /* Reset any screen scaling */
-            transform: none !important;
+            /* 
+               CRITICAL FIX: 
+               Do NOT reset transforms here. 
+               We want the scaler to maintain its transform (scale/zoom) 
+               so the Smart Reflow logic persists on paper.
+            */
             position: relative !important;
             background: white !important;
         }
 
-        /* Ensure content inside fits */
+        /* Ensure content inside fits but ALLOW TRANSFORM */
         .print-container .worksheet-scaler {
-            transform: none !important;
-            width: 100% !important;
-            height: 100% !important;
-            zoom: 1 !important;
+            /* Keep existing transforms applied by React */
+            width: auto !important; 
+            height: auto !important;
         }
 
         /* 
