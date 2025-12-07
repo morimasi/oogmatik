@@ -1,4 +1,3 @@
-
 import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment, OverlayItem, AssessmentReport } from '../types';
 import Worksheet from './Worksheet';
@@ -109,6 +108,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [scale, setScale] = useState(0.8); // Start slightly zoomed out to see full page
     const [position, setPosition] = useState({ x: 0, y: 50 }); // Initial padding
     const [isDragging, setIsDragging] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
     const lastMousePos = useRef({ x: 0, y: 0 });
     const canvasRef = useRef<HTMLDivElement>(null);
     
@@ -133,17 +133,51 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const centerCanvas = useCallback(() => {
         if (canvasRef.current) {
             const viewportW = canvasRef.current.clientWidth;
-            const viewportH = canvasRef.current.clientHeight;
             // A4 Width approx 794px at 96 DPI (210mm). 
             // We want to center it horizontally.
             // Initial scale 0.8 is usually good for desktop.
-            const initialScale = Math.min(0.9, (viewportW - 100) / 800); 
-            const centeredX = (viewportW - (800 * initialScale)) / 2;
+            const pageWidth = styleSettings.orientation === 'landscape' ? 1123 : 794;
+            const initialScale = Math.min(0.9, (viewportW - 100) / pageWidth); 
+            const centeredX = (viewportW - (pageWidth * initialScale)) / 2;
             
             setScale(initialScale);
             setPosition({ x: centeredX, y: 40 });
+            setCurrentPage(0);
         }
-    }, []);
+    }, [styleSettings.orientation]);
+
+    const scrollToPage = (index: number) => {
+        if (!canvasRef.current) return;
+        const viewportW = canvasRef.current.clientWidth;
+        
+        // A4 Dimensions (Approx 96 DPI)
+        // 210mm x 297mm | 1mm ~ 3.78px
+        const isLandscape = styleSettings.orientation === 'landscape';
+        const PAGE_WIDTH_MM = isLandscape ? 297 : 210;
+        const PAGE_HEIGHT_MM = isLandscape ? 210 : 297;
+        
+        const PX_PER_MM = 3.78;
+        const PAGE_WIDTH_PX = PAGE_WIDTH_MM * PX_PER_MM;
+        const PAGE_HEIGHT_PX = PAGE_HEIGHT_MM * PX_PER_MM;
+        
+        const VERTICAL_GAP = 64; // gap-16 (4rem)
+        const VERTICAL_PADDING = 64; // py-16 (4rem)
+        
+        // Calculate center target
+        // We want the top of the selected page to be at ~50px from top of viewport
+        const pageTopY = VERTICAL_PADDING + index * (PAGE_HEIGHT_PX + VERTICAL_GAP);
+        const targetViewportY = 50; 
+        
+        // formula: pageTopY * scale + translateY = targetViewportY
+        // translateY = targetViewportY - (pageTopY * scale)
+        const newY = targetViewportY - (pageTopY * scale);
+        
+        // Keep X centered
+        const newX = (viewportW - (PAGE_WIDTH_PX * scale)) / 2;
+
+        setPosition({ x: newX, y: newY });
+        setCurrentPage(index);
+    };
 
     // --- CANVAS INTERACTION HANDLERS ---
 
@@ -339,7 +373,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             content: 'Metin',
             x: 100, 
             y: 100,
-            pageIndex: 0 
+            pageIndex: currentPage 
         };
         setOverlayItems(prev => [...prev, newItem]);
         setIsEditMode(true); 
@@ -352,7 +386,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             content: url,
             x: 150,
             y: 150,
-            pageIndex: 0
+            pageIndex: currentPage
         };
         setOverlayItems(prev => [...prev, newItem]);
         setIsEditMode(true);
@@ -361,7 +395,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     // --- PHASE 4: TTS HANDLER ---
     const handleSpeak = () => {
         if (!worksheetData || worksheetData.length === 0) return;
-        const page = worksheetData[0]; 
+        const page = worksheetData[currentPage]; 
         const parts = [];
         if (page.title) parts.push(page.title);
         if (page.instruction) parts.push(page.instruction);
@@ -457,7 +491,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {/* 2. MAIN CANVAS AREA (Infinite Canvas) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-200 dark:bg-zinc-900 canvas-viewport ${zenMode ? 'bg-zinc-900' : ''}`}
+        className={`flex-1 relative overflow-hidden bg-zinc-200 dark:bg-zinc-900 canvas-viewport ${zenMode ? 'bg-zinc-900' : ''} group`}
         style={{ 
             cursor: isDragging ? 'grabbing' : (isEditMode ? 'default' : 'grab'),
             // Dot Pattern Background that scales with canvas
@@ -470,6 +504,28 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         onMouseMove={currentView === 'generator' && worksheetData ? handleMouseMove : undefined}
         onMouseUp={currentView === 'generator' && worksheetData ? handleMouseUp : undefined}
       >
+          {/* PAGE NAVIGATOR SIDEBAR (VISIBLE ON HOVER) */}
+          {worksheetData && worksheetData.length > 1 && (
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-50 transition-all duration-300 opacity-0 group-hover:opacity-100 -translate-x-full group-hover:translate-x-0">
+                  <div className="bg-white/80 dark:bg-black/50 backdrop-blur-md p-2 rounded-2xl shadow-xl border border-white/20 flex flex-col gap-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                      {worksheetData.map((_, i) => (
+                          <button
+                              key={i}
+                              onClick={(e) => { e.stopPropagation(); scrollToPage(i); }}
+                              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-all flex-shrink-0 ${
+                                  currentPage === i 
+                                  ? 'bg-indigo-600 text-white scale-110 ring-2 ring-indigo-300' 
+                                  : 'bg-white text-zinc-600 hover:bg-indigo-50 dark:bg-zinc-800 dark:text-zinc-300'
+                              }`}
+                              title={`${i+1}. Sayfa`}
+                          >
+                              {i+1}
+                          </button>
+                      ))}
+                  </div>
+              </div>
+          )}
+
           {/* Mode Overlay Info */}
           {isEditMode && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none sticky">
