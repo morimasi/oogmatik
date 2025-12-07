@@ -237,7 +237,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
         '--worksheet-line-height': settings.lineHeight || 1.4, 
         '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
-        '--dynamic-cols': settings.columns,
+        // SMART REFLOW: Dynamically calculate column count based on scale
+        // When scale decreases (e.g. 0.5), column count increases (e.g. 2x)
+        '--dynamic-cols': Math.max(1, Math.round(settings.columns / (settings.scale || 1))),
         '--content-align': settings.contentAlign || 'center',
         '--font-weight': settings.fontWeight || 'normal',
         '--font-style': settings.fontStyle || 'normal',
@@ -254,6 +256,12 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     if (!data || !activityType || data.length === 0) return null;
 
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
+    const scale = settings.scale || 1;
+    // SMART REFLOW LOGIC:
+    // If scale is 0.5, we effectively have 200% width to work with.
+    // We render the content at 200% width, then scale it down by 0.5.
+    // This allows items to flow into the extra space (e.g., 2 columns become 4), eliminating gaps.
+    const inversePercent = (1 / scale) * 100;
 
     return (
         <div className={`flex flex-col gap-16 py-16 items-center ${visualStyleClass}`} style={variableStyle}>
@@ -313,10 +321,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             <div 
                                 className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col"
                                 style={{
-                                    transform: `scale(var(--scale))`,
-                                    transformOrigin: 'top center',
-                                    width: `100%`,
-                                    height: `100%`
+                                    transform: `scale(${scale})`,
+                                    transformOrigin: 'top left',
+                                    width: `${inversePercent}%`,
+                                    height: `${inversePercent}%`
                                 }}
                             >
                                 {/* Minimalist Student Header */}
