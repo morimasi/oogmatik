@@ -88,7 +88,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
               type="range" 
               min={min} 
               max={max} 
-              step={step || 1}
+              step={step || 0.05}
               value={value}
               onChange={(e) => onChange(Number(e.target.value))}
               className="w-16 h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)] hover:accent-[var(--accent-hover)] transition-all"
@@ -133,7 +133,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
              <CompactSlider 
                 icon="fa-magnifying-glass" 
                 title="Ölçek / Zoom" 
-                min={0.5} max={2.0} step={0.1}
+                min={0.5} max={2.0} step={0.01}
                 value={settings.scale} 
                 onChange={(v: number) => onSettingsChange({...settings, scale: v})}
                 displayValue={`${Math.round(settings.scale * 100)}%`}

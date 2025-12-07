@@ -251,6 +251,39 @@
             zoom: 1 !important;
         }
 
+        /* 
+           CRITICAL FIX FOR PRINTING: 
+           Force desktop grid/flex layouts even in print view (which browsers treat as narrow/mobile).
+           This overrides the `md:` prefixes from Tailwind.
+        */
+        .print-container .md\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+        .print-container .md\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+        .print-container .md\:grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+        .print-container .md\:flex-row {
+            flex-direction: row !important;
+        }
+        .print-container .md\:gap-4 {
+            gap: 1rem !important;
+        }
+        .print-container .md\:gap-6 {
+            gap: 1.5rem !important;
+        }
+        .print-container .md\:gap-8 {
+            gap: 2rem !important;
+        }
+        .print-container .grid {
+            display: grid !important;
+        }
+        .print-container .flex {
+            display: flex !important;
+        }
+
         /* Last page doesn't need a break after */
         .print-container .worksheet-page:last-child {
             page-break-after: auto !important;

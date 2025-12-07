@@ -297,7 +297,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         {showQR && <WorkbookQR url="https://www.bursadisleksi.com" />}
 
                         {/* Content Wrapper applying the mandatory print margin */}
-                        <div className="w-full h-full p-[10mm] relative">
+                        <div className="w-full h-full p-[10mm] relative flex flex-col justify-center">
                             
                             {/* Visual Guide for Edit Mode */}
                             {isEditMode && (
@@ -311,11 +311,13 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             )}
 
                             <div 
-                                className="worksheet-scaler worksheet-content relative z-10 h-full flex flex-col"
-                                // Scaling logic handled by parent canvas now, removed internal scaling to prevent double transform
+                                className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col"
                                 style={{
+                                    transform: `scale(var(--scale))`,
+                                    transformOrigin: 'center center',
                                     width: `100%`,
-                                    height: `100%`
+                                    height: `100%`,
+                                    justifyContent: 'center', // Center vertically
                                 }}
                             >
                                 {/* Minimalist Student Header */}
