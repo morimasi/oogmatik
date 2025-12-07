@@ -207,26 +207,23 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     const { isEditMode } = useEditable();
 
     const variableStyle = useMemo(() => {
-        // SCIENTIFIC LAYOUT ENGINE (Smart Reflow Logic)
+        // SCIENTIFIC LAYOUT ENGINE (Visual Params Only)
+        // Note: Pagination/Splitting is now handled by paginationService in parent.
+        // Here we just handle the visual scaling and CSS variables for the *current* page data.
+        
         const userCols = Math.max(1, settings.columns || 1);
         const scale = settings.scale || 1;
         const baseFontSize = settings.fontSize || 16;
 
-        // Smart Reflow: Calculate effective columns based on scale
-        // e.g. Scale 0.5 (50%) -> Width 200% -> Double the columns
-        // This ensures the expanded space is utilized by more content items side-by-side
+        // Visual Density Control based on columns/scale
         const effectiveCols = Math.max(1, Math.round(userCols / scale));
-
-        // 1. Cognitive Load Management (Density Control)
+        
         const densityFactor = Math.pow(userCols, 0.4); 
         const adjustedFontSize = Math.round(baseFontSize / densityFactor);
         
-        // 2. Component Morphology (Row vs Column)
         const itemDirection = userCols > 2 ? 'column' : 'row';
         const itemGap = userCols > 2 ? '0.5rem' : '1rem';
         const itemPadding = userCols > 2 ? '0.5rem' : '1rem';
-
-        // 3. Visual Noise Reduction
         const visualComplexity = userCols > 3 ? 'low' : 'high';
         
         const gridTemplateColumns = `repeat(${effectiveCols}, minmax(0, 1fr))`;
@@ -236,7 +233,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             '--worksheet-border-color': settings.borderColor,
             '--worksheet-border-width': `${settings.borderWidth}px`,
             '--worksheet-margin': `${settings.margin}px`,
-            // Dynamically reduce gap when scaling down to keep it proportional visually
             '--worksheet-gap': `${Math.max(8, settings.gap * scale)}px`, 
             '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
             '--worksheet-line-height': settings.lineHeight || 1.4,
@@ -244,15 +240,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             '--content-align': settings.contentAlign || 'center',
             '--font-weight': settings.fontWeight || 'normal',
             '--font-style': settings.fontStyle || 'normal',
-            
-            // Layout Engine Variables
             '--grid-columns': gridTemplateColumns,
             '--item-direction': itemDirection,
             '--item-gap': itemGap,
             '--item-padding': itemPadding,
             '--visual-complexity': visualComplexity,
-            
-            // Visibility
             '--display-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
             '--display-mascot': settings.showMascot ? 'block' : 'none',
             '--display-student-info': settings.showStudentInfo ? 'flex' : 'none',
@@ -289,22 +281,21 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
     const scale = settings.scale || 1;
-    // Smart Reflow: Inverse Scaling Logic
+    // Smart Reflow: Inverse Scaling Logic still applies for visual consistency
     const inversePercent = (1 / scale) * 100;
 
     return (
         <div className={`flex flex-col gap-16 py-16 items-center ${visualStyleClass}`} style={variableStyle}>
             <style>{`
-                /* SCIENTIFIC LAYOUT ENGINE */
+                /* SCIENTIFIC LAYOUT ENGINE CSS */
                 .dynamic-grid {
                     display: grid;
                     grid-template-columns: var(--grid-columns);
                     gap: var(--worksheet-gap);
                     width: 100%;
-                    align-items: start; /* Changed from stretch to avoid huge gaps */
+                    align-items: start;
                 }
                 
-                /* Adaptive Morphology */
                 .worksheet-content .editable-element,
                 .worksheet-content .item-card {
                     flex-direction: var(--item-direction) !important;
@@ -312,13 +303,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     padding: var(--item-padding) !important;
                 }
 
-                /* Low Visual Noise Mode */
                 .worksheet-content[data-complexity="low"] .item-card {
                     border: 1px solid #e5e7eb !important; 
                     box-shadow: none !important;
                 }
 
-                /* Visual Tracking Guide (Zebra Striping) for Dyslexia */
                 .style-zebra .dynamic-grid > *:nth-child(odd) {
                     background-color: rgba(0,0,0,0.03);
                 }
@@ -363,7 +352,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     transform: `scale(${scale})`,
                                     transformOrigin: 'top left',
                                     width: `${inversePercent}%`,
-                                    // Height needs to be auto to flow naturally, but min-height 100% / scale to fill page
                                     minHeight: `${inversePercent}%`, 
                                     height: 'auto'
                                 }}
@@ -387,14 +375,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 </div>
 
                                 <EditableElement id="main-content" className="flex-1 w-full h-full flex flex-col">
-                                    {/* This wrapper ensures centering if content is short */}
                                     <div className="flex-1 flex flex-col">
                                         <RenderSheet activityType={activityType} data={sheetData} />
                                     </div>
                                 </EditableElement>
                                 
-                                {/* Footer inside scaler to flow with content, or keep absolute? 
-                                    If we keep it flow-based (mt-auto), it will be pushed down by min-height. */}
                                 <div 
                                     className="mt-auto w-full pt-8 px-4 flex justify-between items-center text-[10px] text-zinc-400 pointer-events-none"
                                     style={{ display: 'var(--display-footer)' }}

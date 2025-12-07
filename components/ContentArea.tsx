@@ -1,3 +1,4 @@
+
 import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment, OverlayItem, AssessmentReport } from '../types';
 import Worksheet from './Worksheet';
@@ -15,6 +16,7 @@ import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
 import { DrawLayer } from './DrawLayer';
 import { speechService } from '../utils/speechService';
+import { paginationService } from '../services/paginationService';
 // @ts-ignore
 import html2canvas from 'html2canvas';
 
@@ -100,6 +102,26 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isEditMode, setIsEditMode] = useState(false); 
     const [isDrawMode, setIsDrawMode] = useState(false);
     
+    // --- SMART PAGINATION STATE ---
+    const [processedData, setProcessedData] = useState<WorksheetData>([]);
+
+    // Process data whenever raw data or relevant settings change
+    useEffect(() => {
+        if (!worksheetData) {
+            setProcessedData([]);
+            return;
+        }
+        
+        if (activityType) {
+            // Apply Dynamic Pagination Logic
+            const paged = paginationService.process(worksheetData, activityType, styleSettings);
+            setProcessedData(paged);
+        } else {
+            setProcessedData(worksheetData);
+        }
+    }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns, styleSettings.scale, styleSettings.fontSize, styleSettings.margin]);
+
+    
     // Phase 4: TTS & QR
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [showQR, setShowQR] = useState(false);
@@ -117,7 +139,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     
     // Reset canvas when activity changes or data loads
     useEffect(() => {
-        if (worksheetData && worksheetData.length > 0) {
+        if (processedData && processedData.length > 0) {
             centerCanvas();
         }
         setIsEditMode(false);
@@ -128,7 +150,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             speechService.stop();
             setIsSpeaking(false);
         }
-    }, [activityType, worksheetData]); 
+    }, [activityType, processedData?.length]); // Dep changed to processedData length to recenter on repagination
 
     const centerCanvas = useCallback(() => {
         if (canvasRef.current) {
@@ -183,7 +205,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     const handleWheel = useCallback((e: React.WheelEvent) => {
         // Only zoom if we are in generator view and have data
-        if (currentView !== 'generator' || !worksheetData) return;
+        if (currentView !== 'generator' || !processedData) return;
         
         // Prevent default browser zoom if ctrl is pressed (optional, browsers handle this differently)
         if (e.ctrlKey) e.preventDefault();
@@ -209,10 +231,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
         setScale(newScale);
         setPosition({ x: newX, y: newY });
-    }, [scale, position, currentView, worksheetData]);
+    }, [scale, position, currentView, processedData]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (currentView !== 'generator' || !worksheetData) return;
+        if (currentView !== 'generator' || !processedData) return;
         
         // Don't drag if clicking interactive elements (inputs, edit handles)
         const target = e.target as HTMLElement;
@@ -298,9 +320,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     };
 
     const handleSave = () => {
-        if (activityType && worksheetData) {
+        if (activityType && processedData) {
             const name = generateAutoName();
-            onSave(name, activityType, worksheetData);
+            onSave(name, activityType, processedData);
         }
     }
 
@@ -311,12 +333,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             }
             return;
         }
-        if (!activityType || !worksheetData) return;
+        if (!activityType || !processedData) return;
         setIsShareModalOpen(true);
     };
 
     const handleConfirmShare = async (receiverId: string) => {
-        if (!user || !activityType || !worksheetData) return;
+        if (!user || !activityType || !processedData) return;
         setIsSharing(true);
         try {
             const name = generateAutoName();
@@ -333,7 +355,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 userId: user.id, 
                 name, 
                 activityType, 
-                worksheetData,
+                worksheetData: processedData,
                 icon: activity!.icon,
                 category: { id: category.id, title: category.title },
                 createdAt: new Date().toISOString(),
@@ -342,7 +364,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             };
     
             await worksheetService.shareWorksheet(worksheetToShare, user.id, user.name, receiverId);
-            await onSave(name, activityType, worksheetData);
+            await onSave(name, activityType, processedData);
             
             alert('Etkinlik paylaşıldı ve arşivinize kaydedildi!');
             setIsShareModalOpen(false);
@@ -394,8 +416,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     // --- PHASE 4: TTS HANDLER ---
     const handleSpeak = () => {
-        if (!worksheetData || worksheetData.length === 0) return;
-        const page = worksheetData[currentPage]; 
+        if (!processedData || processedData.length === 0) return;
+        const page = processedData[currentPage]; 
         const parts = [];
         if (page.title) parts.push(page.title);
         if (page.instruction) parts.push(page.instruction);
@@ -457,7 +479,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
 
           {/* TOOLBAR */}
-          {currentView === 'generator' && activityType && worksheetData && (
+          {currentView === 'generator' && activityType && processedData && (
                 <Toolbar 
                     settings={styleSettings} 
                     onSettingsChange={onStyleChange} 
@@ -483,7 +505,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     // QR
                     showQR={showQR}
                     onToggleQR={() => setShowQR(!showQR)}
-                    worksheetData={worksheetData}
+                    worksheetData={processedData}
                 />
           )}
       </div>
@@ -499,16 +521,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             backgroundSize: `${20 * scale}px ${20 * scale}px`,
             backgroundPosition: `${position.x}px ${position.y}px`
         }}
-        onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
-        onMouseDown={currentView === 'generator' && worksheetData ? handleMouseDown : undefined}
-        onMouseMove={currentView === 'generator' && worksheetData ? handleMouseMove : undefined}
-        onMouseUp={currentView === 'generator' && worksheetData ? handleMouseUp : undefined}
+        onWheel={currentView === 'generator' && processedData ? handleWheel : undefined}
+        onMouseDown={currentView === 'generator' && processedData ? handleMouseDown : undefined}
+        onMouseMove={currentView === 'generator' && processedData ? handleMouseMove : undefined}
+        onMouseUp={currentView === 'generator' && processedData ? handleMouseUp : undefined}
       >
           {/* PAGE NAVIGATOR SIDEBAR (VISIBLE ON HOVER) */}
-          {worksheetData && worksheetData.length > 1 && (
+          {processedData && processedData.length > 1 && (
               <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-50 transition-all duration-300 opacity-0 group-hover:opacity-100 -translate-x-full group-hover:translate-x-0">
                   <div className="bg-white/80 dark:bg-black/50 backdrop-blur-md p-2 rounded-2xl shadow-xl border border-white/20 flex flex-col gap-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                      {worksheetData.map((_, i) => (
+                      {processedData.map((_, i) => (
                           <button
                               key={i}
                               onClick={(e) => { e.stopPropagation(); scrollToPage(i); }}
@@ -539,7 +561,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
           
           {/* FLOATING ZOOM CONTROLS */}
-          {worksheetData && (
+          {processedData && (
               <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-white dark:bg-zinc-800 p-1 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 z-50">
                   <button onClick={() => setScale(s => Math.max(0.1, s - 0.1))} className="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300">
                       <i className="fa-solid fa-minus"></i>
@@ -588,7 +610,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 )}
 
                 {/* WELCOME / EMPTY STATE */}
-                {!isLoading && !error && !worksheetData && (
+                {!isLoading && !error && (!processedData || processedData.length === 0) && (
                      <div className="flex flex-col items-center justify-center h-full w-full pointer-events-none">
                          <div className="text-center p-8 max-w-3xl bg-[var(--panel-bg)] backdrop-blur-sm rounded-3xl border border-[var(--border-color)] shadow-2xl w-full mx-4">
                             <div className="w-32 h-32 bg-[var(--bg-inset)] rounded-full flex items-center justify-center mb-6 mx-auto ring-8 ring-[var(--accent-color)] ring-opacity-20 shadow-xl transform hover:scale-110 transition-transform">
@@ -604,7 +626,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 )}
                 
                 {/* WORKSHEET CONTENT LAYER */}
-                {worksheetData && (
+                {processedData && processedData.length > 0 && (
                     // TRANSFORM LAYER: Scales and moves everything inside
                     <div 
                         className="absolute origin-top-left transition-transform duration-75 ease-out will-change-transform"
@@ -618,7 +640,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         {/* The Worksheet pages (now inside the canvas) */}
                         <Worksheet 
                             activityType={activityType} 
-                            data={worksheetData} 
+                            data={processedData} 
                             settings={styleSettings} 
                             studentProfile={studentProfile}
                             overlayItems={overlayItems}

@@ -1,5 +1,5 @@
 
-import { SingleWorksheetData, ActivityType, WorksheetData } from '../types';
+import { SingleWorksheetData, ActivityType, WorksheetData, StyleSettings } from '../types';
 
 // Configuration for which property holds the list of items to split for each ActivityType
 const PAGINATION_CONFIG: Record<ActivityType, string> = {
@@ -8,24 +8,24 @@ const PAGINATION_CONFIG: Record<ActivityType, string> = {
     [ActivityType.REAL_LIFE_MATH_PROBLEMS]: 'problems',
     [ActivityType.NUMBER_PATTERN]: 'patterns',
     [ActivityType.FIND_THE_DIFFERENCE]: 'rows',
-    [ActivityType.WORD_COMPARISON]: 'wordList1', // Special case, handled manually if needed
+    [ActivityType.WORD_COMPARISON]: 'wordList1', // Special case handling needed usually
     [ActivityType.FIND_IDENTICAL_WORD]: 'groups',
     [ActivityType.GRID_DRAWING]: 'drawings',
     [ActivityType.SYMBOL_CIPHER]: 'wordsToSolve',
-    [ActivityType.BLOCK_PAINTING]: 'shapes', // Not really splittable usually
+    [ActivityType.BLOCK_PAINTING]: 'shapes',
     [ActivityType.VISUAL_ODD_ONE_OUT]: 'rows',
-    [ActivityType.SYMMETRY_DRAWING]: 'dots', // Dots are part of one drawing
+    [ActivityType.SYMMETRY_DRAWING]: 'dots',
     [ActivityType.FIND_DIFFERENT_STRING]: 'rows',
-    [ActivityType.DOT_PAINTING]: 'dots', // Not splittable
+    [ActivityType.DOT_PAINTING]: 'dots',
     [ActivityType.ABC_CONNECT]: 'puzzles',
-    [ActivityType.COORDINATE_CIPHER]: 'wordsToFind', // Maybe
+    [ActivityType.COORDINATE_CIPHER]: 'wordsToFind',
     [ActivityType.WORD_CONNECT]: 'points',
     [ActivityType.PROFESSION_CONNECT]: 'points',
     [ActivityType.MATCHSTICK_SYMMETRY]: 'puzzles',
     [ActivityType.VISUAL_ODD_ONE_OUT_THEMED]: 'rows',
-    [ActivityType.STAR_HUNT]: 'grid', // Not splittable
+    [ActivityType.STAR_HUNT]: 'grid',
     [ActivityType.SHAPE_COUNTING]: 'figures',
-    [ActivityType.WORD_SEARCH]: 'words', // Grid is fixed, words list might split?
+    [ActivityType.WORD_SEARCH]: 'words',
     [ActivityType.ANAGRAM]: 'anagrams',
     [ActivityType.SPELLING_CHECK]: 'checks',
     [ActivityType.LETTER_BRIDGE]: 'pairs',
@@ -38,12 +38,12 @@ const PAGINATION_CONFIG: Record<ActivityType, string> = {
     [ActivityType.SYLLABLE_COMPLETION]: 'wordParts',
     [ActivityType.SYNONYM_WORD_SEARCH]: 'wordsToMatch',
     [ActivityType.SPIRAL_PUZZLE]: 'clues',
-    [ActivityType.CROSSWORD]: 'clues', // Hard to split grid
+    [ActivityType.CROSSWORD]: 'clues',
     [ActivityType.JUMBLED_WORD_STORY]: 'puzzles',
     [ActivityType.HOMONYM_SENTENCE_WRITING]: 'items',
     [ActivityType.WORD_GRID_PUZZLE]: 'wordList',
     [ActivityType.PROVERB_SAYING_SORT]: 'items',
-    [ActivityType.HOMONYM_IMAGE_MATCH]: 'leftImages', // Coupled with rightImages
+    [ActivityType.HOMONYM_IMAGE_MATCH]: 'leftImages',
     [ActivityType.ANTONYM_FLOWER_PUZZLE]: 'puzzles',
     [ActivityType.PROVERB_WORD_CHAIN]: 'solutions',
     [ActivityType.THEMATIC_ODD_ONE_OUT]: 'rows',
@@ -71,13 +71,13 @@ const PAGINATION_CONFIG: Record<ActivityType, string> = {
     [ActivityType.POSITIONAL_ANAGRAM]: 'puzzles',
     [ActivityType.PROVERB_SENTENCE_FINDER]: 'solutions',
     [ActivityType.PROVERB_FILL_IN_THE_BLANK]: 'proverbs',
-    [ActivityType.PROVERB_SEARCH]: 'proverb', // Single
+    [ActivityType.PROVERB_SEARCH]: 'proverb',
     [ActivityType.FUTOSHIKI]: 'puzzles',
     [ActivityType.NUMBER_PYRAMID]: 'pyramids',
     [ActivityType.NUMBER_CAPSULE]: 'puzzles',
     [ActivityType.ODD_EVEN_SUDOKU]: 'puzzles',
     [ActivityType.ROMAN_NUMERAL_CONNECT]: 'puzzles',
-    [ActivityType.ROMAN_NUMERAL_STAR_HUNT]: 'grid', // Not splittable
+    [ActivityType.ROMAN_NUMERAL_STAR_HUNT]: 'grid',
     [ActivityType.ROUNDING_CONNECT]: 'numbers',
     [ActivityType.ROMAN_NUMERAL_MULTIPLICATION]: 'puzzles',
     [ActivityType.ARITHMETIC_CONNECT]: 'expressions',
@@ -92,14 +92,14 @@ const PAGINATION_CONFIG: Record<ActivityType, string> = {
     [ActivityType.VISUAL_NUMBER_PATTERN]: 'puzzles',
     [ActivityType.LOGIC_GRID_PUZZLE]: 'clues',
     [ActivityType.SHAPE_NUMBER_PATTERN]: 'patterns',
-    [ActivityType.FAMILY_RELATIONS]: 'leftColumn', // Coupled
+    [ActivityType.FAMILY_RELATIONS]: 'leftColumn',
     [ActivityType.LOGIC_DEDUCTION]: 'questions',
     [ActivityType.NUMBER_BOX_LOGIC]: 'puzzles',
     [ActivityType.MAP_INSTRUCTION]: 'instructions',
     [ActivityType.MIND_GAMES]: 'puzzles',
     [ActivityType.MIND_GAMES_56]: 'puzzles',
     [ActivityType.STROOP_TEST]: 'items',
-    [ActivityType.LETTER_GRID_TEST]: 'grid', // Hard to split
+    [ActivityType.LETTER_GRID_TEST]: 'grid',
     [ActivityType.NUMBER_SEARCH]: 'numbers',
     [ActivityType.WORD_MEMORY]: 'wordsToMemorize',
     [ActivityType.VISUAL_MEMORY]: 'itemsToMemorize',
@@ -151,90 +151,129 @@ const PAGINATION_CONFIG: Record<ActivityType, string> = {
     [ActivityType.WORKBOOK]: 'none',
 };
 
-// Safe height content area in mm (A4 297mm - 40mm margins - 40mm header)
-const SAFE_HEIGHT_PX = 900; 
+// Safe height of content area in pixels (Approximate A4 height minus header/footer/margins)
+// A4 is ~1123px high at 96 DPI. Margins ~40px each. Header ~150px.
+const A4_CONTENT_HEIGHT_PX = 900; 
 
-// Rough estimation of item heights in pixels
-const ESTIMATED_HEIGHTS: Record<string, number> = {
-    'operations': 80, // Basic math op row
-    'puzzles': 200,   // Boxed puzzle
-    'problems': 150,  // Word problem
-    'questions': 120, // Story question
-    'rows': 100,      // General row
-    'items': 60,      // List item
-    'pairs': 80,      // Matching pair
-    'clues': 40,      // Crossword clue
-    'exercises': 120,
-    'tasks': 250,
-    'default': 100
+// Rough estimation of item heights in pixels (Base height)
+const BASE_HEIGHTS: Record<string, number> = {
+    'operations': 80, 
+    'puzzles': 220,   
+    'problems': 160,  
+    'questions': 130, 
+    'rows': 110,      
+    'items': 70,      
+    'pairs': 90,      
+    'clues': 45,      
+    'exercises': 140,
+    'tasks': 280,
+    'default': 120
 };
 
 export const paginationService = {
     /**
-     * Splits a single overloaded worksheet page into multiple pages
-     * based on estimated content height using a Virtual DOM approach.
+     * Splits data into multiple pages based on available space, columns, and font size.
      */
-    process: (data: WorksheetData, activityType: ActivityType): WorksheetData => {
-        // If data is already multipage (e.g. from AI with worksheetCount > 1), process each page
-        // But usually AI returns array of pages. If user requested 20 items and AI put them all in page 1,
-        // we need to split page 1.
+    process: (data: WorksheetData, activityType: ActivityType, settings?: StyleSettings): WorksheetData => {
+        if (!data || data.length === 0) return [];
         
+        // If Smart Pagination is disabled, return original structure (but cleaned)
+        if (settings && !settings.smartPagination) {
+            return data;
+        }
+
         const newWorksheetData: WorksheetData = [];
+        const splitKey = PAGINATION_CONFIG[activityType];
+
+        // Factors affecting height
+        const scale = settings?.scale || 1;
+        const fontSize = settings?.fontSize || 16;
+        const columns = Math.max(1, settings?.columns || 1);
+        const margin = settings?.margin || 20;
+        
+        // Dynamic Effective Columns logic (same as Worksheet.tsx)
+        const effectiveCols = Math.max(1, Math.round(columns / scale));
+        
+        // Font Factor: Larger font takes more space
+        const fontFactor = fontSize / 16; 
+        
+        // Scale Factor: Smaller scale allows more items on page (conceptually height increases)
+        // But since we use transform:scale on the container, the internal pixels remain constant relative to content.
+        // However, if we want "Smart Reflow" (more items when zoomed out), we effectively have more virtual height.
+        const virtualPageHeight = A4_CONTENT_HEIGHT_PX * (1 / scale);
 
         for (const page of data) {
-            const splitKey = PAGINATION_CONFIG[activityType];
-            
-            // If no split key defined or array is empty/small, keep page as is
-            if (!splitKey || !page[splitKey] || !Array.isArray(page[splitKey]) || page[splitKey].length <= 2) {
+            // If not splittable, keep as is
+            if (!splitKey || splitKey === 'none' || !page[splitKey] || !Array.isArray(page[splitKey])) {
                 newWorksheetData.push(page);
                 continue;
             }
 
-            const items = page[splitKey];
-            const itemHeight = ESTIMATED_HEIGHTS[splitKey] || ESTIMATED_HEIGHTS['default'];
+            const allItems = page[splitKey];
+            if (allItems.length === 0) {
+                newWorksheetData.push(page);
+                continue;
+            }
+
+            const itemBaseHeight = BASE_HEIGHTS[splitKey] || BASE_HEIGHTS['default'];
+            // Actual height of one item card
+            const itemHeight = itemBaseHeight * fontFactor;
             
-            // Create a virtual container to measure specifically if needed, 
-            // but for performance and stability, we use a robust estimator here.
-            // A real DOM measurement for every item can be slow.
+            // In a grid, items share the row height.
+            // Height consumed per ITEM index = itemHeight / columns
+            // e.g. 10 items, 2 cols -> 5 rows. Total height = 5 * itemHeight.
             
             let currentPageItems: any[] = [];
-            let currentHeight = 0;
-            const headerHeight = 150; // Title + Instruction + Margins
+            let currentY = 0;
+            const headerHeight = 150 * scale; // Header scales too
 
-            items.forEach((item: any) => {
-                // Heuristic height adjustment based on content length
-                let estimatedH = itemHeight;
+            // Helper to calculate height of a row of items
+            const getRowHeight = (item: any) => {
+                let h = itemHeight;
+                // Add bonus for very long text
                 if (typeof item === 'object') {
-                    // Add height for long text or nested arrays
                     const txt = JSON.stringify(item);
-                    if (txt.length > 200) estimatedH += 50;
-                    if (item.imagePrompt || item.imageBase64) estimatedH += 100;
+                    if (txt.length > 200) h += 40 * fontFactor;
+                    if (item.imagePrompt || item.imageBase64) h += 80 * scale; // Images take space
                 }
+                return h;
+            };
 
-                if (currentHeight + estimatedH > SAFE_HEIGHT_PX) {
-                    // Push current page
+            // We process items in chunks of 'effectiveCols' (one row at a time)
+            for (let i = 0; i < allItems.length; i += effectiveCols) {
+                const rowItems = allItems.slice(i, i + effectiveCols);
+                
+                // Find max height in this row
+                let maxRowHeight = 0;
+                rowItems.forEach((item: any) => {
+                    const h = getRowHeight(item);
+                    if (h > maxRowHeight) maxRowHeight = h;
+                });
+
+                // Check if this row fits
+                if (currentY + maxRowHeight > virtualPageHeight) {
+                    // Page full, push current and reset
                     newWorksheetData.push({
                         ...page,
                         [splitKey]: currentPageItems,
-                        title: `${page.title} (Devam)` // Add suffix for continuation pages
+                        title: newWorksheetData.length === 0 || newWorksheetData[newWorksheetData.length-1].title !== page.title ? page.title : `${page.title} (Devam)`
                     });
-                    // Reset for new page
-                    currentPageItems = [item];
-                    currentHeight = estimatedH; // Reset height (no header on subsequent pages maybe? or yes)
+                    
+                    currentPageItems = [...rowItems];
+                    currentY = maxRowHeight; // Reset, but account for first row of new page
                 } else {
-                    currentPageItems.push(item);
-                    currentHeight += estimatedH;
+                    currentPageItems.push(...rowItems);
+                    currentY += maxRowHeight;
                 }
-            });
+            }
 
-            // Push last page
+            // Push remaining items
             if (currentPageItems.length > 0) {
-                // If it's the first page being pushed (no split happened), keep original title
-                const isFirstSplit = newWorksheetData.length === 0 || newWorksheetData[newWorksheetData.length-1].title !== `${page.title} (Devam)`;
+                const isContinuation = newWorksheetData.length > 0 && newWorksheetData[newWorksheetData.length-1].title.startsWith(page.title);
                 newWorksheetData.push({
                     ...page,
                     [splitKey]: currentPageItems,
-                    title: isFirstSplit ? page.title : `${page.title} (Devam)`
+                    title: isContinuation ? `${page.title} (Devam)` : page.title
                 });
             }
         }
