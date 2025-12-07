@@ -8,7 +8,7 @@ import { generateWithSchema } from './geminiClient';
 import { Type } from '@google/genai';
 import { PROVERBS, SAYINGS } from '../data/sentences';
 import { TR_VOCAB } from '../data/vocabulary';
-import { UserRole, UserStatus } from '../types';
+import { UserRole, UserStatus, ActivityType } from '../types';
 
 const { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc } = firestore;
 
@@ -50,48 +50,82 @@ export const adminService = {
     getAllPrompts: async (): Promise<PromptTemplate[]> => {
         try {
             const snapshot = await getDocs(collection(db, "config_prompts"));
-            if (snapshot.empty) {
-                // Seed based on existing activities to populate the IDE initially
-                const seedPrompts: PromptTemplate[] = [
-                    {
-                        id: 'pedagogical_base',
-                        name: 'Çekirdek: Pedagojik Temel',
-                        description: 'Tüm promptların kullandığı temel pedagojik kurallar.',
-                        category: 'system',
-                        systemInstruction: 'Sen uzman bir özel eğitim pedagogusun.',
-                        template: PEDAGOGICAL_BASE,
-                        variables: [],
-                        tags: ['core', 'system'],
-                        updatedAt: new Date().toISOString(),
-                        version: 1,
-                        history: []
-                    }
-                ];
-
-                // Auto-generate placeholder prompts for each activity category
-                ACTIVITY_CATEGORIES.forEach(cat => {
-                    seedPrompts.push({
-                        id: `cat_base_${cat.id}`,
-                        name: `${cat.title} Ana Şablonu`,
-                        description: `${cat.title} kategorisi için temel yapı.`,
-                        category: cat.id,
-                        systemInstruction: 'Sen uzman bir öğretim tasarımcısısın.',
-                        template: `GÖREV: ${cat.title} alanında {{difficulty}} seviyesinde bir etkinlik oluştur.\nKONU: {{topic}}\n\n${PEDAGOGICAL_BASE}\n\nÇIKTI (JSON): ...`,
-                        variables: ['difficulty', 'topic'],
-                        tags: [cat.id],
-                        updatedAt: new Date().toISOString(),
-                        version: 1,
-                        history: []
-                    });
-                });
-
-                return seedPrompts;
-            }
             return snapshot.docs.map(d => d.data() as PromptTemplate);
         } catch (e) {
             console.error("Fetch prompts failed", e);
             return [];
         }
+    },
+
+    // --- REVERSE ENGINEER DEFAULT PROMPTS ---
+    // This allows the admin to see the "current code logic" as a prompt text
+    // instead of an empty box when they open an activity for the first time.
+    getInitialPromptForActivity: (activityId: ActivityType): string => {
+        const base = PEDAGOGICAL_BASE;
+        const imgGuide = `
+[GÖRSEL SANAT YÖNETMENİ]
+"imagePrompt" alanı için: "Flat Vector Art, Educational, Minimalist, White Background" stilinde İngilizce betimleme yaz.
+        `;
+
+        let taskSpecific = "";
+
+        // MATH LOGIC
+        if (['BASIC_OPERATIONS', 'MATH_PUZZLE', 'NUMBER_PYRAMID'].includes(activityId)) {
+            taskSpecific = `
+GÖREV: Matematiksel içerik üret.
+TÜR: ${activityId}
+ZORLUK: {{difficulty}}
+KONU: {{topic}}
+İŞLEM TÜRÜ: {{operationType}} (Eğer belirtilmişse)
+
+KURALLAR:
+- Sayılar yaş seviyesine uygun olmalı.
+- Sonuçlar tam sayı olmalı.
+- "worksheetCount": {{worksheetCount}} adet üret.
+            `;
+        } 
+        // VERBAL
+        else if (['WORD_SEARCH', 'CROSSWORD', 'ANAGRAM'].includes(activityId)) {
+            taskSpecific = `
+GÖREV: Kelime oyunu içeriği üret.
+TÜR: ${activityId}
+KONU: {{topic}}
+ZORLUK: {{difficulty}}
+
+KURALLAR:
+- Kelimeler konuyla ilgili olmalı.
+- Harf hataları yapılmamalı.
+- "itemCount": {{itemCount}} adet kelime/soru üret.
+            `;
+        }
+        // READING
+        else if (['STORY_COMPREHENSION', 'STORY_SEQUENCING'].includes(activityId)) {
+            taskSpecific = `
+GÖREV: Okuma anlama metni ve soruları.
+KONU: {{topic}}
+ZORLUK: {{difficulty}}
+
+KURALLAR:
+- Hikaye akıcı ve anlaşılır olsun.
+- Disleksi dostu kısa cümleler kur.
+- 5N 1K soruları ekle.
+            `;
+        }
+        // VISUAL / ATTENTION
+        else {
+             taskSpecific = `
+GÖREV: Görsel algı ve dikkat egzersizi.
+TÜR: ${activityId}
+ZORLUK: {{difficulty}}
+ÖĞE SAYISI: {{itemCount}}
+
+KURALLAR:
+- Görsel betimlemeler (imagePrompt) çok detaylı olsun.
+- Çeldiriciler mantıklı seçilsin.
+            `;
+        }
+
+        return `${base}\n\n${taskSpecific}\n\n${imgGuide}\n\nÇIKTI (JSON): ...`;
     },
 
     savePrompt: async (prompt: PromptTemplate, changeLog: string = 'Update') => {
@@ -169,7 +203,12 @@ export const adminService = {
                 title: { type: Type.STRING },
                 instruction: { type: Type.STRING },
                 pedagogicalNote: { type: Type.STRING },
-                data: { type: Type.ARRAY, items: { type: Type.OBJECT, description: "Dynamic content structure" } }, 
+                imagePrompt: { type: Type.STRING },
+                data: { type: Type.ARRAY, items: { type: Type.OBJECT, description: "Dynamic content items" } }, 
+                // Loose schema to allow most AI responses to pass
+                items: { type: Type.ARRAY, items: { type: Type.OBJECT } },
+                questions: { type: Type.ARRAY, items: { type: Type.OBJECT } },
+                puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT } },
             }
         };
 
