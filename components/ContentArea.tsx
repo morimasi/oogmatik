@@ -126,10 +126,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         if (activityType) {
             const activity = ACTIVITIES.find(a => a.id === activityType);
             if (activity && activity.defaultStyle) {
-                // Merge current settings with defaults, allowing defaults to override
-                // However, usually user prefers their last setting, but "Smart Defaults" implies best practice for new activity
-                // Strategy: Only override if this is a "fresh" selection (handled via parent? No, here is fine)
-                // We assume if activityType changed, we should apply defaults.
                 onStyleChange({ ...styleSettings, ...activity.defaultStyle });
             }
         }

@@ -212,11 +212,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         // Here we just handle the visual scaling and CSS variables for the *current* page data.
         
         const userCols = Math.max(1, settings.columns || 1);
-        const scale = settings.scale || 1;
         const baseFontSize = settings.fontSize || 16;
 
         // Visual Density Control based on columns/scale
-        const effectiveCols = Math.max(1, Math.round(userCols / scale));
+        // Since wrapper handles Scale, here we just respect columns relative to A4 width
+        const effectiveCols = userCols;
         
         const densityFactor = Math.pow(userCols, 0.4); 
         const adjustedFontSize = Math.round(baseFontSize / densityFactor);
@@ -233,7 +233,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             '--worksheet-border-color': settings.borderColor,
             '--worksheet-border-width': `${settings.borderWidth}px`,
             '--worksheet-margin': `${settings.margin}px`,
-            '--worksheet-gap': `${Math.max(8, settings.gap * scale)}px`, 
+            '--worksheet-gap': `${Math.max(8, settings.gap)}px`, 
             '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
             '--worksheet-line-height': settings.lineHeight || 1.4,
             '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
@@ -252,7 +252,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             '--display-title': settings.showTitle ? 'block' : 'none',
             '--display-instruction': settings.showInstruction ? 'block' : 'none',
             '--display-image': settings.showImage ? 'block' : 'none',
-            '--scale': scale,
         } as React.CSSProperties;
     }, [settings]);
 
@@ -280,12 +279,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     if (!data || !activityType || data.length === 0) return null;
 
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
-    const scale = settings.scale || 1;
-    // Smart Reflow: Inverse Scaling Logic still applies for visual consistency
-    const inversePercent = (1 / scale) * 100;
 
     return (
-        <div className={`flex flex-col gap-16 py-16 items-center ${visualStyleClass}`} style={variableStyle}>
+        <div className={`flex flex-col gap-16 pb-16 items-center ${visualStyleClass}`} style={variableStyle}>
             <style>{`
                 /* SCIENTIFIC LAYOUT ENGINE CSS */
                 .dynamic-grid {
@@ -349,10 +345,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             <div 
                                 className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col justify-center"
                                 style={{
-                                    transform: `scale(${scale})`,
-                                    transformOrigin: 'top left',
-                                    width: `${inversePercent}%`,
-                                    minHeight: `${inversePercent}%`, 
+                                    // Scale handled by parent canvas now
+                                    width: '100%',
                                     height: 'auto'
                                 }}
                                 data-complexity={settings.columns > 3 ? 'low' : 'high'}
