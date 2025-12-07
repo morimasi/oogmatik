@@ -134,6 +134,11 @@ const Sidebar: React.FC<SidebarProps> = ({
         }
         
         if (result) {
+            // CRITICAL CHECK FOR EMPTY DATA
+            if (Array.isArray(result) && result.length === 0) {
+                 throw new Error("İçerik üretilemedi (Boş veri döndü). Lütfen farklı ayarlar ile tekrar deneyiniz veya geliştiriciye bildiriniz.");
+            }
+
             // --- SMART PAGINATION INTEGRATION ---
             // If enabled, split the result into multiple pages based on content volume
             let finalResult = result;
@@ -150,6 +155,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                 const act = getActivityById(selectedActivity);
                 authService.recordActivityGeneration(user.id, selectedActivity, act ? act.title : selectedActivity).catch(console.error);
             }
+        } else {
+             throw new Error("İçerik üretimi başarısız oldu (Veri yok).");
         }
 
     } catch (e: any) {

@@ -2,6 +2,7 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData, MindGames56Data } from '../../types';
+import { shuffle, getRandomInt, getRandomItems, generateSudokuGrid, generateLatinSquare } from './helpers';
 
 const PEDAGOGICAL_PROMPT = `
 ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
@@ -295,11 +296,78 @@ export const generateMindGames56FromAI = async (options: GeneratorOptions): Prom
 // --- OFFLINE GENERATORS ---
 
 export const generateOfflineFamilyRelations = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
-    // ... same as before
-    return []; // Placeholder to avoid error, implementation stays same or needs full re-export
+    const { worksheetCount, itemCount } = options;
+    const relations = [
+        { q: "Annemin kız kardeşi", a: "Teyze" },
+        { q: "Babamın erkek kardeşi", a: "Amca" },
+        { q: "Teyzemin oğlu", a: "Kuzen" },
+        { q: "Babamın annesi", a: "Babaanne" },
+        { q: "Annemin babası", a: "Dede" },
+        { q: "Kardeşimin oğlu", a: "Yeğen" },
+        { q: "Amcamın eşi", a: "Yenge" },
+        { q: "Teyzemin kocası", a: "Enişte" },
+        { q: "Kızımın kocası", a: "Damat" },
+        { q: "Oğlumun karısı", a: "Gelin" }
+    ];
+
+    return Array.from({ length: worksheetCount }, () => {
+        const selected = getRandomItems(relations, itemCount || 5);
+        const shuffledAnswers = shuffle([...selected]);
+        
+        return {
+            title: "Akrabalık İlişkileri",
+            instruction: "Tanımları doğru akrabalık isimleriyle eşleştirin.",
+            pedagogicalNote: "Sosyal kavramlar ve mantıksal ilişkilendirme.",
+            imagePrompt: "Family Tree",
+            leftColumn: selected.map((r, i) => ({ text: r.q, id: i })),
+            rightColumn: shuffledAnswers.map((r, i) => ({ text: r.a, id: selected.indexOf(r) })) // Correct ID mapping
+        };
+    });
 };
 
-// ... (Other Offline Generators)
+export const generateOfflineLogicDeduction = async (options: GeneratorOptions): Promise<LogicDeductionData[]> => {
+    const { worksheetCount, itemCount } = options;
+    const puzzles = [
+        { r: "Ben bir meyveyim. Kırmızıyım ama elma değilim. Çekirdeklerim üzerinde. Ben neyim?", o: ["Çilek", "Elma", "Kiraz"], a: 0, l: "A" },
+        { r: "Dört ayağım var ama yürüyemem. Üzerimde yemek yersin. Ben neyim?", o: ["Sandalye", "Masa", "Yatak"], a: 1, l: "B" },
+        { r: "Sıcak tutarım ama canlı değilim. Kışın giyilirim. Ben neyim?", o: ["Gözlük", "Mont", "Terlik"], a: 1, l: "B" },
+        { r: "Kanatlarım var ama kuş değilim. Motorum var. Ben neyim?", o: ["Uçak", "Arı", "Kelebek"], a: 0, l: "A" }
+    ];
+
+    return Array.from({ length: worksheetCount }, () => ({
+        title: "Mantıksal Çıkarım",
+        instruction: "Bilmeceleri oku ve doğru cevabı bul.",
+        pedagogicalNote: "Çıkarım yapma ve kelime dağarcığı.",
+        imagePrompt: "Detective",
+        questions: getRandomItems(puzzles, itemCount || 3).map(p => ({
+            riddle: p.r, options: p.o, answerIndex: p.a, correctLetter: p.l
+        }))
+    }));
+};
+
+export const generateOfflineNumberBoxLogic = async (options: GeneratorOptions): Promise<NumberBoxLogicData[]> => {
+    const { worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const box1 = Array.from({length: 4}, () => getRandomInt(1, 20));
+        const box2 = Array.from({length: 4}, () => getRandomInt(1, 20));
+        const max1 = Math.max(...box1);
+        const min2 = Math.min(...box2);
+        
+        return {
+            title: "Kutu Mantığı",
+            instruction: "Kutulardaki sayıları incele ve soruları cevapla.",
+            pedagogicalNote: "Veri analizi ve karşılaştırma.",
+            imagePrompt: "Number Boxes",
+            puzzles: [{
+                box1, box2,
+                questions: [
+                    { text: "1. Kutudaki en büyük sayı kaçtır?", options: [max1.toString(), (max1-1).toString(), (max1+2).toString()], correctAnswer: max1.toString() },
+                    { text: "2. Kutudaki en küçük sayı kaçtır?", options: [min2.toString(), (min2+1).toString(), (min2-2).toString()], correctAnswer: min2.toString() }
+                ]
+            }]
+        };
+    });
+};
 
 export const generateOfflineMapInstruction = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
     const { worksheetCount, itemCount } = options;
@@ -345,8 +413,53 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
     });
 };
 
-// ... Re-export others
-export const generateOfflineLogicDeduction = async (o: GeneratorOptions): Promise<LogicDeductionData[]> => [];
-export const generateOfflineNumberBoxLogic = async (o: GeneratorOptions): Promise<NumberBoxLogicData[]> => [];
-export const generateOfflineMindGames = async (o: GeneratorOptions): Promise<MindGamesData[]> => [];
-export const generateOfflineMindGames56 = async (o: GeneratorOptions): Promise<MindGames56Data[]> => [];
+export const generateOfflineMindGames = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
+    const { worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = [];
+        // 1. Function Machine
+        const input = getRandomInt(2, 10);
+        const mult = getRandomInt(2, 5);
+        puzzles.push({
+            type: 'function_machine',
+            input,
+            rule: `x ${mult}`,
+            output: (input * mult).toString(),
+            question: "Giriş sayısına kuralı uygula.",
+            answer: (input * mult).toString(),
+            imagePrompt: 'Machine'
+        });
+        
+        // 2. Pyramid
+        const b1=3, b2=4, b3=5;
+        puzzles.push({
+            type: 'number_pyramid',
+            numbers: [b1, b2, b3, b1+b2, b2+b3, (b1+b2)+(b2+b3)], // 3 base, 2 mid, 1 top
+            question: "Zirvedeki sayı kaçtır?",
+            answer: ((b1+b2)+(b2+b3)).toString(),
+            imagePrompt: 'Pyramid'
+        });
+
+        return {
+            title: "Akıl Oyunları (Hızlı Mod)",
+            instruction: "Mantığını kullanarak bulmacaları çöz.",
+            pedagogicalNote: "Matematiksel akıl yürütme.",
+            imagePrompt: "Puzzle",
+            puzzles
+        };
+    });
+};
+
+export const generateOfflineMindGames56 = async (options: GeneratorOptions): Promise<MindGames56Data[]> => {
+    const { worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => ({
+        title: "İleri Akıl Oyunları (Hızlı Mod)",
+        instruction: "Soruları çöz.",
+        pedagogicalNote: "Analitik düşünme.",
+        imagePrompt: "Brain",
+        puzzles: [
+            { type: 'number_sequence', title: 'Sayı Dizisi', question: '2, 4, 8, 16, ?', answer: '32', hint: 'İki katı', imagePrompt: 'Sequence' },
+            { type: 'word_problem', title: 'Yaş Problemi', question: 'Ali 10 yaşında. Babası ondan 30 yaş büyük. 5 yıl sonra baba kaç yaşında olur?', answer: '45', hint: 'Baba şu an 40 yaşında.', imagePrompt: 'Age' }
+        ]
+    }));
+};
