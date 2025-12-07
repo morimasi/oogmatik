@@ -192,7 +192,6 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
 });
 
 const WorkbookQR = ({ url }: { url: string }) => {
-    // Using a reliable public API for generating QR codes
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
     
     return (
@@ -206,79 +205,121 @@ const WorkbookQR = ({ url }: { url: string }) => {
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, overlayItems, showQR }) => {
     const { isEditMode } = useEditable();
 
+    const variableStyle = useMemo(() => {
+        // SCIENTIFIC LAYOUT ENGINE (Smart Reflow Logic)
+        const cols = Math.max(1, settings.columns || 1);
+        const scale = settings.scale || 1;
+        const baseFontSize = settings.fontSize || 16;
+
+        // 1. Density Calculation (Columns affect density)
+        // More columns = Higher Density = Smaller fonts, tighter spacing
+        // We use a logarithmic scale to gently reduce size as columns increase
+        const densityFactor = Math.pow(cols, 0.4); 
+        const adjustedFontSize = Math.round(baseFontSize / densityFactor);
+        
+        // 2. Component Morphology (Layout Direction)
+        // If columns > 2, we force items to stack vertically (column) instead of horizontally (row)
+        // to prevent overcrowding in narrow spaces.
+        const itemDirection = cols > 2 ? 'column' : 'row';
+        const itemGap = cols > 2 ? '0.5rem' : '1rem';
+        const itemPadding = cols > 2 ? '0.5rem' : '1rem';
+
+        // 3. Visual Noise Reduction
+        // If high density, remove decorative borders/shadows to reduce cognitive load
+        const visualComplexity = cols > 3 ? 'low' : 'high';
+        
+        // 4. Grid Template Calculation
+        // Use auto-fit with minmax for responsive grid within the container
+        const gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+
+        return {
+            '--worksheet-font-size': `${adjustedFontSize}px`,
+            '--worksheet-border-color': settings.borderColor,
+            '--worksheet-border-width': `${settings.borderWidth}px`,
+            '--worksheet-margin': `${settings.margin}px`,
+            '--worksheet-gap': `${settings.gap}px`,
+            '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
+            '--worksheet-line-height': settings.lineHeight || 1.4,
+            '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
+            '--content-align': settings.contentAlign || 'center',
+            '--font-weight': settings.fontWeight || 'normal',
+            '--font-style': settings.fontStyle || 'normal',
+            
+            // Layout Engine Variables
+            '--grid-columns': gridTemplateColumns,
+            '--item-direction': itemDirection,
+            '--item-gap': itemGap,
+            '--item-padding': itemPadding,
+            '--visual-complexity': visualComplexity,
+            
+            // Visibility
+            '--display-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
+            '--display-mascot': settings.showMascot ? 'block' : 'none',
+            '--display-student-info': settings.showStudentInfo ? 'flex' : 'none',
+            '--display-footer': settings.showFooter ? 'flex' : 'none',
+            '--display-title': settings.showTitle ? 'block' : 'none',
+            '--display-instruction': settings.showInstruction ? 'block' : 'none',
+            '--display-image': settings.showImage ? 'block' : 'none',
+            '--scale': scale,
+        } as React.CSSProperties;
+    }, [settings]);
+
     const pageStyle = useMemo(() => {
         const isLandscape = settings.orientation === 'landscape';
-        // Precise A4 mm dimensions
         const pageWidth = isLandscape ? '297mm' : '210mm';
         const pageHeight = isLandscape ? '210mm' : '297mm';
         
         return {
             width: pageWidth,
-            height: pageHeight, // Fixed height for true pagination effect
+            height: pageHeight,
             minHeight: pageHeight,
             padding: `0mm`, 
             position: 'relative' as const,
             backgroundColor: 'white',
             color: 'black',
             boxSizing: 'border-box' as const,
-            overflow: 'hidden', // Clip content that exceeds page
-            margin: '0 auto', // Center in canvas container if single, but canvas handles positioning
-            boxShadow: '0 20px 50px rgba(0,0,0,0.1), 0 10px 15px rgba(0,0,0,0.05)', // Floating effect
+            overflow: 'hidden',
+            margin: '0 auto',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.1), 0 10px 15px rgba(0,0,0,0.05)',
             ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
         };
     }, [settings.orientation, settings.themeBorder, settings.borderColor, settings.borderWidth]);
-
-    const variableStyle = useMemo(() => ({
-        '--worksheet-font-size': `${settings.fontSize}px`,
-        '--worksheet-border-color': settings.borderColor,
-        '--worksheet-border-width': `${settings.borderWidth}px`,
-        '--worksheet-margin': `${settings.margin}px`,
-        '--worksheet-gap': `1rem`, 
-        '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
-        '--worksheet-line-height': settings.lineHeight || 1.4, 
-        '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
-        // SMART REFLOW: Dynamically calculate column count based on scale
-        // When scale decreases (e.g. 0.5), column count increases (e.g. 2x)
-        '--dynamic-cols': Math.max(1, Math.round(settings.columns / (settings.scale || 1))),
-        '--content-align': settings.contentAlign || 'center',
-        '--font-weight': settings.fontWeight || 'normal',
-        '--font-style': settings.fontStyle || 'normal',
-        '--display-pedagogical-note': settings.showPedagogicalNote ? 'flex' : 'none',
-        '--display-mascot': settings.showMascot ? 'block' : 'none',
-        '--display-student-info': settings.showStudentInfo ? 'flex' : 'none',
-        '--display-footer': settings.showFooter ? 'flex' : 'none',
-        '--display-title': settings.showTitle ? 'block' : 'none',
-        '--display-instruction': settings.showInstruction ? 'block' : 'none',
-        '--display-image': settings.showImage ? 'block' : 'none',
-        '--scale': settings.scale,
-    } as React.CSSProperties), [settings]);
 
     if (!data || !activityType || data.length === 0) return null;
 
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
     const scale = settings.scale || 1;
-    // SMART REFLOW LOGIC:
-    // If scale is 0.5, we effectively have 200% width to work with.
-    // We render the content at 200% width, then scale it down by 0.5.
-    // This allows items to flow into the extra space (e.g., 2 columns become 4), eliminating gaps.
+    // Smart Reflow: Inverse Scaling Logic
+    // If user zooms out (scale < 1), we increase the container width to allow reflow
+    // Then scale it down. This prevents "zooming out but keeping whitespace".
     const inversePercent = (1 / scale) * 100;
 
     return (
         <div className={`flex flex-col gap-16 py-16 items-center ${visualStyleClass}`} style={variableStyle}>
             <style>{`
-                /* Dynamic Grid System for Items using CSS Columns */
+                /* SCIENTIFIC GRID SYSTEM */
                 .dynamic-grid {
-                    column-count: var(--dynamic-cols);
-                    column-gap: var(--worksheet-gap);
+                    display: grid;
+                    grid-template-columns: var(--grid-columns);
+                    gap: var(--worksheet-gap);
                     width: 100%;
+                    align-items: stretch;
                 }
                 
-                .dynamic-grid > * {
-                    break-inside: avoid;
-                    page-break-inside: avoid;
-                    margin-bottom: var(--worksheet-gap);
-                    display: inline-block;
-                    width: 100%;
+                /* Component Morphology Adaptation */
+                /* Forces items to adapt to available column width */
+                .worksheet-content .editable-element,
+                .worksheet-content .item-card {
+                    flex-direction: var(--item-direction) !important;
+                    gap: var(--item-gap) !important;
+                    padding: var(--item-padding) !important;
+                }
+
+                /* Visual Complexity Reduction for Dense Layouts */
+                /* If complex is low (many columns), hide decorative borders */
+                .worksheet-content[data-complexity="low"] .item-card {
+                    border: 1px solid #e5e7eb !important; 
+                    box-shadow: none !important;
                 }
 
                 .worksheet-content {
@@ -301,13 +342,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         className="worksheet-item worksheet-page transition-all duration-300 ease-in-out"
                         style={pageStyle}
                     >
-                        {/* QR Code Overlay (Top Right of Page) */}
                         {showQR && <WorkbookQR url="https://www.bursadisleksi.com" />}
 
-                        {/* Content Wrapper applying the mandatory print margin */}
                         <div className="w-full h-full p-[10mm] relative flex flex-col">
                             
-                            {/* Visual Guide for Edit Mode */}
                             {isEditMode && (
                                 <>
                                     <div className="absolute inset-0 edit-grid-overlay z-0 pointer-events-none"></div>
@@ -326,8 +364,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     width: `${inversePercent}%`,
                                     height: `${inversePercent}%`
                                 }}
+                                data-complexity={settings.columns > 3 ? 'low' : 'high'}
                             >
-                                {/* Minimalist Student Header */}
                                 <div className="mb-4 pb-1 border-b border-black flex justify-between items-end shrink-0" style={{ display: 'var(--display-student-info)' }}>
                                     <div className="flex gap-8 text-sm text-black">
                                         <div className="flex gap-2 items-baseline">
@@ -350,7 +388,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 </EditableElement>
                             </div>
                             
-                            {/* OVERLAY ITEMS FOR THIS PAGE */}
                             {(overlayItems || []).filter(item => item.pageIndex === index).map(item => (
                                 <EditableElement 
                                     key={item.id} 
