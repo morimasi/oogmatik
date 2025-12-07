@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
-import { printService } from '../utils/printService';
 import { StickerPicker } from './StickerPicker';
 
 interface ToolbarProps {
@@ -30,6 +29,8 @@ interface ToolbarProps {
   // QR Props
   showQR?: boolean;
   onToggleQR?: () => void;
+  // PDF Actions (New)
+  onExportPDF?: (action: 'print' | 'download') => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -54,24 +55,29 @@ const Toolbar: React.FC<ToolbarProps> = ({
     isSpeaking,
     onStopSpeak,
     showQR,
-    onToggleQR
+    onToggleQR,
+    onExportPDF
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
   const [showStickers, setShowStickers] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleAction = async (action: 'print' | 'download') => {
-      setIsProcessing(true);
-      setTimeout(async () => {
-          try {
-              await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
-          } catch (error) {
-              console.error("İşlem hatası:", error);
-              alert("İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.");
-          } finally {
-              setIsProcessing(false);
-          }
-      }, 100);
+      if (onExportPDF) {
+          setIsProcessing(true);
+          // Allow UI to update loading state
+          setTimeout(async () => {
+              try {
+                  await onExportPDF(action);
+              } catch (e) {
+                  console.error(e);
+              } finally {
+                  setIsProcessing(false);
+              }
+          }, 100);
+      } else {
+          console.warn("PDF Export handler not provided to Toolbar");
+      }
   };
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
