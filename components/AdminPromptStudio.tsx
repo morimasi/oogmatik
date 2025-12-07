@@ -171,7 +171,7 @@ export const AdminPromptStudio: React.FC = () => {
             
             {/* 1. SIDEBAR (Explorer) */}
             <div className="w-64 bg-[#252526] border-r border-[#333] flex flex-col">
-                <div className="h-10 flex items-center px-4 bg-[#333333] text-xs font-bold text-zinc-300 uppercase tracking-wider justify-between shrink-0">
+                <div className="h-10 flex items-center px-4 bg-[#333] text-xs font-bold text-zinc-300 uppercase tracking-wider justify-between shrink-0">
                     <span>Gezgin</span>
                     <button onClick={handleNewPrompt} className="hover:text-white"><i className="fa-solid fa-plus"></i></button>
                 </div>
