@@ -12,7 +12,7 @@ export const printService = {
      * Hedef seçiciye (.worksheet-item vb.) sahip elementleri bulur,
      * her birini resme dönüştürür ve PDF'e basar.
      */
-    generatePdf: async (elementSelector: string = '.worksheet-item', title: string = "Dokuman", options: PrintOptions) => {
+    generatePdf: async (elementSelector: string = '.worksheet-page', title: string = "Dokuman", options: PrintOptions) => {
         // 1. Elementleri Bul
         const elements = document.querySelectorAll(elementSelector);
         if (!elements || elements.length === 0) {

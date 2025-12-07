@@ -12,7 +12,7 @@
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;800&family=Lexend:wght@400;600;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
       
-      /* OpenDyslexic Font Face - Corrected Paths */
+      /* OpenDyslexic Font Face */
       @font-face {
         font-family: 'OpenDyslexic';
         src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/otf/OpenDyslexic-Regular.otf');
@@ -166,16 +166,22 @@
 
     /* --- PAGE CONTAINER STYLES --- */
     .document-viewport {
-        background-color: #e4e4e7; /* Zinc 200 - Word-like background */
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        /* Background will be set by JS/React based on theme, but default to transparent to show body bg */
+        background-color: transparent; 
         perspective: 1000px;
     }
     
+    /* A4 Page Style */
     .worksheet-page {
         background-color: white;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05);
-        margin-bottom: 2rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        margin: 0 auto; /* Center horizontally */
+        margin-bottom: 40px; /* Space between pages */
+        width: 210mm;
+        min-height: 297mm;
+        padding: 0;
+        position: relative;
+        overflow: hidden;
     }
 
     /* --- YAZDIRMA (PRINT) STİLLERİ --- */
@@ -218,7 +224,7 @@
         }
 
         /* Her worksheet-item yeni bir sayfa olmalı */
-        .worksheet-item {
+        .worksheet-page {
             display: block !important;
             break-after: page !important;
             page-break-after: always !important;
@@ -229,8 +235,8 @@
             position: relative !important;
             box-shadow: none !important;
             border: none !important;
-            overflow: hidden !important; /* Taşan içeriği gizle, ikinci sayfaya akmalı ama manuel */
-            transform: none !important; /* Scale iptal */
+            overflow: hidden !important; 
+            transform: none !important; 
         }
         
         /* Scaler'ı sıfırla */

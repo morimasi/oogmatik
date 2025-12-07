@@ -99,6 +99,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     // --- INFINITE CANVAS STATE (Disabled for Document View) ---
     const [viewZoom, setViewZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 }); 
+    const isDragging = useRef(false);
+    const lastMousePos = useRef({ x: 0, y: 0 });
     
     const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -109,10 +111,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         setIsEditMode(false);
     }, [activityType]);
 
-    // Handle Mouse Wheel Zoom (Only if holding Ctrl)
+    // Handle Mouse Wheel Zoom (Standard Zoom behavior)
     const handleWheel = (e: React.WheelEvent) => {
         if (currentView !== 'generator' || !worksheetData) return;
 
+        // Standard zoom with wheel (Ctrl not required for ease of use in this view mode)
+        // or require Ctrl if user prefers scrolling. Let's make it standard vertical scroll usually, 
+        // but since we want "zoomable canvas" feel:
+        
         if (e.ctrlKey) { 
              e.preventDefault();
              const delta = e.deltaY * -0.001;
@@ -120,6 +126,43 @@ const ContentArea: React.FC<ContentAreaProps> = ({
              setViewZoom(newZoom);
         }
     };
+
+    // --- PANNING HANDLERS ---
+    const handleMouseDown = (e: React.MouseEvent) => {
+        // Only pan if clicking on the background (not the page itself ideally, but container handles capture)
+        // Check if target is the background container or direct child wrapper
+        if ((e.target as HTMLElement).closest('.worksheet-page') === null) {
+            isDragging.current = true;
+            lastMousePos.current = { x: e.clientX, y: e.clientY };
+            document.body.style.cursor = 'grabbing';
+        }
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging.current) return;
+        e.preventDefault();
+        const deltaX = e.clientX - lastMousePos.current.x;
+        const deltaY = e.clientY - lastMousePos.current.y;
+        
+        setPan(prev => ({ x: prev.x + deltaX, y: prev.y + deltaY }));
+        lastMousePos.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handleMouseUp = () => {
+        isDragging.current = false;
+        document.body.style.cursor = 'default';
+    };
+
+    // Global mouse up to catch drag release outside container
+    useEffect(() => {
+        const handleGlobalUp = () => {
+            isDragging.current = false;
+            document.body.style.cursor = 'default';
+        };
+        window.addEventListener('mouseup', handleGlobalUp);
+        return () => window.removeEventListener('mouseup', handleGlobalUp);
+    }, []);
+
 
     const handleTakeSnapshot = async () => {
         const elements = document.querySelectorAll('.worksheet-item');
@@ -301,7 +344,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       <div 
         ref={canvasRef}
         className={`flex-1 relative overflow-hidden bg-zinc-200 dark:bg-zinc-900/50`}
+        style={{ cursor: isDragging.current ? 'grabbing' : 'default' }}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
+        onMouseDown={currentView === 'generator' && worksheetData ? handleMouseDown : undefined}
+        onMouseMove={currentView === 'generator' && worksheetData ? handleMouseMove : undefined}
+        onMouseUp={currentView === 'generator' && worksheetData ? handleMouseUp : undefined}
       >
           {/* Mode Overlay Info */}
           {isEditMode && (
@@ -361,9 +408,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     <div 
                         className={`content-preview-wrapper h-full w-full`}
                         style={{ 
-                            transform: `scale(${viewZoom})`,
+                            transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
                             transformOrigin: 'top center',
-                            transition: 'transform 0.2s ease-out'
+                            transition: isDragging.current ? 'none' : 'transform 0.1s ease-out'
                         }}
                     >
                         <Worksheet 
