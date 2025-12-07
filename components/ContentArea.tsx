@@ -1,8 +1,7 @@
-
 import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment, OverlayItem, AssessmentReport } from '../types';
 import Worksheet from './Worksheet';
-import Toolbar from './Toolbar';
+import { Toolbar } from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { SharedWorksheetsView } from './SharedWorksheetsView';
 import { useAuth } from '../context/AuthContext';
