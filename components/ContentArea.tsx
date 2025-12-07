@@ -15,6 +15,7 @@ import { worksheetService } from '../services/worksheetService';
 import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
 import { DrawLayer } from './DrawLayer';
+import { speechService } from '../utils/speechService';
 // @ts-ignore
 import html2canvas from 'html2canvas';
 
@@ -98,6 +99,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isEditMode, setIsEditMode] = useState(false); 
     const [isDrawMode, setIsDrawMode] = useState(false);
     
+    // Phase 4: TTS & QR
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [showQR, setShowQR] = useState(false);
+    
     // --- INFINITE CANVAS STATE ---
     const [viewZoom, setViewZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 }); 
@@ -115,7 +120,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         setPan({ x: 0, y: 0 });
         setIsEditMode(false);
         setIsDrawMode(false);
-        setOverlayItems([]); // Or persist if needed
+        setOverlayItems([]); 
+        
+        // Stop speech if activity changes
+        if (speechService.isActive()) {
+            speechService.stop();
+            setIsSpeaking(false);
+        }
     }, [activityType]);
 
     // Handle Mouse Wheel Zoom 
@@ -295,17 +306,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     // --- OVERLAY HANDLERS ---
     const handleAddText = () => {
-        // Find visible page (current impl just adds to page 0, can be enhanced with intersection observer)
         const newItem: OverlayItem = {
             id: crypto.randomUUID(),
             type: 'text',
             content: 'Metin',
-            x: 100, // Default relative position
+            x: 100, 
             y: 100,
-            pageIndex: 0 // Default to first page for simplicity
+            pageIndex: 0 
         };
         setOverlayItems(prev => [...prev, newItem]);
-        setIsEditMode(true); // Auto-enable edit
+        setIsEditMode(true); 
     };
 
     const handleAddSticker = (url: string) => {
@@ -319,6 +329,36 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         };
         setOverlayItems(prev => [...prev, newItem]);
         setIsEditMode(true);
+    };
+
+    // --- PHASE 4: TTS HANDLER ---
+    const handleSpeak = () => {
+        if (!worksheetData || worksheetData.length === 0) return;
+        
+        // Construct readable text from the current worksheet data
+        // Priority: Title -> Instruction -> Pedagogical Note -> Content
+        const page = worksheetData[0]; // Currently reading first page only
+        
+        const parts = [];
+        if (page.title) parts.push(page.title);
+        if (page.instruction) parts.push(page.instruction);
+        
+        // Extract content depending on type (heuristic)
+        if (page.story) parts.push(page.story);
+        if (page.prompt) parts.push(page.prompt);
+        if (page.questions) parts.push("Sorular başlıyor.");
+        
+        const fullText = parts.join('. ');
+        
+        if (fullText) {
+            setIsSpeaking(true);
+            speechService.speak(fullText, () => setIsSpeaking(false));
+        }
+    };
+
+    const handleStopSpeak = () => {
+        speechService.stop();
+        setIsSpeaking(false);
     };
 
     const getBreadcrumbs = () => {
@@ -380,6 +420,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     onAddSticker={handleAddSticker}
                     isDrawMode={isDrawMode}
                     onToggleDraw={() => setIsDrawMode(!isDrawMode)}
+                    // TTS
+                    onSpeak={handleSpeak}
+                    isSpeaking={isSpeaking}
+                    onStopSpeak={handleStopSpeak}
+                    // QR
+                    showQR={showQR}
+                    onToggleQR={() => setShowQR(!showQR)}
                 />
           )}
       </div>
@@ -403,6 +450,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           {isDrawMode && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-orange-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none sticky">
                   <i className="fa-solid fa-pen-nib"></i> Çizim Modu Aktif
+              </div>
+          )}
+          
+          {isSpeaking && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full shadow-xl z-50 font-bold text-lg flex items-center gap-3 animate-pulse pointer-events-none sticky">
+                  <i className="fa-solid fa-volume-high"></i> Okunuyor...
               </div>
           )}
 
@@ -470,6 +523,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             settings={styleSettings} 
                             studentProfile={studentProfile}
                             overlayItems={overlayItems}
+                            showQR={showQR}
                         />
                     </div>
                 )}

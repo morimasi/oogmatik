@@ -18,6 +18,7 @@ interface WorksheetProps {
     settings: StyleSettings;
     studentProfile?: StudentProfile | null;
     overlayItems?: OverlayItem[];
+    showQR?: boolean;
 }
 
 const RenderSheet = React.memo(({ activityType, data }: { activityType: ActivityType, data: SingleWorksheetData }) => {
@@ -190,7 +191,20 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
     return prevProps.data === nextProps.data && prevProps.activityType === nextProps.activityType;
 });
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, overlayItems }) => {
+const WorkbookQR = ({ url }: { url: string }) => {
+    // Generate a simple QR code using an API service for simplicity in client-side
+    // Using a reliable public API for generating QR codes
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
+    
+    return (
+        <div className="absolute top-4 right-4 z-20 flex flex-col items-center bg-white p-2 rounded-lg border-2 border-black shadow-md no-print-hide">
+            <img src={qrUrl} alt="QR Code" className="w-16 h-16" crossOrigin="anonymous" />
+            <span className="text-[8px] font-bold mt-1 text-black uppercase tracking-wider">Dijital Çözüm</span>
+        </div>
+    );
+};
+
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, overlayItems, showQR }) => {
     const { isEditMode } = useEditable();
     const [visiblePage, setVisiblePage] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -212,7 +226,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         };
 
         // Attach scroll listener to the document-viewport (ContentArea)
-        // Since Worksheet is inside ContentArea, we might need to find the scrolling parent
         const scroller = containerRef.current?.closest('.document-viewport') || window;
         scroller.addEventListener('scroll', handleScroll);
         
@@ -333,6 +346,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         className="worksheet-item worksheet-page transition-all duration-300 ease-in-out"
                         style={pageStyle}
                     >
+                        {/* QR Code Overlay (Top Right of Page) */}
+                        {showQR && <WorkbookQR url="https://www.bursadisleksi.com" />}
+
                         {/* Content Wrapper applying the mandatory print margin */}
                         <div className="w-full h-full p-[10mm] relative">
                             

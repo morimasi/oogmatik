@@ -366,7 +366,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                     <div className="grid grid-cols-2 gap-8 items-start">
                         {/* Radar Chart Section */}
                         <div className="border-2 border-zinc-200 rounded-xl p-4 flex flex-col items-center justify-center min-h-[300px]">
-                            <h4 className="font-bold text-xs uppercase mb-4 text-zinc-400 tracking-wider">Becerisel Risk Profili</h4>
+                            <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Becerisel Risk Profili</h4>
                             <div className="transform scale-90 origin-top">
                                 {report.chartData && <RadarChart data={report.chartData} />}
                             </div>

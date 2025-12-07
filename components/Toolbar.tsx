@@ -23,6 +23,13 @@ interface ToolbarProps {
   onAddSticker?: (url: string) => void;
   isDrawMode?: boolean;
   onToggleDraw?: () => void;
+  // TTS Props
+  onSpeak?: () => void;
+  isSpeaking?: boolean;
+  onStopSpeak?: () => void;
+  // QR Props
+  showQR?: boolean;
+  onToggleQR?: () => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -42,7 +49,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onAddText,
     onAddSticker,
     isDrawMode,
-    onToggleDraw
+    onToggleDraw,
+    onSpeak,
+    isSpeaking,
+    onStopSpeak,
+    showQR,
+    onToggleQR
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
   const [showStickers, setShowStickers] = useState(false);
@@ -50,7 +62,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
   const handleAction = async (action: 'print' | 'download') => {
       setIsProcessing(true);
-      // Wait for React to render any pending updates
       setTimeout(async () => {
           try {
               await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
@@ -267,6 +278,30 @@ const Toolbar: React.FC<ToolbarProps> = ({
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
             
+            {/* HYBRID FEATURES (Phase 4) */}
+            <div className="flex bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-lg mr-2 border border-zinc-200 dark:border-zinc-700">
+                {/* TTS */}
+                {onSpeak && (
+                    <button 
+                        onClick={isSpeaking ? onStopSpeak : onSpeak}
+                        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${isSpeaking ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-white dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-300'}`}
+                        title={isSpeaking ? "Okumayı Durdur" : "Sesli Oku"}
+                    >
+                        <i className={`fa-solid ${isSpeaking ? 'fa-stop' : 'fa-volume-high'}`}></i>
+                    </button>
+                )}
+                {/* QR */}
+                {onToggleQR && (
+                    <button 
+                        onClick={onToggleQR}
+                        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${showQR ? 'bg-indigo-600 text-white' : 'hover:bg-white dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-300'}`}
+                        title="QR Kod Ekle"
+                    >
+                        <i className="fa-solid fa-qrcode"></i>
+                    </button>
+                )}
+            </div>
+
             {/* EDITOR TOOLS */}
             {isEditMode && (
                 <div className="flex bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-lg mr-2 border border-zinc-200 dark:border-zinc-700">
