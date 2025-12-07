@@ -297,7 +297,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         {showQR && <WorkbookQR url="https://www.bursadisleksi.com" />}
 
                         {/* Content Wrapper applying the mandatory print margin */}
-                        <div className="w-full h-full p-[10mm] relative flex flex-col justify-center">
+                        <div className="w-full h-full p-[10mm] relative flex flex-col">
                             
                             {/* Visual Guide for Edit Mode */}
                             {isEditMode && (
@@ -314,10 +314,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col"
                                 style={{
                                     transform: `scale(var(--scale))`,
-                                    transformOrigin: 'center center',
+                                    transformOrigin: 'top center',
                                     width: `100%`,
-                                    height: `100%`,
-                                    justifyContent: 'center', // Center vertically
+                                    height: `100%`
                                 }}
                             >
                                 {/* Minimalist Student Header */}

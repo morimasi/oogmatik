@@ -106,8 +106,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [showQR, setShowQR] = useState(false);
     
     // --- INFINITE CANVAS STATE ---
-    const [scale, setScale] = useState(1);
-    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [scale, setScale] = useState(0.8); // Start slightly zoomed out to see full page
+    const [position, setPosition] = useState({ x: 0, y: 50 }); // Initial padding
     const [isDragging, setIsDragging] = useState(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -115,9 +115,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     // --- OVERLAY STATE ---
     const [overlayItems, setOverlayItems] = useState<OverlayItem[]>([]);
     
-    // Reset canvas when activity changes
+    // Reset canvas when activity changes or data loads
     useEffect(() => {
-        centerCanvas();
+        if (worksheetData && worksheetData.length > 0) {
+            centerCanvas();
+        }
         setIsEditMode(false);
         setIsDrawMode(false);
         setOverlayItems([]); 
@@ -126,41 +128,50 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             speechService.stop();
             setIsSpeaking(false);
         }
-    }, [activityType, worksheetData]); // Recenter on data change
+    }, [activityType, worksheetData]); 
 
-    const centerCanvas = () => {
-        // Initial center with slight top padding
+    const centerCanvas = useCallback(() => {
         if (canvasRef.current) {
             const viewportW = canvasRef.current.clientWidth;
             const viewportH = canvasRef.current.clientHeight;
-            // A4 Width approx 800px at scale 1. Center it.
-            setPosition({ x: (viewportW - 800) / 2, y: 50 });
-            setScale(Math.min(1, viewportW / 900)); // Auto fit width slightly
+            // A4 Width approx 794px at 96 DPI (210mm). 
+            // We want to center it horizontally.
+            // Initial scale 0.8 is usually good for desktop.
+            const initialScale = Math.min(0.9, (viewportW - 100) / 800); 
+            const centeredX = (viewportW - (800 * initialScale)) / 2;
+            
+            setScale(initialScale);
+            setPosition({ x: centeredX, y: 40 });
         }
-    };
+    }, []);
 
     // --- CANVAS INTERACTION HANDLERS ---
 
     const handleWheel = useCallback((e: React.WheelEvent) => {
+        // Only zoom if we are in generator view and have data
         if (currentView !== 'generator' || !worksheetData) return;
         
-        // Prevent default browser zoom
+        // Prevent default browser zoom if ctrl is pressed (optional, browsers handle this differently)
         if (e.ctrlKey) e.preventDefault();
 
-        // Check if we are wheeling over a scrollable element inside (rare in canvas mode but good practice)
-        // For this implementation, we treat the whole area as canvas.
-
-        const zoomSensitivity = 0.001;
-        const newScale = Math.min(Math.max(0.1, scale - e.deltaY * zoomSensitivity), 5);
+        // Zoom sensitivity
+        const zoomSensitivity = -0.001; 
+        const delta = e.deltaY * zoomSensitivity;
+        const newScale = Math.min(Math.max(0.2, scale + delta), 4);
         
-        // Calculate zoom to pointer
+        // Calculate zoom to pointer logic
+        // 1. Get mouse position relative to canvas container
         const rect = canvasRef.current!.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
 
-        // Formula: NewPos = Mouse - (Mouse - OldPos) * (NewScale / OldScale)
-        const newX = mouseX - (mouseX - position.x) * (newScale / scale);
-        const newY = mouseY - (mouseY - position.y) * (newScale / scale);
+        // 2. Calculate point on canvas (world space) before zoom
+        const canvasX = (mouseX - position.x) / scale;
+        const canvasY = (mouseY - position.y) / scale;
+
+        // 3. Calculate new position to keep that point under mouse
+        const newX = mouseX - canvasX * newScale;
+        const newY = mouseY - canvasY * newScale;
 
         setScale(newScale);
         setPosition({ x: newX, y: newY });
@@ -171,11 +182,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         
         // Don't drag if clicking interactive elements (inputs, edit handles)
         const target = e.target as HTMLElement;
-        if (target.closest('button') || target.closest('input') || target.closest('.edit-handle') || target.closest('.editable-element')) {
+        if (target.closest('button') || target.closest('input') || target.closest('.edit-handle') || target.closest('.editable-element') || target.tagName === 'TEXTAREA') {
             return;
         }
 
-        // Allow dragging if background OR holding space (optional, here we allow bg drag always)
         setIsDragging(true);
         lastMousePos.current = { x: e.clientX, y: e.clientY };
     };
@@ -199,7 +209,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         setIsDragging(false);
     };
 
-    // Global mouse up
+    // Global mouse up to catch drags that leave the window
     useEffect(() => {
         const handleGlobalUp = () => setIsDragging(false);
         window.addEventListener('mouseup', handleGlobalUp);
@@ -211,10 +221,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const elements = document.querySelectorAll('.worksheet-item');
         if (!elements || elements.length === 0) return;
 
+        // Hide edit handles temporarily
         const editIndicators = document.querySelectorAll('.edit-handle');
         editIndicators.forEach((el: any) => el.style.display = 'none');
 
         try {
+            // We take only the first page for snapshot thumbnail
             const canvas = await html2canvas(elements[0] as HTMLElement, {
                 scale: 2, 
                 useCORS: true, 
@@ -442,13 +454,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
       </div>
 
-      {/* 2. MAIN CANVAS AREA */}
+      {/* 2. MAIN CANVAS AREA (Infinite Canvas) */}
       <div 
         ref={canvasRef}
         className={`flex-1 relative overflow-hidden bg-zinc-200 dark:bg-zinc-900 canvas-viewport ${zenMode ? 'bg-zinc-900' : ''}`}
         style={{ 
-            cursor: isDragging ? 'grabbing' : 'grab',
-            // Dot Pattern Background
+            cursor: isDragging ? 'grabbing' : (isEditMode ? 'default' : 'grab'),
+            // Dot Pattern Background that scales with canvas
             backgroundImage: `radial-gradient(#9ca3af 1px, transparent 1px)`,
             backgroundSize: `${20 * scale}px ${20 * scale}px`,
             backgroundPosition: `${position.x}px ${position.y}px`
@@ -470,7 +482,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </div>
           )}
           
-          {/* ZOOM CONTROLS (Floating) */}
+          {/* FLOATING ZOOM CONTROLS */}
           {worksheetData && (
               <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-white dark:bg-zinc-800 p-1 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 z-50">
                   <button onClick={() => setScale(s => Math.max(0.1, s - 0.1))} className="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300">
@@ -488,6 +500,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
           {currentView === 'generator' ? (
             <>
+                {/* ERROR STATE */}
                 {error && !error.startsWith("Bilgi:") && (
                     <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 pointer-events-none">
                         <div className="bg-[var(--bg-paper)] border-2 border-red-500/30 rounded-2xl shadow-xl overflow-hidden pointer-events-auto">
@@ -505,6 +518,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     </div>
                 )}
 
+                {/* LOADING STATE */}
                 {isLoading && (
                     <div className="flex flex-col items-center justify-center absolute inset-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm pointer-events-none">
                         <div className="text-center mb-8">
@@ -517,6 +531,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     </div>
                 )}
 
+                {/* WELCOME / EMPTY STATE */}
                 {!isLoading && !error && !worksheetData && (
                      <div className="flex flex-col items-center justify-center h-full w-full pointer-events-none">
                          <div className="text-center p-8 max-w-3xl bg-[var(--panel-bg)] backdrop-blur-sm rounded-3xl border border-[var(--border-color)] shadow-2xl w-full mx-4">
@@ -532,17 +547,19 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     </div>
                 )}
                 
+                {/* WORKSHEET CONTENT LAYER */}
                 {worksheetData && (
-                    // TRANSFORM LAYER
+                    // TRANSFORM LAYER: Scales and moves everything inside
                     <div 
                         className="absolute origin-top-left transition-transform duration-75 ease-out will-change-transform"
                         style={{ 
                             transform: `translate3d(${position.x}px, ${position.y}px, 0) scale(${scale})`,
                         }}
                     >
-                        {/* DRAW LAYER (Absolute Overlay relative to content) */}
+                        {/* DRAW LAYER (Absolute Overlay relative to content for alignment) */}
                         <DrawLayer isActive={isDrawMode} zoom={scale} />
 
+                        {/* The Worksheet pages (now inside the canvas) */}
                         <Worksheet 
                             activityType={activityType} 
                             data={worksheetData} 
