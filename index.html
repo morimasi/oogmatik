@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -93,6 +92,16 @@
         --accent-color: #818cf8; /* Indigo-400 */
         --accent-hover: #6366f1;
         --pattern-color: #27272a;
+      }
+
+      /* Reduce Motion Accessibility Class */
+      html.motion-reduce *,
+      html.motion-reduce *::before,
+      html.motion-reduce *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
       }
 
       body {

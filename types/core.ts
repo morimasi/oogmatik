@@ -1,4 +1,5 @@
 
+
 import { CustomTheme } from '../utils/theme';
 
 export const ActivityType = {
@@ -290,6 +291,8 @@ export interface UiSettings {
     saturation: number;
     // Current Active Theme ID (moved from App state)
     activeThemeId?: string; 
+    reduceMotion?: boolean;
+    highContrast?: boolean;
 }
 
 export interface User {

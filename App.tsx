@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment } from './types';
 import Sidebar from './components/Sidebar';
@@ -56,7 +57,8 @@ const initialUiSettings: UiSettings = {
     letterSpacing: 'normal',
     lineHeight: 1.6,
     saturation: 100,
-    activeThemeId: 'anthracite'
+    activeThemeId: 'anthracite',
+    reduceMotion: false
 };
 
 // ... (Modal and TourGuide components omitted for brevity, assume they are unchanged)
@@ -188,6 +190,13 @@ const AppContent: React.FC = () => {
     root.style.setProperty('--ui-spacing', uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal');
     root.style.setProperty('--ui-line-height', (uiSettings.lineHeight || 1.6).toString());
     root.style.setProperty('--ui-saturation', `${uiSettings.saturation || 100}%`);
+    
+    // 5. Apply Motion Reduction
+    if (uiSettings.reduceMotion) {
+        root.classList.add('motion-reduce');
+    } else {
+        root.classList.remove('motion-reduce');
+    }
     
     localStorage.setItem('app-ui-settings', JSON.stringify(uiSettings));
     

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { UiSettings } from '../types/core';
 import { CustomTheme, PRESET_THEMES, applyTheme, checkAccessibility } from '../utils/theme';
@@ -46,7 +47,7 @@ const ContrastBadge = ({ ratio, aa, aaa }: { ratio: number, aa: boolean, aaa: bo
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, uiSettings, onUpdateUiSettings, activeThemeId, onUpdateTheme }) => {
     const { user, updateUser } = useAuth();
-    const [activeTab, setActiveTab] = useState<'themes' | 'studio' | 'typography'>('themes');
+    const [activeTab, setActiveTab] = useState<'themes' | 'studio' | 'typography' | 'system'>('themes');
     const [themes, setThemes] = useState<CustomTheme[]>(PRESET_THEMES);
     
     // Studio State
@@ -110,6 +111,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
         // Revert to default if deleting active
         if (activeThemeId === id) onUpdateTheme(PRESET_THEMES[0]);
     };
+    
+    const handleClearCache = () => {
+        if(confirm("Tüm yerel veriler ve önbellek temizlenecek. Sayfa yenilenecek. Devam edilsin mi?")) {
+            localStorage.clear();
+            window.location.reload();
+        }
+    };
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -118,7 +126,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900">
                     <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                        <i className="fa-solid fa-paintbrush text-indigo-600 dark:text-indigo-400"></i> Görünüm Stüdyosu
+                        <i className="fa-solid fa-sliders text-indigo-600 dark:text-indigo-400"></i> Ayarlar
                     </h2>
                     <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
                         <i className="fa-solid fa-times text-zinc-500"></i>
@@ -128,6 +136,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                 <div className="flex flex-1 overflow-hidden">
                     {/* Sidebar Nav */}
                     <div className="w-64 bg-zinc-50 dark:bg-black/20 border-r border-zinc-200 dark:border-zinc-700 p-4 flex flex-col gap-2">
+                        <p className="px-3 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">Görsel</p>
                         <button 
                             onClick={() => setActiveTab('themes')}
                             className={`p-3 rounded-xl text-left font-bold text-sm flex items-center gap-3 transition-colors ${activeTab === 'themes' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800'}`}
@@ -138,13 +147,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                             onClick={() => handleStartEditing(PRESET_THEMES[0])}
                             className={`p-3 rounded-xl text-left font-bold text-sm flex items-center gap-3 transition-colors ${activeTab === 'studio' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800'}`}
                         >
-                            <i className="fa-solid fa-palette"></i> Tema Oluştur
+                            <i className="fa-solid fa-palette"></i> Tema Stüdyosu
                         </button>
+                        
+                        <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-2"></div>
+                        
+                        <p className="px-3 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">Düzen</p>
                         <button 
                             onClick={() => setActiveTab('typography')}
                             className={`p-3 rounded-xl text-left font-bold text-sm flex items-center gap-3 transition-colors ${activeTab === 'typography' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800'}`}
                         >
-                            <i className="fa-solid fa-font"></i> Yazı & Düzen
+                            <i className="fa-solid fa-font"></i> Tipografi
+                        </button>
+
+                        <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-2"></div>
+                        
+                        <p className="px-3 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">Gelişmiş</p>
+                        <button 
+                            onClick={() => setActiveTab('system')}
+                            className={`p-3 rounded-xl text-left font-bold text-sm flex items-center gap-3 transition-colors ${activeTab === 'system' ? 'bg-white dark:bg-zinc-700 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800'}`}
+                        >
+                            <i className="fa-solid fa-gears"></i> Sistem
                         </button>
                     </div>
 
@@ -297,6 +320,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                                         onChange={(e) => onUpdateUiSettings({...uiSettings, lineHeight: parseFloat(e.target.value)})}
                                         className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                                     />
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'system' && (
+                            <div className="space-y-6">
+                                <div className="p-4 bg-zinc-50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-xl flex items-center justify-between">
+                                    <div>
+                                        <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Hareketi Azalt</h4>
+                                        <p className="text-xs text-zinc-500">Animasyonları ve geçiş efektlerini devre dışı bırakır.</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={uiSettings.reduceMotion || false} 
+                                            onChange={(e) => onUpdateUiSettings({...uiSettings, reduceMotion: e.target.checked})} 
+                                            className="sr-only peer" 
+                                        />
+                                        <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+
+                                <div className="p-4 bg-zinc-50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-xl flex items-center justify-between">
+                                    <div>
+                                        <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Önbellek Yönetimi</h4>
+                                        <p className="text-xs text-zinc-500">Uygulama yavaşlarsa veya hata verirse kullanın.</p>
+                                    </div>
+                                    <button 
+                                        onClick={handleClearCache}
+                                        className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 rounded-lg text-xs font-bold transition-colors"
+                                    >
+                                        Temizle ve Yenile
+                                    </button>
+                                </div>
+
+                                <div className="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-700 text-center">
+                                    <p className="text-xs font-mono text-zinc-400">Bursa Disleksi AI v1.3.0</p>
+                                    <p className="text-[10px] text-zinc-400 mt-1">Build: 2024.10.15</p>
                                 </div>
                             </div>
                         )}
