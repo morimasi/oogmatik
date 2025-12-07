@@ -143,26 +143,32 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 {/* REPORT CONTENT */}
                 <div id="report-content-area" className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar text-black bg-white">
                     <div className="worksheet-item mb-8 border-b-2 border-zinc-800 pb-4">
-                        <h1 className="text-3xl font-black text-black">Özel Eğitim Tanılama ve Raporlama</h1>
+                        <h1 className="text-3xl font-black text-black">Tanısal Değerlendirme Raporu</h1>
                         <div className="flex justify-between mt-4 text-black"><p><strong>Öğrenci:</strong> {assessment.studentName}</p><p><strong>Tarih:</strong> {new Date(assessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
                     </div>
                     
-                    <div className="bg-indigo-50 p-4 rounded-xl text-indigo-900 text-sm leading-relaxed border border-indigo-100 break-inside-avoid">
-                        <h4 className="font-bold mb-2 uppercase tracking-wider">Uzman Görüşü & Özet</h4>
+                    <div className="bg-indigo-50 p-6 rounded-xl border-l-8 border-indigo-500 text-sm leading-relaxed text-zinc-800 text-justify">
+                        <h4 className="font-bold mb-2 uppercase text-indigo-800 tracking-wider">Uzman Görüşü & Özet</h4>
                         {report.overallSummary}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
-                        <div className="p-4 border rounded-xl flex flex-col items-center justify-center min-h-[250px] bg-white break-inside-avoid">
-                            <h4 className="font-bold text-zinc-500 text-xs uppercase mb-2">Becerisel Risk Profili</h4>
+                        <div className="p-4 border border-zinc-200 rounded-xl flex flex-col items-center justify-center min-h-[300px] bg-white break-inside-avoid shadow-sm">
+                            <h4 className="font-bold text-zinc-500 text-xs uppercase mb-4">Beceri ve Zeka Alanları Analizi</h4>
                             {report.chartData && <RadarChart data={report.chartData} />}
                         </div>
                         <div className="space-y-3 break-inside-avoid">
                             {Object.entries(report.scores).map(([key, value]) => {
                                 const score = value as number;
-                                const label = key === 'reading' ? 'Okuma Becerileri' : key === 'math' ? 'Matematik & Mantık' : key === 'attention' ? 'Dikkat & Algı' : key === 'cognitive' ? 'Bilişsel Performans' : 'Yazma Becerisi';
-                                const riskLevel = score > 70 ? 'Yüksek Risk' : score > 40 ? 'Orta Risk' : 'Düşük Risk';
-                                const colorClass = score > 70 ? 'bg-red-500' : score > 40 ? 'bg-yellow-500' : 'bg-green-500';
+                                const labelMap: Record<string, string> = {
+                                    'reading': 'Okuma Becerileri', 'math': 'Matematik & Mantık', 'attention': 'Dikkat & Algı',
+                                    'linguistic': 'Sözel-Dilsel', 'logical': 'Mantıksal', 'spatial': 'Görsel-Uzamsal',
+                                    'musical': 'Müziksel', 'kinesthetic': 'Bedensel', 'naturalistic': 'Doğacı',
+                                    'interpersonal': 'Sosyal', 'intrapersonal': 'İçsel'
+                                };
+                                const label = labelMap[key] || key;
+                                const riskLevel = score > 80 ? 'Yüksek Başarı' : score > 50 ? 'Ortalama' : 'Desteklenmeli';
+                                const colorClass = score > 80 ? 'bg-green-500' : score > 50 ? 'bg-yellow-500' : 'bg-red-500';
                                 
                                 return (
                                     <div key={key} className="p-3 rounded-lg border border-zinc-200 flex flex-col bg-white">
@@ -187,42 +193,42 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                     </div>
                     
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
-                        <div className="p-4 bg-green-50 rounded-xl border border-green-200 break-inside-avoid">
-                            <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
-                            <ul className="list-disc list-inside text-sm text-green-900 space-y-1">
+                        <div className="p-6 bg-green-50 rounded-xl border border-green-200 break-inside-avoid">
+                            <h4 className="font-bold text-green-800 mb-4 flex items-center gap-2 border-b border-green-200 pb-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
+                            <ul className="list-disc list-inside text-sm text-green-900 space-y-2">
                                 {report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                             </ul>
                         </div>
-                        <div className="p-4 bg-rose-50 rounded-xl border border-rose-200 break-inside-avoid">
-                            <h4 className="font-bold text-rose-800 mb-2 flex items-center gap-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
-                            <ul className="list-disc list-inside text-sm text-rose-900 space-y-1">
+                        <div className="p-6 bg-rose-50 rounded-xl border border-rose-200 break-inside-avoid">
+                            <h4 className="font-bold text-rose-800 mb-4 flex items-center gap-2 border-b border-rose-200 pb-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
+                            <ul className="list-disc list-inside text-sm text-rose-900 space-y-2">
                                 {report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
                             </ul>
                         </div>
                     </div>
 
                     {report.analysis.errorAnalysis && report.analysis.errorAnalysis.length > 0 && (
-                        <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-amber-900 text-sm leading-relaxed break-inside-avoid">
-                            <h4 className="font-bold mb-2 flex items-center gap-2"><i className="fa-solid fa-magnifying-glass-chart"></i> Hata Analizi (Error Analysis)</h4>
-                            <ul className="list-decimal list-inside space-y-1">
+                        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 text-amber-900 text-sm leading-relaxed break-inside-avoid">
+                            <h4 className="font-bold mb-4 flex items-center gap-2 border-b border-amber-200 pb-2"><i className="fa-solid fa-magnifying-glass-chart"></i> Hata Analizi (Error Pattern)</h4>
+                            <ul className="list-decimal list-inside space-y-2">
                                 {report.analysis.errorAnalysis.map((err, i) => <li key={i}>{err}</li>)}
                             </ul>
                         </div>
                     )}
                     
-                     <div className="bg-zinc-800 text-white p-6 rounded-xl shadow-lg break-inside-avoid">
-                        <h4 className="font-bold text-lg mb-4 flex items-center gap-2"><i className="fa-solid fa-road"></i> Önerilen Eğitim Rotası</h4>
+                     <div className="bg-zinc-900 text-white p-8 rounded-2xl shadow-lg break-inside-avoid">
+                        <h4 className="font-bold text-lg mb-6 flex items-center gap-2 border-b border-zinc-700 pb-4"><i className="fa-solid fa-road"></i> Kişiselleştirilmiş Eğitim Rotası</h4>
                         <div className="space-y-4">
                             {report.roadmap.map((item, idx) => (
-                                <div key={idx} className="bg-zinc-700/50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-600">
+                                <div key={idx} className="bg-zinc-800 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-700">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white">{idx + 1}</div>
+                                        <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white shadow-lg">{idx + 1}</div>
                                         <div>
-                                            <h5 className="font-bold text-indigo-300">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
-                                            <p className="text-xs text-zinc-300">{item.reason}</p>
+                                            <h5 className="font-bold text-indigo-300 text-lg">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
+                                            <p className="text-sm text-zinc-400 mt-1">{item.reason}</p>
                                         </div>
                                     </div>
-                                    <span className="text-xs font-bold bg-zinc-900 px-3 py-1 rounded-full text-zinc-400 border border-zinc-600 whitespace-nowrap">{item.frequency}</span>
+                                    <span className="text-xs font-bold bg-zinc-900 px-4 py-2 rounded-full text-zinc-400 border border-zinc-700 whitespace-nowrap">{item.frequency}</span>
                                 </div>
                             ))}
                         </div>

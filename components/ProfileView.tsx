@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { SavedAssessment, SavedWorksheet, ActivityType, User } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { worksheetService } from '../services/worksheetService';
-import { ShareModal } from './ShareModal';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { LineChart } from './LineChart';
 
@@ -151,7 +150,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
         };
     }, [user, worksheets]);
 
-    // Prepare chart data from assessments
+    // Prepare chart data from assessments for LineChart
     const chartData = useMemo(() => {
         if (!assessments || assessments.length === 0) return [];
         // Sort by date ascending
@@ -159,9 +158,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
         
         return sorted.map(a => ({
             date: a.createdAt,
-            reading: a.report.scores.reading,
-            math: a.report.scores.math,
-            attention: a.report.scores.attention
+            // Try to extract generic scores or use fallbacks
+            reading: a.report.scores.linguistic || a.report.scores.reading || 0,
+            math: a.report.scores.logical || a.report.scores.math || 0,
+            attention: a.report.scores.attention || 0
         }));
     }, [assessments]);
 
@@ -448,13 +448,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                             {activeTab === 'evaluations' && (
                                 <div className="space-y-6">
                                     {/* PROGRESS CHART */}
-                                    <BentoCard title="Gelişim Grafiği (Son Değerlendirmeler)" icon="fa-solid fa-chart-line" iconColor="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                    <BentoCard title="Gelişim Grafiği (Zaman İçinde)" icon="fa-solid fa-chart-line" iconColor="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                                         <div className="h-64 mt-4">
                                             <LineChart 
                                                 data={chartData} 
                                                 lines={[
-                                                    { key: 'reading', color: '#3B82F6', label: 'Okuma' },
-                                                    { key: 'math', color: '#EF4444', label: 'Matematik' },
+                                                    { key: 'reading', color: '#3B82F6', label: 'Sözel-Dilsel' },
+                                                    { key: 'math', color: '#EF4444', label: 'Mantıksal' },
                                                     { key: 'attention', color: '#10B981', label: 'Dikkat' }
                                                 ]} 
                                             />

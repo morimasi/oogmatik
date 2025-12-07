@@ -1,3 +1,4 @@
+
 import type { CSSProperties } from 'react';
 
 export enum ActivityType {
@@ -342,6 +343,8 @@ export interface AssessmentProfile {
     grade: string;
     observations: string[];
     testResults: Record<string, TestResult>; 
+    // Additional tracking for detailed errors (Analysis)
+    errorPatterns?: Record<string, number>; 
 }
 
 export interface AssessmentReport {
@@ -457,4 +460,22 @@ export interface HistoryItem {
     timestamp: string;
     title: string;
     category: { id: string; title: string };
+}
+
+// --- ASSESSMENT CONFIG ---
+export interface AssessmentConfig {
+    mode: 'quick' | 'standard' | 'full';
+    selectedSkills: TestCategory[];
+    duration?: number; // Estimated minutes
+}
+
+export interface AdaptiveQuestion {
+    id: string;
+    text: string;
+    options: string[];
+    correct: string;
+    difficulty: number; // 1-5
+    skill: TestCategory;
+    subSkill?: string; // e.g. 'reversal', 'sequencing'
+    errorTags: Record<string, string>; // option -> error type (e.g. {'d': 'reversal'})
 }

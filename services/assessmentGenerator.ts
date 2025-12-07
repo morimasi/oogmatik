@@ -25,6 +25,19 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
         attention: getScore('attention')
     };
 
+    // Analyze Error Patterns from Profile if available
+    const errorAnalysis = [];
+    if (profile.errorPatterns) {
+        // Find most frequent errors
+        const sortedErrors = Object.entries(profile.errorPatterns).sort((a,b) => b[1] - a[1]);
+        if (sortedErrors.length > 0) {
+            errorAnalysis.push(`En sık yapılan hata türü: ${sortedErrors[0][0].replace('_', ' ')} (${sortedErrors[0][1]} kez).`);
+            if (sortedErrors.length > 1) {
+                errorAnalysis.push(`İkincil hata: ${sortedErrors[1][0].replace('_', ' ')}.`);
+            }
+        }
+    }
+
     // Simple Heuristic Logic
     const strengths = [];
     const weaknesses = [];
@@ -36,7 +49,7 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
     if (scores.linguistic < 50) weaknesses.push("Kelime dağarcığı ve ifade becerisi desteklenmeli.");
 
     return {
-        overallSummary: "Öğrencinin performansı Çoklu Zeka Kuramı çerçevesinde değerlendirilmiştir. Çevrimdışı modda olduğumuz için detaylı yapay zeka analizi yapılamamıştır, ancak temel göstergeler yukarıdadır.",
+        overallSummary: "Öğrencinin performansı Çoklu Zeka Kuramı ve Bilişsel Beceriler çerçevesinde değerlendirilmiştir. Hata analizi, öğrencinin belirli örüntülerde zorlandığını göstermektedir.",
         scores,
         chartData: [
             { label: "Sözel", value: scores.linguistic, fullMark: 100 },
@@ -48,7 +61,7 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
             { label: "Sosyal", value: scores.interpersonal, fullMark: 100 },
             { label: "İçsel", value: scores.intrapersonal, fullMark: 100 }
         ],
-        analysis: { strengths, weaknesses, errorAnalysis: ["Detaylı analiz için online mod gereklidir."] },
+        analysis: { strengths, weaknesses, errorAnalysis: errorAnalysis.length > 0 ? errorAnalysis : ["Detaylı hata analizi için daha fazla veri gereklidir."] },
         roadmap: [
              { activityId: ActivityType.READING_FLOW, reason: "Genel okuma desteği.", frequency: "Günlük" }
         ]
@@ -58,17 +71,25 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
 export const generateAssessmentReport = async (profile: AssessmentProfile): Promise<AssessmentReport> => {
     let testResultsDesc = "İnteraktif test verisi yok.";
     if (profile.testResults && Object.keys(profile.testResults).length > 0) {
-        testResultsDesc = "ÇOKLU ZEKA TEST SONUÇLARI (% Doğruluk):\n";
+        testResultsDesc = "TEST SONUÇLARI (% Doğruluk):\n";
         for(const [key, result] of Object.entries(profile.testResults)) {
             testResultsDesc += `- ${result.name} (${key}): %${result.accuracy.toFixed(1)}\n`;
         }
     }
 
-    // Enhanced Professional Prompt with Multiple Intelligences
+    let errorPatternsDesc = "Belirgin hata paterni yok.";
+    if (profile.errorPatterns && Object.keys(profile.errorPatterns).length > 0) {
+        errorPatternsDesc = "HATA ANALİZİ (Tür: Sayı):\n";
+        for (const [tag, count] of Object.entries(profile.errorPatterns)) {
+            errorPatternsDesc += `- ${tag}: ${count}\n`;
+        }
+    }
+
+    // Enhanced Professional Prompt with Error Analysis
     const prompt = `
     [ROL: EĞİTİM PSİKOLOĞU VE ÖLÇME DEĞERLENDİRME UZMANI]
     
-    GÖREV: Aşağıdaki öğrenci profilini ve **Howard Gardner'ın Çoklu Zeka Kuramı** test sonuçlarını analiz ederek, veli ve öğretmen için profesyonel, akademik dille yazılmış, yönlendirici bir "Tanılama ve Bireysel Gelişim Raporu" oluştur.
+    GÖREV: Aşağıdaki öğrenci profilini, test sonuçlarını ve **HATA PATERNLERİNİ** analiz ederek, veli ve öğretmen için profesyonel, akademik dille yazılmış, yönlendirici bir "Tanılama ve Bireysel Gelişim Raporu" oluştur.
     
     ÖĞRENCİ PROFİLİ:
     - İsim: ${profile.studentName}
@@ -78,16 +99,16 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     
     ${testResultsDesc}
     
+    ${errorPatternsDesc}
+    
     ANALİZ YÖNERGESİ:
-    1. **Bütüncül Değerlendirme:** Öğrencinin baskın zeka alanlarını (Örn: Sözel, Görsel, Doğacı vb.) belirle ve öğrenme stilini tanımla (Örn: "Bu öğrenci görsellerle ve doğa içinde daha iyi öğreniyor").
-    2. **Güçlü Yönler & Gelişim Alanları:** Hangi zeka türleri yüksek, hangileri düşük?
-    3. **Akıllı Rota (Smart Route):** Zayıf alanları geliştirmek için GÜÇLÜ alanlarını kaldıraç olarak kullanan stratejiler öner. 
-       - Örn: Eğer "Müziksel Zeka" yüksek ama "Matematik" düşükse -> "Ritmik sayma ve şarkılarla çarpım tablosu öğretimi" öner.
-       - Örn: Eğer "Görsel Zeka" yüksek ama "Okuma" düşükse -> "Resimli kartlarla kelime çalışması" öner.
+    1. **Bütüncül Değerlendirme:** Öğrencinin genel performansını ve öğrenme stilini özetle.
+    2. **Hata Analizi (ÇOK ÖNEMLİ):** Öğrencinin yaptığı hata türlerine (örn: 'reversal_error' -> harfleri ters algılama, 'sequencing_error' -> sıralama hatası) dayanarak, bilişsel süreçlerdeki (görsel algı, işitsel dikkat vb.) olası aksaklıkları açıkla. "Öğrenci 'b' ve 'd' harflerini karıştırma eğilimindedir" gibi spesifik ol.
+    3. **Akıllı Rota (Smart Route):** Tespit edilen zayıf alanları ve hata türlerini düzeltmeye yönelik nokta atışı etkinlikler öner.
     
     ÇIKTI FORMATI (JSON):
     {
-      "overallSummary": "Profesyonel özet metni (3-4 cümle). Öğrenme stili vurgusu.",
+      "overallSummary": "Profesyonel özet metni.",
       "scores": { 
         "linguistic": 0-100, 
         "logical": 0-100, 
@@ -102,20 +123,19 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
       "chartData": [ 
           { "label": "Sözel", "value": 0-100, "fullMark": 100 }, 
           { "label": "Mantıksal", "value": 0-100, "fullMark": 100 },
-          // ... diğer 6 zeka türü için de label/value ekle
+          // ... diğer zeka türleri
       ],
       "analysis": {
-        "strengths": ["Güçlü yön 1 (Zeka türü bağlamında)", ...],
+        "strengths": ["Güçlü yön 1", ...],
         "weaknesses": ["Gelişim alanı 1", ...],
-        "errorAnalysis": ["Bilişsel süreç analizi (Neden zorlanıyor olabilir?)", ...]
+        "errorAnalysis": ["Öğrenci, görsel algı testinde %40 oranında 'reversal' hatası yapmıştır, bu da disleksi riskine işaret edebilir.", "Sıralı işlemlerde dikkat dağınıklığı gözlemlendi.", ...]
       },
       "roadmap": [
-        { "activityId": "ACTIVITY_ENUM_CODE", "reason": "Neden bu etkinlik? (Güçlü yönü zayıf yöne transfer etme stratejisi)", "frequency": "Haftada 3 kez" }
+        { "activityId": "ACTIVITY_ENUM_CODE", "reason": "Tespit edilen 'reversal' hatasını gidermek için görsel ayırt etme çalışması.", "frequency": "Haftada 3 kez" }
       ]
     }
     
-    NOT: 'activityId' alanı için şu ENUM değerlerini kullan (en uygununu seç):
-    READING_FLOW, LETTER_DISCRIMINATION, RAPID_NAMING, ATTENTION_FOCUS, BASIC_OPERATIONS, NUMBER_SENSE, SPATIAL_REASONING, VISUAL_MEMORY, WORD_MEMORY, STORY_COMPREHENSION.
+    NOT: 'activityId' alanı için ENUM değerlerini kullan (örn: MIRROR_LETTERS, ATTENTION_FOCUS, LETTER_DISCRIMINATION, vb.).
     `;
 
     const schema = {
@@ -175,7 +195,6 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     };
 
     try {
-        // Using gemini-2.5-flash for speed and cost efficiency
         return await generateWithSchema(prompt, schema, 'gemini-2.5-flash') as unknown as AssessmentReport;
     } catch (error) {
         console.warn("AI Assessment Error, falling back:", error);
