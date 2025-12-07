@@ -1,9 +1,10 @@
 
-import { WorksheetData } from '../types';
+import { WorksheetData, ActivityType } from '../types';
 
 const DB_NAME = 'DyslexiaAICache';
 const STORE_NAME = 'generations';
-const DB_VERSION = 1;
+const DRAFT_STORE_NAME = 'drafts'; // New store for current session state
+const DB_VERSION = 2; // Incremented version
 
 export const cacheService = {
     async openDB(): Promise<IDBDatabase> {
@@ -19,6 +20,9 @@ export const cacheService = {
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
                     db.createObjectStore(STORE_NAME, { keyPath: 'key' });
                 }
+                if (!db.objectStoreNames.contains(DRAFT_STORE_NAME)) {
+                    db.createObjectStore(DRAFT_STORE_NAME, { keyPath: 'activityType' });
+                }
             };
 
             request.onsuccess = (event) => {
@@ -31,6 +35,7 @@ export const cacheService = {
         });
     },
 
+    // --- GENERATION CACHING (Exact match for API savings) ---
     async get(key: string): Promise<WorksheetData | null> {
         try {
             const db = await this.openDB();
@@ -70,10 +75,42 @@ export const cacheService = {
         }
     },
 
+    // --- DRAFT/PERSISTENCE (Restore last session) ---
+    async saveDraft(activityType: ActivityType, data: WorksheetData): Promise<void> {
+        try {
+            const db = await this.openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([DRAFT_STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(DRAFT_STORE_NAME);
+                const request = store.put({ activityType, data, timestamp: Date.now() });
+
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        } catch (e) {
+            console.warn('Draft save error:', e);
+        }
+    },
+
+    async getDraft(activityType: ActivityType): Promise<WorksheetData | null> {
+        try {
+            const db = await this.openDB();
+            return new Promise((resolve) => {
+                const transaction = db.transaction([DRAFT_STORE_NAME], 'readonly');
+                const store = transaction.objectStore(DRAFT_STORE_NAME);
+                const request = store.get(activityType);
+
+                request.onsuccess = () => {
+                    resolve(request.result ? request.result.data : null);
+                };
+                request.onerror = () => resolve(null);
+            });
+        } catch (e) {
+            return null;
+        }
+    },
+
     generateKey(activityType: string, options: any): string {
-        // Create a unique key based on activity and critical options.
-        // We exclude unstable keys if necessary, but stringifying options is usually sufficient for this app's scale.
-        // Seed in options ensures uniqueness when "Generate" is clicked again.
         return `${activityType}-${JSON.stringify(options)}`;
     }
 };

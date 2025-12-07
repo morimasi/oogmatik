@@ -38,10 +38,18 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 // 1. Check for raw SVG string (starts with <svg or contains svg tag)
                 if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('<?xml') || base64.includes('</svg>'))) {
                     let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').replace(/^```svg\s*|```\s*$/g, '').trim();
-                    // Basic cleanup for responsive scaling
+                    
+                    // Critical: Remove width/height to make it responsive, but keep viewBox
+                    // Also ensure it doesn't have hardcoded style that breaks layout
                     cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
-                    // Ensure it takes full space
-                    cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
+                    
+                    // Inject style to force fill parent
+                    // We check if it already has style attribute, if so append, else add
+                    if (cleanSvg.includes('style="')) {
+                        cleanSvg = cleanSvg.replace('style="', 'style="width:100%; height:100%; display:block; ');
+                    } else {
+                        cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
+                    }
                     
                     return <div className="w-full h-full p-1 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: cleanSvg }} />;
                 }
@@ -52,6 +60,7 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 }
 
                 // 3. Pollinations Fallback (Only if prompt is present and long enough)
+                // Used for when AI doesn't generate SVG or for complex scenes
                 let contentForPrompt = prompt || safeDesc;
                 if (contentForPrompt && contentForPrompt.length > 1) {
                     const finalPrompt = `${contentForPrompt}, educational vector illustration, simple black and white line art, white background, high contrast, minimalist`;

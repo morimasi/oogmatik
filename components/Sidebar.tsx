@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions, StudentProfile } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
@@ -51,6 +51,22 @@ const Sidebar: React.FC<SidebarProps> = ({
   const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
 
+  // --- SMART PERSISTENCE: Restore draft when activity is selected ---
+  useEffect(() => {
+      if (selectedActivity) {
+          const restoreDraft = async () => {
+              const draft = await cacheService.getDraft(selectedActivity);
+              if (draft) {
+                  // Only restore if we are not currently loading something else
+                  // We don't want to overwrite if user just clicked generate
+                  setWorksheetData(draft);
+                  // Optional: Show a toast saying "Restored from last session"
+              }
+          };
+          restoreDraft();
+      }
+  }, [selectedActivity, setWorksheetData]);
+
   // Memoize categorized activities to avoid recalculation on every render
   const categorizedActivities = useMemo(() => {
       return ACTIVITY_CATEGORIES.map(category => ({
@@ -77,7 +93,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         let result: WorksheetData | null = null;
         
         const runOfflineGenerator = async () => {
-             const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
+             // @ts-ignore
+             const offlineGenerator = offlineGenerators[offlineGeneratorFunctionName];
              if (offlineGenerator) {
                  return await offlineGenerator(requestOptions);
              } else {
@@ -86,20 +103,20 @@ const Sidebar: React.FC<SidebarProps> = ({
         };
 
         if (options.mode === 'ai') {
-            const onlineGenerator = (generators as any)[generatorFunctionName];
-            
-            // 1. Try Cache (if exact same request exists - though seed makes it unique usually)
-            // Useful if user goes back to same settings without re-clicking generate maybe?
-            // For now, "Generate" implies new, but we save success.
+            // @ts-ignore
+            const onlineGenerator = generators[generatorFunctionName];
             
             if (onlineGenerator) {
                 try {
-                    result = await onlineGenerator(requestOptions);
-                    
-                    // Save successful generation
-                    if (result) {
-                        const cacheKey = cacheService.generateKey(selectedActivity, requestOptions);
-                        await cacheService.set(cacheKey, result);
+                    // Try Cache First (Exact options match only, rare due to random seed but good for "back" nav)
+                    const cacheKey = cacheService.generateKey(selectedActivity, requestOptions);
+                    // result = await cacheService.get(cacheKey); // Disabled for now to force new variations on click
+
+                    if (!result) {
+                        result = await onlineGenerator(requestOptions);
+                        if (result) {
+                            await cacheService.set(cacheKey, result);
+                        }
                     }
 
                 } catch (err: any) {
@@ -122,6 +139,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         if (result) {
             setWorksheetData(result);
             onAddToHistory(selectedActivity, result);
+            // Save as Draft for Persistence
+            cacheService.saveDraft(selectedActivity, result);
             
             statsService.incrementUsage(selectedActivity).catch(console.error);
             if (user) {
