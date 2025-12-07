@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { DynamicActivity, PromptTemplate } from '../types/admin';
 import { adminService } from '../services/adminService';
@@ -10,6 +9,41 @@ const ICON_LIST = [
     'fa-map-location-dot', 'fa-user-doctor', 'fa-music', 'fa-video', 'fa-gamepad', 'fa-ghost', 'fa-robot',
     'fa-layer-group', 'fa-cubes', 'fa-fingerprint', 'fa-wand-magic-sparkles'
 ];
+
+interface ActivityCardProps {
+    act: DynamicActivity;
+    onEdit: (act: DynamicActivity) => void;
+    onToggleStatus: (id: string, currentStatus: boolean, e: React.MouseEvent) => void;
+}
+
+const ActivityCard: React.FC<ActivityCardProps> = ({ act, onEdit, onToggleStatus }) => (
+    <div 
+        onClick={() => onEdit(act)}
+        className={`group bg-white dark:bg-zinc-800 rounded-2xl p-5 border shadow-sm cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${act.isActive ? 'border-zinc-200 dark:border-zinc-700' : 'border-zinc-200 dark:border-zinc-700 opacity-60 grayscale'}`}
+    >
+        <div className="flex justify-between items-start mb-4">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner bg-zinc-50 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 group-hover:bg-indigo-600 group-hover:text-white transition-colors`}>
+                <i className={act.icon}></i>
+            </div>
+            <button 
+                onClick={(e) => onToggleStatus(act.id, act.isActive, e)}
+                className={`w-8 h-5 rounded-full relative transition-colors ${act.isActive ? 'bg-green-500' : 'bg-zinc-300'}`}
+            >
+                <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-transform ${act.isActive ? 'left-4' : 'left-1'}`}></div>
+            </button>
+        </div>
+        
+        <div>
+            <h4 className="font-bold text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">{act.title}</h4>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">{act.description}</p>
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-700 flex items-center justify-between text-xs">
+            <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-700 rounded text-zinc-500 dark:text-zinc-400 font-mono truncate max-w-[80px]">{act.id}</span>
+            {act.isPremium && <span className="text-amber-500 font-bold flex items-center gap-1"><i className="fa-solid fa-crown"></i> PRO</span>}
+        </div>
+    </div>
+);
 
 export const AdminActivityManager: React.FC = () => {
     const [activities, setActivities] = useState<DynamicActivity[]>([]);
@@ -73,35 +107,6 @@ export const AdminActivityManager: React.FC = () => {
         return matchesSearch && matchesCategory;
     });
 
-    const ActivityCard = ({ act }: { act: DynamicActivity }) => (
-        <div 
-            onClick={() => setEditingActivity(act)}
-            className={`group bg-white dark:bg-zinc-800 rounded-2xl p-5 border shadow-sm cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${act.isActive ? 'border-zinc-200 dark:border-zinc-700' : 'border-zinc-200 dark:border-zinc-700 opacity-60 grayscale'}`}
-        >
-            <div className="flex justify-between items-start mb-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner bg-zinc-50 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 group-hover:bg-indigo-600 group-hover:text-white transition-colors`}>
-                    <i className={act.icon}></i>
-                </div>
-                <button 
-                    onClick={(e) => toggleStatus(act.id, act.isActive, e)}
-                    className={`w-8 h-5 rounded-full relative transition-colors ${act.isActive ? 'bg-green-500' : 'bg-zinc-300'}`}
-                >
-                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-transform ${act.isActive ? 'left-4' : 'left-1'}`}></div>
-                </button>
-            </div>
-            
-            <div>
-                <h4 className="font-bold text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">{act.title}</h4>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">{act.description}</p>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-700 flex items-center justify-between text-xs">
-                <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-700 rounded text-zinc-500 dark:text-zinc-400 font-mono truncate max-w-[80px]">{act.id}</span>
-                {act.isPremium && <span className="text-amber-500 font-bold flex items-center gap-1"><i className="fa-solid fa-crown"></i> PRO</span>}
-            </div>
-        </div>
-    );
-
     return (
         <div className="space-y-6">
             {/* Toolbar */}
@@ -154,7 +159,14 @@ export const AdminActivityManager: React.FC = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {filtered.map(act => <ActivityCard key={act.id} act={act} />)}
+                    {filtered.map(act => (
+                        <ActivityCard 
+                            key={act.id} 
+                            act={act} 
+                            onEdit={setEditingActivity}
+                            onToggleStatus={toggleStatus}
+                        />
+                    ))}
                 </div>
             )}
 

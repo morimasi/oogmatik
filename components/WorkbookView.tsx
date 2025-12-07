@@ -1,11 +1,11 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { CollectionItem, WorkbookSettings, StyleSettings } from '../types';
+import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { useAuth } from '../context/AuthContext';
 import { printService } from '../utils/printService';
-import { Toolbar } from './Toolbar'; // Import Toolbar for reusability
+import { Toolbar } from './Toolbar'; 
 
 interface WorkbookViewProps {
     items: CollectionItem[];
@@ -26,7 +26,8 @@ const SortablePageItem = React.memo(({
     onDragOver, 
     onDragEnd, 
     onRemove,
-    onEditStyle
+    onEditStyle,
+    onDuplicate
 }: { 
     item: CollectionItem, 
     index: number, 
@@ -35,35 +36,56 @@ const SortablePageItem = React.memo(({
     onDragOver: (e: React.DragEvent, idx: number) => void,
     onDragEnd: () => void,
     onRemove: (id: string) => void,
-    onEditStyle: (id: string) => void
+    onEditStyle: (item: CollectionItem) => void,
+    onDuplicate: (item: CollectionItem) => void
 }) => {
+    const isDivider = item.itemType === 'divider';
+
     return (
         <div 
             draggable
             onDragStart={() => onDragStart(index)}
             onDragOver={(e) => onDragOver(e, index)}
             onDragEnd={onDragEnd}
-            className={`group flex items-center gap-3 p-3 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-400 transition-all ${isDragging ? 'opacity-50 border-dashed border-indigo-500' : ''}`}
+            className={`group flex items-center gap-3 p-3 border rounded-xl shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-400 transition-all ${isDragging ? 'opacity-50 border-dashed border-indigo-500' : ''} ${isDivider ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800' : 'bg-white dark:bg-zinc-700 border-zinc-200 dark:border-zinc-600'}`}
         >
             <div className="w-6 h-6 flex items-center justify-center text-zinc-400">
                 <i className="fa-solid fa-grip-vertical"></i>
             </div>
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-indigo-600 text-xs shrink-0">
-                {index + 1}
-            </div>
+            
+            {isDivider ? (
+                <div className="w-8 h-8 rounded-lg bg-indigo-200 dark:bg-indigo-700 flex items-center justify-center font-bold text-indigo-800 dark:text-indigo-200 text-xs shrink-0">
+                    <i className={item.dividerConfig?.icon || 'fa-solid fa-bookmark'}></i>
+                </div>
+            ) : (
+                <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-600 flex items-center justify-center font-bold text-zinc-500 dark:text-zinc-300 text-xs shrink-0">
+                    {index + 1}
+                </div>
+            )}
+
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">{item.title}</p>
+                <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">
+                    {isDivider ? item.dividerConfig?.title : item.title}
+                </p>
                 <div className="flex items-center gap-2">
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{item.activityType}</p>
-                    {item.overrideStyle && <span className="text-[8px] bg-amber-100 text-amber-700 px-1 rounded">Özel Stil</span>}
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider">
+                        {isDivider ? 'Bölüm Kapağı' : item.activityType}
+                    </p>
+                    {item.overrideStyle && !isDivider && <span className="text-[8px] bg-amber-100 text-amber-700 px-1 rounded">Özel Stil</span>}
                 </div>
             </div>
-            <button onClick={() => onEditStyle(item.id)} className="text-zinc-400 hover:text-indigo-500 p-2 transition-colors" title="Sayfa Stilini Düzenle">
-                <i className="fa-solid fa-wand-magic-sparkles"></i>
-            </button>
-            <button onClick={() => onRemove(item.id)} className="text-zinc-300 hover:text-red-500 p-2 transition-colors">
-                <i className="fa-solid fa-trash"></i>
-            </button>
+            
+            <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => onDuplicate(item)} className="text-zinc-400 hover:text-green-500 p-2 transition-colors" title="Kopyala">
+                    <i className="fa-solid fa-copy"></i>
+                </button>
+                <button onClick={() => onEditStyle(item)} className="text-zinc-400 hover:text-indigo-500 p-2 transition-colors" title={isDivider ? "Bölüm Düzenle" : "Stil Düzenle"}>
+                    <i className={`fa-solid ${isDivider ? 'fa-pen' : 'fa-wand-magic-sparkles'}`}></i>
+                </button>
+                <button onClick={() => onRemove(item.id)} className="text-zinc-300 hover:text-red-500 p-2 transition-colors" title="Sil">
+                    <i className="fa-solid fa-trash"></i>
+                </button>
+            </div>
         </div>
     );
 });
@@ -75,9 +97,13 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     const [isSaving, setIsSaving] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
     
-    // Style Override State
+    // Style Override State (Activity)
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
     const editingItem = items.find(i => i.id === editingItemId);
+
+    // Divider Edit State
+    const [editingDividerId, setEditingDividerId] = useState<string | null>(null);
+    const editingDivider = items.find(i => i.id === editingDividerId);
 
     // Drag & Drop State
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -112,18 +138,67 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         setDraggedItemIndex(null);
     }, []);
 
-    // Item Style Override Handlers
-    const handleEditStyle = useCallback((id: string) => {
-        setEditingItemId(id);
+    const handleDuplicateItem = useCallback((item: CollectionItem) => {
+        const newItem = {
+            ...item,
+            id: crypto.randomUUID(),
+            title: `${item.title} (Kopyası)`
+        };
+        setItems(prev => [...prev, newItem]);
+    }, [setItems]);
+
+    const handleAddDivider = () => {
+        const newDivider: CollectionItem = {
+            id: crypto.randomUUID(),
+            activityType: ActivityType.WORKBOOK, // Placeholder type
+            itemType: 'divider',
+            title: 'Yeni Bölüm',
+            dividerConfig: {
+                title: 'BÖLÜM BAŞLIĞI',
+                subtitle: 'Konu Açıklaması',
+                icon: 'fa-bookmark'
+            },
+            data: [], // Empty data
+            settings: { ...items[0]?.settings } // inherit some defaults
+        };
+        setItems(prev => [...prev, newDivider]);
+        setEditingDividerId(newDivider.id);
+    };
+
+    const handleClearAll = () => {
+        if (confirm("Tüm kitapçık içeriği silinecek. Emin misiniz?")) {
+            setItems([]);
+        }
+    };
+
+    // Item Edit Logic
+    const handleEditItemClick = useCallback((item: CollectionItem) => {
+        if (item.itemType === 'divider') {
+            setEditingDividerId(item.id);
+        } else {
+            setEditingItemId(item.id);
+        }
     }, []);
 
     const handleStyleUpdate = (newSettings: StyleSettings) => {
         if (!editingItemId) return;
         setItems(prev => prev.map(item => {
             if (item.id === editingItemId) {
-                // We store ONLY the overrides to keep it clean, but for now storing full is easier
-                // Let's store full merged settings as the override for simplicity in UI binding
                 return { ...item, overrideStyle: newSettings };
+            }
+            return item;
+        }));
+    };
+
+    const handleDividerUpdate = (field: string, value: string) => {
+        if (!editingDividerId) return;
+        setItems(prev => prev.map(item => {
+            if (item.id === editingDividerId && item.dividerConfig) {
+                return {
+                    ...item,
+                    title: field === 'title' ? value : item.title,
+                    dividerConfig: { ...item.dividerConfig, [field]: value }
+                };
             }
             return item;
         }));
@@ -153,10 +228,8 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
     const handleAction = async (action: 'print' | 'download') => {
         setIsPrinting(true);
-        // Delay to allow UI update
         setTimeout(async () => {
             try {
-                // Target all pages in the workbook
                 await printService.generatePdf('.worksheet-item', settings.title || 'Kitapcik', { action });
             } catch (error) {
                 console.error("Kitapçık oluşturma hatası:", error);
@@ -293,9 +366,18 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                     <div className="pt-6 border-t border-zinc-200 dark:border-zinc-700">
                                         <div className="flex justify-between items-center mb-4">
                                             <h3 className="font-bold text-zinc-700 dark:text-zinc-200 text-sm">Sayfalar ({items.length})</h3>
-                                            <span className="text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-700 px-2 py-1 rounded">Sürükleyip Sıralayın</span>
+                                            <button onClick={handleClearAll} className="text-xs text-red-500 hover:underline">Hepsini Sil</button>
                                         </div>
                                         
+                                        <div className="mb-4">
+                                            <button 
+                                                onClick={handleAddDivider}
+                                                className="w-full py-2 border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all"
+                                            >
+                                                <i className="fa-solid fa-bookmark"></i> Bölüm Kapağı Ekle
+                                            </button>
+                                        </div>
+
                                         <div className="space-y-2">
                                             {items.map((item, index) => (
                                                 <SortablePageItem
@@ -307,7 +389,8 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                     onDragOver={handleDragOver}
                                                     onDragEnd={handleDragEnd}
                                                     onRemove={handleRemoveItem}
-                                                    onEditStyle={handleEditStyle}
+                                                    onEditStyle={handleEditItemClick}
+                                                    onDuplicate={handleDuplicateItem}
                                                 />
                                             ))}
                                             {items.length === 0 && (
@@ -322,7 +405,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
                             {activeTab === 'design' && (
                                 <>
-                                    {/* Cover Style */}
+                                    {/* Design Controls (Same as before) */}
                                     <div>
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Kapak Teması</label>
                                         <div className="grid grid-cols-2 gap-3">
@@ -478,8 +561,8 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                             <Toolbar 
                                 settings={editingItem.overrideStyle ? { ...editingItem.settings, ...editingItem.overrideStyle } : editingItem.settings}
                                 onSettingsChange={handleStyleUpdate}
-                                onSave={() => {}} // No-op in this context
-                                onTogglePreview={() => {}} // No-op
+                                onSave={() => {}} 
+                                onTogglePreview={() => {}} 
                                 isPreviewMode={false}
                                 isEditMode={false}
                             />
@@ -487,6 +570,51 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                         <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end gap-3 bg-zinc-50 dark:bg-zinc-900">
                             <button onClick={() => setEditingItemId(null)} className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-700 rounded-lg font-bold">Vazgeç</button>
                             <button onClick={() => setEditingItemId(null)} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold">Tamam</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Divider Editor Modal */}
+            {editingDivider && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 w-full max-w-md overflow-hidden flex flex-col">
+                        <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-indigo-600 text-white flex justify-between items-center">
+                            <h3 className="font-bold">Bölüm Kapağı Düzenle</h3>
+                            <button onClick={() => setEditingDividerId(null)} className="text-white/80 hover:text-white"><i className="fa-solid fa-times"></i></button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Bölüm Başlığı</label>
+                                <input 
+                                    type="text" 
+                                    value={editingDivider.dividerConfig?.title || ''} 
+                                    onChange={(e) => handleDividerUpdate('title', e.target.value)} 
+                                    className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Alt Başlık / Açıklama</label>
+                                <input 
+                                    type="text" 
+                                    value={editingDivider.dividerConfig?.subtitle || ''} 
+                                    onChange={(e) => handleDividerUpdate('subtitle', e.target.value)} 
+                                    className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">İkon (FontAwesome)</label>
+                                <input 
+                                    type="text" 
+                                    value={editingDivider.dividerConfig?.icon || ''} 
+                                    onChange={(e) => handleDividerUpdate('icon', e.target.value)} 
+                                    className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    placeholder="fa-solid fa-bookmark"
+                                />
+                            </div>
+                        </div>
+                        <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end">
+                            <button onClick={() => setEditingDividerId(null)} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold">Kaydet</button>
                         </div>
                     </div>
                 </div>

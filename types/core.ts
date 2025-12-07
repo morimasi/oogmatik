@@ -333,8 +333,15 @@ export interface CollectionItem {
     activityType: ActivityType;
     data: SingleWorksheetData | SavedAssessment;
     settings: StyleSettings;
-    overrideStyle?: Partial<StyleSettings>; // Per-item override
+    overrideStyle?: Partial<StyleSettings>; 
     title: string;
+    // New properties for dividers
+    itemType?: 'activity' | 'divider';
+    dividerConfig?: {
+        title: string;
+        subtitle: string;
+        icon: string;
+    };
 }
 
 export interface WorkbookSettings {
