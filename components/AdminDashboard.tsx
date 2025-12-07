@@ -12,6 +12,7 @@ import { AdminAnalytics } from './AdminAnalytics';
 import { AdminActivityManager } from './AdminActivityManager';
 import { AdminPromptStudio } from './AdminPromptStudio';
 import { AdminFeedback } from './AdminFeedback';
+import { AdminStaticContent } from './AdminStaticContent';
 
 interface AdminDashboardProps {
     onBack: () => void;
@@ -32,7 +33,7 @@ const NavButton = ({ active, label, icon, onClick, count }: any) => (
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'activities' | 'prompts' | 'feedbacks'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks'>('dashboard');
     
     // Data States
     const [users, setUsers] = useState<User[]>([]);
@@ -120,6 +121,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                     <p className="px-4 mt-6 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">İçerik Motoru</p>
                     <NavButton active={activeTab === 'activities'} label="Aktiviteler" icon="fa-layer-group" onClick={() => setActiveTab('activities')} />
                     <NavButton active={activeTab === 'prompts'} label="Prompt Stüdyosu" icon="fa-terminal" onClick={() => setActiveTab('prompts')} />
+                    <NavButton active={activeTab === 'static_content'} label="Veri Kaynakları" icon="fa-database" onClick={() => setActiveTab('static_content')} />
                     
                     <p className="px-4 mt-6 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">Destek</p>
                     <NavButton active={activeTab === 'feedbacks'} label="Gelen Kutusu" icon="fa-inbox" onClick={() => setActiveTab('feedbacks')} count={3} />
@@ -141,8 +143,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                         <h1 className="text-xl font-bold text-zinc-900 dark:text-white">
                             {activeTab === 'dashboard' && 'Kontrol Paneli'}
                             {activeTab === 'users' && 'Kullanıcı Yönetimi'}
-                            {activeTab === 'activities' && 'İçerik Yönetimi'}
+                            {activeTab === 'activities' && 'Aktivite Yöneticisi'}
                             {activeTab === 'prompts' && 'AI Prompt Laboratuvarı'}
+                            {activeTab === 'static_content' && 'Veri Kaynakları (CMS)'}
                             {activeTab === 'feedbacks' && 'Geri Bildirimler'}
                         </h1>
                         <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 border border-zinc-200 dark:border-zinc-700">v1.2.0</span>
@@ -163,6 +166,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                         {activeTab === 'dashboard' && <AdminAnalytics stats={stats} totalUsers={usersCount} />}
                         {activeTab === 'activities' && <AdminActivityManager />}
                         {activeTab === 'prompts' && <AdminPromptStudio />}
+                        {activeTab === 'static_content' && <AdminStaticContent />}
                         {activeTab === 'feedbacks' && <AdminFeedback />}
                         
                         {/* Users Table (Inline for simplicity, but polished) */}

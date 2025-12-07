@@ -1,11 +1,13 @@
 
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { DynamicActivity, PromptTemplate } from '../types/admin';
+import { DynamicActivity, PromptTemplate, StaticContentItem } from '../types/admin';
 import { ACTIVITIES } from '../constants';
 import { PEDAGOGICAL_BASE } from './generators/prompts';
 import { generateWithSchema } from './geminiClient';
 import { Type } from '@google/genai';
+import { PROVERBS, SAYINGS } from '../data/sentences';
+import { TR_VOCAB } from '../data/vocabulary';
 
 const { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc } = firestore;
 
@@ -15,7 +17,7 @@ export const adminService = {
         try {
             const snapshot = await getDocs(collection(db, "config_activities"));
             if (snapshot.empty) {
-                // Initialize from constants if DB is empty (First Run)
+                // Initialize from constants if DB is empty (First Run / Migration)
                 const defaults = ACTIVITIES.map(a => ({
                     id: a.id,
                     title: a.title,
@@ -25,6 +27,7 @@ export const adminService = {
                     isActive: true,
                     isPremium: false
                 }));
+                // Opsiyonel: Veritabanına toplu yazma işlemi burada yapılabilir
                 return defaults;
             }
             return snapshot.docs.map(d => d.data() as DynamicActivity);
@@ -36,6 +39,10 @@ export const adminService = {
 
     saveActivity: async (activity: DynamicActivity) => {
         await setDoc(doc(db, "config_activities", activity.id), activity, { merge: true });
+    },
+
+    deleteActivity: async (id: string) => {
+        await deleteDoc(doc(db, "config_activities", id));
     },
 
     // --- PROMPTS ---
@@ -87,6 +94,33 @@ export const adminService = {
         return payload;
     },
 
+    // --- STATIC CONTENT (Lists like Proverbs, Vocab) ---
+    getAllStaticContent: async (): Promise<StaticContentItem[]> => {
+        try {
+            const snapshot = await getDocs(collection(db, "static_content"));
+            if (snapshot.empty) {
+                // Seed data structure for first use
+                return [
+                    { id: 'proverbs', title: 'Atasözleri', type: 'list', data: PROVERBS, updatedAt: new Date().toISOString() },
+                    { id: 'sayings', title: 'Özdeyişler', type: 'list', data: SAYINGS, updatedAt: new Date().toISOString() },
+                    { id: 'vocab_animals', title: 'Kelime: Hayvanlar', type: 'list', data: TR_VOCAB.animals, updatedAt: new Date().toISOString() },
+                    { id: 'vocab_school', title: 'Kelime: Okul', type: 'list', data: TR_VOCAB.school, updatedAt: new Date().toISOString() }
+                ];
+            }
+            return snapshot.docs.map(d => d.data() as StaticContentItem);
+        } catch (e) {
+            console.error("Fetch static content failed", e);
+            return [];
+        }
+    },
+
+    saveStaticContent: async (content: StaticContentItem) => {
+        await setDoc(doc(db, "static_content", content.id), {
+            ...content,
+            updatedAt: new Date().toISOString()
+        }, { merge: true });
+    },
+
     // --- SIMULATION (AI LAB) ---
     testPrompt: async (prompt: PromptTemplate, testVariables: Record<string, any>) => {
         let compiledPrompt = prompt.template;
@@ -108,9 +142,6 @@ export const adminService = {
             }
         };
 
-        // Note: The generateWithSchema function sends the prompt to our proxy/backend.
-        // The prompt constructed here simulates the full context.
-        
         const fullContext = `
         [SYSTEM ROLE & INSTRUCTION]:
         ${prompt.systemInstruction}

@@ -41,6 +41,14 @@ export interface PromptTemplate {
     };
 }
 
+export interface StaticContentItem {
+    id: string; // e.g., 'proverbs_tr', 'word_list_animals'
+    title: string;
+    type: 'list' | 'json';
+    data: string[] | any;
+    updatedAt: string;
+}
+
 export interface AdminStatCard {
     label: string;
     value: string | number;
