@@ -162,6 +162,7 @@ export interface Activity {
     title: string;
     description: string;
     icon: string;
+    defaultStyle?: Partial<StyleSettings>; // Smart Default
 }
 
 export interface ActivityCategory {
@@ -180,7 +181,7 @@ export interface BaseActivityData {
     imageBase64?: string;
 }
 
-export type WorksheetData = any[]; // Ideally a union of all data types but complex to maintain here
+export type WorksheetData = any[]; 
 export type SingleWorksheetData = any;
 
 export interface StyleSettings {
@@ -332,6 +333,7 @@ export interface CollectionItem {
     activityType: ActivityType;
     data: SingleWorksheetData | SavedAssessment;
     settings: StyleSettings;
+    overrideStyle?: Partial<StyleSettings>; // Per-item override
     title: string;
 }
 

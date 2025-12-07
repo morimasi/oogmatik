@@ -1,10 +1,11 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { CollectionItem, WorkbookSettings } from '../types';
+import { CollectionItem, WorkbookSettings, StyleSettings } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { useAuth } from '../context/AuthContext';
 import { printService } from '../utils/printService';
+import { Toolbar } from './Toolbar'; // Import Toolbar for reusability
 
 interface WorkbookViewProps {
     items: CollectionItem[];
@@ -16,7 +17,7 @@ interface WorkbookViewProps {
 
 const COLORS = ['#4f46e5', '#ef4444', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#06b6d4', '#1f2937'];
 
-// Memoized Item Component to prevent re-renders of the entire list on drag
+// Memoized Item Component
 const SortablePageItem = React.memo(({ 
     item, 
     index, 
@@ -24,7 +25,8 @@ const SortablePageItem = React.memo(({
     onDragStart, 
     onDragOver, 
     onDragEnd, 
-    onRemove 
+    onRemove,
+    onEditStyle
 }: { 
     item: CollectionItem, 
     index: number, 
@@ -32,7 +34,8 @@ const SortablePageItem = React.memo(({
     onDragStart: (idx: number) => void,
     onDragOver: (e: React.DragEvent, idx: number) => void,
     onDragEnd: () => void,
-    onRemove: (id: string) => void
+    onRemove: (id: string) => void,
+    onEditStyle: (id: string) => void
 }) => {
     return (
         <div 
@@ -50,8 +53,14 @@ const SortablePageItem = React.memo(({
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">{item.title}</p>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{item.activityType}</p>
+                <div className="flex items-center gap-2">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{item.activityType}</p>
+                    {item.overrideStyle && <span className="text-[8px] bg-amber-100 text-amber-700 px-1 rounded">Özel Stil</span>}
+                </div>
             </div>
+            <button onClick={() => onEditStyle(item.id)} className="text-zinc-400 hover:text-indigo-500 p-2 transition-colors" title="Sayfa Stilini Düzenle">
+                <i className="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
             <button onClick={() => onRemove(item.id)} className="text-zinc-300 hover:text-red-500 p-2 transition-colors">
                 <i className="fa-solid fa-trash"></i>
             </button>
@@ -66,6 +75,10 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     const [isSaving, setIsSaving] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
     
+    // Style Override State
+    const [editingItemId, setEditingItemId] = useState<string | null>(null);
+    const editingItem = items.find(i => i.id === editingItemId);
+
     // Drag & Drop State
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -98,6 +111,23 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     const handleDragEnd = useCallback(() => {
         setDraggedItemIndex(null);
     }, []);
+
+    // Item Style Override Handlers
+    const handleEditStyle = useCallback((id: string) => {
+        setEditingItemId(id);
+    }, []);
+
+    const handleStyleUpdate = (newSettings: StyleSettings) => {
+        if (!editingItemId) return;
+        setItems(prev => prev.map(item => {
+            if (item.id === editingItemId) {
+                // We store ONLY the overrides to keep it clean, but for now storing full is easier
+                // Let's store full merged settings as the override for simplicity in UI binding
+                return { ...item, overrideStyle: newSettings };
+            }
+            return item;
+        }));
+    };
 
     const handleSave = async () => {
         if (!user) {
@@ -149,7 +179,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
     };
 
     return (
-        <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
+        <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 relative">
             {/* Top Toolbar */}
             <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 shadow-sm shrink-0">
                 <div className="flex items-center gap-4">
@@ -277,6 +307,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                     onDragOver={handleDragOver}
                                                     onDragEnd={handleDragEnd}
                                                     onRemove={handleRemoveItem}
+                                                    onEditStyle={handleEditStyle}
                                                 />
                                             ))}
                                             {items.length === 0 && (
@@ -424,6 +455,40 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                      <div style={{ contentVisibility: 'auto' }}>
                         <Workbook items={items} settings={settings} />
                      </div>
+                </div>
+            )}
+
+            {/* Per-Item Style Editor Modal */}
+            {editingItem && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]">
+                        <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900">
+                            <h3 className="font-bold text-zinc-800 dark:text-zinc-100">
+                                Stil Düzenle: {editingItem.title}
+                            </h3>
+                            <button onClick={() => setEditingItemId(null)} className="w-8 h-8 rounded-full hover:bg-zinc-200 flex items-center justify-center text-zinc-500">
+                                <i className="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto">
+                            <div className="mb-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm border border-blue-100">
+                                <i className="fa-solid fa-circle-info mr-2"></i>
+                                Burada yapılan değişiklikler sadece bu sayfa için geçerli olacaktır.
+                            </div>
+                            <Toolbar 
+                                settings={editingItem.overrideStyle ? { ...editingItem.settings, ...editingItem.overrideStyle } : editingItem.settings}
+                                onSettingsChange={handleStyleUpdate}
+                                onSave={() => {}} // No-op in this context
+                                onTogglePreview={() => {}} // No-op
+                                isPreviewMode={false}
+                                isEditMode={false}
+                            />
+                        </div>
+                        <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end gap-3 bg-zinc-50 dark:bg-zinc-900">
+                            <button onClick={() => setEditingItemId(null)} className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-700 rounded-lg font-bold">Vazgeç</button>
+                            <button onClick={() => setEditingItemId(null)} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold">Tamam</button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

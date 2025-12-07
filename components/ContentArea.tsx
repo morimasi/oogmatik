@@ -1,3 +1,4 @@
+
 import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment, OverlayItem, AssessmentReport } from '../types';
 import Worksheet from './Worksheet';
@@ -119,6 +120,20 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             setProcessedData(worksheetData);
         }
     }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns, styleSettings.scale, styleSettings.fontSize, styleSettings.margin]);
+
+    // Apply Smart Defaults when activity changes
+    useEffect(() => {
+        if (activityType) {
+            const activity = ACTIVITIES.find(a => a.id === activityType);
+            if (activity && activity.defaultStyle) {
+                // Merge current settings with defaults, allowing defaults to override
+                // However, usually user prefers their last setting, but "Smart Defaults" implies best practice for new activity
+                // Strategy: Only override if this is a "fresh" selection (handled via parent? No, here is fine)
+                // We assume if activityType changed, we should apply defaults.
+                onStyleChange({ ...styleSettings, ...activity.defaultStyle });
+            }
+        }
+    }, [activityType]);
 
     
     // Phase 4: TTS & QR

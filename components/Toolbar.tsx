@@ -141,6 +141,28 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [isStickerPickerOpen, setIsStickerPickerOpen] = useState(false);
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+    
+    // Derived detail level based on current settings
+    const getDetailLevel = (): 'clean' | 'standard' | 'teacher' | 'custom' => {
+        if (!settings.showTitle && !settings.showInstruction && !settings.showPedagogicalNote && !settings.showFooter) return 'clean';
+        if (settings.showTitle && settings.showInstruction && !settings.showPedagogicalNote && settings.showStudentInfo) return 'standard';
+        if (settings.showTitle && settings.showInstruction && settings.showPedagogicalNote && settings.showFooter) return 'teacher';
+        return 'custom';
+    };
+
+    const setDetailLevel = (level: 'clean' | 'standard' | 'teacher') => {
+        let updates: Partial<StyleSettings> = {};
+        if (level === 'clean') {
+            updates = { showTitle: false, showInstruction: false, showPedagogicalNote: false, showStudentInfo: false, showFooter: false };
+        } else if (level === 'standard') {
+            updates = { showTitle: true, showInstruction: true, showPedagogicalNote: false, showStudentInfo: true, showFooter: true };
+        } else if (level === 'teacher') {
+            updates = { showTitle: true, showInstruction: true, showPedagogicalNote: true, showStudentInfo: true, showFooter: true };
+        }
+        onSettingsChange({ ...settings, ...updates });
+    };
+
+    const currentLevel = getDetailLevel();
 
     const toggleMenu = (menu: string) => {
         setActiveMenu(activeMenu === menu ? null : menu);
@@ -264,18 +286,25 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     )}
                 </div>
 
-                {/* 3. Appearance Group */}
+                {/* 3. Appearance Group (Replaces old 'Görünüm' with Detail Levels) */}
                 <div className="relative">
                     <MenuButton 
-                        icon="fa-eye" 
-                        label="Görünüm" 
+                        icon="fa-sliders" 
+                        label="Detaylar" 
                         active={false} 
                         isOpen={activeMenu === 'appearance'}
                         onClick={() => toggleMenu('appearance')} 
                         data-dropdown-trigger
                     />
                     {activeMenu === 'appearance' && (
-                        <DropdownPanel title="Sayfa Görünümü" onClose={() => setActiveMenu(null)}>
+                        <DropdownPanel title="Görünüm ve Detaylar" onClose={() => setActiveMenu(null)}>
+                            {/* Detail Level Selector */}
+                            <div className="bg-zinc-100 p-1 rounded-lg flex mb-4">
+                                <button onClick={() => setDetailLevel('clean')} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${currentLevel === 'clean' ? 'bg-white shadow-sm text-black' : 'text-zinc-500'}`}>Sade</button>
+                                <button onClick={() => setDetailLevel('standard')} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${currentLevel === 'standard' ? 'bg-white shadow-sm text-black' : 'text-zinc-500'}`}>Öğrenci</button>
+                                <button onClick={() => setDetailLevel('teacher')} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${currentLevel === 'teacher' ? 'bg-white shadow-sm text-black' : 'text-zinc-500'}`}>Öğretmen</button>
+                            </div>
+
                             <div className="space-y-1">
                                 <p className="text-xs font-bold text-zinc-500 mb-2">Kenarlık Stili</p>
                                 <div className="grid grid-cols-3 gap-2">
@@ -295,12 +324,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                             <NumberControl label="Kenar Boşluğu" value={settings.margin} onChange={(v: number) => updateSetting('margin', v)} min={0} max={100} unit="px" />
                             
                             <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                                <p className="text-xs font-bold text-zinc-400 mb-2 uppercase">Gizle / Göster</p>
+                                <p className="text-xs font-bold text-zinc-400 mb-2 uppercase">Özel Ayarlar</p>
                                 <Toggle label="Başlık" checked={settings.showTitle} onChange={(v: boolean) => updateSetting('showTitle', v)} />
                                 <Toggle label="Yönerge" checked={settings.showInstruction} onChange={(v: boolean) => updateSetting('showInstruction', v)} />
                                 <Toggle label="Pedagojik Not" checked={settings.showPedagogicalNote} onChange={(v: boolean) => updateSetting('showPedagogicalNote', v)} />
                                 <Toggle label="Öğrenci Bilgisi" checked={settings.showStudentInfo} onChange={(v: boolean) => updateSetting('showStudentInfo', v)} />
                                 <Toggle label="Alt Bilgi" checked={settings.showFooter} onChange={(v: boolean) => updateSetting('showFooter', v)} />
+                                <Toggle label="Görsel (Image)" checked={settings.showImage} onChange={(v: boolean) => updateSetting('showImage', v)} />
                             </div>
                         </DropdownPanel>
                     )}

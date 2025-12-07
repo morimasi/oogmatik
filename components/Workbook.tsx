@@ -433,29 +433,41 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
             {renderTableOfContents()}
 
             {/* 3. Content Pages */}
-            {items.map((item, index) => (
-                <div key={item.id} className="relative mb-8 w-full flex justify-center">
-                    <div className="relative bg-white shadow-2xl" style={{ width: '210mm', minHeight: '297mm' }}>
-                        <Watermark />
-                        
-                        {/* Worksheet / Report Wrapper */}
-                        <div className="relative z-10 h-full">
-                            {item.activityType === ActivityType.ASSESSMENT_REPORT ? (
-                                <AssessmentReportPage assessment={item.data as SavedAssessment} />
-                            ) : (
-                                <Worksheet 
-                                    activityType={item.activityType} 
-                                    data={[item.data]} 
-                                    settings={{...item.settings, showPedagogicalNote: true}} 
-                                    studentProfile={{ name: settings.studentName, school: settings.schoolName, grade: '', date: new Date().toLocaleDateString() }}
-                                />
-                            )}
+            {items.map((item, index) => {
+                // MERGE ITEM STYLES: Default Settings < Workbook Settings < Item Override
+                // We use Workbook Settings as the base, but ensure pedagogicalNote is forced true for workbook content context usually
+                // BUT user might want to hide it via override.
+                const mergedSettings = {
+                    ...settings, // Basic workbook vibe
+                    ...item.settings, // Original item settings (often has specific layout needs)
+                    showPedagogicalNote: true, // Default workbook behavior
+                    ...item.overrideStyle // Highest priority override
+                };
+
+                return (
+                    <div key={item.id} className="relative mb-8 w-full flex justify-center">
+                        <div className="relative bg-white shadow-2xl" style={{ width: '210mm', minHeight: '297mm' }}>
+                            <Watermark />
+                            
+                            {/* Worksheet / Report Wrapper */}
+                            <div className="relative z-10 h-full">
+                                {item.activityType === ActivityType.ASSESSMENT_REPORT ? (
+                                    <AssessmentReportPage assessment={item.data as SavedAssessment} />
+                                ) : (
+                                    <Worksheet 
+                                        activityType={item.activityType} 
+                                        data={[item.data]} 
+                                        settings={mergedSettings} 
+                                        studentProfile={{ name: settings.studentName, school: settings.schoolName, grade: '', date: new Date().toLocaleDateString() }}
+                                    />
+                                )}
+                            </div>
+                            
+                            <PageFooter pageNum={index + contentStartPage} />
                         </div>
-                        
-                        <PageFooter pageNum={index + contentStartPage} />
                     </div>
-                </div>
-            ))}
+                );
+            })}
 
             {/* 4. Back Cover */}
             {renderBackCover()}
