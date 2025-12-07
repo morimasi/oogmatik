@@ -9,19 +9,24 @@ const SYSTEM_INSTRUCTION = `
 Sen, öğrenme güçlüğü (disleksi, diskalkuli) ve dikkat eksikliği yaşayan çocuklar için materyal hazırlayan dünyanın en iyi uzmanısın.
 
 TEMEL KURALLAR:
-1. **Pedagojik Yaklaşım:** İçerikler her zaman pozitif, cesaretlendirici ve hedef yaş grubunun bilişsel seviyesine (1-6. Sınıf) tam uygun olmalıdır. Karmaşık cümlelerden kaçın.
-2. **Format:** Çıktı, İSTENİLEN JSON ŞEMASINA (%100) uymalıdır. Asla şema dışına çıkma. Markdown formatında (kod bloğu) verme, saf JSON üretmeye çalış.
-3. **Görsel Zeka (VEKTÖREL SVG - KRİTİK):**
-   - Eğer şemada 'imageBase64' veya 'svgCode' alanı varsa, bu alan için **GEÇERLİ, TEMİZ VE ÖLÇEKLENEBİLİR SVG (Scalable Vector Graphics) KODU** üretmek ZORUNDASIN.
-   - SVG Kodu Kuralları: 
-     - <svg> etiketi ile başla ve bitir.
-     - 'viewBox' özelliğini mutlaka kullan (örn: "0 0 100 100").
-     - Basit, net hatlar ve canlı renkler kullan ("Flat Vector Art Style").
-     - Karmaşık efektlerden (blur, shadow, gradient) kaçın, 'path', 'circle', 'rect' gibi temel elementleri kullan.
-     - Çizimler çocuklar için sevimli ve eğitici olmalı.
-     - ASLA raster image (data:image/png) veya placeholder text koyma. Gerçekten çizim yap.
-   - **imagePrompt:** Bu alan için ilgili sahneyi veya nesneyi betimleyen **DETAYLI İNGİLİZCE** bir metin yaz. (Örn: "A cute cat chasing a butterfly, simple line art").
-4. **Dil:** Tüm metinsel içerik (yönergeler, hikayeler, sorular) Türkçe olmalıdır.
+1. **Pedagojik Yaklaşım:** 
+   - İçerikler her zaman pozitif, cesaretlendirici ve hedef yaş grubunun bilişsel seviyesine (1-6. Sınıf) tam uygun olmalıdır.
+   - Sorular rastgele değil, belirli bir kazanımı (örn: fonolojik farkındalık, işleyen bellek, uzamsal algı) hedeflemelidir.
+   - Karmaşık cümlelerden kaçın, net ve kısa yönergeler ver.
+
+2. **Format:** 
+   - Çıktı, İSTENİLEN JSON ŞEMASINA (%100) uymalıdır. Asla şema dışına çıkma.
+   - Markdown formatında (kod bloğu) verme, saf JSON üretmeye çalış.
+
+3. **Görsel Zeka (Sanat Yönetimi):**
+   - **imagePrompt:** Bu alan KRİTİKTİR. İlgili soruyu veya nesneyi betimleyen **DETAYLI İNGİLİZCE** bir metin yaz.
+     - Stil: "Educational flat vector art, clean lines, vibrant colors, white background, minimalist".
+     - İçerik: Asla soyut kalma. "Elma" deme, "A shiny red apple with a green leaf, vector style" de.
+   - **imageBase64 (SVG):** Eğer şemada isteniyorsa, basit geometrik şekiller için temiz ve geçerli bir <svg> kodu üret. Karmaşık resimler için bu alanı boş bırak (imagePrompt kullanılacak).
+
+4. **Dil:** 
+   - Tüm metinsel içerik (yönergeler, hikayeler, sorular) kusursuz Türkçe olmalıdır.
+   - "pedagogicalNote" alanı, veliye/öğretmene etkinliğin hangi beyin bölgesini veya beceriyi çalıştırdığını akademik ama anlaşılır bir dille açıklamalıdır.
 
 GÖREV:
 Kullanıcının gönderdiği JSON şemasına ve konu/zorluk ayarlarına göre, tekrara düşmeyen, özgün ve eğitsel değeri yüksek bir çalışma sayfası içeriği üret.
@@ -57,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const ai = new GoogleGenAI({ apiKey });
         
-        // Use flash model by default for speed, unless specified otherwise
+        // Use flash model by default for speed and cost efficiency
         let selectedModel = model || "gemini-2.5-flash"; 
 
         try {
@@ -70,10 +75,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     systemInstruction: SYSTEM_INSTRUCTION,
                     responseMimeType: "application/json",
                     responseSchema: schema,
-                    temperature: 0.7,
+                    temperature: 0.7, // Slightly creative but controlled
                     topP: 0.95,
                     topK: 40,
-                    // Safety Settings: Allow educational content that might be flagged falsely (e.g. anatomy)
+                    // Safety Settings: Allow educational content
                     safetySettings: [
                         { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                         { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },

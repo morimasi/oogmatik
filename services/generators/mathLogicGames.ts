@@ -40,10 +40,10 @@ export const generateBasicOperationsFromAI = async (options: GeneratorOptions): 
     // Prepare operations description
     const ops = selectedOperations && selectedOperations.length > 0 
         ? selectedOperations.map((op: string) => {
-            if(op==='addition') return 'Toplama';
-            if(op==='subtraction') return 'Çıkarma';
-            if(op==='multiplication') return 'Çarpma';
-            if(op==='division') return 'Bölme';
+            if(op==='add') return 'Toplama';
+            if(op==='sub') return 'Çıkarma';
+            if(op==='mult') return 'Çarpma';
+            if(op==='div') return 'Bölme';
             return op;
         }).join(', ') 
         : 'Karışık (Toplama, Çıkarma, Çarpma, Bölme)';
