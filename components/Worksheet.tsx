@@ -210,16 +210,13 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             setVisiblePage(current);
         };
 
-        const container = containerRef.current;
-        if (container) {
-            container.addEventListener('scroll', handleScroll);
-            // Also listen to window scroll just in case
-            window.addEventListener('scroll', handleScroll);
-        }
+        // Attach scroll listener to the document-viewport (ContentArea)
+        // Since Worksheet is inside ContentArea, we might need to find the scrolling parent
+        const scroller = containerRef.current?.closest('.document-viewport') || window;
+        scroller.addEventListener('scroll', handleScroll);
         
         return () => {
-            if (container) container.removeEventListener('scroll', handleScroll);
-            window.removeEventListener('scroll', handleScroll);
+            scroller.removeEventListener('scroll', handleScroll);
         };
     }, [data]);
 
@@ -280,7 +277,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
 
     return (
-        <div className={`flex w-full ${visualStyleClass} relative document-viewport`} style={variableStyle} ref={containerRef}>
+        <div ref={containerRef} className={`w-full flex flex-col items-center gap-8 py-8 ${visualStyleClass}`} style={variableStyle}>
             <style>{`
                 /* Dynamic Grid System for Items using CSS Columns */
                 .dynamic-grid {
@@ -306,16 +303,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     letter-spacing: var(--worksheet-letter-spacing);
                     text-align: var(--content-align);
                 }
-                
-                /* Hide scrollbar for cleaner look in document viewer */
-                .document-viewport {
-                    overflow-y: auto;
-                    height: 100%;
-                    scroll-behavior: smooth;
-                }
             `}</style>
 
-            {/* Sidebar Navigation (Right Side) */}
+            {/* Sidebar Navigation (Fixed Right) */}
             <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3 page-navigator no-print">
                 {data.map((_, idx) => (
                     <button
@@ -333,73 +323,72 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 ))}
             </div>
 
-            <div className="flex flex-col gap-12 w-full items-center py-12">
-                {data.map((sheetData, index) => (
+            {data.map((sheetData, index) => (
+                <div 
+                    key={index} 
+                    className="worksheet-page-wrapper w-full flex justify-center"
+                >
                     <div 
-                        key={index} 
-                        className="worksheet-page-wrapper" // Wrapper for scroll targeting
+                        className="worksheet-item worksheet-page transition-all duration-300 ease-in-out"
+                        style={pageStyle}
                     >
-                        <div 
-                            className="worksheet-item bg-white worksheet-page transition-all duration-300 ease-in-out"
-                            style={pageStyle}
-                        >
+                        {/* Content Wrapper applying the mandatory print margin */}
+                        <div className="w-full h-full p-[10mm] relative">
+                            
                             {/* Visual Guide for Edit Mode */}
                             {isEditMode && (
                                 <>
-                                    <div className="absolute inset-0 edit-grid-overlay z-0"></div>
-                                    <div className="absolute inset-[5mm] edit-safety-guide z-0"></div>
+                                    <div className="absolute inset-0 edit-grid-overlay z-0 pointer-events-none"></div>
+                                    <div className="absolute inset-[10mm] edit-safety-guide z-0 pointer-events-none"></div>
                                     <div className="absolute top-2 right-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded shadow-sm opacity-50 pointer-events-none edit-handle">
                                         Sayfa {index + 1}
                                     </div>
                                 </>
                             )}
 
-                            {/* Content Wrapper applying the mandatory print margin */}
-                            <div className="w-full h-full p-[10mm] relative">
-                                <div 
-                                    className="worksheet-scaler worksheet-content relative z-10 h-full flex flex-col"
-                                    style={{
-                                        transform: `scale(${settings.scale})`,
-                                        transformOrigin: 'top center', 
-                                        width: `calc(100% / ${settings.scale})`,
-                                        height: `calc(100% / ${settings.scale})`
-                                    }}
-                                >
-                                    {/* Minimalist Student Header */}
-                                    <div className="mb-4 pb-1 border-b border-black flex justify-between items-end shrink-0" style={{ display: 'var(--display-student-info)' }}>
-                                        <div className="flex gap-8 text-sm">
-                                            <div className="flex gap-2 items-baseline">
-                                                <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
-                                                <EditableText value={studentProfile?.name || ''} tag="span" className="min-w-[150px] border-b border-dotted border-zinc-400" />
-                                            </div>
-                                            <div className="flex gap-2 items-baseline">
-                                                <span className="text-[10px] uppercase font-bold text-zinc-500">Sınıf:</span>
-                                                <EditableText value={studentProfile?.grade || ''} tag="span" className="min-w-[50px] border-b border-dotted border-zinc-400" />
-                                            </div>
+                            <div 
+                                className="worksheet-scaler worksheet-content relative z-10 h-full flex flex-col"
+                                style={{
+                                    transform: `scale(${settings.scale})`,
+                                    transformOrigin: 'top center', 
+                                    width: `calc(100% / ${settings.scale})`,
+                                    height: `calc(100% / ${settings.scale})`
+                                }}
+                            >
+                                {/* Minimalist Student Header */}
+                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end shrink-0" style={{ display: 'var(--display-student-info)' }}>
+                                    <div className="flex gap-8 text-sm text-black">
+                                        <div className="flex gap-2 items-baseline">
+                                            <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
+                                            <EditableText value={studentProfile?.name || ''} tag="span" className="min-w-[150px] border-b border-dotted border-zinc-400" />
                                         </div>
-                                        <div className="flex gap-2 items-baseline text-sm">
-                                            <span className="text-[10px] uppercase font-bold text-zinc-500">Tarih:</span>
-                                            <EditableText value={studentProfile?.date || ''} tag="span" className="min-w-[80px] border-b border-dotted border-zinc-400" />
+                                        <div className="flex gap-2 items-baseline">
+                                            <span className="text-[10px] uppercase font-bold text-zinc-500">Sınıf:</span>
+                                            <EditableText value={studentProfile?.grade || ''} tag="span" className="min-w-[50px] border-b border-dotted border-zinc-400" />
                                         </div>
                                     </div>
+                                    <div className="flex gap-2 items-baseline text-sm text-black">
+                                        <span className="text-[10px] uppercase font-bold text-zinc-500">Tarih:</span>
+                                        <EditableText value={studentProfile?.date || ''} tag="span" className="min-w-[80px] border-b border-dotted border-zinc-400" />
+                                    </div>
+                                </div>
 
-                                    <EditableElement id="main-content" className="flex-1 overflow-visible">
-                                        <RenderSheet activityType={activityType} data={sheetData} />
-                                    </EditableElement>
-                                </div>
-                                
-                                <div 
-                                    className="absolute bottom-4 left-0 w-full px-12 flex justify-between items-center text-[10px] text-zinc-400 pointer-events-none"
-                                    style={{ display: 'var(--display-footer)' }}
-                                >
-                                    <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
-                                    <span className="font-mono">{index + 1} / {data.length}</span>
-                                </div>
+                                <EditableElement id="main-content" className="flex-1 overflow-visible">
+                                    <RenderSheet activityType={activityType} data={sheetData} />
+                                </EditableElement>
+                            </div>
+                            
+                            <div 
+                                className="absolute bottom-4 left-0 w-full px-12 flex justify-between items-center text-[10px] text-zinc-400 pointer-events-none"
+                                style={{ display: 'var(--display-footer)' }}
+                            >
+                                <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
+                                <span className="font-mono">{index + 1} / {data.length}</span>
                             </div>
                         </div>
                     </div>
-                ))}
-            </div>
+                </div>
+            ))}
         </div>
     );
 };

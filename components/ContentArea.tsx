@@ -96,7 +96,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isSharing, setIsSharing] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false); 
     
-    // --- INFINITE CANVAS STATE (Disabled for Document View) ---
+    // --- INFINITE CANVAS STATE ---
     const [viewZoom, setViewZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 }); 
     const isDragging = useRef(false);
@@ -111,27 +111,28 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         setIsEditMode(false);
     }, [activityType]);
 
-    // Handle Mouse Wheel Zoom (Standard Zoom behavior)
+    // Handle Mouse Wheel Zoom 
     const handleWheel = (e: React.WheelEvent) => {
         if (currentView !== 'generator' || !worksheetData) return;
 
-        // Standard zoom with wheel (Ctrl not required for ease of use in this view mode)
-        // or require Ctrl if user prefers scrolling. Let's make it standard vertical scroll usually, 
-        // but since we want "zoomable canvas" feel:
-        
+        // CTRL + Wheel for Zoom
         if (e.ctrlKey) { 
              e.preventDefault();
              const delta = e.deltaY * -0.001;
              const newZoom = Math.min(Math.max(0.2, viewZoom + delta), 3);
              setViewZoom(newZoom);
+        } else {
+            // Standard wheel scrolls the page vertically, but if we want pan behavior:
+            // Since we have a scrollable container 'document-viewport' in global CSS, 
+            // we let standard scroll happen unless dragging.
         }
     };
 
     // --- PANNING HANDLERS ---
     const handleMouseDown = (e: React.MouseEvent) => {
-        // Only pan if clicking on the background (not the page itself ideally, but container handles capture)
+        // Only pan if clicking on the background (not the page itself)
         // Check if target is the background container or direct child wrapper
-        if ((e.target as HTMLElement).closest('.worksheet-page') === null) {
+        if ((e.target as HTMLElement).classList.contains('document-viewport') || (e.target as HTMLElement).classList.contains('worksheet-page-wrapper')) {
             isDragging.current = true;
             lastMousePos.current = { x: e.clientX, y: e.clientY };
             document.body.style.cursor = 'grabbing';
@@ -144,7 +145,23 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const deltaX = e.clientX - lastMousePos.current.x;
         const deltaY = e.clientY - lastMousePos.current.y;
         
-        setPan(prev => ({ x: prev.x + deltaX, y: prev.y + deltaY }));
+        // Update PAN, but limit it so pages don't fly off screen completely? 
+        // For now, free pan.
+        // NOTE: In standard document view, we usually just want SCROLL. 
+        // But the user asked for "middle block... move mouse to pan".
+        // Let's implement dragging for Pan.
+        
+        // Actually, if we use browser native scroll, we don't need manual pan for Y.
+        // But for Infinite Canvas feel (Word-like zoomable view), manual pan is nice.
+        // However, HTML 'worksheet-page' flow is better handled by standard scrolling.
+        
+        // Let's support Pan only if zoomed in/out heavily or explicit drag action.
+        // For now, keeping basic scroll behavior for Y, but let's allow dragging to scroll.
+        if (canvasRef.current) {
+            canvasRef.current.scrollLeft -= deltaX;
+            canvasRef.current.scrollTop -= deltaY;
+        }
+        
         lastMousePos.current = { x: e.clientX, y: e.clientY };
     };
 
@@ -340,10 +357,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
       </div>
 
-      {/* 2. MAIN CONTENT AREA (Canvas / Document Viewer) */}
+      {/* 2. MAIN CONTENT AREA (Document Viewer) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-200 dark:bg-zinc-900/50`}
+        className={`flex-1 relative overflow-auto bg-zinc-200 dark:bg-zinc-900/50 document-viewport custom-scrollbar ${zenMode ? 'bg-zinc-900' : ''}`}
         style={{ cursor: isDragging.current ? 'grabbing' : 'default' }}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
         onMouseDown={currentView === 'generator' && worksheetData ? handleMouseDown : undefined}
@@ -352,7 +369,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       >
           {/* Mode Overlay Info */}
           {isEditMode && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none sticky">
                   <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
               </div>
           )}
@@ -406,11 +423,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 {worksheetData && (
                     // Document Viewer Container - Handles Zoom and Layout internally in Worksheet.tsx
                     <div 
-                        className={`content-preview-wrapper h-full w-full`}
+                        className={`content-preview-wrapper w-full flex flex-col items-center transition-transform duration-100 ease-out origin-top`}
                         style={{ 
-                            transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
-                            transformOrigin: 'top center',
-                            transition: isDragging.current ? 'none' : 'transform 0.1s ease-out'
+                            transform: `scale(${viewZoom})`,
+                            marginBottom: `${(viewZoom - 1) * 100}vh` // Add extra space at bottom when zoomed in
                         }}
                     >
                         <Worksheet 

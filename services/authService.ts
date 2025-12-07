@@ -6,14 +6,13 @@ import { User, UserRole, UserStatus, ActivityType } from '../types';
 
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 
-const ADMIN_EMAILS = ['morimasi@gmail.com', 'meliksahterdek@gmail.com'];
-
 // Map Firestore doc to App User type
 const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => ({
     id: uid,
     email: email,
     name: docData.name || email?.split('@')[0] || 'Kullanıcı',
-    role: ADMIN_EMAILS.includes(email) ? 'admin' : (docData.role || 'user'),
+    // ROLE IS NOW SOLELY DETERMINED BY DATABASE
+    role: docData.role || 'user', 
     avatar: docData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
     createdAt: docData.createdAt || new Date().toISOString(),
     lastLogin: docData.lastLogin || new Date().toISOString(),
@@ -68,10 +67,11 @@ export const authService = {
             await updateAuthProfile(user, { displayName: name });
 
             // Firestore'da kullanıcı dokümanı oluştur
+            // Default role is always 'user'. Admin role must be set manually in DB console or by another admin.
             const newUserProfile = {
                 name: name,
                 email: email,
-                role: ADMIN_EMAILS.includes(email) ? 'admin' : 'user',
+                role: 'user', 
                 createdAt: new Date().toISOString(),
                 lastLogin: new Date().toISOString(),
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
@@ -111,7 +111,7 @@ export const authService = {
                     id: currentUser.uid,
                     email: currentUser.email!,
                     name: currentUser.displayName || currentUser.email!.split('@')[0],
-                    role: ADMIN_EMAILS.includes(currentUser.email!) ? 'admin' : 'user',
+                    role: 'user', // Default safe fallback
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.email}`,
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),
