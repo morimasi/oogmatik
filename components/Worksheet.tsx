@@ -1,6 +1,6 @@
 
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile } from '../types';
+import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile, OverlayItem } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
 import * as MemoryAttentionSheets from './sheets/MemoryAttentionSheets';
 import * as VisualPerceptionSheets from './sheets/VisualPerceptionSheets';
@@ -17,6 +17,7 @@ interface WorksheetProps {
     data: WorksheetData;
     settings: StyleSettings;
     studentProfile?: StudentProfile | null;
+    overlayItems?: OverlayItem[];
 }
 
 const RenderSheet = React.memo(({ activityType, data }: { activityType: ActivityType, data: SingleWorksheetData }) => {
@@ -189,7 +190,7 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
     return prevProps.data === nextProps.data && prevProps.activityType === nextProps.activityType;
 });
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile }) => {
+const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, overlayItems }) => {
     const { isEditMode } = useEditable();
     const [visiblePage, setVisiblePage] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -377,6 +378,26 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     <RenderSheet activityType={activityType} data={sheetData} />
                                 </EditableElement>
                             </div>
+                            
+                            {/* OVERLAY ITEMS FOR THIS PAGE */}
+                            {(overlayItems || []).filter(item => item.pageIndex === index).map(item => (
+                                <EditableElement 
+                                    key={item.id} 
+                                    initialPos={{x: item.x, y: item.y}} 
+                                    className="absolute z-50 cursor-move"
+                                    style={{left: 0, top: 0}} // Positioning handled by transform in EditableElement
+                                >
+                                    {item.type === 'text' ? (
+                                        <div className="bg-white/80 border border-dashed border-zinc-400 p-2 rounded min-w-[100px]">
+                                            <EditableText value={item.content} tag="div" className="text-lg font-bold" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-24 h-24">
+                                            <img src={item.content} className="w-full h-full object-contain drop-shadow-md" alt="Sticker" />
+                                        </div>
+                                    )}
+                                </EditableElement>
+                            ))}
                             
                             <div 
                                 className="absolute bottom-4 left-0 w-full px-12 flex justify-between items-center text-[10px] text-zinc-400 pointer-events-none"

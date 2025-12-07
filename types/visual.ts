@@ -3,7 +3,7 @@ import { BaseActivityData, ShapeType } from './core';
 
 export interface FindTheDifferenceData extends BaseActivityData { rows: { items: string[]; correctIndex: number; visualDistractionLevel: 'low' | 'medium' | 'high'; }[]; }
 export interface WordComparisonData extends BaseActivityData { box1Title: string; box2Title: string; wordList1: string[]; wordList2: string[]; correctDifferences: string[]; }
-export interface ShapeMatchingData extends BaseActivityData { leftColumn: { id: number|string; shapes: ShapeType[]; color: string; }[]; rightColumn: { id: number|string; shapes: ShapeType[]; color: string; }[]; complexity: number; }
+export interface ShapeMatchingData extends BaseActivityData { leftColumn: { id: number|string; shapes?: ShapeType[]; color: string; imageBase64?: string }[]; rightColumn: { id: number|string; shapes?: ShapeType[]; color: string; imageBase64?: string }[]; complexity: number; }
 export interface FindIdenticalWordData extends BaseActivityData { groups: { words: [string, string]; distractors: string[]; }[]; }
 export interface GridDrawingData extends BaseActivityData { gridDim: number; drawings: { lines: [number, number][][]; complexityLevel: string; }[]; }
 export interface SymbolCipherData extends BaseActivityData { cipherKey: { shape: string; letter: string; color: string; }[]; wordsToSolve: { shapeSequence: string[]; wordLength: number; answer: string; }[]; }

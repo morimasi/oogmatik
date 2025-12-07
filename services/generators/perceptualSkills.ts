@@ -42,7 +42,17 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
 
 export const generateShapeMatchingFromAI = async (options: GeneratorOptions): Promise<ShapeMatchingData[]> => {
   const { difficulty, worksheetCount } = options;
-  const prompt = `"${difficulty}" seviyesinde Şekil Eşleştirme. Şekiller: ${SHAPE_TYPES.join(', ')}. ${PEDAGOGICAL_PROMPT}`;
+  const prompt = `
+  "${difficulty}" seviyesinde Şekil Eşleştirme. 
+  
+  GÖREV:
+  Sol sütun ve Sağ sütun için eşleşen nesneler oluştur.
+  Her nesne için 'imageBase64' alanına o nesneyi temsil eden **BASİT, RENKLİ BİR SVG KODU** (<svg>...</svg>) yaz.
+  Örnek: Üçgen, Kare, Yıldız, Elma, Top, Ev gibi basit ikonlar.
+  
+  ${PEDAGOGICAL_PROMPT}
+  ${worksheetCount} sayfa üret.
+  `;
   const singleSchema = {
     type: Type.OBJECT,
     properties: {
@@ -50,13 +60,14 @@ export const generateShapeMatchingFromAI = async (options: GeneratorOptions): Pr
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
       imagePrompt: { type: Type.STRING },
-      leftColumn: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, shapes: { type: Type.ARRAY, items: { type: Type.STRING } }, color: { type: Type.STRING } }, required: ['id', 'shapes'] } },
-      rightColumn: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, shapes: { type: Type.ARRAY, items: { type: Type.STRING } }, color: { type: Type.STRING } }, required: ['id', 'shapes'] } },
+      leftColumn: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, imageBase64: { type: Type.STRING }, color: { type: Type.STRING } }, required: ['id', 'imageBase64'] } },
+      rightColumn: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, imageBase64: { type: Type.STRING }, color: { type: Type.STRING } }, required: ['id', 'imageBase64'] } },
       complexity: { type: Type.INTEGER }
     },
     required: ['title', 'instruction', 'leftColumn', 'rightColumn', 'complexity', 'pedagogicalNote', 'imagePrompt']
   };
   const schema = { type: Type.ARRAY, items: singleSchema };
+  // @ts-ignore - shapes prop is optional in type def now
   return generateWithSchema(prompt, schema) as Promise<ShapeMatchingData[]>;
 };
 

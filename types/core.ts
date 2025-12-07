@@ -431,6 +431,17 @@ export interface WorkbookSettings {
     showBackCover: boolean; // New
 }
 
+// --- OVERLAY ITEMS (EDITOR) ---
+export interface OverlayItem {
+    id: string;
+    type: 'text' | 'image' | 'sticker';
+    content: string; // Text content or Image URL/Base64
+    x: number;
+    y: number;
+    pageIndex: number;
+    style?: React.CSSProperties; // Color, Size, etc.
+}
+
 export type SingleWorksheetData = BaseActivityData & Record<string, any>;
 export type WorksheetData = SingleWorksheetData[];
 

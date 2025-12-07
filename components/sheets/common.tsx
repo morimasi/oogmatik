@@ -21,47 +21,57 @@ interface ImageDisplayProps {
 export const ImageDisplay = React.memo(({ base64, description, prompt, className = "w-full h-24" }: ImageDisplayProps) => {
     let safeDesc = '';
     try { if (description) safeDesc = String(description); } catch (e) { safeDesc = ''; }
+    
+    // Seed for Pollinations (if used as fallback)
     const seed = useMemo(() => safeDesc.length > 0 ? safeDesc.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : Math.floor(Math.random() * 1000), [safeDesc]);
 
     return (
         <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center group`}>
             {/* Editable Label Overlay if description provided */}
             {safeDesc && (
-                <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-1 text-[8px] text-center opacity-0 group-hover:opacity-100 transition-opacity z-10 edit-handle">
+                <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-1 text-[8px] text-center opacity-0 group-hover:opacity-100 transition-opacity z-10 edit-handle pointer-events-none">
                     <EditableText value={safeDesc} tag="span" />
                 </div>
             )}
             
             {(() => {
-                if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('```xml'))) {
-                    let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').trim();
-                    cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '').replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
-                    return <div className="w-full h-full p-1" dangerouslySetInnerHTML={{ __html: cleanSvg }} />;
+                // 1. Check for raw SVG string (starts with <svg or contains svg tag)
+                if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('<?xml') || base64.includes('</svg>'))) {
+                    let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').replace(/^```svg\s*|```\s*$/g, '').trim();
+                    // Basic cleanup for responsive scaling
+                    cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
+                    // Ensure it takes full space
+                    cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
+                    
+                    return <div className="w-full h-full p-1 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: cleanSvg }} />;
                 }
                 
+                // 2. Check for base64 data URI (raster)
                 if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
                     return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" loading="lazy" />;
                 }
 
+                // 3. Pollinations Fallback (Only if prompt is present and long enough)
                 let contentForPrompt = prompt || safeDesc;
                 if (contentForPrompt && contentForPrompt.length > 1) {
-                    const finalPrompt = `${contentForPrompt}, simple educational vector icon, black and white line art, white background, high contrast`;
+                    const finalPrompt = `${contentForPrompt}, educational vector illustration, simple black and white line art, white background, high contrast, minimalist`;
                     const encodedPrompt = encodeURIComponent(finalPrompt);
-                    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=256&height=256&nologo=true&seed=${seed}&model=flux`;
+                    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
                     
                     return (
                         <img 
                             src={imageUrl} 
                             alt={safeDesc} 
-                            className="object-contain w-full h-full" 
+                            className="object-contain w-full h-full mix-blend-multiply" 
                             loading="lazy"
                         />
                     );
                 }
 
+                // 4. Default Placeholder
                 return (
-                    <div className="flex flex-col items-center justify-center h-full w-full border border-dashed border-zinc-300 rounded">
-                        <span className="text-xl font-bold opacity-50 text-black">
+                    <div className="flex flex-col items-center justify-center h-full w-full border border-dashed border-zinc-300 rounded text-zinc-300">
+                        <span className="text-xl font-bold opacity-50">
                             <EditableText value={safeDesc ? safeDesc.charAt(0).toUpperCase() : '?'} tag="span" />
                         </span>
                     </div>

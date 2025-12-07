@@ -1,6 +1,6 @@
 
 import React, { memo, useState, useRef, useEffect } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment } from '../types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, StyleSettings, View, CollectionItem, WorkbookSettings, StudentProfile, SavedAssessment, OverlayItem } from '../types';
 import Worksheet from './Worksheet';
 import Toolbar from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
@@ -14,6 +14,7 @@ import { ShareModal } from './ShareModal';
 import { worksheetService } from '../services/worksheetService';
 import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
+import { DrawLayer } from './DrawLayer';
 // @ts-ignore
 import html2canvas from 'html2canvas';
 
@@ -95,6 +96,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false); 
+    const [isDrawMode, setIsDrawMode] = useState(false);
     
     // --- INFINITE CANVAS STATE ---
     const [viewZoom, setViewZoom] = useState(1);
@@ -102,13 +104,18 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const isDragging = useRef(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
     
+    // --- OVERLAY STATE ---
+    const [overlayItems, setOverlayItems] = useState<OverlayItem[]>([]);
+    
     const canvasRef = useRef<HTMLDivElement>(null);
 
-    // Reset zoom and pan when activity changes
+    // Reset zoom, pan, and overlays when activity changes
     useEffect(() => {
         setViewZoom(1);
         setPan({ x: 0, y: 0 });
         setIsEditMode(false);
+        setIsDrawMode(false);
+        setOverlayItems([]); // Or persist if needed
     }, [activityType]);
 
     // Handle Mouse Wheel Zoom 
@@ -122,16 +129,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
              const newZoom = Math.min(Math.max(0.2, viewZoom + delta), 3);
              setViewZoom(newZoom);
         } else {
-            // Standard wheel scrolls the page vertically, but if we want pan behavior:
-            // Since we have a scrollable container 'document-viewport' in global CSS, 
-            // we let standard scroll happen unless dragging.
+            // Standard scroll
         }
     };
 
     // --- PANNING HANDLERS ---
     const handleMouseDown = (e: React.MouseEvent) => {
+        // Prevent panning if in draw mode or clicking edit handle
+        if (isDrawMode || (e.target as HTMLElement).closest('.editable-element')) return;
+
         // Only pan if clicking on the background (not the page itself)
-        // Check if target is the background container or direct child wrapper
         if ((e.target as HTMLElement).classList.contains('document-viewport') || (e.target as HTMLElement).classList.contains('worksheet-page-wrapper')) {
             isDragging.current = true;
             lastMousePos.current = { x: e.clientX, y: e.clientY };
@@ -145,18 +152,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const deltaX = e.clientX - lastMousePos.current.x;
         const deltaY = e.clientY - lastMousePos.current.y;
         
-        // Update PAN, but limit it so pages don't fly off screen completely? 
-        // For now, free pan.
-        // NOTE: In standard document view, we usually just want SCROLL. 
-        // But the user asked for "middle block... move mouse to pan".
-        // Let's implement dragging for Pan.
-        
-        // Actually, if we use browser native scroll, we don't need manual pan for Y.
-        // But for Infinite Canvas feel (Word-like zoomable view), manual pan is nice.
-        // However, HTML 'worksheet-page' flow is better handled by standard scrolling.
-        
-        // Let's support Pan only if zoomed in/out heavily or explicit drag action.
-        // For now, keeping basic scroll behavior for Y, but let's allow dragging to scroll.
         if (canvasRef.current) {
             canvasRef.current.scrollLeft -= deltaX;
             canvasRef.current.scrollTop -= deltaY;
@@ -298,6 +293,34 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         setWorkbookItems(prev => [...prev, newItem]);
     };
 
+    // --- OVERLAY HANDLERS ---
+    const handleAddText = () => {
+        // Find visible page (current impl just adds to page 0, can be enhanced with intersection observer)
+        const newItem: OverlayItem = {
+            id: crypto.randomUUID(),
+            type: 'text',
+            content: 'Metin',
+            x: 100, // Default relative position
+            y: 100,
+            pageIndex: 0 // Default to first page for simplicity
+        };
+        setOverlayItems(prev => [...prev, newItem]);
+        setIsEditMode(true); // Auto-enable edit
+    };
+
+    const handleAddSticker = (url: string) => {
+        const newItem: OverlayItem = {
+            id: crypto.randomUUID(),
+            type: 'sticker',
+            content: url,
+            x: 150,
+            y: 150,
+            pageIndex: 0
+        };
+        setOverlayItems(prev => [...prev, newItem]);
+        setIsEditMode(true);
+    };
+
     const getBreadcrumbs = () => {
         if (currentView === 'savedList') return ['Ana Sayfa', 'Arşivim'];
         if (currentView === 'shared') return ['Ana Sayfa', 'Paylaşılanlar'];
@@ -353,6 +376,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     onToggleEdit={() => setIsEditMode(!isEditMode)} 
                     isEditMode={isEditMode} 
                     onSnapshot={handleTakeSnapshot} 
+                    onAddText={handleAddText}
+                    onAddSticker={handleAddSticker}
+                    isDrawMode={isDrawMode}
+                    onToggleDraw={() => setIsDrawMode(!isDrawMode)}
                 />
           )}
       </div>
@@ -373,9 +400,17 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                   <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
               </div>
           )}
+          {isDrawMode && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-orange-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none sticky">
+                  <i className="fa-solid fa-pen-nib"></i> Çizim Modu Aktif
+              </div>
+          )}
 
           {currentView === 'generator' ? (
             <>
+                {/* DRAW LAYER (Absolute Overlay) */}
+                <DrawLayer isActive={isDrawMode} zoom={viewZoom} />
+
                 {error && !error.startsWith("Bilgi:") && (
                     <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 pointer-events-none">
                         <div className="bg-[var(--bg-paper)] border-2 border-red-500/30 rounded-2xl shadow-xl overflow-hidden pointer-events-auto">
@@ -434,6 +469,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             data={worksheetData} 
                             settings={styleSettings} 
                             studentProfile={studentProfile}
+                            overlayItems={overlayItems}
                         />
                     </div>
                 )}

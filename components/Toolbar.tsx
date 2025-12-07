@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
 import { printService } from '../utils/printService';
+import { StickerPicker } from './StickerPicker';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -17,6 +18,11 @@ interface ToolbarProps {
   onToggleEdit?: () => void;
   isEditMode?: boolean;
   onSnapshot?: () => void; 
+  // Editor Props
+  onAddText?: () => void;
+  onAddSticker?: (url: string) => void;
+  isDrawMode?: boolean;
+  onToggleDraw?: () => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -32,9 +38,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onViewWorkbook,
     onToggleEdit,
     isEditMode,
-    onSnapshot
+    onSnapshot,
+    onAddText,
+    onAddSticker,
+    isDrawMode,
+    onToggleDraw
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
+  const [showStickers, setShowStickers] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleAction = async (action: 'print' | 'download') => {
@@ -255,12 +266,45 @@ const Toolbar: React.FC<ToolbarProps> = ({
       
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
+            
+            {/* EDITOR TOOLS */}
+            {isEditMode && (
+                <div className="flex bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-lg mr-2 border border-zinc-200 dark:border-zinc-700">
+                    <button 
+                        onClick={onAddText}
+                        className="w-8 h-8 flex items-center justify-center rounded hover:bg-white dark:hover:bg-zinc-600 transition-colors text-zinc-600 dark:text-zinc-300"
+                        title="Metin Ekle"
+                    >
+                        <i className="fa-solid fa-font"></i>
+                    </button>
+                    <div className="relative">
+                        <button 
+                            onClick={() => setShowStickers(!showStickers)}
+                            className="w-8 h-8 flex items-center justify-center rounded hover:bg-white dark:hover:bg-zinc-600 transition-colors text-zinc-600 dark:text-zinc-300"
+                            title="Çıkartma Ekle"
+                        >
+                            <i className="fa-solid fa-icons"></i>
+                        </button>
+                        {showStickers && onAddSticker && (
+                            <StickerPicker onSelect={(url) => { onAddSticker(url); setShowStickers(false); }} onClose={() => setShowStickers(false)} />
+                        )}
+                    </div>
+                    <button 
+                        onClick={onToggleDraw}
+                        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${isDrawMode ? 'bg-indigo-600 text-white' : 'hover:bg-white dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-300'}`}
+                        title="Çizim Modu"
+                    >
+                        <i className="fa-solid fa-pen-nib"></i>
+                    </button>
+                </div>
+            )}
+
             {/* EDIT TOGGLE BUTTON */}
             {onToggleEdit && (
                 <button 
                     onClick={onToggleEdit}
                     disabled={isProcessing}
-                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200 animate-pulse' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
+                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
                     title={isEditMode ? "Düzenlemeyi Bitir ve Kaydet" : "Düzenleme Modu"}
                 >
                     {isEditMode ? (

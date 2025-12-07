@@ -93,7 +93,11 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
                     <EditableElement key={i} className="flex items-center gap-4 relative">
                         <span className="w-8 h-8 flex items-center justify-center rounded-full bg-black text-white font-bold"><EditableText value={item.id} tag="span" /></span>
                         <div className="flex-1 p-4 border-2 border-black rounded-xl bg-white shadow-sm h-24 flex items-center justify-center">
-                            <ShapeDisplay shapes={item.shapes} />
+                            {item.imageBase64 ? (
+                                <ImageDisplay base64={item.imageBase64} className="w-full h-full object-contain" />
+                            ) : (
+                                <ShapeDisplay shapes={item.shapes || []} />
+                            )}
                         </div>
                         <ConnectionDot side="right" />
                     </EditableElement>
@@ -104,7 +108,11 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
                     <EditableElement key={i} className="flex items-center gap-4 flex-row-reverse relative">
                         <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white border-2 border-black text-black font-bold"><EditableText value={item.id} tag="span" /></span>
                         <div className="flex-1 p-4 border-2 border-black rounded-xl bg-white shadow-sm h-24 flex items-center justify-center">
-                            <ShapeDisplay shapes={item.shapes} />
+                            {item.imageBase64 ? (
+                                <ImageDisplay base64={item.imageBase64} className="w-full h-full object-contain" />
+                            ) : (
+                                <ShapeDisplay shapes={item.shapes || []} />
+                            )}
                         </div>
                         <ConnectionDot side="left" />
                     </EditableElement>

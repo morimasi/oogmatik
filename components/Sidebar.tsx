@@ -8,6 +8,7 @@ import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import { cacheService } from '../services/cacheService';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -69,13 +70,16 @@ const Sidebar: React.FC<SidebarProps> = ({
     const generatorFunctionName = `generate${pascalCaseName}FromAI`;
     const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
 
+    // Add seed for variation and cache key uniqueness
+    const requestOptions = { ...options, seed: Math.random().toString(36).substring(7) };
+
     try {
-        let result: WorksheetData;
+        let result: WorksheetData | null = null;
         
         const runOfflineGenerator = async () => {
              const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
              if (offlineGenerator) {
-                 return await offlineGenerator(options);
+                 return await offlineGenerator(requestOptions);
              } else {
                  throw new Error(`Hızlı mod için "${getActivityById(selectedActivity)?.title}" henüz desteklenmiyor.`);
              }
@@ -83,12 +87,23 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         if (options.mode === 'ai') {
             const onlineGenerator = (generators as any)[generatorFunctionName];
+            
+            // 1. Try Cache (if exact same request exists - though seed makes it unique usually)
+            // Useful if user goes back to same settings without re-clicking generate maybe?
+            // For now, "Generate" implies new, but we save success.
+            
             if (onlineGenerator) {
                 try {
-                    result = await onlineGenerator(options);
+                    result = await onlineGenerator(requestOptions);
+                    
+                    // Save successful generation
+                    if (result) {
+                        const cacheKey = cacheService.generateKey(selectedActivity, requestOptions);
+                        await cacheService.set(cacheKey, result);
+                    }
+
                 } catch (err: any) {
-                    // Hata yönetimi ve Fallback
-                    console.warn("AI Service Error. Switching to Fast Mode.");
+                    console.warn("AI Service Error. Switching to Offline Mode.");
                     try {
                         result = await runOfflineGenerator();
                         setError("Bilgi: Yapay zeka servisine ulaşılamadığı için etkinlik 'Hızlı Mod' ile oluşturuldu.");
@@ -100,6 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 result = await runOfflineGenerator();
             }
         } else { 
+            // Fast Mode
             result = await runOfflineGenerator();
         }
         
