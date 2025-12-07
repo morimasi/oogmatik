@@ -117,7 +117,8 @@ export const authService = {
                     lastLogin: new Date().toISOString(),
                     worksheetCount: 0,
                     status: 'active',
-                    subscriptionPlan: 'free'
+                    subscriptionPlan: 'free',
+                    favorites: []
                 };
             }
         } catch (error) {

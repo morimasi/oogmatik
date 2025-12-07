@@ -99,7 +99,8 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
         });
 
         results.push({ 
-            title: `Okuma Anlama: ${chosenValues.character}'in Macerası`, 
+            title: `Okuma Anlama: ${chosenValues.character}'in Macerası`,
+            instruction: "Hikayeyi dikkatlice oku ve soruları cevapla.",
             story, 
             questions: questions,
             characters: [chosenValues.character, chosenValues.friend].filter(c => story.includes(c)), 
@@ -189,6 +190,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
         return {
             title: `${themeTitle} (${difficulty})`,
             prompt: "Aşağıdaki ipuçlarını ve 5N 1K tablosunu kullanarak kendi özgün hikayeni oluştur.",
+            instruction: "İpuçlarını kullanarak hikayeni yaz.",
             keywords: getRandomItems(keywordsPool, 5),
             structureHints: hints,
             pedagogicalNote: "Yaratıcı yazma, olay örgüsü kurma ve hikaye unsurlarını (karakter, mekan, zaman, olay) yapılandırma becerisi.",
@@ -209,7 +211,8 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
         const selectedWords = getRandomItems(candidates, 4);
 
         return { 
-            title: 'Bağlamdan Anlam Çıkarma', 
+            title: 'Bağlamdan Anlam Çıkarma',
+            instruction: "Metni oku ve kelimelerin anlamlarını tahmin et.",
             story, 
             vocabWork: selectedWords.map(word => ({
                 word,
@@ -230,6 +233,7 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
          const { story, chosenValues } = buildDynamicStory(difficulty, topic);
          return {
              title: 'Hikaye Haritası',
+             instruction: "Hikaye haritasını doldur.",
              story,
              storyMap: {
                  characters: chosenValues.character + (story.includes(chosenValues.friend) ? `, ${chosenValues.friend}` : ''),
@@ -289,6 +293,7 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
         
         return {
             title: 'Olay Sıralama',
+            instruction: "Olayları oluş sırasına göre diz.",
             prompt: "Kartları olayların oluş sırasına göre numaralandır. Geçiş kelimelerini kullanmayı unutma.",
             pedagogicalNote: "Kronolojik düşünme, neden-sonuç ilişkisi ve süreç takibi.",
             panels: shuffle(selectedSteps.map((step) => ({
@@ -378,6 +383,7 @@ export const generateOfflineProverbFillInTheBlank = async (o: GeneratorOptions):
         });
         return { 
             title: 'Atasözü Tamamlama',
+            instruction: 'Eksik kelimeleri tamamla.',
             proverbs,
             meaning: 'Eksik kelimeleri bularak atasözlerini tamamla.',
             usagePrompt: 'Bir tanesini seç ve resmini çiz.',
@@ -398,6 +404,7 @@ export const generateOfflineProverbSayingSort = async (options: GeneratorOptions
         ]).slice(0, count);
         return {
             title: 'Atasözü mü Özdeyiş mi?',
+            instruction: 'Cümleleri doğru kutuya yerleştir.',
             prompt: 'Söyleyeni belli olanlara Özdeyiş, anonim olanlara Atasözü denir. Sınıflandır.',
             items,
             pedagogicalNote: "Bilgi kaynağı analizi.",
@@ -413,6 +420,7 @@ export const generateOfflineProverbWordChain = async (options: GeneratorOptions)
         const words = shuffle(solution.replace(/[.,]/g,'').split(' ')).map(w => ({word: w, color: '#333'}));
         return {
             title: 'Kelime Zinciri',
+            instruction: 'Kelimeleri sıraya diz.',
             prompt: 'Karışık kelimeleri sıraya diz.',
             wordCloud: words,
             solutions: [solution],
@@ -424,7 +432,7 @@ export const generateOfflineProverbWordChain = async (options: GeneratorOptions)
 
 export const generateOfflineProverbSentenceFinder = async (options: GeneratorOptions) => {
     const res = await generateOfflineProverbWordChain(options);
-    return res.map(r => ({...r, title: 'Cümle Kurmaca'}));
+    return res.map(r => ({...r, title: 'Cümle Kurmaca'})) as unknown as ProverbSentenceFinderData[];
 };
 
 export const generateOfflineProverbSearch = async (options: GeneratorOptions): Promise<ProverbSearchData[]> => {

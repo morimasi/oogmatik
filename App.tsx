@@ -42,7 +42,10 @@ const initialStyleSettings: StyleSettings = {
     showInstruction: false,
     showImage: false,
     showFooter: false,
-    smartPagination: true // Enabled by default
+    smartPagination: true,
+    fontFamily: 'OpenDyslexic',
+    lineHeight: 1.5,
+    letterSpacing: 0
 };
 
 const initialUiSettings: UiSettings = {

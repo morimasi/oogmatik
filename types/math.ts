@@ -1,7 +1,7 @@
 
-import { BaseActivityData, ShapeType } from './core';
+import { BaseActivityData, ShapeType, VisualMathType } from './core';
 
-export type VisualMathType = 'objects' | 'ten-frame' | 'dice' | 'number-bond' | 'mixed' | 'blocks' | 'number-line-advanced' | 'estimation-jar';
+export * from './core';
 
 export interface NumberPatternData extends BaseActivityData { patterns: { sequence: string; answer: string; }[]; }
 export interface ShapeNumberPatternData extends BaseActivityData { patterns: { shapes: { type: string; numbers: (string|number)[]; }[] }[]; }

@@ -1,6 +1,8 @@
 
 import { BaseActivityData } from './core';
 
+export * from './core';
+
 export interface MultipleChoiceStoryQuestion { type: 'multiple-choice'; question: string; options: string[]; answerIndex: number; }
 export interface OpenEndedStoryQuestion { type: 'open-ended'; question: string; spaceLines?: number; }
 export interface TrueFalseQuestion { type: 'true-false'; statement: string; isTrue: boolean; }
@@ -24,6 +26,7 @@ export interface StoryAnalysisData extends BaseActivityData {
         solution: string;
         theme: string;
     };
+    analysisQuestions?: any[]; // Legacy
 }
 
 export interface StoryCreationPromptData extends BaseActivityData { 
@@ -43,7 +46,8 @@ export interface WordsInStoryData extends BaseActivityData {
         word: string; 
         contextQuestion: string; 
         type: 'meaning' | 'synonym' | 'antonym';
-    }[]; 
+    }[];
+    questions?: any[]; // Legacy 
 }
 
 export interface StorySequencingData extends BaseActivityData { 
@@ -62,7 +66,6 @@ export interface MissingPartsData extends BaseActivityData {
     givenParts: {word: string, parts: string[]}[];
 }
 
-// ... (Diğer mevcut tipler aynen korunur)
 export interface ProverbFillData extends BaseActivityData { proverbs: { start: string; end: string; full: string; }[]; meaning: string; usagePrompt: string; }
 export interface ProverbSayingSortData extends BaseActivityData { prompt: string; items: { text: string; type: 'atasözü'|'özdeyiş'; }[]; }
 export interface ProverbWordChainData extends BaseActivityData { prompt: string; wordCloud: { word: string; color: string; }[]; solutions: string[]; }
@@ -112,3 +115,12 @@ export interface PhonologicalAwarenessData extends BaseActivityData { exercises:
 export interface MirrorLettersData extends BaseActivityData { targetPair: string; rows: { items: { letter: string; isMirrored: boolean; rotation: number; }[] }[]; }
 export interface SyllableTrainData extends BaseActivityData { trains: { word: string; syllables: string[]; }[]; }
 export interface BackwardSpellingData extends BaseActivityData { items: { reversed: string; correct: string; }[]; }
+export interface VisualTrackingLineData extends BaseActivityData { width: number; height: number; paths: { id: number; color: string; d: string; startLabel: string; endLabel: string; }[]; }
+export interface CodeReadingData extends BaseActivityData { keyMap: { symbol: string; value: string; color: string; }[]; codesToSolve: { sequence: string[]; answer: string; }[]; }
+export interface AttentionToQuestionData extends BaseActivityData { subType: 'letter-cancellation'|'path-finding'|'visual-logic'; grid?: string[][]; targetChars?: string[]; password?: string; pathGrid?: string[][]; logicItems?: { id: number; isOdd: boolean; correctAnswer: string; shapes: any[]; }[]; }
+export interface AttentionDevelopmentData extends BaseActivityData { puzzles: { riddle: string; boxes: { label: string; numbers: number[]; }[]; options: string[]; answer: string; }[]; }
+export interface AttentionFocusData extends BaseActivityData { puzzles: { riddle: string; boxes: { title?: string; items: string[]; }[]; options: string[]; answer: string; }[]; }
+export interface FamilyRelationsData extends BaseActivityData { leftColumn: { text: string; id: number; }[]; rightColumn: { text: string; id: number; }[]; }
+export interface LogicDeductionData extends BaseActivityData { questions: { riddle: string; options: string[]; answerIndex: number; correctLetter: string; }[]; scoringText?: string; }
+export interface NumberBoxLogicData extends BaseActivityData { puzzles: { box1: number[]; box2: number[]; questions: { text: string; options: string[]; correctAnswer: string; }[]; }[]; }
+export interface MapInstructionData extends BaseActivityData { mapSvg?: string; cities: { name: string; x: number; y: number; }[]; instructions: string[]; }

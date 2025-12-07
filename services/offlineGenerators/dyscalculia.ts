@@ -6,7 +6,7 @@ import { generateOfflineVisualOddOneOut } from './perceptualSkills';
 
 // --- 1. Number Sense ---
 export const generateOfflineNumberSense = async (options: GeneratorOptions): Promise<NumberSenseData[]> => {
-    const { worksheetCount, range, difficulty } = options;
+    const { worksheetCount, numberRange, difficulty } = options;
     
     return Array.from({ length: worksheetCount }, () => {
         const exercises: NumberSenseData['exercises'] = [];
@@ -50,7 +50,7 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
 
 // --- 2. Arithmetic Fluency & Visual Arithmetic (UPDATED) ---
 export const generateOfflineArithmeticFluency = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
-    const { worksheetCount, operation, visualStyle, numberRange } = options;
+    const { worksheetCount, operationType, visualStyle, numberRange } = options;
     
     // Define range
     let limit = 10;
@@ -58,8 +58,8 @@ export const generateOfflineArithmeticFluency = async (options: GeneratorOptions
     
     // Map operation text to symbol
     let op: '+' | '-' | 'x' = '+';
-    if (operation === 'subtraction') op = '-';
-    if (operation === 'multiplication') op = 'x';
+    if (operationType === 'subtraction') op = '-';
+    if (operationType === 'multiplication') op = 'x';
     
     // Visual Style: 'objects' | 'ten-frame' | 'number-bond' | 'dice'
     const style = visualStyle || 'objects';
@@ -439,7 +439,7 @@ export const generateOfflineFractionsDecimals = async (options: GeneratorOptions
 
 // --- 8. Estimation ---
 export const generateOfflineEstimationSkills = async (options: GeneratorOptions): Promise<EstimationData[]> => {
-    const { worksheetCount } = options;
+    const { numberRange, worksheetCount } = options;
     
     return Array.from({ length: worksheetCount }, () => {
         const items: EstimationData['items'] = [];

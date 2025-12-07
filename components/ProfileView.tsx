@@ -159,8 +159,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
         return sorted.map(a => ({
             date: a.createdAt,
             // Try to extract generic scores or use fallbacks
-            reading: a.report.scores.linguistic || a.report.scores.reading || 0,
-            math: a.report.scores.logical || a.report.scores.math || 0,
+            reading: a.report.scores.linguistic || (a.report.scores as any).reading || 0,
+            math: a.report.scores.logical || (a.report.scores as any).math || 0,
             attention: a.report.scores.attention || 0
         }));
     }, [assessments]);

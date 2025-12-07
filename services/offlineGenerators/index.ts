@@ -7,3 +7,4 @@ export * from './readingComprehension';
 export * from './dyscalculia';
 export * from './dyslexiaSupport';
 export * from './newActivities';
+export * from './assessment';

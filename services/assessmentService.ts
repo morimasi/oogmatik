@@ -1,10 +1,15 @@
+
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { AssessmentReport, SavedAssessment } from '../types';
+import { AssessmentReport, SavedAssessment, AdaptiveQuestion, TestCategory, AssessmentConfig } from '../types';
+import { generateAdaptiveQuestionsFromAI } from './generators/assessment';
+import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment';
+import { shuffle } from './offlineGenerators/helpers';
 
 const { collection, addDoc, query, where, getDocs } = firestore;
 
 export const assessmentService = {
+    // ... (Existing Save/Get/Share methods remain unchanged)
     saveAssessment: async (
         userId: string,
         studentName: string,
@@ -13,35 +18,28 @@ export const assessmentService = {
         grade: string,
         report: AssessmentReport
     ): Promise<void> => {
-        // Ensure no undefined values
         const payload = {
             userId,
             studentName: studentName || 'Öğrenci',
             gender: gender || 'Erkek',
             age: age || 7,
             grade: grade || '1. Sınıf',
-            report: JSON.parse(JSON.stringify(report)), // Deep clone to strip undefineds
+            report: JSON.parse(JSON.stringify(report)),
             createdAt: new Date().toISOString()
         };
-
         await addDoc(collection(db, "saved_assessments"), payload);
     },
 
     getUserAssessments: async (userId: string): Promise<SavedAssessment[]> => {
         try {
-            // REMOVED orderBy to prevent index errors
             const q = query(
                 collection(db, "saved_assessments"), 
                 where("userId", "==", userId)
             );
-
             const querySnapshot = await getDocs(q);
             const assessments: SavedAssessment[] = [];
-            
             querySnapshot.forEach((doc) => {
-                // FIX: Cast doc.data() to any to access properties
                 const data = doc.data() as any;
-                // Filter out shared items if necessary
                 if (!data.sharedWith) {
                     assessments.push({
                         id: doc.id,
@@ -57,10 +55,7 @@ export const assessmentService = {
                     });
                 }
             });
-
-            // Client-side sorting
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
             return assessments;
         } catch (error) {
             console.error("Error fetching assessments:", error);
@@ -75,29 +70,24 @@ export const assessmentService = {
             gender: assessment.gender,
             age: assessment.age,
             grade: assessment.grade,
-            report: JSON.parse(JSON.stringify(assessment.report)), // Ensure clean object
+            report: JSON.parse(JSON.stringify(assessment.report)), 
             sharedBy: senderId,
             sharedByName: senderName || 'Anonim',
             sharedWith: receiverId,
             createdAt: new Date().toISOString()
         };
-
         await addDoc(collection(db, "saved_assessments"), payload);
     },
 
     getSharedAssessments: async (userId: string): Promise<SavedAssessment[]> => {
         try {
-            // REMOVED orderBy
             const q = query(
                 collection(db, "saved_assessments"), 
                 where("sharedWith", "==", userId)
             );
-
             const querySnapshot = await getDocs(q);
             const assessments: SavedAssessment[] = [];
-            
             querySnapshot.forEach((doc) => {
-                // FIX: Cast doc.data() to any to access its properties
                 const data = doc.data() as any;
                 assessments.push({
                     id: doc.id,
@@ -113,14 +103,51 @@ export const assessmentService = {
                     sharedWith: data.sharedWith
                 });
             });
-
-            // Client-side sorting
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
             return assessments;
         } catch (error) {
             console.error("Error fetching shared assessments:", error);
             return [];
         }
+    },
+
+    // --- NEW: SESSION GENERATION ---
+    
+    generateSession: async (config: AssessmentConfig): Promise<AdaptiveQuestion[]> => {
+        const { selectedSkills, mode } = config;
+        
+        // Determine question count per skill based on mode
+        // Quick: 3, Standard: 5, Full: 8
+        const count = mode === 'quick' ? 3 : (mode === 'standard' ? 5 : 8);
+        
+        let questionsMap: Record<string, AdaptiveQuestion[]> = {};
+        let source = 'offline';
+
+        // 1. Try AI Generation
+        try {
+            // Only try AI if mode is NOT specifically forcing offline (though config usually doesn't enforce this yet)
+            // Ideally we'd have a toggle, but user wants AI default with fallback.
+            questionsMap = await generateAdaptiveQuestionsFromAI(selectedSkills, count);
+            source = 'ai';
+        } catch (error) {
+            console.warn("AI Generation failed for Assessment, falling back to Offline engine.", error);
+            // 2. Fallback to Offline
+            questionsMap = generateOfflineAdaptiveQuestions(selectedSkills, count);
+        }
+
+        // 3. Flatten and Prepare Initial Queue
+        // We pick the first questions to start the adaptive chain.
+        // Actually, the previous logic (in component) assumed a dynamic fetch.
+        // Here, we'll return a POOL. The component's adaptive logic needs a full pool to pick "harder" or "easier" questions from.
+        // Since the AI returns a list (e.g. Easy, Medium, Hard), we can just return ALL of them flattened.
+        // The Component's logic: `pool.find(q => q.difficulty === nextDifficulty ...)` will work if we pass all questions.
+        
+        const allQuestions = Object.values(questionsMap).flat();
+        
+        // However, the component expects an initial *queue* and then dynamically adds.
+        // If we return all questions now, the component can simply use this list as the "Server Pool" 
+        // and handle the queueing locally.
+        
+        return allQuestions; // Returns the pool. The component will need to initialize the queue from this.
     }
 };

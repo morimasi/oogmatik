@@ -5,8 +5,7 @@ import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { assessmentService } from '../services/assessmentService';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { useAuth } from '../context/AuthContext';
-import { getRandomItems, shuffle, getRandomInt } from '../services/offlineGenerators/helpers';
-import { TR_VOCAB } from '../data/vocabulary';
+import { shuffle } from '../services/offlineGenerators/helpers';
 
 interface AssessmentModuleProps {
     onBack: () => void;
@@ -15,54 +14,11 @@ interface AssessmentModuleProps {
     onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
 }
 
-// --- ADAPTIVE ENGINE HELPERS ---
-
-// Simulates a database of categorized questions with metadata
-const QUESTION_BANK: Record<string, AdaptiveQuestion[]> = {
-    // 1. Linguistic (Sözel)
-    'linguistic': [
-        { id: 'l1', text: "'Elma' kelimesinin eş anlamlısı nedir?", options: ["Armut", "Meyve", "Kırmızı", "Amasya"], correct: "Meyve", difficulty: 1, skill: 'linguistic', errorTags: {"Armut": "semantic_error", "Kırmızı": "visual_association"} }, // Simplified for demo
-        { id: 'l2', text: "'Siyah' kelimesinin zıt anlamlısı nedir?", options: ["Beyaz", "Kara", "Mavi", "Karanlık"], correct: "Beyaz", difficulty: 1, skill: 'linguistic', errorTags: {"Kara": "synonym_confusion", "Karanlık": "association_error"} },
-        { id: 'l3', text: "Aşağıdaki kelimelerden hangisi doğru yazılmıştır?", options: ["Yalnış", "Yanlış", "Yanluş", "Yannış"], correct: "Yanlış", difficulty: 2, skill: 'linguistic', errorTags: {"Yalnış": "metathesis_error", "Yannış": "phonological_error"} },
-        { id: 'l4', text: "'Kütüphane' kelimesinde kaç hece vardır?", options: ["3", "4", "5", "6"], correct: "4", difficulty: 2, skill: 'linguistic', errorTags: {"3": "counting_error", "5": "counting_error"} },
-        { id: 'l5', text: "Hangi kelime diğerlerinden farklı bir kategoridedir?", options: ["Sandalye", "Masa", "Koltuk", "Elma"], correct: "Elma", difficulty: 3, skill: 'linguistic', errorTags: {"Sandalye": "category_error", "Masa": "category_error"} },
-        { id: 'l6', text: "'Gözlük' kelimesindeki ek hangisidir?", options: ["-lük", "-k", "-göz", "-ü"], correct: "-lük", difficulty: 3, skill: 'linguistic', errorTags: {"-k": "morphology_error"} },
-        { id: 'l7', text: "Aşağıdaki cümlede hangi kelime 'sıfat' görevindedir? 'Kırmızı araba hızlı gidiyordu.'", options: ["Kırmızı", "Araba", "Hızlı", "Gidiyordu"], correct: "Kırmızı", difficulty: 4, skill: 'linguistic', errorTags: {"Araba": "noun_confusion", "Gidiyordu": "verb_confusion"} },
-    ],
-    // 2. Visual / Attention (Görsel Algı - Reversal Focus)
-    'spatial': [
-        { id: 's1', text: "Aşağıdaki harfin aynısını bul: ( b )", options: ["d", "p", "q", "b"], correct: "b", difficulty: 1, skill: 'spatial', subSkill: 'reversal', errorTags: {"d": "reversal_error", "p": "inversion_error", "q": "rotation_error"} },
-        { id: 's2', text: "Hangi şekil diğerlerinden farklıdır? (Üçgen - Üçgen - Kare - Üçgen)", options: ["1. Üçgen", "Kare", "Son Üçgen", "Hepsi Aynı"], correct: "Kare", difficulty: 1, skill: 'spatial', errorTags: {"1. Üçgen": "attention_lapse"} },
-        { id: 's3', text: "Aşağıdaki harf dizisinde kuralı bozan hangisidir? ( b - b - d - b )", options: ["d", "b", "Hepsi aynı", "Hiçbiri"], correct: "d", difficulty: 2, skill: 'spatial', subSkill: 'sequencing', errorTags: {"b": "visual_discrimination_error"} },
-        { id: 's4', text: "'p' harfinin aynadaki görüntüsü hangisidir?", options: ["q", "b", "d", "p"], correct: "q", difficulty: 3, skill: 'spatial', subSkill: 'mental_rotation', errorTags: {"b": "axis_confusion", "d": "double_flip"} },
-        { id: 's5', text: "Hangi kelime tersten okunduğunda da aynıdır?", options: ["KAZAK", "KAZAN", "KABAK", "KASAP"], correct: "KAZAK", difficulty: 3, skill: 'spatial', errorTags: {"KABAK": "visual_similarity"} },
-    ],
-    // 3. Mathematical (Mantıksal)
-    'logical': [
-        { id: 'm1', text: "2, 4, 6, ... Sırada hangi sayı gelmelidir?", options: ["7", "8", "9", "10"], correct: "8", difficulty: 1, skill: 'logical', errorTags: {"7": "counting_error"} },
-        { id: 'm2', text: "5 elman vardı, 2'sini yedin. Kaç elman kaldı?", options: ["3", "7", "2", "5"], correct: "3", difficulty: 1, skill: 'logical', errorTags: {"7": "operation_confusion_add"} },
-        { id: 'm3', text: "Saat 3:00 iken yelkovan (uzun çubuk) nerededir?", options: ["12", "3", "6", "9"], correct: "12", difficulty: 2, skill: 'logical', errorTags: {"3": "hand_confusion"} },
-        { id: 'm4', text: "Hangi sayı çifttir?", options: ["3", "5", "8", "1"], correct: "8", difficulty: 2, skill: 'logical', errorTags: {"3": "concept_error"} },
-        { id: 'm5', text: "Bir kutuda 12 yumurta var. Yarısı kırıldı. Kaç yumurta kaldı?", options: ["6", "12", "24", "4"], correct: "6", difficulty: 3, skill: 'logical', errorTags: {"24": "operation_confusion_mult"} }
-    ]
-};
-
-// Fill gaps for other intelligences with generic logic for demo
-['musical', 'kinesthetic', 'naturalistic', 'interpersonal', 'intrapersonal', 'attention'].forEach(key => {
-    if (!QUESTION_BANK[key]) {
-        QUESTION_BANK[key] = [
-            { id: `${key}1`, text: `${key.toUpperCase()} sorusu (Kolay)`, options: ["A", "B", "C"], correct: "A", difficulty: 1, skill: key as TestCategory, errorTags: {} },
-            { id: `${key}2`, text: `${key.toUpperCase()} sorusu (Orta)`, options: ["A", "B", "C"], correct: "A", difficulty: 2, skill: key as TestCategory, errorTags: {} },
-            { id: `${key}3`, text: `${key.toUpperCase()} sorusu (Zor)`, options: ["A", "B", "C"], correct: "A", difficulty: 3, skill: key as TestCategory, errorTags: {} },
-        ];
-    }
-});
-
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }) => {
     const { user } = useAuth();
     
     // Workflow State
-    const [step, setStep] = useState<'profile' | 'config' | 'test-intro' | 'testing' | 'generating' | 'report'>('profile');
+    const [step, setStep] = useState<'profile' | 'config' | 'loading' | 'test-intro' | 'testing' | 'generating' | 'report'>('profile');
     
     // Profile Data
     const [profile, setProfile] = useState<AssessmentProfile>({
@@ -72,7 +28,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         gender: 'Erkek',
         observations: [],
         testResults: {},
-        errorPatterns: {} // To store counts of specific error tags
+        errorPatterns: {} 
     });
 
     // Configuration
@@ -83,6 +39,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     });
 
     // Test Runtime State
+    const [questionPool, setQuestionPool] = useState<AdaptiveQuestion[]>([]);
     const [adaptiveQueue, setAdaptiveQueue] = useState<AdaptiveQuestion[]>([]);
     const [currentQIndex, setCurrentQIndex] = useState(0);
     const [answers, setAnswers] = useState<any[]>([]);
@@ -99,24 +56,26 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         setStep('config');
     };
 
-    const handleConfigSubmit = () => {
-        // Prepare the test queue based on config
-        const queue: AdaptiveQuestion[] = [];
-        
-        // Strategy: For each selected skill, pick a starting question (Difficulty 1 or 2)
-        // The Adaptive Engine will fetch subsequent questions dynamically during runtime, 
-        // but for this simulated implementation, we will pre-fill a "pool" and filter dynamically.
-        // Actually, let's just initialize the queue with the first question of each skill.
-        // We will append to the queue as the user answers.
-        
-        const initialQuestions = config.selectedSkills.map(skill => {
-            const pool = QUESTION_BANK[skill];
-            // Start with medium difficulty (2) if available, else 1
-            return pool.find(q => q.difficulty === 2) || pool[0];
-        }).filter(q => q !== undefined);
+    const handleConfigSubmit = async () => {
+        setStep('loading');
+        try {
+            // Generate/Fetch questions from AI or Offline Fallback
+            const pool = await assessmentService.generateSession(config);
+            setQuestionPool(pool);
 
-        setAdaptiveQueue(shuffle(initialQuestions));
-        setStep('test-intro');
+            // Initialize Queue: Pick one starting question (Difficulty ~2 or 1) for each selected skill
+            const initialQuestions = config.selectedSkills.map(skill => {
+                const skillQs = pool.filter(q => q.skill === skill);
+                return skillQs.find(q => q.difficulty === 2) || skillQs[0];
+            }).filter(q => q !== undefined);
+
+            setAdaptiveQueue(shuffle(initialQuestions));
+            setStep('test-intro');
+        } catch (error) {
+            console.error("Assessment initialization failed:", error);
+            alert("Test başlatılamadı. Lütfen tekrar deneyin.");
+            setStep('config');
+        }
     };
 
     // --- 2. ADAPTIVE ENGINE LOGIC ---
@@ -124,7 +83,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const handleAnswer = (selectedOption: string) => {
         const currentQ = adaptiveQueue[currentQIndex];
         const isCorrect = selectedOption === currentQ.correct;
-        const errorTag = !isCorrect ? currentQ.errorTags[selectedOption] : null;
+        const errorTag = !isCorrect ? currentQ.errorTags?.[selectedOption] : null;
 
         // Record Answer
         const answerRecord = {
@@ -151,57 +110,37 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         }
 
         // Adaptive Branching
-        // Determine if we should add another question for this skill
-        // Rule: Ask max 3-5 questions per skill depending on mode.
         const skillAnswers = newAnswers.filter(a => a.skill === currentQ.skill);
         const maxQuestionsPerSkill = config.mode === 'quick' ? 3 : (config.mode === 'standard' ? 5 : 8);
 
         if (skillAnswers.length < maxQuestionsPerSkill) {
-            // Find next question
-            const pool = QUESTION_BANK[currentQ.skill];
+            // Find next question from pool
             let nextDifficulty = currentQ.difficulty;
             
             if (isCorrect) {
-                // Increase difficulty
                 nextDifficulty = Math.min(5, currentQ.difficulty + 1);
             } else {
-                // Decrease difficulty
                 nextDifficulty = Math.max(1, currentQ.difficulty - 1);
             }
 
             // Find a question of this difficulty not yet answered
             const usedIds = new Set(newAnswers.map(a => a.questionId));
-            const nextQ = pool.find(q => q.difficulty === nextDifficulty && !usedIds.has(q.id)) 
-                       || pool.find(q => !usedIds.has(q.id)); // Fallback any unused
+            const availableSkillQs = questionPool.filter(q => q.skill === currentQ.skill && !usedIds.has(q.id) && !adaptiveQueue.some(aq => aq.id === q.id));
+            
+            // Try to find exact difficulty match, else closest
+            const nextQ = availableSkillQs.find(q => q.difficulty === nextDifficulty) 
+                       || availableSkillQs.sort((a,b) => Math.abs(a.difficulty - nextDifficulty) - Math.abs(b.difficulty - nextDifficulty))[0];
 
             if (nextQ) {
-                // Append to queue
                 setAdaptiveQueue(prev => [...prev, nextQ]);
             }
         }
 
-        // Advance
-        if (currentQIndex < adaptiveQueue.length + (skillAnswers.length < maxQuestionsPerSkill ? 0 : -1)) { 
-            // We might have just added to the queue, so length increased.
-            // Check if we are at the end of the ACTUAL queue including new addition
-            // Actually, React state update for queue is async. We handle "finish" check in useEffect or rely on index comparison in render.
-            // A safer way: Just increment index. If index >= queue.length (after render), then finish.
-            setCurrentQIndex(prev => prev + 1);
-        } else {
-            // This logic is tricky with async state. 
-            // Better to rely on a 'useEffect' to check if we are done.
-            // But for simplicity, we'll increment. The render loop will check bounds.
-            setCurrentQIndex(prev => prev + 1);
-        }
+        setCurrentQIndex(prev => prev + 1);
     };
 
     // Check for completion
     useEffect(() => {
-        // If index goes out of bounds AND we are not adding more questions...
-        // But wait, we add questions synchronously in handleAnswer (conceptually).
-        // Let's use a simpler check: If currentQIndex is equal to queue length, we are done.
-        // BUT, handleAnswer might have added one.
-        // We need to wait for the state update.
         if (adaptiveQueue.length > 0 && currentQIndex >= adaptiveQueue.length) {
             finishTests();
         }
@@ -213,16 +152,12 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     const finishTests = async () => {
         setStep('generating');
         
-        // Compile Results
         const compiledResults: any = {};
         
-        // Initialize scores for all skills
         config.selectedSkills.forEach(skill => {
             const skillAnswers = answers.filter(a => a.skill === skill);
             if (skillAnswers.length === 0) return;
 
-            const correctCount = skillAnswers.filter(a => a.isCorrect).length;
-            // Weighted Score: Harder questions give more points
             const totalWeight = skillAnswers.reduce((acc, a) => acc + a.difficulty, 0);
             const earnedWeight = skillAnswers.reduce((acc, a) => acc + (a.isCorrect ? a.difficulty : 0), 0);
             
@@ -230,7 +165,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
             compiledResults[skill] = {
                 id: skill,
-                name: skill.charAt(0).toUpperCase() + skill.slice(1), // Simple name
+                name: skill.charAt(0).toUpperCase() + skill.slice(1), 
                 score: earnedWeight,
                 total: totalWeight,
                 accuracy: Math.round(accuracy),
@@ -290,6 +225,16 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     };
 
     // --- RENDERERS ---
+
+    if (step === 'loading') {
+        return (
+            <div className="flex flex-col items-center justify-center h-full mt-20">
+                <div className="w-24 h-24 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
+                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Test Hazırlanıyor...</h3>
+                <p className="text-zinc-500 mt-2">Yapay zeka senin için özel sorular üretiyor.</p>
+            </div>
+        );
+    }
 
     if (step === 'profile') {
         return (
@@ -430,8 +375,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 </div>
                 <h2 className="text-2xl font-black text-zinc-800 dark:text-zinc-100 mb-2">Hazır mısın {profile.studentName.split(' ')[0]}?</h2>
                 <p className="text-zinc-500 dark:text-zinc-400 mb-8">
-                    Senin için özel olarak seçilen sorularla zihinsel bir yolculuğa çıkacağız. 
-                    Sorular senin cevaplarına göre değişebilir!
+                    Senin için yapay zeka tarafından özel olarak hazırlanan sorularla zihinsel bir yolculuğa çıkacağız.
                 </p>
                 <button onClick={() => setStep('testing')} className="px-8 py-3 bg-indigo-600 text-white rounded-full font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-300">
                     Başla!
@@ -444,11 +388,10 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         const currentQ = adaptiveQueue[currentQIndex];
 
         if (!currentQ) {
-             // Fallback if array sync issue
              return <div className="text-center p-10"><i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i></div>;
         }
 
-        const progressPercent = ((currentQIndex) / (adaptiveQueue.length + 2)) * 100; // Estimated progress
+        const progressPercent = ((currentQIndex) / (adaptiveQueue.length + 3)) * 100;
 
         return (
             <div className="max-w-3xl mx-auto mt-8 p-6 md:p-12 bg-white dark:bg-zinc-800 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-700 relative overflow-hidden min-h-[500px] flex flex-col">
@@ -460,7 +403,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 <div className="flex justify-between items-center mb-8">
                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{currentQ.skill.toUpperCase()}</span>
                     <div className="flex gap-2">
-                        {/* Difficulty Indicator */}
                         {Array.from({length: 5}).map((_, i) => (
                             <div key={i} className={`w-2 h-2 rounded-full ${i < currentQ.difficulty ? 'bg-amber-400' : 'bg-zinc-200'}`}></div>
                         ))}
@@ -486,7 +428,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         return (
             <div className="flex flex-col items-center justify-center h-full mt-20">
                 <div className="w-24 h-24 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
-                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Yapay Zeka Analizi Yapılıyor...</h3>
+                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Sonuçlar Analiz Ediliyor...</h3>
                 <p className="text-zinc-500 mt-2">Hata paternleri inceleniyor ve rapor hazırlanıyor.</p>
             </div>
         );

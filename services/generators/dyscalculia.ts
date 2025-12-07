@@ -22,10 +22,10 @@ const PEDAGOGICAL_PROMPT = `
 
 // --- 1. Number Sense & Quantity ---
 export const generateNumberSenseFromAI = async (options: GeneratorOptions): Promise<NumberSenseData[]> => {
-    const { difficulty, worksheetCount, range, visualType } = options;
+    const { difficulty, worksheetCount, numberRange, visualType } = options;
     const prompt = `
     Diskalkuli destekli "Sayı Hissi" etkinliği. Seviye: ${difficulty}.
-    Aralık: ${range || '1-10'}. Görsel Tip: ${visualType || 'objects'}.
+    Aralık: ${numberRange || '1-10'}. Görsel Tip: ${visualType || 'objects'}.
     Egzersizler: Sayı doğrusunda eksik bulma, çokluk karşılaştırma (az/çok), sıralama.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
@@ -63,10 +63,10 @@ export const generateNumberSenseFromAI = async (options: GeneratorOptions): Prom
 
 // --- 2. Arithmetic Fluency & Visual Arithmetic ---
 export const generateArithmeticFluencyFromAI = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
-    const { difficulty, worksheetCount, operation, maxSum } = options;
+    const { difficulty, worksheetCount, operationType, maxSum } = options;
     const prompt = `
     Diskalkuli için "Temel Aritmetik Akıcılığı". Seviye: ${difficulty}.
-    İşlem: ${operation}. Maksimum Toplam: ${maxSum || 10}.
+    İşlem: ${operationType}. Maksimum Toplam: ${maxSum || 10}.
     Problemleri hem sayı hem de görsel (nokta/nesne) ile destekle.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
@@ -332,9 +332,9 @@ export const generateFractionsDecimalsFromAI = async (options: GeneratorOptions)
 
 // --- 8. Estimation ---
 export const generateEstimationSkillsFromAI = async (options: GeneratorOptions): Promise<EstimationData[]> => {
-    const { range, worksheetCount } = options;
+    const { numberRange, worksheetCount } = options;
     const prompt = `
-    Tahmin Becerileri (Estimation). Aralık: ${range || '10-50'}.
+    Tahmin Becerileri (Estimation). Aralık: ${numberRange || '10-50'}.
     Bir kavanoz/kutu içinde rastgele dağılmış nesneler göster.
     Öğrenci saymadan tahmin etmeli. Seçenekler ver (biri çok uzak, biri yakın, biri doğru).
     ${PEDAGOGICAL_PROMPT}

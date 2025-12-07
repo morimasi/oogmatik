@@ -20,10 +20,10 @@ const PEDAGOGICAL_PROMPT = `
 `;
 
 export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
-  const { topic, itemCount, difficulty, worksheetCount, operations, numberRange } = options;
+  const { topic, itemCount, difficulty, worksheetCount, operationType, numberRange } = options;
   
   let rangeDesc = numberRange || (difficulty === 'Orta' ? "1-20" : difficulty === 'Zor' ? "1-50" : "1-10");
-  let opsDesc = operations === 'add' ? "toplama" : operations === 'mult' ? "çarpma" : "dört işlem";
+  let opsDesc = operationType === 'add' ? "toplama" : operationType === 'mult' ? "çarpma" : "dört işlem";
   
   const prompt = `
     "${difficulty}" seviyesinde, '${topic || 'Genel'}' temalı ${itemCount} adet Matematik Bulmacası.

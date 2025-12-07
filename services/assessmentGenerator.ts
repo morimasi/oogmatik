@@ -63,7 +63,7 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
         ],
         analysis: { strengths, weaknesses, errorAnalysis: errorAnalysis.length > 0 ? errorAnalysis : ["Detaylı hata analizi için daha fazla veri gereklidir."] },
         roadmap: [
-             { activityId: ActivityType.READING_FLOW, reason: "Genel okuma desteği.", frequency: "Günlük" }
+             { activityId: 'READING_FLOW', reason: "Genel okuma desteği.", frequency: "Günlük" }
         ]
     };
 };
