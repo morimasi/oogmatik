@@ -1,5 +1,5 @@
 
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { ActivityType, WorksheetData, SingleWorksheetData, StyleSettings, StudentProfile, OverlayItem } from '../types';
 import * as MathLogicSheets from './sheets/MathLogicSheets';
 import * as MemoryAttentionSheets from './sheets/MemoryAttentionSheets';
@@ -192,7 +192,6 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
 });
 
 const WorkbookQR = ({ url }: { url: string }) => {
-    // Generate a simple QR code using an API service for simplicity in client-side
     // Using a reliable public API for generating QR codes
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
     
@@ -206,42 +205,6 @@ const WorkbookQR = ({ url }: { url: string }) => {
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, overlayItems, showQR }) => {
     const { isEditMode } = useEditable();
-    const [visiblePage, setVisiblePage] = useState(0);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    // Track scroll to update active page dot
-    useEffect(() => {
-        const handleScroll = () => {
-            if (!containerRef.current) return;
-            const pages = containerRef.current.querySelectorAll('.worksheet-page-wrapper');
-            let current = 0;
-            pages.forEach((page, index) => {
-                const rect = page.getBoundingClientRect();
-                // If page top is near viewport top (with some buffer)
-                if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-                    current = index;
-                }
-            });
-            setVisiblePage(current);
-        };
-
-        // Attach scroll listener to the document-viewport (ContentArea)
-        const scroller = containerRef.current?.closest('.document-viewport') || window;
-        scroller.addEventListener('scroll', handleScroll);
-        
-        return () => {
-            scroller.removeEventListener('scroll', handleScroll);
-        };
-    }, [data]);
-
-    const scrollToPage = (index: number) => {
-        if (!containerRef.current) return;
-        const pages = containerRef.current.querySelectorAll('.worksheet-page-wrapper');
-        if (pages[index]) {
-            pages[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setVisiblePage(index);
-        }
-    };
 
     const pageStyle = useMemo(() => {
         const isLandscape = settings.orientation === 'landscape';
@@ -259,6 +222,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             color: 'black',
             boxSizing: 'border-box' as const,
             overflow: 'hidden', // Clip content that exceeds page
+            margin: '0 auto', // Center in canvas container if single, but canvas handles positioning
+            boxShadow: '0 20px 50px rgba(0,0,0,0.1), 0 10px 15px rgba(0,0,0,0.05)', // Floating effect
             ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
         };
     }, [settings.orientation, settings.themeBorder, settings.borderColor, settings.borderWidth]);
@@ -291,7 +256,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
 
     return (
-        <div ref={containerRef} className={`w-full flex flex-col items-center gap-8 py-8 ${visualStyleClass}`} style={variableStyle}>
+        <div className={`flex flex-col gap-16 py-16 items-center ${visualStyleClass}`} style={variableStyle}>
             <style>{`
                 /* Dynamic Grid System for Items using CSS Columns */
                 .dynamic-grid {
@@ -319,28 +284,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 }
             `}</style>
 
-            {/* Sidebar Navigation (Fixed Right) */}
-            <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3 page-navigator no-print">
-                {data.map((_, idx) => (
-                    <button
-                        key={idx}
-                        onClick={() => scrollToPage(idx)}
-                        className={`group relative flex items-center justify-center w-10 h-10 rounded-full shadow-md transition-all duration-300 ${visiblePage === idx ? 'bg-indigo-600 text-white scale-110' : 'bg-white text-zinc-400 hover:bg-zinc-50'}`}
-                        title={`Sayfa ${idx + 1}`}
-                    >
-                        <span className="font-bold text-sm">{idx + 1}</span>
-                        {/* Tooltip on hover */}
-                        <div className="absolute right-12 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
-                            Sayfa {idx + 1}
-                        </div>
-                    </button>
-                ))}
-            </div>
-
             {data.map((sheetData, index) => (
                 <div 
                     key={index} 
-                    className="worksheet-page-wrapper w-full flex justify-center"
+                    className="worksheet-page-wrapper"
                 >
                     <div 
                         className="worksheet-item worksheet-page transition-all duration-300 ease-in-out"
@@ -365,11 +312,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
                             <div 
                                 className="worksheet-scaler worksheet-content relative z-10 h-full flex flex-col"
+                                // Scaling logic handled by parent canvas now, removed internal scaling to prevent double transform
                                 style={{
-                                    transform: `scale(${settings.scale})`,
-                                    transformOrigin: 'top center', 
-                                    width: `calc(100% / ${settings.scale})`,
-                                    height: `calc(100% / ${settings.scale})`
+                                    width: `100%`,
+                                    height: `100%`
                                 }}
                             >
                                 {/* Minimalist Student Header */}
@@ -401,7 +347,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     key={item.id} 
                                     initialPos={{x: item.x, y: item.y}} 
                                     className="absolute z-50 cursor-move"
-                                    style={{left: 0, top: 0}} // Positioning handled by transform in EditableElement
+                                    style={{left: 0, top: 0}}
                                 >
                                     {item.type === 'text' ? (
                                         <div className="bg-white/80 border border-dashed border-zinc-400 p-2 rounded min-w-[100px]">

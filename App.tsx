@@ -607,6 +607,7 @@ const AppContent: React.FC = () => {
               workbookSettings={workbookSettings}
               setWorkbookSettings={setWorkbookSettings}
               onAddToWorkbook={handleAddToWorkbook}
+              onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
               studentProfile={studentProfile}
               zenMode={zenMode}
               toggleZenMode={() => setZenMode(!zenMode)}
