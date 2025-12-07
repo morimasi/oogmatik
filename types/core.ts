@@ -1,4 +1,6 @@
 
+import { CustomTheme } from '../utils/theme';
+
 export const ActivityType = {
     FIND_THE_DIFFERENCE: 'FIND_THE_DIFFERENCE',
     WORD_COMPARISON: 'WORD_COMPARISON',
@@ -278,7 +280,7 @@ export interface GeneratorOptions {
     operation?: string;
 }
 
-export type AppTheme = 'light' | 'dark' | 'anthracite' | 'space' | 'nature' | 'ocean' | 'anthracite-gold' | 'anthracite-cyber';
+// REMOVED 'AppTheme' type from here, it is now inferred from CustomTheme in utils/theme
 
 export interface UiSettings {
     fontFamily: 'OpenDyslexic' | 'Lexend' | 'Inter' | 'Comic Neue' | 'Lora';
@@ -286,6 +288,8 @@ export interface UiSettings {
     letterSpacing: 'normal' | 'wide';
     lineHeight: number;
     saturation: number;
+    // Current Active Theme ID (moved from App state)
+    activeThemeId?: string; 
 }
 
 export interface User {
@@ -305,6 +309,7 @@ export interface User {
         title: string;
         date: string;
     };
+    customThemes?: CustomTheme[]; // New: Store user's custom themes
 }
 
 export type UserRole = 'admin' | 'user';
