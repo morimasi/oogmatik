@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { StyleSettings } from '../types';
+import { StyleSettings, WorksheetData } from '../types';
 import { printService } from '../utils/printService';
 import { StickerPicker } from './StickerPicker';
+import { PrintPreviewModal } from './PrintPreviewModal';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -18,18 +19,16 @@ interface ToolbarProps {
   onToggleEdit?: () => void;
   isEditMode?: boolean;
   onSnapshot?: () => void; 
-  // Editor Props
   onAddText?: () => void;
   onAddSticker?: (url: string) => void;
   isDrawMode?: boolean;
   onToggleDraw?: () => void;
-  // TTS Props
   onSpeak?: () => void;
   isSpeaking?: boolean;
   onStopSpeak?: () => void;
-  // QR Props
   showQR?: boolean;
   onToggleQR?: () => void;
+  worksheetData?: WorksheetData; // Added for Print Preview
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -54,24 +53,32 @@ const Toolbar: React.FC<ToolbarProps> = ({
     isSpeaking,
     onStopSpeak,
     showQR,
-    onToggleQR
+    onToggleQR,
+    worksheetData
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
   const [showStickers, setShowStickers] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
 
   const handleAction = async (action: 'print' | 'download') => {
-      setIsProcessing(true);
-      setTimeout(async () => {
-          try {
-              await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
-          } catch (error) {
-              console.error("İşlem hatası:", error);
-              alert("İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.");
-          } finally {
-              setIsProcessing(false);
-          }
-      }, 100);
+      if (action === 'print') {
+          // Open new Preview Modal
+          setShowPrintModal(true);
+      } else {
+          // Direct Download (PDF)
+          setIsProcessing(true);
+          setTimeout(async () => {
+              try {
+                  await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
+              } catch (error) {
+                  console.error("İşlem hatası:", error);
+                  alert("İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.");
+              } finally {
+                  setIsProcessing(false);
+              }
+          }, 100);
+      }
   };
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
@@ -101,6 +108,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   );
 
   return (
+    <>
     <div id="tour-toolbar" className="bg-[var(--panel-bg)] backdrop-blur-xl border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-y-2 gap-x-4 transition-all duration-300 relative">
         
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -145,7 +153,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
              <button
                 onClick={() => onSettingsChange({...settings, smartPagination: !settings.smartPagination})}
                 className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${settings.smartPagination ? 'bg-green-600 text-white' : 'bg-[var(--bg-inset)] text-zinc-500'}`}
-                title="Akıllı Sayfalama: İçerik çok uzunsa otomatik olarak yeni sayfaya geçer."
+                title="Akıllı Sayfalama"
              >
                  <i className={`fa-solid ${settings.smartPagination ? 'fa-wand-magic-sparkles' : 'fa-scroll'}`}></i>
                  Akıllı Akış
@@ -257,7 +265,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  )}
              </div>
 
-             {/* Visibility Dropdown (Enhanced) */}
+             {/* Visibility Dropdown */}
              <div className="relative">
                  <button
                     onClick={() => setActiveMenu(activeMenu === 'visibility' ? 'none' : 'visibility')}
@@ -288,9 +296,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
             
-            {/* HYBRID FEATURES (Phase 4) */}
+            {/* HYBRID FEATURES */}
             <div className="flex bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-lg mr-2 border border-zinc-200 dark:border-zinc-700">
-                {/* TTS */}
                 {onSpeak && (
                     <button 
                         onClick={isSpeaking ? onStopSpeak : onSpeak}
@@ -300,7 +307,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
                         <i className={`fa-solid ${isSpeaking ? 'fa-stop' : 'fa-volume-high'}`}></i>
                     </button>
                 )}
-                {/* QR */}
                 {onToggleQR && (
                     <button 
                         onClick={onToggleQR}
@@ -377,7 +383,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 <span className="hidden sm:inline">PDF İndir</span>
             </button>
 
-            {/* PRINT BUTTON */}
+            {/* PRINT BUTTON - Updated to trigger modal */}
             <button 
                 onClick={() => handleAction('print')}
                 disabled={isProcessing}
@@ -449,6 +455,16 @@ const Toolbar: React.FC<ToolbarProps> = ({
             <div className="fixed inset-0 z-40" onClick={() => setActiveMenu('none')}></div>
         )}
     </div>
+    
+    {worksheetData && (
+        <PrintPreviewModal 
+            isOpen={showPrintModal} 
+            onClose={() => setShowPrintModal(false)}
+            worksheetData={worksheetData}
+            title={settings.showTitle ? "Etkinlik" : undefined}
+        />
+    )}
+    </>
   );
 };
 

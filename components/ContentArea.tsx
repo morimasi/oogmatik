@@ -427,6 +427,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     // QR
                     showQR={showQR}
                     onToggleQR={() => setShowQR(!showQR)}
+                    // Data pass
+                    worksheetData={worksheetData}
                 />
           )}
       </div>
