@@ -34,6 +34,11 @@ export interface PromptTemplate {
     updatedAt: string;
     version: number;
     history?: PromptVersion[]; // Version history
+    modelConfig?: {
+        temperature?: number;
+        topP?: number;
+        modelName?: string;
+    };
 }
 
 export interface AdminStatCard {

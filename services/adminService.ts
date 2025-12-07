@@ -98,31 +98,27 @@ export const adminService = {
         });
 
         // Use a generic schema for testing to see raw structure
-        // In a real scenario, we might want to let admin define the schema too.
-        // For now, we assume a generic flexible object to see what AI returns.
         const genericSchema = {
             type: Type.OBJECT,
             properties: {
                 title: { type: Type.STRING },
                 instruction: { type: Type.STRING },
-                data: { type: Type.ARRAY, items: { type: Type.STRING } }, // Fallback
-                pedagogicalNote: { type: Type.STRING }
+                pedagogicalNote: { type: Type.STRING },
+                data: { type: Type.ARRAY, items: { type: Type.OBJECT, description: "Dynamic content structure" } }, 
             }
         };
 
-        // Note: In production, you might pass the specific schema related to the activity type.
-        // Here we just want to see if the AI understands the prompt instruction.
+        // Note: The generateWithSchema function sends the prompt to our proxy/backend.
+        // The prompt constructed here simulates the full context.
         
-        // We prepend the System Instruction to the prompt for the simulation if using the simple generateWithSchema wrapper
-        // ideally generateWithSchema should accept systemInstruction separately.
-        // For now, we append it to prompt context.
-        const fullPrompt = `
-        [SYSTEM INSTRUCTION]: ${prompt.systemInstruction}
-        
-        [USER PROMPT]:
+        const fullContext = `
+        [SYSTEM ROLE & INSTRUCTION]:
+        ${prompt.systemInstruction}
+
+        [TASK]:
         ${compiledPrompt}
         `;
 
-        return await generateWithSchema(fullPrompt, genericSchema, 'gemini-2.5-flash');
+        return await generateWithSchema(fullContext, genericSchema, prompt.modelConfig?.modelName || 'gemini-2.5-flash');
     }
 };
