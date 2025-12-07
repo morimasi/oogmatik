@@ -123,14 +123,11 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
     const handleAction = async (action: 'print' | 'download') => {
         setIsPrinting(true);
-        // Using new PDF Engine: Pass data object instead of selector string
+        // Delay to allow UI update
         setTimeout(async () => {
             try {
-                await printService.generatePdf(
-                    { items, settings }, // Structured Data
-                    settings.title || 'Kitapcik', 
-                    { action }
-                );
+                // Target all pages in the workbook
+                await printService.generatePdf('.worksheet-item', settings.title || 'Kitapcik', { action });
             } catch (error) {
                 console.error("Kitapçık oluşturma hatası:", error);
                 alert("Kitapçık oluşturulurken bir hata meydana geldi.");

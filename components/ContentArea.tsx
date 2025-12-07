@@ -16,7 +16,6 @@ import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
 import { DrawLayer } from './DrawLayer';
 import { speechService } from '../utils/speechService';
-import { printService } from '../utils/printService';
 // @ts-ignore
 import html2canvas from 'html2canvas';
 
@@ -217,36 +216,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             // Restore indicators
             editIndicators.forEach((el: any) => el.style.display = '');
         }
-    };
-
-    // --- PDF EXPORT HANDLER ---
-    const handleExportPDF = async (action: 'print' | 'download') => {
-        if (!activityType || !worksheetData) return;
-        
-        // Wrap current worksheet as a CollectionItem for the PDF builder
-        const item: CollectionItem = {
-            id: 'current',
-            activityType: activityType,
-            data: worksheetData,
-            settings: styleSettings,
-            title: ACTIVITIES.find(a => a.id === activityType)?.title || 'Etkinlik'
-        };
-
-        // Pass structured data to print service
-        await printService.generatePdf(
-            { 
-                items: [item], 
-                settings: {
-                    ...workbookSettings,
-                    // Override basic settings for single sheet context
-                    title: item.title,
-                    studentName: studentProfile?.name || '',
-                    showPageNumbers: true
-                }
-            }, 
-            item.title, 
-            { action }
-        );
     };
 
     const generateAutoName = () => {
@@ -458,8 +427,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     // QR
                     showQR={showQR}
                     onToggleQR={() => setShowQR(!showQR)}
-                    // PDF Action Handler (Data-Aware)
-                    onExportPDF={handleExportPDF}
                 />
           )}
       </div>

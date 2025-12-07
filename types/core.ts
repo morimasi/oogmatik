@@ -203,6 +203,9 @@ export interface StyleSettings {
   contentAlign: 'left' | 'center' | 'right';
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
+  
+  // Smart Features
+  smartPagination: boolean; // Automatically split long content
 }
 
 export type View = 'generator' | 'savedList' | 'profile' | 'admin' | 'messages' | 'shared' | 'assessment' | 'favorites' | 'workbook';

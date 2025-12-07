@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { StyleSettings } from '../types';
+import { printService } from '../utils/printService';
 import { StickerPicker } from './StickerPicker';
 
 interface ToolbarProps {
@@ -29,8 +30,6 @@ interface ToolbarProps {
   // QR Props
   showQR?: boolean;
   onToggleQR?: () => void;
-  // PDF Actions (New)
-  onExportPDF?: (action: 'print' | 'download') => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ 
@@ -55,29 +54,24 @@ const Toolbar: React.FC<ToolbarProps> = ({
     isSpeaking,
     onStopSpeak,
     showQR,
-    onToggleQR,
-    onExportPDF
+    onToggleQR
 }) => {
   const [activeMenu, setActiveMenu] = useState<'none' | 'visual' | 'visibility' | 'type' | 'theme'>('none');
   const [showStickers, setShowStickers] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleAction = async (action: 'print' | 'download') => {
-      if (onExportPDF) {
-          setIsProcessing(true);
-          // Allow UI to update loading state
-          setTimeout(async () => {
-              try {
-                  await onExportPDF(action);
-              } catch (e) {
-                  console.error(e);
-              } finally {
-                  setIsProcessing(false);
-              }
-          }, 100);
-      } else {
-          console.warn("PDF Export handler not provided to Toolbar");
-      }
+      setIsProcessing(true);
+      setTimeout(async () => {
+          try {
+              await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
+          } catch (error) {
+              console.error("İşlem hatası:", error);
+              alert("İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.");
+          } finally {
+              setIsProcessing(false);
+          }
+      }, 100);
   };
 
   const CompactSlider = ({ icon, value, min, max, step, onChange, title, displayValue }: any) => (
@@ -146,6 +140,16 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 value={settings.columns} 
                 onChange={(v: number) => onSettingsChange({...settings, columns: v})}
              />
+
+             {/* Smart Pagination Toggle */}
+             <button
+                onClick={() => onSettingsChange({...settings, smartPagination: !settings.smartPagination})}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold transition-colors ${settings.smartPagination ? 'bg-green-600 text-white' : 'bg-[var(--bg-inset)] text-zinc-500'}`}
+                title="Akıllı Sayfalama: İçerik çok uzunsa otomatik olarak yeni sayfaya geçer."
+             >
+                 <i className={`fa-solid ${settings.smartPagination ? 'fa-wand-magic-sparkles' : 'fa-scroll'}`}></i>
+                 Akıllı Akış
+             </button>
 
              {/* Style Settings Dropdown */}
              <div className="relative">

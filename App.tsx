@@ -14,7 +14,7 @@ import { worksheetService } from './services/worksheetService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
 import { StudentInfoModal } from './components/StudentInfoModal';
-import * as offlineGenerators from './services/offlineGenerators'; // Import directly for auto-generation
+import * as offlineGenerators from './services/offlineGenerators'; 
 
 // Lazy Loaded Components
 const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
@@ -41,7 +41,8 @@ const initialStyleSettings: StyleSettings = {
     showTitle: false,
     showInstruction: false,
     showImage: false,
-    showFooter: false
+    showFooter: false,
+    smartPagination: true // Enabled by default
 };
 
 const initialUiSettings: UiSettings = {
@@ -105,7 +106,6 @@ const LoadingSpinner = () => (
     </div>
 );
 
-// Helper for Pascal Case (for generator lookup)
 const toPascalCase = (str: string): string => {
     return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 };
@@ -132,7 +132,6 @@ const AppContent: React.FC = () => {
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
-  // Workbook State
   const [workbookItems, setWorkbookItems] = useState<CollectionItem[]>([]);
   const [workbookSettings, setWorkbookSettings] = useState<WorkbookSettings>({
       title: 'Çalışma Kitapçığı',
@@ -172,7 +171,6 @@ const AppContent: React.FC = () => {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-      // console.log("🔥 App Initialized");
   }, []);
 
   const refreshNotifications = useCallback(async () => {
@@ -212,7 +210,6 @@ const AppContent: React.FC = () => {
           } else if (theme === 'light') {
               root.classList.add('theme-light');
           } else if (theme === 'anthracite') {
-              // Default
           } else {
               root.classList.add(`theme-${theme}`);
           }
@@ -339,14 +336,12 @@ const AppContent: React.FC = () => {
         }
   };
 
-  // --- SMART ROUTE: AUTO WORKBOOK GENERATION ---
   const handleAutoGenerateWorkbook = async (report: AssessmentReport) => {
       setIsLoading(true);
-      setCurrentView('workbook'); // Switch to view immediately to show progress implicitly
+      setCurrentView('workbook'); 
       
       const newItems: CollectionItem[] = [];
       
-      // Default Generator Options for robustness
       const defaultOptions: GeneratorOptions = {
           mode: 'fast',
           difficulty: 'Orta',
@@ -358,41 +353,35 @@ const AppContent: React.FC = () => {
       };
 
       try {
-          // Add Report Cover if available
-          // We need a SavedAssessment like structure but constructed from the report data
           const reportItem: CollectionItem = {
               id: crypto.randomUUID(),
               activityType: ActivityType.ASSESSMENT_REPORT,
-              data: { // Construct a SavedAssessment-like object manually for the viewer
+              data: {
                   id: 'temp-report',
                   userId: user?.id || 'guest',
                   studentName: studentProfile?.name || 'Öğrenci',
-                  gender: 'Erkek', // Default
-                  age: 7, // Default
+                  gender: 'Erkek', 
+                  age: 7, 
                   grade: studentProfile?.grade || '1. Sınıf',
                   createdAt: new Date().toISOString(),
-                  report: report // The actual report content
+                  report: report
               } as SavedAssessment, 
               settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
               title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`
           };
           newItems.push(reportItem);
 
-          // Generate activities from roadmap
           for (const roadItem of report.roadmap) {
               const activityId = roadItem.activityId as ActivityType;
               const pascalName = toPascalCase(activityId);
               const generatorName = `generateOffline${pascalName}`;
               
-              // @ts-ignore - Dynamic lookup of offline generators
+              // @ts-ignore 
               const generator = offlineGenerators[generatorName];
               
               if (generator) {
                   try {
-                      // Generate specific content
                       const generatedData = await generator(defaultOptions);
-                      
-                      // Map to workbook items
                       generatedData.forEach((sheet: any) => {
                           newItems.push({
                               id: crypto.randomUUID(),
@@ -428,7 +417,7 @@ const AppContent: React.FC = () => {
         const newItem: CollectionItem = {
             id: crypto.randomUUID(),
             activityType: ActivityType.ASSESSMENT_REPORT, 
-            data: assessment, // Pass the full SavedAssessment object
+            data: assessment, 
             settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
             title: `Rapor: ${assessment.studentName}`
         };
@@ -583,6 +572,7 @@ const AppContent: React.FC = () => {
                 isExpanded={isSidebarExpanded}
                 onOpenStudentModal={() => setIsStudentModalOpen(true)}
                 studentProfile={studentProfile}
+                styleSettings={styleSettings}
             />
         </div>
         
@@ -590,7 +580,6 @@ const AppContent: React.FC = () => {
             className="flex-1 flex flex-col overflow-hidden" 
             onMouseEnter={() => setIsSidebarExpanded(false)}
         >
-            {/* Main Content Render Logic */}
             {isLoading && currentView === 'workbook' && (
                 <div className="flex flex-col items-center justify-center h-full w-full bg-zinc-50 dark:bg-zinc-900 z-50">
                     <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
@@ -623,7 +612,6 @@ const AppContent: React.FC = () => {
               toggleZenMode={() => setZenMode(!zenMode)}
             />
             
-            {/* Assessment View Integration */}
             {currentView === 'assessment' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-40 overflow-y-auto">
                     <Suspense fallback={<LoadingSpinner />}>

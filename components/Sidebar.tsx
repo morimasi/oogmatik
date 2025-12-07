@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { ActivityType, WorksheetData, Activity, GeneratorOptions, StudentProfile } from '../types';
+import { ActivityType, WorksheetData, Activity, GeneratorOptions, StudentProfile, StyleSettings } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
@@ -9,6 +9,7 @@ import { statsService } from '../services/statsService';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { cacheService } from '../services/cacheService';
+import { paginationService } from '../services/paginationService';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -23,6 +24,7 @@ interface SidebarProps {
   isExpanded?: boolean;
   onOpenStudentModal?: () => void;
   studentProfile?: StudentProfile | null;
+  styleSettings?: StyleSettings; // Needed for smartPagination config
 }
 
 const getActivityById = (id: ActivityType | null): Activity | undefined => {
@@ -46,7 +48,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onAddToHistory,
   isExpanded = true,
   onOpenStudentModal,
-  studentProfile
+  studentProfile,
+  styleSettings
 }) => {
   const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -57,17 +60,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           const restoreDraft = async () => {
               const draft = await cacheService.getDraft(selectedActivity);
               if (draft) {
-                  // Only restore if we are not currently loading something else
-                  // We don't want to overwrite if user just clicked generate
                   setWorksheetData(draft);
-                  // Optional: Show a toast saying "Restored from last session"
               }
           };
           restoreDraft();
       }
   }, [selectedActivity, setWorksheetData]);
 
-  // Memoize categorized activities to avoid recalculation on every render
+  // Memoize categorized activities
   const categorizedActivities = useMemo(() => {
       return ACTIVITY_CATEGORIES.map(category => ({
           ...category,
@@ -86,7 +86,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     const generatorFunctionName = `generate${pascalCaseName}FromAI`;
     const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
 
-    // Add seed for variation and cache key uniqueness
     const requestOptions = { ...options, seed: Math.random().toString(36).substring(7) };
 
     try {
@@ -108,9 +107,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             
             if (onlineGenerator) {
                 try {
-                    // Try Cache First (Exact options match only, rare due to random seed but good for "back" nav)
                     const cacheKey = cacheService.generateKey(selectedActivity, requestOptions);
-                    // result = await cacheService.get(cacheKey); // Disabled for now to force new variations on click
+                    // result = await cacheService.get(cacheKey);
 
                     if (!result) {
                         result = await onlineGenerator(requestOptions);
@@ -132,15 +130,20 @@ const Sidebar: React.FC<SidebarProps> = ({
                 result = await runOfflineGenerator();
             }
         } else { 
-            // Fast Mode
             result = await runOfflineGenerator();
         }
         
         if (result) {
-            setWorksheetData(result);
-            onAddToHistory(selectedActivity, result);
-            // Save as Draft for Persistence
-            cacheService.saveDraft(selectedActivity, result);
+            // --- SMART PAGINATION INTEGRATION ---
+            // If enabled, split the result into multiple pages based on content volume
+            let finalResult = result;
+            if (styleSettings?.smartPagination) {
+                finalResult = paginationService.process(result, selectedActivity);
+            }
+
+            setWorksheetData(finalResult);
+            onAddToHistory(selectedActivity, finalResult);
+            cacheService.saveDraft(selectedActivity, finalResult);
             
             statsService.incrementUsage(selectedActivity).catch(console.error);
             if (user) {
