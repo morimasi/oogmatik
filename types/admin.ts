@@ -11,6 +11,7 @@ export interface DynamicActivity {
     isPremium: boolean;
     promptId?: string; // Linked prompt template ID
     defaultParams?: Record<string, any>; // Default values for prompt variables
+    order?: number; // Sorting order
 }
 
 export interface PromptVersion {
@@ -19,6 +20,7 @@ export interface PromptVersion {
     systemInstruction?: string;
     updatedAt: string;
     changeLog?: string;
+    author?: string;
 }
 
 export interface PromptTemplate {
@@ -41,4 +43,11 @@ export interface AdminStatCard {
     trendUp?: boolean;
     icon: string;
     color: string;
+    chartData?: number[]; // Mini sparkline data
+}
+
+export interface AnalyticsDataPoint {
+    date: string;
+    value: number;
+    category?: string;
 }
