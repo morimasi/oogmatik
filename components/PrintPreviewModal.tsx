@@ -21,68 +21,8 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
         if (isOpen) {
             // Select all pages by default
             setSelectedPages(worksheetData.map((_, i) => i));
-            
-            // Generate Previews
-            // We use a timeout to let the modal render, then we clone the actual DOM elements
-            setTimeout(() => {
-                generatePreviews();
-            }, 100);
         }
     }, [isOpen, worksheetData]);
-
-    const generatePreviews = () => {
-        if (!previewContainerRef.current) return;
-        
-        // Find actual worksheet pages in the background DOM
-        const pages = document.querySelectorAll('.worksheet-page');
-        
-        previewContainerRef.current.innerHTML = ''; // Clear previous
-
-        pages.forEach((page, index) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = `relative cursor-pointer transition-all duration-200 transform hover:scale-[1.02] border-4 rounded-xl overflow-hidden ${selectedPages.includes(index) ? 'border-indigo-500 shadow-md' : 'border-transparent opacity-50'}`;
-            wrapper.style.aspectRatio = '210/297';
-            wrapper.onclick = () => togglePage(index);
-
-            // Clone the page content
-            const clone = page.cloneNode(true) as HTMLElement;
-            clone.style.transform = 'scale(0.2)'; // Tiny preview
-            clone.style.transformOrigin = 'top left';
-            clone.style.width = '210mm';
-            clone.style.height = '297mm';
-            clone.style.border = 'none';
-            clone.style.margin = '0';
-            clone.style.pointerEvents = 'none'; // Disable interaction in preview
-            
-            // Remove interactive elements from preview
-            clone.querySelectorAll('.edit-handle, .page-navigator, .no-print').forEach(el => el.remove());
-
-            // Wrap in a container that clips the scaled content
-            const clip = document.createElement('div');
-            clip.style.width = '100%';
-            clip.style.height = '100%';
-            clip.style.overflow = 'hidden';
-            clip.style.backgroundColor = 'white';
-            
-            clip.appendChild(clone);
-            wrapper.appendChild(clip);
-
-            // Selection Indicator
-            if (selectedPages.includes(index)) {
-                const badge = document.createElement('div');
-                badge.className = 'absolute top-2 right-2 bg-indigo-600 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold shadow-sm z-10';
-                badge.innerText = (index + 1).toString();
-                wrapper.appendChild(badge);
-            }
-
-            // Append to ref, but we need to re-attach the click handler logic because innerHTML wipe killed state connection if done naively
-            // Better to update state and re-render only the wrapper class, but cloning DOM is expensive.
-            // Hybrid: Use React for wrapper, append cloned DOM via ref callback or effect.
-            // For simplicity in this non-React-node cloning scenario:
-            // We are using React state for `selectedPages`. We need to re-run this function when selection changes?
-            // No, that flashes. Let's do it purely in React mapping.
-        });
-    };
 
     const togglePage = (index: number) => {
         setSelectedPages(prev => 
@@ -113,33 +53,52 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
         }
     };
 
-    // React-driven render for previews to handle state updates smoothly
-    const renderPreviews = () => {
-        // We need to capture the source elements. 
-        // Problem: They might be scrolled out of view or virtualized?
-        // Assumption: Worksheet renders all pages in DOM (display:block).
-        
-        // We will capture them once on mount and store in a ref map to avoid re-cloning
-        return worksheetData.map((_, index) => (
-            <div 
-                key={index}
-                onClick={() => togglePage(index)}
-                className={`relative cursor-pointer transition-all duration-200 border-4 rounded-xl overflow-hidden aspect-[210/297] bg-white shadow-sm group ${selectedPages.includes(index) ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-zinc-200 opacity-60 grayscale'}`}
-            >
-                {/* We use a simple iframe-like approach or just CSS scaling of a specialized preview component? 
-                    Actually, sticking to the "Live DOM Clone" approach in a `useEffect` is robust for complex layouts.
-                    Let's create a sub-component `PageThumbnail` that handles the cloning.
-                */}
-                <PageThumbnail index={index} isGrayscale={isGrayscale} />
+    // React-driven render for previews is cleaner than cloning DOM manually here
+    // However, the worksheet content is complex React components. 
+    // To show a true preview, we'd need to render the Worksheet component again in small scale.
+    // BUT we already have the rendered DOM. Let's use a trick: Scale existing DOM clones.
+    
+    const PageThumbnail = ({ index }: { index: number }) => {
+        const containerRef = useRef<HTMLDivElement>(null);
+
+        useEffect(() => {
+            // Find the specific page based on index (assuming sequential order in DOM)
+            const pages = document.querySelectorAll('.worksheet-page');
+            const targetPage = pages[index];
+
+            if (targetPage && containerRef.current) {
+                containerRef.current.innerHTML = '';
                 
-                <div className={`absolute inset-0 bg-indigo-900/10 transition-opacity ${selectedPages.includes(index) ? 'opacity-0' : 'opacity-100 group-hover:opacity-50'}`}></div>
+                const clone = targetPage.cloneNode(true) as HTMLElement;
                 
-                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${selectedPages.includes(index) ? 'bg-indigo-600 text-white scale-100' : 'bg-zinc-300 text-zinc-500 scale-90'}`}>
-                    {selectedPages.includes(index) ? <i className="fa-solid fa-check"></i> : index + 1}
-                </div>
+                // Cleanup clone visual for thumbnail
+                clone.style.width = '210mm';
+                clone.style.height = '297mm';
+                clone.style.transform = 'scale(0.2)'; 
+                clone.style.transformOrigin = 'top left';
+                clone.style.margin = '0';
+                clone.style.boxShadow = 'none';
+                clone.style.position = 'absolute';
+                clone.style.top = '0';
+                clone.style.left = '0';
+                clone.style.pointerEvents = 'none'; // No interaction
+                
+                if (isGrayscale) {
+                    clone.style.filter = 'grayscale(100%)';
+                }
+
+                clone.querySelectorAll('.edit-handle, .page-navigator, .no-print').forEach(el => el.remove());
+                
+                containerRef.current.appendChild(clone);
+            }
+        }, [index, isGrayscale, isOpen]); 
+
+        return (
+            <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-white">
+                {/* Clone injected here */}
             </div>
-        ));
-    };
+        );
+    }
 
     if (!isOpen) return null;
 
@@ -231,7 +190,22 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
                     <div className="absolute inset-0 opacity-5 pointer-events-none" style={{backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
-                        {renderPreviews()}
+                        {worksheetData.map((_, index) => (
+                            <div 
+                                key={index}
+                                onClick={() => togglePage(index)}
+                                className={`relative cursor-pointer transition-all duration-200 border-4 rounded-xl overflow-hidden aspect-[210/297] bg-white shadow-sm group ${selectedPages.includes(index) ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-zinc-200 opacity-60 grayscale'}`}
+                            >
+                                <PageThumbnail index={index} />
+                                
+                                <div className={`absolute inset-0 bg-indigo-900/10 transition-opacity ${selectedPages.includes(index) ? 'opacity-0' : 'opacity-100 group-hover:opacity-50'}`}></div>
+                                
+                                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${selectedPages.includes(index) ? 'bg-indigo-600 text-white scale-100' : 'bg-zinc-300 text-zinc-500 scale-90'}`}>
+                                    {selectedPages.includes(index) ? <i className="fa-solid fa-check"></i> : index + 1}
+                                </div>
+                            </div>
+                        ))}
+                        
                         {/* Answer Key Preview Placeholder */}
                         {includeAnswerKey && (
                             <div className="relative border-4 border-dashed border-emerald-300 rounded-xl overflow-hidden aspect-[210/297] bg-emerald-50 flex flex-col items-center justify-center text-center p-4">
@@ -249,45 +223,3 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
         </div>
     );
 };
-
-const PageThumbnail: React.FC<{ index: number, isGrayscale: boolean }> = ({ index, isGrayscale }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        // Find the specific page based on index (assuming sequential order in DOM)
-        const pages = document.querySelectorAll('.worksheet-page');
-        const targetPage = pages[index];
-
-        if (targetPage && containerRef.current) {
-            containerRef.current.innerHTML = '';
-            
-            const clone = targetPage.cloneNode(true) as HTMLElement;
-            
-            // Cleanup clone
-            clone.style.width = '210mm';
-            clone.style.height = '297mm';
-            clone.style.transform = 'scale(0.2)'; 
-            clone.style.transformOrigin = 'top left';
-            clone.style.margin = '0';
-            clone.style.boxShadow = 'none';
-            clone.style.position = 'absolute';
-            clone.style.top = '0';
-            clone.style.left = '0';
-            clone.style.pointerEvents = 'none'; // No interaction
-            
-            if (isGrayscale) {
-                clone.style.filter = 'grayscale(100%)';
-            }
-
-            clone.querySelectorAll('.edit-handle, .page-navigator, .no-print').forEach(el => el.remove());
-            
-            containerRef.current.appendChild(clone);
-        }
-    }, [index, isGrayscale]); // Re-run if grayscale changes
-
-    return (
-        <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-white">
-            {/* Clone injected here */}
-        </div>
-    );
-}

@@ -101,9 +101,9 @@ export const printService = {
             `;
 
             options.worksheetData.forEach((sheet, idx) => {
-                // If page was deselected, maybe skip answers? 
-                // Logic: Keep all answers or just selected? Let's keep all for reference, or filter if simple.
-                // Simpler to list all with Page Number reference.
+                // Only include answer key for selected pages logic could be applied here, 
+                // but usually answer key covers whole document.
+                // If specific filtering needed: if (options.selectedPages && !options.selectedPages.includes(idx)) return;
                 
                 answerHtml += `<div style="margin-bottom: 20px;">
                     <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">Sayfa ${idx + 1}: ${sheet.title}</h3>
