@@ -208,26 +208,33 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
     const variableStyle = useMemo(() => {
         // SCIENTIFIC LAYOUT ENGINE (Smart Reflow Logic)
-        const cols = Math.max(1, settings.columns || 1);
+        const userCols = Math.max(1, settings.columns || 1);
         const scale = settings.scale || 1;
         const baseFontSize = settings.fontSize || 16;
 
+        // Smart Reflow: Calculate effective columns based on scale
+        // e.g. Scale 0.5 (50%) -> Width 200% -> Double the columns
+        // This ensures the expanded space is utilized by more content items side-by-side
+        const effectiveCols = Math.max(1, Math.round(userCols / scale));
+
         // 1. Cognitive Load Management (Density Control)
-        // Adjust font size logarithmically based on column count to maintain readability
-        const densityFactor = Math.pow(cols, 0.4); 
+        // Adjust font size based on original user columns to maintain readability/intent
+        // Note: We use userCols here because scale already physically shrinks the text.
+        // We don't want to double-shrink it.
+        const densityFactor = Math.pow(userCols, 0.4); 
         const adjustedFontSize = Math.round(baseFontSize / densityFactor);
         
         // 2. Component Morphology (Row vs Column)
-        // Dyslexia-friendly: Avoid wide tracking. If multiple columns, stack items vertically.
-        const itemDirection = cols > 2 ? 'column' : 'row';
-        const itemGap = cols > 2 ? '0.5rem' : '1rem';
-        const itemPadding = cols > 2 ? '0.5rem' : '1rem';
+        // Dyslexia-friendly: Avoid wide tracking. If multiple user columns, stack items vertically.
+        const itemDirection = userCols > 2 ? 'column' : 'row';
+        const itemGap = userCols > 2 ? '0.5rem' : '1rem';
+        const itemPadding = userCols > 2 ? '0.5rem' : '1rem';
 
         // 3. Visual Noise Reduction
         // If high density, simplify borders
-        const visualComplexity = cols > 3 ? 'low' : 'high';
+        const visualComplexity = userCols > 3 ? 'low' : 'high';
         
-        const gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+        const gridTemplateColumns = `repeat(${effectiveCols}, minmax(0, 1fr))`;
 
         return {
             '--worksheet-font-size': `${adjustedFontSize}px`,

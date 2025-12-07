@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 
 export enum ActivityType {
   WORD_SEARCH = 'WORD_SEARCH',
@@ -442,7 +443,7 @@ export interface OverlayItem {
     x: number;
     y: number;
     pageIndex: number;
-    style?: React.CSSProperties; // Color, Size, etc.
+    style?: CSSProperties; // Color, Size, etc.
 }
 
 export type SingleWorksheetData = BaseActivityData & Record<string, any>;
