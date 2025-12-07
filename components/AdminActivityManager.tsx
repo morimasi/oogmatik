@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { DynamicActivity, PromptTemplate } from '../types/admin';
 import { adminService } from '../services/adminService';
@@ -73,7 +72,7 @@ export const AdminActivityManager: React.FC = () => {
         return matchesSearch && matchesCategory;
     });
 
-    const ActivityCard = ({ act }: { act: DynamicActivity }) => (
+    const ActivityCard: React.FC<{ act: DynamicActivity }> = ({ act }) => (
         <div 
             onClick={() => setEditingActivity(act)}
             className={`group bg-white dark:bg-zinc-800 rounded-2xl p-5 border shadow-sm cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${act.isActive ? 'border-zinc-200 dark:border-zinc-700' : 'border-zinc-200 dark:border-zinc-700 opacity-60 grayscale'}`}

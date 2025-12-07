@@ -3,7 +3,7 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Bursa Disleksi Ai</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome 6.5.1 -->
@@ -12,7 +12,7 @@
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;800&family=Lexend:wght@400;600;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
       
-      /* OpenDyslexic Font Face - Corrected Paths */
+      /* OpenDyslexic Font Face */
       @font-face {
         font-family: 'OpenDyslexic';
         src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.woff') format('woff');
@@ -41,16 +41,12 @@
         --bg-secondary: #1a1a1d;
         --bg-paper: #2d2d32;
         --bg-inset: #18181b;
-        
         --panel-bg: rgba(45, 45, 50, 0.95);
-
         --text-primary: #fefce8;    
         --text-secondary: #d4d4d8;  
         --text-muted: #a1a1aa;      
-        
         --border-color: #3f3f46;    
-        
-        --accent-color: #fbbf24;    /* Default Gold */
+        --accent-color: #fbbf24;
         --accent-hover: #f59e0b;    
         --pattern-color: #3f3f46;
         
@@ -62,7 +58,6 @@
         --pattern-image: none;
       }
 
-      /* --- THEME OVERRIDES --- */
       /* Light Theme */
       :root.theme-light {
         --bg-primary: #f8fafc;
@@ -74,12 +69,12 @@
         --text-secondary: #475569;
         --text-muted: #94a3b8;
         --border-color: #e2e8f0;
-        --accent-color: #4f46e5; /* Indigo */
+        --accent-color: #4f46e5;
         --accent-hover: #4338ca;
         --pattern-color: #e2e8f0;
       }
 
-      /* Standard Dark Theme (Zinc) */
+      /* Standard Dark Theme */
       :root.dark {
         --bg-primary: #18181b;
         --bg-secondary: #09090b;
@@ -90,7 +85,7 @@
         --text-secondary: #a1a1aa;
         --text-muted: #71717a;
         --border-color: #3f3f46;
-        --accent-color: #818cf8; /* Indigo-400 */
+        --accent-color: #818cf8;
         --accent-hover: #6366f1;
         --pattern-color: #27272a;
       }
@@ -101,13 +96,11 @@
         letter-spacing: var(--ui-spacing);
         line-height: var(--ui-line-height);
         background-color: var(--bg-primary);
-        background-image: var(--pattern-image);
-        background-size: 550px 550px;
         color: var(--text-primary);
         margin: 0;
         padding: 0;
-        overflow: hidden; 
-        transition: background-color 0.3s ease, color 0.3s ease;
+        overflow: hidden; /* App handles scrolling */
+        touch-action: none; /* Prevent default touch actions for custom canvas handling */
       }
 
       /* Scrollbar Styling */
@@ -116,89 +109,60 @@
       ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-      /* Worksheet Texture & Edit Guides */
-      .worksheet-texture {
-          background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/svg%3E");
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
+
+      /* --- CANVAS & WORKSPACE STYLES --- */
+      
+      .canvas-viewport {
+        background-color: #e5e5e5;
+        /* Technical Dot Grid Pattern */
+        background-image: radial-gradient(#9ca3af 1.5px, transparent 1.5px);
+        background-size: 24px 24px;
+        box-shadow: inset 0 0 100px rgba(0,0,0,0.1);
+        cursor: grab;
       }
       
+      .canvas-viewport:active {
+        cursor: grabbing;
+      }
+      
+      :root.dark .canvas-viewport {
+        background-color: #18181b;
+        background-image: radial-gradient(#3f3f46 1.5px, transparent 1.5px);
+      }
+      
+      /* A4 Page Physical Appearance */
+      .worksheet-page {
+        background-color: white;
+        color: black;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2), 0 4px 10px -2px rgba(0, 0, 0, 0.1);
+        width: 210mm;
+        height: 297mm;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+        transform-origin: top center;
+        transition: box-shadow 0.3s ease;
+      }
+
+      /* Edit Guides */
       .edit-grid-overlay {
           background-size: 20px 20px;
           background-image: 
-              linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+              linear-gradient(to right, rgba(0, 100, 255, 0.05) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(0, 100, 255, 0.05) 1px, transparent 1px);
           pointer-events: none;
       }
 
       .edit-safety-guide {
-          border: 1px dashed rgba(239, 68, 68, 0.3); /* Red-400 equivalent */
+          border: 1px dashed rgba(239, 68, 68, 0.4); 
           pointer-events: none;
       }
 
-    /* Smart Column Utilities for Screen */
-    .smart-grid {
-        display: block; 
-        gap: 1.5rem;
-    }
-    .columns-1 { column-count: 1; }
-    .columns-2 { column-count: 2; column-gap: 2rem; }
-    .columns-3 { column-count: 3; column-gap: 2rem; }
-    .columns-4 { column-count: 4; column-gap: 1rem; }
-    
-    .smart-grid > * {
-        break-inside: avoid;
-        page-break-inside: avoid;
-        margin-bottom: 1.5rem;
-        display: inline-block; 
-        width: 100%;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
-
-    /* --- PAGE CONTAINER STYLES (Word-like View) --- */
-    .document-viewport {
-        background-color: var(--bg-primary); 
-        perspective: 1000px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2rem;
-        padding-top: 2rem;
-        padding-bottom: 4rem;
-        min-height: 100%;
-    }
-    
-    /* A4 Page Style - Screen */
-    .worksheet-page {
-        background-color: white;
-        color: black;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05);
-        margin: 0 auto;
-        /* Exact A4 Dimensions */
-        width: 210mm;
-        height: 297mm;
-        padding: 0;
-        position: relative;
-        overflow: hidden;
-        flex-shrink: 0; /* Prevent shrinking in flex container */
-    }
-
-    /* Canvas Background Pattern */
-    .canvas-viewport {
-        background-color: #e5e5e5;
-        background-image: radial-gradient(#a1a1aa 1px, transparent 1px);
-        background-size: 20px 20px;
-    }
-    
-    :root.dark .canvas-viewport {
-        background-color: #18181b;
-        background-image: radial-gradient(#3f3f46 1px, transparent 1px);
-    }
-
-    /* --- PRINT STYLES (NEW ARCHITECTURE) --- */
-    @media print {
+      /* --- PRINT STYLES (CRITICAL OVERRIDES) --- */
+      @media print {
         @page {
             size: A4;
             margin: 0;
@@ -216,15 +180,12 @@
             print-color-adjust: exact !important;
         }
 
-        /* Hide EVERYTHING in the main app */
-        #root, #root * {
-            display: none !important;
-            visibility: hidden !important;
-            height: 0 !important;
-            overflow: hidden !important;
+        /* Hide all UI elements */
+        #root > div {
+           display: none !important;
         }
 
-        /* Show the specific print container generated by printService */
+        /* The print container generated by printService */
         .print-container {
             display: block !important;
             position: absolute !important;
@@ -235,11 +196,8 @@
             background: white !important;
         }
 
-        /* Style the pages inside the print container */
-        .print-container .worksheet-page, 
-        .print-container .worksheet-item {
+        .print-page {
             display: block !important;
-            visibility: visible !important;
             width: 210mm !important;
             height: 297mm !important;
             margin: 0 !important;
@@ -248,85 +206,27 @@
             break-after: page !important;
             box-shadow: none !important;
             border: none !important;
-            overflow: hidden !important;
-            /* 
-               CRITICAL FIX: 
-               Do NOT reset transforms here. 
-               We want the scaler to maintain its transform (scale/zoom) 
-               so the Smart Reflow logic persists on paper.
-            */
             position: relative !important;
-            background: white !important;
-        }
-
-        /* Ensure content inside fits but ALLOW TRANSFORM */
-        .print-container .worksheet-scaler {
-            /* Keep existing transforms applied by React */
-            width: auto !important; 
-            height: auto !important;
-        }
-
-        /* 
-           CRITICAL FIX FOR PRINTING: 
-           Force desktop grid/flex layouts even in print view (which browsers treat as narrow/mobile).
-           This overrides the `md:` prefixes from Tailwind.
-        */
-        .print-container .md\:grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        }
-        .print-container .md\:grid-cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        }
-        .print-container .md\:grid-cols-4 {
-            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        }
-        .print-container .md\:flex-row {
-            flex-direction: row !important;
-        }
-        .print-container .md\:gap-4 {
-            gap: 1rem !important;
-        }
-        .print-container .md\:gap-6 {
-            gap: 1.5rem !important;
-        }
-        .print-container .md\:gap-8 {
-            gap: 2rem !important;
-        }
-        .print-container .grid {
-            display: grid !important;
-        }
-        .print-container .flex {
-            display: flex !important;
-        }
-
-        /* Last page doesn't need a break after */
-        .print-container .worksheet-page:last-child {
-            page-break-after: auto !important;
-            break-after: auto !important;
-        }
-
-        /* Force inputs to look like text */
-        .print-container input, 
-        .print-container textarea, 
-        .print-container select {
-            border: none !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            resize: none !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            font-family: inherit !important;
-            color: black !important;
+            overflow: hidden !important;
+            transform: none !important; /* Reset any canvas scaling */
+            left: auto !important;
+            top: auto !important;
         }
         
-        /* Hide specific UI elements if they somehow got cloned */
-        .print-container .no-print, 
-        .print-container .edit-handle,
-        .print-container .page-navigator {
-            display: none !important;
+        .print-page:last-child {
+            page-break-after: auto !important;
+        }
+        
+        /* Ensure layout grids work in print */
+        .print-page .grid { display: grid !important; }
+        .print-page .flex { display: flex !important; }
+        
+        /* Clean up inputs */
+        .print-page input, .print-page textarea {
+            border: none !important;
+            background: transparent !important;
+            resize: none !important;
+            padding: 0 !important;
         }
     }
     </style>

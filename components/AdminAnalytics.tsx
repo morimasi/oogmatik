@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { ActivityStats } from '../types';
 import { AdminStatCard, AnalyticsDataPoint } from '../types/admin';
@@ -35,7 +34,7 @@ const Sparkline = ({ data, color }: { data: number[], color: string }) => {
     );
 };
 
-const StatCard = ({ item }: { item: AdminStatCard }) => (
+const StatCard: React.FC<{ item: AdminStatCard }> = ({ item }) => (
     <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
         <div className="flex justify-between items-start mb-4 relative z-10">
             <div>

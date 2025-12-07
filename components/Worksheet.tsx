@@ -270,8 +270,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             color: 'black',
             boxSizing: 'border-box' as const,
             overflow: 'hidden',
-            margin: '0 auto',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.1), 0 10px 15px rgba(0,0,0,0.05)',
+            margin: '0 auto 64px auto', // Gap between pages in canvas
+            boxShadow: '0 20px 50px rgba(0,0,0,0.15), 0 10px 15px rgba(0,0,0,0.1)',
             ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
         };
     }, [settings.orientation, settings.themeBorder, settings.borderColor, settings.borderWidth]);
@@ -281,7 +281,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
 
     return (
-        <div className={`flex flex-col gap-16 pb-16 items-center ${visualStyleClass}`} style={variableStyle}>
+        <div className={`flex flex-col items-center ${visualStyleClass}`} style={variableStyle}>
             <style>{`
                 /* SCIENTIFIC LAYOUT ENGINE CSS */
                 .dynamic-grid {
@@ -325,7 +325,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     className="worksheet-page-wrapper"
                 >
                     <div 
-                        className="worksheet-item worksheet-page transition-all duration-300 ease-in-out"
+                        className="worksheet-item worksheet-page"
                         style={pageStyle}
                     >
                         {showQR && <WorkbookQR url="https://www.bursadisleksi.com" />}
@@ -345,7 +345,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             <div 
                                 className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col justify-center"
                                 style={{
-                                    // Scale handled by parent canvas now
                                     width: '100%',
                                     height: 'auto'
                                 }}
