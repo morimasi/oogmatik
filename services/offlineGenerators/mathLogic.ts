@@ -2,8 +2,7 @@
 import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData, BasicOperationsData, RealLifeProblemData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, EMOJIS, generateSudokuGrid, generateLatinSquare, TR_VOCAB, SHAPE_TYPES, ITEM_CATEGORIES, generateSmartConnectGrid, CONNECT_COLORS, generateMaze, getDifficultySettings, generateMazePath } from './helpers';
 
-// --- MATH LOGIC GENERATORS (SCIENTIFICALLY DESIGNED) ---
-
+// Helper for Carry/Borrow logic check
 const hasCarry = (n1: number, n2: number): boolean => {
     const s1 = n1.toString().split('').reverse();
     const s2 = n2.toString().split('').reverse();
@@ -151,14 +150,13 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
     return results;
 };
 
-// REAL LIFE PROBLEMS: Polya's Problem Solving Steps
+// REAL LIFE PROBLEMS
 export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
     const { worksheetCount, itemCount } = options;
     const results: RealLifeProblemData[] = [];
     const names = ["Ali", "Ayşe", "Can", "Elif", "Mert", "Duru"];
     const items = ["elma", "kalem", "ceviz", "kitap", "bilye"];
     
-    // Templates based on schemas: Change/Combine/Compare
     const logicTemplates = [
         (n1: number, n2: number, name: string) => ({ text: `${name}'nin ${n1} lirası vardı. Babası ona ${n2} lira daha verdi. ${name}'nin toplam kaç lirası oldu?`, ans: n1 + n2, hint: "Toplama (Birleştirme)", keywords: `Saving money piggy bank` }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `${name} ${n1} tane ${item} topladı. Bunların ${n2} tanesini arkadaşına verdi. Geriye kaç ${item} kaldı?`, ans: n1 - n2, hint: "Çıkarma (Ayırma)", keywords: `Sharing ${item}` }),
@@ -177,7 +175,6 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
             const item = getRandomItems(items, 1)[0];
             const n1 = getRandomInt(10, 50); 
             const n2 = getRandomInt(2, 5); 
-            // Ensure logical numbers (e.g. for subtraction result > 0, for division no remainder)
             const validN1 = (j % 4 === 1) ? Math.max(n1, n2 + 5) : (j % 4 === 3 ? n2 * getRandomInt(2,10) : n1);
             
             const problemData = selectedFunc(validN1, n2, name, item);
@@ -203,11 +200,10 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount, difficulty } = options;
     const results: MathPuzzleData[] = [];
-    const objectsPool = ["🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓"]; // Emojis as objects for offline
+    const objectsPool = ["🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓"]; 
 
     for (let i = 0; i < worksheetCount; i++) {
         const puzzles = Array.from({ length: itemCount || 6 }).map(() => {
-            // Algebra: x + x = A -> x = A/2
             const val = getRandomInt(2, 9);
             const obj = getRandomItems(objectsPool, 1)[0];
             const ans = val + val;
@@ -246,7 +242,7 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
     }));
 };
 
-// Placeholder exports for the rest to satisfy interface, ensuring they return valid empty structures if logic complex
+// Placeholders for remaining functions
 export const generateOfflineFutoshiki = async (o: GeneratorOptions): Promise<FutoshikiData[]> => [];
 export const generateOfflineNumberPyramid = async (o: GeneratorOptions): Promise<NumberPyramidData[]> => [];
 export const generateOfflineNumberCapsule = async (o: GeneratorOptions): Promise<NumberCapsuleData[]> => [];

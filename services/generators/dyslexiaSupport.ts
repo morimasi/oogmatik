@@ -2,34 +2,20 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { getAttentionPrompt, getDyslexiaPrompt } from './prompts';
 
-const PEDAGOGICAL_PROMPT = `
-EĞİTİMSEL İÇERİK KURALLARI:
-1. Çıktı JSON formatında olmalı.
-2. "pedagogicalNote": Bilişsel beceri açıklaması.
-3. "instruction": Net yönerge.
-4. "imagePrompt": Etkinlik için MUTLAKA bir adet ana görsel betimlemesi (İngilizce). Konuyla ilgili sevimli, renkli bir illüstrasyon.
-5. İçerik dolu ve gerçekçi olmalı.
-`;
-
-// AI Generator for Code Reading (Symbol Decoding)
+// 1. Code Reading
 export const generateCodeReadingFromAI = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
     const { worksheetCount, symbolType, codeLength, itemCount } = options;
     
-    const prompt = `
-    Kod Okuma (Şifre Çözme) etkinliği.
-    Sembol Tipi: ${symbolType || 'arrows'} (Oklar, Şekiller veya Renkler).
-    Kod Uzunluğu: ${codeLength || 4} karakter.
-    Soru Sayısı: ${itemCount || 5}.
-    
-    KURALLAR:
-    - Bir "Anahtar" (Key Map) oluştur: Sembol -> Değer (Harf veya Sayı).
-    - Anahtarı kullanarak anlamlı veya anlamsız kısa kodlar oluştur.
-    - Semboller: 'arrow-up', 'arrow-down', 'triangle', 'square', 'red', 'blue' gibi tanımlayıcı stringler kullan.
-    
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
+    const specifics = `
+    - Sembol Tipi: ${symbolType || 'arrows'}.
+    - Kod Uzunluğu: ${codeLength || 4}.
+    - Bir "Anahtar Tablosu" oluştur.
+    - Şifreler çözüldüğünde anlamlı kelimeler veya basit cümleler oluşsun.
     `;
+    
+    const prompt = getDyslexiaPrompt("Kod Okuma (Şifre Çözme)", options.difficulty, specifics);
     
     const singleSchema = {
         type: Type.OBJECT,
@@ -65,30 +51,19 @@ export const generateCodeReadingFromAI = async (options: GeneratorOptions): Prom
     return generateWithSchema(prompt, schema) as Promise<CodeReadingData[]>;
 };
 
+// 2. Attention To Question
 export const generateAttentionToQuestionFromAI = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
     const { worksheetCount, subType } = options;
     
-    const prompt = `
-    "Soruya Dikkat" başlığı altında bir dikkat ve görsel algı etkinliği üret.
-    Alt Tip: ${subType || 'letter-cancellation'}
+    const specifics = `
+    Alt Tip: ${subType || 'letter-cancellation'}.
     
-    Eğer 'letter-cancellation' (Harf Eleme) ise:
-    - Bir kelime/şifre seç. 
-    - Harflerden oluşan bir ızgara (grid) oluştur.
-    - Bazı harfleri "targetChars" (üzeri çizilecekler) olarak belirle.
-    - Kalan harfler sırayla okunduğunda şifreyi oluştursun.
-    
-    Eğer 'path-finding' (Yol Takibi) ise:
-    - Bir ızgara dolusu sembol ('star-outline', 'star-filled' gibi).
-    - Başlangıçtan bitişe giden doğru bir yolu (correctPath) koordinat olarak ver.
-    
-    Eğer 'visual-logic' (Görsel Mantık) ise:
-    - Beşgen (pentagon) şekilleri düşün. Köşelerinde renkli noktalar ve içlerinde çizgiler var.
-    - 4 adet şekil üret. 3 tanesi aynı kurala uysun, 1 tanesi farklı olsun (isOdd).
-    
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
+    - 'letter-cancellation': Bir ızgara içinde belirli harfleri (örn: b, d) bulma ve eleme.
+    - 'path-finding': Başlangıçtan bitişe sembolleri takip etme.
+    - 'visual-logic': Şekil dizilerindeki mantık hatasını bulma.
     `;
+    
+    const prompt = getAttentionPrompt(`Soruya Dikkat (${subType})`, 1, options.difficulty) + specifics;
     
     const singleSchema = {
         type: Type.OBJECT,
@@ -132,30 +107,17 @@ export const generateAttentionToQuestionFromAI = async (options: GeneratorOption
     return generateWithSchema(prompt, schema) as Promise<AttentionToQuestionData[]>;
 };
 
+// 3. Attention Development
 export const generateAttentionDevelopmentFromAI = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     
-    const prompt = `
-    "Dikkat Geliştirme" (Mantık Bilmecesi) etkinliği.
-    ${itemCount || 4} adet soru üret.
-    
-    HER SORU İÇİN:
-    1. İki kutu (Sol/Sağ) içinde rastgele sayılar oluştur.
-    2. Bir hedef sayıyı tanımlayan KARMAŞIK ve ÇELDİRİCİ bir bilmece (riddle) yaz.
-    
-    Zorluk Seviyesi: ${difficulty || 'Orta'}
-    
-    METİN KURALLARI:
-    - Metinler uzun olsun (en az 2-3 cümle).
-    - Çeldirici ifadeler kullan (Örn: "En büyük sayı değildir ama en küçük de değildir.", "Diğer kutudaki sayılarla karıştırma.", "Tek sayıları hemen ele.").
-    - Matematiksel terimler ekle: "Bir deste", "düzine", "rakamları toplamı", "çift sayı", "5'in katı".
-    - Örnek: "Aradığımız sayı sol kutuda saklanıyor. Bu sayı bir deste gülden fazladır ama 50'ye ulaşamaz. Çift bir sayıdır ve kutudaki en büyük sayı değildir."
-    
-    3. Seçenekleri (a, b, c, d, e) belirle.
-    
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
+    const specifics = `
+    Görev: Mantık Bilmeceleri oluştur.
+    Format: Sol/Sağ kutu veya A/B kutusu.
+    İçerik: Hedef sayıyı veya nesneyi bulmak için "olumsuzlama", "karşılaştırma" ve "matematiksel özellikler" (tek/çift, büyük/küçük) içeren ipuçları yaz.
     `;
+    
+    const prompt = getAttentionPrompt("Dikkat Geliştirme (Mantık)", itemCount || 4, difficulty) + specifics;
     
     const singleSchema = {
         type: Type.OBJECT,
@@ -195,30 +157,17 @@ export const generateAttentionDevelopmentFromAI = async (options: GeneratorOptio
     return generateWithSchema(prompt, schema) as Promise<AttentionDevelopmentData[]>;
 };
 
+// 4. Attention Focus
 export const generateAttentionFocusFromAI = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
-    const count = itemCount || 4;
 
-    const prompt = `
-    "Dikkatini Ver" (Mantıksal Bulmaca) etkinliği. 
-    Bu etkinlikte öğrenci, verilen ipuçlarını kullanarak doğru nesneyi bulmalıdır.
-    
-    HER SORU İÇİN:
-    1. İki veya üç liste/kutu oluştur (Örn: "Meyveler", "Sebzeler" veya "Yazlık", "Kışlık" kıyafetler).
-    2. Her kutuda 4-5 öğe olsun.
-    3. Hedef bir öğe seç.
-    4. Bu hedefi tarif eden MANTIKLI ve ELEME GEREKTİREN bir bilmece yaz.
-       - Konum ipucu: "Aradığımız şey X ile aynı kutudadır."
-       - Olumsuzlama ipucu: "Y değildir", "Rengi kırmızı değildir."
-       - Özellik ipucu: "Z harfi ile başlar", "Ekşidir".
-    
-    Zorluk Seviyesi: ${difficulty}.
-    - Başlangıç: Kısa, net ipuçları.
-    - Orta/Zor: Daha dolaylı ipuçları (Örn: "Çekirdekli bir meyvenin olmadığı kutudadır.").
-    
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
+    const specifics = `
+    Görev: Özellik eşleştirme ve eleme.
+    Format: Nesne listeleri (örn: Meyveler, Eşyalar).
+    İpuçları: Rengi kırmızı olmayan, çekirdeği olan, suda batmayan vb. özellikler üzerinden hedefi buldur.
     `;
+
+    const prompt = getAttentionPrompt("Dikkatini Ver (Özellik Analizi)", itemCount || 4, difficulty) + specifics;
 
     const singleSchema = {
         type: Type.OBJECT,
@@ -258,7 +207,7 @@ export const generateAttentionFocusFromAI = async (options: GeneratorOptions): P
     return generateWithSchema(prompt, schema) as Promise<AttentionFocusData[]>;
 };
 
-// Re-export placeholders to prevent errors
+// Placeholder exports
 export const generateReadingFlowFromAI = async (o: GeneratorOptions): Promise<ReadingFlowData[]> => [];
 export const generateLetterDiscriminationFromAI = async (o: GeneratorOptions): Promise<LetterDiscriminationData[]> => [];
 export const generateRapidNamingFromAI = async (o: GeneratorOptions): Promise<RapidNamingData[]> => [];

@@ -3,33 +3,17 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
 // System Instruction: The AI's persona and strict rules.
+// Note: Specific pedagogical rules are now injected via the prompt body from the client (prompts.ts),
+// but this acts as a global safety and role enforcement layer.
 const SYSTEM_INSTRUCTION = `
-[ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI, PEDAGOG ve GÖRSEL SANAT YÖNETMENİ]
+Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
+Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış veya risk grubundaki çocuklar için **bilimsel temelli, hatasız ve JSON formatında** eğitim materyali üretmek.
 
-Sen, öğrenme güçlüğü (disleksi, diskalkuli) ve dikkat eksikliği yaşayan çocuklar için materyal hazırlayan dünyanın en iyi uzmanısın.
-
-TEMEL KURALLAR:
-1. **Pedagojik Yaklaşım:** 
-   - İçerikler her zaman pozitif, cesaretlendirici ve hedef yaş grubunun bilişsel seviyesine (1-6. Sınıf) tam uygun olmalıdır.
-   - Sorular rastgele değil, belirli bir kazanımı (örn: fonolojik farkındalık, işleyen bellek, uzamsal algı) hedeflemelidir.
-   - Karmaşık cümlelerden kaçın, net ve kısa yönergeler ver.
-
-2. **Format:** 
-   - Çıktı, İSTENİLEN JSON ŞEMASINA (%100) uymalıdır. Asla şema dışına çıkma.
-   - Markdown formatında (kod bloğu) verme, saf JSON üretmeye çalış.
-
-3. **Görsel Zeka (Sanat Yönetimi):**
-   - **imagePrompt:** Bu alan KRİTİKTİR. İlgili soruyu veya nesneyi betimleyen **DETAYLI İNGİLİZCE** bir metin yaz.
-     - Stil: "Educational flat vector art, clean lines, vibrant colors, white background, minimalist".
-     - İçerik: Asla soyut kalma. "Elma" deme, "A shiny red apple with a green leaf, vector style" de.
-   - **imageBase64 (SVG):** Eğer şemada isteniyorsa, basit geometrik şekiller için temiz ve geçerli bir <svg> kodu üret. Karmaşık resimler için bu alanı boş bırak (imagePrompt kullanılacak).
-
-4. **Dil:** 
-   - Tüm metinsel içerik (yönergeler, hikayeler, sorular) kusursuz Türkçe olmalıdır.
-   - "pedagogicalNote" alanı, veliye/öğretmene etkinliğin hangi beyin bölgesini veya beceriyi çalıştırdığını akademik ama anlaşılır bir dille açıklamalıdır.
-
-GÖREV:
-Kullanıcının gönderdiği JSON şemasına ve konu/zorluk ayarlarına göre, tekrara düşmeyen, özgün ve eğitsel değeri yüksek bir çalışma sayfası içeriği üret.
+KESİN KURALLAR:
+1. Sadece JSON döndür.
+2. Türkçe dilbilgisi kurallarına %100 uy.
+3. Çocuk dostu, pozitif ve teşvik edici ol.
+4. "imagePrompt" alanlarını İngilizce ve detaylı görsel betimlemelerle doldur.
 `;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -69,9 +53,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             // Streaming yanıtı başlat
             const stream = await ai.models.generateContentStream({
                 model: selectedModel, 
-                contents: prompt, // Only the user prompt here
+                contents: prompt, // The prompt now contains the rich pedagogical instructions from prompts.ts
                 config: {
-                    // System Instruction is now separate for better adherence
                     systemInstruction: SYSTEM_INSTRUCTION,
                     responseMimeType: "application/json",
                     responseSchema: schema,
