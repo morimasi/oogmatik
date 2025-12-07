@@ -164,17 +164,25 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
 
-    /* --- VARSAYILAN GİZLİLİK --- */
-    /* Yazdırma alanı normal ekranda asla görünmemeli */
-    #printable-area {
-        display: none;
+    /* --- PAGE CONTAINER STYLES --- */
+    .document-viewport {
+        background-color: #e4e4e7; /* Zinc 200 - Word-like background */
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        perspective: 1000px;
+    }
+    
+    .worksheet-page {
+        background-color: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     /* --- YAZDIRMA (PRINT) STİLLERİ --- */
     @media print {
         @page {
-            size: A4 portrait;
-            margin: 0mm;
+            size: A4;
+            margin: 0;
         }
 
         html, body {
@@ -183,7 +191,7 @@
             background: white !important;
             color: black !important;
             width: 100%;
-            height: auto !important;
+            height: 100%;
             overflow: visible !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
@@ -207,67 +215,25 @@
             height: auto !important;
             z-index: 9999 !important;
             background: white !important;
-            /* Zoom hilesi yerine transform scale daha güvenli olabilir ama
-               şimdilik mevcut yapıyı bozmamak için zoom tutuyoruz */
-            zoom: 0.75 !important;
-            padding: 3mm !important;
-            box-sizing: border-box !important;
         }
 
-        /* --- SIFIRLAMA & TEMİZLİK --- */
-        
-        #printable-area * {
-            color: #000 !important; /* Force black text */
-            background-color: transparent !important;
-            box-shadow: none !important;
-            text-shadow: none !important;
-            /* Borderların görünür kalmasını sağla */
-            border-color: #000 !important;
-        }
-
-        /* FORCE TAILWIND DESKTOP CLASSES TO WORK */
-        #printable-area .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-        #printable-area .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
-        #printable-area .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
-        #printable-area .md\:flex-row { flex-direction: row !important; }
-        #printable-area .md\:gap-4 { gap: 1rem !important; }
-        #printable-area .md\:gap-6 { gap: 1.5rem !important; }
-        
-        /* SVG & IMAGES */
-        #printable-area img, 
-        #printable-area svg {
-            filter: grayscale(100%) contrast(150%) !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            max-width: 100% !important;
-        }
-        #printable-area svg * {
-            stroke: #000 !important;
-            fill: currentColor;
-        }
-        
-        /* Background Colors handling for specific elements that NEED background (like filled cells) */
-        #printable-area .bg-black, 
-        #printable-area .bg-indigo-500, 
-        #printable-area .bg-zinc-800 {
-            background-color: #ddd !important; /* Make dark backgrounds light grey for saving ink */
-            color: black !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-
-        /* WORKSHEET ITEM RESET */
+        /* Her worksheet-item yeni bir sayfa olmalı */
         .worksheet-item {
-            box-shadow: none !important;
-            border: none !important;
+            display: block !important;
+            break-after: page !important;
+            page-break-after: always !important;
+            width: 210mm !important;
+            height: 297mm !important;
             margin: 0 !important;
             padding: 0 !important;
-            width: 100% !important;
-            page-break-after: always;
-            break-after: page;
-            transform: none !important;
+            position: relative !important;
+            box-shadow: none !important;
+            border: none !important;
+            overflow: hidden !important; /* Taşan içeriği gizle, ikinci sayfaya akmalı ama manuel */
+            transform: none !important; /* Scale iptal */
         }
-
+        
+        /* Scaler'ı sıfırla */
         .worksheet-scaler {
             transform: none !important;
             width: 100% !important;
@@ -275,7 +241,7 @@
         }
 
         /* HIDE UI ELEMENTS */
-        .edit-handle, .edit-grid-overlay, .edit-safety-guide, button, .no-print {
+        .edit-handle, .edit-grid-overlay, .edit-safety-guide, button, .no-print, .page-navigator {
             display: none !important;
         }
         

@@ -96,66 +96,29 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isSharing, setIsSharing] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false); 
     
-    // --- INFINITE CANVAS STATE ---
+    // --- INFINITE CANVAS STATE (Disabled for Document View) ---
     const [viewZoom, setViewZoom] = useState(1);
-    const [pan, setPan] = useState({ x: 0, y: 50 }); 
-    const [isDragging, setIsDragging] = useState(false);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [pan, setPan] = useState({ x: 0, y: 0 }); 
     
     const canvasRef = useRef<HTMLDivElement>(null);
 
     // Reset zoom and pan when activity changes
     useEffect(() => {
         setViewZoom(1);
-        setPan({ x: 0, y: 50 });
+        setPan({ x: 0, y: 0 });
         setIsEditMode(false);
     }, [activityType]);
 
-    // Handle Mouse Wheel Zoom
+    // Handle Mouse Wheel Zoom (Only if holding Ctrl)
     const handleWheel = (e: React.WheelEvent) => {
         if (currentView !== 'generator' || !worksheetData) return;
 
-        // Standard behavior: Ctrl+Wheel or just Wheel for zoom in design tools
-        if (e.ctrlKey || !e.shiftKey) { 
+        if (e.ctrlKey) { 
+             e.preventDefault();
              const delta = e.deltaY * -0.001;
              const newZoom = Math.min(Math.max(0.2, viewZoom + delta), 3);
              setViewZoom(newZoom);
         }
-    };
-
-    // --- PANNING LOGIC ---
-    const handleMouseDown = (e: React.MouseEvent) => {
-        if (currentView !== 'generator' || !worksheetData) return;
-        
-        // Check if the target is an input or button to avoid blocking interaction
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.tagName === 'TEXTAREA' || target.closest('button') || target.closest('.editable-element')) {
-            return;
-        }
-
-        setIsDragging(true);
-        setDragStart({ 
-            x: e.clientX - pan.x, 
-            y: e.clientY - pan.y 
-        });
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        setPan({
-            x: e.clientX - dragStart.x,
-            y: e.clientY - dragStart.y
-        });
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-    };
-
-    const handleResetView = () => {
-        setViewZoom(1);
-        setPan({ x: 0, y: 50 });
     };
 
     const handleTakeSnapshot = async () => {
@@ -296,7 +259,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     <main className={`flex-1 flex flex-col h-full bg-[var(--bg-primary)] transition-colors duration-300 overflow-hidden`}>
       
       {/* 1. TOP BAR (Toolbar & Breadcrumbs) - Fixed Height */}
-      {/* Zen Mode active hides breadcrumbs for focus */}
       <div className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-20 shadow-sm relative transition-all duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 absolute top-0 left-0 right-0' : ''}`}>
           {!zenMode && (
               <nav className="mb-4 flex items-center text-sm text-[var(--text-secondary)]" aria-label="Breadcrumb">
@@ -335,42 +297,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
       </div>
 
-      {/* 2. MAIN CONTENT AREA (Canvas) */}
+      {/* 2. MAIN CONTENT AREA (Canvas / Document Viewer) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 ${currentView === 'generator' && worksheetData ? (isDragging ? 'cursor-grabbing' : (isEditMode ? 'cursor-default' : 'cursor-grab')) : ''}`}
+        className={`flex-1 relative overflow-hidden bg-zinc-200 dark:bg-zinc-900/50`}
         onWheel={currentView === 'generator' && worksheetData ? handleWheel : undefined}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
       >
-          {/* Background Grid Pattern */}
-          {currentView === 'generator' && worksheetData && (
-              <div className="absolute inset-0 pointer-events-none opacity-10" 
-                   style={{ 
-                       backgroundImage: 'radial-gradient(#9ca3af 1px, transparent 1px)', 
-                       backgroundSize: '20px 20px',
-                       transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
-                       transformOrigin: 'top center'
-                   }}>
-              </div>
-          )}
-          
           {/* Mode Overlay Info */}
           {isEditMode && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-xl z-50 font-bold text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 pointer-events-none">
                   <i className="fa-solid fa-pen-ruler"></i> Düzenleme Modu Aktif
-              </div>
-          )}
-
-          {/* Zoom Controls Overlay */}
-          {currentView === 'generator' && worksheetData && !zenMode && (
-              <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 bg-white dark:bg-zinc-800 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-700 p-1.5">
-                  <button onClick={() => setViewZoom(z => Math.max(0.2, z - 0.1))} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-minus"></i></button>
-                  <span className="text-xs font-mono font-bold w-12 text-center text-zinc-700 dark:text-zinc-200">{Math.round(viewZoom * 100)}%</span>
-                  <button onClick={() => setViewZoom(z => Math.min(3, z + 0.1))} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-plus"></i></button>
-                  <button onClick={handleResetView} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500" title="Sıfırla/Ortala"><i className="fa-solid fa-compress"></i></button>
               </div>
           )}
 
@@ -421,16 +357,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 )}
                 
                 {worksheetData && (
+                    // Document Viewer Container - Handles Zoom and Layout internally in Worksheet.tsx
                     <div 
-                        className={`content-preview-wrapper transition-transform duration-75 ease-out will-change-transform`}
+                        className={`content-preview-wrapper h-full w-full`}
                         style={{ 
-                            transform: `translate(${pan.x}px, ${pan.y}px) scale(${viewZoom})`,
-                            transformOrigin: 'top center', 
-                            width: '100%',
-                            height: 'auto', 
-                            display: 'flex',
-                            justifyContent: 'center',
-                            position: 'relative'
+                            transform: `scale(${viewZoom})`,
+                            transformOrigin: 'top center',
+                            transition: 'transform 0.2s ease-out'
                         }}
                     >
                         <Worksheet 

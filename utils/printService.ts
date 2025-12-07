@@ -19,12 +19,11 @@ export const printService = {
             throw new Error("Yazdırılacak içerik bulunamadı.");
         }
 
-        // Mevcut scroll pozisyonunu kaydet ve en üste çık (render hatasını önlemek için)
+        // Mevcut scroll pozisyonunu kaydet
         const originalScrollPos = window.scrollY;
-        window.scrollTo(0, 0);
-
+        
         // UI Temizliği - Ekran görüntüsüne girmemesi gerekenleri gizle
-        const uiElements = document.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, .no-print');
+        const uiElements = document.querySelectorAll('.edit-handle, .edit-grid-overlay, .edit-safety-guide, .no-print, .page-navigator');
         uiElements.forEach((el: any) => el.style.visibility = 'hidden');
 
         try {
@@ -39,40 +38,49 @@ export const printService = {
 
             for (let i = 0; i < elements.length; i++) {
                 const element = elements[i] as HTMLElement;
+                
+                // Elementi geçici olarak görünür alana taşıma veya scroll etme gerekebilir, 
+                // html2canvas genellikle element görünür olmasa da render eder ama scroll pozisyonu önemlidir.
+                // Scroll işlemini kaldırdık çünkü html2canvas windowWidth/height ile tüm sayfayı alabilir.
 
-                // 3. Ekran Görüntüsü Al (Timeout Korumalı)
+                // 3. Ekran Görüntüsü Al (Timeout Korumalı ve Yüksek Kalite)
                 const canvas = await new Promise<HTMLCanvasElement>((resolve, reject) => {
                     const timeoutId = setTimeout(() => {
                         reject(new Error("Sayfa işlenirken zaman aşımına uğradı (60sn). İçerik çok yoğun olabilir."));
                     }, 60000); // 60 saniye genel işlem limiti
 
                     html2canvas(element, {
-                        scale: 1.5, // Kalite/Performans dengesi
-                        useCORS: true, // Dış kaynaklı görseller için
+                        scale: 2, // Gerçek baskı kalitesi için 2x
+                        useCORS: true, 
                         allowTaint: false,
-                        logging: false, // Konsol kirliliğini önle
+                        logging: false,
                         backgroundColor: '#ffffff',
-                        imageTimeout: 15000, // 15 saniye resim/font yükleme zaman aşımı (Donmayı önler)
-                        scrollY: 0,
-                        windowWidth: document.documentElement.scrollWidth,
-                        windowHeight: document.documentElement.scrollHeight,
+                        imageTimeout: 15000,
+                        // windowWidth/Height ayarı bazı durumlarda CSS transform ile çakışabilir, kaldırıldı.
                         onclone: (clonedDoc) => {
-                            // Klonlanan dökümanda ekstra temizlik yapılabilir
-                            const clonedUi = clonedDoc.querySelectorAll('.edit-handle, .edit-grid-overlay');
-                            clonedUi.forEach((el: any) => el.style.visibility = 'hidden');
+                            // Klonlanan dökümanda ekstra temizlik
+                            const clonedUi = clonedDoc.querySelectorAll('.edit-handle, .edit-grid-overlay, .page-navigator');
+                            clonedUi.forEach((el: any) => el.style.display = 'none');
+                            
+                            // Transform scale'i sıfırla ki tam boyut çıksın
+                            const scalers = clonedDoc.querySelectorAll('.worksheet-scaler');
+                            scalers.forEach((el: any) => {
+                                el.style.transform = 'none';
+                                el.style.width = '100%';
+                                el.style.height = '100%';
+                            });
                         }
                     }).then((c) => {
                         clearTimeout(timeoutId);
                         resolve(c);
                     }).catch((err) => {
                         clearTimeout(timeoutId);
-                        // Eğer hata font yüklemesiyse yine de devam etmeye çalışabiliriz ama burada reject edip kullanıcıya bildiriyoruz
                         console.error("html2canvas error:", err);
                         reject(err);
                     });
                 });
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.85);
+                const imgData = canvas.toDataURL('image/jpeg', 0.90);
                 const imgWidth = canvas.width;
                 const imgHeight = canvas.height;
 
@@ -100,7 +108,6 @@ export const printService = {
                         printWindow.print();
                     };
                 } else {
-                    // Fallback popup blocker
                     pdf.save(finalFileName);
                 }
             }
