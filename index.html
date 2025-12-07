@@ -1,10 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bursa Disleksi Ai</title>
+    <script>
+      window.global = window;
+      window.process = { env: { NODE_ENV: 'production' } };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome 6.5.1 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -155,7 +158,7 @@
     .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--text-muted); }
 
     /* --- PAGE CONTAINER STYLES (Word-like View) --- */
     .document-viewport {
@@ -295,7 +298,8 @@
     "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
     "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.14",
     "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
-    "jspdf": "https://aistudiocdn.com/jspdf@^3.0.4"
+    "jspdf": "https://aistudiocdn.com/jspdf@^3.0.4",
+    "@react-pdf/renderer": "https://esm.sh/@react-pdf/renderer@3.4.4?external=react,react-dom&target=esnext"
   }
 }
 </script>

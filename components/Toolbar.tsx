@@ -18,6 +18,7 @@ interface ToolbarProps {
   onToggleEdit?: () => void;
   isEditMode?: boolean;
   onSnapshot?: () => void; 
+  onDownload?: () => void; // New prop for Real PDF
   // Editor Props
   onAddText?: () => void;
   onAddSticker?: (url: string) => void;
@@ -46,6 +47,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onToggleEdit,
     isEditMode,
     onSnapshot,
+    onDownload, // Destructure new prop
     onAddText,
     onAddSticker,
     isDrawMode,
@@ -64,7 +66,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
       setIsProcessing(true);
       setTimeout(async () => {
           try {
-              await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
+              if (action === 'download' && onDownload) {
+                  // Use the Real PDF Generator if handler provided
+                  await onDownload();
+              } else {
+                  // Fallback or Print Action (Native)
+                  await printService.generatePdf('.worksheet-item', 'Etkinlik', { action });
+              }
           } catch (error) {
               console.error("İşlem hatası:", error);
               alert("İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.");
@@ -201,8 +209,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  
                  {activeMenu === 'type' && (
                      <div className="absolute top-full left-0 mt-2 w-56 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 flex flex-col gap-3 animate-in fade-in zoom-in-95">
-                         
-                         {/* Font Family */}
                          <div>
                              <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Font</span>
                              <select 
@@ -217,37 +223,20 @@ const Toolbar: React.FC<ToolbarProps> = ({
                                  <option value="Lora">Lora (Kitap)</option>
                              </select>
                          </div>
-
                          <div className="flex justify-between bg-[var(--bg-inset)] p-1 rounded">
                              <button onClick={() => onSettingsChange({...settings, fontWeight: settings.fontWeight === 'bold' ? 'normal' : 'bold'})} className={`p-1.5 rounded flex-1 ${settings.fontWeight === 'bold' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-bold"></i></button>
                              <button onClick={() => onSettingsChange({...settings, fontStyle: settings.fontStyle === 'italic' ? 'normal' : 'italic'})} className={`p-1.5 rounded flex-1 ${settings.fontStyle === 'italic' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-italic"></i></button>
                          </div>
-                         
                          <div className="flex justify-between bg-[var(--bg-inset)] p-1 rounded">
                              <button onClick={() => onSettingsChange({...settings, contentAlign: 'left'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'left' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-left"></i></button>
                              <button onClick={() => onSettingsChange({...settings, contentAlign: 'center'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'center' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-center"></i></button>
                              <button onClick={() => onSettingsChange({...settings, contentAlign: 'right'})} className={`p-1.5 rounded flex-1 ${settings.contentAlign === 'right' ? 'bg-white text-black shadow-sm' : 'text-zinc-500'}`}><i className="fa-solid fa-align-right"></i></button>
                          </div>
-                         
-                         <div>
-                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Punto (Boyut)</span>
-                             <input type="range" min="12" max="32" value={settings.fontSize} onChange={(e) => onSettingsChange({...settings, fontSize: Number(e.target.value)})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
-                         </div>
-
-                         <div>
-                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Satır Aralığı</span>
-                             <input type="range" min="10" max="25" value={(settings.lineHeight || 1.5) * 10} onChange={(e) => onSettingsChange({...settings, lineHeight: Number(e.target.value) / 10})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
-                         </div>
-
-                         <div>
-                             <span className="text-xs font-bold text-[var(--text-secondary)] block mb-1">Harf Aralığı</span>
-                             <input type="range" min="0" max="50" value={(settings.letterSpacing || 0) * 10} onChange={(e) => onSettingsChange({...settings, letterSpacing: Number(e.target.value) / 10})} className="w-full h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
-                         </div>
                      </div>
                  )}
              </div>
 
-             {/* Visibility Dropdown (Enhanced) */}
+             {/* Visibility Dropdown */}
              <div className="relative">
                  <button
                     onClick={() => setActiveMenu(activeMenu === 'visibility' ? 'none' : 'visibility')}
@@ -256,7 +245,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
                  >
                      <i className="fa-solid fa-eye"></i> Görünürlük
                  </button>
-                 
                  {activeMenu === 'visibility' && (
                      <div className="absolute top-full left-0 mt-2 w-64 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl p-3 z-50 animate-in fade-in zoom-in-95">
                          <h4 className="text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Sayfa Bileşenleri</h4>
@@ -272,15 +260,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
                      </div>
                  )}
              </div>
-
         </div>
       
         {/* Actions Group */}
         <div className="flex items-center gap-2 shrink-0 ml-auto">
-            
-            {/* HYBRID FEATURES (Phase 4) */}
+            {/* HYBRID FEATURES */}
             <div className="flex bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-lg mr-2 border border-zinc-200 dark:border-zinc-700">
-                {/* TTS */}
                 {onSpeak && (
                     <button 
                         onClick={isSpeaking ? onStopSpeak : onSpeak}
@@ -290,7 +275,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
                         <i className={`fa-solid ${isSpeaking ? 'fa-stop' : 'fa-volume-high'}`}></i>
                     </button>
                 )}
-                {/* QR */}
                 {onToggleQR && (
                     <button 
                         onClick={onToggleQR}
@@ -305,58 +289,16 @@ const Toolbar: React.FC<ToolbarProps> = ({
             {/* EDITOR TOOLS */}
             {isEditMode && (
                 <div className="flex bg-zinc-100 dark:bg-zinc-700/50 p-1 rounded-lg mr-2 border border-zinc-200 dark:border-zinc-700">
-                    <button 
-                        onClick={onAddText}
-                        className="w-8 h-8 flex items-center justify-center rounded hover:bg-white dark:hover:bg-zinc-600 transition-colors text-zinc-600 dark:text-zinc-300"
-                        title="Metin Ekle"
-                    >
-                        <i className="fa-solid fa-font"></i>
-                    </button>
-                    <div className="relative">
-                        <button 
-                            onClick={() => setShowStickers(!showStickers)}
-                            className="w-8 h-8 flex items-center justify-center rounded hover:bg-white dark:hover:bg-zinc-600 transition-colors text-zinc-600 dark:text-zinc-300"
-                            title="Çıkartma Ekle"
-                        >
-                            <i className="fa-solid fa-icons"></i>
-                        </button>
-                        {showStickers && onAddSticker && (
-                            <StickerPicker onSelect={(url) => { onAddSticker(url); setShowStickers(false); }} onClose={() => setShowStickers(false)} />
-                        )}
-                    </div>
-                    <button 
-                        onClick={onToggleDraw}
-                        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${isDrawMode ? 'bg-indigo-600 text-white' : 'hover:bg-white dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-300'}`}
-                        title="Çizim Modu"
-                    >
-                        <i className="fa-solid fa-pen-nib"></i>
-                    </button>
+                    <button onClick={onAddText} className="w-8 h-8 flex items-center justify-center rounded hover:bg-white dark:hover:bg-zinc-600 transition-colors text-zinc-600 dark:text-zinc-300" title="Metin Ekle"><i className="fa-solid fa-font"></i></button>
+                    <button onClick={() => setShowStickers(!showStickers)} className="w-8 h-8 flex items-center justify-center rounded hover:bg-white dark:hover:bg-zinc-600 transition-colors text-zinc-600 dark:text-zinc-300" title="Çıkartma Ekle"><i className="fa-solid fa-icons"></i></button>
+                    {showStickers && onAddSticker && <StickerPicker onSelect={(url) => { onAddSticker(url); setShowStickers(false); }} onClose={() => setShowStickers(false)} />}
+                    <button onClick={onToggleDraw} className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${isDrawMode ? 'bg-indigo-600 text-white' : 'hover:bg-white dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-300'}`} title="Çizim Modu"><i className="fa-solid fa-pen-nib"></i></button>
                 </div>
             )}
 
-            {/* EDIT TOGGLE BUTTON */}
-            {onToggleEdit && (
-                <button 
-                    onClick={onToggleEdit}
-                    disabled={isProcessing}
-                    className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`}
-                    title={isEditMode ? "Düzenlemeyi Bitir ve Kaydet" : "Düzenleme Modu"}
-                >
-                    {isEditMode ? (
-                        <>
-                            <i className="fa-solid fa-check"></i>
-                            <span className="hidden sm:inline">Bitir</span>
-                        </>
-                    ) : (
-                        <>
-                            <i className="fa-solid fa-pen-ruler"></i>
-                            <span className="hidden sm:inline">Düzenle</span>
-                        </>
-                    )}
-                </button>
-            )}
+            {/* ACTION BUTTONS */}
+            {onToggleEdit && <button onClick={onToggleEdit} disabled={isProcessing} className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border ${isEditMode ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-200' : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50'}`} title="Düzenleme Modu"><i className={`fa-solid ${isEditMode ? 'fa-check' : 'fa-pen-ruler'}`}></i> <span className="hidden sm:inline">{isEditMode ? 'Bitir' : 'Düzenle'}</span></button>}
 
-            {/* DOWNLOAD PDF BUTTON */}
             <button 
                 onClick={() => handleAction('download')}
                 disabled={isProcessing}
@@ -364,74 +306,31 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 title="PDF İndir"
             >
                 {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
-                <span className="hidden sm:inline">PDF İndir</span>
+                <span className="hidden sm:inline">PDF</span>
             </button>
 
-            {/* PRINT BUTTON */}
             <button 
                 onClick={() => handleAction('print')}
                 disabled={isProcessing}
                 className="px-3 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 shadow-sm border bg-zinc-800 text-white border-zinc-900 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Yazdır (A4)"
+                title="Yazdır"
             >
-                {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-print"></i>}
+                <i className="fa-solid fa-print"></i>
                 <span className="hidden sm:inline">Yazdır</span>
             </button>
 
-            {onAddToWorkbook && (
-                <button 
-                    id="add-to-wb-btn"
-                    onClick={onAddToWorkbook}
-                    disabled={isProcessing}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg transition-all bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50 hover:text-emerald-300 relative disabled:opacity-50"
-                    title="Kitapçığa Ekle"
-                >
-                    <i className="fa-solid fa-plus-circle"></i>
-                </button>
-            )}
+            {onAddToWorkbook && <button onClick={onAddToWorkbook} disabled={isProcessing} className="w-8 h-8 flex items-center justify-center rounded-lg transition-all bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50 hover:text-emerald-300 relative disabled:opacity-50" title="Kitapçığa Ekle"><i className="fa-solid fa-plus-circle"></i></button>}
             
-            {onViewWorkbook && (
-                <button 
-                    onClick={onViewWorkbook}
-                    disabled={isProcessing}
-                    className="px-3 py-1.5 bg-[var(--bg-inset)] border border-[var(--border-color)] rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 hover:bg-[var(--bg-paper)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-50"
-                    title="Kitapçığı Görüntüle"
-                >
-                    <i className="fa-solid fa-book-open"></i>
-                    {workbookItemCount > 0 && <span className="bg-emerald-50 text-white rounded-full px-1.5 text-[9px]">{workbookItemCount}</span>}
-                </button>
-            )}
+            {onViewWorkbook && <button onClick={onViewWorkbook} disabled={isProcessing} className="px-3 py-1.5 bg-[var(--bg-inset)] border border-[var(--border-color)] rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 hover:bg-[var(--bg-paper)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-50" title="Kitapçığı Görüntüle"><i className="fa-solid fa-book-open"></i> {workbookItemCount > 0 && <span className="bg-emerald-50 text-white rounded-full px-1.5 text-[9px]">{workbookItemCount}</span>}</button>}
 
             <div className="w-px h-4 bg-zinc-600 mx-1"></div>
 
-            <button 
-                onClick={onTogglePreview} 
-                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isPreviewMode ? 'bg-[var(--accent-color)] text-black' : 'text-[var(--text-muted)] hover:bg-[var(--bg-inset)]'}`}
-                title="Zen Modu (Odaklan)"
-            >
-                <i className={`fa-solid ${isPreviewMode ? 'fa-compress' : 'fa-expand'}`}></i>
-            </button>
+            <button onClick={onTogglePreview} className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isPreviewMode ? 'bg-[var(--accent-color)] text-black' : 'text-[var(--text-muted)] hover:bg-[var(--bg-inset)]'}`} title="Zen Modu"><i className={`fa-solid ${isPreviewMode ? 'fa-compress' : 'fa-expand'}`}></i></button>
 
-            <button 
-                onClick={onFeedback} 
-                className="px-3 py-1.5 text-rose-400 bg-rose-900/20 hover:bg-rose-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5" 
-                title="Geri Bildirim Ver"
-            >
-                <i className="fa-solid fa-comment-dots"></i>
-                <span className="hidden sm:inline">Geri Bildirim</span>
-            </button>
-            
+            <button onClick={onFeedback} className="px-3 py-1.5 text-rose-400 bg-rose-900/20 hover:bg-rose-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5" title="Geri Bildirim"><i className="fa-solid fa-comment-dots"></i></button>
             <div className="w-px h-4 bg-zinc-600 mx-1"></div>
-            
-             <button onClick={onSave} disabled={isProcessing} className="px-3 py-1.5 text-emerald-400 bg-emerald-900/20 hover:bg-emerald-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50" title="Arşive Kaydet">
-                <i className="fa-solid fa-save"></i>
-                <span className="hidden sm:inline">Kaydet</span>
-            </button>
-
-            <button onClick={onShare} disabled={isProcessing} className="px-3 py-1.5 text-violet-400 bg-violet-900/20 hover:bg-violet-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50" title="Paylaş">
-                <i className="fa-solid fa-share-nodes"></i>
-                <span className="hidden sm:inline">Paylaş</span>
-            </button>
+            <button onClick={onSave} disabled={isProcessing} className="px-3 py-1.5 text-emerald-400 bg-emerald-900/20 hover:bg-emerald-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50" title="Arşive Kaydet"><i className="fa-solid fa-save"></i></button>
+            <button onClick={onShare} disabled={isProcessing} className="px-3 py-1.5 text-violet-400 bg-violet-900/20 hover:bg-violet-900/40 rounded text-[10px] font-bold transition-colors flex items-center gap-1.5 disabled:opacity-50" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
         </div>
         
         {/* Click outside listener to close menus */}
