@@ -370,7 +370,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions) => {
                 }
             }
             const revealRate = difficulty === 'Başlangıç' ? 0.5 : (difficulty === 'Orta' ? 0.3 : 0.2);
-            const maskedGrid: (number | null)[][] = latinSquare.map(row => row.map(n => Math.random() < revealRate ? n : null));
+            const maskedGrid: (number | null)[][] = latinSquare.map(row => row.map(n => Math.random() > revealRate ? n : null));
             let units: (string | null)[][] | undefined = undefined;
             if (isLength) {
                 const unitMap: Record<number, string> = { 1: '10cm', 2: '25cm', 3: '50cm', 4: '1m', 5: '2m', 6: '5m', 7: '10m', 8: '20m', 9: '50m' };
