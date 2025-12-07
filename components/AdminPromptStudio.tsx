@@ -2,10 +2,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { PromptTemplate, PromptVersion } from '../types/admin';
 import { adminService } from '../services/adminService';
+import { ACTIVITY_CATEGORIES } from '../constants';
 
-// --- CUSTOM CODE EDITOR COMPONENT (ZERO DEPENDENCY) ---
-// This component simulates a code editor by layering a transparent textarea over a syntax-highlighted pre/code block.
-
+// --- CUSTOM CODE EDITOR COMPONENT ---
 const SimpleCodeEditor = ({ value, onChange, placeholder }: { value: string, onChange: (val: string) => void, placeholder?: string }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const preRef = useRef<HTMLPreElement>(null);
@@ -17,48 +16,32 @@ const SimpleCodeEditor = ({ value, onChange, placeholder }: { value: string, onC
         }
     };
 
-    // Syntax Highlighting Logic for Prompt Template
     const highlightCode = (code: string) => {
-        if (!code) return <br />; // Render empty line
-        
-        // Escape HTML
-        let escaped = code
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-
-        // Highlight Variables {{...}}
-        escaped = escaped.replace(/(\{\{)(.*?)(\}\})/g, '<span class="text-amber-500 font-bold">$1$2$3</span>');
-
-        // Highlight Keys in JSON-like structure (simple heuristic)
+        if (!code) return <br />; 
+        let escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        escaped = escaped.replace(/(\{\{)(.*?)(\}\})/g, '<span class="text-amber-500 font-bold bg-amber-500/10 rounded px-0.5">$1$2$3</span>');
         escaped = escaped.replace(/"(.*?)":/g, '<span class="text-indigo-400">"$1":</span>');
-
-        // Highlight Comments or Instructions [ROL:...]
         escaped = escaped.replace(/(\[.*?\])/g, '<span class="text-emerald-500 font-bold">$1</span>');
-
         return <span dangerouslySetInnerHTML={{ __html: escaped }} />;
     };
 
     return (
-        <div className="relative w-full h-full font-mono text-sm group">
-            {/* Background Highlighter */}
+        <div className="relative w-full h-full font-mono text-sm group bg-[#1e1e1e] text-[#d4d4d4]">
             <pre
                 ref={preRef}
-                className="absolute inset-0 m-0 p-4 pointer-events-none whitespace-pre-wrap break-words text-transparent bg-transparent overflow-hidden"
-                style={{ fontFamily: '"Fira Code", monospace', lineHeight: '1.5' }}
+                className="absolute inset-0 m-0 p-4 pointer-events-none whitespace-pre-wrap break-words overflow-hidden"
+                style={{ fontFamily: '"Fira Code", monospace', lineHeight: '1.6' }}
                 aria-hidden="true"
             >
-                <code className="text-zinc-800 dark:text-zinc-300">{highlightCode(value)}</code>
+                <code className="text-[#d4d4d4]">{highlightCode(value)}</code>
             </pre>
-
-            {/* Foreground Input */}
             <textarea
                 ref={textareaRef}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 onScroll={handleScroll}
-                className="absolute inset-0 w-full h-full m-0 p-4 bg-transparent text-transparent caret-black dark:caret-white border-none resize-none focus:ring-0 outline-none whitespace-pre-wrap break-words"
-                style={{ fontFamily: '"Fira Code", monospace', lineHeight: '1.5' }}
+                className="absolute inset-0 w-full h-full m-0 p-4 bg-transparent text-transparent caret-white border-none resize-none focus:ring-0 outline-none whitespace-pre-wrap break-words selection:bg-indigo-500/30"
+                style={{ fontFamily: '"Fira Code", monospace', lineHeight: '1.6' }}
                 placeholder={placeholder}
                 spellCheck={false}
             />
@@ -66,11 +49,10 @@ const SimpleCodeEditor = ({ value, onChange, placeholder }: { value: string, onC
     );
 };
 
-// --- LINE NUMBERS COMPONENT ---
 const LineNumbers = ({ text }: { text: string }) => {
     const lineCount = text.split('\n').length;
     return (
-        <div className="flex flex-col text-right pr-3 pt-4 text-zinc-400 select-none font-mono text-sm leading-[1.5] bg-zinc-100 dark:bg-zinc-800/50 h-full border-r border-zinc-200 dark:border-zinc-700 min-w-[3rem]">
+        <div className="flex flex-col text-right pr-3 pt-4 text-[#858585] select-none font-mono text-sm leading-[1.6] bg-[#1e1e1e] h-full border-r border-[#333] min-w-[3rem]">
             {Array.from({ length: lineCount }).map((_, i) => (
                 <span key={i}>{i + 1}</span>
             ))}
@@ -81,38 +63,17 @@ const LineNumbers = ({ text }: { text: string }) => {
 export const AdminPromptStudio: React.FC = () => {
     const [prompts, setPrompts] = useState<PromptTemplate[]>([]);
     const [selectedPrompt, setSelectedPrompt] = useState<PromptTemplate | null>(null);
+    const [openCategory, setOpenCategory] = useState<string | null>(null);
+    
+    // View States
     const [isSaving, setIsSaving] = useState(false);
-    
-    // IDE State
     const [activeTab, setActiveTab] = useState<'editor' | 'config' | 'history'>('editor');
-    const [simulationOpen, setSimulationOpen] = useState(false); // Split view toggle
+    const [simulationOpen, setSimulationOpen] = useState(false);
     
-    // Simulation State
+    // Simulation
     const [testVariables, setTestVariables] = useState<Record<string, string>>({});
     const [simulationResult, setSimulationResult] = useState<string>('');
     const [isSimulating, setIsSimulating] = useState(false);
-    const [simTab, setSimTab] = useState<'input' | 'output'>('input');
-    
-    // Auto-extract variables from template
-    const detectedVariables = useMemo(() => {
-        if (!selectedPrompt) return [];
-        const regex = /\{\{(.*?)\}\}/g;
-        const matches = Array.from(selectedPrompt.template.matchAll(regex)).map(m => m[1]);
-        return [...new Set(matches)]; // Unique variables
-    }, [selectedPrompt?.template]);
-
-    // Update test variables when detected variables change
-    useEffect(() => {
-        if (detectedVariables.length > 0) {
-            setTestVariables(prev => {
-                const newState = { ...prev };
-                detectedVariables.forEach(v => {
-                    if (!newState[v]) newState[v] = `[${v}]`; // Default value
-                });
-                return newState;
-            });
-        }
-    }, [detectedVariables]);
 
     useEffect(() => {
         loadPrompts();
@@ -123,31 +84,65 @@ export const AdminPromptStudio: React.FC = () => {
         setPrompts(data);
     };
 
+    // Derived Variables from Template
+    const detectedVariables = useMemo(() => {
+        if (!selectedPrompt) return [];
+        const regex = /\{\{(.*?)\}\}/g;
+        const matches = Array.from(selectedPrompt.template.matchAll(regex)).map(m => m[1]);
+        return [...new Set(matches)];
+    }, [selectedPrompt?.template]);
+
+    // Initial Test Vars Sync
+    useEffect(() => {
+        if (detectedVariables.length > 0) {
+            setTestVariables(prev => {
+                const newState = { ...prev };
+                detectedVariables.forEach(v => {
+                    if (!newState[v]) newState[v] = `[${v}]`; 
+                });
+                return newState;
+            });
+        }
+    }, [detectedVariables]);
+
     const handleSave = async () => {
         if (!selectedPrompt) return;
-        
-        // Sync detected variables to prompt definition
-        const updatedPrompt = {
-            ...selectedPrompt,
-            variables: detectedVariables
-        };
-
-        const note = prompt("Versiyon notu (Opsiyonel):", "Güncelleme");
-        if (note === null) return; 
+        const note = prompt("Değişiklik notu girin:", "Update");
+        if (note === null) return;
 
         setIsSaving(true);
-        const saved = await adminService.savePrompt(updatedPrompt, note || "Update");
+        const updated = { ...selectedPrompt, variables: detectedVariables };
+        const saved = await adminService.savePrompt(updated, note);
+        
         setPrompts(prev => prev.map(p => p.id === saved.id ? saved : p));
         setSelectedPrompt(saved);
         setIsSaving(false);
     };
 
-    const handleRunSimulation = async () => {
+    const handleNewPrompt = () => {
+        const id = prompt("Prompt ID (örn: math_geometry):");
+        if (!id) return;
+        const newPrompt: PromptTemplate = {
+            id,
+            name: id.replace(/_/g, ' ').toUpperCase(),
+            description: '',
+            category: 'general',
+            systemInstruction: 'Sen bir eğitim uzmanısın.',
+            template: 'GÖREV: {{topic}} hakkında içerik üret.',
+            variables: ['topic'],
+            tags: [],
+            updatedAt: new Date().toISOString(),
+            version: 1,
+            history: []
+        };
+        setPrompts([...prompts, newPrompt]);
+        setSelectedPrompt(newPrompt);
+    };
+
+    const handleSimulate = async () => {
         if (!selectedPrompt) return;
         setIsSimulating(true);
-        setSimTab('output');
         setSimulationResult('İşleniyor...');
-        
         try {
             const result = await adminService.testPrompt(selectedPrompt, testVariables);
             setSimulationResult(JSON.stringify(result, null, 2));
@@ -158,283 +153,239 @@ export const AdminPromptStudio: React.FC = () => {
         }
     };
 
-    const addNewPrompt = () => {
-        const newPrompt: PromptTemplate = {
-            id: `prompt_${Date.now()}`,
-            name: 'Yeni Prompt Şablonu',
-            description: '',
-            systemInstruction: 'Sen deneyimli bir özel eğitim uzmanısın.',
-            template: 'GÖREV: {{topic}} konusunda {{difficulty}} seviyesinde bir etkinlik hazırla.\n\nÇIKTI FORMATI (JSON):\n{\n  "title": "...",\n  "content": "..."\n}',
-            variables: ['topic', 'difficulty'],
-            tags: [],
-            updatedAt: new Date().toISOString(),
-            version: 1,
-            history: []
-        };
-        setPrompts([...prompts, newPrompt]);
-        setSelectedPrompt(newPrompt);
-        setActiveTab('editor');
-    };
-
-    const restoreVersion = (version: PromptVersion) => {
-        if (!selectedPrompt) return;
-        if(confirm(`Versiyon ${version.version}'e dönmek istediğinize emin misiniz?`)) {
-            setSelectedPrompt({
-                ...selectedPrompt,
-                template: version.template,
-                systemInstruction: version.systemInstruction || selectedPrompt.systemInstruction
-            });
-            setActiveTab('editor');
-        }
-    };
+    // Group Prompts
+    const groupedPrompts = useMemo(() => {
+        const groups: Record<string, PromptTemplate[]> = { 'system': [], 'general': [] };
+        ACTIVITY_CATEGORIES.forEach(c => groups[c.id] = []);
+        
+        prompts.forEach(p => {
+            const cat = p.category || 'general';
+            if (!groups[cat]) groups[cat] = [];
+            groups[cat].push(p);
+        });
+        return groups;
+    }, [prompts]);
 
     return (
-        <div className="h-[calc(100vh-140px)] flex flex-col bg-zinc-50 dark:bg-black rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-2xl">
+        <div className="h-[calc(100vh-140px)] flex bg-[#1e1e1e] text-zinc-300 rounded-2xl overflow-hidden shadow-2xl border border-zinc-700 font-sans">
             
-            {/* Top Bar: Navigation & Actions */}
-            <div className="h-14 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center px-4 shrink-0">
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                        <i className="fa-solid fa-terminal"></i>
-                        <span className="font-bold text-sm">AI Prompt Studio</span>
-                    </div>
-                    
-                    {/* Prompt Selector */}
-                    <div className="relative group">
-                        <button className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-sm font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
-                            {selectedPrompt ? selectedPrompt.name : 'Şablon Seçin'}
-                            <i className="fa-solid fa-chevron-down text-xs"></i>
-                        </button>
-                        <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl overflow-hidden hidden group-hover:block z-50">
-                            <div className="max-h-60 overflow-y-auto p-1">
-                                {prompts.map(p => (
-                                    <button 
-                                        key={p.id} 
-                                        onClick={() => setSelectedPrompt(p)}
-                                        className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium ${selectedPrompt?.id === p.id ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700'}`}
-                                    >
-                                        {p.name}
-                                    </button>
-                                ))}
-                                <div className="border-t border-zinc-100 dark:border-zinc-700 my-1"></div>
-                                <button onClick={addNewPrompt} className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
-                                    <i className="fa-solid fa-plus mr-2"></i> Yeni Oluştur
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {selectedPrompt && (
-                        <div className="flex items-center gap-2 ml-4">
-                             <span className="text-[10px] px-2 py-0.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-500 rounded font-mono">v{selectedPrompt.version}</span>
-                             <span className="text-[10px] text-zinc-400">Son: {new Date(selectedPrompt.updatedAt).toLocaleDateString()}</span>
-                        </div>
-                    )}
+            {/* 1. SIDEBAR (Explorer) */}
+            <div className="w-64 bg-[#252526] border-r border-[#333] flex flex-col">
+                <div className="h-10 flex items-center px-4 bg-[#333333] text-xs font-bold text-zinc-300 uppercase tracking-wider justify-between shrink-0">
+                    <span>Gezgin</span>
+                    <button onClick={handleNewPrompt} className="hover:text-white"><i className="fa-solid fa-plus"></i></button>
                 </div>
-
-                <div className="flex items-center gap-2">
-                    <button 
-                        onClick={() => setSimulationOpen(!simulationOpen)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all flex items-center gap-2 ${simulationOpen ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'}`}
-                    >
-                        <i className="fa-solid fa-flask"></i> Simülasyon
-                    </button>
-                    <button 
-                        onClick={handleSave} 
-                        disabled={isSaving || !selectedPrompt}
-                        className="px-4 py-1.5 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black rounded-lg text-xs font-bold flex items-center gap-2 disabled:opacity-50"
-                    >
-                        {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-floppy-disk"></i>}
-                        Kaydet
-                    </button>
+                
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                    {/* Categories Tree */}
+                    {Object.entries(groupedPrompts).map(([catId, catPrompts]) => {
+                        if (catPrompts.length === 0) return null;
+                        const isOpen = openCategory === catId;
+                        const catTitle = ACTIVITY_CATEGORIES.find(c => c.id === catId)?.title || catId.toUpperCase();
+                        
+                        return (
+                            <div key={catId}>
+                                <button 
+                                    onClick={() => setOpenCategory(isOpen ? null : catId)}
+                                    className="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-bold text-zinc-400 hover:text-zinc-200 hover:bg-[#2a2d2e] rounded cursor-pointer transition-colors"
+                                >
+                                    <i className={`fa-solid fa-chevron-right text-[10px] transition-transform ${isOpen ? 'rotate-90' : ''}`}></i>
+                                    {catTitle}
+                                </button>
+                                
+                                {isOpen && (
+                                    <div className="ml-4 pl-2 border-l border-[#444] mt-1 space-y-0.5">
+                                        {catPrompts.map(p => (
+                                            <button
+                                                key={p.id}
+                                                onClick={() => setSelectedPrompt(p)}
+                                                className={`w-full text-left px-2 py-1.5 text-xs truncate rounded flex items-center gap-2 ${selectedPrompt?.id === p.id ? 'bg-[#37373d] text-white border-l-2 border-indigo-500' : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#2a2d2e]'}`}
+                                            >
+                                                <i className="fa-solid fa-file-code text-[10px] opacity-70"></i>
+                                                {p.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* Main IDE Workspace */}
-            {selectedPrompt ? (
-                <div className="flex-1 flex overflow-hidden relative">
-                    
-                    {/* LEFT: Code Editor Area */}
-                    <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${simulationOpen ? 'w-1/2 border-r border-zinc-200 dark:border-zinc-800' : 'w-full'}`}>
-                        
-                        {/* Editor Tabs */}
-                        <div className="flex border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 px-2 pt-2 gap-1">
-                            <button onClick={() => setActiveTab('editor')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-t border-x ${activeTab === 'editor' ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-indigo-600 border-b-white dark:border-b-zinc-900' : 'bg-transparent border-transparent text-zinc-500 hover:text-zinc-700'}`}>
-                                <i className="fa-solid fa-code mr-2"></i> Şablon
+            {/* 2. MAIN EDITOR */}
+            <div className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e]">
+                {selectedPrompt ? (
+                    <>
+                        {/* Tab Bar */}
+                        <div className="h-10 bg-[#2d2d2d] flex items-center px-2 gap-1 overflow-x-auto border-b border-[#333]">
+                            {['editor', 'config', 'history'].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab as any)}
+                                    className={`px-4 h-full text-xs flex items-center gap-2 border-r border-[#333] ${activeTab === tab ? 'bg-[#1e1e1e] text-white border-t-2 border-t-indigo-500' : 'text-zinc-500 hover:bg-[#333]'}`}
+                                >
+                                    <i className={`fa-solid ${tab === 'editor' ? 'fa-code' : tab === 'config' ? 'fa-sliders' : 'fa-clock-rotate-left'}`}></i>
+                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                </button>
+                            ))}
+                            <div className="flex-1"></div>
+                            <button 
+                                onClick={() => setSimulationOpen(!simulationOpen)}
+                                className={`px-3 py-1 mr-2 text-xs font-bold rounded ${simulationOpen ? 'bg-indigo-600 text-white' : 'bg-[#333] text-zinc-300 hover:bg-[#444]'}`}
+                            >
+                                <i className="fa-solid fa-flask mr-1"></i> Simülasyon
                             </button>
-                            <button onClick={() => setActiveTab('config')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-t border-x ${activeTab === 'config' ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-indigo-600 border-b-white dark:border-b-zinc-900' : 'bg-transparent border-transparent text-zinc-500 hover:text-zinc-700'}`}>
-                                <i className="fa-solid fa-sliders mr-2"></i> Ayarlar & Rol
-                            </button>
-                            <button onClick={() => setActiveTab('history')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-t border-x ${activeTab === 'history' ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-indigo-600 border-b-white dark:border-b-zinc-900' : 'bg-transparent border-transparent text-zinc-500 hover:text-zinc-700'}`}>
-                                <i className="fa-solid fa-clock-rotate-left mr-2"></i> Geçmiş
+                            <button 
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="px-3 py-1 bg-green-700 hover:bg-green-600 text-white text-xs font-bold rounded flex items-center gap-1 disabled:opacity-50"
+                            >
+                                {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>} Kaydet
                             </button>
                         </div>
 
-                        {/* Editor Content */}
-                        <div className="flex-1 bg-white dark:bg-zinc-900 relative overflow-hidden">
-                            
+                        {/* Editor Canvas */}
+                        <div className="flex-1 relative overflow-hidden">
                             {activeTab === 'editor' && (
                                 <div className="flex h-full">
                                     <LineNumbers text={selectedPrompt.template} />
-                                    <div className="flex-1 relative h-full">
-                                        <SimpleCodeEditor 
-                                            value={selectedPrompt.template} 
-                                            onChange={(val) => setSelectedPrompt({...selectedPrompt, template: val})} 
-                                            placeholder="// Prompt şablonunuzu buraya yazın..."
-                                        />
-                                        {/* Floating Token Counter */}
-                                        <div className="absolute bottom-2 right-4 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded text-[10px] text-zinc-500 font-mono shadow-sm border border-zinc-200 dark:border-zinc-700">
-                                            Chars: {selectedPrompt.template.length} | Est. Tokens: ~{Math.ceil(selectedPrompt.template.length / 4)}
-                                        </div>
-                                    </div>
+                                    <SimpleCodeEditor 
+                                        value={selectedPrompt.template} 
+                                        onChange={(val) => setSelectedPrompt({...selectedPrompt, template: val})} 
+                                        placeholder="// Prompt şablonunu buraya yaz..."
+                                    />
                                 </div>
                             )}
 
                             {activeTab === 'config' && (
-                                <div className="p-8 space-y-6 overflow-y-auto h-full max-w-3xl">
+                                <div className="p-8 space-y-6 max-w-3xl overflow-y-auto h-full text-sm">
                                     <div>
-                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Prompt İsmi</label>
-                                        <input type="text" value={selectedPrompt.name} onChange={e => setSelectedPrompt({...selectedPrompt, name: e.target.value})} className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                        <label className="block text-zinc-500 mb-1 font-bold">Prompt İsmi</label>
+                                        <input type="text" value={selectedPrompt.name} onChange={e => setSelectedPrompt({...selectedPrompt, name: e.target.value})} className="w-full bg-[#252526] border border-[#333] p-2 rounded text-white focus:border-indigo-500 outline-none" />
                                     </div>
-                                    
                                     <div>
-                                        <label className="block text-xs font-bold text-indigo-600 uppercase mb-2">Sistem Rolü (System Instruction)</label>
-                                        <p className="text-[10px] text-zinc-400 mb-2">AI'ın kimliği ve uyması gereken katı kurallar.</p>
+                                        <label className="block text-indigo-400 mb-1 font-bold">Sistem Rolü (System Instruction)</label>
                                         <textarea 
                                             value={selectedPrompt.systemInstruction} 
                                             onChange={e => setSelectedPrompt({...selectedPrompt, systemInstruction: e.target.value})} 
-                                            className="w-full p-4 border rounded-xl bg-indigo-50/50 dark:bg-zinc-800/50 dark:border-zinc-700 outline-none focus:ring-2 focus:ring-indigo-500 min-h-[150px] font-mono text-sm"
+                                            className="w-full bg-[#252526] border border-[#333] p-4 rounded text-zinc-300 focus:border-indigo-500 outline-none h-40 font-mono"
                                         />
                                     </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Etiketler</label>
-                                        <div className="flex gap-2">
-                                            {selectedPrompt.tags.map((tag, i) => (
-                                                <span key={i} className="px-3 py-1 bg-zinc-100 dark:bg-zinc-700 rounded-full text-xs">{tag}</span>
-                                            ))}
-                                            <button className="text-indigo-600 text-xs font-bold hover:underline">+ Ekle</button>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-zinc-500 mb-1 font-bold">Kategori</label>
+                                            <select 
+                                                value={selectedPrompt.category} 
+                                                onChange={e => setSelectedPrompt({...selectedPrompt, category: e.target.value})}
+                                                className="w-full bg-[#252526] border border-[#333] p-2 rounded text-white focus:border-indigo-500 outline-none"
+                                            >
+                                                <option value="system">Sistem</option>
+                                                <option value="general">Genel</option>
+                                                {ACTIVITY_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'history' && (
-                                <div className="p-0 h-full overflow-y-auto">
-                                    <table className="w-full text-left text-xs border-collapse">
-                                        <thead className="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 text-zinc-500">
+                                <div className="p-0 overflow-y-auto h-full">
+                                    <table className="w-full text-left text-xs text-zinc-400">
+                                        <thead className="bg-[#252526] text-zinc-200 border-b border-[#333]">
                                             <tr>
-                                                <th className="p-3">Versiyon</th>
+                                                <th className="p-3">Ver</th>
                                                 <th className="p-3">Tarih</th>
                                                 <th className="p-3">Not</th>
                                                 <th className="p-3 text-right">İşlem</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                                            {[...selectedPrompt.history || []].reverse().map((h, i) => (
-                                                <tr key={i} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-                                                    <td className="p-3 font-mono font-bold">v{h.version}</td>
-                                                    <td className="p-3 text-zinc-500">{new Date(h.updatedAt).toLocaleString()}</td>
-                                                    <td className="p-3 italic text-zinc-600 dark:text-zinc-400">{h.changeLog}</td>
+                                        <tbody>
+                                            {[...(selectedPrompt.history || [])].reverse().map((h, i) => (
+                                                <tr key={i} className="border-b border-[#333] hover:bg-[#2a2d2e]">
+                                                    <td className="p-3 font-mono text-white">v{h.version}</td>
+                                                    <td className="p-3">{new Date(h.updatedAt).toLocaleString()}</td>
+                                                    <td className="p-3 italic">{h.changeLog}</td>
                                                     <td className="p-3 text-right">
-                                                        <button onClick={() => restoreVersion(h)} className="text-indigo-600 hover:underline font-bold">Geri Yükle</button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                if(confirm('Geri dönmek istiyor musunuz?')) {
+                                                                    setSelectedPrompt({...selectedPrompt, template: h.template, systemInstruction: h.systemInstruction || selectedPrompt.systemInstruction});
+                                                                    setActiveTab('editor');
+                                                                }
+                                                            }}
+                                                            className="text-indigo-400 hover:text-white"
+                                                        >
+                                                            Geri Yükle
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
-                                    {(!selectedPrompt.history || selectedPrompt.history.length === 0) && (
-                                        <div className="p-8 text-center text-zinc-400">Geçmiş kaydı bulunamadı.</div>
-                                    )}
                                 </div>
                             )}
                         </div>
+                    </>
+                ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-zinc-600">
+                        <i className="fa-solid fa-code text-6xl mb-4 opacity-20"></i>
+                        <p>Düzenlemek için soldan bir dosya seçin.</p>
                     </div>
+                )}
+            </div>
 
-                    {/* RIGHT: Simulation Pane (Collapsible) */}
-                    <div 
-                        className={`bg-zinc-50 dark:bg-black border-l border-zinc-200 dark:border-zinc-800 flex flex-col transition-all duration-300 overflow-hidden ${simulationOpen ? 'w-[450px]' : 'w-0 border-l-0'}`}
-                    >
-                        <div className="h-10 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 flex items-center px-4 justify-between shrink-0">
-                            <span className="font-bold text-xs text-zinc-500 uppercase tracking-wider">AI Simülasyonu</span>
-                            <button onClick={() => setSimulationOpen(false)} className="text-zinc-400 hover:text-zinc-600"><i className="fa-solid fa-times"></i></button>
-                        </div>
-                        
-                        <div className="p-4 flex-1 overflow-y-auto">
-                            <div className="mb-4">
-                                <div className="flex bg-zinc-200 dark:bg-zinc-800 p-1 rounded-lg mb-4">
-                                    <button onClick={() => setSimTab('input')} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${simTab === 'input' ? 'bg-white dark:bg-zinc-600 shadow-sm' : 'text-zinc-500'}`}>Girdi</button>
-                                    <button onClick={() => setSimTab('output')} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${simTab === 'output' ? 'bg-white dark:bg-zinc-600 shadow-sm' : 'text-zinc-500'}`}>Çıktı</button>
-                                </div>
-
-                                {simTab === 'input' && (
-                                    <div className="space-y-4 animate-in slide-in-from-left-4">
-                                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
-                                            <h5 className="text-[10px] font-bold text-blue-600 uppercase mb-2">Algılanan Değişkenler</h5>
-                                            {detectedVariables.length === 0 ? (
-                                                <p className="text-xs text-blue-400 italic">Prompt içinde değişken bulunamadı. (Örn: {'{{topic}}'})</p>
-                                            ) : (
-                                                <div className="space-y-3">
-                                                    {detectedVariables.map(v => (
-                                                        <div key={v}>
-                                                            <label className="block text-xs font-bold text-zinc-600 dark:text-zinc-300 mb-1">{v}</label>
-                                                            <input 
-                                                                type="text" 
-                                                                value={testVariables[v] || ''} 
-                                                                onChange={e => setTestVariables({...testVariables, [v]: e.target.value})}
-                                                                className="w-full p-2 text-sm border rounded bg-white dark:bg-zinc-800 dark:border-zinc-700 outline-none focus:border-indigo-500"
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <button 
-                                            onClick={handleRunSimulation} 
-                                            disabled={isSimulating}
-                                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
-                                        >
-                                            {isSimulating ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-play"></i>}
-                                            Test Et
-                                        </button>
+            {/* 3. SIMULATION PANE */}
+            <div className={`border-l border-[#333] bg-[#252526] flex flex-col transition-all duration-300 ${simulationOpen ? 'w-96' : 'w-0'}`}>
+                <div className="h-10 flex items-center px-4 bg-[#333] text-xs font-bold text-zinc-300 uppercase tracking-wider justify-between shrink-0">
+                    <span>Test Laboratuvarı</span>
+                    <button onClick={() => setSimulationOpen(false)}><i className="fa-solid fa-times"></i></button>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                    <div>
+                        <h5 className="text-[10px] text-zinc-500 font-bold uppercase mb-2">Değişkenler</h5>
+                        {detectedVariables.length === 0 ? (
+                            <p className="text-xs text-zinc-600 italic">Değişken yok.</p>
+                        ) : (
+                            <div className="space-y-3">
+                                {detectedVariables.map(v => (
+                                    <div key={v}>
+                                        <label className="text-xs text-indigo-400 font-bold block mb-1">{v}</label>
+                                        <input 
+                                            type="text" 
+                                            value={testVariables[v] || ''} 
+                                            onChange={e => setTestVariables({...testVariables, [v]: e.target.value})}
+                                            className="w-full bg-[#1e1e1e] border border-[#444] rounded p-2 text-xs text-white focus:border-indigo-500 outline-none"
+                                        />
                                     </div>
-                                )}
-
-                                {simTab === 'output' && (
-                                    <div className="animate-in slide-in-from-right-4 h-full flex flex-col">
-                                        <div className={`flex-1 bg-zinc-900 text-zinc-300 p-4 rounded-xl font-mono text-xs overflow-auto border border-zinc-800 shadow-inner ${isSimulating ? 'opacity-50' : ''}`}>
-                                            {simulationResult ? (
-                                                <pre className="whitespace-pre-wrap break-all">{simulationResult}</pre>
-                                            ) : (
-                                                <div className="flex flex-col items-center justify-center h-40 text-zinc-600 italic">
-                                                    <i className="fa-solid fa-terminal text-2xl mb-2"></i>
-                                                    <p>Çıktı bekleniyor...</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                        {simulationResult && (
-                                            <button 
-                                                onClick={() => navigator.clipboard.writeText(simulationResult)}
-                                                className="mt-2 text-xs text-indigo-500 hover:underline text-right w-full"
-                                            >
-                                                Kopyala
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
+                                ))}
                             </div>
+                        )}
+                    </div>
+
+                    <button 
+                        onClick={handleSimulate} 
+                        disabled={isSimulating}
+                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-xs flex items-center justify-center gap-2"
+                    >
+                        {isSimulating ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-play"></i>} 
+                        Çalıştır
+                    </button>
+
+                    <div className="flex-1 flex flex-col min-h-[200px]">
+                        <h5 className="text-[10px] text-zinc-500 font-bold uppercase mb-2">Sonuç (JSON)</h5>
+                        <div className="flex-1 bg-[#1e1e1e] rounded border border-[#444] p-2 relative overflow-hidden">
+                             <textarea 
+                                readOnly
+                                value={simulationResult}
+                                className="w-full h-full bg-transparent text-xs font-mono text-green-400 resize-none outline-none"
+                             />
                         </div>
                     </div>
                 </div>
-            ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-zinc-400">
-                    <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
-                        <i className="fa-solid fa-wand-magic-sparkles text-3xl opacity-30"></i>
-                    </div>
-                    <p className="font-bold text-lg text-zinc-600 dark:text-zinc-300">Prompt Seçin</p>
-                    <p className="text-sm opacity-70">Düzenlemek veya test etmek için sol menüden bir şablon seçin.</p>
-                </div>
-            )}
+            </div>
+
         </div>
     );
 };

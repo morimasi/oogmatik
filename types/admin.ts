@@ -1,5 +1,6 @@
 
 import { ActivityType } from './core';
+import { UserRole, UserStatus } from './core';
 
 export interface DynamicActivity {
     id: string; // matches ActivityType
@@ -27,6 +28,7 @@ export interface PromptTemplate {
     id: string; // e.g. 'math_base', 'story_structure'
     name: string;
     description: string;
+    category: string; // 'math', 'verbal', 'logic', 'system'
     systemInstruction: string; // The "Persona" of the AI
     template: string; // The user prompt template
     variables: string[]; // e.g. ['difficulty', 'topic']
@@ -63,4 +65,11 @@ export interface AnalyticsDataPoint {
     date: string;
     value: number;
     category?: string;
+}
+
+export interface UserFilter {
+    search: string;
+    role: UserRole | 'all';
+    status: UserStatus | 'all';
+    sortBy: 'newest' | 'oldest' | 'name' | 'activity';
 }

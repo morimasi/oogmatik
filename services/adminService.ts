@@ -2,12 +2,13 @@
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { DynamicActivity, PromptTemplate, StaticContentItem } from '../types/admin';
-import { ACTIVITIES } from '../constants';
+import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { PEDAGOGICAL_BASE } from './generators/prompts';
 import { generateWithSchema } from './geminiClient';
 import { Type } from '@google/genai';
 import { PROVERBS, SAYINGS } from '../data/sentences';
 import { TR_VOCAB } from '../data/vocabulary';
+import { UserRole, UserStatus } from '../types';
 
 const { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc } = firestore;
 
@@ -17,17 +18,17 @@ export const adminService = {
         try {
             const snapshot = await getDocs(collection(db, "config_activities"));
             if (snapshot.empty) {
-                // Initialize from constants if DB is empty (First Run / Migration)
+                // Initialize from constants if DB is empty
                 const defaults = ACTIVITIES.map(a => ({
                     id: a.id,
                     title: a.title,
                     description: a.description,
                     icon: a.icon,
-                    category: 'general',
+                    category: ACTIVITY_CATEGORIES.find(c => c.activities.includes(a.id))?.id || 'general',
                     isActive: true,
-                    isPremium: false
+                    isPremium: false,
+                    promptId: `prompt_${a.id.toLowerCase()}`
                 }));
-                // Opsiyonel: Veritabanına toplu yazma işlemi burada yapılabilir
                 return defaults;
             }
             return snapshot.docs.map(d => d.data() as DynamicActivity);
@@ -50,12 +51,13 @@ export const adminService = {
         try {
             const snapshot = await getDocs(collection(db, "config_prompts"));
             if (snapshot.empty) {
-                // Return seed prompts if empty
-                return [
+                // Seed based on existing activities to populate the IDE initially
+                const seedPrompts: PromptTemplate[] = [
                     {
                         id: 'pedagogical_base',
-                        name: 'Pedagojik Temel',
+                        name: 'Çekirdek: Pedagojik Temel',
                         description: 'Tüm promptların kullandığı temel pedagojik kurallar.',
+                        category: 'system',
                         systemInstruction: 'Sen uzman bir özel eğitim pedagogusun.',
                         template: PEDAGOGICAL_BASE,
                         variables: [],
@@ -65,6 +67,25 @@ export const adminService = {
                         history: []
                     }
                 ];
+
+                // Auto-generate placeholder prompts for each activity category
+                ACTIVITY_CATEGORIES.forEach(cat => {
+                    seedPrompts.push({
+                        id: `cat_base_${cat.id}`,
+                        name: `${cat.title} Ana Şablonu`,
+                        description: `${cat.title} kategorisi için temel yapı.`,
+                        category: cat.id,
+                        systemInstruction: 'Sen uzman bir öğretim tasarımcısısın.',
+                        template: `GÖREV: ${cat.title} alanında {{difficulty}} seviyesinde bir etkinlik oluştur.\nKONU: {{topic}}\n\n${PEDAGOGICAL_BASE}\n\nÇIKTI (JSON): ...`,
+                        variables: ['difficulty', 'topic'],
+                        tags: [cat.id],
+                        updatedAt: new Date().toISOString(),
+                        version: 1,
+                        history: []
+                    });
+                });
+
+                return seedPrompts;
             }
             return snapshot.docs.map(d => d.data() as PromptTemplate);
         } catch (e) {
@@ -74,7 +95,6 @@ export const adminService = {
     },
 
     savePrompt: async (prompt: PromptTemplate, changeLog: string = 'Update') => {
-        // Create a version snapshot
         const newVersionEntry = {
             version: prompt.version || 1,
             template: prompt.template,
@@ -94,12 +114,15 @@ export const adminService = {
         return payload;
     },
 
-    // --- STATIC CONTENT (Lists like Proverbs, Vocab) ---
+    deletePrompt: async (id: string) => {
+        await deleteDoc(doc(db, "config_prompts", id));
+    },
+
+    // --- STATIC CONTENT ---
     getAllStaticContent: async (): Promise<StaticContentItem[]> => {
         try {
             const snapshot = await getDocs(collection(db, "static_content"));
             if (snapshot.empty) {
-                // Seed data structure for first use
                 return [
                     { id: 'proverbs', title: 'Atasözleri', type: 'list', data: PROVERBS, updatedAt: new Date().toISOString() },
                     { id: 'sayings', title: 'Özdeyişler', type: 'list', data: SAYINGS, updatedAt: new Date().toISOString() },
@@ -121,17 +144,25 @@ export const adminService = {
         }, { merge: true });
     },
 
-    // --- SIMULATION (AI LAB) ---
+    // --- USER MANAGEMENT ---
+    updateUserRole: async (userId: string, newRole: UserRole) => {
+        await updateDoc(doc(db, "users", userId), { role: newRole });
+    },
+
+    updateUserStatus: async (userId: string, newStatus: UserStatus) => {
+        await updateDoc(doc(db, "users", userId), { status: newStatus });
+    },
+
+    // --- SIMULATION ---
     testPrompt: async (prompt: PromptTemplate, testVariables: Record<string, any>) => {
         let compiledPrompt = prompt.template;
         
-        // Replace variables
         Object.entries(testVariables).forEach(([key, value]) => {
             const regex = new RegExp(`{{${key}}}`, 'g');
             compiledPrompt = compiledPrompt.replace(regex, String(value));
         });
 
-        // Use a generic schema for testing to see raw structure
+        // Use a generic schema for testing to see raw structure or partial structure
         const genericSchema = {
             type: Type.OBJECT,
             properties: {

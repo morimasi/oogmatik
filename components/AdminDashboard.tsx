@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { User, FeedbackItem, ActivityStats } from '../types';
+import { User, ActivityStats } from '../types';
 import { authService } from '../services/authService';
 import { statsService } from '../services/statsService';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +13,7 @@ import { AdminActivityManager } from './AdminActivityManager';
 import { AdminPromptStudio } from './AdminPromptStudio';
 import { AdminFeedback } from './AdminFeedback';
 import { AdminStaticContent } from './AdminStaticContent';
+import { AdminUserManagement } from './AdminUserManagement';
 
 interface AdminDashboardProps {
     onBack: () => void;
@@ -36,12 +37,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks'>('dashboard');
     
     // Data States
-    const [users, setUsers] = useState<User[]>([]);
     const [stats, setStats] = useState<ActivityStats[]>([]);
     const [loading, setLoading] = useState(true);
     const [usersCount, setUsersCount] = useState(0);
 
-    // Inspector Mode
+    // Inspector Mode (Can be triggered from User Management)
     const [inspectingUser, setInspectingUser] = useState<User | null>(null);
     const [inspectView, setInspectView] = useState<'profile' | 'archive' | 'favorites'>('profile');
 
@@ -56,7 +56,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                 authService.getAllUsers(0, PAGE_SIZE),
                 statsService.getAllStats()
             ]);
-            setUsers(usersData.users);
             setUsersCount(usersData.count || 0);
             setStats(statsData);
         } catch (e) {
@@ -148,7 +147,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                             {activeTab === 'static_content' && 'Veri Kaynakları (CMS)'}
                             {activeTab === 'feedbacks' && 'Geri Bildirimler'}
                         </h1>
-                        <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 border border-zinc-200 dark:border-zinc-700">v1.2.0</span>
+                        <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 border border-zinc-200 dark:border-zinc-700">v1.3.0</span>
                     </div>
                     
                     <div className="flex items-center gap-4">
@@ -168,73 +167,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                         {activeTab === 'prompts' && <AdminPromptStudio />}
                         {activeTab === 'static_content' && <AdminStaticContent />}
                         {activeTab === 'feedbacks' && <AdminFeedback />}
-                        
-                        {/* Users Table (Inline for simplicity, but polished) */}
-                        {activeTab === 'users' && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                                <div className="flex justify-between items-center bg-white dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                                    <div className="relative w-72">
-                                        <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-                                        <input type="text" placeholder="Kullanıcı ara..." className="w-full pl-9 pr-3 py-2 bg-zinc-100 dark:bg-zinc-700/50 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button className="px-4 py-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-sm font-bold text-zinc-600 dark:text-zinc-200 hover:bg-zinc-50"><i className="fa-solid fa-filter mr-2"></i>Filtrele</button>
-                                        <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-none"><i className="fa-solid fa-user-plus mr-2"></i>Davet Et</button>
-                                    </div>
-                                </div>
-
-                                <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden shadow-sm">
-                                    <table className="w-full text-left text-sm">
-                                        <thead className="bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500 uppercase text-xs font-bold border-b border-zinc-200 dark:border-zinc-700">
-                                            <tr>
-                                                <th className="p-4 pl-6">Kullanıcı</th>
-                                                <th className="p-4">Durum</th>
-                                                <th className="p-4">Rol</th>
-                                                <th className="p-4">Son Görülme</th>
-                                                <th className="p-4 text-right pr-6">İşlem</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700/50">
-                                            {users.map(u => (
-                                                <tr key={u.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-700/20 transition-colors">
-                                                    <td className="p-4 pl-6">
-                                                        <div className="flex items-center gap-3">
-                                                            <img src={u.avatar} className="w-10 h-10 rounded-full border border-zinc-100 dark:border-zinc-700" />
-                                                            <div>
-                                                                <p className="font-bold text-zinc-900 dark:text-zinc-100">{u.name}</p>
-                                                                <p className="text-xs text-zinc-500">{u.email}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${u.status === 'active' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
-                                                            <span className={`w-1.5 h-1.5 rounded-full ${u.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                                            {u.status === 'active' ? 'Aktif' : 'Askıda'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <span className={`px-2 py-1 rounded text-xs font-bold border ${u.role === 'admin' ? 'bg-purple-50 text-purple-700 border-purple-100' : 'bg-zinc-100 text-zinc-600 border-zinc-200'}`}>
-                                                            {u.role === 'admin' ? 'Yönetici' : 'Kullanıcı'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="p-4 text-zinc-500 font-mono text-xs">
-                                                        {new Date(u.lastLogin).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="p-4 pr-6 text-right">
-                                                        <button 
-                                                            onClick={() => setInspectingUser(u)}
-                                                            className="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 font-bold text-xs hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-lg transition-colors"
-                                                        >
-                                                            İncele
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                        {activeTab === 'users' && <AdminUserManagement />}
                     </div>
                 </div>
             </main>
