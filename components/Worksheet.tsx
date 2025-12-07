@@ -53,7 +53,7 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
         case ActivityType.ROMAN_NUMERAL_STAR_HUNT: return <MathLogicSheets.RomanNumeralStarHuntSheet {...props} />;
         case ActivityType.ROMAN_NUMERAL_CONNECT: return <VisualPerceptionSheets.RomanNumeralConnectSheet {...props} />;
         case ActivityType.ROUNDING_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />;
-        case ActivityType.ARITHMETIC_CONNECT: return <MathLogicSheets.RoundingConnectSheet {...props} />; 
+        case ActivityType.ARITHMETIC_CONNECT: return <MathLogicSheets.ArithmeticConnectSheet {...props} />; 
         case ActivityType.ROMAN_NUMERAL_MULTIPLICATION: return <MathLogicSheets.RomanNumeralMultiplicationSheet {...props} />;
         case ActivityType.KENDOKU: return <MathLogicSheets.KendokuSheet {...props} />;
         case ActivityType.OPERATION_SQUARE_FILL_IN: return <MathLogicSheets.OperationSquareSheet {...props} />;
@@ -91,8 +91,8 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
         case ActivityType.VISUAL_ODD_ONE_OUT_THEMED: return <VisualPerceptionSheets.VisualOddOneOutThemedSheet {...props} />;
         case ActivityType.STAR_HUNT: return <VisualPerceptionSheets.StarHuntSheet {...props} />;
         case ActivityType.ROMAN_ARABIC_MATCH_CONNECT: return <VisualPerceptionSheets.AbcConnectSheet {...props} />;
-        case ActivityType.WEIGHT_CONNECT: return <VisualPerceptionSheets.AbcConnectSheet {...props} />;
-        case ActivityType.LENGTH_CONNECT: return <VisualPerceptionSheets.AbcConnectSheet {...props} />;
+        case ActivityType.WEIGHT_CONNECT: return <VisualPerceptionSheets.WeightConnectSheet {...props} />;
+        case ActivityType.LENGTH_CONNECT: return <VisualPerceptionSheets.LengthConnectSheet {...props} />;
         case ActivityType.PUNCTUATION_COLORING: return <VisualPerceptionSheets.PunctuationColoringSheet {...props} />;
         case ActivityType.SYNONYM_ANTONYM_COLORING: return <VisualPerceptionSheets.SynonymAntonymColoringSheet {...props} />;
 
@@ -106,6 +106,7 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
         case ActivityType.PROVERB_SAYING_SORT: return <ReadingComprehensionSheets.ProverbSayingSortSheet {...props} />;
         case ActivityType.PROVERB_WORD_CHAIN: return <ReadingComprehensionSheets.ProverbWordChainSheet {...props} />;
         case ActivityType.PROVERB_SEARCH: return <ReadingComprehensionSheets.ProverbSearchSheet {...props} />;
+        case ActivityType.PROVERB_SENTENCE_FINDER: return <ReadingComprehensionSheets.ProverbSentenceFinderSheet {...props} />;
 
         // --- Word Games ---
         case ActivityType.WORD_SEARCH: return <WordGameSheets.WordSearchSheet {...props} />;
@@ -120,7 +121,7 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
         case ActivityType.PASSWORD_FINDER: return <WordGameSheets.PasswordFinderSheet {...props} />;
         case ActivityType.SYLLABLE_COMPLETION: return <WordGameSheets.SyllableCompletionSheet {...props} />;
         case ActivityType.SPIRAL_PUZZLE: return <WordGameSheets.SpiralPuzzleSheet {...props} />;
-        case ActivityType.PUNCTUATION_SPIRAL_PUZZLE: return <WordGameSheets.SpiralPuzzleSheet {...props} />;
+        case ActivityType.PUNCTUATION_SPIRAL_PUZZLE: return <WordGameSheets.PunctuationSpiralPuzzleSheet {...props} />;
         case ActivityType.CROSSWORD: return <WordGameSheets.CrosswordSheet {...props} />;
         case ActivityType.JUMBLED_WORD_STORY: return <WordGameSheets.JumbledWordStorySheet {...props} />;
         case ActivityType.RESFEBE: return <WordGameSheets.ResfebeSheet {...props} />;
@@ -141,7 +142,7 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
         case ActivityType.ANAGRAM_IMAGE_MATCH: return <WordGameSheets.AnagramImageMatchSheet {...props} />;
         case ActivityType.WORD_SEARCH_WITH_PASSWORD: return <WordGameSheets.WordSearchWithPasswordSheet {...props} />;
         case ActivityType.LETTER_GRID_WORD_FIND: return <WordGameSheets.LetterGridWordFindSheet {...props} />;
-        case ActivityType.THEMATIC_WORD_SEARCH_COLOR: return <WordGameSheets.WordSearchSheet {...props} />;
+        case ActivityType.THEMATIC_WORD_SEARCH_COLOR: return <WordGameSheets.ThematicWordSearchColorSheet {...props} />;
         case ActivityType.SYNONYM_WORD_SEARCH: return <WordGameSheets.SynonymWordSearchSheet {...props} />;
         case ActivityType.SYNONYM_SEARCH_STORY: return <WordGameSheets.SynonymSearchAndStorySheet {...props} />;
 
@@ -211,25 +212,21 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         const scale = settings.scale || 1;
         const baseFontSize = settings.fontSize || 16;
 
-        // 1. Density Calculation (Columns affect density)
-        // More columns = Higher Density = Smaller fonts, tighter spacing
-        // We use a logarithmic scale to gently reduce size as columns increase
+        // 1. Cognitive Load Management (Density Control)
+        // Adjust font size logarithmically based on column count to maintain readability
         const densityFactor = Math.pow(cols, 0.4); 
         const adjustedFontSize = Math.round(baseFontSize / densityFactor);
         
-        // 2. Component Morphology (Layout Direction)
-        // If columns > 2, we force items to stack vertically (column) instead of horizontally (row)
-        // to prevent overcrowding in narrow spaces.
+        // 2. Component Morphology (Row vs Column)
+        // Dyslexia-friendly: Avoid wide tracking. If multiple columns, stack items vertically.
         const itemDirection = cols > 2 ? 'column' : 'row';
         const itemGap = cols > 2 ? '0.5rem' : '1rem';
         const itemPadding = cols > 2 ? '0.5rem' : '1rem';
 
         // 3. Visual Noise Reduction
-        // If high density, remove decorative borders/shadows to reduce cognitive load
+        // If high density, simplify borders
         const visualComplexity = cols > 3 ? 'low' : 'high';
         
-        // 4. Grid Template Calculation
-        // Use auto-fit with minmax for responsive grid within the container
         const gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
 
         return {
@@ -290,14 +287,12 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
     const scale = settings.scale || 1;
     // Smart Reflow: Inverse Scaling Logic
-    // If user zooms out (scale < 1), we increase the container width to allow reflow
-    // Then scale it down. This prevents "zooming out but keeping whitespace".
     const inversePercent = (1 / scale) * 100;
 
     return (
         <div className={`flex flex-col gap-16 py-16 items-center ${visualStyleClass}`} style={variableStyle}>
             <style>{`
-                /* SCIENTIFIC GRID SYSTEM */
+                /* SCIENTIFIC LAYOUT ENGINE */
                 .dynamic-grid {
                     display: grid;
                     grid-template-columns: var(--grid-columns);
@@ -306,8 +301,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     align-items: stretch;
                 }
                 
-                /* Component Morphology Adaptation */
-                /* Forces items to adapt to available column width */
+                /* Adaptive Morphology */
                 .worksheet-content .editable-element,
                 .worksheet-content .item-card {
                     flex-direction: var(--item-direction) !important;
@@ -315,11 +309,15 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     padding: var(--item-padding) !important;
                 }
 
-                /* Visual Complexity Reduction for Dense Layouts */
-                /* If complex is low (many columns), hide decorative borders */
+                /* Low Visual Noise Mode */
                 .worksheet-content[data-complexity="low"] .item-card {
                     border: 1px solid #e5e7eb !important; 
                     box-shadow: none !important;
+                }
+
+                /* Visual Tracking Guide (Zebra Striping) for Dyslexia */
+                .style-zebra .dynamic-grid > *:nth-child(odd) {
+                    background-color: rgba(0,0,0,0.03);
                 }
 
                 .worksheet-content {

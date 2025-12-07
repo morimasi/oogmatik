@@ -10,11 +10,20 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
     const settings = getDifficultySettings(difficulty);
     let size = options.gridSize || settings.gridSize;
     
+    // DIRECTION LOGIC: Dyslexia Friendly Constraints
     let directions: number[] = [];
-    if (options.directions === 'simple') directions = [0, 1];
-    else if (options.directions === 'diagonal') directions = [0, 1, 2];
-    else if (options.directions === 'all') directions = [0, 1, 2, 3, 4, 5, 6, 7];
-    else directions = settings.directions;
+    // 0: Right, 1: Down, 2: Diagonal Down-Right
+    // Avoid backwards (Left, Up) and reverse diagonals for low levels
+    if (difficulty === 'Başlangıç') {
+        directions = [0, 1]; // Only Right and Down
+    } else if (difficulty === 'Orta') {
+        directions = [0, 1, 2]; // Right, Down, Diagonal
+    } else {
+        // Advanced levels can have all
+        if (options.directions === 'simple') directions = [0, 1];
+        else if (options.directions === 'diagonal') directions = [0, 1, 2];
+        else directions = [0, 1, 2, 3, 4, 5, 6, 7];
+    }
     
     const isUpperCase = options.case !== 'lower';
 
@@ -71,7 +80,7 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
             let attempts = 0;
             while (!placed && attempts < 150) {
                 const dir = getRandomItems(directions, 1)[0];
-                const dr = [0, 1, 1, -1, 0, 1, -1, -1];
+                const dr = [0, 1, 1, -1, 0, 1, -1, -1]; // Directions X/Y deltas
                 const dc = [1, 0, 1, 0, -1, -1, -1, 1];
 
                 const r = getRandomInt(0, size - 1);

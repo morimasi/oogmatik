@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData,
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
     GeneratorOptions
 } from '../../types';
 import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay, PedagogicalHeader, Matchstick, ConnectionDot, Shape } from './common';
@@ -660,3 +660,5 @@ const createSimpleSheet = (compName: string) => ({ data }: { data: any }) => (
 export const PunctuationColoringSheet = createSimpleSheet('Noktalama Boyama');
 export const SynonymAntonymColoringSheet = createSimpleSheet('Eş/Zıt Anlam Boyama');
 export const RomanNumeralConnectSheet = AbcConnectSheet;
+export const WeightConnectSheet = AbcConnectSheet;
+export const LengthConnectSheet = AbcConnectSheet;

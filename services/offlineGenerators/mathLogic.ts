@@ -27,19 +27,12 @@ const hasBorrow = (n1: number, n2: number): boolean => {
     return false;
 };
 
-// SVG for Maze Header
-const generateSimpleMazeSVG = () => {
-    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="gridPattern" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="#e2e8f0" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="white"/><rect width="100" height="100" fill="url(#gridPattern)"/><path d="M 10 10 L 40 10 L 40 40 L 70 40 L 70 10 L 90 10 L 90 90 L 60 90 L 60 60 L 30 60 L 30 90 L 10 90" fill="none" stroke="#60a5fa" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 2"/><circle cx="10" cy="10" r="4" fill="#22c55e" stroke="white" stroke-width="1"/><circle cx="10" cy="90" r="4" fill="#ef4444" stroke="white" stroke-width="1"/></svg>`;
-};
-
-// BASIC OPERATIONS: Designed with Cognitive Load Theory
-// Ensures progression from no-carry to carry, no-borrow to borrow.
+// BASIC OPERATIONS: Designed with Cognitive Load Theory & Scaffolding
 export const generateOfflineBasicOperations = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
     const { selectedOperations, operationType, numberRange, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
     const count = itemCount || 20;
     const results: BasicOperationsData[] = [];
     
-    // Parse Range
     let minVal = 1, maxVal = 20;
     if (numberRange) {
         const parts = numberRange.split('-');
@@ -51,7 +44,6 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
         }
     }
     
-    // Operations Logic
     let ops = ['+'];
     if (operationType === 'mixed' && selectedOperations && selectedOperations.length > 0) {
         ops = selectedOperations.map(o => o === 'add' ? '+' : o === 'sub' ? '-' : o === 'mult' ? 'x' : o === 'div' ? '÷' : o).filter(o => ['+','-','x','÷'].includes(o));
@@ -67,52 +59,71 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
         const operationsList: BasicOperationsData['operations'] = [];
         let attempts = 0;
         
+        // SCAFFOLDING STRATEGY:
+        // First 20% -> Simple (Warm up, reduced range, no carry/borrow)
+        // Middle 60% -> Target Level (Standard rules)
+        // Last 20% -> Challenge (Upper bound range, maybe carry/borrow if allowed)
+        
         while(operationsList.length < count && attempts < 5000) {
             attempts++;
-            const currentOp = ops[getRandomInt(0, ops.length - 1)];
+            const idx = operationsList.length;
             
-            // Scientific Range Jitter: Prevent all problems from being same difficulty
-            const rangeMax = Math.max(minVal + 5, maxVal - getRandomInt(0, 5));
-            const rangeMin = minVal;
+            // Progressive Difficulty Logic
+            let currentMin = minVal;
+            let currentMax = maxVal;
+            let currentAllowCarry = allowCarry;
+            let currentAllowBorrow = allowBorrow;
+
+            if (idx < count * 0.2) {
+                // Easy Mode (Warm up)
+                currentMax = Math.max(10, Math.floor(maxVal * 0.6));
+                currentAllowCarry = false;
+                currentAllowBorrow = false;
+            } else if (idx >= count * 0.8) {
+                // Challenge Mode
+                currentMin = Math.floor(maxVal * 0.5); // Force larger numbers
+            }
+
+            const currentOp = ops[getRandomInt(0, ops.length - 1)];
             
             let num1 = 0, num2 = 0, num3 = 0, answer = 0, remainder = 0;
             let valid = false;
 
             if (currentOp === '+') {
-                const hasThird = useThirdNumber; 
-                num1 = getRandomInt(rangeMin, rangeMax);
-                num2 = getRandomInt(1, rangeMax);
-                if (hasThird) num3 = getRandomInt(1, rangeMax);
+                const hasThird = useThirdNumber && idx > count * 0.5; // Introduce 3 numbers later
+                num1 = getRandomInt(currentMin, currentMax);
+                num2 = getRandomInt(1, currentMax);
+                if (hasThird) num3 = getRandomInt(1, currentMax);
                 
                 const isCarry = hasCarry(num1, num2) || (hasThird && (hasCarry(num1+num2, num3)));
-                valid = allowCarry ? true : !isCarry;
+                valid = currentAllowCarry ? true : !isCarry;
                 if (valid) answer = num1 + num2 + num3;
             } 
             else if (currentOp === '-') {
-                num1 = getRandomInt(rangeMin, rangeMax);
-                num2 = getRandomInt(1, num1);
+                num1 = getRandomInt(currentMin, currentMax);
+                num2 = getRandomInt(1, num1); // Ensure positive result
                 
                 const isBorrow = hasBorrow(num1, num2);
-                valid = allowBorrow ? true : !isBorrow; 
+                valid = currentAllowBorrow ? true : !isBorrow; 
                 if (valid) answer = num1 - num2;
             }
             else if (currentOp === 'x') {
-                const m1 = getRandomInt(2, Math.min(12, rangeMax)); // Start from 2 to avoid trivial 1s
-                const m2 = getRandomInt(2, Math.min(12, rangeMax));
+                const m1 = getRandomInt(2, Math.min(12, currentMax)); 
+                const m2 = getRandomInt(2, Math.min(12, currentMax));
                 num1 = m1; num2 = m2;
                 answer = num1 * num2;
                 valid = true; 
             }
             else if (currentOp === '÷') {
                 const divisor = getRandomInt(2, 9);
-                if (allowRemainder) {
-                    const dividend = getRandomInt(rangeMin, rangeMax);
+                if (allowRemainder && idx > count * 0.8) { // Only remainder in challenge section
+                    const dividend = getRandomInt(currentMin, currentMax);
                     num1 = dividend; num2 = divisor;
                     answer = Math.floor(num1 / num2);
                     remainder = num1 % num2;
                     valid = true;
                 } else {
-                    const quotient = getRandomInt(2, Math.floor(rangeMax/divisor));
+                    const quotient = getRandomInt(2, Math.floor(currentMax/divisor));
                     num1 = quotient * divisor;
                     num2 = divisor;
                     answer = quotient;
@@ -130,8 +141,8 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
 
         results.push({
             title: 'İşlem Akıcılığı',
-            instruction: 'Aşağıdaki işlemleri dikkatlice yapın.',
-            pedagogicalNote: 'Otomatikleşmiş işlem becerisi ve çalışma belleği yükünü azaltma egzersizi.',
+            instruction: 'Isınma sorularıyla başla, zorlaşan sorularla devam et.',
+            pedagogicalNote: 'İskele yöntemi (scaffolding) ile kademeli zorlaşan işlem pratiği. Başarı duygusunu pekiştirir.',
             imagePrompt: 'Math operations symbols',
             isVertical: true,
             operations: operationsList
@@ -219,9 +230,7 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
     return results;
 };
 
-// ... (Rest of the generators updated with similar logic)
 export const generateOfflineNumberPattern = async (options: GeneratorOptions): Promise<NumberPatternData[]> => {
-    // Already implemented well in previous iterations, ensuring consistent structure
     const { itemCount, worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => ({
         title: 'Sayı Örüntüleri',
@@ -238,7 +247,6 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
 };
 
 // Placeholder exports for the rest to satisfy interface, ensuring they return valid empty structures if logic complex
-// In a full implementation, each would get the specific logic applied above.
 export const generateOfflineFutoshiki = async (o: GeneratorOptions): Promise<FutoshikiData[]> => [];
 export const generateOfflineNumberPyramid = async (o: GeneratorOptions): Promise<NumberPyramidData[]> => [];
 export const generateOfflineNumberCapsule = async (o: GeneratorOptions): Promise<NumberCapsuleData[]> => [];
