@@ -98,16 +98,27 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             questions.push({ type: 'true-false', ...tf });
         });
 
+        // 5N 1K Mapping
+        const fiveW1H = {
+            who: chosenValues.character,
+            where: chosenValues.place,
+            when: chosenValues.when || "Bir zamanlar", // 'when' might be missing in some paths, provide fallback
+            what: `Bir ${chosenValues.object} buldu`, // Simplified plot point
+            why: "Merak ettiği için", // Generic deduction
+            how: "Cesurca" // Generic manner
+        };
+
         results.push({ 
             title: `Okuma Anlama: ${chosenValues.character}'in Macerası`,
-            instruction: "Hikayeyi dikkatlice oku ve soruları cevapla.",
+            instruction: "Hikayeyi dikkatlice oku, 5N 1K sorularını cevapla ve mantık sorularını çöz.",
             story, 
             questions: questions,
             characters: [chosenValues.character, chosenValues.friend].filter(c => story.includes(c)), 
             mainIdea: 'Dikkatli okuma, detayları fark etme ve çıkarım yapma.', 
             setting: chosenValues.place,
             pedagogicalNote: `${difficulty} seviyesinde okuma anlama. 5N1K soruları ve çıkarım yapma becerileri desteklenmektedir.`,
-            imagePrompt: `${chosenValues.character} in ${chosenValues.place} with a ${chosenValues.object}` // Precise prompt
+            imagePrompt: `${chosenValues.character} in ${chosenValues.place} with a ${chosenValues.object}`,
+            fiveW1H: fiveW1H
         });
     }
     return results;

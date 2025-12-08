@@ -14,6 +14,15 @@ export interface StoryData extends BaseActivityData {
     characters: string[]; 
     setting: string; 
     questions: StoryQuestion[]; 
+    // New 5N1K specific data
+    fiveW1H?: {
+        who: string;
+        where: string;
+        when: string;
+        what: string;
+        why: string;
+        how: string;
+    };
     readingDuration?: number; // Recommended reading time
 }
 

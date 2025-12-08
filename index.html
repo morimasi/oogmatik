@@ -106,7 +106,9 @@
         color: var(--text-primary);
         margin: 0;
         padding: 0;
-        overflow: hidden; 
+        /* UPDATED: Allowed scrolling to prevent content being cut off */
+        overflow-x: hidden; 
+        overflow-y: auto;
         transition: background-color 0.3s ease, color 0.3s ease;
       }
 
