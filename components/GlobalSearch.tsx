@@ -93,7 +93,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
   };
 
   return (
-    <div ref={searchContainerRef} className="relative">
+    <div ref={searchContainerRef} className="relative" id="tour-search">
       <button
         onClick={() => setIsOpen(true)}
         className="text-zinc-400 hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] transition-all duration-300 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"

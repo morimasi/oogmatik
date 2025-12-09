@@ -1,3 +1,4 @@
+
 import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, SynonymMatchingPatternData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, ResfebeClue, JumbledWordStoryData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout, wordToRebus, ITEM_CATEGORIES, CATEGORY_NAMES, getDifficultySettings } from './helpers';
 import { PROVERBS } from '../../data/sentences';
@@ -6,6 +7,7 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
     const { topic, itemCount, difficulty, worksheetCount, words, customInput, mode } = options;
     const results: WordSearchData[] = [];
     
+    // Automatic Grid Sizing based on Difficulty
     const settings = getDifficultySettings(difficulty);
     let size = options.gridSize || settings.gridSize;
     
@@ -151,7 +153,7 @@ export const generateOfflineAnagram = async (options: GeneratorOptions): Promise
     const { topic, itemCount, worksheetCount, difficulty } = options;
     const results: AnagramsData[] = [];
     const masterPool = shuffle(getWordsForDifficulty(difficulty, topic));
-    const itemsPerSheet = itemCount || 14; // Increased to 14
+    const itemsPerSheet = itemCount || 14; 
 
     for (let i = 0; i < worksheetCount; i++) {
         let startIndex = (i * itemsPerSheet) % masterPool.length;
@@ -342,8 +344,6 @@ export const generateOfflineSpiralPuzzle = async (options: GeneratorOptions): Pr
         };
     });
 }
-
-// ... (Other functions remain, ensuring all adhere to the "Professional" standard with proper pedagogical notes and image prompts)
 
 export const generateOfflineWordGrouping = async (options: GeneratorOptions): Promise<WordGroupingData[]> => {
     const { worksheetCount, categoryCount } = options;

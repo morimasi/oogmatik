@@ -14,6 +14,7 @@ import { worksheetService } from './services/worksheetService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
 import { StudentInfoModal } from './components/StudentInfoModal';
+import { HistoryView } from './components/HistoryView'; // NEW IMPORT
 import * as offlineGenerators from './services/offlineGenerators'; 
 
 // Lazy Loaded Components
@@ -81,11 +82,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
         className={`bg-[var(--bg-paper)] rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transition-all duration-300 ease-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         onClick={e => e.stopPropagation()}
       >
-        <header className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">{title}</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-inset)] transition-colors"><i className="fa-solid fa-times"></i></button>
-        </header>
-        <div className="p-6 overflow-y-auto space-y-4 text-[var(--text-secondary)] custom-scrollbar">{children}</div>
+        {/* Only show default header if NOT history modal (HistoryView has its own) */}
+        {title !== 'İşlem Geçmişi' && (
+            <header className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">{title}</h2>
+              <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-inset)] transition-colors"><i className="fa-solid fa-times"></i></button>
+            </header>
+        )}
+        <div className={`overflow-y-auto custom-scrollbar ${title === 'İşlem Geçmişi' ? 'h-full p-0 bg-transparent' : 'p-6 space-y-4 text-[var(--text-secondary)]'}`}>
+            {children}
+        </div>
       </div>
     </div>
   );
@@ -171,10 +177,19 @@ const AppContent: React.FC = () => {
   });
 
   const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
-  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+  
+  // HISTORY STATE (Persistent via LocalStorage)
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>(() => {
+      try {
+          const stored = localStorage.getItem('user_history');
+          return stored ? JSON.parse(stored) : [];
+      } catch { return []; }
+  });
 
   useEffect(() => {
-  }, []);
+      // Sync History to LS
+      localStorage.setItem('user_history', JSON.stringify(historyItems));
+  }, [historyItems]);
 
   const refreshNotifications = useCallback(async () => {
       if (user) {
@@ -250,7 +265,7 @@ const AppContent: React.FC = () => {
 
       const newItem: HistoryItem = {
           id: Date.now().toString() + Math.random(),
-          userId: user?.id || '',
+          userId: user?.id || 'guest',
           activityType,
           data,
           timestamp: new Date().toISOString(),
@@ -258,9 +273,15 @@ const AppContent: React.FC = () => {
           category: { id: category.id, title: category.title }
       };
 
-      const updatedHistory = [newItem, ...historyItems].slice(0, 50);
-      setHistoryItems(updatedHistory);
-      try { sessionStorage.setItem('sessionHistory', JSON.stringify(updatedHistory)); } catch (e) {}
+      setHistoryItems(prev => [newItem, ...prev].slice(0, 100)); // Keep last 100 items
+  };
+
+  const clearHistory = () => {
+      setHistoryItems([]);
+  };
+
+  const deleteHistoryItem = (id: string) => {
+      setHistoryItems(prev => prev.filter(i => i.id !== id));
   };
 
   const addSavedWorksheet = async (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
@@ -288,6 +309,26 @@ const AppContent: React.FC = () => {
         console.error("Save error:", e);
         alert(`Kaydedilirken bir hata oluştu: ${e.message || 'Bilinmeyen hata'}.`);
     }
+  };
+
+  // Wrapper for history item to SavedWorksheet for restore
+  const handleRestoreFromHistory = (item: HistoryItem) => {
+      loadSavedWorksheet({
+          id: item.id, // Temp ID
+          userId: item.userId,
+          name: item.title,
+          activityType: item.activityType,
+          worksheetData: item.data,
+          createdAt: item.timestamp,
+          icon: ACTIVITIES.find(a => a.id === item.activityType)?.icon || 'fa-file',
+          category: item.category
+      });
+      setOpenModal(null);
+  };
+
+  const handleSaveHistoryItem = (item: HistoryItem) => {
+      if (!user) { setIsAuthModalOpen(true); return; }
+      addSavedWorksheet(`${item.title} (Geçmiş)`, item.activityType, item.data);
   };
 
   const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
@@ -654,34 +695,14 @@ const AppContent: React.FC = () => {
       />
 
       <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi">
-          {historyItems.length === 0 ? (
-               <div className="text-center py-8 text-zinc-500">
-                   <i className="fa-solid fa-clock-rotate-left text-4xl mb-3 opacity-20"></i>
-                   <p>Henüz bir işlem geçmişiniz bulunmuyor.</p>
-               </div>
-          ) : (
-              <div className="space-y-3">
-                  {historyItems.map((item) => (
-                      <div key={item.id} className="p-3 border border-[var(--border-color)] rounded-lg flex justify-between items-center hover:bg-[var(--bg-inset)] transition-colors">
-                          <div className="flex items-center gap-3">
-                               <div className="w-10 h-10 rounded-full bg-[var(--bg-primary)] text-[var(--accent-color)] flex items-center justify-center">
-                                   <i className="fa-solid fa-file-pen"></i>
-                                </div>
-                               <div>
-                                  <p className="font-bold text-sm text-[var(--text-primary)]">{item.title}</p>
-                                  <div className="flex items-center gap-2 text-xs text-zinc-500">
-                                      <span><i className="fa-regular fa-calendar mr-1"></i>{new Date(item.timestamp).toLocaleDateString('tr-TR')}</span>
-                                      <span><i className="fa-regular fa-clock mr-1"></i>{new Date(item.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}</span>
-                                  </div>
-                               </div>
-                          </div>
-                          <button onClick={() => { loadSavedWorksheet(item as any); setOpenModal(null); }} className="px-3 py-1.5 text-xs font-bold bg-[var(--bg-inset)] text-[var(--text-primary)] rounded-md hover:bg-[var(--bg-secondary)] transition-colors">
-                              Tekrar Aç
-                          </button>
-                      </div>
-                  ))}
-              </div>
-          )}
+          <HistoryView 
+             historyItems={historyItems}
+             onRestore={handleRestoreFromHistory}
+             onSaveToArchive={handleSaveHistoryItem}
+             onDelete={deleteHistoryItem}
+             onClearAll={clearHistory}
+             onClose={() => setOpenModal(null)}
+          />
       </Modal>
 
       <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">

@@ -28,11 +28,19 @@ const hasBorrow = (n1: number, n2: number): boolean => {
 
 // BASIC OPERATIONS
 export const generateOfflineBasicOperations = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
-    const { selectedOperations, operationType, numberRange, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
-    const count = itemCount || 25; // Increased to fill A4
+    const { selectedOperations, operationType, numberRange, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount, difficulty } = options;
+    const count = itemCount || 25; 
     const results: BasicOperationsData[] = [];
     
+    // Difficulty Overrides (If user selected Difficulty but not granular ranges)
     let minVal = 1, maxVal = 20;
+    
+    if (difficulty === 'Başlangıç') { minVal = 1; maxVal = 10; }
+    else if (difficulty === 'Orta') { minVal = 1; maxVal = 50; }
+    else if (difficulty === 'Zor') { minVal = 10; maxVal = 100; }
+    else if (difficulty === 'Uzman') { minVal = 100; maxVal = 1000; }
+    
+    // Explicit overrides
     if (numberRange) {
         const parts = numberRange.split('-');
         if (parts.length === 2) {
@@ -60,57 +68,55 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
         
         while(operationsList.length < count && attempts < 5000) {
             attempts++;
-            const idx = operationsList.length;
-            let currentMin = minVal;
-            let currentMax = maxVal;
-            let currentAllowCarry = allowCarry;
-            let currentAllowBorrow = allowBorrow;
-
-            if (idx < count * 0.2) {
-                currentMax = Math.max(10, Math.floor(maxVal * 0.6));
-                currentAllowCarry = false;
-                currentAllowBorrow = false;
-            } else if (idx >= count * 0.8) {
-                currentMin = Math.floor(maxVal * 0.5); 
-            }
-
             const currentOp = ops[getRandomInt(0, ops.length - 1)];
             let num1 = 0, num2 = 0, num3 = 0, answer = 0, remainder = 0;
             let valid = false;
 
             if (currentOp === '+') {
-                const hasThird = useThirdNumber && idx > count * 0.5;
-                num1 = getRandomInt(currentMin, currentMax);
-                num2 = getRandomInt(1, currentMax);
-                if (hasThird) num3 = getRandomInt(1, currentMax);
-                const isCarry = hasCarry(num1, num2) || (hasThird && (hasCarry(num1+num2, num3)));
-                valid = currentAllowCarry ? true : !isCarry;
+                num1 = getRandomInt(minVal, maxVal);
+                num2 = getRandomInt(1, maxVal);
+                
+                // Third number logic based on difficulty or explicit option
+                const shouldHaveThird = useThirdNumber || (difficulty === 'Uzman' && Math.random() > 0.5);
+                if (shouldHaveThird) num3 = getRandomInt(1, maxVal);
+
+                // Carry logic based on difficulty
+                const isCarry = hasCarry(num1, num2) || (shouldHaveThird && (hasCarry(num1+num2, num3)));
+                const allowC = allowCarry !== undefined ? allowCarry : (difficulty !== 'Başlangıç'); // Only beginner forces no carry
+                valid = allowC ? true : !isCarry;
+                
                 if (valid) answer = num1 + num2 + num3;
             } 
             else if (currentOp === '-') {
-                num1 = getRandomInt(currentMin, currentMax);
+                num1 = getRandomInt(minVal, maxVal);
                 num2 = getRandomInt(1, num1);
+                
                 const isBorrow = hasBorrow(num1, num2);
-                valid = currentAllowBorrow ? true : !isBorrow; 
+                const allowB = allowBorrow !== undefined ? allowBorrow : (difficulty !== 'Başlangıç');
+                valid = allowB ? true : !isBorrow; 
+                
                 if (valid) answer = num1 - num2;
             }
             else if (currentOp === 'x') {
-                const m1 = getRandomInt(2, Math.min(12, currentMax)); 
-                const m2 = getRandomInt(2, Math.min(12, currentMax));
+                const multiplierLimit = difficulty === 'Başlangıç' ? 5 : (difficulty === 'Orta' ? 10 : maxVal);
+                const m1 = getRandomInt(1, multiplierLimit); 
+                const m2 = getRandomInt(1, multiplierLimit);
                 num1 = m1; num2 = m2;
                 answer = num1 * num2;
                 valid = true; 
             }
             else if (currentOp === '÷') {
-                const divisor = getRandomInt(2, 9);
-                if (allowRemainder && idx > count * 0.8) {
-                    const dividend = getRandomInt(currentMin, currentMax);
+                const divisor = getRandomInt(2, difficulty === 'Başlangıç' ? 5 : 9);
+                const allowR = allowRemainder !== undefined ? allowRemainder : (difficulty === 'Zor' || difficulty === 'Uzman');
+                
+                if (allowR && Math.random() > 0.5) {
+                    const dividend = getRandomInt(minVal, maxVal);
                     num1 = dividend; num2 = divisor;
                     answer = Math.floor(num1 / num2);
                     remainder = num1 % num2;
                     valid = true;
                 } else {
-                    const quotient = getRandomInt(2, Math.floor(currentMax/divisor));
+                    const quotient = getRandomInt(2, Math.floor(maxVal/divisor));
                     num1 = quotient * divisor;
                     num2 = divisor;
                     answer = quotient;
@@ -127,7 +133,7 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
         }
 
         results.push({
-            title: 'İşlem Akıcılığı',
+            title: `İşlem Akıcılığı (${difficulty})`,
             instruction: 'Soruları dikkatlice çözün.',
             pedagogicalNote: 'İşlem pratiği.',
             imagePrompt: 'Math operations symbols',
@@ -139,18 +145,23 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
 };
 
 export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
-    const { worksheetCount, itemCount } = options;
+    const { worksheetCount, itemCount, difficulty } = options;
     const results: RealLifeProblemData[] = [];
     const names = ["Ali", "Ayşe", "Can", "Elif", "Mert", "Zeynep", "Efe", "Ada"];
     const items = ["elma", "kalem", "ceviz", "kitap", "bilye", "şeker", "balon"];
     
+    // Scale numbers by difficulty
+    const getNum = () => {
+        if (difficulty === 'Başlangıç') return getRandomInt(1, 10);
+        if (difficulty === 'Orta') return getRandomInt(10, 50);
+        return getRandomInt(50, 200);
+    };
+
     const templates = [
         (n1: number, n2: number, name: string) => ({ text: `${name}'nin ${n1} lirası vardı. Babası ${n2} lira daha verdi. Toplam kaç lirası oldu?`, ans: n1 + n2 }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `${name} ${n1} tane ${item} topladı. ${n2} tanesini arkadaşına verdi. Geriye kaç ${item} kaldı?`, ans: n1 - n2 }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `Bir kutuda ${n1} paket ${item} var. Her pakette ${n2} tane varsa toplam kaç ${item} vardır?`, ans: n1 * n2 }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `${name}, ${n1} tane ${item}sını ${n2} tabağa eşit paylaştırdı. Her tabakta kaç ${item} olur?`, ans: Math.floor(n1/n2) }),
-        (n1: number, n2: number, name: string) => ({ text: `${name} marketten ${n1} TL'ye süt ve ${n2} TL'ye ekmek aldı. Toplam ne kadar harcadı?`, ans: n1 + n2 }),
-        (n1: number, n2: number, name: string) => ({ text: `${name} kitabının ${n1}. sayfasında. Kitap ${n1+n2} sayfa. Bitirmek için kaç sayfası kaldı?`, ans: n2 })
     ];
 
     for(let i=0; i<worksheetCount; i++) {
@@ -159,12 +170,16 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
             const func = templates[j % templates.length];
             const name = getRandomItems(names, 1)[0];
             const item = getRandomItems(items, 1)[0];
-            const n1 = getRandomInt(10, 50); 
-            const n2 = getRandomInt(2, 6); 
-            const data = func(Math.max(n1, n2*2), n2, name, item);
+            const n1 = getNum();
+            const n2 = difficulty === 'Başlangıç' ? getRandomInt(1, 5) : getRandomInt(2, 9); 
+            
+            // Adjust for subtraction/division safety
+            const safeN1 = Math.max(n1, n2 * 2);
+            
+            const data = func(safeN1, n2, name, item);
             problems.push({ text: data.text, solution: `${data.ans}`, operationHint: "", imagePrompt: 'Math Problem' });
         }
-        results.push({ title: 'Problem Çözme', instruction: 'Problemleri dikkatle oku ve çöz.', pedagogicalNote: 'Matematiksel okuryazarlık ve problem çözme stratejileri.', imagePrompt: 'Thinking', problems });
+        results.push({ title: `Problem Çözme (${difficulty})`, instruction: 'Problemleri dikkatle oku ve çöz.', pedagogicalNote: 'Matematiksel okuryazarlık.', imagePrompt: 'Thinking', problems });
     }
     return results;
 };
@@ -186,12 +201,12 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
 };
 
 export const generateOfflineNumberPattern = async (options: GeneratorOptions): Promise<NumberPatternData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => ({
-        title: 'Sayı Örüntüleri', instruction: 'Kuralı bul ve soru işareti yerine gelecek sayıyı yaz.', pedagogicalNote: 'İlişkisel düşünme ve ritmik sayma.', imagePrompt: 'Pattern',
+        title: `Sayı Örüntüleri (${difficulty})`, instruction: 'Kuralı bul ve soru işareti yerine gelecek sayıyı yaz.', pedagogicalNote: 'İlişkisel düşünme.', imagePrompt: 'Pattern',
         patterns: Array.from({length: itemCount || 10}, () => {
             const start = getRandomInt(1, 10);
-            const step = getRandomInt(2, 5);
+            const step = getRandomInt(2, difficulty === 'Başlangıç' ? 5 : 12);
             return { sequence: `${start}, ${start+step}, ${start+step*2}, ?`, answer: (start+step*3).toString() };
         })
     }));

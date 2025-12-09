@@ -3,7 +3,7 @@ import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types';
 
-const { collection, addDoc, query, where, getDocs, orderBy, deleteDoc, doc, updateDoc, increment } = firestore;
+const { collection, addDoc, query, where, getDocs, orderBy, deleteDoc, doc, updateDoc, increment, writeBatch, getDoc } = firestore;
 
 // Helper to handle serialization of complex nested arrays (Firestore limitation)
 const serializeData = (data: any): string => {
@@ -165,6 +165,44 @@ export const worksheetService = {
 
     deleteWorksheet: async (id: string) => {
         await deleteDoc(doc(db, "saved_worksheets", id));
+    },
+
+    deleteWorksheetsBulk: async (ids: string[]) => {
+        const batch = writeBatch(db);
+        ids.forEach(id => {
+            const ref = doc(db, "saved_worksheets", id);
+            batch.delete(ref);
+        });
+        await batch.commit();
+    },
+
+    updateWorksheetDetails: async (id: string, updates: { name?: string }) => {
+        const ref = doc(db, "saved_worksheets", id);
+        await updateDoc(ref, updates);
+    },
+
+    duplicateWorksheet: async (id: string): Promise<SavedWorksheet | null> => {
+        const ref = doc(db, "saved_worksheets", id);
+        const snapshot = await getDoc(ref);
+        
+        if (!snapshot.exists()) return null;
+        
+        const data = snapshot.data();
+        const payload = {
+            ...data,
+            name: `${data.name} (Kopya)`,
+            createdAt: new Date().toISOString()
+        };
+        
+        const newRef = await addDoc(collection(db, "saved_worksheets"), payload);
+        
+        // Increment user stats
+        if (data.userId) {
+             const userRef = doc(db, "users", data.userId);
+             updateDoc(userRef, { worksheetCount: increment(1) }).catch(console.warn);
+        }
+
+        return mapDbToWorksheet(payload, newRef.id);
     },
 
     shareWorksheet: async (worksheet: SavedWorksheet, senderId: string, senderName: string, receiverId: string): Promise<void> => {
