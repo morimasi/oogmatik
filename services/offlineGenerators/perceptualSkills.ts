@@ -1,12 +1,9 @@
 
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
-    GeneratorOptions,
-    RomanNumeralConnectData,
-    WeightConnectData,
-    LengthConnectData
+    GeneratorOptions
 } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, SHAPE_TYPES, TR_VOCAB, COLORS, generateSmartConnectGrid, CONNECT_COLORS, ITEM_CATEGORIES, CATEGORY_NAMES, EMOJI_MAP, generateRandomPattern, generateLatinSquare, generateMaze, getDifficultySettings, generateSymmetricPattern, generateConnectedPath } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, SHAPE_TYPES, TR_VOCAB, generateConnectedPath, generateSymmetricPattern } from './helpers';
 
 // --- HELPER: PROCEDURAL SYMMETRIC GRID GENERATOR ---
 const dotArtShapes: Record<string, { dots: { cx: number; cy: number }[]; name: string; }> = {
@@ -218,47 +215,34 @@ export const generateOfflineBlockPainting = async (options: GeneratorOptions): P
     }));
 };
 
-// Crucial: This function was reported missing
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 6;
     
     return Array.from({ length: worksheetCount }, () => {
         const rows = Array.from({ length: count }, () => {
-            // Generate a random shape configuration
             const baseSegments = Array.from({ length: 9 }, () => Math.random() > 0.5);
-            const rotationStep = 90;
             
-            // Create items: 3 identical (maybe rotated), 1 different
             const items = [
                 { segments: baseSegments, rotation: 0 },
                 { segments: baseSegments, rotation: 90 },
                 { segments: baseSegments, rotation: 180 },
-                { segments: baseSegments.map(b => !b), rotation: 0 } // Inverted segments = odd one
+                { segments: baseSegments.map(b => !b), rotation: 0 } 
             ];
             
             return {
                 items: shuffle(items),
-                correctIndex: 0, // Placeholder, logically the inverted one is correct but shuffling breaks index tracking without map. Fixed below.
+                correctIndex: -1, 
                 reason: 'Farklı desen'
             };
         });
         
-        // Correct the index tracking
-        const correctedRows = rows.map(row => {
-            const items = row.items;
-            // The odd one has different segments than the majority. 
-            // Since we generated 3 same (rotated) and 1 different, finding the index is implicit for the user.
-            // For data structure consistency we just pass it.
-            return { ...row, correctIndex: -1 }; 
-        });
-
         return {
             title: 'Görsel Farkı Bul',
             instruction: 'Diğerlerinden farklı olan şekli bul.',
             pedagogicalNote: 'Görsel ayırt etme ve zihinsel döndürme.',
             imagePrompt: 'Odd Shape',
-            rows: correctedRows
+            rows
         };
     });
 };
@@ -310,7 +294,6 @@ export const generateOfflineFindDifferentString = async (options: GeneratorOptio
 export const generateOfflineDotPainting = async (options: GeneratorOptions): Promise<DotPaintingData[]> => {
     const { worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => {
-        // Simple shape (Heart)
         const shape = dotArtShapes['heart'];
         
         return {
@@ -442,8 +425,8 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
             targetShape: 'triangle',
             correctCount: 3,
             svgPaths: [
-                {d: 'M 50 10 L 90 90 L 10 90 Z', fill: 'none', stroke: 'black'}, // Main triangle
-                {d: 'M 50 10 L 50 90', fill: 'none', stroke: 'black'} // Splitter line creating 2 inner triangles
+                {d: 'M 50 10 L 90 90 L 10 90 Z', fill: 'none', stroke: 'black'},
+                {d: 'M 50 10 L 50 90', fill: 'none', stroke: 'black'}
             ]
         }]
     }));
