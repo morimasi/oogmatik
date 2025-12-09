@@ -523,11 +523,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {/* 2. MAIN CANVAS AREA (Infinite Canvas) */}
       <div 
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden bg-zinc-200 dark:bg-zinc-900 canvas-viewport ${zenMode ? 'bg-zinc-900' : ''} group`}
+        // CRITICAL UPDATE: Transparent background to match theme seamlessy. 
+        // Previously: bg-zinc-200 dark:bg-zinc-900 canvas-viewport
+        className={`flex-1 relative overflow-hidden bg-[var(--bg-primary)] ${zenMode ? 'bg-black' : ''} group`}
         style={{ 
             cursor: isDragging ? 'grabbing' : (isEditMode ? 'default' : 'grab'),
-            // Dot Pattern Background that scales with canvas
-            backgroundImage: `radial-gradient(#9ca3af 1px, transparent 1px)`,
+            // Dot Pattern Background that scales with canvas, color adjusted to var
+            backgroundImage: `radial-gradient(var(--border-color) 1px, transparent 1px)`,
             backgroundSize: `${20 * scale}px ${20 * scale}px`,
             backgroundPosition: `${position.x}px ${position.y}px`
         }}
@@ -673,7 +675,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                   />
               </div>
           ) : currentView === 'favorites' ? (
-              <div className="w-full h-full overflow-y-auto absolute inset-0 bg-white dark:bg-zinc-900"><FavoritesSection onSelectActivity={(id) => { if (onSelectActivity) onSelectActivity(id); }} onBack={onBackToGenerator} /></div>
+              <div className="w-full h-full overflow-y-auto absolute inset-0 bg-transparent"><FavoritesSection onSelectActivity={(id) => { if (onSelectActivity) onSelectActivity(id); }} onBack={onBackToGenerator} /></div>
           ) : currentView === 'workbook' ? (
               <div className="w-full h-full overflow-y-auto absolute inset-0 bg-white dark:bg-zinc-900"><WorkbookView items={workbookItems} setItems={setWorkbookItems} settings={workbookSettings} setSettings={setWorkbookSettings} onBack={onBackToGenerator} /></div>
           ) : null}

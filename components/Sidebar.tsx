@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
   const [localSearch, setLocalSearch] = useState('');
 
-  // --- SMART PERSISTENCE: Restore draft when activity is selected ---
+  // --- SMART PERSISTENCE ---
   useEffect(() => {
       if (selectedActivity) {
           const restoreDraft = async () => {
@@ -68,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       }
   }, [selectedActivity, setWorksheetData]);
 
-  // Memoize and Filter Categories based on Local Search
+  // Memoize Filtered Categories for Performance
   const filteredCategories = useMemo(() => {
       const searchLower = localSearch.toLowerCase().trim();
       
@@ -79,7 +79,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           }));
       }
 
-      // If searching, flatten the structure or keep categories that have matching items
       return ACTIVITY_CATEGORIES.map(category => {
           const matchingItems = ACTIVITIES.filter(act => 
               category.activities.includes(act.id) && 
@@ -92,14 +91,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       }).filter(cat => cat.items.length > 0);
   }, [localSearch]);
 
-  // Auto-expand categories if searching
+  // Auto-expand on search
   useEffect(() => {
-      if (localSearch) {
-          // If searching, maybe expand all? Or just let the user see the filtered list.
-          // For now, let's auto-expand the first one if there are results
-          if (filteredCategories.length > 0) {
-              setOpenCategoryId(filteredCategories[0].id);
-          }
+      if (localSearch && filteredCategories.length > 0) {
+          setOpenCategoryId(filteredCategories[0].id);
       }
   }, [localSearch, filteredCategories.length]);
 
@@ -193,38 +188,49 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      id="tour-sidebar"
       className={`
         fixed inset-y-0 left-0 z-30 
-        bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl
+        bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl
         border-r border-zinc-200 dark:border-zinc-800
-        transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)
+        transition-all duration-300 cubic-bezier(0.25, 0.46, 0.45, 0.94)
         md:relative md:translate-x-0
         flex flex-col
         ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} 
         ${isExpanded ? 'w-[320px]' : 'w-[80px]'}
       `}
     >
-        {/* HEADER AREA */}
-        <div className="flex-shrink-0 h-[64px] flex items-center justify-between px-5 border-b border-zinc-200/50 dark:border-zinc-800/50">
+        {/* HEADER AREA: SEARCH INTEGRATED */}
+        <div className="flex-shrink-0 h-[64px] flex items-center justify-between px-4 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/30">
             {isExpanded ? (
-                <div className="flex items-center gap-2 overflow-hidden">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-200 dark:shadow-none">
-                        <i className="fa-solid fa-shapes text-sm"></i>
-                    </div>
-                    <span className="font-bold text-lg text-zinc-800 dark:text-zinc-100 tracking-tight whitespace-nowrap">
-                        Atölye
-                    </span>
+                <div className="relative w-full group">
+                    <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-500 transition-colors text-xs"></i>
+                    <input 
+                        type="text" 
+                        placeholder="Etkinlik ara..." 
+                        value={localSearch}
+                        onChange={(e) => setLocalSearch(e.target.value)}
+                        className="w-full h-9 pl-9 pr-8 bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm"
+                    />
+                    {localSearch && (
+                        <button 
+                            onClick={() => setLocalSearch('')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                        >
+                            <i className="fa-solid fa-circle-xmark text-xs"></i>
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div className="w-full flex justify-center">
-                    <i className="fa-solid fa-shapes text-xl text-indigo-600"></i>
+                    <div className="w-9 h-9 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
+                        <i className="fa-solid fa-layer-group"></i>
+                    </div>
                 </div>
             )}
 
             <button 
                 onClick={closeSidebar} 
-                className="md:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
+                className="md:hidden ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 transition-colors"
             >
                 <i className="fa-solid fa-xmark"></i>
             </button>
@@ -243,122 +249,86 @@ const Sidebar: React.FC<SidebarProps> = ({
                     studentProfile={studentProfile}
                 />
             ) : (
-                <div className="flex flex-col h-full">
-                    {/* SEARCH BAR (Only when Expanded) */}
-                    {isExpanded && (
-                        <div className="px-4 py-3 shrink-0">
-                            <div className="relative group">
-                                <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-500 transition-colors text-xs"></i>
-                                <input 
-                                    type="text" 
-                                    placeholder="Etkinlik ara..." 
-                                    value={localSearch}
-                                    onChange={(e) => setLocalSearch(e.target.value)}
-                                    className="w-full h-9 pl-9 pr-3 bg-zinc-100 dark:bg-zinc-800/50 border border-transparent focus:bg-white dark:focus:bg-zinc-800 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 outline-none transition-all"
-                                />
-                                {localSearch && (
-                                    <button 
-                                        onClick={() => setLocalSearch('')}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-                                    >
-                                        <i className="fa-solid fa-circle-xmark text-xs"></i>
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                <nav className="flex-1 overflow-y-auto px-2 py-2 custom-scrollbar">
+                    {filteredCategories.map((category) => {
+                        const isOpen = openCategoryId === category.id || !!localSearch;
+                        
+                        return (
+                            <div key={category.id} className="mb-1">
+                                <button
+                                    onClick={() => {
+                                        if (isExpanded) {
+                                            setOpenCategoryId(openCategoryId === category.id ? null : category.id);
+                                        }
+                                    }}
+                                    className={`
+                                        w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
+                                        ${!isExpanded ? 'justify-center' : ''}
+                                        ${isOpen && isExpanded ? 'bg-zinc-50 dark:bg-white/5' : 'hover:bg-zinc-50 dark:hover:bg-white/5'}
+                                    `}
+                                    title={!isExpanded ? category.title : undefined}
+                                >
+                                    <div className={`
+                                        w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all shadow-sm shrink-0
+                                        bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500
+                                    `}>
+                                        <i className={category.icon}></i>
+                                    </div>
 
-                    {/* CATEGORY LIST */}
-                    <nav className="flex-1 overflow-y-auto px-3 pb-20 custom-scrollbar space-y-1 hover:space-y-1">
-                        {filteredCategories.map((category) => {
-                            const isOpen = openCategoryId === category.id || !!localSearch; // Auto open on search
-                            const hasActiveItem = category.items.some(i => i.id === selectedActivity);
-
-                            return (
-                                <div key={category.id} className="group/cat">
-                                    <button
-                                        onClick={() => {
-                                            if (isExpanded) {
-                                                setOpenCategoryId(openCategoryId === category.id ? null : category.id);
-                                            }
-                                        }}
-                                        className={`
-                                            w-full flex items-center gap-3 p-2.5 rounded-xl transition-all duration-200
-                                            ${!isExpanded ? 'justify-center' : ''}
-                                            ${isOpen && isExpanded ? 'bg-zinc-50 dark:bg-white/5' : 'hover:bg-zinc-50 dark:hover:bg-white/5'}
-                                        `}
-                                        title={!isExpanded ? category.title : undefined}
-                                    >
-                                        <div className={`
-                                            w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all shadow-sm
-                                            ${hasActiveItem 
-                                                ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300' 
-                                                : 'bg-white dark:bg-zinc-800 text-zinc-500 border border-zinc-200 dark:border-zinc-700 group-hover/cat:border-zinc-300'}
-                                        `}>
-                                            <i className={category.icon}></i>
-                                        </div>
-
-                                        {isExpanded && (
-                                            <>
-                                                <span className="flex-1 text-left text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                                                    {category.title}
-                                                </span>
-                                                <i className={`fa-solid fa-chevron-down text-[10px] text-zinc-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}></i>
-                                            </>
-                                        )}
-                                    </button>
-                                    
-                                    {/* Sub-items (Activities) */}
-                                    <div 
-                                        className={`
-                                            overflow-hidden transition-all duration-300 ease-in-out
-                                            ${isOpen && isExpanded ? 'max-h-[1000px] opacity-100 mt-1' : 'max-h-0 opacity-0'}
-                                        `}
-                                    >
-                                        <div className="pl-[14px] ml-[15px] border-l border-zinc-200 dark:border-zinc-800 space-y-0.5 py-1">
-                                            {category.items.map(activity => (
-                                                <button
-                                                    key={activity.id}
-                                                    onClick={() => {
-                                                        onSelectActivity(activity.id);
-                                                        if(window.innerWidth < 768) closeSidebar();
-                                                    }}
-                                                    className={`
-                                                        group/item w-full text-left px-3 py-2 rounded-lg text-[11px] font-medium transition-all flex items-center gap-2 relative
-                                                        ${selectedActivity === activity.id 
-                                                            ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-bold' 
-                                                            : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'}
-                                                    `}
-                                                >
-                                                    {selectedActivity === activity.id && (
-                                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-indigo-500 rounded-r-full"></div>
-                                                    )}
-                                                    <span className="truncate">{activity.title}</span>
-                                                </button>
-                                            ))}
-                                        </div>
+                                    {isExpanded && (
+                                        <>
+                                            <span className="flex-1 text-left text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-tight">
+                                                {category.title}
+                                            </span>
+                                            <i className={`fa-solid fa-chevron-down text-[10px] text-zinc-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}></i>
+                                        </>
+                                    )}
+                                </button>
+                                
+                                {/* Sub-items (Activities) */}
+                                <div 
+                                    className={`
+                                        overflow-hidden transition-all duration-300 ease-in-out
+                                        ${isOpen && isExpanded ? 'max-h-[1000px] opacity-100 mt-1' : 'max-h-0 opacity-0'}
+                                    `}
+                                >
+                                    <div className="pl-[19px] ml-[15px] border-l-2 border-zinc-100 dark:border-zinc-800 space-y-0.5 py-1">
+                                        {category.items.map(activity => (
+                                            <button
+                                                key={activity.id}
+                                                onClick={() => {
+                                                    onSelectActivity(activity.id);
+                                                    if(window.innerWidth < 768) closeSidebar();
+                                                }}
+                                                className={`
+                                                    group/item w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all flex items-center gap-2 relative
+                                                    ${selectedActivity === activity.id 
+                                                        ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 font-bold border-l-4 border-indigo-500 pl-2' 
+                                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 border-l-4 border-transparent'}
+                                                `}
+                                            >
+                                                <span className="truncate">{activity.title}</span>
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
-                            );
-                        })}
-                        
-                        {/* Empty State for Search */}
-                        {filteredCategories.length === 0 && (
-                            <div className="text-center py-8 px-4">
-                                <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 text-zinc-300">
-                                    <i className="fa-solid fa-search"></i>
-                                </div>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">Sonuç bulunamadı.</p>
                             </div>
-                        )}
-                    </nav>
-                </div>
+                        );
+                    })}
+                    
+                    {filteredCategories.length === 0 && (
+                        <div className="text-center py-12 px-4 opacity-50">
+                            <i className="fa-solid fa-filter-circle-xmark text-2xl mb-2"></i>
+                            <p className="text-xs font-medium">Sonuç bulunamadı.</p>
+                        </div>
+                    )}
+                </nav>
             )}
 
-            {/* FOOTER (Optional - User Context) */}
-            <div className={`p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
-                 <div className="text-[10px] text-zinc-400 text-center font-medium">
-                     v1.3.0 • Bursa Disleksi AI
+            {/* FOOTER */}
+            <div className={`p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
+                 <div className="text-[9px] text-zinc-400 text-center font-bold uppercase tracking-widest opacity-60">
+                     Bursa Disleksi AI v1.4
                  </div>
             </div>
         </div>
