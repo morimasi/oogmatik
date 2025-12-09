@@ -35,14 +35,17 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
     // Interaction State
     const [isSelected, setIsSelected] = useState(false);
     const [isDeleted, setIsDeleted] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
-    const [isResizing, setIsResizing] = useState(false);
-    const [isRotating, setIsRotating] = useState(false);
-    const [isSnapping, setIsSnapping] = useState(false);
-
+    
+    // Refs for performance (avoid state updates during calc)
     const ref = useRef<HTMLDivElement>(null);
     const startPos = useRef({ x: 0, y: 0 });
     const initialTransform = useRef({ x: 0, y: 0, w: 0, h: 0, r: 0 });
+    const rafRef = useRef<number | null>(null);
+    
+    // Flags for active operation
+    const isDragging = useRef(false);
+    const isResizing = useRef(false);
+    const isRotating = useRef(false);
 
     // Reset selection when clicking outside
     useEffect(() => {
@@ -71,17 +74,17 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
 
         e.stopPropagation(); // Stop pan of canvas
         setIsSelected(true);
-        setIsDragging(true);
+        isDragging.current = true;
 
         startPos.current = { x: e.clientX, y: e.clientY };
-        initialTransform.current = { ...position, w: 0, h: 0, r: 0 }; // Size not needed for drag
+        initialTransform.current = { ...position, w: 0, h: 0, r: 0 }; 
     };
 
     // --- RESIZE LOGIC ---
     const handleResizeStart = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        setIsResizing(true);
+        isResizing.current = true;
         const rect = ref.current?.getBoundingClientRect();
         startPos.current = { x: e.clientX, y: e.clientY };
         initialTransform.current = { 
@@ -96,7 +99,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
     const handleRotateStart = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        setIsRotating(true);
+        isRotating.current = true;
         const rect = ref.current?.getBoundingClientRect();
         // Calculate center relative to viewport
         if(rect) {
@@ -108,83 +111,95 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
         }
     };
 
-    // --- GLOBAL MOVE HANDLER ---
+    // --- OPTIMIZED GLOBAL MOVE HANDLER (RAF) ---
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isEditMode) return;
+            if (!isDragging.current && !isResizing.current && !isRotating.current) return;
 
-            if (isDragging) {
-                const dx = (e.clientX - startPos.current.x) / zoom;
-                const dy = (e.clientY - startPos.current.y) / zoom;
+            // Prevent stacking RAF calls
+            if (rafRef.current) return;
+
+            rafRef.current = requestAnimationFrame(() => {
+                if (isDragging.current) {
+                    const dx = (e.clientX - startPos.current.x) / zoom;
+                    const dy = (e.clientY - startPos.current.y) / zoom;
+                    
+                    let rawX = initialTransform.current.x + dx;
+                    let rawY = initialTransform.current.y + dy;
+
+                    // Snap to Grid Logic
+                    const snapX = Math.round(rawX / GRID_SIZE) * GRID_SIZE;
+                    const snapY = Math.round(rawY / GRID_SIZE) * GRID_SIZE;
+
+                    const isSnapX = Math.abs(rawX - snapX) < SNAP_THRESHOLD;
+                    const isSnapY = Math.abs(rawY - snapY) < SNAP_THRESHOLD;
+
+                    setPosition({
+                        x: isSnapX ? snapX : rawX,
+                        y: isSnapY ? snapY : rawY
+                    });
+
+                } else if (isResizing.current) {
+                    const dx = (e.clientX - startPos.current.x) / zoom;
+                    const dy = (e.clientY - startPos.current.y) / zoom;
+                    // Simple bottom-right resize
+                    setSize({
+                        w: Math.max(20, initialTransform.current.w + dx),
+                        h: Math.max(20, initialTransform.current.h + dy)
+                    });
+                } else if (isRotating.current) {
+                    const cx = initialTransform.current.x;
+                    const cy = initialTransform.current.y;
+                    const angle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
+                    setRotation(initialTransform.current.r + angle);
+                }
                 
-                let rawX = initialTransform.current.x + dx;
-                let rawY = initialTransform.current.y + dy;
-
-                // Snap to Grid Logic
-                const snapX = Math.round(rawX / GRID_SIZE) * GRID_SIZE;
-                const snapY = Math.round(rawY / GRID_SIZE) * GRID_SIZE;
-
-                const isSnapX = Math.abs(rawX - snapX) < SNAP_THRESHOLD;
-                const isSnapY = Math.abs(rawY - snapY) < SNAP_THRESHOLD;
-
-                setIsSnapping(isSnapX || isSnapY);
-
-                setPosition({
-                    x: isSnapX ? snapX : rawX,
-                    y: isSnapY ? snapY : rawY
-                });
-
-            } else if (isResizing) {
-                const dx = (e.clientX - startPos.current.x) / zoom;
-                const dy = (e.clientY - startPos.current.y) / zoom;
-                // Simple bottom-right resize for now
-                setSize({
-                    w: Math.max(20, initialTransform.current.w + dx),
-                    h: Math.max(20, initialTransform.current.h + dy)
-                });
-            } else if (isRotating) {
-                const cx = initialTransform.current.x;
-                const cy = initialTransform.current.y;
-                const angle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
-                setRotation(initialTransform.current.r + angle);
-            }
+                rafRef.current = null;
+            });
         };
 
         const handleMouseUp = () => {
-            setIsDragging(false);
-            setIsResizing(false);
-            setIsRotating(false);
-            setIsSnapping(false);
+            if (rafRef.current) {
+                cancelAnimationFrame(rafRef.current);
+                rafRef.current = null;
+            }
+            isDragging.current = false;
+            isResizing.current = false;
+            isRotating.current = false;
         };
 
-        if (isDragging || isResizing || isRotating) {
+        if (isEditMode) {
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
         }
+        
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
-    }, [isDragging, isResizing, isRotating, isEditMode, zoom]);
+    }, [isEditMode, zoom]);
 
     if (isDeleted) return null;
 
     const style: React.CSSProperties = {
         ...propStyle,
-        transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
+        transform: `translate3d(${position.x}px, ${position.y}px, 0) rotate(${rotation}deg)`, // Hardware acceleration
         width: size.w,
         height: size.h,
         position: 'relative', 
         zIndex: isSelected ? 50 : 1,
-        cursor: isEditMode ? (isDragging ? 'grabbing' : 'grab') : undefined,
+        cursor: isEditMode ? (isDragging.current ? 'grabbing' : 'grab') : undefined,
         outline: isEditMode && isSelected ? '2px solid #6366f1' : 'none',
-        userSelect: isEditMode ? 'none' : 'auto'
+        userSelect: isEditMode ? 'none' : 'auto',
+        willChange: isDragging.current || isResizing.current ? 'transform, width, height' : 'auto'
     };
 
     return (
         <div ref={ref} className={`${className} editable-element group/edit`} style={style} onMouseDown={handleMouseDown}>
-            {/* Alignment Guides (Visual Only) */}
-            {isEditMode && isDragging && isSnapping && (
+            {/* Alignment Guides (Visual Only) - Only show when dragging for perf */}
+            {isEditMode && isDragging.current && (
                 <>
                     <div className="absolute top-0 bottom-0 left-0 w-px bg-indigo-400 opacity-50 -translate-x-1/2 pointer-events-none h-[200vh] -top-[50vh]"></div>
                     <div className="absolute left-0 right-0 top-0 h-px bg-indigo-400 opacity-50 -translate-y-1/2 pointer-events-none w-[200vh] -left-[50vh]"></div>

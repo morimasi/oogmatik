@@ -191,6 +191,12 @@
         position: relative;
         overflow: hidden;
         flex-shrink: 0; /* Prevent shrinking in flex container */
+
+        /* PERFORMANCE OPTIMIZATIONS */
+        content-visibility: auto; /* Skip rendering off-screen pages */
+        contain-intrinsic-size: 210mm 297mm; /* Prevent scroll jumping when skipping render */
+        transform: translateZ(0); /* Promote to GPU layer */
+        will-change: transform;
     }
 
     /* Canvas Background Pattern - UPDATED to match theme */
@@ -264,6 +270,11 @@
             */
             position: relative !important;
             background: white !important;
+            
+            /* Remove performance optimizations during print */
+            content-visibility: visible !important;
+            transform: none !important;
+            will-change: auto !important;
         }
 
         /* Ensure content inside fits but ALLOW TRANSFORM */

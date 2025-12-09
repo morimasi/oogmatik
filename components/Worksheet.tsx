@@ -200,10 +200,11 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
             return <div>Bu etkinlik türü henüz desteklenmiyor veya geliştirme aşamasında: {activityType}</div>;
     }
 }, (prevProps, nextProps) => {
+    // Custom comparison for performance
     return prevProps.data === nextProps.data && prevProps.activityType === nextProps.activityType;
 });
 
-const WorkbookQR = ({ url }: { url: string }) => {
+const WorkbookQR = React.memo(({ url }: { url: string }) => {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
     
     return (
@@ -212,7 +213,7 @@ const WorkbookQR = ({ url }: { url: string }) => {
             <span className="text-[8px] font-bold mt-1 text-black uppercase tracking-wider">Dijital Çözüm</span>
         </div>
     );
-};
+});
 
 const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, overlayItems, showQR }) => {
     const { isEditMode } = useEditable();
