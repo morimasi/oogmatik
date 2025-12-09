@@ -3,7 +3,8 @@ import React from 'react';
 import { 
     StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData,
     ProverbFillData, ProverbSayingSortData, ProverbWordChainData, MissingPartsData,
-    MultipleChoiceStoryQuestion, OpenEndedStoryQuestion, TrueFalseQuestion, ProverbSearchData
+    MultipleChoiceStoryQuestion, OpenEndedStoryQuestion, TrueFalseQuestion, ProverbSearchData,
+    ProverbSentenceFinderData
 } from '../../types';
 import { ImageDisplay, PedagogicalHeader, ReadingRuler } from './common';
 import { WordSearchSheet } from './WordGameSheets';
@@ -12,88 +13,99 @@ import { EditableElement, EditableText } from '../Editable';
 // --- STYLING CONSTANTS (Compact Layout) ---
 const SECTION_HEADER_CLASS = "text-xs font-black text-zinc-500 border-b border-zinc-200 pb-1 mb-1 uppercase tracking-widest";
 
-export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data }) => (
-  <div className="relative h-full flex flex-col justify-between w-full">
-    <ReadingRuler />
-    
-    <PedagogicalHeader title={data.title} instruction="Hikayeyi oku, 5N 1K tablosunu doldur ve soruları cevapla." note={data.pedagogicalNote} data={data} />
-    
-    <div className="flex-1 flex flex-col gap-3 overflow-hidden">
-        
-        {/* SECTION 1: THE STORY (Fit content without huge padding) */}
-        <EditableElement className="bg-white px-4 py-3 rounded-xl border border-zinc-300 shadow-sm relative shrink-0">
-            <div className="prose max-w-none text-sm leading-snug font-dyslexic text-zinc-900 text-justify">
-                <EditableText value={data.story} tag="p" />
-            </div>
-        </EditableElement>
+export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data }) => {
+    // Helper to safely access 5N1K data
+    const get5N1K = (key: keyof NonNullable<StoryData['fiveW1H']>) => {
+        return data.fiveW1H ? data.fiveW1H[key] : '...';
+    };
 
-        {/* SECTION 2: 5N 1K GRID (Compact Grid) */}
-        <div className="shrink-0">
-            <h4 className={SECTION_HEADER_CLASS}><i className="fa-solid fa-compass text-indigo-500 mr-2"></i> 5N 1K Analizi</h4>
-            <div className="grid grid-cols-3 gap-2">
-                {[
-                    { label: 'Kim?', val: data.fiveW1H?.who || '...', icon: 'fa-user', bg: 'bg-blue-50 border-blue-200' },
-                    { label: 'Nerede?', val: data.fiveW1H?.where || '...', icon: 'fa-map-pin', bg: 'bg-green-50 border-green-200' },
-                    { label: 'Ne Zaman?', val: data.fiveW1H?.when || '...', icon: 'fa-clock', bg: 'bg-yellow-50 border-yellow-200' },
-                    { label: 'Ne Oldu?', val: data.fiveW1H?.what || '...', icon: 'fa-star', bg: 'bg-purple-50 border-purple-200' },
-                    { label: 'Neden?', val: data.fiveW1H?.why || '...', icon: 'fa-question', bg: 'bg-red-50 border-red-200' },
-                    { label: 'Nasıl?', val: data.fiveW1H?.how || '...', icon: 'fa-gear', bg: 'bg-orange-50 border-orange-200' },
-                ].map((item, i) => (
-                    <EditableElement key={i} className={`${item.bg} border rounded-lg p-1.5 flex flex-col h-14`}>
-                        <div className="flex items-center gap-1 mb-0.5 opacity-70">
-                            <i className={`fa-solid ${item.icon} text-[8px]`}></i>
-                            <span className="text-[8px] font-black uppercase">{item.label}</span>
-                        </div>
-                        <div className="flex-1 flex items-center justify-center text-center font-medium text-[10px] leading-tight">
-                            <EditableText value="" tag="span" placeholder="Cevap..." />
-                        </div>
-                    </EditableElement>
-                ))}
-            </div>
-        </div>
-    
-        {/* SECTION 3: QUESTIONS (Grid layout to save vertical space) */}
-        <div className="flex-1">
-            <h4 className={SECTION_HEADER_CLASS}><i className="fa-solid fa-brain text-rose-500 mr-2"></i> Sorular</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {(data.questions || []).slice(0, 4).map((q, index) => (
-                    <EditableElement key={index} className="bg-zinc-50 rounded-lg p-2 border border-zinc-200 flex flex-col justify-start">
-                        <div className="flex gap-2 mb-1">
-                            <span className="bg-black text-white w-4 h-4 rounded flex items-center justify-center text-[10px] font-bold shrink-0">{index + 1}</span>
-                            <p className="font-bold text-xs text-zinc-800 leading-snug"><EditableText value={q.type === 'true-false' ? (q as TrueFalseQuestion).statement : (q as any).question} tag="span" /></p>
-                        </div>
-                        
-                        {q.type === 'multiple-choice' && (
-                            <div className="grid grid-cols-2 gap-1 mt-1">
-                                {(q as MultipleChoiceStoryQuestion).options.map((opt, i) => (
-                                    <div key={i} className="flex items-center gap-1 text-[10px] p-1 border rounded bg-white">
-                                        <div className="w-3 h-3 rounded-full border border-zinc-400 flex items-center justify-center font-bold text-[8px]">{['A','B','C','D'][i]}</div>
-                                        <span className="truncate leading-none"><EditableText value={opt} tag="span" /></span>
+    const w1hItems = [
+        { label: 'Kim?', val: get5N1K('who'), icon: 'fa-user', bg: 'bg-blue-50 border-blue-200' },
+        { label: 'Nerede?', val: get5N1K('where'), icon: 'fa-map-pin', bg: 'bg-green-50 border-green-200' },
+        { label: 'Ne Zaman?', val: get5N1K('when'), icon: 'fa-clock', bg: 'bg-yellow-50 border-yellow-200' },
+        { label: 'Ne Oldu?', val: get5N1K('what'), icon: 'fa-star', bg: 'bg-purple-50 border-purple-200' },
+        { label: 'Neden?', val: get5N1K('why'), icon: 'fa-question', bg: 'bg-red-50 border-red-200' },
+        { label: 'Nasıl?', val: get5N1K('how'), icon: 'fa-gear', bg: 'bg-orange-50 border-orange-200' }
+    ];
+
+    return (
+        <div className="relative h-full flex flex-col justify-between w-full">
+            <ReadingRuler />
+            
+            <PedagogicalHeader title={data.title} instruction="Hikayeyi oku, 5N 1K tablosunu doldur ve soruları cevapla." note={data.pedagogicalNote} data={data} />
+            
+            <div className="flex-1 flex flex-col gap-3 overflow-hidden">
+                
+                {/* SECTION 1: THE STORY (Fit content without huge padding) */}
+                <EditableElement className="bg-white px-4 py-3 rounded-xl border border-zinc-300 shadow-sm relative shrink-0">
+                    <div className="prose max-w-none text-sm leading-snug font-dyslexic text-zinc-900 text-justify">
+                        <EditableText value={data.story} tag="p" />
+                    </div>
+                </EditableElement>
+
+                {/* SECTION 2: 5N 1K GRID (Compact Grid) */}
+                <div className="shrink-0">
+                    <h4 className={SECTION_HEADER_CLASS}><i className="fa-solid fa-compass text-indigo-500 mr-2"></i> 5N 1K Analizi</h4>
+                    <div className="grid grid-cols-3 gap-2">
+                        {w1hItems.map((item, i) => (
+                            <EditableElement key={i} className={`${item.bg} border rounded-lg p-1.5 flex flex-col h-14`}>
+                                <div className="flex items-center gap-1 mb-0.5 opacity-70">
+                                    <i className={`fa-solid ${item.icon} text-[8px]`}></i>
+                                    <span className="text-[8px] font-black uppercase">{item.label}</span>
+                                </div>
+                                <div className="flex-1 flex items-center justify-center text-center font-medium text-[10px] leading-tight">
+                                    <EditableText value={item.val} tag="span" placeholder="Cevap..." />
+                                </div>
+                            </EditableElement>
+                        ))}
+                    </div>
+                </div>
+            
+                {/* SECTION 3: QUESTIONS (Grid layout to save vertical space) */}
+                <div className="flex-1">
+                    <h4 className={SECTION_HEADER_CLASS}><i className="fa-solid fa-brain text-rose-500 mr-2"></i> Sorular</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {(data.questions || []).map((q, index) => (
+                            <EditableElement key={index} className="bg-zinc-50 rounded-lg p-2 border border-zinc-200 flex flex-col justify-start">
+                                <div className="flex gap-2 mb-1">
+                                    <span className="bg-black text-white w-4 h-4 rounded flex items-center justify-center text-[10px] font-bold shrink-0">{index + 1}</span>
+                                    <p className="font-bold text-xs text-zinc-800 leading-snug">
+                                        <EditableText value={q.type === 'true-false' ? (q as TrueFalseQuestion).statement : (q as any).question} tag="span" />
+                                    </p>
+                                </div>
+                                
+                                {q.type === 'multiple-choice' && (
+                                    <div className="grid grid-cols-2 gap-1 mt-1">
+                                        {(q as MultipleChoiceStoryQuestion).options.map((opt, i) => (
+                                            <div key={i} className="flex items-center gap-1 text-[10px] p-1 border rounded bg-white">
+                                                <div className="w-3 h-3 rounded-full border border-zinc-400 flex items-center justify-center font-bold text-[8px]">{['A','B','C','D'][i]}</div>
+                                                <span className="truncate leading-none"><EditableText value={opt} tag="span" /></span>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                )}
 
-                        {q.type === 'true-false' && (
-                            <div className="flex gap-2 mt-1 text-[10px] font-bold">
-                                <div className="flex-1 py-0.5 border border-green-300 bg-green-50 text-green-700 text-center rounded cursor-pointer">DOĞRU</div>
-                                <div className="flex-1 py-0.5 border border-red-300 bg-red-50 text-red-700 text-center rounded cursor-pointer">YANLIŞ</div>
-                            </div>
-                        )}
+                                {q.type === 'true-false' && (
+                                    <div className="flex gap-2 mt-1 text-[10px] font-bold">
+                                        <div className="flex-1 py-0.5 border border-green-300 bg-green-50 text-green-700 text-center rounded cursor-pointer">DOĞRU</div>
+                                        <div className="flex-1 py-0.5 border border-red-300 bg-red-50 text-red-700 text-center rounded cursor-pointer">YANLIŞ</div>
+                                    </div>
+                                )}
 
-                        {q.type === 'open-ended' && (
-                            <div className="mt-1 space-y-1.5">
-                                <div className="border-b border-zinc-300 border-dashed w-full h-3"></div>
-                                <div className="border-b border-zinc-300 border-dashed w-full h-3"></div>
-                            </div>
-                        )}
-                    </EditableElement>
-                ))}
+                                {q.type === 'open-ended' && (
+                                    <div className="mt-1 space-y-1.5">
+                                        <div className="border-b border-zinc-300 border-dashed w-full h-3"></div>
+                                        <div className="border-b border-zinc-300 border-dashed w-full h-3"></div>
+                                    </div>
+                                )}
+                            </EditableElement>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-  </div>
-);
+    );
+};
 
 export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData }> = ({ data }) => (
     <div className="relative space-y-8 text-zinc-900">

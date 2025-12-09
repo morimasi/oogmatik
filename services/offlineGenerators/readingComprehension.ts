@@ -62,7 +62,7 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
         
         const questions: StoryQuestion[] = [];
         
-        // 1. Literal Questions (Multiple Choice)
+        // 1. Literal Questions (Multiple Choice) - Increased Count
         questions.push({
             type: 'multiple-choice',
             question: "Hikayenin baş kahramanı kimdir?",
@@ -77,25 +77,52 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             answerIndex: 0
         });
 
-        // 2. Inferential Question (Open Ended)
+        // Additional Specific MC Questions based on fillers
+        if (story.includes(chosenValues.object)) {
+            questions.push({
+                type: 'multiple-choice',
+                question: `${chosenValues.character} ne buldu?`,
+                options: shuffle([chosenValues.object, 'Bir harita', 'Eski bir para', 'Hiçbir şey']),
+                answerIndex: 0
+            });
+        }
+
+        if (story.includes(chosenValues.animal)) {
+            questions.push({
+                type: 'multiple-choice',
+                question: "Hikayede hangi hayvanla karşılaşıldı?",
+                options: shuffle([chosenValues.animal, 'Kedi', 'Köpek', 'Kuş']),
+                answerIndex: 0
+            });
+        }
+
+        // 2. Inferential Question (Open Ended) - Increased Count
         questions.push({
             type: 'open-ended',
-            question: `Sence ${chosenValues.character} neden böyle hissetmiş olabilir?`,
+            question: `Sence ${chosenValues.character} hikayenin sonunda neden böyle hissetmiş olabilir?`,
             spaceLines: 3
         });
 
-        // 3. True/False Questions
+        questions.push({
+            type: 'open-ended',
+            question: "Hikayeye yeni bir başlık koysaydın ne olurdu?",
+            spaceLines: 2
+        });
+
+        // 3. True/False Questions - Expanded
         const tfStatements = [
             { statement: `${chosenValues.character}, ${chosenValues.place} mekanına gitti.`, isTrue: true },
             { statement: `Hikayede bir ${chosenValues.animal} ile karşılaşıldı.`, isTrue: story.includes(chosenValues.animal) },
             { statement: `${chosenValues.character} tek başına değildi, yanında ${chosenValues.friend} vardı.`, isTrue: story.includes(chosenValues.friend) },
-            { statement: "Olay gece yarısı, zifiri karanlıkta geçti.", isTrue: false }
+            { statement: "Olay gece yarısı, zifiri karanlıkta geçti.", isTrue: false },
+            { statement: `${chosenValues.character} bir ${chosenValues.object} buldu.`, isTrue: story.includes(chosenValues.object) },
+            { statement: `Sonunda ${chosenValues.character} çok üzgündü.`, isTrue: false }
         ];
         
-        // Select 2 relevant T/F
-        const selectedTF = tfStatements.slice(0, difficulty === 'Başlangıç' ? 2 : 4);
+        // Select 4 relevant T/F to ensure fullness
+        const selectedTF = tfStatements.slice(0, 4);
         selectedTF.forEach(tf => {
-            questions.push({ type: 'true-false', ...tf });
+            questions.push({ type: 'true-false', statement: tf.statement, isTrue: tf.isTrue });
         });
 
         // 5N 1K Mapping
@@ -110,13 +137,13 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
 
         results.push({ 
             title: `Okuma Anlama: ${chosenValues.character}'in Macerası`,
-            instruction: "Hikayeyi dikkatlice oku, 5N 1K sorularını cevapla ve mantık sorularını çöz.",
+            instruction: "Hikayeyi dikkatlice oku, 5N 1K tablosunu doldur ve tüm soruları cevapla.",
             story, 
             questions: questions,
             characters: [chosenValues.character, chosenValues.friend].filter(c => story.includes(c)), 
             mainIdea: 'Dikkatli okuma, detayları fark etme ve çıkarım yapma.', 
             setting: chosenValues.place,
-            pedagogicalNote: `${difficulty} seviyesinde okuma anlama. 5N1K soruları ve çıkarım yapma becerileri desteklenmektedir.`,
+            pedagogicalNote: `${difficulty} seviyesinde okuma anlama. 5N1K soruları, test ve açık uçlu sorularla anlama becerisi desteklenmektedir.`,
             imagePrompt: `${chosenValues.character} in ${chosenValues.place} with a ${chosenValues.object}`,
             fiveW1H: fiveW1H
         });

@@ -5,7 +5,18 @@ import * as MathLogicSheets from './sheets/MathLogicSheets';
 import * as MemoryAttentionSheets from './sheets/MemoryAttentionSheets';
 import * as VisualPerceptionSheets from './sheets/VisualPerceptionSheets';
 import * as WordGameSheets from './sheets/WordGameSheets';
-import * as ReadingComprehensionSheets from './sheets/ReadingComprehensionSheets';
+import { 
+    StoryComprehensionSheet, 
+    StoryCreationPromptSheet, 
+    WordsInStorySheet, 
+    StoryAnalysisSheet, 
+    ProverbFillSheet, 
+    StorySequencingSheet, 
+    ProverbSayingSortSheet, 
+    ProverbWordChainSheet, 
+    ProverbSearchSheet, 
+    ProverbSentenceFinderSheet 
+} from './sheets/ReadingComprehensionSheets';
 import * as DyslexiaSheets from './sheets/DyslexiaSupportSheets';
 import * as DyscalculiaSheets from './sheets/DyscalculiaSheets';
 import * as NewActivitySheets from './sheets/NewActivitySheets';
@@ -97,16 +108,16 @@ const RenderSheet = React.memo(({ activityType, data }: { activityType: Activity
         case ActivityType.SYNONYM_ANTONYM_COLORING: return <VisualPerceptionSheets.SynonymAntonymColoringSheet {...props} />;
 
         // --- Reading Comprehension ---
-        case ActivityType.STORY_COMPREHENSION: return <ReadingComprehensionSheets.StoryComprehensionSheet {...props} />;
-        case ActivityType.STORY_CREATION_PROMPT: return <ReadingComprehensionSheets.StoryCreationPromptSheet {...props} />;
-        case ActivityType.WORDS_IN_STORY: return <ReadingComprehensionSheets.WordsInStorySheet {...props} />;
-        case ActivityType.STORY_ANALYSIS: return <ReadingComprehensionSheets.StoryAnalysisSheet {...props} />;
-        case ActivityType.PROVERB_FILL_IN_THE_BLANK: return <ReadingComprehensionSheets.ProverbFillSheet {...props} />;
-        case ActivityType.STORY_SEQUENCING: return <ReadingComprehensionSheets.StorySequencingSheet {...props} />;
-        case ActivityType.PROVERB_SAYING_SORT: return <ReadingComprehensionSheets.ProverbSayingSortSheet {...props} />;
-        case ActivityType.PROVERB_WORD_CHAIN: return <ReadingComprehensionSheets.ProverbWordChainSheet {...props} />;
-        case ActivityType.PROVERB_SEARCH: return <ReadingComprehensionSheets.ProverbSearchSheet {...props} />;
-        case ActivityType.PROVERB_SENTENCE_FINDER: return <ReadingComprehensionSheets.ProverbSentenceFinderSheet {...props} />;
+        case ActivityType.STORY_COMPREHENSION: return <StoryComprehensionSheet {...props} />;
+        case ActivityType.STORY_CREATION_PROMPT: return <StoryCreationPromptSheet {...props} />;
+        case ActivityType.WORDS_IN_STORY: return <WordsInStorySheet {...props} />;
+        case ActivityType.STORY_ANALYSIS: return <StoryAnalysisSheet {...props} />;
+        case ActivityType.PROVERB_FILL_IN_THE_BLANK: return <ProverbFillSheet {...props} />;
+        case ActivityType.STORY_SEQUENCING: return <StorySequencingSheet {...props} />;
+        case ActivityType.PROVERB_SAYING_SORT: return <ProverbSayingSortSheet {...props} />;
+        case ActivityType.PROVERB_WORD_CHAIN: return <ProverbWordChainSheet {...props} />;
+        case ActivityType.PROVERB_SEARCH: return <ProverbSearchSheet {...props} />;
+        case ActivityType.PROVERB_SENTENCE_FINDER: return <ProverbSentenceFinderSheet {...props} />;
 
         // --- Word Games ---
         case ActivityType.WORD_SEARCH: return <WordGameSheets.WordSearchSheet {...props} />;
