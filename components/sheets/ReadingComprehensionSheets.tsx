@@ -10,28 +10,27 @@ import { WordSearchSheet } from './WordGameSheets';
 import { EditableElement, EditableText } from '../Editable';
 
 // --- STYLING CONSTANTS (Compact Layout) ---
-const SECTION_HEADER_CLASS = "text-sm font-black text-zinc-500 border-b-2 border-zinc-200 pb-1 mb-2 uppercase tracking-widest";
-const COMPACT_CARD_CLASS = "bg-white p-2 rounded-lg border border-zinc-200 text-xs";
+const SECTION_HEADER_CLASS = "text-xs font-black text-zinc-500 border-b border-zinc-200 pb-1 mb-1 uppercase tracking-widest";
 
 export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data }) => (
-  <div className="relative h-full flex flex-col justify-between">
+  <div className="relative h-full flex flex-col justify-between w-full">
     <ReadingRuler />
     
     <PedagogicalHeader title={data.title} instruction="Hikayeyi oku, 5N 1K tablosunu doldur ve soruları cevapla." note={data.pedagogicalNote} data={data} />
     
-    <div className="flex-1 flex flex-col gap-4">
+    <div className="flex-1 flex flex-col gap-3 overflow-hidden">
         
-        {/* SECTION 1: THE STORY (Top - Approx 40% height) */}
-        <EditableElement className="bg-white p-6 rounded-2xl border-2 border-zinc-200 shadow-sm relative overflow-hidden flex-shrink-0">
-            <div className="prose max-w-none text-base leading-relaxed font-dyslexic text-zinc-900 text-justify">
+        {/* SECTION 1: THE STORY (Fit content without huge padding) */}
+        <EditableElement className="bg-white px-4 py-3 rounded-xl border border-zinc-300 shadow-sm relative shrink-0">
+            <div className="prose max-w-none text-sm leading-snug font-dyslexic text-zinc-900 text-justify">
                 <EditableText value={data.story} tag="p" />
             </div>
         </EditableElement>
 
-        {/* SECTION 2: 5N 1K GRID (Middle - Approx 30% height) */}
-        <div className="flex-shrink-0">
+        {/* SECTION 2: 5N 1K GRID (Compact Grid) */}
+        <div className="shrink-0">
             <h4 className={SECTION_HEADER_CLASS}><i className="fa-solid fa-compass text-indigo-500 mr-2"></i> 5N 1K Analizi</h4>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2">
                 {[
                     { label: 'Kim?', val: data.fiveW1H?.who || '...', icon: 'fa-user', bg: 'bg-blue-50 border-blue-200' },
                     { label: 'Nerede?', val: data.fiveW1H?.where || '...', icon: 'fa-map-pin', bg: 'bg-green-50 border-green-200' },
@@ -40,54 +39,52 @@ export const StoryComprehensionSheet: React.FC<{ data: StoryData }> = ({ data })
                     { label: 'Neden?', val: data.fiveW1H?.why || '...', icon: 'fa-question', bg: 'bg-red-50 border-red-200' },
                     { label: 'Nasıl?', val: data.fiveW1H?.how || '...', icon: 'fa-gear', bg: 'bg-orange-50 border-orange-200' },
                 ].map((item, i) => (
-                    <EditableElement key={i} className={`${item.bg} border rounded-xl p-2 flex flex-col h-20`}>
-                        <div className="flex items-center gap-1 mb-1 opacity-70">
-                            <i className={`fa-solid ${item.icon} text-[10px]`}></i>
-                            <span className="text-[10px] font-black uppercase">{item.label}</span>
+                    <EditableElement key={i} className={`${item.bg} border rounded-lg p-1.5 flex flex-col h-14`}>
+                        <div className="flex items-center gap-1 mb-0.5 opacity-70">
+                            <i className={`fa-solid ${item.icon} text-[8px]`}></i>
+                            <span className="text-[8px] font-black uppercase">{item.label}</span>
                         </div>
-                        <div className="flex-1 flex items-center justify-center text-center font-medium text-xs leading-tight">
-                            <EditableText value="" tag="span" placeholder="Cevabı yaz..." />
+                        <div className="flex-1 flex items-center justify-center text-center font-medium text-[10px] leading-tight">
+                            <EditableText value="" tag="span" placeholder="Cevap..." />
                         </div>
-                        {/* Hidden hint for teacher view/answer key later */}
-                        {/* <div className="hidden print:block text-[8px] text-zinc-400 mt-1">{item.val}</div> */}
                     </EditableElement>
                 ))}
             </div>
         </div>
     
-        {/* SECTION 3: LOGIC & REASONING (Bottom - Approx 30% height) */}
+        {/* SECTION 3: QUESTIONS (Grid layout to save vertical space) */}
         <div className="flex-1">
-            <h4 className={SECTION_HEADER_CLASS}><i className="fa-solid fa-brain text-rose-500 mr-2"></i> Mantık ve Çıkarım</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(data.questions || []).slice(0, 2).map((q, index) => (
-                    <EditableElement key={index} className="bg-zinc-50 rounded-xl p-3 border border-zinc-200 flex flex-col justify-between">
-                        <div className="flex gap-2 mb-2">
-                            <span className="bg-black text-white w-5 h-5 rounded flex items-center justify-center text-xs font-bold shrink-0">{index + 1}</span>
-                            <p className="font-bold text-sm text-zinc-800 leading-snug"><EditableText value={q.type === 'true-false' ? (q as TrueFalseQuestion).statement : (q as any).question} tag="span" /></p>
+            <h4 className={SECTION_HEADER_CLASS}><i className="fa-solid fa-brain text-rose-500 mr-2"></i> Sorular</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {(data.questions || []).slice(0, 4).map((q, index) => (
+                    <EditableElement key={index} className="bg-zinc-50 rounded-lg p-2 border border-zinc-200 flex flex-col justify-start">
+                        <div className="flex gap-2 mb-1">
+                            <span className="bg-black text-white w-4 h-4 rounded flex items-center justify-center text-[10px] font-bold shrink-0">{index + 1}</span>
+                            <p className="font-bold text-xs text-zinc-800 leading-snug"><EditableText value={q.type === 'true-false' ? (q as TrueFalseQuestion).statement : (q as any).question} tag="span" /></p>
                         </div>
                         
                         {q.type === 'multiple-choice' && (
-                            <div className="grid grid-cols-2 gap-2 mt-2">
+                            <div className="grid grid-cols-2 gap-1 mt-1">
                                 {(q as MultipleChoiceStoryQuestion).options.map((opt, i) => (
-                                    <div key={i} className="flex items-center gap-2 text-xs p-1 border rounded bg-white">
-                                        <div className="w-4 h-4 rounded-full border border-zinc-400 flex items-center justify-center font-bold text-[8px]">{['A','B','C','D'][i]}</div>
-                                        <span className="truncate"><EditableText value={opt} tag="span" /></span>
+                                    <div key={i} className="flex items-center gap-1 text-[10px] p-1 border rounded bg-white">
+                                        <div className="w-3 h-3 rounded-full border border-zinc-400 flex items-center justify-center font-bold text-[8px]">{['A','B','C','D'][i]}</div>
+                                        <span className="truncate leading-none"><EditableText value={opt} tag="span" /></span>
                                     </div>
                                 ))}
                             </div>
                         )}
 
                         {q.type === 'true-false' && (
-                            <div className="flex gap-2 mt-2 text-xs font-bold">
-                                <div className="flex-1 py-1 border border-green-300 bg-green-50 text-green-700 text-center rounded cursor-pointer">DOĞRU</div>
-                                <div className="flex-1 py-1 border border-red-300 bg-red-50 text-red-700 text-center rounded cursor-pointer">YANLIŞ</div>
+                            <div className="flex gap-2 mt-1 text-[10px] font-bold">
+                                <div className="flex-1 py-0.5 border border-green-300 bg-green-50 text-green-700 text-center rounded cursor-pointer">DOĞRU</div>
+                                <div className="flex-1 py-0.5 border border-red-300 bg-red-50 text-red-700 text-center rounded cursor-pointer">YANLIŞ</div>
                             </div>
                         )}
 
                         {q.type === 'open-ended' && (
-                            <div className="mt-2 space-y-2">
-                                <div className="border-b border-zinc-300 border-dashed w-full h-4"></div>
-                                <div className="border-b border-zinc-300 border-dashed w-full h-4"></div>
+                            <div className="mt-1 space-y-1.5">
+                                <div className="border-b border-zinc-300 border-dashed w-full h-3"></div>
+                                <div className="border-b border-zinc-300 border-dashed w-full h-3"></div>
                             </div>
                         )}
                     </EditableElement>

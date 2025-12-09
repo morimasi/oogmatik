@@ -182,6 +182,11 @@ export const paginationService = {
             return data;
         }
 
+        // FORCE DISABLE FOR STORY COMPREHENSION TO PREVENT SPLIT/DUPLICATION
+        if (activityType === ActivityType.STORY_COMPREHENSION) {
+            return data;
+        }
+
         const newWorksheetData: WorksheetData = [];
         const splitKey = PAGINATION_CONFIG[activityType];
 
