@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
@@ -194,7 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         border-r border-zinc-200 dark:border-zinc-800
         transition-all duration-300 cubic-bezier(0.25, 0.46, 0.45, 0.94)
         md:relative md:translate-x-0
-        flex flex-col
+        flex flex-col h-full
         ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} 
         ${isExpanded ? 'w-[320px]' : 'w-[80px]'}
       `}
@@ -237,7 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* CONTENT AREA */}
-        <div className="flex-1 flex flex-col overflow-hidden relative">
+        <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
             {currentActivity ? (
                 <GeneratorView 
                     activity={currentActivity}
@@ -249,7 +248,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     studentProfile={studentProfile}
                 />
             ) : (
-                <nav className="flex-1 overflow-y-auto px-2 py-2 custom-scrollbar">
+                <nav className="flex-1 overflow-y-auto px-2 py-2 custom-scrollbar min-h-0">
                     {filteredCategories.map((category) => {
                         const isOpen = openCategoryId === category.id || !!localSearch;
                         
