@@ -54,7 +54,7 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
     ];
 
     for (let i = 0; i < worksheetCount; i++) {
-        const rows = Array.from({ length: itemCount || 5 }).map(() => {
+        const rows = Array.from({ length: itemCount || 8 }).map(() => { // Increased to 8
             const correctIndex = getRandomInt(0, 3);
             let items = [];
             
@@ -124,15 +124,15 @@ export const generateOfflineWordComparison = async (options: GeneratorOptions): 
     const masterPool = shuffle(getWordsForDifficulty(difficulty, topic));
 
     for (let i = 0; i < worksheetCount; i++) {
-        // Ensure varied words per sheet
-        const start = (i * 15) % Math.max(1, masterPool.length - 15);
-        const poolSubset = masterPool.slice(start, start + 20);
+        // Ensure varied words per sheet and INCREASE list size
+        const start = (i * 20) % Math.max(1, masterPool.length - 20);
+        const poolSubset = masterPool.slice(start, start + 30);
         
-        const commonWords = getRandomItems(poolSubset, 10);
+        const commonWords = getRandomItems(poolSubset, 14); // Increased common items
         const diffPool = poolSubset.filter(w => !commonWords.includes(w));
         
-        const list1_diff = getRandomItems(diffPool, 3);
-        const list2_diff = getRandomItems(diffPool.filter(w => !list1_diff.includes(w)), 3);
+        const list1_diff = getRandomItems(diffPool, 4); // Increased diff
+        const list2_diff = getRandomItems(diffPool.filter(w => !list1_diff.includes(w)), 4);
         
         results.push({
             title: 'Kelime Karşılaştırma',
@@ -158,7 +158,7 @@ export const generateOfflineShapeMatching = async (options: GeneratorOptions): P
         
         // Generate unique composite shapes
         // Each item will be a set of shapes (e.g. Circle, Square, Star) + Colors
-        const baseShapes = Array.from({ length: itemCount || 5 }, (_, k) => ({
+        const baseShapes = Array.from({ length: itemCount || 7 }, (_, k) => ({ // Increased to 7
             id: k + 1,
             shapes: getRandomItems(SHAPE_TYPES, shapeCount),
             color: getRandomItems(COLORS, 1)[0].css
@@ -301,7 +301,7 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
     const results: VisualOddOneOutData[] = [];
     
     for(let i=0; i<worksheetCount; i++) {
-        const rows = Array.from({length: itemCount || 5}).map(() => {
+        const rows = Array.from({length: itemCount || 8}).map(() => { // Increased to 8
             const correctIndex = getRandomInt(0, 3);
             
             // Logic: Rotation vs Reflection (True IQ Test Style)

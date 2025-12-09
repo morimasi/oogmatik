@@ -1,4 +1,3 @@
-
 import { GeneratorOptions, WordSearchData, AnagramsData, SpellingCheckData, WordComparisonData, ProverbSearchData, ReverseWordData, FindDuplicateData, WordGroupingData, WordLadderData, WordFormationData, FindIdenticalWordData, LetterBridgeData, MiniWordGridData, PasswordFinderData, SyllableCompletionData, CrosswordData, WordGridPuzzleData, ProverbSayingSortData, HomonymImageMatchData, AntonymFlowerPuzzleData, SynonymAntonymGridData, AntonymResfebeData, ThematicWordSearchColorData, SynonymSearchAndStoryData, PunctuationSpiralPuzzleData, SynonymMatchingPatternData, WordWebData, SyllableWordSearchData, WordSearchWithPasswordData, WordWebWithPasswordData, LetterGridWordFindData, WordPlacementPuzzleData, PositionalAnagramData, ImageAnagramSortData, AnagramImageMatchData, SynonymWordSearchData, SpiralPuzzleData, HomonymSentenceData, ResfebeData, ResfebeClue, JumbledWordStoryData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, TR_VOCAB, COLORS, HOMONYMS, EMOJIS, simpleSyllabify, generateCrosswordLayout, wordToRebus, ITEM_CATEGORIES, CATEGORY_NAMES, getDifficultySettings } from './helpers';
 import { PROVERBS } from '../../data/sentences';
@@ -51,7 +50,7 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions & { wo
     }
     
     masterWordPool = shuffle(masterWordPool);
-    const wordsPerSheet = itemCount || 10;
+    const wordsPerSheet = itemCount || 15; // Increased to 15
 
     for (let i = 0; i < worksheetCount; i++) {
         let startIndex = (i * wordsPerSheet) % masterWordPool.length;
@@ -152,7 +151,7 @@ export const generateOfflineAnagram = async (options: GeneratorOptions): Promise
     const { topic, itemCount, worksheetCount, difficulty } = options;
     const results: AnagramsData[] = [];
     const masterPool = shuffle(getWordsForDifficulty(difficulty, topic));
-    const itemsPerSheet = itemCount || 8;
+    const itemsPerSheet = itemCount || 14; // Increased to 14
 
     for (let i = 0; i < worksheetCount; i++) {
         let startIndex = (i * itemsPerSheet) % masterPool.length;
@@ -389,7 +388,10 @@ export const generateOfflineLetterBridge = async (options: GeneratorOptions): Pr
     for (let i = 0; i < worksheetCount; i++) {
         const pairs = [];
         let attempts = 0;
-        while(pairs.length < (itemCount || 8) && attempts < 200) {
+        // Increased loop limit to find more pairs for 12 items
+        const targetCount = itemCount || 12;
+        
+        while(pairs.length < targetCount && attempts < 300) {
             const bridgeLetter = getRandomItems(turkishAlphabet.split(''), 1)[0];
             const word1 = wordPool.find(w => w.endsWith(bridgeLetter) && w.length > 2);
             const word2 = wordPool.find(w => w.startsWith(bridgeLetter) && w.length > 2 && w !== word1);
@@ -423,7 +425,7 @@ export const generateOfflineWordLadder = async (o: GeneratorOptions): Promise<Wo
 };
 export const generateOfflineWordFormation = async (o: GeneratorOptions): Promise<WordFormationData[]> => {
     return Array.from({length: o.worksheetCount}, () => ({
-        title: 'Kelime Türetmece', instruction: 'Verilen harflerle kelime türet.', pedagogicalNote: 'Anagram.', imagePrompt: 'Scrabble Letters',
+        title: 'Kelime Türetmece', instruction: 'Verilen harflerle kelimeler türet.', pedagogicalNote: 'Anagram.', imagePrompt: 'Scrabble Letters',
         sets: [{letters:['K','A','L','E','M'], jokerCount:1}]
     }));
 };
@@ -439,11 +441,33 @@ export const generateOfflineMiniWordGrid = async (o: GeneratorOptions): Promise<
         prompt: 'Gizli kelimeyi bul.', puzzles: [{grid:[['K','A'],['L','E']], start:{row:0,col:0}}]
     }));
 };
-export const generateOfflinePasswordFinder = async (o: GeneratorOptions): Promise<PasswordFinderData[]> => {
-    return Array.from({length: o.worksheetCount}, () => ({
-        title: 'Şifre Çözücü', instruction: 'Baş harfleri birleştir.', pedagogicalNote: 'Akrostiş.', imagePrompt: 'Secret Code',
-        prompt: 'Şifreyi bul.', words: [{word:'Kalem', passwordLetter:'K', isProperNoun:false}, {word:'Elma', passwordLetter:'E', isProperNoun:false}], passwordLength: 2
-    }));
+export const generateOfflinePasswordFinder = async (options: GeneratorOptions): Promise<PasswordFinderData[]> => {
+    const { itemCount, worksheetCount, difficulty } = options;
+    return Array.from({length: worksheetCount}, () => {
+        // Improved logic: generate a dynamic password based on first letters
+        const targetWords = getWordsForDifficulty(difficulty, 'Rastgele');
+        const passWord = getRandomItems(targetWords.filter(w => w.length === 5), 1)[0] || "KALEM";
+        const letters = passWord.split('');
+        
+        const words = letters.map(char => {
+            const match = targetWords.find(w => w.startsWith(char) && w !== passWord);
+            return {
+                word: match || (char + "...."), // Fallback if no word found
+                passwordLetter: char,
+                isProperNoun: false
+            };
+        });
+
+        return {
+            title: 'Şifre Çözücü', 
+            instruction: 'Kelimelerin baş harflerini birleştirerek şifreyi bul.', 
+            pedagogicalNote: 'Akrostiş ve baş harf farkındalığı.', 
+            imagePrompt: 'Secret Code',
+            prompt: 'Şifreyi bul.', 
+            words: words, 
+            passwordLength: passWord.length
+        };
+    });
 };
 export const generateOfflineSyllableCompletion = async (o: GeneratorOptions): Promise<SyllableCompletionData[]> => {
     return Array.from({length: o.worksheetCount}, () => ({

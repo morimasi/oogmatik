@@ -80,7 +80,7 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
 export const generateOfflineNumberSearch = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
     const { worksheetCount, difficulty, itemCount } = options;
     const results: NumberSearchData[] = [];
-    const count = itemCount || 20;
+    const count = itemCount || 30; // Increased to 30
 
     for (let i = 0; i < worksheetCount; i++) {
         let range = { start: 1, end: count };
@@ -112,7 +112,7 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
     const cols = difficulty === 'Başlangıç' ? 10 : (difficulty === 'Orta' ? 15 : 20);
 
     for (let i = 0; i < worksheetCount; i++) {
-        const rows = Array.from({ length: itemCount || 12 }, () => {
+        const rows = Array.from({ length: itemCount || 16 }, () => { // Increased to 16
             let pool = turkishAlphabet.split('');
             if (difficulty === 'Zor') pool = ['b','d','p','q','m','n','u','ü']; 
             
@@ -149,7 +149,7 @@ export const generateOfflineLetterGridTest = async (options: GeneratorOptions): 
     const results: LetterGridTestData[] = [];
     
     for (let i = 0; i < worksheetCount; i++) {
-        const size = gridSize || 15;
+        const size = gridSize || 20; // Increased default grid size
         const targets = ['a', 'b', 'd', 'g'];
         const pool = turkishAlphabet.split('');
         

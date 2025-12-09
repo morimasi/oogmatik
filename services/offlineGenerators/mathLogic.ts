@@ -29,7 +29,7 @@ const hasBorrow = (n1: number, n2: number): boolean => {
 // BASIC OPERATIONS
 export const generateOfflineBasicOperations = async (options: GeneratorOptions): Promise<BasicOperationsData[]> => {
     const { selectedOperations, operationType, numberRange, allowCarry, allowBorrow, allowRemainder, useThirdNumber, worksheetCount, itemCount } = options;
-    const count = itemCount || 20;
+    const count = itemCount || 25; // Increased to fill A4
     const results: BasicOperationsData[] = [];
     
     let minVal = 1, maxVal = 20;
@@ -141,28 +141,30 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
 export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
     const { worksheetCount, itemCount } = options;
     const results: RealLifeProblemData[] = [];
-    const names = ["Ali", "Ayşe", "Can", "Elif", "Mert"];
-    const items = ["elma", "kalem", "ceviz", "kitap", "bilye"];
+    const names = ["Ali", "Ayşe", "Can", "Elif", "Mert", "Zeynep", "Efe", "Ada"];
+    const items = ["elma", "kalem", "ceviz", "kitap", "bilye", "şeker", "balon"];
     
     const templates = [
         (n1: number, n2: number, name: string) => ({ text: `${name}'nin ${n1} lirası vardı. Babası ${n2} lira daha verdi. Toplam kaç lirası oldu?`, ans: n1 + n2 }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `${name} ${n1} tane ${item} topladı. ${n2} tanesini arkadaşına verdi. Geriye kaç ${item} kaldı?`, ans: n1 - n2 }),
         (n1: number, n2: number, name: string, item: string) => ({ text: `Bir kutuda ${n1} paket ${item} var. Her pakette ${n2} tane varsa toplam kaç ${item} vardır?`, ans: n1 * n2 }),
-        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}, ${n1} tane ${item}sını ${n2} tabağa eşit paylaştırdı. Her tabakta kaç ${item} olur?`, ans: Math.floor(n1/n2) })
+        (n1: number, n2: number, name: string, item: string) => ({ text: `${name}, ${n1} tane ${item}sını ${n2} tabağa eşit paylaştırdı. Her tabakta kaç ${item} olur?`, ans: Math.floor(n1/n2) }),
+        (n1: number, n2: number, name: string) => ({ text: `${name} marketten ${n1} TL'ye süt ve ${n2} TL'ye ekmek aldı. Toplam ne kadar harcadı?`, ans: n1 + n2 }),
+        (n1: number, n2: number, name: string) => ({ text: `${name} kitabının ${n1}. sayfasında. Kitap ${n1+n2} sayfa. Bitirmek için kaç sayfası kaldı?`, ans: n2 })
     ];
 
     for(let i=0; i<worksheetCount; i++) {
         const problems = [];
-        for(let j=0; j<(itemCount || 4); j++) {
+        for(let j=0; j<(itemCount || 6); j++) {
             const func = templates[j % templates.length];
             const name = getRandomItems(names, 1)[0];
             const item = getRandomItems(items, 1)[0];
             const n1 = getRandomInt(10, 50); 
-            const n2 = getRandomInt(2, 5); 
+            const n2 = getRandomInt(2, 6); 
             const data = func(Math.max(n1, n2*2), n2, name, item);
             problems.push({ text: data.text, solution: `${data.ans}`, operationHint: "", imagePrompt: 'Math Problem' });
         }
-        results.push({ title: 'Problem Çözme', instruction: 'Problemleri çöz.', pedagogicalNote: 'Matematiksel okuryazarlık.', imagePrompt: 'Thinking', problems });
+        results.push({ title: 'Problem Çözme', instruction: 'Problemleri dikkatle oku ve çöz.', pedagogicalNote: 'Matematiksel okuryazarlık ve problem çözme stratejileri.', imagePrompt: 'Thinking', problems });
     }
     return results;
 };
@@ -170,15 +172,15 @@ export const generateOfflineRealLifeMathProblems = async (options: GeneratorOpti
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
     const { itemCount, worksheetCount } = options;
     const results: MathPuzzleData[] = [];
-    const objects = ["🍎", "🍐", "🍊", "🍋"];
+    const objects = ["🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓"];
 
     for (let i = 0; i < worksheetCount; i++) {
-        const puzzles = Array.from({ length: itemCount || 6 }).map(() => {
+        const puzzles = Array.from({ length: itemCount || 9 }).map(() => {
             const val = getRandomInt(2, 9);
             const obj = getRandomItems(objects, 1)[0];
             return { problem: `${obj} + ${obj} = ?`, question: `İpucu: ${obj} = ${val}`, answer: (val+val).toString(), objects: [{name: obj, imagePrompt: 'fruit'}] };
         });
-        results.push({ title: 'Sembollü İşlemler', instruction: "Sembollerin değerini yerine koy.", pedagogicalNote: "Cebirsel düşünme.", imagePrompt: 'Symbols', puzzles });
+        results.push({ title: 'Sembollü İşlemler', instruction: "Sembollerin değerini yerine koy ve işlemi yap.", pedagogicalNote: "Cebirsel düşünme temeli.", imagePrompt: 'Symbols', puzzles });
     }
     return results;
 };
@@ -186,8 +188,8 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
 export const generateOfflineNumberPattern = async (options: GeneratorOptions): Promise<NumberPatternData[]> => {
     const { itemCount, worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => ({
-        title: 'Sayı Örüntüleri', instruction: 'Kuralı bul ve devam ettir.', pedagogicalNote: 'İlişkisel düşünme.', imagePrompt: 'Pattern',
-        patterns: Array.from({length: itemCount || 5}, () => {
+        title: 'Sayı Örüntüleri', instruction: 'Kuralı bul ve soru işareti yerine gelecek sayıyı yaz.', pedagogicalNote: 'İlişkisel düşünme ve ritmik sayma.', imagePrompt: 'Pattern',
+        patterns: Array.from({length: itemCount || 10}, () => {
             const start = getRandomInt(1, 10);
             const step = getRandomInt(2, 5);
             return { sequence: `${start}, ${start+step}, ${start+step*2}, ?`, answer: (start+step*3).toString() };
@@ -211,7 +213,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
         }
         const puzzleGrid = grid.map(row => row.map(v => Math.random() > 0.5 ? v : null));
         return {
-            title: 'Futoşiki', instruction: 'Sayıları yerleştir ve işaretlere dikkat et.', pedagogicalNote: 'Mantıksal sıralama.', imagePrompt: 'Futoshiki',
+            title: 'Futoşiki', instruction: 'Sayıları yerleştir ve büyüktür/küçüktür işaretlerine dikkat et.', pedagogicalNote: 'Mantıksal sıralama ve eşitsizlik kavramı.', imagePrompt: 'Futoshiki',
             puzzles: [{size, numbers: puzzleGrid, constraints}]
         };
     });
@@ -221,19 +223,23 @@ export const generateOfflineNumberPyramid = async (options: GeneratorOptions): P
     const { worksheetCount } = options;
     const rows = 4;
     return Array.from({ length: worksheetCount }, () => {
-        const base = Array.from({length: rows}, () => getRandomInt(1, 10));
-        const pyramid = [base];
-        let current = base;
-        for(let i=0; i<rows-1; i++) {
-            const nextRow = [];
-            for(let j=0; j<current.length-1; j++) nextRow.push(current[j] + current[j+1]);
-            pyramid.unshift(nextRow);
-            current = nextRow;
-        }
-        const masked = pyramid.map(row => row.map(v => Math.random() > 0.4 ? v : null));
+        // Generate 2 pyramids per page
+        const pyramids = Array.from({length: 2}, () => {
+            const base = Array.from({length: rows}, () => getRandomInt(1, 10));
+            const pyramid = [base];
+            let current = base;
+            for(let i=0; i<rows-1; i++) {
+                const nextRow = [];
+                for(let j=0; j<current.length-1; j++) nextRow.push(current[j] + current[j+1]);
+                pyramid.unshift(nextRow);
+                current = nextRow;
+            }
+            return {rows: pyramid.map(row => row.map(v => Math.random() > 0.4 ? v : null))};
+        });
+
         return {
-            title: 'Sayı Piramidi', instruction: 'Alttaki iki sayının toplamı üsttekini verir.', pedagogicalNote: 'Toplama ilişkisi.', imagePrompt: 'Pyramid',
-            pyramids: [{rows: masked}]
+            title: 'Sayı Piramidi', instruction: 'Alttaki iki sayının toplamı üsttekini verir.', pedagogicalNote: 'Toplama işlemi ilişkileri.', imagePrompt: 'Pyramid',
+            pyramids
         };
     });
 };
@@ -244,7 +250,7 @@ export const generateOfflineNumberCapsule = async (options: GeneratorOptions): P
         const grid = Array.from({length: 3}, () => Array.from({length: 3}, () => getRandomInt(1,9)));
         const capsules = [{cells: [{row:0, col:0}, {row:0, col:1}], sum: grid[0][0]! + grid[0][1]!}];
         return {
-            title: 'Sayı Kapsülü', instruction: 'Kapsül toplamlarını sağla.', pedagogicalNote: 'Kombinasyon.', imagePrompt: 'Capsule',
+            title: 'Sayı Kapsülü', instruction: 'Kapsül toplamlarını sağlayacak şekilde sayıları yerleştir.', pedagogicalNote: 'Kombinasyon ve toplama.', imagePrompt: 'Capsule',
             puzzles: [{grid: grid.map(r=>r.map(c=>Math.random()>0.5?c:null)), capsules, numbersToUse: '1-9'}]
         };
     });
@@ -258,7 +264,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
         const shadedCells = [];
         for(let r=0; r<size; r++) for(let c=0; c<size; c++) if(grid[r]![c]! % 2 !== 0) shadedCells.push({row:r, col:c});
         return {
-            title: 'Tek-Çift Sudoku', instruction: 'Gölgeli yerlere tek sayılar gelmeli.', pedagogicalNote: 'Kısıtlama mantığı.', imagePrompt: 'Sudoku',
+            title: 'Tek-Çift Sudoku', instruction: 'Gölgeli yerlere tek sayılar gelmeli. Her satır ve sütunda rakamlar bir kez kullanılmalı.', pedagogicalNote: 'Kısıtlama mantığı ve tek-çift kavramı.', imagePrompt: 'Sudoku',
             puzzles: [{grid, shadedCells, numbersToUse: '1-6'}]
         };
     });
@@ -267,14 +273,14 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
 export const generateOfflineRomanNumeralStarHunt = async (options: GeneratorOptions): Promise<RomanNumeralStarHuntData[]> => {
     const { worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => ({
-        title: 'Yıldız Avı (Romen)', instruction: 'Yıldızları bul.', pedagogicalNote: 'Dikkat.', imagePrompt: 'Star',
-        grid: [['I','V'],['X','L']], starCount: 2
+        title: 'Yıldız Avı (Romen)', instruction: 'Gizli yıldızları bul.', pedagogicalNote: 'Dikkat ve sembol tanıma.', imagePrompt: 'Star',
+        grid: [['I','V'],['X','L'],['C','D']], starCount: 3
     }));
 };
 
 export const generateOfflineRomanNumeralMultiplication = async (options: GeneratorOptions): Promise<RomanNumeralMultiplicationData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Romen Çarpımı', instruction: 'Tabloyu doldur.', pedagogicalNote: 'Romen rakamları.', imagePrompt: 'Roman Math',
+        title: 'Romen Çarpımı', instruction: 'Çarpım tablosunu Romen rakamlarıyla doldur.', pedagogicalNote: 'Romen rakamları ve çarpma.', imagePrompt: 'Roman Math',
         puzzles: [{row1:'I', row2:'V', col1:'X', col2:'L', results:{r1c1:'X', r1c2:'L', r2c1:'L', r2c2:'CL'}}]
     }));
 };
@@ -283,29 +289,29 @@ export const generateOfflineKendoku = async (options: GeneratorOptions): Promise
     const { worksheetCount } = options;
     const size = 4;
     return Array.from({ length: worksheetCount }, () => ({
-        title: 'Kendoku', instruction: 'İşlemleri sağla.', pedagogicalNote: 'İşlem mantığı.', imagePrompt: 'Kendoku',
+        title: 'Kendoku', instruction: 'İşlem kurallarına uyarak tabloyu doldur.', pedagogicalNote: 'İşlem mantığı ve problem çözme.', imagePrompt: 'Kendoku',
         puzzles: [{size, grid: generateSudokuGrid(size, 'Orta'), cages: [{cells:[{row:0,col:0},{row:0,col:1}], operation:'+', target:5}]}]
     }));
 };
 
 export const generateOfflineOperationSquareFillIn = async (options: GeneratorOptions): Promise<OperationSquareFillInData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'İşlem Karesi', instruction: 'Boşlukları doldur.', pedagogicalNote: 'Eşitlik.', imagePrompt: 'Math Grid',
+        title: 'İşlem Karesi', instruction: 'Boşlukları uygun sayılarla doldur.', pedagogicalNote: 'Eşitlik kavramı.', imagePrompt: 'Math Grid',
         puzzles: [{grid:[['5','+','?','=','8']], numbersToUse:[3], results:[8]}]
     }));
 };
 
 export const generateOfflineMultiplicationWheel = async (options: GeneratorOptions): Promise<MultiplicationWheelData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Çarpım Çarkı', instruction: 'Merkezle çarp.', pedagogicalNote: 'Çarpma.', imagePrompt: 'Wheel',
-        puzzles: [{outerNumbers:[1,2,3,4,5,6,7,8], innerResult: 5}]
+        title: 'Çarpım Çarkı', instruction: 'Merkezdeki sayıyı dış halkadakilerle çarp.', pedagogicalNote: 'Çarpma pratiği.', imagePrompt: 'Wheel',
+        puzzles: [{outerNumbers:[1,2,3,4,5,6,7,8], innerResult: 5}, {outerNumbers:[2,3,4,5,6,7,8,9], innerResult: 3}]
     }));
 };
 
 export const generateOfflineTargetNumber = async (options: GeneratorOptions): Promise<TargetNumberData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Hedef Sayı', instruction: 'Hedefe ulaş.', pedagogicalNote: 'Problem çözme.', imagePrompt: 'Target',
-        puzzles: [{target: 24, givenNumbers: [4,6,2,8]}]
+        title: 'Hedef Sayı', instruction: 'Verilen sayıları kullanarak hedef sayıya ulaş.', pedagogicalNote: 'İşlem esnekliği.', imagePrompt: 'Target',
+        puzzles: [{target: 24, givenNumbers: [4,6,2,8]}, {target: 36, givenNumbers: [9,2,2,1]}]
     }));
 };
 
@@ -313,113 +319,113 @@ export const generateOfflineShapeSudoku = async (options: GeneratorOptions): Pro
     const { worksheetCount } = options;
     const size = 4;
     return Array.from({ length: worksheetCount }, () => ({
-        title: 'Şekilli Sudoku', instruction: 'Şekilleri yerleştir.', pedagogicalNote: 'Görsel mantık.', imagePrompt: 'Shape Sudoku',
+        title: 'Şekilli Sudoku', instruction: 'Şekilleri her satır ve sütunda bir kez olacak şekilde yerleştir.', pedagogicalNote: 'Görsel mantık.', imagePrompt: 'Shape Sudoku',
         puzzles: [{grid: generateLatinSquare(size).map(r=>r.map(c=>c.toString())), shapesToUse: [{shape:'circle', label:'1'}]}]
     }));
 };
 
 export const generateOfflineVisualNumberPattern = async (options: GeneratorOptions): Promise<VisualNumberPatternData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Görsel Sayı Örüntüsü', instruction: 'Kuralı bul.', pedagogicalNote: 'Örüntü.', imagePrompt: 'Visual Pattern',
+        title: 'Görsel Sayı Örüntüsü', instruction: 'Örüntü kuralını bul.', pedagogicalNote: 'Örüntü tanıma.', imagePrompt: 'Visual Pattern',
         puzzles: [{items:[{number:1, color:'red', size:1}], rule:'+1', answer:2}]
     }));
 };
 
 export const generateOfflineLogicGridPuzzle = async (options: GeneratorOptions): Promise<LogicGridPuzzleData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Mantık Tablosu', instruction: 'İpuçlarını kullan.', pedagogicalNote: 'Dedektif mantığı.', imagePrompt: 'Logic Grid',
-        clues: ['Ali kırmızı sever.'], people: ['Ali','Ayşe'], categories: [{title:'Renk', items:[{name:'Kırmızı', imageDescription:'Red', imagePrompt:'Red'}]}]
+        title: 'Mantık Tablosu', instruction: 'İpuçlarını kullanarak tabloyu doldur.', pedagogicalNote: 'Dedektif mantığı ve çıkarım.', imagePrompt: 'Logic Grid',
+        clues: ['Ali kırmızı sever.', 'Ayşe yeşil sever.'], people: ['Ali','Ayşe'], categories: [{title:'Renk', items:[{name:'Kırmızı', imageDescription:'Red', imagePrompt:'Red'}]}]
     }));
 };
 
 export const generateOfflineOddOneOut = async (options: GeneratorOptions): Promise<OddOneOutData[]> => {
     const { worksheetCount } = options;
     return Array.from({ length: worksheetCount }, () => ({
-        title: 'Farklı Olanı Bul', instruction: 'Farklı olanı işaretle.', pedagogicalNote: 'Sınıflandırma.', imagePrompt: 'Odd One',
-        groups: [{words: ['Elma', 'Armut', 'Masa', 'Muz']}]
+        title: 'Farklı Olanı Bul', instruction: 'Gruptaki farklı olanı işaretle.', pedagogicalNote: 'Sınıflandırma ve kategori bilgisi.', imagePrompt: 'Odd One',
+        groups: [{words: ['Elma', 'Armut', 'Masa', 'Muz']}, {words: ['Kedi', 'Köpek', 'Kuş', 'Araba']}]
     }));
 };
 
 export const generateOfflineThematicOddOneOut = async (options: GeneratorOptions): Promise<ThematicOddOneOutData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Tematik Farklı Bul', instruction: 'Temaya uymayanı bul.', pedagogicalNote: 'Kategori.', imagePrompt: 'Theme',
-        theme: 'Meyveler', rows: [{words:[{text:'Elma'},{text:'Armut'}], oddWord:'Araba'}], sentencePrompt: 'Neden?'
+        title: 'Tematik Farklı Bul', instruction: 'Temaya uymayanı bul.', pedagogicalNote: 'Kategori bilgisi.', imagePrompt: 'Theme',
+        theme: 'Meyveler', rows: [{words:[{text:'Elma'},{text:'Armut'},{text:'Muz'}], oddWord:'Araba'}], sentencePrompt: 'Neden farklı?'
     }));
 };
 
 export const generateOfflineThematicOddOneOutSentence = async (options: GeneratorOptions): Promise<ThematicOddOneOutSentenceData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Cümle Farkı', instruction: 'Farklıyı bul.', pedagogicalNote: 'Anlam.', imagePrompt: 'Sentence',
-        rows: [{words:['Ali','Veli'], oddWord:'Masa'}], sentencePrompt: 'Cümle kur.'
+        title: 'Cümle Farkı', instruction: 'Anlamı bozan kelimeyi bul.', pedagogicalNote: 'Anlamsal bütünlük.', imagePrompt: 'Sentence',
+        rows: [{words:['Ali','Veli','Koştu'], oddWord:'Masa'}], sentencePrompt: 'Cümle kur.'
     }));
 };
 
 export const generateOfflineColumnOddOneOutSentence = async (options: GeneratorOptions): Promise<ColumnOddOneOutSentenceData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Sütun Farkı', instruction: 'Sütunda farklıyı bul.', pedagogicalNote: 'Sınıflandırma.', imagePrompt: 'Column',
-        columns: [{words:['Kedi','Köpek'], oddWord:'Kalem'}], sentencePrompt: 'Yaz.'
+        title: 'Sütun Farkı', instruction: 'Sütundaki farklı kelimeyi bul.', pedagogicalNote: 'Sınıflandırma.', imagePrompt: 'Column',
+        columns: [{words:['Kedi','Köpek','Aslan'], oddWord:'Kalem'}], sentencePrompt: 'Yaz.'
     }));
 };
 
 export const generateOfflinePunctuationMaze = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Noktalama Labirenti', instruction: 'Doğru yolu bul.', pedagogicalNote: 'Dilbilgisi.', imagePrompt: 'Maze',
+        title: 'Noktalama Labirenti', instruction: 'Doğru noktalama işaretlerini takip ederek çıkışı bul.', pedagogicalNote: 'Dilbilgisi.', imagePrompt: 'Maze',
         punctuationMark: '.', rules: [{id:1, text:'Cümle sonu.', isCorrect:true, isPath:true}]
     }));
 };
 
 export const generateOfflinePunctuationPhoneNumber = async (options: GeneratorOptions): Promise<PunctuationPhoneNumberData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Noktalama Telefonu', instruction: 'Şifreyi çöz.', pedagogicalNote: 'Kodlama.', imagePrompt: 'Phone',
+        title: 'Noktalama Telefonu', instruction: 'Şifreyi çöz ve numarayı bul.', pedagogicalNote: 'Kodlama.', imagePrompt: 'Phone',
         clues: [{id:1, text:'Nokta sayısı'}], solution: [{punctuationMark:'.', number:3}]
     }));
 };
 
 export const generateOfflineShapeNumberPattern = async (options: GeneratorOptions): Promise<ShapeNumberPatternData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Şekilli Örüntü', instruction: 'Kuralı bul.', pedagogicalNote: 'Örüntü.', imagePrompt: 'Shape Pattern',
+        title: 'Şekilli Örüntü', instruction: 'Şekillerdeki sayı kuralını bul.', pedagogicalNote: 'Örüntü ve şekil ilişkisi.', imagePrompt: 'Shape Pattern',
         patterns: [{shapes: [{type:'triangle', numbers:[1,2,3]}]}]
     }));
 };
 
 export const generateOfflineRoundingConnect = async (options: GeneratorOptions): Promise<RoundingConnectData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Yuvarlama Eşleşmesi', instruction: 'En yakın onluğa yuvarla.', pedagogicalNote: 'Tahmin.', imagePrompt: 'Rounding',
-        numbers: [{value: 12, group:10, x:0, y:0}, {value: 10, group:10, x:1, y:0}]
+        title: 'Yuvarlama Eşleşmesi', instruction: 'Sayıları en yakın onluğa yuvarlayarak eşleştir.', pedagogicalNote: 'Tahmin ve yuvarlama.', imagePrompt: 'Rounding',
+        numbers: [{value: 12, group:10, x:0, y:0}, {value: 10, group:10, x:1, y:0}, {value: 28, group:30, x:0, y:1}, {value: 30, group:30, x:1, y:1}]
     }));
 };
 
 export const generateOfflineArithmeticConnect = async (options: GeneratorOptions): Promise<ArithmeticConnectData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'İşlem Eşleştirme', instruction: 'Aynı sonucu verenleri eşle.', pedagogicalNote: 'İşlem.', imagePrompt: 'Match Math',
+        title: 'İşlem Eşleştirme', instruction: 'Aynı sonucu veren işlemleri eşleştir.', pedagogicalNote: 'İşlem becerisi.', imagePrompt: 'Match Math',
         expressions: [{text:'2+3', value:5, group:5, x:0, y:0}, {text:'4+1', value:5, group:5, x:1, y:0}]
     }));
 };
 
 export const generateOfflineRomanArabicMatchConnect = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Romen-Arap Eşleşmesi', instruction: 'Eşleştir.', pedagogicalNote: 'Sayı sistemleri.', imagePrompt: 'Roman Arabic',
-        gridDim: 1, points: [{label:'I', pairId:1, x:0, y:0}, {label:'1', pairId:1, x:1, y:0}]
+        title: 'Romen-Arap Eşleşmesi', instruction: 'Romen rakamlarını Arap rakamlarıyla eşleştir.', pedagogicalNote: 'Sayı sistemleri.', imagePrompt: 'Roman Arabic',
+        gridDim: 1, points: [{label:'I', pairId:1, x:0, y:0}, {label:'1', pairId:1, x:1, y:0}, {label:'V', pairId:5, x:0, y:1}, {label:'5', pairId:5, x:1, y:1}]
     }));
 };
 
 export const generateOfflineRomanNumeralConnect = async (options: GeneratorOptions): Promise<RomanNumeralConnectData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Romen Rakamı Bağla', instruction: 'Sırayla bağla.', pedagogicalNote: 'Sıralama.', imagePrompt: 'Connect Roman',
-        gridDim: 1, puzzles: [{gridDim: 5, points: [{label:'I', x:0, y:0}, {label:'II', x:1, y:0}]}]
+        title: 'Romen Rakamı Bağla', instruction: 'Romen rakamlarını sırasıyla birleştir.', pedagogicalNote: 'Sıralama.', imagePrompt: 'Connect Roman',
+        gridDim: 1, puzzles: [{gridDim: 5, points: [{label:'I', x:0, y:0}, {label:'II', x:1, y:0}, {label:'III', x:2, y:0}]}]
     }));
 };
 
 export const generateOfflineWeightConnect = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Ağırlık Eşleştirme', instruction: 'Eşit ağırlıkları bul.', pedagogicalNote: 'Ölçme.', imagePrompt: 'Weight',
+        title: 'Ağırlık Eşleştirme', instruction: 'Eşit ağırlıkları bul ve eşleştir.', pedagogicalNote: 'Ölçme birimleri.', imagePrompt: 'Weight',
         gridDim: 1, points: [{label:'1kg', pairId:1, x:0, y:0}, {label:'1000g', pairId:1, x:1, y:0}]
     }));
 };
 
 export const generateOfflineLengthConnect = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({
-        title: 'Uzunluk Eşleştirme', instruction: 'Eşit uzunlukları bul.', pedagogicalNote: 'Ölçme.', imagePrompt: 'Length',
+        title: 'Uzunluk Eşleştirme', instruction: 'Eşit uzunlukları bul ve eşleştir.', pedagogicalNote: 'Ölçme birimleri.', imagePrompt: 'Length',
         gridDim: 1, points: [{label:'1m', pairId:1, x:0, y:0}, {label:'100cm', pairId:1, x:1, y:0}]
     }));
 };
