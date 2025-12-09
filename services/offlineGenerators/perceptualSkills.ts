@@ -44,7 +44,6 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
     const { topic, itemCount, worksheetCount, difficulty } = options;
     const results: FindTheDifferenceData[] = [];
     
-    // Mix confusing words and regular similar words
     const pool = [...TR_VOCAB.confusing_words.flat(), ...getWordsForDifficulty(difficulty, topic)];
     const uniquePool = [...new Set(pool)];
 
@@ -53,11 +52,9 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
         const rowsCount = itemCount || 8;
         
         for(let r=0; r<rowsCount; r++) {
-            // Pick a word
             const word = getRandomItems(uniquePool, 1)[0] || 'ELMA';
             const distractionLevel = difficulty === 'Zor' || difficulty === 'Uzman' ? 'high' : 'low';
             
-            // Create variations
             const variation = word.length > 3 ? word.substring(0,2) + word[3] + word[2] + word.substring(4) : word + '.'; 
             const isWordDiff = Math.random() > 0.5;
             
@@ -91,7 +88,6 @@ export const generateOfflineWordComparison = async (options: GeneratorOptions): 
         const words = getWordsForDifficulty(difficulty, 'Rastgele').slice(0, 10);
         const modifiedWords = words.map(w => {
             if(Math.random() > 0.5) {
-                // minor change
                 if(w.length > 2) return w.substring(0,1) + w[2] + w[1] + w.substring(3);
                 return w + 'a';
             }
@@ -183,7 +179,7 @@ export const generateOfflineSymbolCipher = async (options: GeneratorOptions): Pr
         const shapes = SHAPE_TYPES.slice(0, letters.length);
         const key = letters.map((l, i) => ({ letter: l, shape: shapes[i], color: '#000' }));
         
-        const words = ['KALEM', 'BEBEK', 'ELMA']; // Simple offline words
+        const words = ['KALEM', 'BEBEK', 'ELMA'];
         
         return {
             title: 'Şekil Şifresi',
@@ -215,6 +211,7 @@ export const generateOfflineBlockPainting = async (options: GeneratorOptions): P
     }));
 };
 
+// THIS WAS THE MISSING EXPORT
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { worksheetCount, itemCount, difficulty } = options;
     const count = itemCount || 6;
@@ -435,3 +432,6 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
 // Fallbacks
 export const generateOfflinePunctuationColoring = async (o: GeneratorOptions) => generateOfflineVisualOddOneOut(o) as any as Promise<PunctuationColoringData[]>;
 export const generateOfflineSynonymAntonymColoring = async (o: GeneratorOptions) => generateOfflineVisualOddOneOut(o) as any as Promise<SynonymAntonymColoringData[]>;
+
+// Note: RomanNumeralConnect, WeightConnect, LengthConnect are handled in mathLogic.ts with specific logic
+// We do NOT export them here to avoid conflicts.

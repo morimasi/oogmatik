@@ -523,12 +523,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {/* 2. MAIN CANVAS AREA (Infinite Canvas) */}
       <div 
         ref={canvasRef}
-        // CRITICAL UPDATE: Transparent background to match theme seamlessy. 
-        // Previously: bg-zinc-200 dark:bg-zinc-900 canvas-viewport
+        // Use bg-primary variable which is now set to match theme exactly, eliminating contrast
         className={`flex-1 relative overflow-hidden bg-[var(--bg-primary)] ${zenMode ? 'bg-black' : ''} group`}
         style={{ 
             cursor: isDragging ? 'grabbing' : (isEditMode ? 'default' : 'grab'),
-            // Dot Pattern Background that scales with canvas, color adjusted to var
+            // Dot Pattern Background that scales with canvas, using var color
             backgroundImage: `radial-gradient(var(--border-color) 1px, transparent 1px)`,
             backgroundSize: `${20 * scale}px ${20 * scale}px`,
             backgroundPosition: `${position.x}px ${position.y}px`
