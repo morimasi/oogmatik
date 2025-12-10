@@ -362,7 +362,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 }
             `}</style>
 
-            {data.map((sheetData, index) => (
+            {(data || []).map((sheetData, index) => (
                 <div 
                     key={index} 
                     className="worksheet-page-wrapper"

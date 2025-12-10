@@ -264,7 +264,7 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="dynamic-grid">
-            {data.exercises.map((ex, idx) => {
+            {(data.exercises || []).map((ex, idx) => {
                 if (ex.type === 'missing' && ex.visualType === 'number-line-advanced') {
                     return (
                         <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl shadow-sm border-2 border-zinc-200 break-inside-avoid">
@@ -321,7 +321,7 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="dynamic-grid">
-            {data.problems.map((prob, idx) => {
+            {(data.problems || []).map((prob, idx) => {
                 const visual = prob.visualType || 'objects';
                 
                 return (
@@ -415,7 +415,7 @@ export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) 
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="dynamic-grid justify-items-center">
-            {data.tasks.map((task, idx) => (
+            {(data.tasks || []).map((task, idx) => (
                 <div key={idx} className="w-full flex flex-col items-center break-inside-avoid">
                     {/* Task specific rendering */}
                     
@@ -480,7 +480,7 @@ export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="dynamic-grid max-w-4xl mx-auto">
-            {data.pairs.map((pair, idx) => {
+            {(data.pairs || []).map((pair, idx) => {
                 // Safe handling for visual codes (e.g. PIE:3:4)
                 const safeItem1 = String(pair.item1 || '');
                 const isVisualCode = safeItem1.includes(':') && ['PIE','BAR','GRID','CLOCK','MONEY','RULER','SHAPE'].some(k => safeItem1.startsWith(k));
@@ -547,7 +547,7 @@ export const EstimationSheet: React.FC<{ data: EstimationData }> = ({ data }) =>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="dynamic-grid">
-            {data.items.map((item, idx) => (
+            {(data.items || []).map((item, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-6 p-6 bg-white dark:bg-zinc-700/50 rounded-2xl shadow-sm border-2 border-zinc-200 break-inside-avoid">
                     <div className="relative">
                         {/* Custom Estimation Jar Component Logic can be ported here if complex, using simple dots for now */}

@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ActivityType, SavedAssessment, ProfessionalAssessmentReport, SubTestResult, CognitiveDomain, ClinicalObservation } from '../types';
+import { ActivityType, SavedAssessment, ProfessionalAssessmentReport, SubTestResult, CognitiveDomain, ClinicalObservation, AssessmentRoadmapItem } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { AssessmentEngine } from './assessment/AssessmentEngine';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { assessmentService } from '../services/assessmentService';
+import { ACTIVITIES } from '../constants';
 
 interface AssessmentModuleProps {
     onBack: () => void;
@@ -43,6 +44,15 @@ const DOMAINS: { id: CognitiveDomain; title: string; desc: string; icon: string;
         estimatedTime: '5 dk' 
     }
 ];
+
+// Activity Mapping for Smart Route
+const DOMAIN_ACTIVITY_MAP: Record<CognitiveDomain, ActivityType[]> = {
+    visual_spatial_memory: ['VISUAL_MEMORY', 'GRID_DRAWING', 'MATRIX_MEMORY' as any, 'DOT_PAINTING'],
+    processing_speed: ['RAPID_NAMING', 'READING_FLOW', 'SPEED_READING' as any],
+    selective_attention: ['STROOP_TEST', 'BURDON_TEST', 'ATTENTION_TO_QUESTION', 'FIND_THE_DIFFERENCE'],
+    phonological_loop: ['PHONOLOGICAL_AWARENESS', 'SYLLABLE_TRAIN', 'WORD_MEMORY'],
+    logical_reasoning: ['LOGIC_GRID_PUZZLE', 'NUMBER_PATTERN', 'SUDOKU' as any]
+};
 
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }) => {
     const { user } = useAuth();
@@ -88,43 +98,78 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         }
     };
 
+    const generateSmartRoadmap = (results: SubTestResult[]): AssessmentRoadmapItem[] => {
+        const roadmap: AssessmentRoadmapItem[] = [];
+
+        results.forEach(res => {
+            if (res.score < 60) { // Threshold for recommendation
+                const suggestedActivities = DOMAIN_ACTIVITY_MAP[res.testId] || [];
+                
+                suggestedActivities.forEach((actId) => {
+                    // Check if activity exists in system
+                    const actDef = ACTIVITIES.find(a => a.id === actId);
+                    if (actDef) {
+                        roadmap.push({
+                            activityId: actId,
+                            title: actDef.title,
+                            reason: `${res.name} puanı düşük (%${res.score}). Bu beceriyi destekler.`,
+                            frequency: res.score < 40 ? 'Günde 1 kez' : 'Haftada 3 kez',
+                            priority: res.score < 40 ? 'high' : 'medium'
+                        });
+                    }
+                });
+            }
+        });
+
+        // Limit recommendations to avoid overwhelming
+        return roadmap.slice(0, 6);
+    };
+
     const generateFinalReport = async (completedResults: SubTestResult[]) => {
-        // Simple Heuristic Analysis (In a real app, this would be more complex AI or Statistical Model)
         const totalScore = completedResults.reduce((acc, r) => acc + r.score, 0) / completedResults.length;
         
-        // Mock Risk Calculation
-        const attentionScore = completedResults.find(r => r.testId === 'selective_attention')?.score || 100;
-        const memoryScore = completedResults.find(r => r.testId === 'visual_spatial_memory')?.score || 100;
+        const attentionResult = completedResults.find(r => r.testId === 'selective_attention');
+        const memoryResult = completedResults.find(r => r.testId === 'visual_spatial_memory');
+        const logicResult = completedResults.find(r => r.testId === 'logical_reasoning');
+        const processingResult = completedResults.find(r => r.testId === 'processing_speed');
+
+        const attentionScore = attentionResult?.score || 100;
+        const memoryScore = memoryResult?.score || 100;
         
+        // Generate Roadmap
+        const roadmap = generateSmartRoadmap(completedResults);
+
         const reportData: ProfessionalAssessmentReport = {
             id: crypto.randomUUID(),
             studentId: 'temp',
             studentName,
             examinerId: user?.id || 'guest',
             date: new Date().toISOString(),
-            duration: 0, // Todo calculation
+            duration: 0, 
             subTests: completedResults,
-            observations,
+            observations: observations, // Pass observations correctly
             overallRiskAnalysis: {
                 dyslexiaRisk: memoryScore < 50 ? 'high' : memoryScore < 70 ? 'moderate' : 'low',
-                dyscalculiaRisk: 'low', // Would need math test
+                dyscalculiaRisk: 'low',
                 attentionDeficitRisk: attentionScore < 50 ? 'high' : attentionScore < 70 ? 'moderate' : 'low',
                 summary: `Öğrenci ${studentName}, batarya genelinde %${Math.round(totalScore)} performans göstermiştir. ${observations.notes}`
             },
             recommendations: [
                 attentionScore < 60 ? "Dikkat sürdürülebilirliği çalışmaları (Stroop, Burdon) önerilir." : "",
                 memoryScore < 60 ? "Görsel hafıza egzersizleri (Memory, Matrix) günlük plana eklenmelidir." : ""
-            ].filter(s => s !== "")
+            ].filter(s => s !== ""),
+            roadmap: roadmap
         };
 
-        // Convert to legacy structure for compatibility with existing Viewer
-        const legacyReport: any = {
+        // Unified Report Structure for Viewer
+        const fullReport: any = {
+            professionalData: reportData, // New structure inside
             overallSummary: reportData.overallRiskAnalysis.summary,
             scores: {
                 attention: attentionScore,
                 spatial: memoryScore,
-                logical: completedResults.find(r => r.testId === 'logical_reasoning')?.score || 0,
-                linguistic: completedResults.find(r => r.testId === 'processing_speed')?.score || 0 // Proxy
+                logical: logicResult?.score || 0,
+                linguistic: processingResult?.score || 0 
             },
             chartData: completedResults.map(r => ({ label: r.name, value: r.score, fullMark: 100 })),
             analysis: {
@@ -132,7 +177,12 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 weaknesses: completedResults.filter(r => r.score < 50).map(r => `${r.name} alanında desteğe ihtiyaç var.`),
                 errorAnalysis: [`Ortalama Tepki Süresi: ${Math.round(completedResults.reduce((a,b)=>a+b.avgReactionTime,0)/completedResults.length)}ms`]
             },
-            roadmap: []
+            roadmap: roadmap.map(r => ({
+                activityId: r.activityId,
+                reason: r.reason,
+                frequency: r.frequency
+            })),
+            observations: observations // Ensure top-level access for Viewer
         };
 
         const savedAssessment: SavedAssessment = {
@@ -140,21 +190,21 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             userId: user?.id || 'guest',
             studentName,
             age: studentAge,
-            gender: 'Erkek', // UI doesn't ask yet
+            gender: 'Erkek', 
             grade: '1. Sınıf',
-            report: legacyReport,
+            report: fullReport,
             createdAt: new Date().toISOString()
         };
 
         if (user) {
-            await assessmentService.saveAssessment(user.id, studentName, 'Erkek', studentAge, '1. Sınıf', legacyReport);
+            await assessmentService.saveAssessment(user.id, studentName, 'Erkek', studentAge, '1. Sınıf', fullReport);
         }
 
         setFinalReport(savedAssessment);
         setView('report');
     };
 
-    // --- VIEW: SETUP ---
+    // --- VIEW: SETUP & RUNNING (Same as before) ---
     if (view === 'setup') {
         return (
             <div className="max-w-5xl mx-auto p-6 md:p-12 animate-in fade-in">
@@ -278,7 +328,6 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         );
     }
 
-    // --- VIEW: RUNNING ---
     if (view === 'running') {
         const currentDomainId = selectedDomains[activeTestIndex];
         const domainInfo = DOMAINS.find(d => d.id === currentDomainId);
@@ -387,6 +436,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                 user={user}
                 onAddToWorkbook={onAddToWorkbook}
                 onAutoGenerateWorkbook={onAutoGenerateWorkbook}
+                onSelectActivity={onSelectActivity} // Pass selector for direct action
             />
         );
     }

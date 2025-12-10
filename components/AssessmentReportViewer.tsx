@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { SavedAssessment, AssessmentReport } from '../types';
+import { SavedAssessment, AssessmentReport, ActivityType, ClinicalObservation } from '../types';
 import { RadarChart } from './RadarChart';
 import { ACTIVITIES } from '../constants';
 import { ShareModal } from './ShareModal';
@@ -16,7 +16,46 @@ interface AssessmentReportViewerProps {
     isSaved?: boolean;
     onAddToWorkbook?: (assessment: SavedAssessment) => void;
     onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
+    onSelectActivity?: (id: ActivityType) => void;
 }
+
+const ObservationCard: React.FC<{ observations: ClinicalObservation }> = ({ observations }) => {
+    if (!observations) return null;
+    
+    return (
+        <div className="bg-amber-50 border border-amber-200 p-6 rounded-xl break-inside-avoid shadow-sm print:shadow-none mb-6">
+            <h4 className="font-bold text-amber-800 mb-4 flex items-center gap-2 border-b border-amber-200 pb-2">
+                <i className="fa-solid fa-clipboard-user"></i> Klinik Gözlem ve Davranış Analizi
+            </h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
+                <div className="flex items-center justify-between p-3 bg-white/60 rounded-lg border border-amber-100">
+                    <span className="text-amber-700 font-medium">Kaygı Düzeyi</span>
+                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${observations.anxietyLevel === 'high' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                        {observations.anxietyLevel === 'low' ? 'Düşük' : observations.anxietyLevel === 'medium' ? 'Orta' : 'Yüksek'}
+                    </span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-white/60 rounded-lg border border-amber-100">
+                    <span className="text-amber-700 font-medium">Dikkat Süresi</span>
+                    <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs font-bold uppercase">
+                        {observations.attentionSpan === 'focused' ? 'Odaklanmış' : observations.attentionSpan === 'distracted' ? 'Dağınık' : 'Hiperaktif'}
+                    </span>
+                </div>
+            </div>
+
+            {observations.notes && (
+                <div className="bg-white/60 p-4 rounded-lg border border-amber-100 text-amber-900 text-sm leading-relaxed italic">
+                    <span className="font-bold text-xs uppercase text-amber-500 block mb-1">Gözlemci Notları:</span>
+                    "{observations.notes}"
+                </div>
+            )}
+            
+            <div className="mt-2 text-[10px] text-amber-400 text-right italic">
+                * Bu bölüm sadece uzman erişimine açıktır.
+            </div>
+        </div>
+    );
+};
 
 export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({ 
     assessment, 
@@ -26,7 +65,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     isSaving,
     isSaved,
     onAddToWorkbook,
-    onAutoGenerateWorkbook
+    onAutoGenerateWorkbook,
+    onSelectActivity
 }) => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
@@ -34,6 +74,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     if (!assessment) return null;
 
     const report = assessment.report;
+    const observations = report.observations as ClinicalObservation;
 
     const handleShareReport = async (receiverId: string) => {
         if (!assessment || !user) return;
@@ -147,6 +188,9 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                         <div className="flex justify-between mt-4 text-black"><p><strong>Öğrenci:</strong> {assessment.studentName}</p><p><strong>Tarih:</strong> {new Date(assessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
                     </div>
                     
+                    {/* Clinical Observations Section (Top Priority for Specialists) */}
+                    <ObservationCard observations={observations} />
+
                     <div className="bg-indigo-50 p-6 rounded-xl border-l-8 border-indigo-500 text-sm leading-relaxed text-zinc-800 text-justify">
                         <h4 className="font-bold mb-2 uppercase text-indigo-800 tracking-wider">Uzman Görüşü & Özet</h4>
                         {report.overallSummary}
@@ -158,7 +202,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                             {report.chartData && <RadarChart data={report.chartData} />}
                         </div>
                         <div className="space-y-3 break-inside-avoid">
-                            {Object.entries(report.scores).map(([key, value]) => {
+                            {Object.entries(report.scores || {}).map(([key, value]) => {
                                 const score = value as number;
                                 const labelMap: Record<string, string> = {
                                     'reading': 'Okuma Becerileri', 'math': 'Matematik & Mantık', 'attention': 'Dikkat & Algı',
@@ -196,13 +240,13 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                         <div className="p-6 bg-green-50 rounded-xl border border-green-200 break-inside-avoid">
                             <h4 className="font-bold text-green-800 mb-4 flex items-center gap-2 border-b border-green-200 pb-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
                             <ul className="list-disc list-inside text-sm text-green-900 space-y-2">
-                                {report.analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                                {(report.analysis.strengths || []).map((s, i) => <li key={i}>{s}</li>)}
                             </ul>
                         </div>
                         <div className="p-6 bg-rose-50 rounded-xl border border-rose-200 break-inside-avoid">
                             <h4 className="font-bold text-rose-800 mb-4 flex items-center gap-2 border-b border-rose-200 pb-2"><i className="fa-solid fa-triangle-exclamation"></i> Gelişim Alanları</h4>
                             <ul className="list-disc list-inside text-sm text-rose-900 space-y-2">
-                                {report.analysis.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
+                                {(report.analysis.weaknesses || []).map((s, i) => <li key={i}>{s}</li>)}
                             </ul>
                         </div>
                     </div>
@@ -219,18 +263,33 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                      <div className="bg-zinc-900 text-white p-8 rounded-2xl shadow-lg break-inside-avoid">
                         <h4 className="font-bold text-lg mb-6 flex items-center gap-2 border-b border-zinc-700 pb-4"><i className="fa-solid fa-road"></i> Kişiselleştirilmiş Eğitim Rotası</h4>
                         <div className="space-y-4">
-                            {report.roadmap.map((item, idx) => (
-                                <div key={idx} className="bg-zinc-800 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-700">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white shadow-lg">{idx + 1}</div>
-                                        <div>
-                                            <h5 className="font-bold text-indigo-300 text-lg">{ACTIVITIES.find(a => a.id === item.activityId)?.title || item.activityId}</h5>
-                                            <p className="text-sm text-zinc-400 mt-1">{item.reason}</p>
+                            {(report.roadmap || []).map((item, idx) => {
+                                const activityDef = ACTIVITIES.find(a => a.id === item.activityId);
+                                const title = activityDef?.title || item.activityId;
+                                
+                                return (
+                                    <div key={idx} className="bg-zinc-800 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-700">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white shadow-lg">{idx + 1}</div>
+                                            <div>
+                                                <h5 className="font-bold text-indigo-300 text-lg">{title}</h5>
+                                                <p className="text-sm text-zinc-400 mt-1">{item.reason}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-xs font-bold bg-zinc-900 px-4 py-2 rounded-full text-zinc-400 border border-zinc-700 whitespace-nowrap">{item.frequency}</span>
+                                            {onSelectActivity && (
+                                                <button 
+                                                    onClick={() => { onSelectActivity(item.activityId as ActivityType); onClose(); }}
+                                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-colors shadow-md flex items-center gap-2"
+                                                >
+                                                    <i className="fa-solid fa-play"></i> Hemen Üret
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
-                                    <span className="text-xs font-bold bg-zinc-900 px-4 py-2 rounded-full text-zinc-400 border border-zinc-700 whitespace-nowrap">{item.frequency}</span>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

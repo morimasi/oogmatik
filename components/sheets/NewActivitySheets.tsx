@@ -195,7 +195,7 @@ const HexagonPuzzle = ({ numbers }: { numbers: (number|string)[] }) => {
                  
                  {/* Central Hexagon */}
                  <polygon points="100,60 135,80 135,120 100,140 65,120 65,80" fill="#f0f9ff" stroke="#0284c7" strokeWidth="3" />
-                 {/* Using foreignObject or overlay for editable text in SVG is complex, here assuming static for visual structure but values passed are editable strings if wrapper handles it. 
+                 {/* Using foreignObject for editable text inside SVG would be complex, here assuming static for visual structure but values passed are editable strings if wrapper handles it. 
                      Since this is inside EditableElement parent, we rely on parent. But for inner values... */}
                  <text x="100" y="105" textAnchor="middle" className="text-2xl font-bold fill-sky-700" dominantBaseline="middle">{center}</text>
                  
@@ -251,7 +251,7 @@ export const MindGamesSheet: React.FC<{ data: MindGamesData }> = ({ data }) => (
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {data.puzzles.map((puzzle, idx) => (
+            {(data.puzzles || []).map((puzzle, idx) => (
                 <div key={idx} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col items-center break-inside-avoid relative overflow-hidden min-h-[300px]">
                     <div className="absolute top-0 left-0 bg-zinc-100 dark:bg-zinc-700 px-4 py-1 rounded-br-xl text-xs font-bold text-zinc-500 border-b border-r border-zinc-200">
                         #{idx + 1}
@@ -335,7 +335,7 @@ export const MindGames56Sheet: React.FC<{ data: MindGames56Data }> = ({ data }) 
         <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
         
         <div className="space-y-6">
-            {data.puzzles.map((puzzle, idx) => (
+            {(data.puzzles || []).map((puzzle, idx) => (
                 <div key={idx} className="bg-white dark:bg-zinc-800 rounded-2xl border-l-8 border-indigo-500 shadow-md p-6 break-inside-avoid">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shrink-0">

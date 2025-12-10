@@ -26,7 +26,7 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData }> = ({ data }) =>
                 <div className="absolute -top-3 -left-3 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-lg"></div>
                 <div className="absolute -bottom-3 -right-3 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-lg"></div>
                 
-                <GridComponent grid={data.grid} cellClassName="w-8 h-8 md:w-10 md:h-10 text-xl font-black font-mono border-zinc-200 hover:bg-yellow-100 cursor-pointer transition-colors text-zinc-800" />
+                <GridComponent grid={data.grid || []} cellClassName="w-8 h-8 md:w-10 md:h-10 text-xl font-black font-mono border-zinc-200 hover:bg-yellow-100 cursor-pointer transition-colors text-zinc-800" />
             </EditableElement>
             
             {/* Sidebar: Word List & Tasks */}
@@ -36,7 +36,7 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData }> = ({ data }) =>
                         <i className="fa-solid fa-list-check mr-2"></i> Kelime Listesi
                     </h4>
                     <ul className="grid grid-cols-2 lg:grid-cols-1 gap-2">
-                        {data.words.map((word, i) => (
+                        {(data.words || []).map((word, i) => (
                             <li key={i} className="flex items-center gap-2 text-sm font-bold text-zinc-700">
                                 <div className="w-4 h-4 border-2 border-zinc-400 rounded bg-white cursor-pointer hover:bg-green-400 hover:border-green-600 transition-colors"></div>
                                 <EditableText value={word} tag="span" />
@@ -78,7 +78,7 @@ export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
         <div className="dynamic-grid mt-6">
-            {data.anagrams.map((item, i) => (
+            {(data.anagrams || []).map((item, i) => (
                 <EditableElement key={i} className="flex flex-col gap-3 p-4 border-2 border-zinc-100 bg-white rounded-2xl shadow-sm break-inside-avoid relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-16 h-16 bg-zinc-50 rounded-bl-full -mr-8 -mt-8"></div>
                     
@@ -91,7 +91,7 @@ export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
 
                     {/* Scrabble Tiles */}
                     <div className="flex flex-wrap justify-center gap-2">
-                        {(item.letters || item.scrambled.split('')).map((char, k) => (
+                        {(item.letters || (item.scrambled ? item.scrambled.split('') : [])).map((char, k) => (
                             <div key={k} className="w-10 h-10 bg-amber-100 border-b-4 border-r-2 border-amber-300 rounded-lg flex items-center justify-center text-xl font-black text-amber-900 shadow-sm relative transform hover:-translate-y-1 transition-transform cursor-grab active:cursor-grabbing">
                                 {char}
                                 <span className="absolute bottom-0.5 right-1 text-[8px] opacity-50">1</span>
@@ -131,7 +131,7 @@ export const WordLadderSheet: React.FC<{ data: WordLadderData }> = ({ data }) =>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         
         <div className="flex-1 flex justify-center gap-12 items-start mt-8">
-            {data.ladders.map((ladder, i) => (
+            {(data.ladders || []).map((ladder, i) => (
                 <EditableElement key={i} className="flex flex-col items-center">
                     {/* Top Cloud/Goal */}
                     <div className="relative mb-2 z-10">
@@ -193,13 +193,13 @@ export const SyllableCompletionSheet: React.FC<{ data: SyllableCompletionData }>
                     <div className="flex drop-shadow-md">
                         {/* Left Piece */}
                         <div className="relative bg-indigo-500 text-white w-24 h-20 flex items-center justify-center text-xl font-bold rounded-l-lg z-10">
-                            <span className="mr-2"><EditableText value={puzzle.syllables[0]} tag="span" /></span>
+                            <span className="mr-2"><EditableText value={puzzle.syllables && puzzle.syllables[0] ? puzzle.syllables[0] : ''} tag="span" /></span>
                             <div className="absolute right-[-15px] top-1/2 -translate-y-1/2 w-8 h-8 bg-indigo-500 rounded-full"></div>
                         </div>
                         {/* Right Piece */}
                         <div className="relative bg-white border-2 border-indigo-500 text-indigo-700 w-24 h-20 flex items-center justify-center text-xl font-bold rounded-r-lg -ml-1 pl-4">
                             <div className="absolute left-[-17px] top-1/2 -translate-y-1/2 w-9 h-9 bg-white border-r-2 border-indigo-500 rounded-full inset-shadow"></div>
-                            <span><EditableText value={puzzle.syllables[1]} tag="span" /></span>
+                            <span><EditableText value={puzzle.syllables && puzzle.syllables[1] ? puzzle.syllables[1] : ''} tag="span" /></span>
                         </div>
                     </div>
                 </EditableElement>
@@ -227,7 +227,7 @@ export const LetterBridgeSheet: React.FC<{ data: LetterBridgeData }> = ({ data }
         <PedagogicalHeader title={data.title} instruction={data.instruction} />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-            {data.pairs.map((p, i) => (
+            {(data.pairs || []).map((p, i) => (
                 <EditableElement key={i} className="flex items-center justify-center gap-1 bg-white p-6 rounded-2xl shadow-sm border border-zinc-100 break-inside-avoid">
                     <div className="px-4 py-2 bg-zinc-100 rounded-lg text-xl font-bold text-zinc-600">
                         <EditableText value={p.word1} tag="span" />
@@ -254,7 +254,7 @@ export const SpellingCheckSheet: React.FC<{ data: SpellingCheckData }> = ({ data
     <div className={SHEET_CONTAINER}>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="dynamic-grid mt-4">
-            {data.checks.map((check, i) => (
+            {(data.checks || []).map((check, i) => (
                 <EditableElement key={i} className="border-2 border-zinc-200 rounded-xl p-4 break-inside-avoid flex flex-col items-center gap-3 bg-white">
                     {/* Visual Hint if available */}
                     {check.imagePrompt && (
@@ -284,7 +284,7 @@ export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => (
         <div className="flex-1 flex flex-col lg:flex-row gap-8 items-start mt-4 break-inside-avoid">
             {/* The Grid */}
             <EditableElement className="flex-1 bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-lg relative">
-                <GridComponent grid={data.grid as any[][]} cellClassName="w-8 h-8 md:w-10 md:h-10 text-xl font-black font-mono border-zinc-200 bg-white text-zinc-800" />
+                <GridComponent grid={data.grid as any[][] || []} cellClassName="w-8 h-8 md:w-10 md:h-10 text-xl font-black font-mono border-zinc-200 bg-white text-zinc-800" />
             </EditableElement>
             
             {/* Clues */}
@@ -294,7 +294,7 @@ export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => (
                         İpuçları
                     </h4>
                     <ul className="space-y-2 max-h-[500px] overflow-y-auto custom-scrollbar">
-                        {data.clues.map((clue, i) => (
+                        {(data.clues || []).map((clue, i) => (
                             <li key={i} className="text-xs text-zinc-700">
                                 <span className="font-bold mr-1">{clue.id}.</span>
                                 <EditableText value={clue.text} tag="span" />

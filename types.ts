@@ -32,6 +32,14 @@ export interface ClinicalObservation {
     notes: string;
 }
 
+export interface AssessmentRoadmapItem {
+    activityId: string; // ActivityType enum value
+    title: string;
+    reason: string;
+    frequency: string;
+    priority: 'high' | 'medium' | 'low';
+}
+
 export interface ProfessionalAssessmentReport {
     id: string;
     studentId: string;
@@ -48,6 +56,22 @@ export interface ProfessionalAssessmentReport {
         summary: string;
     };
     recommendations: string[];
+    roadmap: AssessmentRoadmapItem[]; // Yeni eklenen akıllı rota
+}
+
+// Legacy compatibility for saved assessments
+export interface SavedAssessment {
+    id: string;
+    userId: string;
+    studentName: string;
+    gender: 'Kız' | 'Erkek';
+    age: number;
+    grade: string;
+    report: any; // Can be Legacy or Professional structure
+    createdAt: string;
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
 }
 
 export interface InteractiveTestItem {

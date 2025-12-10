@@ -254,7 +254,7 @@ export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }>
             <PedagogicalHeader title="HATIRLAMA TESTİ" instruction="Metne bakmadan soruları cevapla." />
             
             <div className="flex-1 space-y-8 mt-8">
-                {data.questions.map((q, i) => (
+                {(data.questions || []).map((q, i) => (
                     <EditableElement key={i} className="p-6 border-2 border-black rounded-xl bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                         <p className="font-bold text-lg mb-4 flex gap-2"><span className="bg-black text-white w-6 h-6 flex items-center justify-center rounded text-sm">{i+1}</span> {q}</p>
                         <div className="border-b-2 border-black border-dashed h-8 w-full mt-4"></div>
@@ -276,7 +276,7 @@ export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }
         <div className="bg-white border-2 border-black rounded-lg p-1">
             {/* Standard Burdon Layout: Blocks of 10/20 chars lines */}
             <div className="font-mono text-xl leading-loose tracking-[0.2em] p-6 text-justify select-none text-black break-all">
-                {data.grid.map((row, i) => (
+                {(data.grid || []).map((row, i) => (
                     <div key={i} className="mb-4 flex gap-4 items-center border-b border-zinc-100 pb-1">
                         <span className="w-6 font-bold text-black text-sm border-r-2 border-black pr-2">{i+1}.</span>
                         <div className="flex-1 text-center font-bold">
@@ -320,15 +320,15 @@ export const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData 
             <div className="absolute top-0 left-0 w-full bg-black text-white p-2 flex justify-center gap-2 flex-wrap z-10 border-b-4 border-black">
                 <span className="font-bold text-sm self-center mr-2 uppercase tracking-wider">Aranacaklar:</span>
                 <div className="flex gap-2">
-                    <span className="font-black text-lg bg-white text-black px-2 rounded">{data.range.start}</span>
+                    <span className="font-black text-lg bg-white text-black px-2 rounded">{data.range?.start || 1}</span>
                     <span className="self-center">...</span>
-                    <span className="font-black text-lg bg-white text-black px-2 rounded">{data.range.end}</span>
+                    <span className="font-black text-lg bg-white text-black px-2 rounded">{data.range?.end || 20}</span>
                 </div>
             </div>
 
             {/* Chaotic Numbers - Absolute Positioning */}
             <div className="absolute inset-0 top-12 p-4">
-                {data.numbers.map((num, i) => (
+                {(data.numbers || []).map((num, i) => (
                     <EditableElement 
                         key={i} 
                         className="absolute flex items-center justify-center font-black font-dyslexic cursor-crosshair select-none leading-none"
@@ -370,7 +370,7 @@ export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) =>
         
         {/* Main Content: High density grid for A4 filling */}
         <div className="flex-1 grid grid-cols-4 gap-y-8 gap-x-4 items-center content-start min-h-[700px] py-4">
-            {data.items.map((item, index) => (
+            {(data.items || []).map((item, index) => (
                 <EditableElement key={index} className="flex justify-center break-inside-avoid">
                     <span 
                         className="text-3xl md:text-4xl font-black tracking-wide uppercase text-center"
@@ -422,7 +422,7 @@ const StandardSheet = ({ data, children }: any) => (
 export const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }) => (
     <StandardSheet data={data}>
         <div className="flex flex-wrap gap-3 justify-center font-mono text-xl p-8 border-2 border-black rounded-3xl bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            {data.numbers.map((n, i) => (
+            {(data.numbers || []).map((n, i) => (
                 <span key={i} className="w-12 h-12 flex items-center justify-center border-2 border-zinc-100 hover:border-black rounded-lg font-bold text-black transition-all cursor-default select-none">{n}</span>
             ))}
         </div>
@@ -432,7 +432,7 @@ export const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }
 export const FindDuplicateSheet: React.FC<{ data: FindDuplicateData }> = ({ data }) => (
     <StandardSheet data={data}>
         <div className="space-y-4">
-            {data.rows.map((row, i) => (
+            {(data.rows || []).map((row, i) => (
                 <EditableElement key={i} className="flex justify-between items-center p-3 border-2 border-black rounded-lg bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] break-inside-avoid">
                     <span className="w-8 h-8 bg-black text-white rounded flex items-center justify-center font-bold text-sm mr-4">{i+1}</span>
                     <div className="flex-1 flex justify-between font-mono text-2xl tracking-widest font-bold text-black">
@@ -448,7 +448,7 @@ export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ da
     <StandardSheet data={data}>
         <div className="bg-white border-4 border-black p-6 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
             <div className="font-mono text-lg leading-[2.5rem] tracking-[0.5em] break-all text-justify select-none text-black">
-                {data.grid.map((row, i) => (
+                {(data.grid || []).map((row, i) => (
                     <div key={i} className="mb-2 flex items-center border-b border-zinc-100 pb-1">
                         <span className="w-6 font-bold text-zinc-400 text-xs mr-2">{i+1}</span>
                         <div className="flex-1 text-center">
@@ -463,8 +463,8 @@ export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ da
 
 export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ data }) => (
     <StandardSheet data={data}>
-        <div className="bg-white border-4 border-black p-4 rounded-xl grid gap-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{gridTemplateColumns: `repeat(${data.grid.length}, 1fr)`}}>
-            {data.grid.flat().map((char, i) => (
+        <div className="bg-white border-4 border-black p-4 rounded-xl grid gap-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{gridTemplateColumns: `repeat(${data.grid?.length || 10}, 1fr)`}}>
+            {(data.grid || []).flat().map((char, i) => (
                 <div key={i} className="aspect-square flex items-center justify-center border border-zinc-100 text-lg font-bold text-black hover:bg-zinc-100">{char}</div>
             ))}
         </div>
@@ -477,7 +477,7 @@ export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ da
 export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }) => (
     <StandardSheet data={data}>
         <div className="bg-white border-4 border-black p-6 rounded-3xl text-black font-mono text-xl tracking-widest text-center leading-loose shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] select-none">
-            {data.grid.map((row, i) => (
+            {(data.grid || []).map((row, i) => (
                 <div key={i} className="hover:bg-zinc-50">{row.join(' ')}</div>
             ))}
         </div>
@@ -495,7 +495,7 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {data.puzzles.map((puzzle, i) => (
+                {(data.puzzles || []).map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 shadow-sm break-inside-avoid flex flex-col h-full">
                         {/* Riddle Text */}
                         <div className="bg-zinc-100 dark:bg-zinc-700/50 p-4 rounded-lg mb-4 text-center border border-zinc-200 dark:border-zinc-600">
@@ -532,7 +532,7 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
             </div>
             {/* Answer Key Strip (For Print) */}
             <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
-                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
+                Cevaplar: {(data.puzzles || []).map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
             </div>
         </div>
     );
@@ -543,7 +543,7 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {data.puzzles.map((puzzle, i) => (
+                {(data.puzzles || []).map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 shadow-md break-inside-avoid flex flex-col h-full relative">
                         {/* Riddle Box */}
                         <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg mb-4 text-center border border-amber-200 dark:border-amber-800">
@@ -580,7 +580,7 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
             </div>
             {/* Answer Key Strip (For Print) */}
             <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
-                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
+                Cevaplar: {(data.puzzles || []).map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
             </div>
         </div>
     );
