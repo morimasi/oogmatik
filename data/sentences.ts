@@ -1,6 +1,5 @@
 
-// Tüm Atasözleri ve Özdeyişler İçin Tek Kaynak (Single Source of Truth)
-
+// Tüm Atasözleri ve Özdeyişler
 export const PROVERBS = [
   "Damlaya damlaya göl olur.",
   "Sakla samanı, gelir zamanı.",
@@ -132,66 +131,159 @@ export const SAYINGS = [
   "Bana bir harf öğretenin kırk yıl kölesi olurum. - Hz. Ali"
 ];
 
-// --- DYNAMIC STORY GENERATION MODULES ---
-// This structure allows generating stories of specific lengths (5, 10, 15, 20 sentences)
-// by chaining logical sentence parts.
+// --- MANTIKLI VE BÜTÜNLÜKLÜ HİKAYE ŞABLONLARI ---
+// Bu şablonlar, rastgele cümle birleştirme yerine, tutarlı bir iskelet üzerine
+// dinamik öğeler yerleştirerek çalışır.
 
-export const DYNAMIC_STORY_MODULES = {
-    intros: [
-        "Bir zamanlar {place} diyarında yaşayan küçük bir {character} varmış.",
-        "Güneşli bir sabah, {character} erkenden uyandı ve {place} yolunu tuttu.",
-        "{character}, en sevdiği oyuncağını aramak için {place} tarafına doğru yürüdü.",
-        "Karanlık bir gecede, {character} penceresinden dışarı, {place} manzarasına bakıyordu.",
-        "Herkesin tanıdığı {character}, o gün {place} içinde ilginç bir şey fark etti.",
-        "Eski zamanlarda, {place} civarında {character} isimli bir kahraman yaşardı.",
-        "Okuldan dönen {character}, kestirme yoldan {place} içinden geçmeye karar verdi.",
-        "{place} o gün her zamankinden daha sessizdi, {character} bunu garipsedi."
-    ],
-    actions: [
-        "Yerde parlayan gizemli bir {object} buldu.",
-        "Birdenbire karşısına {adjective} bir {animal} çıktı.",
-        "Hızla koşmaya başladı çünkü hava kararıyordu.",
-        "Çantasından {object} çıkardı ve dikkatle inceledi.",
-        "Etrafına bakındı ama kimseyi göremedi.",
-        "Yüksek bir ses duydu ve korkuyla irkildi.",
-        "Yerdeki izleri takip etmeye karar verdi.",
-        "Ağacın dalında asılı duran {object} dikkatini çekti.",
-        "O sırada yağmur yağmaya başladı ve sığınacak yer aradı.",
-        "Cebindeki son {food} parçasını çıkarıp yedi.",
-        "Karşısına çıkan nehrin üzerinden atladı.",
-        "Uzaktaki bir ışıltı ona yol gösteriyordu.",
-        "Yorgunluktan bir taşın üzerine oturdu.",
-        "Ona doğru yaklaşan gölgeyi fark etti.",
-        "Elindeki haritaya baktı ama yönünü şaşırmıştı.",
-        "Cesaretini toplayıp mağaraya girdi.",
-        "Yerdeki anahtarı alıp kapıyı açtı.",
-        "Kuşların sesi ona huzur verdi.",
-        "Rüzgar o kadar sert esiyordu ki ayakta zor duruyordu.",
-        "Sonunda aradığı ipucunu bulmuştu.",
-        "{friend} ile karşılaştı ve ona durumu anlattı.",
-        "Birlikte {activity} yapmaya başladılar.",
-        "Zamanın nasıl geçtiğini anlamadı.",
-        "Gökyüzünde beliren gökkuşağına hayran kaldı.",
-        "Çamura saplanan ayağını zorlukla kurtardı."
-    ],
-    conclusions: [
-        "Sonunda {character} evine sağ salim döndü ve derin bir nefes aldı.",
-        "O günden sonra {character} bir daha asla {place} tarafına gitmedi.",
-        "Bu macera {character} için unutulmaz bir anı olmuştu.",
-        "{character}, yaşadıklarını günlüğüne yazarak uykuya daldı.",
-        "Artık {character}, cesur olmanın ne demek olduğunu öğrenmişti.",
-        "Böylece {character} ve {friend} sonsuza dek mutlu yaşadılar.",
-        "Günün sonunda {character}, {object} ile birlikte huzurla gülümsedi.",
-        "Her şey normale döndüğünde {character} çok rahatlamıştı."
-    ],
-    fillers: {
-        places: ["büyülü orman", "ıssız ada", "kalabalık şehir", "eski kütüphane", "karanlık mağara", "çiçekli bahçe", "uzay istasyonu", "deniz kıyısı"],
-        characters: ["Ali", "Ayşe", "Minik Tavşan", "Robot Robi", "Dedektif Can", "Kaptan Efe", "Prenses Elif", "Bilge Baykuş"],
-        objects: ["anahtar", "harita", "pusula", "mektup", "kolye", "fener", "kitap", "sihirli değnek"],
-        animals: ["kurt", "ayı", "sincap", "kartal", "yunus", "ejderha", "kedi", "köpek"],
-        adjectives: ["kocaman", "parlak", "korkunç", "sevimli", "gizemli", "hızlı", "renkli", "eski"],
-        foods: ["elma", "ekmek", "kurabiye", "havuç", "sandviç", "çikolata"],
-        friends: ["Mehmet", "Zeynep", "Boncuk", "Maviş", "Kardeşi", "Komşusu"],
-        activities: ["koşmaya", "saklanmaya", "gülmeye", "şarkı söylemeye", "düşünmeye", "aramaya"]
+export interface StoryTemplate {
+    id: string;
+    level: 'Başlangıç' | 'Orta' | 'Zor';
+    titleTemplate: string;
+    // Template string uses {key} for replacements
+    textTemplate: string; 
+    variables: {
+        [key: string]: string[];
+    };
+    // Pre-defined question data to ensure logic
+    questions: {
+        q: string;
+        aKey: string; // The variable key that holds the answer
+        distractors: string[];
+    }[];
+    fiveW1H_keys: {
+        who: string;
+        where: string;
+        when: string;
+        what: string; // Key description
+    };
+    imagePromptTemplate: string;
+}
+
+export const COHERENT_STORY_TEMPLATES: StoryTemplate[] = [
+    // --- BAŞLANGIÇ SEVİYESİ (Günlük Hayat, Basit Olaylar) ---
+    {
+        id: 'kayip_esya',
+        level: 'Başlangıç',
+        titleTemplate: "{character}'in Kayıp {object}'ı",
+        textTemplate: "{character} o gün çok heyecanlıydı. Çünkü okula en sevdiği {object}'ını götürecekti. {character}, okula geldiğinde {object}'ını çantasına koyduğunu sandı. Teneffüs zili çaldı ve bahçeye çıktı. Arkadaşı {friend} ile oynamaya başladı. Bir süre sonra {object}'ını göstermek istedi ama çantasında bulamadı! Çok üzüldü. {friend} ona yardım etmeye karar verdi. Birlikte sınıfı aradılar. Sonunda {object}'ı {location}ın altında buldular. {character} çok sevindi ve arkadaşına teşekkür etti.",
+        variables: {
+            character: ["Ali", "Ayşe", "Mert", "Zeynep", "Can", "Elif"],
+            object: ["kırmızı top", "mavi kalem", "resim defteri", "oyuncak araba", "beslenme kutusu"],
+            friend: ["Cem", "Selin", "Efe", "Ada", "Kaan", "Defne"],
+            location: ["öğretmen masası", "arka sıra", "kitaplık", "askılık", "çöp kutusu"]
+        },
+        questions: [
+            { q: "Hikayenin kahramanı kimdir?", aKey: "character", distractors: ["Öğretmen", "Müdür", "Kedisi"] },
+            { q: "Kahraman neyi kaybetmiştir?", aKey: "object", distractors: ["Ayakkabısını", "Montunu", "Silgisini"] },
+            { q: "Kaybolan eşyayı kiminle aradı?", aKey: "friend", distractors: ["Annesiyle", "Babasıyla", "Polisle"] },
+            { q: "Eşyayı nerede buldular?", aKey: "location", distractors: ["Bahçede", "Kantinde", "Evde"] }
+        ],
+        fiveW1H_keys: { who: "character", where: "Okul", when: "Okul günü", what: "Eşyasını kaybetti ve buldu" },
+        imagePromptTemplate: "Children in a classroom looking for a {object} under a {location}, cartoon style"
+    },
+    {
+        id: 'park_gunu',
+        level: 'Başlangıç',
+        titleTemplate: "{character} Parkta",
+        textTemplate: "Hava çok {weather} bir gündü. {character}, annesinden izin alıp parka gitti. Parkta en sevdiği oyuncağı olan {toy} ile oynuyordu. O sırada yanına sevimli bir {animal} geldi. {animal} çok aç görünüyordu. {character}, cebindeki {food} parçasını çıkarıp ona verdi. {animal} yemeği yedi ve mutlu bir şekilde kuyruğunu salladı. {character} eve döndüğünde bu güzel anısını ailesine anlattı.",
+        variables: {
+            character: ["Deniz", "Umut", "Nil", "Rüzgar", "Doğa"],
+            weather: ["güneşli", "sıcak", "güzel", "ılık"],
+            toy: ["uçurtma", "top", "ip", "bisiklet"],
+            animal: ["kedi", "köpek", "kuş", "sincap"],
+            food: ["kraker", "sandviç", "elma", "bisküvi"]
+        },
+        questions: [
+            { q: "Hikaye nerede geçiyor?", aKey: "custom:Parkta", distractors: ["Okulda", "Markette", "Hastane"] },
+            { q: "{character} parkta ne ile karşılaştı?", aKey: "animal", distractors: ["Bir arkadaşıyla", "Öğretmeniyle", "Bir robotla"] },
+            { q: "{character} hayvana ne verdi?", aKey: "food", distractors: ["Su", "Süt", "Para"] }
+        ],
+        fiveW1H_keys: { who: "character", where: "Park", when: "Gündüz", what: "Bir hayvanı besledi" },
+        imagePromptTemplate: "Child in a park feeding a {animal} with {food}, sunny day illustration"
+    },
+
+    // --- ORTA SEVİYE (Sebep-Sonuç, Doğa, Yardımlaşma) ---
+    {
+        id: 'doga_yuruyusu',
+        level: 'Orta',
+        titleTemplate: "{place}'daki Sürpriz",
+        textTemplate: "{character}, hafta sonu ailesiyle birlikte {place}'a yürüyüşe gitti. Doğayı çok seviyordu. Yürürken yerdeki çöpleri fark etti ve çok üzüldü. 'Doğayı korumalıyız' diye düşündü. Yanında getirdiği boş poşeti çıkardı. Ailesiyle birlikte etraftaki {trash} atıklarını topladılar. Bir süre sonra {place} tertemiz olmuştu. Tam o sırada bir {animal} ortaya çıktı ve sanki onlara teşekkür eder gibi baktı. {character}, doğa için faydalı bir şey yapmanın mutluluğunu yaşadı.",
+        variables: {
+            character: ["Kerem", "Asya", "Bora", "İpek", "Sarp"],
+            place: ["orman", "sahil", "göl kenarı", "piknik alanı"],
+            trash: ["plastik şişe", "kağıt", "kutu", "poşet"],
+            animal: ["tavşan", "kaplumbağa", "kirpi", "martı"]
+        },
+        questions: [
+            { q: "{character} nereye gitti?", aKey: "place", distractors: ["Sinemaya", "Alışveriş merkezine", "Kütüphaneye"] },
+            { q: "{character} yerde ne görünce üzüldü?", aKey: "trash", distractors: ["Taşlar", "Yapraklar", "Çiçekler"] },
+            { q: "Sonunda kim ortaya çıktı?", aKey: "animal", distractors: ["Bir avcı", "Orman koruyucusu", "Bir ayı"] },
+            { q: "Hikayenin ana fikri nedir?", aKey: "custom:Doğayı korumalıyız", distractors: ["Yürümek sağlıklıdır", "Aile önemlidir", "Hayvanları sevmeliyiz"] }
+        ],
+        fiveW1H_keys: { who: "character", where: "place", when: "Hafta sonu", what: "Çevreyi temizledi" },
+        imagePromptTemplate: "Family cleaning trash in a {place}, watching a {animal}, educational illustration"
+    },
+    {
+        id: 'yeni_arkadas',
+        level: 'Orta',
+        titleTemplate: "Yeni Arkadaş",
+        textTemplate: "{character} sınıfa yeni gelmişti ve hiç arkadaşı yoktu. Teneffüste bir köşede oturup {activity} yapıyordu. Diğer çocuklar bahçede oyun oynuyordu. O sırada {friend} yanına geldi. '{character}, bizimle oynamak ister misin?' diye sordu. {character} çok şaşırdı ve sevindi. Birlikte {game} oynamaya başladılar. O gün {character} için okulun en güzel günüydü. Artık yalnız hissetmiyordu.",
+        variables: {
+            character: ["Canan", "Emre", "Seda", "Barış"],
+            activity: ["kitap okuma", "resim çizme", "beslenme yeme"],
+            friend: ["Ozan", "Gamze", "Mert", "Pelin"],
+            game: ["saklambaç", "kovalamaca", "yakan top", "körebe"]
+        },
+        questions: [
+            { q: "{character} teneffüste başta ne yapıyordu?", aKey: "activity", distractors: ["Uyuyordu", "Ağlıyordu", "Koşuyordu"] },
+            { q: "Onu oyuna kim davet etti?", aKey: "friend", distractors: ["Öğretmen", "Müdür", "Hizmetli"] },
+            { q: "Birlikte hangi oyunu oynadılar?", aKey: "game", distractors: ["Satranç", "Bilgisayar oyunu", "Futbol"] }
+        ],
+        fiveW1H_keys: { who: "character", where: "Okul", when: "Teneffüs", what: "Yeni bir arkadaş edindi" },
+        imagePromptTemplate: "Two children talking in school garden, playing {game}, friendship theme"
+    },
+
+    // --- ZOR / UZMAN SEVİYE (Bilim, Keşif, Soyut Düşünce) ---
+    {
+        id: 'uzay_macerasi',
+        level: 'Zor',
+        titleTemplate: "Mars'a Yolculuk",
+        textTemplate: "Astronot {character}, yıllardır bu anı bekliyordu. {rocketName} adlı roketiyle Mars'a inecekti. Görevi, gezegendeki {target} örneklerini toplamaktı. İniş sırasında bir toz fırtınası çıktı. {character} hemen kontrol panelindeki düğmelere bastı ve roketi güvenli bir şekilde indirmeyi başardı. Kırmızı gezegenin yüzeyine ayak bastığında, karşısında parlayan gizemli {mystery} gördü. Bu, bilim dünyası için harika bir keşifti.",
+        variables: {
+            character: ["Gökçe", "Taylan", "Bilge", "Atlas"],
+            rocketName: ["Atılgan", "Yıldırım", "Gökkuşağı", "Kaşif"],
+            target: ["toprak", "kaya", "su", "buz"],
+            mystery: ["mavi kristaller", "eski bir heykel", "metal bir kutu", "donmuş bir bitki"]
+        },
+        questions: [
+            { q: "Astronotun görevi neydi?", aKey: "target", distractors: ["Uzaylılarla tanışmak", "Fotoğraf çekmek", "Tatil yapmak"] },
+            { q: "İniş sırasında ne oldu?", aKey: "custom:Toz fırtınası çıktı", distractors: ["Yakıt bitti", "Motor bozuldu", "Uzaylılar saldırdı"] },
+            { q: "Gezegende ne keşfetti?", aKey: "mystery", distractors: ["Bir şehir", "Bir nehir", "Bir ağaç"] }
+        ],
+        fiveW1H_keys: { who: "character", where: "Mars", when: "Gelecekte", what: "Mars'ta keşif yaptı" },
+        imagePromptTemplate: "Astronaut on Mars surface finding {mystery}, red planet background, sci-fi illustration"
+    },
+    {
+        id: 'zaman_makinesi',
+        level: 'Zor',
+        titleTemplate: "Zaman Yolcusu",
+        textTemplate: "Bilim insanı {character}, laboratuvarında çalışırken garip bir makine icat etti. Bu bir zaman makinesiydi! Denemek için makinenin içine girdi ve {time} dönemine gitmek istedi. Gözlerini açtığında etrafında devasa {creature} dolaşıyordu. Çok heyecanlandı ama biraz da korktu. Hemen not defterini çıkarıp çizim yapmaya başladı. Aniden makinenin ışıkları yanıp söndü. {character}, eve dönme zamanının geldiğini anladı. Bu kısa macera ona tarihin sırlarını öğretmişti.",
+        variables: {
+            character: ["Prof. Zihni", "Dr. Meraklı", "Ada", "Çınar"],
+            time: ["Dinozorlar", "Buzul", "Eski Mısır"],
+            creature: ["dinozorlar", "mamutlar", "piramitler"] // Contextually linked via logic in generator if needed, but simplified here
+        },
+        questions: [
+            { q: "{character} ne icat etti?", aKey: "custom:Zaman makinesi", distractors: ["Uçan araba", "Robot", "Işın kılıcı"] },
+            { q: "Hangi zamana gitti?", aKey: "time", distractors: ["Geleceğe", "Uzaya", "Okyanus altına"] },
+            { q: "Orada ne gördü?", aKey: "creature", distractors: ["Uzaylılar", "Robotlar", "Uçan daireler"] }
+        ],
+        fiveW1H_keys: { who: "character", where: "Geçmiş", when: "Laboratuvarda", what: "Zaman yolculuğu yaptı" },
+        imagePromptTemplate: "Scientist looking at {creature} in prehistoric times, time machine in background"
     }
+];
+
+// --- ESKİ DEĞİŞKENLER (UYUMLULUK İÇİN - ARTIK KULLANILMIYOR AMA TİPLER İÇİN GEREKLİ OLABİLİR) ---
+export const DYNAMIC_STORY_MODULES = {
+    intros: [], actions: [], conclusions: [], fillers: {}
 };
