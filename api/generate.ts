@@ -8,7 +8,7 @@ Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
 Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış veya risk grubundaki çocuklar için **bilimsel temelli, hatasız ve JSON formatında** eğitim materyali üretmek.
 
 KESİN KURALLAR:
-1. Sadece JSON döndür.
+1. Sadece JSON döndür. Markdown bloğu kullanma (örn: \`\`\`json ... \`\`\` YAZMA).
 2. Türkçe dilbilgisi kurallarına %100 uy.
 3. Çocuk dostu, pozitif ve teşvik edici ol.
 4. "imagePrompt" alanlarını İngilizce ve detaylı görsel betimlemelerle doldur.
@@ -45,9 +45,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const ai = new GoogleGenAI({ apiKey });
         
-        // Enforce gemini-2.5-flash for speed, cost efficiency and multimodal capabilities
-        // Use user provided model if specific, else default to 2.5 flash
-        let selectedModel = model || "gemini-2.5-flash"; 
+        // CRITICAL: Force gemini-2.5-flash for images to ensure speed and higher limits.
+        // For text, default to flash but allow override if needed (though flash is best for this app).
+        let selectedModel = image ? "gemini-2.5-flash" : (model || "gemini-2.5-flash"); 
 
         // Common Configuration
         const generationConfig = {
@@ -89,17 +89,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     config: generationConfig,
                 });
                 
-                // Return as text stream-like format to be compatible with client reader
+                // Return as text stream-like format to be compatible with client reader logic
+                // Ensure we return clean JSON string
+                let text = result.text || "{}";
+                // Cleanup common markdown JSON wrapping if the model ignored system instruction
+                text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+                
                 res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                res.status(200).send(result.text); 
+                res.status(200).send(text); 
                 return;
             } catch (error: any) {
                 console.error(`Image generation error (${selectedModel}):`, error.message);
                 if (!res.headersSent) {
                     if (error.status === 429 || error.status === 503) {
-                         return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul." });
+                         return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Vision)" });
                     }
-                    return res.status(500).json({ error: "Görsel analizi sırasında hata oluştu. Lütfen tekrar deneyin." });
+                    return res.status(500).json({ error: `Görsel analizi hatası: ${error.message}` });
                 }
                 return;
             }
@@ -131,7 +136,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.error(`Stream error (${selectedModel}):`, error.message);
             if (!res.headersSent) {
                 if (error.status === 429 || error.status === 503) {
-                    return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul." });
+                    return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Text)" });
                 }
                 return res.status(500).json({ error: "Yapay zeka akışı sırasında hata oluştu." });
             } else {
