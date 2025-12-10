@@ -1,3 +1,4 @@
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
@@ -48,37 +49,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Use user provided model if specific, else default to 2.5 flash
         let selectedModel = model || "gemini-2.5-flash"; 
 
-        try {
-            // Build contents array
-            let contents: any = prompt;
-            if (image) {
-                contents = {
-                    parts: [
-                        { inlineData: { mimeType: 'image/jpeg', data: image } },
-                        { text: prompt }
-                    ]
-                };
-            }
+        // Common Configuration
+        const generationConfig = {
+            systemInstruction: SYSTEM_INSTRUCTION,
+            responseMimeType: "application/json",
+            responseSchema: schema,
+            temperature: 0.7, 
+            topP: 0.95,
+            topK: 40,
+            // Safety Settings: Allow educational content
+            safetySettings: [
+                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+                { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+            ]
+        };
 
-            // Streaming yanıtı başlat
+        // Build contents array
+        let contents: any = prompt;
+        if (image) {
+            contents = {
+                parts: [
+                    { inlineData: { mimeType: 'image/jpeg', data: image } },
+                    { text: prompt }
+                ]
+            };
+        }
+
+        // STRATEGY SPLIT: 
+        // 1. For Images: Use standard generateContent (non-streaming) for better stability with large payloads.
+        // 2. For Text: Use generateContentStream for better UX/speed perception.
+
+        if (image) {
+            try {
+                const result = await ai.models.generateContent({
+                    model: selectedModel, 
+                    contents: contents, 
+                    config: generationConfig,
+                });
+                
+                // Return as text stream-like format to be compatible with client reader
+                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                res.status(200).send(result.text); 
+                return;
+            } catch (error: any) {
+                console.error(`Image generation error (${selectedModel}):`, error.message);
+                if (!res.headersSent) {
+                    if (error.status === 429 || error.status === 503) {
+                         return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul." });
+                    }
+                    return res.status(500).json({ error: "Görsel analizi sırasında hata oluştu. Lütfen tekrar deneyin." });
+                }
+                return;
+            }
+        }
+
+        // Streaming for Text-Only Requests
+        try {
             const stream = await ai.models.generateContentStream({
                 model: selectedModel, 
                 contents: contents, 
-                config: {
-                    systemInstruction: SYSTEM_INSTRUCTION,
-                    responseMimeType: "application/json",
-                    responseSchema: schema,
-                    temperature: 0.7, 
-                    topP: 0.95,
-                    topK: 40,
-                    // Safety Settings: Allow educational content
-                    safetySettings: [
-                        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-                        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-                        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-                        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-                    ]
-                },
+                config: generationConfig,
             });
 
             // Headerları ayarla - Text stream olarak döneceğiz

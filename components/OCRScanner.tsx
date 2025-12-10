@@ -36,9 +36,9 @@ const resizeImage = (file: File): Promise<string> => {
                 let height = img.height;
                 
                 // Aggressively reduce size to ensure payload stays under Vercel limits (4.5MB body limit)
-                // 600px is sufficient for OCR while keeping base64 string very small (~50KB)
-                const MAX_WIDTH = 600;
-                const MAX_HEIGHT = 600;
+                // 512px is standard for many AI models and ensures very small payload (~40KB)
+                const MAX_WIDTH = 512;
+                const MAX_HEIGHT = 512;
 
                 if (width > height) {
                     if (width > MAX_WIDTH) {
@@ -57,8 +57,8 @@ const resizeImage = (file: File): Promise<string> => {
                 const ctx = canvas.getContext('2d');
                 ctx?.drawImage(img, 0, 0, width, height);
                 
-                // Convert to base64 string with reduced quality (0.5) to save space
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                // Convert to base64 string with significantly reduced quality to save space
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
                 resolve(dataUrl);
             };
             img.onerror = reject;
