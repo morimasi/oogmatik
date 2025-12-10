@@ -10,40 +10,36 @@ export const ocrService = {
         const validIds = ACTIVITIES.map(a => a.id).join(', ');
 
         const prompt = `
-        [ROL: KIDEMLİ EĞİTİM MATERYALİ ANALİSTİ]
+        [ROL: KIDEMLİ EĞİTİM TEKNOLOJİLERİ VE PROMPT MÜHENDİSİ]
         
-        GÖREV: Yüklenen görseldeki çalışma kağıdını analiz et ve sistemdeki EN UYGUN aktivite türüne eşle.
-        Amacımız, bu kağıdın mantığını (logic) kopyalayıp, aynı yapıda yeni içerikler üretebilmek.
+        GÖREV: Yüklenen görseldeki çalışma kağıdını "Tersine Mühendislik" (Reverse Engineering) yöntemiyle analiz et.
+        Amacımız: Bu görselin **BİREBİR AYNISINI** (mantık, zorluk, stil ve yapı olarak) üretebilecek, yapay zekaya verilecek **DETAYLI BİR KOMUT (PROMPT)** oluşturmaktır.
         
-        ADIM 1: GÖRSEL ANALİZİ
-        - Görseldeki aktivite ne? (Örn: Toplama işlemi, Kelime Bulmaca, Okuma Parçası, Eşleştirme).
-        - Zorluk seviyesi ne? (Başlangıç, Orta, Zor).
-        - İçerik konusu ne? (Matematik, Türkçe, Dikkat).
+        ADIM 1: DERİNLEMESİNE ANALİZ
+        - İçerik Türü: Matematik mi? Dil bilgisi mi? Dikkat mi?
+        - Soru Yapısı: Çoktan seçmeli mi? Boşluk doldurma mı? Eşleştirme mi?
+        - Zorluk Seviyesi: Sayı aralıkları ne? Kelime uzunlukları ne?
+        - Görsel Stil: İkonlar var mı? Varsa ne tarz? (Flat, outline, renkli?)
+        - Pedagojik Hedef: Bu kağıt neyi ölçüyor?
 
-        ADIM 2: TÜR EŞLEŞTİRME (ÇOK ÖNEMLİ)
-        Görseli şu listedeki en uygun 'ActivityType' ID'sine eşle:
-        [${validIds}]
-        
-        Eğer görsel Matematik işlemi içeriyorsa -> 'BASIC_OPERATIONS' seç.
-        Eğer metin okuma ve soru varsa -> 'STORY_COMPREHENSION' seç.
-        Eğer kelime bulmaca ise -> 'WORD_SEARCH' seç.
-        Eğer eşleştirme ise -> 'WORD_CONNECT' seç.
-        Eğer şekil/desen kopyalama ise -> 'GRID_DRAWING' seç.
-        
-        Eğer tam uyan yoksa, en yakın olanı seç ve 'customInstructions' alanına farkları not et.
+        ADIM 2: EŞLEŞTİRME
+        Görseli şu listedeki en uygun 'ActivityType' ID'sine eşle: [${validIds}].
+        (Eğer tam uyan yoksa en yakınını seç).
 
-        ADIM 3: PARAMETRE TAHMİNİ
-        Bu aktiviteyi yeniden üretmek için gereken varsayılan parametreleri tahmin et.
+        ADIM 3: ZENGİN PROMPT OLUŞTURMA (generatedTemplate)
+        Görseldeki etkinliği yeniden üretecek "Master Prompt"u yaz.
+        - Örnek (Kötü): "Matematik sorusu üret."
+        - Örnek (İyi - Beklenen): "2. Sınıf seviyesinde, 1-50 arası sayılarla toplama işlemi üret. Sayılar alt alta yazılsın. Her işlemin yanında, sayı adedi kadar 'Elma' ikonu olsun. Sonuç kısmı boş bırakılsın. Sayfa başlığı 'Elmalarla Toplama' olsun."
 
         ÇIKTI FORMATI (JSON):
         {
-            "detectedType": "ActivityType ID'si (Örn: BASIC_OPERATIONS)",
-            "title": "Önerilen Başlık (Örn: 2. Sınıf Toplama Alıştırması)",
-            "description": "Görselin pedagojik analizi ve mantığı.",
-            "estimatedDifficulty": "Başlangıç" | "Orta" | "Zor",
-            "estimatedItemCount": "Tahmini soru/öğe sayısı (Number)",
-            "topic": "Algılanan konu (Örn: Uzay, Sayılar, Hayvanlar)",
-            "customInstructions": "Eğer standart tipten farkı varsa, AI'ya verilecek ek talimat."
+            "detectedType": "ActivityType ID'si",
+            "title": "Görselden Algılanan Başlık",
+            "description": "Kullanıcı için kısa açıklama (örn: Görsel destekli toplama işlemi)",
+            "estimatedDifficulty": "Başlangıç" | "Orta" | "Zor" | "Uzman",
+            "estimatedItemCount": Sayı (Tahmini soru adedi),
+            "topic": "Konu (örn: Uzay, Meyveler)",
+            "generatedTemplate": "Buraya ADIM 3'teki detaylı, zengin ve teknik promptu yaz."
         }
         `;
 
@@ -56,9 +52,9 @@ export const ocrService = {
                 estimatedDifficulty: { type: Type.STRING, enum: ['Başlangıç', 'Orta', 'Zor', 'Uzman'] },
                 estimatedItemCount: { type: Type.INTEGER },
                 topic: { type: Type.STRING },
-                customInstructions: { type: Type.STRING }
+                generatedTemplate: { type: Type.STRING, description: "Görselin mantığını kopyalayan detaylı AI komutu." }
             },
-            required: ['detectedType', 'title', 'description', 'estimatedDifficulty']
+            required: ['detectedType', 'title', 'description', 'estimatedDifficulty', 'generatedTemplate']
         };
 
         const result = await analyzeImage(base64Image, prompt, schema);
@@ -68,18 +64,17 @@ export const ocrService = {
             detectedType: result.detectedType,
             title: result.title,
             description: result.description,
-            // We map these to helper props for the UI
+            generatedTemplate: result.generatedTemplate,
             structuredData: {
                 difficulty: result.estimatedDifficulty,
                 itemCount: result.estimatedItemCount || 10,
                 topic: result.topic || 'Genel',
-                instructions: result.customInstructions
+                instructions: result.generatedTemplate // Use the rich template as instructions
             },
             baseType: result.detectedType
         };
     },
 
-    // Not used in new flow but kept for compatibility
     convertToWorksheetData: (ocrData: OCRResult): { type: ActivityType, data: any[] } => {
         return { type: ocrData.baseType as ActivityType, data: [] };
     }

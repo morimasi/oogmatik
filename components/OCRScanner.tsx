@@ -1,7 +1,6 @@
-
 import React, { useState, useRef } from 'react';
 import { ocrService } from '../services/ocrService';
-import { ActivityType, WorksheetData, StyleSettings } from '../types';
+import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions } from '../types';
 import Worksheet from './Worksheet';
 import { worksheetService } from '../services/worksheetService';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +8,7 @@ import { printService } from '../utils/printService';
 import { ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
+import { generateFromRichPrompt } from '../services/generators/newActivities'; // NEW IMPORT
 import { adminService } from '../services/adminService';
 
 interface OCRScannerProps {
@@ -114,7 +114,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                 difficulty: result.structuredData?.difficulty || 'Orta',
                 itemCount: result.structuredData?.itemCount || 10,
                 worksheetCount: 1,
-                instructions: result.structuredData?.instructions || ''
+                instructions: result.generatedTemplate || '' // Use the rich prompt here
             });
             
             setStep('studio');
@@ -129,49 +129,48 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
         setStep('generating');
         
         try {
-            // Dynamically call the correct generator
-            const pascalName = toPascalCase(config.activityType);
-            const generatorFnName = `generate${pascalName}FromAI`;
-            const offlineFnName = `generateOffline${pascalName}`;
-            
-            // @ts-ignore
-            const onlineGen = generators[generatorFnName];
-            // @ts-ignore
-            const offlineGen = offlineGenerators[offlineFnName];
-
-            const options = {
+            const options: GeneratorOptions = {
                 topic: config.topic,
-                difficulty: config.difficulty,
+                difficulty: config.difficulty as any,
                 itemCount: config.itemCount,
                 worksheetCount: config.worksheetCount,
-                // Pass custom instructions as part of topic or specific prompt augmentation if supported
-                // For now, we append it to topic to influence generation subtly
-                customPrompt: config.instructions 
+                mode: 'ai'
             };
 
             let result = null;
-            
-            // Try Online First
-            if (onlineGen) {
-                try {
-                    result = await onlineGen(options);
-                } catch (e) {
-                    console.warn("Online gen failed, trying offline", e);
+
+            // USE THE NEW RICH PROMPT GENERATOR
+            if (config.instructions && config.instructions.length > 10) {
+                 // Use the Reverse Engineered Prompt
+                 result = await generateFromRichPrompt(config.activityType, config.instructions, options);
+            } else {
+                 // Fallback to Standard Logic if no rich instructions
+                const pascalName = toPascalCase(config.activityType);
+                const generatorFnName = `generate${pascalName}FromAI`;
+                const offlineFnName = `generateOffline${pascalName}`;
+                
+                // @ts-ignore
+                const onlineGen = generators[generatorFnName];
+                // @ts-ignore
+                const offlineGen = offlineGenerators[offlineFnName];
+
+                if (onlineGen) {
+                    try { result = await onlineGen(options); } catch (e) { console.warn("Online gen failed, trying offline", e); }
                 }
-            }
-            
-            // Fallback to Offline
-            if (!result && offlineGen) {
-                result = await offlineGen(options);
+                if (!result && offlineGen) {
+                    result = await offlineGen(options);
+                }
             }
 
             if (result) {
+                // Ensure it is an array
+                if (!Array.isArray(result)) result = [result];
                 // Override title with user choice
                 const finalized = result.map((page: any) => ({ ...page, title: config.title }));
                 setFinalWorksheetData(finalized);
                 setStep('preview');
             } else {
-                throw new Error("Üretici fonksiyon bulunamadı.");
+                throw new Error("Üretici fonksiyon bulunamadı veya başarısız oldu.");
             }
 
         } catch (e) {
@@ -243,7 +242,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                     <div>
                         <h2 className="text-lg font-black text-zinc-800 dark:text-white flex items-center gap-2">
                             <i className="fa-solid fa-camera-retro text-indigo-500"></i>
-                            Stüdyo Modu
+                            Stüdyo Modu (Multimodal)
                         </h2>
                         {step === 'studio' && <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Analiz Tamamlandı • Yapılandırma</p>}
                     </div>
@@ -387,13 +386,14 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Ek Talimatlar (Opsiyonel)</label>
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yapay Zeka Promptu (Düzenlenebilir)</label>
                                     <textarea 
                                         value={config.instructions}
                                         onChange={e => setConfig({...config, instructions: e.target.value})}
-                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none"
-                                        placeholder="Örn: Sadece tek basamaklı sayılar kullan..."
+                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-mono text-sm text-indigo-700 dark:text-indigo-300 focus:ring-2 focus:ring-indigo-500 outline-none h-40 resize-none"
+                                        placeholder="AI'ın ürettiği mantık buraya gelecek..."
                                     ></textarea>
+                                    <p className="text-[10px] text-zinc-400 mt-1">Bu alan, AI'ın görseli nasıl analiz ettiğini ve yeni içerik üretirken hangi mantığı kullanacağını gösterir. Müdahale edebilirsiniz.</p>
                                 </div>
                             </div>
 
