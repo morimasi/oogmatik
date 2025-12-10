@@ -19,9 +19,9 @@ const WorkbookQR = React.memo(({ url }: { url: string }) => {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
     
     return (
-        <div className="absolute top-4 right-4 z-20 flex flex-col items-center bg-white p-2 rounded-lg border-2 border-black shadow-md no-print-hide">
-            <img src={qrUrl} alt="QR Code" className="w-16 h-16" crossOrigin="anonymous" />
-            <span className="text-[8px] font-bold mt-1 text-black uppercase tracking-wider">Dijital Çözüm</span>
+        <div className="absolute top-4 right-4 z-20 flex flex-col items-center bg-white p-1 rounded-lg border border-black shadow-md no-print-hide scale-75 origin-top-right">
+            <img src={qrUrl} alt="QR Code" className="w-12 h-12" crossOrigin="anonymous" />
+            <span className="text-[6px] font-bold mt-0.5 text-black uppercase tracking-wider">Dijital Çözüm</span>
         </div>
     );
 });
@@ -38,19 +38,20 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         const adjustedFontSize = Math.round(baseFontSize / densityFactor);
         
         const itemDirection = userCols > 2 ? 'column' : 'row';
-        const itemGap = userCols > 2 ? '0.5rem' : '1.5rem';
-        const itemPadding = userCols > 2 ? '0.5rem' : '1.5rem';
+        const itemGap = userCols > 2 ? '0.25rem' : '0.5rem';
+        const itemPadding = userCols > 2 ? '0.25rem' : '0.5rem';
         const visualComplexity = userCols > 3 ? 'low' : 'high';
         
         const gridTemplateColumns = `repeat(${effectiveCols}, minmax(0, 1fr))`;
-        const verticalGap = userCols < 3 ? '2.5rem' : '1rem'; 
+        // Reduce vertical gap to fit more
+        const verticalGap = userCols < 3 ? '1rem' : '0.5rem'; 
 
         return {
             '--worksheet-font-size': `${adjustedFontSize}px`,
             '--worksheet-border-color': settings.borderColor,
             '--worksheet-border-width': `${settings.borderWidth}px`,
             '--worksheet-margin': `${settings.margin}px`,
-            '--worksheet-gap': `${Math.max(8, settings.gap)}px`, 
+            '--worksheet-gap': `${Math.max(4, settings.gap)}px`, 
             '--worksheet-vertical-gap': verticalGap,
             '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
             '--worksheet-line-height': settings.lineHeight || 1.4,
@@ -100,7 +101,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     const isSinglePage = data.length === 1;
 
     return (
-        <div className={`flex flex-col items-center ${visualStyleClass} ${isSinglePage ? '' : 'gap-16 pb-16'}`} style={variableStyle}>
+        <div className={`flex flex-col items-center ${visualStyleClass} ${isSinglePage ? '' : 'gap-8 pb-8'}`} style={variableStyle}>
             <style>{`
                 .dynamic-grid {
                     display: grid;
@@ -110,6 +111,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     width: 100%;
                     align-items: start;
                     align-content: start;
+                    height: 100%; /* Force grid to fill available height */
                 }
                 
                 .worksheet-content {
@@ -129,7 +131,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 .worksheet-content > div.flex-1 {
                     display: flex;
                     flex-direction: column;
-                    justify-content: ${settings.columns <= 1 ? 'center' : 'flex-start'};
+                    /* Distribute items evenly if grid */
+                    justify-content: ${settings.columns > 1 ? 'start' : 'space-between'};
                 }
                 
                 .worksheet-content .editable-element,
@@ -141,8 +144,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
                 .worksheet-content[data-complexity="low"] .item-card {
                     border: 2px solid #e5e7eb !important; 
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                    border-radius: 1rem;
+                    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+                    border-radius: 0.5rem;
                     background-color: #fafafa;
                 }
                 
@@ -167,12 +170,13 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     >
                         {showQR && <WorkbookQR url="https://www.bursadisleksi.com" />}
 
-                        <div className="w-full h-full p-[10mm] relative flex flex-col">
+                        {/* Reduced padding to 5mm to maximize A4 usage */}
+                        <div className="w-full h-full p-[5mm] relative flex flex-col">
                             
                             {isEditMode && (
                                 <>
                                     <div className="absolute inset-0 edit-grid-overlay z-0 pointer-events-none"></div>
-                                    <div className="absolute inset-[10mm] edit-safety-guide z-0 pointer-events-none"></div>
+                                    <div className="absolute inset-[5mm] edit-safety-guide z-0 pointer-events-none"></div>
                                     <div className="absolute top-2 right-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded shadow-sm opacity-50 pointer-events-none edit-handle">
                                         Sayfa {index + 1}
                                     </div>
@@ -180,29 +184,29 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                             )}
 
                             <div 
-                                className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col justify-center"
-                                style={{ width: '100%', height: 'auto' }}
+                                className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col justify-start"
+                                style={{ width: '100%', height: '100%' }}
                                 data-complexity={settings.columns > 3 ? 'high' : 'low'}
                             >
-                                <div className="mb-4 pb-1 border-b border-black flex justify-between items-end shrink-0 w-full" style={{ display: 'var(--display-student-info)' }}>
-                                    <div className="flex gap-8 text-sm text-black">
-                                        <div className="flex gap-2 items-baseline">
+                                <div className="mb-2 pb-1 border-b border-black flex justify-between items-end shrink-0 w-full" style={{ display: 'var(--display-student-info)' }}>
+                                    <div className="flex gap-4 text-xs text-black">
+                                        <div className="flex gap-1 items-baseline">
                                             <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
-                                            <EditableText value={studentProfile?.name || ''} tag="span" className="min-w-[150px] border-b border-dotted border-zinc-400" />
+                                            <EditableText value={studentProfile?.name || ''} tag="span" className="min-w-[120px] border-b border-dotted border-zinc-400" />
                                         </div>
-                                        <div className="flex gap-2 items-baseline">
+                                        <div className="flex gap-1 items-baseline">
                                             <span className="text-[10px] uppercase font-bold text-zinc-500">Sınıf:</span>
-                                            <EditableText value={studentProfile?.grade || ''} tag="span" className="min-w-[50px] border-b border-dotted border-zinc-400" />
+                                            <EditableText value={studentProfile?.grade || ''} tag="span" className="min-w-[40px] border-b border-dotted border-zinc-400" />
                                         </div>
                                     </div>
-                                    <div className="flex gap-2 items-baseline text-sm text-black">
+                                    <div className="flex gap-1 items-baseline text-xs text-black">
                                         <span className="text-[10px] uppercase font-bold text-zinc-500">Tarih:</span>
                                         <EditableText value={studentProfile?.date || ''} tag="span" className="min-w-[80px] border-b border-dotted border-zinc-400" />
                                     </div>
                                 </div>
 
                                 <EditableElement id="main-content" className="flex-1 w-full h-full flex flex-col">
-                                    <div className="flex-1 flex flex-col">
+                                    <div className="flex-1 flex flex-col h-full">
                                         <ErrorBoundary>
                                             <SheetRenderer activityType={activityType} data={sheetData} />
                                         </ErrorBoundary>
@@ -210,7 +214,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 </EditableElement>
                                 
                                 <div 
-                                    className="mt-auto w-full pt-8 px-4 flex justify-between items-center text-[10px] text-zinc-400 pointer-events-none"
+                                    className="mt-auto w-full pt-2 px-2 flex justify-between items-center text-[8px] text-zinc-400 pointer-events-none"
                                     style={{ display: 'var(--display-footer)' }}
                                 >
                                     <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
@@ -226,11 +230,11 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     style={{left: 0, top: 0}}
                                 >
                                     {item.type === 'text' ? (
-                                        <div className="bg-white/80 border border-dashed border-zinc-400 p-2 rounded min-w-[100px]">
-                                            <EditableText value={item.content} tag="div" className="text-lg font-bold" />
+                                        <div className="bg-white/80 border border-dashed border-zinc-400 p-1 rounded min-w-[50px]">
+                                            <EditableText value={item.content} tag="div" className="text-sm font-bold" />
                                         </div>
                                     ) : (
-                                        <div className="w-24 h-24">
+                                        <div className="w-16 h-16">
                                             <img src={item.content} className="w-full h-full object-contain drop-shadow-md" alt="Sticker" />
                                         </div>
                                     )}

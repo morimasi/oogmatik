@@ -1,3 +1,4 @@
+
 import { SingleWorksheetData, ActivityType, WorksheetData, StyleSettings } from '../types';
 
 // Configuration for which property holds the list of items to split for each ActivityType
@@ -150,23 +151,23 @@ const PAGINATION_CONFIG: Record<ActivityType, string> = {
     [ActivityType.WORKBOOK]: 'none',
 };
 
-// Safe height of content area in pixels (Approximate A4 height minus header/footer/margins)
-// A4 is ~1123px high at 96 DPI. Margins ~40px each. Header ~150px.
-const A4_CONTENT_HEIGHT_PX = 900; 
+// Expanded usable height of content area (Approx A4 1123px - 150px header/margin = ~980px).
+// Increased from 900 to 1050 to push limits of A4.
+const A4_CONTENT_HEIGHT_PX = 1050; 
 
-// Rough estimation of item heights in pixels (Base height)
+// Reduced base heights to encourage tighter packing.
 const BASE_HEIGHTS: Record<string, number> = {
-    'operations': 80, 
-    'puzzles': 220,   
-    'problems': 160,  
-    'questions': 130, 
-    'rows': 110,      
-    'items': 70,      
-    'pairs': 90,      
-    'clues': 45,      
-    'exercises': 140,
-    'tasks': 280,
-    'default': 120
+    'operations': 60, // Reduced from 80
+    'puzzles': 180,   // Reduced from 220
+    'problems': 140,  // Reduced from 160
+    'questions': 110, // Reduced from 130
+    'rows': 90,       // Reduced from 110
+    'items': 60,      // Reduced from 70
+    'pairs': 80,      // Reduced from 90
+    'clues': 35,      // Reduced from 45
+    'exercises': 120, // Reduced from 140
+    'tasks': 250,     // Reduced from 280
+    'default': 100    // Reduced from 120
 };
 
 export const paginationService = {

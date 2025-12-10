@@ -19,9 +19,9 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData }> = ({ data }) =>
     <div className={SHEET_CONTAINER}>
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
         
-        <div className="flex-1 flex flex-col lg:flex-row gap-8 items-start mt-4 break-inside-avoid">
-            {/* The Grid */}
-            <EditableElement className="flex-1 bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-lg relative">
+        <div className="flex-1 flex flex-col lg:flex-row gap-8 items-stretch mt-4 break-inside-avoid">
+            {/* The Grid - Set to grow to fill space */}
+            <EditableElement className="flex-1 bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-lg relative flex items-center justify-center">
                 <div className="absolute -top-3 -left-3 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-lg"></div>
                 <div className="absolute -bottom-3 -right-3 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-lg"></div>
                 
@@ -29,8 +29,8 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData }> = ({ data }) =>
             </EditableElement>
             
             {/* Sidebar: Word List & Tasks */}
-            <div className="w-full lg:w-64 flex flex-col gap-6">
-                <EditableElement className="bg-indigo-50 p-4 rounded-xl border-2 border-indigo-100">
+            <div className="w-full lg:w-64 flex flex-col gap-4">
+                <EditableElement className="bg-indigo-50 p-4 rounded-xl border-2 border-indigo-100 flex-1">
                     <h4 className="font-black text-indigo-800 uppercase text-xs tracking-widest mb-3 border-b-2 border-indigo-200 pb-2">
                         <i className="fa-solid fa-list-check mr-2"></i> Kelime Listesi
                     </h4>
@@ -78,7 +78,7 @@ export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
         
         <div className="dynamic-grid mt-6">
             {(data?.anagrams || []).map((item, i) => (
-                <EditableElement key={i} className="flex flex-col gap-3 p-4 border-2 border-zinc-100 bg-white rounded-2xl shadow-sm break-inside-avoid relative overflow-hidden">
+                <EditableElement key={i} className="flex flex-col gap-3 p-4 border-2 border-zinc-100 bg-white rounded-2xl shadow-sm break-inside-avoid relative overflow-hidden item-card h-full justify-between">
                     <div className="absolute top-0 right-0 w-16 h-16 bg-zinc-50 rounded-bl-full -mr-8 -mt-8"></div>
                     
                     {item?.imagePrompt && (

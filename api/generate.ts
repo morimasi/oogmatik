@@ -3,8 +3,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
 // System Instruction: The AI's persona and strict rules.
-// Note: Specific pedagogical rules are now injected via the prompt body from the client (prompts.ts),
-// but this acts as a global safety and role enforcement layer.
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
 Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış veya risk grubundaki çocuklar için **bilimsel temelli, hatasız ve JSON formatında** eğitim materyali üretmek.
@@ -14,6 +12,7 @@ KESİN KURALLAR:
 2. Türkçe dilbilgisi kurallarına %100 uy.
 3. Çocuk dostu, pozitif ve teşvik edici ol.
 4. "imagePrompt" alanlarını İngilizce ve detaylı görsel betimlemelerle doldur.
+5. Multimodal Tasarımcı gibi davran: Metin ve görsel uyumunu en üst düzeyde tut.
 `;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -46,19 +45,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const ai = new GoogleGenAI({ apiKey });
         
-        // Use flash model by default for speed and cost efficiency
+        // Enforce gemini-2.5-flash for speed, cost efficiency and multimodal capabilities
+        // Use user provided model if specific, else default to 2.5 flash
         let selectedModel = model || "gemini-2.5-flash"; 
 
         try {
             // Streaming yanıtı başlat
             const stream = await ai.models.generateContentStream({
                 model: selectedModel, 
-                contents: prompt, // The prompt now contains the rich pedagogical instructions from prompts.ts
+                contents: prompt, 
                 config: {
                     systemInstruction: SYSTEM_INSTRUCTION,
                     responseMimeType: "application/json",
                     responseSchema: schema,
-                    temperature: 0.7, // Slightly creative but controlled
+                    temperature: 0.7, 
                     topP: 0.95,
                     topK: 40,
                     // Safety Settings: Allow educational content

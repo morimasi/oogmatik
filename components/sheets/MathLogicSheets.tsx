@@ -11,11 +11,11 @@ import { CagedGridSvg, GridComponent, ImageDisplay, Shape, PedagogicalHeader } f
 import { EditableElement, EditableText } from '../Editable';
 
 export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
-    <div>
+    <div className="h-full flex flex-col">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
-        <div className="dynamic-grid mt-2">
+        <div className="dynamic-grid mt-2 flex-1">
             {(data?.operations || []).map((op, index) => (
-                <EditableElement key={index} className="flex flex-col items-end text-xl font-mono font-bold break-inside-avoid p-4 border border-zinc-200 rounded-lg item-card">
+                <EditableElement key={index} className="flex flex-col items-end text-xl font-mono font-bold break-inside-avoid p-4 border border-zinc-200 rounded-lg item-card bg-white shadow-sm">
                     <div className="mr-2"><EditableText value={op?.num1} tag="span" /></div>
                     <div className="flex items-center w-full justify-end gap-1 mr-2 relative">
                         <span className="absolute left-0 text-lg"><EditableText value={op?.operator} tag="span" /></span>
@@ -31,11 +31,11 @@ export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ 
 );
 
 export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> = ({ data }) => (
-    <div>
+    <div className="h-full flex flex-col">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
-        <div className="dynamic-grid">
+        <div className="dynamic-grid flex-1">
             {(data?.problems || []).map((problem, index) => (
-                <EditableElement key={index} className="border-b-2 border-black pb-4 break-inside-avoid item-card flex flex-col gap-2">
+                <EditableElement key={index} className="border-b-2 border-black pb-4 break-inside-avoid item-card flex flex-col gap-2 h-full justify-between">
                     <div className="flex gap-3 mb-2">
                         <span className="font-bold text-lg">{index + 1}.</span>
                         <div className="text-base font-medium flex-1 text-justify"><EditableText value={problem?.text} tag="p" /></div>
@@ -51,11 +51,11 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
 );
 
 export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) => (
-    <div>
+    <div className="h-full flex flex-col">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
-        <div className="dynamic-grid">
+        <div className="dynamic-grid flex-1">
             {(data?.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="border border-zinc-300 p-3 rounded flex flex-col gap-2 break-inside-avoid item-card">
+                <EditableElement key={index} className="border border-zinc-300 p-3 rounded flex flex-col gap-2 break-inside-avoid item-card justify-center">
                     {(puzzle?.objects && puzzle.objects.length > 0) && (
                         <div className="flex justify-center gap-4 text-xs font-bold flex-wrap">
                             {puzzle.objects.map((obj, i) => <span key={i}><EditableText value={obj?.name} tag="span" /></span>)}
@@ -155,7 +155,7 @@ export const NumberPyramidSheet = ({ data }: { data: NumberPyramidData }) => (
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} />
         <div className="dynamic-grid mt-4">
             {(data?.pyramids || []).map((p, i) => (
-                <div key={i} className="flex flex-col items-center gap-1 break-inside-avoid item-card">
+                <div key={i} className="flex flex-col items-center gap-1 break-inside-avoid item-card justify-center">
                      {(p?.rows || []).map((row, r) => (
                          <div key={r} className="flex gap-1">
                              {(row || []).map((cell, c) => (

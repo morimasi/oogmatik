@@ -10,6 +10,7 @@ TEMEL PRENSİPLER:
 2. **Pozitif Dil:** Hata yapmayı değil, denemeyi teşvik eden bir dil kullan.
 3. **Görsel Destek:** Soyut kavramları (sayılar, kelimeler) her zaman somut görsellerle eşleştir.
 4. **Çıktı Formatı:** Kesinlikle ve sadece geçerli JSON üret. Markdown veya açıklama metni ekleme.
+5. **Sayfa Doluluğu:** Üretilen içerik bir A4 sayfasını verimli dolduracak miktarda olmalıdır. Eğer tek bir set yetersizse, varyasyonlarla çoğalt.
 `;
 
 export const IMAGE_GENERATION_GUIDE = `

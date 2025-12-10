@@ -128,9 +128,12 @@ const DIFFICULTY_OPTIONS = [
 
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal, studentProfile }) => {
     // Determine smart default based on activity type for A4 filling
+    // INCREASED DEFAULTS FOR BETTER PAGE FILL
     const getDefaultCount = (type: string) => {
-        if (['BASIC_OPERATIONS', 'MATH_PUZZLE', 'NUMBER_SEARCH'].includes(type)) return 24;
-        if (['WORD_SEARCH', 'CROSSWORD'].includes(type)) return 10; // Words list
+        if (['BASIC_OPERATIONS', 'MATH_PUZZLE'].includes(type)) return 30; // Increased
+        if (['NUMBER_SEARCH'].includes(type)) return 40;
+        if (['WORD_SEARCH', 'CROSSWORD'].includes(type)) return 15; // More words
+        if (['FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT'].includes(type)) return 12;
         if (['STORY_COMPREHENSION'].includes(type)) return 1; // 1 Story
         return 12; // Generic safe default
     };
