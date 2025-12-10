@@ -45,10 +45,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const ai = new GoogleGenAI({ apiKey });
         
-        // CRITICAL: Force gemini-2.5-flash for images to ensure speed and higher limits.
-        // For text, default to flash but allow override if needed (though flash is best for this app).
-        let selectedModel = image ? "gemini-2.5-flash" : (model || "gemini-2.5-flash"); 
-
         // Common Configuration
         const generationConfig = {
             systemInstruction: SYSTEM_INSTRUCTION,
@@ -78,42 +74,59 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // STRATEGY SPLIT: 
-        // 1. For Images: Use standard generateContent (non-streaming) for better stability with large payloads.
-        // 2. For Text: Use generateContentStream for better UX/speed perception.
+        // 1. For Images: Use non-streaming with Fallback Logic (Crucial for 429 errors)
+        // 2. For Text: Use generateContentStream for better UX
 
         if (image) {
-            try {
-                const result = await ai.models.generateContent({
-                    model: selectedModel, 
-                    contents: contents, 
-                    config: generationConfig,
-                });
-                
-                // Return as text stream-like format to be compatible with client reader logic
-                // Ensure we return clean JSON string
-                let text = result.text || "{}";
-                // Cleanup common markdown JSON wrapping if the model ignored system instruction
-                text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-                
-                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                res.status(200).send(text); 
-                return;
-            } catch (error: any) {
-                console.error(`Image generation error (${selectedModel}):`, error.message);
-                if (!res.headersSent) {
-                    if (error.status === 429 || error.status === 503) {
-                         return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Vision)" });
+            // Models to try in order of preference/quality
+            // gemini-2.5-flash is preferred, fallback to 1.5-flash or 8b if busy
+            const modelsToTry = [
+                model || "gemini-2.5-flash", 
+                "gemini-1.5-flash", 
+                "gemini-1.5-flash-8b"
+            ];
+            
+            // Remove duplicates if user sent one of the fallbacks as primary
+            const uniqueModels = [...new Set(modelsToTry)];
+
+            for (const currentModel of uniqueModels) {
+                try {
+                    console.log(`Trying Vision Model: ${currentModel}`);
+                    const result = await ai.models.generateContent({
+                        model: currentModel, 
+                        contents: contents, 
+                        config: generationConfig,
+                    });
+                    
+                    let text = result.text || "{}";
+                    text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+                    
+                    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                    res.status(200).send(text); 
+                    return; // Exit on success
+                } catch (error: any) {
+                    console.warn(`Model ${currentModel} failed:`, error.message);
+                    
+                    // If it's the last model in the list, throw the error to be caught by outer block
+                    if (currentModel === uniqueModels[uniqueModels.length - 1]) {
+                        throw error;
                     }
-                    return res.status(500).json({ error: `Görsel analizi hatası: ${error.message}` });
+                    
+                    // Only retry on specific errors (429 Too Many Requests, 503 Service Unavailable)
+                    if (error.status !== 429 && error.status !== 503) {
+                         throw error; // Don't retry on logic errors (400)
+                    }
+                    // Continue loop to next model...
                 }
-                return;
             }
+            return;
         }
 
-        // Streaming for Text-Only Requests
+        // Streaming for Text-Only Requests (Default Model: gemini-2.5-flash)
+        const textModel = model || "gemini-2.5-flash";
         try {
             const stream = await ai.models.generateContentStream({
-                model: selectedModel, 
+                model: textModel, 
                 contents: contents, 
                 config: generationConfig,
             });
@@ -133,7 +146,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             res.end();
 
         } catch (error: any) {
-            console.error(`Stream error (${selectedModel}):`, error.message);
+            console.error(`Stream error (${textModel}):`, error.message);
             if (!res.headersSent) {
                 if (error.status === 429 || error.status === 503) {
                     return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Text)" });
@@ -144,14 +157,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         }
 
-    } catch (error: unknown) {
+    } catch (error: any) {
         console.error("API Handler Error:", error);
         if (!res.headersSent) {
             let errorMessage = "Sunucu hatası.";
-            if (error instanceof Error) {
+            let statusCode = 500;
+            
+            if (error.status === 429 || error.status === 503) {
+                statusCode = 429;
+                errorMessage = "API kotası aşıldı veya servis meşgul. Lütfen kısa bir süre sonra tekrar deneyin.";
+            } else if (error instanceof Error) {
                 errorMessage = error.message;
             }
-            return res.status(500).json({ error: errorMessage });
+            
+            return res.status(statusCode).json({ error: errorMessage });
         }
         res.end();
     }

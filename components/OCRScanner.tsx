@@ -41,8 +41,8 @@ const resizeImage = (file: File): Promise<string> => {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const MAX_WIDTH = 800; // Increased for better text recognition
-                const MAX_HEIGHT = 800;
+                const MAX_WIDTH = 600; // Optimized for API limits (was 800)
+                const MAX_HEIGHT = 600;
                 if (width > height) {
                     if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                 } else {
@@ -52,7 +52,7 @@ const resizeImage = (file: File): Promise<string> => {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx?.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // Better quality
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.5); // Higher compression (was 0.6)
                 resolve(dataUrl);
             };
             img.onerror = reject;
@@ -115,9 +115,14 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
             });
             
             setStep('studio');
-        } catch (error) {
+        } catch (error: any) {
             console.error("OCR Failed:", error);
-            alert("Görsel analiz edilemedi. Lütfen daha net bir fotoğraf deneyin.");
+            // Friendly error message for quota
+            let msg = "Görsel analiz edilemedi. Lütfen daha net bir fotoğraf deneyin.";
+            if (error.message && error.message.includes('kotası')) {
+                msg = "Sistem şu an çok yoğun. Lütfen 1-2 dakika bekleyip tekrar deneyin.";
+            }
+            alert(msg);
             setStep('upload');
         }
     };

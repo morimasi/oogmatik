@@ -5,7 +5,7 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
         const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
         const enhancedPrompt = `${prompt}\n\n[Context ID: ${uniqueSeed}]`;
 
-        const fetchWithRetry = async (retries = 3, delay = 1000): Promise<Response> => {
+        const fetchWithRetry = async (retries = 3, delay = 2000): Promise<Response> => {
             try {
                 const response = await fetch('/api/generate', {
                     method: 'POST',
@@ -41,7 +41,8 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                 const errorJson = JSON.parse(errorText);
                 if (errorJson.error) errorMessage += ` - ${errorJson.error}`;
             } catch (e) {
-                errorMessage += ` - Sunucudan beklenmedik bir yanıt alındı.`;
+                // If text is short enough, use it
+                if (errorText.length < 200) errorMessage += ` - ${errorText}`;
             }
             throw new Error(errorMessage);
         }
@@ -107,7 +108,8 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
     try {
         const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-        const fetchWithRetry = async (retries = 3, delay = 1000): Promise<Response> => {
+        // Increased delay for vision API (Start at 2s)
+        const fetchWithRetry = async (retries = 3, delay = 2000): Promise<Response> => {
             try {
                  const response = await fetch('/api/generate', {
                     method: 'POST',
@@ -115,7 +117,7 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                     body: JSON.stringify({
                         prompt,
                         schema,
-                        model: 'gemini-2.5-flash',
+                        model: 'gemini-2.5-flash', // Backend will handle fallback
                         image: cleanBase64 
                     }),
                 });
@@ -142,7 +144,15 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
         if (!response.ok) {
             const errorText = await response.text();
             console.error("Vision API Error Details:", errorText);
-            throw new Error(`Vision API Failed: ${response.status} ${response.statusText} - ${errorText.substring(0, 150)}...`);
+            
+            let errorMessage = `Vision API Failed: ${response.status} ${response.statusText}`;
+            try {
+                 const jsonErr = JSON.parse(errorText);
+                 if (jsonErr.error) errorMessage += ` - ${jsonErr.error}`;
+            } catch {
+                 errorMessage += ` - ${errorText.substring(0, 100)}`;
+            }
+            throw new Error(errorMessage);
         }
         
         const reader = response.body?.getReader();
@@ -165,4 +175,3 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
         throw error;
     }
 };
-    
