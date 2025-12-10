@@ -210,46 +210,20 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
+      id="tour-sidebar"
       className={`
         fixed inset-y-0 left-0 z-30 
-        bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl
+        bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl
         border-r border-zinc-200 dark:border-zinc-800
-        transition-all duration-300 cubic-bezier(0.25, 0.46, 0.45, 0.94)
+        transition-all duration-500 cubic-bezier(0.19, 1, 0.22, 1)
         md:relative md:translate-x-0
         flex flex-col h-full
         ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} 
         ${isExpanded ? 'w-[320px]' : 'w-[80px]'}
       `}
+      aria-label="Etkinlik Menüsü"
     >
-        {/* HEADER AREA: SEARCH INTEGRATED */}
-        <div className="flex-shrink-0 h-[64px] flex items-center justify-between px-4 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/30">
-            {isExpanded ? (
-                <div className="relative w-full group">
-                    <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-500 transition-colors text-xs"></i>
-                    <input 
-                        type="text" 
-                        placeholder="Etkinlik ara..." 
-                        className="w-full h-9 pl-9 pr-8 bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm"
-                    />
-                </div>
-            ) : (
-                <div className="w-full flex justify-center">
-                    <div className="w-9 h-9 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
-                        <i className="fa-solid fa-layer-group"></i>
-                    </div>
-                </div>
-            )}
-
-            <button 
-                onClick={closeSidebar} 
-                className="md:hidden ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 transition-colors"
-            >
-                <i className="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-
-        {/* CONTENT AREA */}
-        <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
+        <div className="flex h-full flex-col">
             {currentActivity ? (
                 <GeneratorView 
                     activity={currentActivity}
@@ -262,30 +236,64 @@ const Sidebar: React.FC<SidebarProps> = ({
                 />
             ) : (
                 <>
+                {/* HEADER AREA: SEARCH INTEGRATED */}
+                <div className="flex-shrink-0 h-[64px] flex items-center justify-between px-4 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/30">
+                    {isExpanded ? (
+                        <div className="relative w-full group">
+                            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-500 transition-colors text-xs"></i>
+                            <input 
+                                type="text" 
+                                placeholder="Etkinlik ara..." 
+                                className="w-full h-9 pl-9 pr-8 bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm"
+                            />
+                        </div>
+                    ) : (
+                        <div className="w-full flex justify-center">
+                            <div className="w-9 h-9 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
+                                <i className="fa-solid fa-layer-group"></i>
+                            </div>
+                        </div>
+                    )}
+
+                    <button 
+                        onClick={closeSidebar} 
+                        className="md:hidden ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 transition-colors"
+                    >
+                        <i className="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
                 {/* NEW TOOLS SECTION */}
                 {isExpanded && (
-                    <div className="px-3 py-2 grid grid-cols-2 gap-2 shrink-0">
+                    <div className="px-5 py-4 grid grid-cols-2 gap-3 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-2">
                         {onOpenOCR && (
-                            <button onClick={onOpenOCR} className="bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 p-3 rounded-xl border border-indigo-200 dark:border-indigo-800 flex flex-col items-center gap-1 transition-all group" id="tour-ocr-btn">
-                                <i className="fa-solid fa-camera text-indigo-600 dark:text-indigo-400 text-xl group-hover:scale-110 transition-transform"></i>
-                                <span className="text-[10px] font-bold text-indigo-800 dark:text-indigo-200">Akıllı Tarayıcı</span>
+                            <button onClick={onOpenOCR} className="group relative overflow-hidden bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-800 dark:to-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-sm hover:shadow-md text-center flex flex-col items-center gap-2">
+                                <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-inner group-hover:scale-110 transition-transform duration-300">
+                                    <i className="fa-solid fa-camera"></i>
+                                </div>
+                                <span className="text-[10px] font-black text-zinc-600 dark:text-zinc-300 uppercase tracking-widest group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Akıllı Tarayıcı</span>
                             </button>
                         )}
                         {onOpenCurriculum && (
-                            <button onClick={onOpenCurriculum} className="bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800 flex flex-col items-center gap-1 transition-all group">
-                                <i className="fa-solid fa-calendar-check text-emerald-600 dark:text-emerald-400 text-xl group-hover:scale-110 transition-transform"></i>
-                                <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-200">AI Müfredat</span>
+                            <button onClick={onOpenCurriculum} className="group relative overflow-hidden bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-800 dark:to-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all shadow-sm hover:shadow-md text-center flex flex-col items-center gap-2">
+                                <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-inner group-hover:scale-110 transition-transform duration-300">
+                                    <i className="fa-solid fa-graduation-cap"></i>
+                                </div>
+                                <span className="text-[10px] font-black text-zinc-600 dark:text-zinc-300 uppercase tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">AI Müfredat</span>
                             </button>
                         )}
                     </div>
                 )}
 
-                <nav className="flex-1 overflow-y-auto px-2 py-2 custom-scrollbar min-h-0">
+                {/* CATEGORY LIST */}
+                <nav className="flex-1 overflow-y-auto px-3 py-2 custom-scrollbar min-h-0 space-y-1">
                     {categorizedActivities.map((category) => {
                         const isOpen = openCategoryId === category.id;
                         
                         return (
-                            <div key={category.id} className="mb-1">
+                            <div key={category.id} className="mb-2">
                                 <button
                                     onClick={() => {
                                         if (isExpanded) {
@@ -293,25 +301,29 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         }
                                     }}
                                     className={`
-                                        w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
+                                        w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group
                                         ${!isExpanded ? 'justify-center' : ''}
-                                        ${isOpen && isExpanded ? 'bg-zinc-50 dark:bg-white/5' : 'hover:bg-zinc-50 dark:hover:bg-white/5'}
+                                        ${isOpen && isExpanded 
+                                            ? 'bg-zinc-900 text-white shadow-lg shadow-zinc-200 dark:shadow-none dark:bg-white dark:text-zinc-900' 
+                                            : 'hover:bg-white dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:shadow-sm border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700'}
                                     `}
                                     title={!isExpanded ? category.title : undefined}
                                 >
                                     <div className={`
-                                        w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all shadow-sm shrink-0
-                                        bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500
+                                        w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all shrink-0
+                                        ${isOpen && isExpanded 
+                                            ? 'bg-white/20 text-white dark:bg-black/10 dark:text-black' 
+                                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 group-hover:scale-110'}
                                     `}>
                                         <i className={category.icon}></i>
                                     </div>
 
                                     {isExpanded && (
                                         <>
-                                            <span className="flex-1 text-left text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-tight">
+                                            <span className="flex-1 text-left text-xs font-bold uppercase tracking-wide">
                                                 {category.title}
                                             </span>
-                                            <i className={`fa-solid fa-chevron-down text-[10px] text-zinc-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}></i>
+                                            <i className={`fa-solid fa-chevron-down text-[10px] opacity-50 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}></i>
                                         </>
                                     )}
                                 </button>
@@ -319,11 +331,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 {/* Sub-items (Activities) */}
                                 <div 
                                     className={`
-                                        overflow-hidden transition-all duration-300 ease-in-out
-                                        ${isOpen && isExpanded ? 'max-h-[1000px] opacity-100 mt-1' : 'max-h-0 opacity-0'}
+                                        overflow-hidden transition-all duration-500 ease-in-out
+                                        ${isOpen && isExpanded ? 'max-h-[1000px] opacity-100 mt-2 pb-2' : 'max-h-0 opacity-0'}
                                     `}
                                 >
-                                    <div className="pl-[19px] ml-[15px] border-l-2 border-zinc-100 dark:border-zinc-800 space-y-0.5 py-1">
+                                    <div className="pl-[22px] ml-[15px] border-l-2 border-dashed border-zinc-200 dark:border-zinc-700 space-y-1">
                                         {category.items.map(activity => (
                                             <button
                                                 key={activity.id}
@@ -332,13 +344,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                     if(window.innerWidth < 768) closeSidebar();
                                                 }}
                                                 className={`
-                                                    group/item w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all flex items-center gap-2 relative
+                                                    group/item w-full text-left px-4 py-2.5 rounded-r-xl text-[11px] font-medium transition-all flex items-center gap-2 relative ml-2
                                                     ${selectedActivity === activity.id 
-                                                        ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 font-bold border-l-4 border-indigo-500 pl-2' 
-                                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 border-l-4 border-transparent'}
+                                                        ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 font-bold border-l-2 border-indigo-500' 
+                                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 border-l-2 border-transparent'}
                                                 `}
                                             >
                                                 <span className="truncate">{activity.title}</span>
+                                                {selectedActivity === activity.id && <i className="fa-solid fa-chevron-right text-[9px] ml-auto opacity-50"></i>}
                                             </button>
                                         ))}
                                     </div>
@@ -348,15 +361,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                     })}
                     
                 </nav>
+
+                {/* FOOTER */}
+                <div className={`p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
+                     <div className="flex items-center justify-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
+                         <i className="fa-solid fa-robot text-indigo-500"></i>
+                         <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Bursa Disleksi AI v2.0</span>
+                     </div>
+                </div>
                 </>
             )}
-
-            {/* FOOTER */}
-            <div className={`p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
-                 <div className="text-[9px] text-zinc-400 text-center font-bold uppercase tracking-widest opacity-60">
-                     Bursa Disleksi AI v1.6
-                 </div>
-            </div>
         </div>
     </aside>
   );
