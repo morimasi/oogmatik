@@ -24,6 +24,48 @@ const PREVIEW_SETTINGS: StyleSettings = {
     showTitle: true, showInstruction: true, showImage: true, showFooter: true, smartPagination: true
 };
 
+// Helper function to resize image client-side to avoid payload limits
+const resizeImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const MAX_WIDTH = 1024;
+                const MAX_HEIGHT = 1024;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+                
+                // Convert to base64 string with reduced quality (0.7) to save space
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(dataUrl);
+            };
+            img.onerror = reject;
+            img.src = event.target?.result as string;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
 export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
     const { user } = useAuth();
     const [step, setStep] = useState<'upload' | 'processing' | 'analysis_review' | 'preview' | 'admin_save'>('upload');
@@ -42,15 +84,18 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
     const [newActivityTitle, setNewActivityTitle] = useState('');
     const [newActivityCategory, setNewActivityCategory] = useState('others');
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                setImage(ev.target?.result as string);
-                startAnalysis(ev.target?.result as string);
-            };
-            reader.readAsDataURL(file);
+            try {
+                // Resize image before processing to prevent 413/500 errors on serverless functions
+                const resizedImageBase64 = await resizeImage(file);
+                setImage(resizedImageBase64);
+                startAnalysis(resizedImageBase64);
+            } catch (err) {
+                console.error("Image resize failed", err);
+                alert("Görsel işlenirken bir hata oluştu. Lütfen tekrar deneyin.");
+            }
         }
     };
 
@@ -63,7 +108,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
             setStep('analysis_review');
         } catch (error) {
             console.error("OCR Failed:", error);
-            alert("Görsel analiz edilemedi. Lütfen daha net bir fotoğraf deneyin.");
+            alert("Görsel analiz edilemedi. Lütfen daha net bir fotoğraf deneyin veya görsel boyutunu kontrol edin.");
             setStep('upload');
         }
     };
