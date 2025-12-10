@@ -1,4 +1,3 @@
-
 import { BaseActivityData, ShapeType } from './core';
 
 export * from './core';
@@ -42,3 +41,13 @@ export interface ImageComprehensionData extends BaseActivityData { memorizeTitle
 export interface CharacterMemoryData extends BaseActivityData { memorizeTitle: string; testTitle: string; charactersToMemorize: { description: string; imageBase64?: string; imagePrompt?: string; }[]; testCharacters: { description: string; imageBase64?: string; imagePrompt?: string; }[]; }
 export interface StroopTestData extends BaseActivityData { items: { text: string; color: string; }[]; }
 export interface ChaoticNumberSearchData extends BaseActivityData { prompt: string; numbers: { value: number; x: number; y: number; size: number; rotation: number; color: string; }[]; range: { start: number; end: number; }; }
+
+// Added Missing Types
+export interface VisualTrackingLineData extends BaseActivityData { width: number; height: number; paths: { id: number; color: string; d: string; startLabel: string; endLabel: string; startImage?: string; endImage?: string; }[]; }
+export interface MirrorLettersData extends BaseActivityData { targetPair: string; rows: { items: { letter: string; isMirrored: boolean; rotation: number; }[]; }[]; }
+export interface CodeReadingData extends BaseActivityData { keyMap: { symbol: string; value: string; color: string; }[]; codesToSolve: { sequence: string[]; answer: string; }[]; }
+export interface AttentionToQuestionData extends BaseActivityData { subType: string; grid?: string[][]; targetChars?: string[]; password?: string; pathGrid?: string[][]; logicItems?: { id: number; isOdd: boolean; correctAnswer: string; shapes: any[]; }[]; }
+export interface LetterDiscriminationData extends BaseActivityData { targetLetters: string[]; rows: { letters: string[]; targetCount: number; }[]; }
+export interface AttentionDevelopmentData extends BaseActivityData { puzzles: { riddle: string; boxes: { label?: string; numbers: number[]; }[]; options: string[]; answer: string; }[]; }
+export interface AttentionFocusData extends BaseActivityData { puzzles: { riddle: string; boxes: { title?: string; items: string[]; }[]; options: string[]; answer: string; }[]; }
+export interface MapInstructionData extends BaseActivityData { mapSvg: string; cities: { name: string; x: number; y: number; }[]; instructions: string[]; }

@@ -1,4 +1,3 @@
-
 import { BaseActivityData, ShapeType, VisualMathType } from './core';
 
 export * from './core';
@@ -35,3 +34,6 @@ export interface ConceptMatchData extends BaseActivityData { layout: 'list'|'vis
 export interface EstimationData extends BaseActivityData { layout: 'visual'; items: { count: number; visualType: string; options: number[]; imagePrompt: string; }[]; }
 export interface MindGamesData extends BaseActivityData { puzzles: { type: string; shape?: string; numbers?: (number|string)[]; grid?: (number|string|null)[][]; input?: number; output?: string; rule?: string; question?: string; answer: string; hint?: string; imagePrompt: string; imageBase64?: string; }[]; }
 export interface MindGames56Data extends BaseActivityData { puzzles: { type: string; title: string; question: string; answer: string; hint?: string; imagePrompt: string; imageBase64?: string; }[]; }
+
+// Added Missing Types
+export interface NumberBoxLogicData extends BaseActivityData { puzzles: { box1: number[]; box2: number[]; questions: { text: string; options: string[]; correctAnswer: string; }[]; }[]; }
