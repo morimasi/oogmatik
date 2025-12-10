@@ -74,17 +74,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // --- MODEL SELECTION STRATEGY ---
-        // Primary: gemini-2.5-flash (Most current/stable)
-        // Fallback: gemini-2.0-flash (If 2.5 is busy/unavailable)
+        // Primary: gemini-2.5-flash (Most current/stable for general text)
+        // Primary Vision: gemini-2.5-flash (Supports multimodal)
+        // Fallback: gemini-1.5-flash (Reliable backup)
         
         // Determine requested model or default
-        const requestedModel = model || "gemini-2.5-flash";
+        let requestedModel = model || "gemini-2.5-flash";
         
-        // Fallback list
+        // Fallback list to try in order
         const modelsToTry = [
             requestedModel,
-            "gemini-2.0-flash",
-            "gemini-1.5-pro" // Last resort for complex logic if flash fails, though slower
+            "gemini-2.5-flash",
+            "gemini-1.5-flash", // Safe backup
+            "gemini-1.5-pro-latest" // Last resort, but powerful
         ];
         
         // Deduplicate
@@ -112,12 +114,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     res.status(200).send(text); 
                     return; // Exit on success
                 } catch (error: any) {
-                    console.warn(`Model ${currentModel} failed:`, error.message);
-                    
-                    // If it's the last model in the list, throw the error
-                    if (currentModel === uniqueModels[uniqueModels.length - 1]) {
-                        throw error;
-                    }
+                    const errorMsg = error.message || String(error);
+                    console.warn(`Model ${currentModel} failed:`, errorMsg);
                     
                     // Specific Error Handling for Retry Logic:
                     // 429: Too Many Requests (Quota)
@@ -125,9 +123,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     // 404: Model Not Found (Crucial fix for deprecated models)
                     const status = error.status || (error.response ? error.response.status : 0);
                     
-                    if (status !== 429 && status !== 503 && status !== 404) {
+                    if (status !== 429 && status !== 503 && status !== 404 && !errorMsg.includes("not found")) {
                          // If it's a logic error (400), don't retry, just fail.
                          throw error; 
+                    }
+                    
+                    // If it's the last model in the list, throw the error
+                    if (currentModel === uniqueModels[uniqueModels.length - 1]) {
+                        throw error;
                     }
                     
                     console.log(`Switching to fallback model...`);
@@ -163,25 +166,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 return; // Success
 
             } catch (error: any) {
-                console.error(`Stream error (${currentModel}):`, error.message);
-                
-                // If it's the last model, return error
-                if (currentModel === uniqueModels[uniqueModels.length - 1]) {
-                     if (!res.headersSent) {
-                        if (error.status === 429 || error.status === 503) {
-                            return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Text)" });
-                        }
-                        return res.status(500).json({ error: "Yapay zeka akışı sırasında hata oluştu." });
-                    } else {
-                        res.end();
-                    }
-                    return;
-                }
+                const errorMsg = error.message || String(error);
+                console.error(`Stream error (${currentModel}):`, errorMsg);
                 
                 // If headers sent, we can't retry gracefully in this stream response
                 if (res.headersSent) {
                     res.end();
                     return;
+                }
+                
+                // If it's the last model, return error
+                if (currentModel === uniqueModels[uniqueModels.length - 1]) {
+                    if (error.status === 429 || error.status === 503) {
+                        return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Text)" });
+                    }
+                    return res.status(500).json({ error: `Yapay zeka akışı sırasında hata oluştu: ${errorMsg}` });
                 }
                 
                 // Continue to next model
@@ -203,8 +202,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
             
             // Clean up error message for user
-            if (errorMessage.includes("404") && errorMessage.includes("not found")) {
-                 errorMessage = "Model yapılandırma hatası (Model Bulunamadı).";
+            if (errorMessage.includes("404") || errorMessage.includes("not found")) {
+                 errorMessage = "Model yapılandırma hatası (Model Bulunamadı veya Erişim Yok).";
             }
             
             return res.status(statusCode).json({ error: errorMessage });

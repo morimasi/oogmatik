@@ -41,7 +41,7 @@ const resizeImage = (file: File): Promise<string> => {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const MAX_WIDTH = 600; // Optimized for API limits (was 800)
+                const MAX_WIDTH = 600; 
                 const MAX_HEIGHT = 600;
                 if (width > height) {
                     if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
@@ -52,7 +52,7 @@ const resizeImage = (file: File): Promise<string> => {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx?.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.5); // Higher compression (was 0.6)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.5); 
                 resolve(dataUrl);
             };
             img.onerror = reject;
@@ -117,7 +117,6 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
             setStep('studio');
         } catch (error: any) {
             console.error("OCR Failed:", error);
-            // Friendly error message for quota
             let msg = "Görsel analiz edilemedi. Lütfen daha net bir fotoğraf deneyin.";
             if (error.message && error.message.includes('kotası')) {
                 msg = "Sistem şu an çok yoğun. Lütfen 1-2 dakika bekleyip tekrar deneyin.";
@@ -203,10 +202,11 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
     
     // Saves the logic as a reusable template/algorithm
     const handleSaveAsTemplate = async () => {
-        if (!user || user.role !== 'admin') {
-            alert("Bu özellik şimdilik sadece eğitmenlere açıktır.");
-            return;
+        if (!user) {
+             alert("Algoritmayı kaydetmek için giriş yapmalısınız.");
+             return;
         }
+        
         setIsSaving(true);
         try {
              await adminService.saveDraftActivity({
@@ -221,7 +221,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                  },
                  createdBy: user.email
              });
-             alert("Etkinlik algoritması sisteme kaydedildi! Artık 'Taslaklar' menüsünden erişilebilir.");
+             alert("Algoritma başarıyla 'Taslaklar' havuzuna eklendi. Yönetici onayı sonrası herkes kullanabilir.");
         } catch (e) {
             console.error("Template save error", e);
             alert("Şablon kaydedilemedi.");
@@ -389,21 +389,22 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                                 </div>
                             </div>
 
-                            <div className="mt-auto pt-8 flex gap-4">
-                                <button 
-                                    onClick={handleSaveAsTemplate}
-                                    disabled={isSaving}
-                                    className="flex-1 py-4 bg-white border-2 border-zinc-200 hover:border-zinc-300 text-zinc-700 font-bold rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2 hover:bg-zinc-50"
-                                >
-                                    <i className="fa-solid fa-floppy-disk text-indigo-500"></i>
-                                    Algoritmayı Kaydet
-                                </button>
+                            <div className="mt-auto pt-8 flex flex-col md:flex-row gap-4">
                                 <button 
                                     onClick={handleGenerate}
                                     className="flex-[2] py-4 bg-zinc-900 hover:bg-black text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all flex items-center justify-center gap-3 text-lg"
                                 >
-                                    <i className="fa-solid fa-play"></i>
-                                    HEMEN ÜRET
+                                    <i className="fa-solid fa-file-invoice"></i>
+                                    📄 Etkinlik Olarak Üret
+                                </button>
+                                
+                                <button 
+                                    onClick={handleSaveAsTemplate}
+                                    disabled={isSaving}
+                                    className="flex-1 py-4 bg-white border-2 border-indigo-200 hover:border-indigo-400 text-indigo-700 font-bold rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2 hover:bg-indigo-50"
+                                >
+                                    <i className="fa-solid fa-code-branch"></i>
+                                    🧬 Algoritmayı Kaydet
                                 </button>
                             </div>
                         </div>
