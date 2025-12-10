@@ -25,6 +25,8 @@ interface SidebarProps {
   onOpenStudentModal?: () => void;
   studentProfile?: any;
   styleSettings?: any;
+  onOpenOCR?: () => void;
+  onOpenCurriculum?: () => void;
 }
 
 const getActivityById = (id: ActivityType | null): Activity | undefined => {
@@ -49,7 +51,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   isExpanded = true,
   onOpenStudentModal,
   studentProfile,
-  styleSettings
+  styleSettings,
+  onOpenOCR,
+  onOpenCurriculum
 }) => {
   const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -249,6 +253,25 @@ const Sidebar: React.FC<SidebarProps> = ({
                     studentProfile={studentProfile}
                 />
             ) : (
+                <>
+                {/* NEW TOOLS SECTION */}
+                {isExpanded && (
+                    <div className="px-3 py-2 grid grid-cols-2 gap-2 shrink-0">
+                        {onOpenOCR && (
+                            <button onClick={onOpenOCR} className="bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 p-3 rounded-xl border border-indigo-200 dark:border-indigo-800 flex flex-col items-center gap-1 transition-all group" id="tour-ocr-btn">
+                                <i className="fa-solid fa-camera text-indigo-600 dark:text-indigo-400 text-xl group-hover:scale-110 transition-transform"></i>
+                                <span className="text-[10px] font-bold text-indigo-800 dark:text-indigo-200">Akıllı Tarayıcı</span>
+                            </button>
+                        )}
+                        {onOpenCurriculum && (
+                            <button onClick={onOpenCurriculum} className="bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800 flex flex-col items-center gap-1 transition-all group">
+                                <i className="fa-solid fa-calendar-check text-emerald-600 dark:text-emerald-400 text-xl group-hover:scale-110 transition-transform"></i>
+                                <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-200">AI Müfredat</span>
+                            </button>
+                        )}
+                    </div>
+                )}
+
                 <nav className="flex-1 overflow-y-auto px-2 py-2 custom-scrollbar min-h-0">
                     {filteredCategories.map((category) => {
                         const isOpen = openCategoryId === category.id || !!localSearch;
@@ -323,12 +346,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                     )}
                 </nav>
+                </>
             )}
 
             {/* FOOTER */}
             <div className={`p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
                  <div className="text-[9px] text-zinc-400 text-center font-bold uppercase tracking-widest opacity-60">
-                     Bursa Disleksi AI v1.4
+                     Bursa Disleksi AI v1.5
                  </div>
             </div>
         </div>

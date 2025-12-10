@@ -82,3 +82,34 @@ export interface InteractiveTestItem {
     timeout: number; // Max time allowed in ms
     distractors?: any[];
 }
+
+// --- CURRICULUM TYPES ---
+export interface DailyPlan {
+    day: number;
+    focus: string; // e.g., "Görsel Dikkat", "Hece Farkındalığı"
+    activities: {
+        activityId: string;
+        title: string;
+        duration: number; // minutes
+        goal: string;
+    }[];
+}
+
+export interface Curriculum {
+    id: string;
+    studentName: string;
+    grade: string;
+    startDate: string;
+    durationDays: number;
+    goals: string[];
+    schedule: DailyPlan[];
+    note: string;
+}
+
+// --- OCR TYPES ---
+export interface OCRResult {
+    rawText: string;
+    detectedType: 'worksheet' | 'text' | 'handwriting' | 'unknown';
+    suggestedActivity?: string; // ActivityType
+    structuredData?: any; // Converted data suitable for generators
+}

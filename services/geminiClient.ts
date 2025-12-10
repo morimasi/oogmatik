@@ -94,3 +94,44 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
         throw new Error("Yapay zeka sunucusuna bağlanırken bir hata oluştu.");
     }
 };
+
+// NEW: Vision API Handler
+export const analyzeImage = async (base64Image: string, prompt: string, schema: any) => {
+    try {
+        // Strip header if present
+        const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
+
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt,
+                schema,
+                model: 'gemini-2.5-flash',
+                image: cleanBase64 // Pass image data to backend
+            }),
+        });
+
+        if (!response.ok) throw new Error("Image analysis failed");
+        
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+
+        if (reader) {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                fullText += decoder.decode(value, { stream: true });
+            }
+        }
+        
+        // Clean markdown
+        const cleaned = fullText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+        return JSON.parse(cleaned);
+
+    } catch (error) {
+        console.error("Vision API Error:", error);
+        throw error;
+    }
+};
