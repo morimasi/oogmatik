@@ -149,6 +149,7 @@ const PAGINATION_CONFIG: Record<ActivityType, string> = {
     [ActivityType.SHAPE_MATCHING]: 'leftColumn',
     [ActivityType.ASSESSMENT_REPORT]: 'none',
     [ActivityType.WORKBOOK]: 'none',
+    [ActivityType.OCR_CONTENT]: 'none',
 };
 
 // Expanded usable height of content area (Approx A4 1123px - 150px header/margin = ~980px).

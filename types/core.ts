@@ -152,7 +152,8 @@ export const ActivityType = {
     VISUAL_DISCRIMINATION_MATH: 'VISUAL_DISCRIMINATION_MATH',
 
     ASSESSMENT_REPORT: 'ASSESSMENT_REPORT',
-    WORKBOOK: 'WORKBOOK'
+    WORKBOOK: 'WORKBOOK',
+    OCR_CONTENT: 'OCR_CONTENT'
 } as const;
 
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
@@ -162,7 +163,7 @@ export interface Activity {
     title: string;
     description: string;
     icon: string;
-    defaultStyle?: Partial<StyleSettings>; // Smart Default
+    defaultStyle?: Partial<StyleSettings>;
 }
 
 export interface ActivityCategory {
@@ -232,7 +233,7 @@ export interface GeneratorOptions {
     mode: 'fast' | 'ai' | 'manual';
     difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
     worksheetCount: number;
-    itemCount: number;
+    itemCount?: number;
     gridSize?: number;
     operationType?: string;
     selectedOperations?: string[];
@@ -242,51 +243,94 @@ export interface GeneratorOptions {
     allowRemainder?: boolean;
     wordLength?: { min: number; max: number };
     case?: 'upper' | 'lower';
-    directions?: 'simple' | 'diagonal' | 'all';
+    directions?: string | number[];
     customInput?: string | string[];
     topic?: string;
-    characterName?: string;
-    storyLength?: 'short' | 'medium' | 'long';
-    patternType?: 'arithmetic' | 'geometric' | 'complex';
-    pyramidType?: 'addition' | 'multiplication' | 'division';
-    contentType?: 'number' | 'length';
-    variant?: 'standard' | 'shaded';
-    theme?: string;
-    memorizeRatio?: number;
     targetLetters?: string;
     targetPair?: string;
     targetChar?: string;
     distractorChar?: string;
+    memorizeRatio?: number;
+    pyramidType?: string;
+    variant?: string;
+    contentType?: string;
+    subType?: string;
+    visualStyle?: string;
+    conceptType?: string;
     groupSize?: number;
     groupCount?: number;
-    visualType?: string;
-    visualStyle?: string;
-    subType?: string;
-    conceptType?: string;
-    concept?: string;
+    maxSum?: number;
     storyTheme?: string;
     symbolType?: string;
     codeLength?: number;
-    seed?: string;
     useThirdNumber?: boolean;
     num1Digits?: number;
     num2Digits?: number;
+    characterName?: string;
+    storyLength?: string;
+    theme?: string;
+    patternType?: string;
     type?: string;
-    categoryCount?: number;
-    maxSum?: number;
-    range?: string;
-    operation?: string;
+    visualType?: string;
+    concept?: string;
 }
 
 export type AppTheme = 'light' | 'dark' | 'anthracite' | 'space' | 'nature' | 'ocean' | 'anthracite-gold' | 'anthracite-cyber';
 
 export interface UiSettings {
-    fontFamily: 'OpenDyslexic' | 'Lexend' | 'Inter' | 'Comic Neue' | 'Lora';
+    fontFamily: string;
     fontSizeScale: number;
-    letterSpacing: 'normal' | 'wide';
+    letterSpacing: string;
     lineHeight: number;
     saturation: number;
 }
+
+export interface HistoryItem {
+    id: string;
+    userId: string;
+    activityType: ActivityType;
+    data: any; // WorksheetData
+    timestamp: string;
+    title: string;
+    category: { id: string; title: string };
+}
+
+export type View = 'generator' | 'savedList' | 'favorites' | 'shared' | 'assessment' | 'workbook' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum';
+
+export interface WorkbookSettings {
+    title: string;
+    studentName: string;
+    schoolName: string;
+    year: string;
+    teacherNote: string;
+    theme: 'modern' | 'classic' | 'fun' | 'minimal' | 'academic' | 'artistic' | 'space' | 'nature' | 'geometric';
+    accentColor: string;
+    coverStyle: 'centered' | 'left' | 'split';
+    showTOC: boolean;
+    showPageNumbers: boolean;
+    showWatermark: boolean;
+    watermarkOpacity: number;
+    showBackCover: boolean;
+    logoUrl?: string;
+}
+
+export interface CollectionItem {
+    id: string;
+    activityType: ActivityType;
+    data: any;
+    settings: StyleSettings;
+    title: string;
+    itemType?: 'activity' | 'divider';
+    dividerConfig?: {
+        title: string;
+        subtitle: string;
+        icon: string;
+    };
+    overrideStyle?: Partial<StyleSettings>;
+}
+
+export type UserRole = 'admin' | 'user';
+export type UserStatus = 'active' | 'suspended';
 
 export interface User {
     id: string;
@@ -307,74 +351,16 @@ export interface User {
     };
 }
 
-export type UserRole = 'admin' | 'user';
-export type UserStatus = 'active' | 'suspended';
-
-export interface SavedWorksheet {
-    id: string;
-    userId: string;
-    name: string;
-    activityType: ActivityType;
-    worksheetData: SingleWorksheetData[];
-    createdAt: string;
-    icon: string;
-    category: { id: string; title: string };
-    sharedBy?: string;
-    sharedByName?: string;
-    sharedWith?: string;
-    styleSettings?: StyleSettings;
-    studentProfile?: StudentProfile;
-    workbookItems?: CollectionItem[];
-    workbookSettings?: WorkbookSettings;
-}
-
-export interface CollectionItem {
-    id: string;
-    activityType: ActivityType;
-    data: SingleWorksheetData | SavedAssessment;
-    settings: StyleSettings;
-    overrideStyle?: Partial<StyleSettings>; 
+export interface ActivityStats {
+    activityId: ActivityType;
     title: string;
-    // New properties for dividers
-    itemType?: 'activity' | 'divider';
-    dividerConfig?: {
-        title: string;
-        subtitle: string;
-        icon: string;
-    };
+    generationCount: number;
+    lastGenerated: string;
+    avgCompletionTime: number;
 }
-
-export interface WorkbookSettings {
-    title: string;
-    studentName: string;
-    schoolName: string;
-    year: string;
-    teacherNote: string;
-    theme: 'modern' | 'classic' | 'fun' | 'minimal' | 'academic' | 'artistic' | 'space' | 'nature' | 'geometric';
-    accentColor: string;
-    logoUrl?: string;
-    coverStyle: 'centered' | 'left' | 'split';
-    showTOC: boolean;
-    showPageNumbers: boolean;
-    showWatermark: boolean;
-    watermarkOpacity: number;
-    showBackCover: boolean;
-}
-
-export interface HistoryItem {
-    id: string;
-    userId: string;
-    activityType: ActivityType;
-    data: SingleWorksheetData[];
-    timestamp: string;
-    title: string;
-    category: { id: string; title: string };
-}
-
-export type View = 'generator' | 'savedList' | 'favorites' | 'shared' | 'profile' | 'admin' | 'messages' | 'assessment' | 'workbook';
 
 export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'content';
-export type FeedbackStatus = 'new' | 'read' | 'in-progress' | 'resolved' | 'archived';
+export type FeedbackStatus = 'new' | 'read' | 'in-progress' | 'resolved' | 'replied';
 
 export interface FeedbackItem {
     id: string;
@@ -402,46 +388,111 @@ export interface Message {
     relatedFeedbackId?: string;
 }
 
-export interface ActivityStats {
-    activityId: ActivityType;
-    title: string;
-    generationCount: number;
-    lastGenerated: string;
-    avgCompletionTime: number;
-}
-
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon' | 'cube' | 'sphere' | 'pyramid' | 'cone' | 'heart' | 'cloud' | 'moon';
 
-export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 'blocks' | 'mixed' | 'number-line' | 'number-line-advanced' | 'comparison' | 'ordering' | 'missing';
-
-export type TestCategory = 'linguistic' | 'logical' | 'spatial' | 'musical' | 'kinesthetic' | 'naturalistic' | 'interpersonal' | 'intrapersonal' | 'attention';
+export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 'blocks' | 'mixed' | 'number-line-advanced' | 'estimation-jar';
 
 export interface AssessmentProfile {
     studentName: string;
     age: number;
     grade: string;
-    gender: 'Kız' | 'Erkek';
     observations: string[];
     testResults?: Record<string, any>;
     errorPatterns?: Record<string, number>;
 }
 
+export type TestCategory = 'linguistic' | 'logical' | 'spatial' | 'musical' | 'kinesthetic' | 'naturalistic' | 'interpersonal' | 'intrapersonal' | 'attention';
+
+export interface AdaptiveQuestion {
+    id: string;
+    text: string;
+    options: string[];
+    correct: string;
+    difficulty: number;
+    skill: string; 
+    subSkill?: string;
+    errorTags?: Record<string, string>;
+}
+
+export interface AssessmentConfig {
+    selectedSkills: TestCategory[];
+    mode: 'quick' | 'standard' | 'full';
+}
+
+export type CognitiveDomain = 
+    | 'visual_spatial_memory' 
+    | 'processing_speed'      
+    | 'selective_attention'   
+    | 'phonological_loop'     
+    | 'logical_reasoning';    
+
+export interface SubTestResult {
+    testId: CognitiveDomain;
+    name: string;
+    score: number; 
+    rawScore: number; 
+    totalItems: number;
+    avgReactionTime: number; 
+    accuracy: number; 
+    status: 'completed' | 'skipped' | 'aborted';
+    timestamp: number;
+}
+
+export interface ClinicalObservation {
+    anxietyLevel: 'low' | 'medium' | 'high';
+    attentionSpan: 'focused' | 'distracted' | 'hyperactive';
+    motorSkills: 'typical' | 'clumsy' | 'tremor';
+    notes: string;
+}
+
+export interface AssessmentRoadmapItem {
+    activityId: string; 
+    title: string;
+    reason: string;
+    frequency: string;
+    priority: 'high' | 'medium' | 'low';
+}
+
 export interface AssessmentReport {
     overallSummary: string;
-    scores: {
-        [key in TestCategory]?: number;
-    };
+    scores: Record<string, number>;
     chartData: { label: string; value: number; fullMark: number }[];
     analysis: {
         strengths: string[];
         weaknesses: string[];
-        errorAnalysis?: string[];
+        errorAnalysis: string[];
     };
     roadmap: {
         activityId: string;
         reason: string;
         frequency: string;
     }[];
+    professionalData?: any; 
+    subTests?: any[];
+    observations?: any;
+    id?: string;
+    studentId?: string;
+    examinerId?: string;
+    date?: string;
+}
+
+export interface ProfessionalAssessmentReport {
+    id: string;
+    studentId: string;
+    studentName: string;
+    examinerId: string;
+    date: string;
+    duration: number; 
+    subTests: SubTestResult[];
+    observations: ClinicalObservation;
+    overallRiskAnalysis: {
+        dyslexiaRisk: 'low' | 'moderate' | 'high';
+        dyscalculiaRisk: 'low' | 'moderate' | 'high';
+        attentionDeficitRisk: 'low' | 'moderate' | 'high';
+        summary: string;
+    };
+    recommendations: string[];
+    roadmap: AssessmentRoadmapItem[]; 
 }
 
 export interface SavedAssessment {
@@ -458,78 +509,78 @@ export interface SavedAssessment {
     sharedWith?: string;
 }
 
-export interface AssessmentConfig {
-    mode: 'quick' | 'standard' | 'full';
-    selectedSkills: TestCategory[];
-    duration: number; // minutes estimate
-}
-
-export interface AdaptiveQuestion {
+export interface SavedWorksheet {
     id: string;
-    text: string;
-    options: string[];
-    correct: string;
-    difficulty: number; // 1-5
-    skill: TestCategory;
-    subSkill?: string; // e.g. 'reversal', 'sequencing'
-    errorTags?: Record<string, string>; // option -> error type (e.g. {'d': 'reversal'})
-}
-
-export interface AssessmentGeneratorOptions {
-    skills: TestCategory[];
-    countPerSkill: number;
-    // Potentially other AI params
-}
-
-export type CognitiveDomain = 
-    | 'visual_spatial_memory' // Görsel-Uzamsal Bellek
-    | 'processing_speed'      // İşlemleme Hızı
-    | 'selective_attention'   // Seçici Dikkat / İnhibisyon
-    | 'phonological_loop'     // Fonolojik Döngü
-    | 'logical_reasoning';    // Mantıksal Muhakeme
-
-export interface SubTestResult {
-    testId: CognitiveDomain;
+    userId: string;
     name: string;
-    score: number; // 0-100 normalize edilmiş skor
-    rawScore: number; // Ham doğru sayısı
-    totalItems: number;
-    avgReactionTime: number; // Milisaniye cinsinden ortalama tepki süresi
-    accuracy: number; // Yüzde
-    status: 'completed' | 'skipped' | 'aborted';
-    timestamp: number;
+    activityType: ActivityType;
+    worksheetData: any[]; 
+    createdAt: string;
+    icon: string;
+    category: { id: string; title: string };
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
+    styleSettings?: StyleSettings;
+    studentProfile?: StudentProfile;
+    workbookItems?: any[];
+    workbookSettings?: WorkbookSettings;
+    description?: string; 
 }
 
-export interface ClinicalObservation {
-    anxietyLevel: 'low' | 'medium' | 'high';
-    attentionSpan: 'focused' | 'distracted' | 'hyperactive';
-    motorSkills: 'typical' | 'clumsy' | 'tremor';
-    notes: string;
+// --- OCR TYPES ---
+export interface OCRResult {
+    rawText: string;
+    detectedType: 'worksheet' | 'text' | 'handwriting' | 'unknown';
+    suggestedActivity?: string; 
+    structuredData?: any; 
 }
-
-export interface ProfessionalAssessmentReport {
+export interface OCRMathItem {
+    num1: number | string;
+    num2: number | string;
+    operator: string;
+    answer: number | string;
     id: string;
-    studentId: string;
+}
+export interface OCRReadingItem {
+    text: string;
+    questions: {
+        question: string;
+        type: 'open' | 'multiple';
+        options?: string[];
+    }[];
+}
+
+// --- CURRICULUM TYPES ---
+export type CurriculumActivityStatus = 'pending' | 'completed' | 'skipped';
+
+export interface CurriculumActivity {
+    id: string;
+    activityId: ActivityType;
+    title: string;
+    duration: number; // minutes
+    goal: string;
+    status: CurriculumActivityStatus;
+    difficultyLevel: 'Easy' | 'Medium' | 'Hard';
+}
+
+export interface CurriculumDay {
+    day: number;
+    focus: string;
+    activities: CurriculumActivity[];
+    isCompleted: boolean;
+}
+
+export interface Curriculum {
+    id: string;
     studentName: string;
-    examinerId: string;
-    date: string;
-    duration: number; // Toplam saniye
-    subTests: SubTestResult[];
-    observations: ClinicalObservation;
-    overallRiskAnalysis: {
-        dyslexiaRisk: 'low' | 'moderate' | 'high';
-        dyscalculiaRisk: 'low' | 'moderate' | 'high';
-        attentionDeficitRisk: 'low' | 'moderate' | 'high';
-        summary: string;
-    };
-    recommendations: string[];
-}
-
-export interface InteractiveTestItem {
-    id: string;
-    type: 'matrix' | 'stroop' | 'naming' | 'choice';
-    stimulus: any; // Grid, Color, Text, Image
-    target: any; // Correct answer
-    timeout: number; // Max time allowed in ms
-    distractors?: any[];
+    grade: string;
+    startDate: string;
+    durationDays: number;
+    goals: string[];
+    note: string;
+    schedule: CurriculumDay[];
+    progress?: number;
+    interests?: string[];
+    weaknesses?: string[];
 }

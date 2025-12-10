@@ -1,7 +1,7 @@
 
 import { generateWithSchema } from './geminiClient';
 import { Type } from "@google/genai";
-import { Curriculum, ActivityType } from '../types';
+import { Curriculum, ActivityType, CurriculumDay } from '../types';
 import { ACTIVITIES } from '../constants';
 
 export const curriculumService = {
@@ -9,43 +9,53 @@ export const curriculumService = {
         studentName: string,
         age: number,
         grade: string,
-        diagnosis: string, // e.g., Dyslexia, Attention Deficit
-        durationDays: number = 7
+        diagnosis: string,
+        durationDays: number = 7,
+        interests: string[] = [],
+        weaknesses: string[] = []
     ): Promise<Curriculum> => {
         
         // Prepare activity list for AI to choose from
         const availableActivities = ACTIVITIES.map(a => `${a.id}: ${a.title}`).join('\n');
 
         const prompt = `
-        [ROL: ÖZEL EĞİTİM MÜFREDAT UZMANI]
+        [ROL: KIDEMLİ ÖZEL EĞİTİM PROGRAM GELİŞTİRİCİSİ]
 
-        GÖREV: Aşağıdaki öğrenci profili için ${durationDays} günlük, kişiselleştirilmiş ve bilimsel temelli bir ev çalışma programı oluştur.
+        GÖREV: Aşağıdaki öğrenci profili için ${durationDays} günlük, "Spiral Öğrenme Modeli"ne dayalı, kişiselleştirilmiş ve etkileşimli bir ev çalışma programı oluştur.
         
         ÖĞRENCİ PROFİLİ:
         - İsim: ${studentName}
         - Yaş: ${age}
         - Sınıf: ${grade}
         - Tanı/İhtiyaç: ${diagnosis}
+        - İlgi Alanları: ${interests.join(', ') || 'Genel'}
+        - Zayıf Yönler: ${weaknesses.join(', ') || 'Genel akademik destek'}
+
+        PEDAGOJİK KURALLAR (SPIRAL LEARNING):
+        1. **Kademeli Zorluk:** İlk günlerde basit görsel/dikkat etkinlikleri, sonlara doğru karmaşık mantık/okuma etkinlikleri planla.
+        2. **Tekrar:** 1. gün öğrenilen bir beceriyi 3. gün daha zor bir versiyonla tekrar ettir.
+        3. **İlgi Odaklılık:** Öğrencinin ilgi alanlarını (örn: uzay, hayvanlar) aktivite başlıklarına veya hedeflerine yedir.
+        4. **Bilişsel Yük Dengesi:** Her gün için 1 "Zorlayıcı" (Bilişsel) ve 2 "Eğlenceli/Pekiştirici" (Algısal) aktivite seç.
 
         MEVCUT AKTİVİTE HAVUZU (Sadece bunları kullan):
         ${availableActivities}
 
-        KURALLAR:
-        1. Her gün için 2-3 aktivite planla.
-        2. Aktiviteler öğrencinin tanısına uygun olmalı (Örn: Disleksi için okuma akışı, Diskalkuli için sayı hissi).
-        3. Zorluk seviyesi gün geçtikçe kademeli artmalı (Spiral eğitim).
-        4. "activityId" alanı, yukarıdaki listedeki ID ile TAM EŞLEŞMELİDİR.
-
         ÇIKTI FORMATI (JSON):
         {
-            "goals": ["Hedef 1", "Hedef 2"],
-            "note": "Ebeveyn için kısa rehber notu",
+            "goals": ["Hedef 1", "Hedef 2", "Hedef 3"],
+            "note": "Ebeveyn için motive edici ve yönlendirici bir önsöz.",
             "schedule": [
                 {
                     "day": 1,
-                    "focus": "Günün odağı (örn: Görsel Dikkat)",
+                    "focus": "Günün Teması (örn: Görsel Dikkat ve Tarama)",
                     "activities": [
-                        { "activityId": "ACTIVITY_ID", "title": "Aktivite Adı", "duration": 15, "goal": "Neyi geliştirecek?" }
+                        { 
+                            "activityId": "ACTIVITY_ID", 
+                            "title": "Aktivite Başlığı (İlgi alanına göre özelleştirilebilir)", 
+                            "duration": 15, 
+                            "goal": "Bu aktivitenin kazandıracağı beceri.",
+                            "difficultyLevel": "Easy" 
+                        }
                     ]
                 }
             ]
@@ -72,9 +82,10 @@ export const curriculumService = {
                                         activityId: { type: Type.STRING },
                                         title: { type: Type.STRING },
                                         duration: { type: Type.INTEGER },
-                                        goal: { type: Type.STRING }
+                                        goal: { type: Type.STRING },
+                                        difficultyLevel: { type: Type.STRING, enum: ['Easy', 'Medium', 'Hard'] }
                                     },
-                                    required: ['activityId', 'title', 'duration', 'goal']
+                                    required: ['activityId', 'title', 'duration', 'goal', 'difficultyLevel']
                                 }
                             }
                         },
@@ -87,6 +98,17 @@ export const curriculumService = {
 
         const result = await generateWithSchema(prompt, schema, 'gemini-2.5-flash');
 
+        // Post-process to add IDs and status
+        const schedule = result.schedule.map((day: any) => ({
+            ...day,
+            isCompleted: false,
+            activities: day.activities.map((act: any) => ({
+                ...act,
+                id: crypto.randomUUID(),
+                status: 'pending'
+            }))
+        }));
+
         return {
             id: crypto.randomUUID(),
             studentName,
@@ -94,8 +116,73 @@ export const curriculumService = {
             startDate: new Date().toISOString(),
             durationDays,
             goals: result.goals,
-            schedule: result.schedule,
-            note: result.note
+            schedule: schedule,
+            note: result.note,
+            interests,
+            weaknesses
+        };
+    },
+
+    regenerateDay: async (currentDay: CurriculumDay, studentProfile: any): Promise<CurriculumDay> => {
+        // Logic to regenerate just one day
+        const availableActivities = ACTIVITIES.map(a => `${a.id}: ${a.title}`).join('\n');
+        
+        const prompt = `
+        [ROL: EĞİTİM PROGRAMI DÜZELTİCİ]
+        
+        GÖREV: Aşağıdaki öğrenci için ${currentDay.day}. günün programını tamamen değiştir. Kullanıcı mevcut planı beğenmedi.
+        
+        ÖĞRENCİ: ${studentProfile.name}, ${studentProfile.grade}, İlgi: ${studentProfile.interests?.join(',')}.
+        
+        ESKİ PLAN (Bunu kullanma): ${currentDay.focus}
+        
+        KURALLAR:
+        - Farklı bir odak noktası seç.
+        - Farklı aktiviteler öner.
+        - Mevcut aktivite havuzunu kullan:
+        ${availableActivities}
+        
+        ÇIKTI (JSON - Tek Gün):
+        {
+            "day": ${currentDay.day},
+            "focus": "Yeni Odak",
+            "activities": [...]
+        }
+        `;
+
+        const schema = {
+            type: Type.OBJECT,
+            properties: {
+                day: { type: Type.INTEGER },
+                focus: { type: Type.STRING },
+                activities: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            activityId: { type: Type.STRING },
+                            title: { type: Type.STRING },
+                            duration: { type: Type.INTEGER },
+                            goal: { type: Type.STRING },
+                            difficultyLevel: { type: Type.STRING, enum: ['Easy', 'Medium', 'Hard'] }
+                        },
+                        required: ['activityId', 'title', 'duration', 'goal', 'difficultyLevel']
+                    }
+                }
+            },
+            required: ['day', 'focus', 'activities']
+        };
+
+        const result = await generateWithSchema(prompt, schema, 'gemini-2.5-flash');
+        
+        return {
+            ...result,
+            isCompleted: false,
+            activities: result.activities.map((act: any) => ({
+                ...act,
+                id: crypto.randomUUID(),
+                status: 'pending'
+            }))
         };
     }
 };
