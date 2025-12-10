@@ -234,11 +234,15 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         const adjustedFontSize = Math.round(baseFontSize / densityFactor);
         
         const itemDirection = userCols > 2 ? 'column' : 'row';
-        const itemGap = userCols > 2 ? '0.5rem' : '1rem';
-        const itemPadding = userCols > 2 ? '0.5rem' : '1rem';
+        // Smart Gap Calculation: If cols are few (1-2), we want larger gap to fill space
+        const itemGap = userCols > 2 ? '0.5rem' : '1.5rem';
+        const itemPadding = userCols > 2 ? '0.5rem' : '1.5rem';
         const visualComplexity = userCols > 3 ? 'low' : 'high';
         
         const gridTemplateColumns = `repeat(${effectiveCols}, minmax(0, 1fr))`;
+        
+        // Vertical Rhythm
+        const verticalGap = userCols < 3 ? '2.5rem' : '1rem'; 
 
         return {
             '--worksheet-font-size': `${adjustedFontSize}px`,
@@ -246,6 +250,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             '--worksheet-border-width': `${settings.borderWidth}px`,
             '--worksheet-margin': `${settings.margin}px`,
             '--worksheet-gap': `${Math.max(8, settings.gap)}px`, 
+            '--worksheet-vertical-gap': verticalGap,
             '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
             '--worksheet-line-height': settings.lineHeight || 1.4,
             '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
@@ -300,8 +305,34 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     display: grid;
                     grid-template-columns: var(--grid-columns);
                     gap: var(--worksheet-gap);
+                    row-gap: var(--worksheet-vertical-gap);
                     width: 100%;
                     align-items: start;
+                    /* Distribute vertically if space allows */
+                    align-content: start;
+                }
+                
+                .worksheet-content {
+                    font-family: var(--worksheet-font-family), sans-serif;
+                    font-size: var(--worksheet-font-size);
+                    font-weight: var(--font-weight);
+                    font-style: var(--font-style);
+                    line-height: var(--worksheet-line-height);
+                    letter-spacing: var(--worksheet-letter-spacing);
+                    text-align: var(--content-align);
+                    
+                    /* Fill height logic */
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    height: 100%;
+                }
+                
+                .worksheet-content > div.flex-1 {
+                    display: flex;
+                    flex-direction: column;
+                    /* If density is low, center content */
+                    justify-content: ${settings.columns <= 1 ? 'center' : 'flex-start'};
                 }
                 
                 .worksheet-content .editable-element,
@@ -312,22 +343,21 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 }
 
                 .worksheet-content[data-complexity="low"] .item-card {
-                    border: 1px solid #e5e7eb !important; 
-                    box-shadow: none !important;
+                    /* High Visual Weight for few items */
+                    border: 2px solid #e5e7eb !important; 
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                    border-radius: 1rem;
+                    background-color: #fafafa;
+                }
+                
+                .worksheet-content[data-complexity="high"] .item-card {
+                    /* Low Visual Weight for many items */
+                     border: 1px solid #e5e7eb !important; 
+                     box-shadow: none !important;
                 }
 
                 .style-zebra .dynamic-grid > *:nth-child(odd) {
                     background-color: rgba(0,0,0,0.03);
-                }
-
-                .worksheet-content {
-                    font-family: var(--worksheet-font-family), sans-serif;
-                    font-size: var(--worksheet-font-size);
-                    font-weight: var(--font-weight);
-                    font-style: var(--font-style);
-                    line-height: var(--worksheet-line-height);
-                    letter-spacing: var(--worksheet-letter-spacing);
-                    text-align: var(--content-align);
                 }
             `}</style>
 
@@ -361,7 +391,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     width: '100%',
                                     height: 'auto'
                                 }}
-                                data-complexity={settings.columns > 3 ? 'low' : 'high'}
+                                data-complexity={settings.columns > 3 ? 'high' : 'low'}
                             >
                                 <div className="mb-4 pb-1 border-b border-black flex justify-between items-end shrink-0 w-full" style={{ display: 'var(--display-student-info)' }}>
                                     <div className="flex gap-8 text-sm text-black">
