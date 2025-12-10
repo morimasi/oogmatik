@@ -8,24 +8,20 @@ const PEDAGOGICAL_PROMPT = `
 ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
 1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
 2.  **Çıktı:** Sadece geçerli JSON.
-3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi (örn: kavramsal eşleştirme, soyut düşünme, yön bulma) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
+3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi desteklediğini açıkla.
 4.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol.
-5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
-    - **Stil:** "Professional Vector Illustration", "Clean & Educational".
-    - **Detay:** İçeriğe uygun, zengin ve estetik bir görsel betimle.
+5.  **"imagePrompt":** (KRİTİK ÖNEMLİ) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+    - Stil: "Professional Vector Illustration", "Clean & Educational".
+    - Detay: İçeriğe uygun, zengin ve estetik bir görsel betimle.
 6.  **İçerik:**
     - Üst düzey düşünme becerilerini (HOTs) hedefle.
-    - Kültürel olarak nötr veya evrensel.
+    - Orijinal "Zengin Prompt"taki mantığı BİREBİR uygula. Asla basite indirgeme.
 `;
 
 // --- OCR / RICH PROMPT HANDLER ---
-// This function takes the "Reverse Engineered" prompt from OCR and generates content using the correct schema.
 export const generateFromRichPrompt = async (activityType: ActivityType, richPrompt: string, options: GeneratorOptions) => {
     
     // 1. Determine Schema based on ActivityType
-    // We need to map ActivityType to its corresponding JSON Schema structure.
-    // This is a simplified mapping for common types.
-    
     let schema: any;
     
     // MATH & LOGIC SCHEMAS
@@ -41,7 +37,7 @@ export const generateFromRichPrompt = async (activityType: ActivityType, richPro
                     imagePrompt: { type: Type.STRING },
                     // Generic math props to catch most
                     operations: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { num1: {type:Type.NUMBER}, num2: {type:Type.NUMBER}, operator: {type:Type.STRING}, answer: {type:Type.NUMBER} }, required: ['num1','num2','answer'] } },
-                    puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { problem: {type:Type.STRING}, answer: {type:Type.STRING}, question: {type:Type.STRING} }, required: ['problem','answer'] } }
+                    puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { problem: {type:Type.STRING}, answer: {type:Type.STRING}, question: {type:Type.STRING}, objects: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {name: {type: Type.STRING}, imagePrompt: {type: Type.STRING}}}} } } }
                 },
                 required: ['title', 'instruction']
             }
@@ -60,7 +56,7 @@ export const generateFromRichPrompt = async (activityType: ActivityType, richPro
                     imagePrompt: { type: Type.STRING },
                     grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
                     words: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    anagrams: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: {type:Type.STRING}, scrambled: {type:Type.STRING} }, required: ['word','scrambled'] } },
+                    anagrams: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: {type:Type.STRING}, scrambled: {type:Type.STRING}, imagePrompt: {type:Type.STRING} }, required: ['word','scrambled'] } },
                     clues: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: {type:Type.NUMBER}, text: {type:Type.STRING}, word: {type:Type.STRING}, direction: {type:Type.STRING}, start: {type:Type.OBJECT, properties:{row:{type:Type.NUMBER},col:{type:Type.NUMBER}}} } } }
                 },
                 required: ['title', 'instruction']
@@ -96,8 +92,8 @@ export const generateFromRichPrompt = async (activityType: ActivityType, richPro
                     pedagogicalNote: { type: Type.STRING },
                     imagePrompt: { type: Type.STRING },
                     // Generic container for flexibility
-                    items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type:Type.STRING}, value: {type:Type.STRING}, isCorrect: {type:Type.BOOLEAN} } } },
-                    rows: { type: Type.ARRAY, items: { type: Type.OBJECT } }
+                    items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type:Type.STRING}, value: {type:Type.STRING}, isCorrect: {type:Type.BOOLEAN}, imagePrompt: {type:Type.STRING} } } },
+                    rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: {type: Type.ARRAY, items: {type: Type.STRING}}, correctIndex: {type: Type.NUMBER} } } }
                 },
                 required: ['title', 'instruction']
             }
@@ -110,16 +106,17 @@ export const generateFromRichPrompt = async (activityType: ActivityType, richPro
     ÖZEL GÖREV (OCR KAYNAKLI):
     Kullanıcının yüklediği bir görselden analiz edilen şu "Zengin Prompt"u kullanarak içerik üret:
     
-    """
+    =========================================
     ${richPrompt}
-    """
+    =========================================
     
     EK AYARLAR:
     - Adet/Miktar: ${options.itemCount || 10}
     - Zorluk: ${options.difficulty}
     - Konu: ${options.topic || 'Genel'}
     
-    Lütfen yukarıdaki JSON şemasına sadık kalarak, bu özel promptun mantığını birebir uygulayan veriler üret.
+    Lütfen yukarıdaki JSON şemasına sadık kalarak, bu özel promptun mantığını ve stilini BİREBİR kopyalayan veriler üret.
+    Eğer promptta özel görsel betimlemeler varsa, bunları "imagePrompt" alanlarına mutlaka ekle.
     ${options.worksheetCount} sayfa oluştur.
     `;
 
@@ -328,3 +325,4 @@ export const generateMindGames56FromAI = async (options: GeneratorOptions): Prom
     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { type: { type: Type.STRING, enum: ['word_problem', 'number_sequence', 'visual_logic', 'cipher'] }, title: { type: Type.STRING }, question: { type: Type.STRING }, answer: { type: Type.STRING }, hint: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ['type', 'title', 'question', 'answer'] } } }, required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<MindGames56Data[]>;
 };
+    

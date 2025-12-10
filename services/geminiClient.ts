@@ -1,22 +1,36 @@
 
-
 // This function calls our own backend proxy.
 export const generateWithSchema = async (prompt: string, schema: any, model?: string) => {
     try {
-        // Yapay zekanın her seferinde farklı çıktı üretmesini sağlamak için benzersiz bir bağlam ekliyoruz.
         const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-        
-        // NOTE: System instructions are now handled on the server side (api/generate.ts).
-        // We only append specific runtime constraints here.
         const enhancedPrompt = `${prompt}\n\n[Context ID: ${uniqueSeed}]`;
 
-        const response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ prompt: enhancedPrompt, schema, model }),
-        });
+        const fetchWithRetry = async (retries = 3, delay = 1000): Promise<Response> => {
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: enhancedPrompt, schema, model }),
+                });
+
+                if (response.status === 429 || response.status === 503) {
+                     if (retries > 0) {
+                         console.warn(`API busy (429/503). Retrying in ${delay}ms...`);
+                         await new Promise(res => setTimeout(res, delay));
+                         return fetchWithRetry(retries - 1, delay * 2);
+                     }
+                }
+                return response;
+            } catch (err) {
+                 if (retries > 0) {
+                     await new Promise(res => setTimeout(res, delay));
+                     return fetchWithRetry(retries - 1, delay * 2);
+                 }
+                 throw err;
+            }
+        };
+
+        const response = await fetchWithRetry();
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -44,20 +58,14 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            
             const chunk = decoder.decode(value, { stream: true });
             fullText += chunk;
         }
 
-        // Final decode flush
         fullText += decoder.decode();
 
         try {
-            // ROBUST JSON PARSING STRATEGY
-            // 1. Remove Markdown code blocks if present
             let cleanedJsonText = fullText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-            
-            // 2. Sometimes models add text before/after JSON. Find the first '{' or '[' and the last '}' or ']'
             const firstOpenBrace = cleanedJsonText.indexOf('{');
             const firstOpenBracket = cleanedJsonText.indexOf('[');
             let startIndex = -1;
@@ -74,14 +82,12 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                 const lastCloseBrace = cleanedJsonText.lastIndexOf('}');
                 const lastCloseBracket = cleanedJsonText.lastIndexOf(']');
                 const endIndex = Math.max(lastCloseBrace, lastCloseBracket);
-                
                 if (endIndex > startIndex) {
                     cleanedJsonText = cleanedJsonText.substring(startIndex, endIndex + 1);
                 }
             }
 
-            const parsed = JSON.parse(cleanedJsonText);
-            return parsed;
+            return JSON.parse(cleanedJsonText);
         } catch (e) {
             console.error("Yapay zeka yanıtı ayrıştırılamadı. Ham metin:", fullText);
             throw new Error("Yapay zeka yanıtı geçerli bir veri formatında değil. Lütfen tekrar deneyin.");
@@ -99,19 +105,39 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
 // NEW: Vision API Handler
 export const analyzeImage = async (base64Image: string, prompt: string, schema: any) => {
     try {
-        // Strip header if present
         const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-        const response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                prompt,
-                schema,
-                model: 'gemini-2.5-flash',
-                image: cleanBase64 // Pass image data to backend
-            }),
-        });
+        const fetchWithRetry = async (retries = 3, delay = 1000): Promise<Response> => {
+            try {
+                 const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt,
+                        schema,
+                        model: 'gemini-2.5-flash',
+                        image: cleanBase64 
+                    }),
+                });
+
+                if (response.status === 429 || response.status === 503) {
+                     if (retries > 0) {
+                         console.warn(`Vision API busy. Retrying in ${delay}ms...`);
+                         await new Promise(res => setTimeout(res, delay));
+                         return fetchWithRetry(retries - 1, delay * 2);
+                     }
+                }
+                return response;
+            } catch (err) {
+                 if (retries > 0) {
+                     await new Promise(res => setTimeout(res, delay));
+                     return fetchWithRetry(retries - 1, delay * 2);
+                 }
+                 throw err;
+            }
+        };
+
+        const response = await fetchWithRetry();
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -131,7 +157,6 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
             }
         }
         
-        // Clean markdown
         const cleaned = fullText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
         return JSON.parse(cleaned);
 
@@ -140,3 +165,4 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
         throw error;
     }
 };
+    
