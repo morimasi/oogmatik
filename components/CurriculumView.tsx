@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { curriculumService } from '../services/curriculumService';
 import { Curriculum, CurriculumDay, CurriculumActivity } from '../types';

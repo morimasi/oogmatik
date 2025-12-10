@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { ActivityType, WorksheetData, StyleSettings, StudentProfile, OverlayItem } from '../types';
 import { getBorderCSS } from './VisualAssets';
@@ -43,18 +42,18 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         const visualComplexity = userCols > 3 ? 'low' : 'high';
         
         const gridTemplateColumns = `repeat(${effectiveCols}, minmax(0, 1fr))`;
-        // Reduce vertical gap to fit more
-        const verticalGap = userCols < 3 ? '1rem' : '0.5rem'; 
+        // Reduce vertical gap to fit more, compact mode
+        const verticalGap = userCols < 3 ? '0.75rem' : '0.35rem'; 
 
         return {
             '--worksheet-font-size': `${adjustedFontSize}px`,
             '--worksheet-border-color': settings.borderColor,
             '--worksheet-border-width': `${settings.borderWidth}px`,
             '--worksheet-margin': `${settings.margin}px`,
-            '--worksheet-gap': `${Math.max(4, settings.gap)}px`, 
+            '--worksheet-gap': `${Math.max(2, settings.gap)}px`, 
             '--worksheet-vertical-gap': verticalGap,
             '--worksheet-font-family': settings.fontFamily || 'OpenDyslexic',
-            '--worksheet-line-height': settings.lineHeight || 1.4,
+            '--worksheet-line-height': settings.lineHeight || 1.3,
             '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
             '--content-align': settings.contentAlign || 'center',
             '--font-weight': settings.fontWeight || 'normal',
@@ -131,8 +130,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                 .worksheet-content > div.flex-1 {
                     display: flex;
                     flex-direction: column;
-                    /* Distribute items evenly if grid */
+                    /* Distribute items evenly if grid, stretch to fill */
                     justify-content: ${settings.columns > 1 ? 'start' : 'space-between'};
+                    flex: 1 1 auto;
                 }
                 
                 .worksheet-content .editable-element,
@@ -205,8 +205,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     </div>
                                 </div>
 
-                                <EditableElement id="main-content" className="flex-1 w-full h-full flex flex-col">
-                                    <div className="flex-1 flex flex-col h-full">
+                                <EditableElement id="main-content" className="flex-1 w-full h-full flex flex-col min-h-0">
+                                    <div className="flex-1 flex flex-col h-full min-h-0">
                                         <ErrorBoundary>
                                             <SheetRenderer activityType={activityType} data={sheetData} />
                                         </ErrorBoundary>
@@ -214,7 +214,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                 </EditableElement>
                                 
                                 <div 
-                                    className="mt-auto w-full pt-2 px-2 flex justify-between items-center text-[8px] text-zinc-400 pointer-events-none"
+                                    className="mt-auto w-full pt-1 px-2 flex justify-between items-center text-[8px] text-zinc-400 pointer-events-none shrink-0"
                                     style={{ display: 'var(--display-footer)' }}
                                 >
                                     <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>

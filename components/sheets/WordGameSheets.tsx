@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
     WordSearchData, WordSearchWithPasswordData, ProverbSearchData, LetterGridWordFindData, ThematicWordSearchColorData,
@@ -19,9 +18,9 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData }> = ({ data }) =>
     <div className={SHEET_CONTAINER}>
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
         
-        <div className="flex-1 flex flex-col lg:flex-row gap-8 items-stretch mt-4 break-inside-avoid">
+        <div className="flex-1 flex flex-col lg:flex-row gap-8 items-stretch mt-4 break-inside-avoid min-h-0">
             {/* The Grid - Set to grow to fill space */}
-            <EditableElement className="flex-1 bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-lg relative flex items-center justify-center">
+            <EditableElement className="flex-1 bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-lg relative flex items-center justify-center min-h-0 overflow-hidden">
                 <div className="absolute -top-3 -left-3 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-lg"></div>
                 <div className="absolute -bottom-3 -right-3 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-lg"></div>
                 
@@ -265,8 +264,8 @@ export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => (
     <div className={SHEET_CONTAINER}>
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
         
-        <div className="flex-1 flex flex-col lg:flex-row gap-8 items-start mt-4 break-inside-avoid">
-            <EditableElement className="flex-1 bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-lg relative">
+        <div className="flex-1 flex flex-col lg:flex-row gap-8 items-start mt-4 break-inside-avoid min-h-0">
+            <EditableElement className="flex-1 bg-white p-2 rounded-xl border-4 border-zinc-800 shadow-lg relative min-h-0">
                 <GridComponent grid={(data?.grid as any[][]) || []} cellClassName="w-8 h-8 md:w-10 md:h-10 text-xl font-black font-mono border-zinc-200 bg-white text-zinc-800" />
             </EditableElement>
             

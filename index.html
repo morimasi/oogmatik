@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -186,7 +185,7 @@
     @media print {
         @page {
             size: A4;
-            margin: 5mm; /* Minimal margins for print */
+            margin: 0; /* Minimized margins */
         }
 
         html, body {
@@ -227,7 +226,7 @@
             width: 210mm !important;
             height: 297mm !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 5mm !important; /* Internal padding for safe zone */
             page-break-after: always !important;
             break-after: page !important;
             box-shadow: none !important;

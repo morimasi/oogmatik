@@ -1,4 +1,3 @@
-
 import { generateWithSchema } from './geminiClient';
 import { Type } from "@google/genai";
 import { Curriculum, ActivityType, CurriculumDay } from '../types';

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Activity, GeneratorOptions, ActivityType, StudentProfile } from '../types';
 import { statsService } from '../services/statsService';
@@ -127,15 +126,13 @@ const DIFFICULTY_OPTIONS = [
 ];
 
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal, studentProfile }) => {
-    // Determine smart default based on activity type for A4 filling
-    // INCREASED DEFAULTS FOR BETTER PAGE FILL
+    // INCREASED DEFAULTS FOR BETTER PAGE FILL - FAST MODE OPTIMIZATION
     const getDefaultCount = (type: string) => {
-        if (['BASIC_OPERATIONS', 'MATH_PUZZLE'].includes(type)) return 30; // Increased
-        if (['NUMBER_SEARCH'].includes(type)) return 40;
-        if (['WORD_SEARCH', 'CROSSWORD'].includes(type)) return 15; // More words
-        if (['FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT'].includes(type)) return 12;
-        if (['STORY_COMPREHENSION'].includes(type)) return 1; // 1 Story
-        return 12; // Generic safe default
+        if (['BASIC_OPERATIONS', 'MATH_PUZZLE'].includes(type)) return 40; 
+        if (['NUMBER_SEARCH', 'FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT'].includes(type)) return 24;
+        if (['WORD_SEARCH', 'CROSSWORD'].includes(type)) return 20; 
+        if (['STORY_COMPREHENSION', 'READING_FLOW'].includes(type)) return 1; 
+        return 20; // Safe high default
     };
 
     const [options, setOptions] = useState<GeneratorOptions>({
@@ -162,6 +159,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     useEffect(() => {
         setIsFavorite(statsService.isFavorite(activity.id));
     }, [activity.id]);
+    
+    // Update defaults when mode changes
+    useEffect(() => {
+        if (options.mode === 'fast') {
+            setOptions(prev => ({...prev, itemCount: getDefaultCount(activity.id)}));
+        }
+    }, [options.mode, activity.id]);
 
     const handleToggleFavorite = () => {
         statsService.toggleFavorite(activity.id);
@@ -177,7 +181,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     const CommonControls = () => (
         <div className="grid grid-cols-2 gap-3 mb-4">
             <CompactCounter label="Varyasyon Sayısı" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={20} icon="fa-copy" />
-            <CompactCounter label="Öğe Sayısı (Adet)" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={50} icon="fa-list-ol" />
+            <CompactCounter label="Öğe Sayısı (Adet)" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={60} icon="fa-list-ol" />
             <div className="col-span-2">
                 <CompactSelect label="Zorluk Seviyesi" value={options.difficulty} onChange={(v: string) => handleChange('difficulty', v)} options={DIFFICULTY_OPTIONS} icon="fa-gauge-high" />
             </div>

@@ -1,4 +1,3 @@
-
 import { Type } from "@google/genai";
 import { analyzeImage } from './geminiClient';
 import { ActivityType, BasicOperationsData, StoryData, OCRMathItem } from '../types';

@@ -1,4 +1,3 @@
-
 // PEDAGOGICAL CORE PROMPTS
 // Bu dosya, uygulamanın "Eğitsel Zekası"nı tek bir merkezden yönetir.
 
@@ -10,11 +9,11 @@ TEMEL PRENSİPLER:
 2. **Pozitif Dil:** Hata yapmayı değil, denemeyi teşvik eden bir dil kullan.
 3. **Görsel Destek:** Soyut kavramları (sayılar, kelimeler) her zaman somut görsellerle eşleştir.
 4. **Çıktı Formatı:** Kesinlikle ve sadece geçerli JSON üret. Markdown veya açıklama metni ekleme.
-5. **Sayfa Doluluğu:** Üretilen içerik bir A4 sayfasını verimli dolduracak miktarda olmalıdır. Eğer tek bir set yetersizse, varyasyonlarla çoğalt.
+5. **Sayfa Doluluğu:** Üretilen içerik bir A4 sayfasını verimli dolduracak miktarda olmalıdır. Sayfanın boş kalmaması için yeterli sayıda soru veya alıştırma üret. Tekrar düşmeden varyasyon oluştur.
 `;
 
 export const IMAGE_GENERATION_GUIDE = `
-[GÖRSEL SANAT YÖNETMENİ MODU]
+[GÖRSEL SANAT YÖNETMENİ MODU - MULTIMODAL DESIGN]
 "imagePrompt" alanı için şu kurallara uy:
 - **Stil:** "Flat Vector Art, Educational Illustration, White Background, Minimalist, High Contrast".
 - **İçerik:** Asla soyut kalma. "Bir hayvan" deme; "Sevimli, turuncu, büyük gözlü bir tilki vektörü" de.

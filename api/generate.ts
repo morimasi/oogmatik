@@ -1,4 +1,3 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
@@ -30,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { prompt, schema, model } = req.body;
+        const { prompt, schema, model, image } = req.body;
 
         if (!prompt || !schema) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
@@ -50,10 +49,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let selectedModel = model || "gemini-2.5-flash"; 
 
         try {
+            // Build contents array
+            let contents: any = prompt;
+            if (image) {
+                contents = {
+                    parts: [
+                        { inlineData: { mimeType: 'image/jpeg', data: image } },
+                        { text: prompt }
+                    ]
+                };
+            }
+
             // Streaming yanıtı başlat
             const stream = await ai.models.generateContentStream({
                 model: selectedModel, 
-                contents: prompt, 
+                contents: contents, 
                 config: {
                     systemInstruction: SYSTEM_INSTRUCTION,
                     responseMimeType: "application/json",

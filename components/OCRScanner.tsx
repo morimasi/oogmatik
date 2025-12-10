@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ocrService } from '../services/ocrService';
 import { ActivityType, SingleWorksheetData, WorksheetData, StyleSettings } from '../types';
