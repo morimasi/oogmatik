@@ -204,7 +204,7 @@ const DayCard = ({ day, onRegenerate, onToggleActivity, onSelectActivity }: { da
                                 onClick={() => onSelectActivity(act.activityId)}
                                 className="mt-3 w-full py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 transform active:scale-95 print:hidden"
                             >
-                                <i className="fa-solid fa-play"></i> Başlat
+                                <i className="fa-solid fa-play"></i> Hemen Üret
                             </button>
                         )}
                     </div>
