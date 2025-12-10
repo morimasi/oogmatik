@@ -219,7 +219,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         md:relative md:translate-x-0
         flex flex-col h-full
         ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} 
-        ${isExpanded ? 'w-[320px]' : 'w-[80px]'}
+        ${isExpanded ? 'w-[300px]' : 'w-[70px]'}
       `}
       aria-label="Etkinlik Menüsü"
     >
@@ -237,63 +237,61 @@ const Sidebar: React.FC<SidebarProps> = ({
             ) : (
                 <>
                 {/* HEADER AREA: SEARCH INTEGRATED */}
-                <div className="flex-shrink-0 h-[64px] flex items-center justify-between px-4 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/30">
+                <div className="flex-shrink-0 h-[56px] flex items-center justify-between px-3 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/30 dark:bg-zinc-800/30">
                     {isExpanded ? (
                         <div className="relative w-full group">
-                            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-500 transition-colors text-xs"></i>
+                            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-500 transition-colors text-[10px]"></i>
                             <input 
                                 type="text" 
                                 placeholder="Etkinlik ara..." 
-                                className="w-full h-9 pl-9 pr-8 bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm"
+                                className="w-full h-8 pl-8 pr-2 bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-lg text-[11px] font-semibold text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all shadow-sm"
                             />
                         </div>
                     ) : (
                         <div className="w-full flex justify-center">
-                            <div className="w-9 h-9 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
-                                <i className="fa-solid fa-layer-group"></i>
+                            <div className="w-8 h-8 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center">
+                                <i className="fa-solid fa-layer-group text-sm"></i>
                             </div>
                         </div>
                     )}
 
                     <button 
                         onClick={closeSidebar} 
-                        className="md:hidden ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 transition-colors"
+                        className="md:hidden ml-2 w-7 h-7 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 transition-colors"
                     >
-                        <i className="fa-solid fa-xmark"></i>
+                        <i className="fa-solid fa-xmark text-sm"></i>
                     </button>
                 </div>
 
                 {/* NEW TOOLS SECTION */}
                 {isExpanded && (
-                    <div className="px-5 py-4 grid grid-cols-2 gap-3 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-2">
+                    <div className="px-3 py-2 grid grid-cols-2 gap-2 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-1">
                         {onOpenOCR && (
-                            <button onClick={onOpenOCR} className="group relative overflow-hidden bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-800 dark:to-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-sm hover:shadow-md text-center flex flex-col items-center gap-2">
-                                <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                                    <i className="fa-solid fa-camera"></i>
+                            <button onClick={onOpenOCR} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1">
+                                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                    <i className="fa-solid fa-camera text-sm"></i>
                                 </div>
-                                <span className="text-[10px] font-black text-zinc-600 dark:text-zinc-300 uppercase tracking-widest group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Akıllı Tarayıcı</span>
+                                <span className="text-[9px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">OCR</span>
                             </button>
                         )}
                         {onOpenCurriculum && (
-                            <button onClick={onOpenCurriculum} className="group relative overflow-hidden bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-800 dark:to-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all shadow-sm hover:shadow-md text-center flex flex-col items-center gap-2">
-                                <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                                    <i className="fa-solid fa-graduation-cap"></i>
+                            <button onClick={onOpenCurriculum} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                    <i className="fa-solid fa-graduation-cap text-sm"></i>
                                 </div>
-                                <span className="text-[10px] font-black text-zinc-600 dark:text-zinc-300 uppercase tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">AI Müfredat</span>
+                                <span className="text-[9px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Plan</span>
                             </button>
                         )}
                     </div>
                 )}
 
-                {/* CATEGORY LIST */}
-                <nav className="flex-1 overflow-y-auto px-3 py-2 custom-scrollbar min-h-0 space-y-1">
+                {/* CATEGORY LIST - COMPACT MODE */}
+                <nav className="flex-1 overflow-y-auto px-2 py-1 custom-scrollbar min-h-0 space-y-0.5">
                     {categorizedActivities.map((category) => {
                         const isOpen = openCategoryId === category.id;
                         
                         return (
-                            <div key={category.id} className="mb-2">
+                            <div key={category.id}>
                                 <button
                                     onClick={() => {
                                         if (isExpanded) {
@@ -301,61 +299,58 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         }
                                     }}
                                     className={`
-                                        w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group
+                                        w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all duration-200 group
                                         ${!isExpanded ? 'justify-center' : ''}
                                         ${isOpen && isExpanded 
-                                            ? 'bg-zinc-900 text-white shadow-lg shadow-zinc-200 dark:shadow-none dark:bg-white dark:text-zinc-900' 
-                                            : 'hover:bg-white dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:shadow-sm border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700'}
+                                            ? 'bg-zinc-800 text-white dark:bg-white dark:text-zinc-900' 
+                                            : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}
                                     `}
                                     title={!isExpanded ? category.title : undefined}
                                 >
                                     <div className={`
-                                        w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all shrink-0
+                                        w-5 h-5 rounded-md flex items-center justify-center text-[10px] transition-all shrink-0
                                         ${isOpen && isExpanded 
-                                            ? 'bg-white/20 text-white dark:bg-black/10 dark:text-black' 
-                                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 group-hover:scale-110'}
+                                            ? 'text-white dark:text-black' 
+                                            : 'text-zinc-500 dark:text-zinc-500'}
                                     `}>
                                         <i className={category.icon}></i>
                                     </div>
 
                                     {isExpanded && (
                                         <>
-                                            <span className="flex-1 text-left text-xs font-bold uppercase tracking-wide">
+                                            <span className="flex-1 text-left text-[11px] font-bold uppercase tracking-tight truncate">
                                                 {category.title}
                                             </span>
-                                            <i className={`fa-solid fa-chevron-down text-[10px] opacity-50 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}></i>
+                                            <i className={`fa-solid fa-chevron-down text-[8px] opacity-50 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}></i>
                                         </>
                                     )}
                                 </button>
                                 
                                 {/* Sub-items (Activities) */}
-                                <div 
-                                    className={`
-                                        overflow-hidden transition-all duration-500 ease-in-out
-                                        ${isOpen && isExpanded ? 'max-h-[1000px] opacity-100 mt-2 pb-2' : 'max-h-0 opacity-0'}
-                                    `}
-                                >
-                                    <div className="pl-[22px] ml-[15px] border-l-2 border-dashed border-zinc-200 dark:border-zinc-700 space-y-1">
-                                        {category.items.map(activity => (
-                                            <button
-                                                key={activity.id}
-                                                onClick={() => {
-                                                    onSelectActivity(activity.id);
-                                                    if(window.innerWidth < 768) closeSidebar();
-                                                }}
-                                                className={`
-                                                    group/item w-full text-left px-4 py-2.5 rounded-r-xl text-[11px] font-medium transition-all flex items-center gap-2 relative ml-2
-                                                    ${selectedActivity === activity.id 
-                                                        ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 font-bold border-l-2 border-indigo-500' 
-                                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 border-l-2 border-transparent'}
-                                                `}
-                                            >
-                                                <span className="truncate">{activity.title}</span>
-                                                {selectedActivity === activity.id && <i className="fa-solid fa-chevron-right text-[9px] ml-auto opacity-50"></i>}
-                                            </button>
-                                        ))}
+                                {isExpanded && isOpen && (
+                                    <div className="overflow-hidden animate-in slide-in-from-left-1 duration-200">
+                                        <div className="pl-3 ml-[11px] border-l border-zinc-200 dark:border-zinc-800 mt-0.5 space-y-0.5">
+                                            {category.items.map(activity => (
+                                                <button
+                                                    key={activity.id}
+                                                    onClick={() => {
+                                                        onSelectActivity(activity.id);
+                                                        if(window.innerWidth < 768) closeSidebar();
+                                                    }}
+                                                    className={`
+                                                        w-full text-left px-3 py-1 rounded-md text-[10px] font-medium transition-all flex items-center gap-1.5 relative
+                                                        ${selectedActivity === activity.id 
+                                                            ? 'bg-indigo-50/50 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-300 font-bold' 
+                                                            : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'}
+                                                    `}
+                                                >
+                                                    <span className={`w-1 h-1 rounded-full ${selectedActivity === activity.id ? 'bg-indigo-500' : 'bg-transparent border border-zinc-300'}`}></span>
+                                                    <span className="truncate">{activity.title}</span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         );
                     })}
@@ -363,10 +358,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </nav>
 
                 {/* FOOTER */}
-                <div className={`p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
-                     <div className="flex items-center justify-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
-                         <i className="fa-solid fa-robot text-indigo-500"></i>
-                         <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Bursa Disleksi AI v2.0</span>
+                <div className={`p-3 border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
+                     <div className="flex items-center justify-center gap-1.5 opacity-30 hover:opacity-100 transition-opacity">
+                         <i className="fa-solid fa-robot text-indigo-500 text-xs"></i>
+                         <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">v2.1</span>
                      </div>
                 </div>
                 </>
