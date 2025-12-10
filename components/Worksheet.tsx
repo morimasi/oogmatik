@@ -296,9 +296,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     if (!data || !activityType || data.length === 0) return null;
 
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
+    const isSinglePage = data.length === 1;
 
     return (
-        <div className={`flex flex-col gap-16 pb-16 items-center ${visualStyleClass}`} style={variableStyle}>
+        <div className={`flex flex-col items-center ${visualStyleClass} ${isSinglePage ? '' : 'gap-16 pb-16'}`} style={variableStyle}>
             <style>{`
                 /* SCIENTIFIC LAYOUT ENGINE CSS */
                 .dynamic-grid {

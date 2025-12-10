@@ -527,15 +527,15 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                     </div>
 
                     {/* Right: Live Preview */}
-                    <div className="flex-1 bg-zinc-100 dark:bg-zinc-950 p-8 overflow-auto flex justify-center custom-scrollbar">
-                        <div className="scale-[0.6] sm:scale-[0.7] md:scale-[0.8] origin-top transition-transform duration-300" style={{ contentVisibility: 'auto' }}>
+                    <div className="flex-1 bg-zinc-100 dark:bg-zinc-950 p-8 overflow-auto flex flex-col items-center custom-scrollbar">
+                        <div className="scale-[0.6] sm:scale-[0.7] md:scale-[0.8] origin-top transition-transform duration-300">
                             <Workbook items={items} settings={settings} />
                         </div>
                     </div>
                 </div>
             ) : (
-                <div className="flex-1 overflow-auto bg-zinc-200 dark:bg-zinc-950 p-8 flex justify-center custom-scrollbar">
-                     <div style={{ contentVisibility: 'auto' }}>
+                <div className="flex-1 overflow-auto bg-zinc-200 dark:bg-zinc-950 p-8 flex flex-col items-center custom-scrollbar">
+                     <div>
                         <Workbook items={items} settings={settings} />
                      </div>
                 </div>

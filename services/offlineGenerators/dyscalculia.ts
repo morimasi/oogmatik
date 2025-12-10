@@ -266,7 +266,7 @@ export const generateOfflineSpatialReasoning = async (options: GeneratorOptions)
 };
 export const generateOfflineSpatialAwarenessDiscovery = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts, concept: 'path'});
 export const generateOfflinePositionalConcepts = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts, concept: 'copy'});
-export const generateOfflineDirectionalConcepts = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts, concept: 'path'});
+export const generateOfflineDirectionalConcepts = (opts: GeneratorOptions) => generateOfflineSpatialReasoning({...opts, concept: 'direction'});
 
 // --- 5. Math Language ---
 export const generateOfflineMathLanguage = async (options: GeneratorOptions): Promise<ConceptMatchData[]> => {
