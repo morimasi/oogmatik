@@ -78,15 +78,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // 2. For Text: Use generateContentStream for better UX
 
         if (image) {
-            // Models to try in order of preference/quality
-            // gemini-2.5-flash is preferred, fallback to 1.5-flash or 8b if busy
+            // UPDATED MODEL LIST: Removed deprecated 1.5 models that cause 404 errors.
+            // Only using 2.5 series or explicitly supported versions.
             const modelsToTry = [
                 model || "gemini-2.5-flash", 
-                "gemini-1.5-flash", 
-                "gemini-1.5-flash-8b"
+                "gemini-2.0-flash", // Safe fallback if 2.5 is busy
             ];
             
-            // Remove duplicates if user sent one of the fallbacks as primary
             const uniqueModels = [...new Set(modelsToTry)];
 
             for (const currentModel of uniqueModels) {
@@ -99,6 +97,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     });
                     
                     let text = result.text || "{}";
+                    // Remove markdown code blocks if present
                     text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
                     
                     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -107,14 +106,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 } catch (error: any) {
                     console.warn(`Model ${currentModel} failed:`, error.message);
                     
-                    // If it's the last model in the list, throw the error to be caught by outer block
+                    // If it's the last model in the list, throw the error
                     if (currentModel === uniqueModels[uniqueModels.length - 1]) {
                         throw error;
                     }
                     
-                    // Only retry on specific errors (429 Too Many Requests, 503 Service Unavailable)
-                    if (error.status !== 429 && error.status !== 503) {
-                         throw error; // Don't retry on logic errors (400)
+                    // Retry on 429 (Busy) or 503 (Unavailable) or 404 (Not Found - try next model)
+                    if (error.status !== 429 && error.status !== 503 && error.status !== 404) {
+                         throw error; 
                     }
                     // Continue loop to next model...
                 }
@@ -168,6 +167,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 errorMessage = "API kotası aşıldı veya servis meşgul. Lütfen kısa bir süre sonra tekrar deneyin.";
             } else if (error instanceof Error) {
                 errorMessage = error.message;
+            }
+            
+            // Catch 404 specifically to give a better error
+            if (errorMessage.includes("404") && errorMessage.includes("not found")) {
+                 errorMessage = "Model yapılandırma hatası. Lütfen yönetici ile iletişime geçin.";
             }
             
             return res.status(statusCode).json({ error: errorMessage });

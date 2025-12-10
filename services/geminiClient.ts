@@ -13,6 +13,7 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                     body: JSON.stringify({ prompt: enhancedPrompt, schema, model }),
                 });
 
+                // Retry on 429 (Too Many Requests) or 503 (Service Unavailable)
                 if (response.status === 429 || response.status === 503) {
                      if (retries > 0) {
                          console.warn(`API busy (429/503). Retrying in ${delay}ms...`);
@@ -41,7 +42,6 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                 const errorJson = JSON.parse(errorText);
                 if (errorJson.error) errorMessage += ` - ${errorJson.error}`;
             } catch (e) {
-                // If text is short enough, use it
                 if (errorText.length < 200) errorMessage += ` - ${errorText}`;
             }
             throw new Error(errorMessage);
@@ -117,7 +117,7 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                     body: JSON.stringify({
                         prompt,
                         schema,
-                        model: 'gemini-2.5-flash', // Backend will handle fallback
+                        model: 'gemini-2.5-flash', // Explicitly request 2.5 flash
                         image: cleanBase64 
                     }),
                 });
@@ -148,7 +148,7 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
             let errorMessage = `Vision API Failed: ${response.status} ${response.statusText}`;
             try {
                  const jsonErr = JSON.parse(errorText);
-                 if (jsonErr.error) errorMessage += ` - ${jsonErr.error}`;
+                 if (jsonErr.error) errorMessage += ` - ${typeof jsonErr.error === 'string' ? jsonErr.error : JSON.stringify(jsonErr.error)}`;
             } catch {
                  errorMessage += ` - ${errorText.substring(0, 100)}`;
             }
