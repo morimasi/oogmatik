@@ -15,96 +15,41 @@ const PEDAGOGICAL_PROMPT = `
     - Detay: İçeriğe uygun, zengin ve estetik bir görsel betimle.
 6.  **İçerik:**
     - Üst düzey düşünme becerilerini (HOTs) hedefle.
-    - Orijinal "Zengin Prompt"taki mantığı BİREBİR uygula. Asla basite indirgeme.
+    - Orijinal "Algoritma"daki mantığı BİREBİR uygula.
 `;
 
 // --- OCR / RICH PROMPT HANDLER ---
 export const generateFromRichPrompt = async (activityType: ActivityType, richPrompt: string, options: GeneratorOptions) => {
     
-    // 1. Determine Schema based on ActivityType
-    let schema: any;
-    
-    // MATH & LOGIC SCHEMAS
-    if (['BASIC_OPERATIONS', 'MATH_PUZZLE', 'NUMBER_PYRAMID', 'FUTOSHIKI'].includes(activityType)) {
-         schema = {
-            type: Type.ARRAY,
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING },
-                    instruction: { type: Type.STRING },
-                    pedagogicalNote: { type: Type.STRING },
-                    imagePrompt: { type: Type.STRING },
-                    // Generic math props to catch most
-                    operations: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { num1: {type:Type.NUMBER}, num2: {type:Type.NUMBER}, operator: {type:Type.STRING}, answer: {type:Type.NUMBER} }, required: ['num1','num2','answer'] } },
-                    puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { problem: {type:Type.STRING}, answer: {type:Type.STRING}, question: {type:Type.STRING}, objects: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {name: {type: Type.STRING}, imagePrompt: {type: Type.STRING}}}} } } }
-                },
-                required: ['title', 'instruction']
-            }
-        };
-    } 
-    // WORD & VERBAL SCHEMAS
-    else if (['WORD_SEARCH', 'CROSSWORD', 'ANAGRAM', 'SPELLING_CHECK'].includes(activityType)) {
-        schema = {
-            type: Type.ARRAY,
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING },
-                    instruction: { type: Type.STRING },
-                    pedagogicalNote: { type: Type.STRING },
-                    imagePrompt: { type: Type.STRING },
-                    grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                    words: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    anagrams: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: {type:Type.STRING}, scrambled: {type:Type.STRING}, imagePrompt: {type:Type.STRING} }, required: ['word','scrambled'] } },
-                    clues: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: {type:Type.NUMBER}, text: {type:Type.STRING}, word: {type:Type.STRING}, direction: {type:Type.STRING}, start: {type:Type.OBJECT, properties:{row:{type:Type.NUMBER},col:{type:Type.NUMBER}}} } } }
-                },
-                required: ['title', 'instruction']
-            }
-        };
-    }
-    // READING SCHEMAS
-    else if (['STORY_COMPREHENSION', 'STORY_SEQUENCING'].includes(activityType)) {
-        schema = {
-            type: Type.ARRAY,
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING },
-                    story: { type: Type.STRING },
-                    instruction: { type: Type.STRING },
-                    questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: {type:Type.STRING}, type: {type:Type.STRING}, options: {type:Type.ARRAY, items:{type:Type.STRING}} }, required: ['question'] } },
-                    panels: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { description: {type:Type.STRING}, order: {type:Type.NUMBER}, imagePrompt: {type:Type.STRING} }, required: ['description'] } }
-                },
-                required: ['title', 'instruction']
-            }
-        };
-    }
-    // DEFAULT GENERIC SCHEMA (Visual/Other)
-    else {
-         schema = {
-            type: Type.ARRAY,
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING },
-                    instruction: { type: Type.STRING },
-                    pedagogicalNote: { type: Type.STRING },
-                    imagePrompt: { type: Type.STRING },
-                    // Generic container for flexibility
-                    items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type:Type.STRING}, value: {type:Type.STRING}, isCorrect: {type:Type.BOOLEAN}, imagePrompt: {type:Type.STRING} } } },
-                    rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: {type: Type.ARRAY, items: {type: Type.STRING}}, correctIndex: {type: Type.NUMBER} } } }
-                },
-                required: ['title', 'instruction']
-            }
-        };
-    }
+    // Generic Schema that covers most activity types to handle dynamic OCR content
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                imagePrompt: { type: Type.STRING },
+                // A massive union of possible properties to allow flexibility
+                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type:Type.STRING}, value: {type:Type.STRING}, isCorrect: {type:Type.BOOLEAN}, imagePrompt: {type:Type.STRING} } } },
+                questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: {type:Type.STRING}, options: {type:Type.ARRAY, items:{type:Type.STRING}}, answer: {type:Type.STRING} } } },
+                puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { problem: {type:Type.STRING}, answer: {type:Type.STRING}, question: {type:Type.STRING} } } },
+                rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: {type: Type.ARRAY, items: {type: Type.STRING}}, correctIndex: {type: Type.NUMBER} } } },
+                pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { item1: {type:Type.STRING}, item2: {type:Type.STRING} } } },
+                // Math specifics
+                operations: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { num1: {type:Type.NUMBER}, num2: {type:Type.NUMBER}, operator: {type:Type.STRING}, answer: {type:Type.NUMBER} } } }
+            },
+            required: ['title', 'instruction']
+        }
+    };
 
     const finalPrompt = `
     ${PEDAGOGICAL_PROMPT}
 
-    ÖZEL GÖREV (OCR KAYNAKLI):
-    Kullanıcının yüklediği bir görselden analiz edilen şu "Zengin Prompt"u kullanarak içerik üret:
+    ÖZEL GÖREV (ALGORİTMA TABANLI ÜRETİM):
+    Aşağıdaki "Algoritma Tanımı"nı kullanarak YENİ ve ÖZGÜN içerik üret:
     
     =========================================
     ${richPrompt}
@@ -115,15 +60,14 @@ export const generateFromRichPrompt = async (activityType: ActivityType, richPro
     - Zorluk: ${options.difficulty}
     - Konu: ${options.topic || 'Genel'}
     
-    Lütfen yukarıdaki JSON şemasına sadık kalarak, bu özel promptun mantığını ve stilini BİREBİR kopyalayan veriler üret.
-    Eğer promptta özel görsel betimlemeler varsa, bunları "imagePrompt" alanlarına mutlaka ekle.
+    Lütfen JSON şemasına sadık kal ancak içeriği tamamen bu algoritmaya göre şekillendir.
     ${options.worksheetCount} sayfa oluştur.
     `;
 
     return generateWithSchema(finalPrompt, schema, 'gemini-2.5-flash');
 };
 
-
+// ... Existing exports (generateFamilyRelationsFromAI, etc.) remain unchanged
 export const generateFamilyRelationsFromAI = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
     const { worksheetCount, itemCount, topic } = options;
     const prompt = `
@@ -273,9 +217,7 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     return generateWithSchema(prompt, schema) as Promise<MapInstructionData[]>;
 };
 
-// ... Rest of the file remains unchanged ...
 export const generateMindGamesFromAI = async (options: GeneratorOptions): Promise<MindGamesData[]> => {
-    // ... existing implementation
     const { worksheetCount, itemCount, difficulty } = options;
     const prompt = `
     "Akıl Oyunları" (3. ve 4. Sınıf Seviyesi - Bilsem Tarzı).
@@ -301,8 +243,8 @@ export const generateMindGamesFromAI = async (options: GeneratorOptions): Promis
     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { type: { type: Type.STRING, enum: ['shape_math', 'matrix_logic', 'number_pyramid', 'hexagon_logic', 'function_machine'] }, shape: { type: Type.STRING, enum: ['triangle', 'square', 'circle'] }, numbers: { type: Type.ARRAY, items: { oneOf: [{ type: Type.NUMBER }, { type: Type.STRING }] } }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { oneOf: [{ type: Type.NUMBER }, { type: Type.STRING }, { type: Type.NULL }] } } }, input: { type: Type.NUMBER }, output: { type: Type.STRING }, rule: { type: Type.STRING }, question: { type: Type.STRING }, answer: { type: Type.STRING }, hint: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ['type', 'answer'] } } }, required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<MindGamesData[]>;
 };
+
 export const generateMindGames56FromAI = async (options: GeneratorOptions): Promise<MindGames56Data[]> => {
-    // ... existing implementation
     const { worksheetCount, itemCount, difficulty } = options;
     const prompt = `
     "Akıl Oyunları" (5. ve 6. Sınıf Seviyesi).
@@ -325,4 +267,3 @@ export const generateMindGames56FromAI = async (options: GeneratorOptions): Prom
     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { type: { type: Type.STRING, enum: ['word_problem', 'number_sequence', 'visual_logic', 'cipher'] }, title: { type: Type.STRING }, question: { type: Type.STRING }, answer: { type: Type.STRING }, hint: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ['type', 'title', 'question', 'answer'] } } }, required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<MindGames56Data[]>;
 };
-    

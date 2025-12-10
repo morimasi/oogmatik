@@ -10,42 +10,35 @@ export const ocrService = {
         const validIds = ACTIVITIES.map(a => a.id).join(', ');
 
         const prompt = `
-        [GÖREV: GÖRSEL PEDAGOJİK ANALİZ VE KLONLAMA]
-        Sen, eğitim materyalleri konusunda uzmanlaşmış bir Multimodal Yapay Zekasın.
-        Kullanıcının yüklediği görseli detaylıca analiz et ve bu materyalin **BİREBİR KOPYASINI** dijital ortamda yeniden oluşturmak için gereken **TÜM TALİMATLARI** çıkar.
+        [ROL: EĞİTİM MATERYALİ TERSİNE MÜHENDİSİ]
+        
+        GÖREV: Kullanıcının yüklediği görseli analiz et ve bu etkinliğin **ALGORİTMASINI** çıkar.
+        Amacımız: Bu görselin mantığını kopyalayarak, farklı verilerle sonsuz sayıda benzer etkinlik üretebilmek.
 
-        ADIM 1: GÖRSEL DETAYLAR
-        - Kağıtta ne var? (Sayılar, nesneler, çizimler, tablolar).
-        - Nesneler neye benziyor? (Örn: "Karikatür tarzı elma", "Basit çizgi film araba", "Renkli balonlar").
-        
-        ADIM 2: MANTIK VE ALGORİTMA
-        - Sorular nasıl kurgulanmış? 
-        - Örn: "Soldaki sayıyı sağdaki nesne sayısıyla eşleştirme".
-        - Örn: "Yukarıdan aşağıya artan sayı örüntüsü, kural +3".
-        
-        ADIM 3: ZORLUK VE KAPSAM
-        - Hangi sınıf seviyesi? Sayılar kaç basamaklı? Kelimeler ne kadar zor?
+        ANALİZ ADIMLARI:
+        1. **Görsel Ayrıştırma:** Sayfada ne var? (Tablo, liste, eşleştirme, boşluk doldurma, görsel bulmaca).
+        2. **Mantık Çözümleme:** Sorular nasıl oluşturulmuş? 
+           - Örn: "Sol taraftaki sayı ile sağdaki nesne sayısı eşleşiyor."
+           - Örn: "Her satırda 3 elma var, 1 tanesi farklı renkte."
+        3. **Zorluk Seviyesi:** Hedef kitle kim? (Okul öncesi, İlkokul, Özel Eğitim).
 
-        ADIM 4: EŞLEŞTİRME
-        Görseli şu listedeki en uygun 'ActivityType' ID'sine eşle: [${validIds}].
-        
-        ADIM 5: MASTER PROMPT OLUŞTURMA (generatedTemplate)
-        "generatedTemplate" alanına öyle bir prompt yaz ki, bu promptu alan bir metin tabanlı yapay zeka, görseli hiç görmeden **AYNI MANTIKTA** ve **AYNI STİLDE** yeni sorular üretebilsin.
-        Prompt şu detayları içermelidir:
-        - KONU: Aktivitenin teması.
-        - MANTIK: Soruların matematiksel veya sözel kurgusu.
-        - GÖRSEL İSTEMİ (Image Prompt): Görsellerin stili ve içeriği (İngilizce).
-        - FORMAT: Soruların nasıl sunulacağı.
+        4. **MASTER PROMPT OLUŞTURMA (generatedTemplate):**
+           Bu alan, bir "Algoritma Tanımı" olmalıdır. Başka bir yapay zekaya verildiğinde, orijinal görseli görmeden aynı tarzda içerik üretebilmelidir.
+           Şunları içermelidir:
+           - **KONU:** Etkinliğin teması.
+           - **KURAL SETİ:** Soruların nasıl oluşturulacağı (Matematiksel veya Sözel kural).
+           - **GÖRSEL İSTEMİ (ImagePrompt):** Kullanılacak görsellerin stili (Flat vector, black & white outline vb.).
+           - **FORMAT:** JSON çıktısının nasıl olması gerektiği.
 
         ÇIKTI FORMATI (JSON):
         {
-            "detectedType": "ActivityType ID'si",
+            "detectedType": "Mevcut ActivityType listesinden en yakını veya 'CUSTOM_GENERATED'",
             "title": "Görselden Algılanan Başlık",
-            "description": "Kullanıcı için kısa açıklama",
+            "description": "Etkinliğin kısa mantıksal açıklaması",
             "estimatedDifficulty": "Başlangıç" | "Orta" | "Zor" | "Uzman",
-            "estimatedItemCount": Sayı (Tahmini soru adedi),
-            "topic": "Konu (örn: Uzay, Meyveler)",
-            "generatedTemplate": "Detaylı, zengin ve teknik üretim promptu."
+            "estimatedItemCount": Sayı (Görseldeki soru adedi),
+            "topic": "Algılanan Konu",
+            "generatedTemplate": "Detaylı, teknik ve kural tabanlı üretim komutu (Prompt)."
         }
         `;
 
@@ -58,7 +51,7 @@ export const ocrService = {
                 estimatedDifficulty: { type: Type.STRING, enum: ['Başlangıç', 'Orta', 'Zor', 'Uzman'] },
                 estimatedItemCount: { type: Type.INTEGER },
                 topic: { type: Type.STRING },
-                generatedTemplate: { type: Type.STRING, description: "Görselin mantığını kopyalayan detaylı AI komutu." }
+                generatedTemplate: { type: Type.STRING, description: "Etkinliğin mantığını ve algoritmasını içeren detaylı prompt." }
             },
             required: ['detectedType', 'title', 'description', 'estimatedDifficulty', 'generatedTemplate']
         };
@@ -85,4 +78,3 @@ export const ocrService = {
         return { type: ocrData.baseType as ActivityType, data: [] };
     }
 };
-    

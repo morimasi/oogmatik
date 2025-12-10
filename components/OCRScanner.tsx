@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { ocrService } from '../services/ocrService';
 import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions } from '../types';
@@ -8,7 +9,7 @@ import { printService } from '../utils/printService';
 import { ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
-import { generateFromRichPrompt } from '../services/generators/newActivities'; // NEW IMPORT
+import { generateFromRichPrompt } from '../services/generators/newActivities';
 import { adminService } from '../services/adminService';
 
 interface OCRScannerProps {
@@ -30,7 +31,7 @@ const PREVIEW_SETTINGS: StyleSettings = {
     showTitle: true, showInstruction: true, showImage: true, showFooter: true, smartPagination: true
 };
 
-// Helper function to resize image client-side to avoid payload limits (Max 512px, 0.4 quality)
+// Helper function to resize image client-side to avoid payload limits
 const resizeImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -40,8 +41,8 @@ const resizeImage = (file: File): Promise<string> => {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const MAX_WIDTH = 512;
-                const MAX_HEIGHT = 512;
+                const MAX_WIDTH = 800; // Increased for better text recognition
+                const MAX_HEIGHT = 800;
                 if (width > height) {
                     if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                 } else {
@@ -51,7 +52,7 @@ const resizeImage = (file: File): Promise<string> => {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx?.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // Better quality
                 resolve(dataUrl);
             };
             img.onerror = reject;
@@ -64,11 +65,8 @@ const resizeImage = (file: File): Promise<string> => {
 
 export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
     const { user } = useAuth();
-    // Steps: upload -> processing -> studio (config) -> generating -> preview
     const [step, setStep] = useState<'upload' | 'processing' | 'studio' | 'generating' | 'preview'>('upload');
     const [image, setImage] = useState<string | null>(null);
-    
-    // Analyzed Data
     const [analysisResult, setAnalysisResult] = useState<any>(null);
     
     // Studio Config State
@@ -79,7 +77,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
         difficulty: 'Orta',
         itemCount: 10,
         worksheetCount: 1,
-        instructions: ''
+        instructions: '' // This holds the extracted algorithm
     });
 
     const [finalWorksheetData, setFinalWorksheetData] = useState<WorksheetData | null>(null);
@@ -106,7 +104,6 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
             const result = await ocrService.processImage(imgData);
             setAnalysisResult(result);
             
-            // Pre-fill config with AI suggestions
             setConfig({
                 activityType: result.baseType as ActivityType,
                 title: result.title || 'Yeni Etkinlik',
@@ -114,13 +111,13 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                 difficulty: result.structuredData?.difficulty || 'Orta',
                 itemCount: result.structuredData?.itemCount || 10,
                 worksheetCount: 1,
-                instructions: result.generatedTemplate || '' // Use the rich prompt here
+                instructions: result.generatedTemplate || ''
             });
             
             setStep('studio');
         } catch (error) {
             console.error("OCR Failed:", error);
-            alert("Görsel analiz edilemedi. Lütfen daha net bir fotoğraf deneyin veya görsel boyutunu kontrol edin.");
+            alert("Görsel analiz edilemedi. Lütfen daha net bir fotoğraf deneyin.");
             setStep('upload');
         }
     };
@@ -139,12 +136,11 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
 
             let result = null;
 
-            // USE THE NEW RICH PROMPT GENERATOR
+            // Priority: Rich Prompt Generation (The Algorithm)
             if (config.instructions && config.instructions.length > 10) {
-                 // Use the Reverse Engineered Prompt
                  result = await generateFromRichPrompt(config.activityType, config.instructions, options);
             } else {
-                 // Fallback to Standard Logic if no rich instructions
+                 // Fallback to Standard
                 const pascalName = toPascalCase(config.activityType);
                 const generatorFnName = `generate${pascalName}FromAI`;
                 const offlineFnName = `generateOffline${pascalName}`;
@@ -163,19 +159,17 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
             }
 
             if (result) {
-                // Ensure it is an array
                 if (!Array.isArray(result)) result = [result];
-                // Override title with user choice
                 const finalized = result.map((page: any) => ({ ...page, title: config.title }));
                 setFinalWorksheetData(finalized);
                 setStep('preview');
             } else {
-                throw new Error("Üretici fonksiyon bulunamadı veya başarısız oldu.");
+                throw new Error("Üretici fonksiyon bulunamadı.");
             }
 
         } catch (e) {
             console.error("Generation error", e);
-            alert("İçerik üretilemedi. Lütfen farklı bir aktivite türü seçin veya tekrar deneyin.");
+            alert("İçerik üretilemedi. Ayarları kontrol edip tekrar deneyin.");
             setStep('studio');
         }
     };
@@ -196,21 +190,25 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
             alert("Etkinlik arşivinize kaydedildi.");
         } catch (e) {
             console.error(e);
-            alert("Kaydetme sırasında hata oluştu.");
+            alert("Kaydetme hatası.");
         } finally {
             setIsSaving(false);
         }
     };
     
-    const handleSaveAsDraft = async () => {
-        if (!user || user.role !== 'admin') return;
+    // Saves the logic as a reusable template/algorithm
+    const handleSaveAsTemplate = async () => {
+        if (!user || user.role !== 'admin') {
+            alert("Bu özellik şimdilik sadece eğitmenlere açıktır.");
+            return;
+        }
         setIsSaving(true);
         try {
              await adminService.saveDraftActivity({
                  title: config.title,
-                 description: analysisResult?.description || 'OCR ile oluşturuldu',
+                 description: analysisResult?.description || 'Algoritması çıkarılmış etkinlik.',
                  baseType: config.activityType,
-                 customInstructions: config.instructions,
+                 customInstructions: config.instructions, // This saves the algorithm
                  defaultParams: {
                      topic: config.topic,
                      difficulty: config.difficulty,
@@ -218,10 +216,10 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                  },
                  createdBy: user.email
              });
-             alert("Etkinlik taslağı Yönetici Paneline gönderildi.");
+             alert("Etkinlik algoritması sisteme kaydedildi! Artık 'Taslaklar' menüsünden erişilebilir.");
         } catch (e) {
-            console.error("Draft save error", e);
-            alert("Taslak kaydedilemedi.");
+            console.error("Template save error", e);
+            alert("Şablon kaydedilemedi.");
         } finally {
             setIsSaving(false);
         }
@@ -242,22 +240,15 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                     <div>
                         <h2 className="text-lg font-black text-zinc-800 dark:text-white flex items-center gap-2">
                             <i className="fa-solid fa-camera-retro text-indigo-500"></i>
-                            Stüdyo Modu (Multimodal)
+                            Etkinlik Dönüştürücü
                         </h2>
-                        {step === 'studio' && <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Analiz Tamamlandı • Yapılandırma</p>}
+                        {step === 'studio' && <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Algoritma Düzenleme</p>}
                     </div>
                 </div>
                 
                 {step === 'preview' && (
                     <div className="flex gap-2">
                         <button onClick={handlePrint} className="px-4 py-2 bg-zinc-800 hover:bg-black text-white rounded-lg font-bold shadow-sm transition-all"><i className="fa-solid fa-print mr-2"></i> Yazdır</button>
-                        
-                        {user?.role === 'admin' && (
-                             <button onClick={handleSaveAsDraft} disabled={isSaving} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold shadow-sm transition-all disabled:opacity-50">
-                                <i className="fa-solid fa-upload mr-2"></i> Sisteme Ekle
-                            </button>
-                        )}
-                        
                         <button onClick={handleSaveToArchive} disabled={!user || isSaving} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-sm transition-all disabled:opacity-50">
                             {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save mr-2"></i>} Arşivle
                         </button>
@@ -271,19 +262,19 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                 {step === 'upload' && (
                     <div className="h-full flex flex-col items-center justify-center p-8 bg-zinc-50 dark:bg-black bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
                         <div 
-                            className="w-full max-w-lg aspect-video border-4 border-dashed border-indigo-200 dark:border-zinc-700 rounded-[2rem] flex flex-col items-center justify-center cursor-pointer hover:bg-white dark:hover:bg-zinc-800/50 hover:border-indigo-400 transition-all group bg-white/50 dark:bg-zinc-900/50 shadow-xl backdrop-blur-sm"
+                            className="w-full max-w-xl aspect-video border-4 border-dashed border-indigo-200 dark:border-zinc-700 rounded-[2rem] flex flex-col items-center justify-center cursor-pointer hover:bg-white dark:hover:bg-zinc-800/50 hover:border-indigo-400 transition-all group bg-white/50 dark:bg-zinc-900/50 shadow-xl backdrop-blur-sm relative overflow-hidden"
                             onClick={() => fileInputRef.current?.click()}
                         >
-                            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-indigo-500/30">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-indigo-500/30 relative z-10">
                                 <i className="fa-solid fa-wand-magic-sparkles text-4xl text-white"></i>
                             </div>
-                            <h3 className="text-2xl font-black text-zinc-800 dark:text-white">Sihirli Tarayıcı</h3>
-                            <p className="text-zinc-500 mt-3 text-center px-12 text-sm leading-relaxed">
-                                Bir çalışma kağıdının fotoğrafını yükleyin. Yapay zeka mantığını çözsün ve size <strong>sınırsız varyasyon</strong> üretebileceğiniz bir stüdyo açsın.
+                            <h3 className="text-3xl font-black text-zinc-800 dark:text-white relative z-10">Etkinlik Yükle</h3>
+                            <p className="text-zinc-500 mt-4 text-center px-12 text-sm leading-relaxed relative z-10">
+                                Beğendiğiniz bir çalışma kağıdının fotoğrafını yükleyin.<br/>
+                                Yapay zeka, görselin <strong>algoritmasını çözsün</strong> ve size sonsuz varyasyon üretsin.
                             </p>
-                            <span className="mt-6 px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-lg text-xs font-bold uppercase tracking-wider border border-zinc-200 dark:border-zinc-700 flex items-center gap-2">
-                                <i className="fa-solid fa-bolt text-amber-500"></i> Hızlı Mod (v2.5)
-                            </span>
                         </div>
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                     </div>
@@ -295,11 +286,11 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                             <div className="absolute inset-0 border-4 border-zinc-200 rounded-full"></div>
                             <div className="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-4xl">🧠</span>
+                                <span className="text-4xl">⚙️</span>
                             </div>
                         </div>
-                        <h3 className="text-2xl font-black text-zinc-800 dark:text-white animate-pulse">Analiz Ediliyor...</h3>
-                        <p className="text-zinc-500 mt-2 text-center max-w-md">Görselin yapısı, pedagojik mantığı ve içerik türü çözümleniyor.</p>
+                        <h3 className="text-2xl font-black text-zinc-800 dark:text-white animate-pulse">Algoritma Çözümleniyor...</h3>
+                        <p className="text-zinc-500 mt-2 text-center max-w-md">Pedagojik mantık ve görsel yapı analiz ediliyor.</p>
                     </div>
                 )}
 
@@ -307,34 +298,28 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                     <div className="h-full flex flex-col md:flex-row bg-zinc-100 dark:bg-black">
                         {/* LEFT: Source Image Preview */}
                         <div className="hidden md:flex w-1/3 bg-zinc-900 items-center justify-center p-8 border-r border-zinc-800 relative overflow-hidden">
-                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] opacity-10"></div>
                             <img src={image!} className="max-w-full max-h-full object-contain shadow-2xl rounded-lg border-4 border-white/10" />
-                            <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded text-white text-xs font-bold">Kaynak Görsel</div>
+                            <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded text-white text-xs font-bold">Kaynak</div>
                         </div>
 
                         {/* RIGHT: Configuration Studio */}
                         <div className="flex-1 p-8 flex flex-col bg-white dark:bg-zinc-900 overflow-y-auto">
                             
-                            <div className="mb-8">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-2xl shadow-sm">
-                                        <i className="fa-solid fa-check"></i>
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-black text-zinc-900 dark:text-white">Mantık Çözüldü!</h2>
-                                        <p className="text-zinc-500 text-sm">Algılanan Tür: <span className="font-bold text-indigo-600">{analysisResult.detectedType}</span></p>
-                                    </div>
+                            <div className="mb-8 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <i className="fa-solid fa-robot text-indigo-600 text-xl"></i>
+                                    <h3 className="font-bold text-indigo-900 dark:text-indigo-100">Algılanan Mantık</h3>
                                 </div>
-                                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 text-sm text-indigo-800 dark:text-indigo-200 leading-relaxed italic">
+                                <p className="text-sm text-indigo-800 dark:text-indigo-200 leading-relaxed italic">
                                     "{analysisResult.description}"
-                                </div>
+                                </p>
                             </div>
 
                             {/* Config Form */}
                             <div className="space-y-6">
                                 <div className="grid grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Başlık</label>
+                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Etkinlik Başlığı</label>
                                         <input 
                                             type="text" 
                                             value={config.title} 
@@ -343,7 +328,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Eşlenen Aktivite</label>
+                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Taban Kategori</label>
                                         <select 
                                             value={config.activityType}
                                             onChange={e => setConfig({...config, activityType: e.target.value})}
@@ -356,7 +341,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
 
                                 <div className="grid grid-cols-3 gap-6">
                                     <div>
-                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Konu / Tema</label>
+                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Konu</label>
                                         <input 
                                             type="text" 
                                             value={config.topic} 
@@ -375,7 +360,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Soru Sayısı</label>
+                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Adet</label>
                                         <input 
                                             type="number" 
                                             value={config.itemCount} 
@@ -386,24 +371,34 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yapay Zeka Promptu (Düzenlenebilir)</label>
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2 flex justify-between">
+                                        <span>Algoritma Mantığı (Prompt)</span>
+                                        <span className="text-indigo-500 cursor-pointer hover:underline" onClick={() => alert("Buradaki metni değiştirerek yapay zekanın üretim mantığını özelleştirebilirsiniz.")}>Nasıl Çalışır?</span>
+                                    </label>
                                     <textarea 
                                         value={config.instructions}
                                         onChange={e => setConfig({...config, instructions: e.target.value})}
-                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-mono text-sm text-indigo-700 dark:text-indigo-300 focus:ring-2 focus:ring-indigo-500 outline-none h-40 resize-none"
-                                        placeholder="AI'ın ürettiği mantık buraya gelecek..."
+                                        className="w-full p-4 bg-zinc-900 text-green-400 border border-zinc-700 rounded-xl font-mono text-xs focus:ring-2 focus:ring-indigo-500 outline-none h-48 resize-none shadow-inner"
+                                        placeholder="AI üretim algoritması..."
                                     ></textarea>
-                                    <p className="text-[10px] text-zinc-400 mt-1">Bu alan, AI'ın görseli nasıl analiz ettiğini ve yeni içerik üretirken hangi mantığı kullanacağını gösterir. Müdahale edebilirsiniz.</p>
                                 </div>
                             </div>
 
-                            <div className="mt-auto pt-8">
+                            <div className="mt-auto pt-8 flex gap-4">
+                                <button 
+                                    onClick={handleSaveAsTemplate}
+                                    disabled={isSaving}
+                                    className="flex-1 py-4 bg-white border-2 border-zinc-200 hover:border-zinc-300 text-zinc-700 font-bold rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2 hover:bg-zinc-50"
+                                >
+                                    <i className="fa-solid fa-floppy-disk text-indigo-500"></i>
+                                    Algoritmayı Kaydet
+                                </button>
                                 <button 
                                     onClick={handleGenerate}
-                                    className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all flex items-center justify-center gap-3 text-lg"
+                                    className="flex-[2] py-4 bg-zinc-900 hover:bg-black text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all flex items-center justify-center gap-3 text-lg"
                                 >
-                                    <i className="fa-solid fa-wand-magic-sparkles"></i>
-                                    BU AYARLARLA ÜRET
+                                    <i className="fa-solid fa-play"></i>
+                                    HEMEN ÜRET
                                 </button>
                             </div>
                         </div>
@@ -416,7 +411,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                             <div className="h-full bg-indigo-500 animate-progress"></div>
                         </div>
                         <h3 className="text-xl font-bold text-zinc-800 dark:text-white">İçerik Oluşturuluyor...</h3>
-                        <p className="text-zinc-500 mt-2">Yapay zeka, seçtiğiniz mantıkla yeni sorular üretiyor.</p>
+                        <p className="text-zinc-500 mt-2">Çözümlenen algoritma ile yeni varyasyonlar üretiliyor.</p>
                     </div>
                 )}
 
