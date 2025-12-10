@@ -73,20 +73,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             };
         }
 
+        // --- MODEL SELECTION STRATEGY ---
+        // Primary: gemini-2.5-flash (Most current/stable)
+        // Fallback: gemini-2.0-flash (If 2.5 is busy/unavailable)
+        
+        // Determine requested model or default
+        const requestedModel = model || "gemini-2.5-flash";
+        
+        // Fallback list
+        const modelsToTry = [
+            requestedModel,
+            "gemini-2.0-flash",
+            "gemini-1.5-pro" // Last resort for complex logic if flash fails, though slower
+        ];
+        
+        // Deduplicate
+        const uniqueModels = [...new Set(modelsToTry)];
+
         // STRATEGY SPLIT: 
-        // 1. For Images: Use non-streaming with Fallback Logic (Crucial for 429 errors)
-        // 2. For Text: Use generateContentStream for better UX
+        // 1. For Images: Use non-streaming with Fallback Logic (Crucial for 429/404 errors)
+        // 2. For Text: Use generateContentStream for better UX, but handle model fallback manually if needed.
 
         if (image) {
-            // UPDATED MODEL LIST: Removed deprecated 1.5 models that cause 404 errors.
-            // Only using 2.5 series or explicitly supported versions.
-            const modelsToTry = [
-                model || "gemini-2.5-flash", 
-                "gemini-2.0-flash", // Safe fallback if 2.5 is busy
-            ];
-            
-            const uniqueModels = [...new Set(modelsToTry)];
-
             for (const currentModel of uniqueModels) {
                 try {
                     console.log(`Trying Vision Model: ${currentModel}`);
@@ -111,48 +119,73 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         throw error;
                     }
                     
-                    // Retry on 429 (Busy) or 503 (Unavailable) or 404 (Not Found - try next model)
-                    if (error.status !== 429 && error.status !== 503 && error.status !== 404) {
+                    // Specific Error Handling for Retry Logic:
+                    // 429: Too Many Requests (Quota)
+                    // 503: Service Unavailable
+                    // 404: Model Not Found (Crucial fix for deprecated models)
+                    const status = error.status || (error.response ? error.response.status : 0);
+                    
+                    if (status !== 429 && status !== 503 && status !== 404) {
+                         // If it's a logic error (400), don't retry, just fail.
                          throw error; 
                     }
+                    
+                    console.log(`Switching to fallback model...`);
                     // Continue loop to next model...
                 }
             }
             return;
         }
 
-        // Streaming for Text-Only Requests (Default Model: gemini-2.5-flash)
-        const textModel = model || "gemini-2.5-flash";
-        try {
-            const stream = await ai.models.generateContentStream({
-                model: textModel, 
-                contents: contents, 
-                config: generationConfig,
-            });
+        // Streaming for Text-Only Requests
+        // We wrap the stream attempt in a loop to handle model fallbacks for text too
+        for (const currentModel of uniqueModels) {
+            try {
+                const stream = await ai.models.generateContentStream({
+                    model: currentModel, 
+                    contents: contents, 
+                    config: generationConfig,
+                });
 
-            // Headerları ayarla - Text stream olarak döneceğiz
-            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-            res.setHeader('Transfer-Encoding', 'chunked');
+                // Headerları ayarla - Text stream olarak döneceğiz
+                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                res.setHeader('Transfer-Encoding', 'chunked');
 
-            // Chunkları client'a ilet
-            for await (const chunk of stream) {
-                const chunkText = chunk.text;
-                if (chunkText) {
-                    res.write(chunkText);
+                // Chunkları client'a ilet
+                for await (const chunk of stream) {
+                    const chunkText = chunk.text;
+                    if (chunkText) {
+                        res.write(chunkText);
+                    }
                 }
-            }
-            
-            res.end();
-
-        } catch (error: any) {
-            console.error(`Stream error (${textModel}):`, error.message);
-            if (!res.headersSent) {
-                if (error.status === 429 || error.status === 503) {
-                    return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Text)" });
-                }
-                return res.status(500).json({ error: "Yapay zeka akışı sırasında hata oluştu." });
-            } else {
+                
                 res.end();
+                return; // Success
+
+            } catch (error: any) {
+                console.error(`Stream error (${currentModel}):`, error.message);
+                
+                // If it's the last model, return error
+                if (currentModel === uniqueModels[uniqueModels.length - 1]) {
+                     if (!res.headersSent) {
+                        if (error.status === 429 || error.status === 503) {
+                            return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Text)" });
+                        }
+                        return res.status(500).json({ error: "Yapay zeka akışı sırasında hata oluştu." });
+                    } else {
+                        res.end();
+                    }
+                    return;
+                }
+                
+                // If headers sent, we can't retry gracefully in this stream response
+                if (res.headersSent) {
+                    res.end();
+                    return;
+                }
+                
+                // Continue to next model
+                continue;
             }
         }
 
@@ -169,9 +202,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 errorMessage = error.message;
             }
             
-            // Catch 404 specifically to give a better error
+            // Clean up error message for user
             if (errorMessage.includes("404") && errorMessage.includes("not found")) {
-                 errorMessage = "Model yapılandırma hatası. Lütfen yönetici ile iletişime geçin.";
+                 errorMessage = "Model yapılandırma hatası (Model Bulunamadı).";
             }
             
             return res.status(statusCode).json({ error: errorMessage });

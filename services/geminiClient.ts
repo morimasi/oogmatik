@@ -10,7 +10,11 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: enhancedPrompt, schema, model }),
+                    body: JSON.stringify({ 
+                        prompt: enhancedPrompt, 
+                        schema, 
+                        model: model || 'gemini-2.5-flash' // Default to 2.5 on client request
+                    }),
                 });
 
                 // Retry on 429 (Too Many Requests) or 503 (Service Unavailable)
@@ -117,7 +121,7 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                     body: JSON.stringify({
                         prompt,
                         schema,
-                        model: 'gemini-2.5-flash', // Explicitly request 2.5 flash
+                        model: 'gemini-2.5-flash', // Explicitly request 2.5 flash first
                         image: cleanBase64 
                     }),
                 });
