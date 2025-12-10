@@ -1,15 +1,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
+import { ActivityType, WorksheetData, Activity, GeneratorOptions, ActivityCategory } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
-import { authService } from '../services/authService';
-import { useAuth } from '../context/AuthContext';
-import { cacheService } from '../services/cacheService';
-import { paginationService } from '../services/paginationService';
+import { adminService } from '../services/adminService'; // Import admin service for fetching custom activities
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -27,11 +24,6 @@ interface SidebarProps {
   styleSettings?: any;
   onOpenOCR?: () => void;
   onOpenCurriculum?: () => void;
-}
-
-const getActivityById = (id: ActivityType | null): Activity | undefined => {
-    if (!id) return undefined;
-    return ACTIVITIES.find(a => a.id === id);
 }
 
 const toPascalCase = (str: string): string => {
@@ -55,52 +47,66 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenOCR,
   onOpenCurriculum
 }) => {
-  const { user } = useAuth();
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
-  const [localSearch, setLocalSearch] = useState('');
+  
+  // State to hold combined activities (Static + Dynamic)
+  const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
+  const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
-  // --- SMART PERSISTENCE ---
+  // Load custom activities on mount
   useEffect(() => {
-      if (selectedActivity) {
-          const restoreDraft = async () => {
-              const draft = await cacheService.getDraft(selectedActivity);
-              if (draft) {
-                  setWorksheetData(draft);
+      const loadCustomActivities = async () => {
+          try {
+              const customActs = await adminService.getAllActivities(); // Should fetch from 'config_activities'
+              
+              // Filter out ones that are already in static list to avoid dupes if any
+              const newCustoms = customActs.filter(ca => !ACTIVITIES.find(a => a.id === ca.id));
+              
+              if (newCustoms.length > 0) {
+                  // Merge activities
+                  setAllActivities([...ACTIVITIES, ...newCustoms]);
+                  
+                  // Update categories
+                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({...cat})); // Shallow copy
+                  
+                  // Check if "Others" category exists, if not add it
+                  let otherCat = updatedCategories.find(c => c.id === 'others');
+                  if (!otherCat) {
+                      otherCat = {
+                          id: 'others',
+                          title: 'Diğerleri (Özel)',
+                          description: 'Sistem tarafından üretilen özel etkinlikler.',
+                          icon: 'fa-solid fa-wand-magic-sparkles',
+                          activities: []
+                      };
+                      updatedCategories.push(otherCat);
+                  }
+
+                  newCustoms.forEach(act => {
+                      const targetCatId = act.category || 'others';
+                      const targetCat = updatedCategories.find(c => c.id === targetCatId);
+                      if (targetCat) {
+                          if (!targetCat.activities.includes(act.id)) {
+                              targetCat.activities.push(act.id);
+                          }
+                      } else {
+                           // If category doesn't exist, put in Others
+                           otherCat!.activities.push(act.id);
+                      }
+                  });
+                  setCategories(updatedCategories);
               }
-          };
-          restoreDraft();
-      }
-  }, [selectedActivity, setWorksheetData]);
+          } catch (e) {
+              console.error("Failed to load custom activities", e);
+          }
+      };
+      loadCustomActivities();
+  }, []);
 
-  // Memoize Filtered Categories for Performance
-  const filteredCategories = useMemo(() => {
-      const searchLower = localSearch.toLowerCase().trim();
-      
-      if (!searchLower) {
-          return ACTIVITY_CATEGORIES.map(category => ({
-              ...category,
-              items: ACTIVITIES.filter(act => category.activities.includes(act.id))
-          }));
-      }
-
-      return ACTIVITY_CATEGORIES.map(category => {
-          const matchingItems = ACTIVITIES.filter(act => 
-              category.activities.includes(act.id) && 
-              (act.title.toLowerCase().includes(searchLower) || act.description.toLowerCase().includes(searchLower))
-          );
-          return {
-              ...category,
-              items: matchingItems
-          };
-      }).filter(cat => cat.items.length > 0);
-  }, [localSearch]);
-
-  // Auto-expand on search
-  useEffect(() => {
-      if (localSearch && filteredCategories.length > 0) {
-          setOpenCategoryId(filteredCategories[0].id);
-      }
-  }, [localSearch, filteredCategories.length]);
+  const getActivityById = (id: ActivityType | null): Activity | undefined => {
+      if (!id) return undefined;
+      return allActivities.find(a => a.id === id);
+  }
 
   const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
@@ -109,75 +115,79 @@ const Sidebar: React.FC<SidebarProps> = ({
     setWorksheetData(null);
     setError(null);
 
-    const pascalCaseName = toPascalCase(selectedActivity);
-    const generatorFunctionName = `generate${pascalCaseName}FromAI`;
-    const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
-
-    const requestOptions = { ...options, seed: Math.random().toString(36).substring(7) };
+    // Get current activity to check if it is custom
+    const currentAct = getActivityById(selectedActivity);
+    const isCustom = currentAct?.isCustom || (currentAct as any)?.promptId; // Check if custom
 
     try {
         let result: WorksheetData | null = null;
         
-        const runOfflineGenerator = async () => {
-             // @ts-ignore
-             const offlineGenerator = offlineGenerators[offlineGeneratorFunctionName];
-             if (offlineGenerator) {
-                 return await offlineGenerator(requestOptions);
+        // CUSTOM ACTIVITY LOGIC
+        if (isCustom && (currentAct as any).promptId) {
+             // For custom activities, we ALWAYS use AI generation via the stored prompt template
+             const promptTemplate = await adminService.getPromptTemplate((currentAct as any).promptId);
+             
+             if (promptTemplate) {
+                 // Prepare variables from options
+                 const vars = {
+                     worksheetCount: options.worksheetCount,
+                     difficulty: options.difficulty,
+                     topic: options.topic || 'Genel',
+                     itemCount: options.itemCount
+                 };
+                 // Generate using the template
+                 const aiResult = await adminService.testPrompt(promptTemplate, vars);
+                 
+                 if (Array.isArray(aiResult)) {
+                     result = aiResult;
+                 } else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) {
+                     result = (aiResult as any).data;
+                 } else {
+                     // Fallback: wrap single object
+                     result = [aiResult];
+                 }
              } else {
-                 throw new Error(`Hızlı mod için "${getActivityById(selectedActivity)?.title}" henüz desteklenmiyor.`);
+                 throw new Error("Aktivite şablonu bulunamadı.");
              }
-        };
 
-        if (options.mode === 'ai') {
-            // @ts-ignore
-            const onlineGenerator = generators[generatorFunctionName];
-            
-            if (onlineGenerator) {
-                try {
-                    const cacheKey = cacheService.generateKey(selectedActivity, requestOptions);
-                    if (!result) {
-                        result = await onlineGenerator(requestOptions);
-                        if (result) {
-                            await cacheService.set(cacheKey, result);
-                        }
-                    }
-                } catch (err: any) {
-                    console.warn("AI Service Error. Switching to Offline Mode.");
+        } else {
+            // STANDARD STATIC ACTIVITY LOGIC
+            const pascalCaseName = toPascalCase(selectedActivity);
+            const generatorFunctionName = `generate${pascalCaseName}FromAI`;
+            const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
+
+            const runOfflineGenerator = async () => {
+                 const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
+                 if (offlineGenerator) {
+                     return await offlineGenerator(options);
+                 } else {
+                     throw new Error(`Hızlı mod için "${currentAct?.title}" henüz desteklenmiyor.`);
+                 }
+            };
+
+            if (options.mode === 'ai') {
+                const onlineGenerator = (generators as any)[generatorFunctionName];
+                if (onlineGenerator) {
                     try {
+                        result = await onlineGenerator(options);
+                    } catch (err: any) {
+                        // Fallback logic...
+                        console.warn("AI generator failed, trying offline.", err);
                         result = await runOfflineGenerator();
-                        setError("Bilgi: Yapay zeka servisine ulaşılamadığı için etkinlik 'Hızlı Mod' ile oluşturuldu.");
-                    } catch (offlineErr: any) {
-                        throw new Error("Etkinlik oluşturulamadı: " + offlineErr.message);
+                        setError("Bilgi: Yapay zeka servisi yanıt vermediği için Hızlı Mod kullanıldı.");
                     }
+                } else {
+                    result = await runOfflineGenerator();
                 }
-            } else {
+            } else { 
                 result = await runOfflineGenerator();
             }
-        } else { 
-            result = await runOfflineGenerator();
         }
         
         if (result) {
-            if (Array.isArray(result) && result.length === 0) {
-                 throw new Error("İçerik üretilemedi (Boş veri döndü).");
-            }
-
-            let finalResult = result;
-            if (styleSettings?.smartPagination) {
-                finalResult = paginationService.process(result, selectedActivity);
-            }
-
-            setWorksheetData(finalResult);
-            onAddToHistory(selectedActivity, finalResult);
-            cacheService.saveDraft(selectedActivity, finalResult);
-            
+            setWorksheetData(result);
+            onAddToHistory(selectedActivity, result);
             statsService.incrementUsage(selectedActivity).catch(console.error);
-            if (user) {
-                const act = getActivityById(selectedActivity);
-                authService.recordActivityGeneration(user.id, selectedActivity, act ? act.title : selectedActivity).catch(console.error);
-            }
-        } else {
-             throw new Error("İçerik üretimi başarısız oldu (Veri yok).");
         }
 
     } catch (e: any) {
@@ -189,6 +199,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const currentActivity = getActivityById(selectedActivity);
+
+  // Use state-based categories instead of constant
+  const categorizedActivities = useMemo(() => {
+      return categories.map(category => ({
+          ...category,
+          items: allActivities.filter(act => category.activities.includes(act.id))
+      })).filter(c => c.items.length > 0);
+  }, [allActivities, categories]);
 
   return (
     <aside
@@ -211,18 +229,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <input 
                         type="text" 
                         placeholder="Etkinlik ara..." 
-                        value={localSearch}
-                        onChange={(e) => setLocalSearch(e.target.value)}
                         className="w-full h-9 pl-9 pr-8 bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm"
                     />
-                    {localSearch && (
-                        <button 
-                            onClick={() => setLocalSearch('')}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
-                        >
-                            <i className="fa-solid fa-circle-xmark text-xs"></i>
-                        </button>
-                    )}
                 </div>
             ) : (
                 <div className="w-full flex justify-center">
@@ -273,8 +281,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                 )}
 
                 <nav className="flex-1 overflow-y-auto px-2 py-2 custom-scrollbar min-h-0">
-                    {filteredCategories.map((category) => {
-                        const isOpen = openCategoryId === category.id || !!localSearch;
+                    {categorizedActivities.map((category) => {
+                        const isOpen = openCategoryId === category.id;
                         
                         return (
                             <div key={category.id} className="mb-1">
@@ -339,12 +347,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                         );
                     })}
                     
-                    {filteredCategories.length === 0 && (
-                        <div className="text-center py-12 px-4 opacity-50">
-                            <i className="fa-solid fa-filter-circle-xmark text-2xl mb-2"></i>
-                            <p className="text-xs font-medium">Sonuç bulunamadı.</p>
-                        </div>
-                    )}
                 </nav>
                 </>
             )}
@@ -352,7 +354,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             {/* FOOTER */}
             <div className={`p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
                  <div className="text-[9px] text-zinc-400 text-center font-bold uppercase tracking-widest opacity-60">
-                     Bursa Disleksi AI v1.5
+                     Bursa Disleksi AI v1.6
                  </div>
             </div>
         </div>

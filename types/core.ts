@@ -548,6 +548,7 @@ export interface OCRResult {
     generatedTemplate?: string; // The reverse engineered prompt template
     suggestedActivity?: string; 
     structuredData?: any; 
+    baseType?: ActivityType;
 }
 
 // --- CURRICULUM TYPES ---

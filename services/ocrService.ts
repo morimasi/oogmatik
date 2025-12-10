@@ -1,10 +1,10 @@
 
 import { Type } from "@google/genai";
 import { analyzeImage } from './geminiClient';
-import { ActivityType, BasicOperationsData, StoryData, WordConnectData, FindTheDifferenceData } from '../types';
+import { ActivityType, BasicOperationsData, StoryData, WordConnectData, FindTheDifferenceData, OCRResult } from '../types';
 
 export const ocrService = {
-    processImage: async (base64Image: string): Promise<any> => {
+    processImage: async (base64Image: string): Promise<OCRResult> => {
         const prompt = `
         [ROL: UZMAN EĞİTİM MATERYALİ MİMARI - TERSİNE MÜHENDİSLİK MODU]
         
@@ -54,16 +54,28 @@ export const ocrService = {
             required: ['detectedType', 'title', 'description', 'generatedTemplate', 'baseType']
         };
 
-        return await analyzeImage(base64Image, prompt, schema);
+        const result = await analyzeImage(base64Image, prompt, schema);
+        
+        // Ensure result structure matches OCRResult interface
+        return {
+            rawText: '', // Placeholder, as we analyze logic not just text
+            detectedType: result.detectedType,
+            title: result.title,
+            description: result.description,
+            generatedTemplate: result.generatedTemplate,
+            suggestedActivity: result.baseType, // Mapping legacy field
+            baseType: result.baseType,
+            structuredData: result.sampleData
+        };
     },
 
     // Converts OCR raw data to immediate preview data
-    convertToWorksheetData: (ocrData: any): { type: ActivityType, data: any[] } => {
+    convertToWorksheetData: (ocrData: OCRResult): { type: ActivityType, data: any[] } => {
         // If the AI successfully generated sample data that matches our schema, use it directly
-        if (ocrData.sampleData && ocrData.baseType) {
+        if (ocrData.structuredData && ocrData.baseType) {
             return {
                 type: ocrData.baseType as ActivityType,
-                data: [ocrData.sampleData]
+                data: [ocrData.structuredData]
             };
         }
 

@@ -214,6 +214,8 @@ KURALLAR:
                 puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT } },
                 rows: { type: Type.ARRAY, items: { type: Type.OBJECT } },
                 pairs: { type: Type.ARRAY, items: { type: Type.OBJECT } },
+                leftColumn: { type: Type.ARRAY, items: { type: Type.OBJECT } }, // For relations
+                rightColumn: { type: Type.ARRAY, items: { type: Type.OBJECT } },
             }
         };
 
