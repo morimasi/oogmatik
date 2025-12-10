@@ -12,7 +12,6 @@
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;800&family=Lexend:wght@400;600;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
       
-      /* ... (Font Faces unchanged) */
       @font-face {
         font-family: 'OpenDyslexic';
         src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.woff') format('woff');
@@ -35,7 +34,6 @@
         font-display: swap;
       }
 
-      /* ... (Root Variables unchanged) */
       :root {
         --bg-primary: #222226;
         --bg-secondary: #1a1a1d;
@@ -56,7 +54,7 @@
         --ui-saturation: 100%;
         --pattern-image: none;
       }
-      /* ... (Theme Overrides unchanged) */
+      
       :root.theme-light {
         --bg-primary: #f8fafc;
         --bg-secondary: #f1f5f9;
@@ -102,13 +100,11 @@
         transition: background-color 0.3s ease, color 0.3s ease;
       }
 
-      /* ... (Scrollbar Styles unchanged) */
       ::-webkit-scrollbar { width: 8px; height: 8px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-      /* ... (Worksheet Texture unchanged) */
       .worksheet-texture {
           background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/svg%3E");
       }
@@ -126,7 +122,6 @@
           pointer-events: none;
       }
 
-    /* ... (Grid utilities unchanged) */
     .smart-grid { display: block; gap: 1.5rem; }
     .columns-1 { column-count: 1; }
     .columns-2 { column-count: 2; column-gap: 2rem; }
@@ -151,7 +146,6 @@
         -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
     }
 
-    /* --- PAGE CONTAINER STYLES (Word-like View) --- */
     .document-viewport {
         background-color: var(--bg-primary); 
         perspective: 1000px;
@@ -164,33 +158,22 @@
         min-height: 100%;
     }
     
-    /* A4 Page Style - Screen */
-    /* UPDATED: Changed overflow from hidden to visible to show content spill */
     .worksheet-page {
         background-color: white;
         color: black;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05);
         margin: 0 auto;
         width: 210mm;
-        height: 297mm; /* Standard A4 height */
-        /* min-height ensures it grows if needed on screen, though physical paper is fixed */
+        height: 297mm;
         min-height: 297mm; 
         padding: 0;
         position: relative;
-        /* Allow visible overflow for screen debugging of pagination issues */
         overflow: visible; 
         flex-shrink: 0;
-
-        content-visibility: auto; 
-        contain-intrinsic-size: 210mm 297mm;
-        transform: translateZ(0); 
-        will-change: transform;
-        
         display: flex;
         flex-direction: column;
     }
 
-    /* ... (Rest of styles unchanged) */
     .canvas-viewport {
         background-color: transparent !important;
     }
@@ -199,7 +182,7 @@
          background-color: transparent !important;
     }
 
-    /* --- PRINT STYLES (NEW ARCHITECTURE) --- */
+    /* --- PRINT STYLES --- */
     @media print {
         @page {
             size: A4;
@@ -225,6 +208,7 @@
             overflow: hidden !important;
         }
 
+        /* Show the specific print container */
         .print-container {
             display: block !important;
             position: absolute !important;
@@ -236,8 +220,9 @@
         }
 
         .print-container .worksheet-page, 
-        .print-container .worksheet-item {
-            display: block !important;
+        .print-container .worksheet-item,
+        .print-container .print-page {
+            display: flex !important;
             visibility: visible !important;
             width: 210mm !important;
             height: 297mm !important;
@@ -247,52 +232,24 @@
             break-after: page !important;
             box-shadow: none !important;
             border: none !important;
-            /* Ensure overflow is hidden on print to avoid bleeding */
             overflow: hidden !important; 
             position: relative !important;
             background: white !important;
-            
-            content-visibility: visible !important;
             transform: none !important;
-            will-change: auto !important;
         }
-
-        .print-container .worksheet-scaler {
-            width: auto !important; 
-            height: auto !important;
-        }
-
-        .print-container .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-        .print-container .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
-        .print-container .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
-        .print-container .md\:flex-row { flex-direction: row !important; }
-        .print-container .md\:gap-4 { gap: 1rem !important; }
-        .print-container .md\:gap-6 { gap: 1.5rem !important; }
-        .print-container .md\:gap-8 { gap: 2rem !important; }
-        .print-container .grid { display: grid !important; }
-        .print-container .flex { display: flex !important; }
 
         .print-container .worksheet-page:last-child {
             page-break-after: auto !important;
             break-after: auto !important;
         }
-
-        .print-container input, 
-        .print-container textarea, 
-        .print-container select {
-            border: none !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            resize: none !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            font-family: inherit !important;
-            color: black !important;
-        }
         
+        .print-container * {
+             display: revert !important;
+             visibility: visible !important;
+             height: auto !important;
+             overflow: visible !important;
+        }
+
         .print-container .no-print, 
         .print-container .edit-handle,
         .print-container .page-navigator {

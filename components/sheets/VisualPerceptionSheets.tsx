@@ -10,21 +10,20 @@ import { EditableElement, EditableText } from '../Editable';
 
 export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="dynamic-grid max-w-4xl mx-auto">
-            {(data.rows || []).map((row, index) => {
-                const isVisual = row.visualDistractionLevel === 'high';
+            {(data?.rows || []).map((row, index) => {
+                const isVisual = row?.visualDistractionLevel === 'high';
                 return (
                     <EditableElement key={index} className={`flex items-center justify-between p-4 border-2 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow break-inside-avoid ${isVisual ? 'flex-col gap-4' : ''}`} style={{borderColor: 'var(--worksheet-border-color)'}}>
                         {!isVisual && <div className="w-8 h-8 flex items-center justify-center bg-black text-white rounded-full font-bold mr-4 shrink-0">{index + 1}</div>}
                         <div className={`flex-1 flex justify-around w-full ${isVisual ? 'gap-4' : ''}`}>
-                            {(row.items || []).map((item, itemIndex) => (
+                            {(row?.items || []).map((item, itemIndex) => (
                                 <div key={itemIndex} className={`px-4 py-2 border border-dashed border-zinc-300 rounded cursor-pointer hover:bg-zinc-50 flex items-center justify-center ${isVisual ? 'w-full h-24 text-3xl font-black bg-zinc-50 overflow-hidden tracking-widest leading-none break-all text-center' : ''}`}>
                                     <span className={isVisual ? "text-4xl text-black" : "text-2xl font-mono tracking-wider text-black"}><EditableText value={item} tag="span" /></span>
                                 </div>
                             ))}
                         </div>
-                        {/* Score/Tick Box */}
                         <div className="w-8 h-8 border-2 border-zinc-300 rounded-lg ml-4"></div>
                     </EditableElement>
                 );
@@ -35,13 +34,12 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
 
 export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="flex flex-col md:flex-row gap-8 justify-center items-start">
-            {/* List 1 */}
             <EditableElement className="flex-1 bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-full">
-                <h4 className="font-bold text-center mb-4 text-white bg-black py-1 rounded uppercase tracking-wider"><EditableText value={data.box1Title} tag="span" /></h4>
+                <h4 className="font-bold text-center mb-4 text-white bg-black py-1 rounded uppercase tracking-wider"><EditableText value={data?.box1Title} tag="span" /></h4>
                 <ul className="space-y-3">
-                    {(data.wordList1 || []).map((word, i) => (
+                    {(data?.wordList1 || []).map((word, i) => (
                         <li key={i} className="font-mono text-lg flex items-center gap-3 border-b border-zinc-200 pb-1">
                             <div className="w-4 h-4 border border-black rounded-full"></div>
                             <EditableText value={word} tag="span" />
@@ -54,11 +52,10 @@ export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ da
                 <i className="fa-solid fa-right-left text-4xl"></i>
             </div>
 
-            {/* List 2 */}
             <EditableElement className="flex-1 bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-full">
-                <h4 className="font-bold text-center mb-4 text-black bg-zinc-200 py-1 rounded uppercase tracking-wider"><EditableText value={data.box2Title} tag="span" /></h4>
+                <h4 className="font-bold text-center mb-4 text-black bg-zinc-200 py-1 rounded uppercase tracking-wider"><EditableText value={data?.box2Title} tag="span" /></h4>
                 <ul className="space-y-3">
-                    {(data.wordList2 || []).map((word, i) => (
+                    {(data?.wordList2 || []).map((word, i) => (
                         <li key={i} className="font-mono text-lg flex items-center gap-3 border-b border-zinc-200 pb-1">
                             <div className="w-4 h-4 border border-black rounded-full"></div>
                             <EditableText value={word} tag="span" />
@@ -71,7 +68,7 @@ export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ da
         <EditableElement className="mt-8 p-6 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-400 text-center">
             <p className="text-zinc-500 mb-4 font-bold uppercase text-xs tracking-widest">Farklı Olan Kelimeler</p>
             <div className="flex gap-4 justify-center flex-wrap">
-                {Array.from({length: Math.max(3, (data.correctDifferences || []).length)}).map((_, i) => (
+                {Array.from({length: Math.max(3, (data?.correctDifferences || []).length)}).map((_, i) => (
                     <div key={i} className="w-32 h-10 border-b-2 border-black bg-white/50"><EditableText value="" tag="div" className="w-full h-full" /></div>
                 ))}
             </div>
@@ -81,15 +78,14 @@ export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ da
 
 export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="flex justify-between gap-12 mt-8 relative max-w-3xl mx-auto">
-             {/* Center Line Guide */}
             <div className="absolute inset-0 flex justify-center items-center opacity-10 pointer-events-none">
                 <div className="h-full border-r-2 border-dashed border-black"></div>
             </div>
 
             <div className="space-y-8 flex-1">
-                {(data.leftColumn || []).map((item, i) => (
+                {(data?.leftColumn || []).map((item, i) => (
                     <EditableElement key={i} className="flex items-center gap-4 relative">
                         <span className="w-8 h-8 flex items-center justify-center rounded-full bg-black text-white font-bold"><EditableText value={item.id} tag="span" /></span>
                         <div className="flex-1 p-4 border-2 border-black rounded-xl bg-white shadow-sm h-24 flex items-center justify-center">
@@ -104,7 +100,7 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
                 ))}
             </div>
             <div className="space-y-8 flex-1">
-                {(data.rightColumn || []).map((item, i) => (
+                {(data?.rightColumn || []).map((item, i) => (
                     <EditableElement key={i} className="flex items-center gap-4 flex-row-reverse relative">
                         <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white border-2 border-black text-black font-bold"><EditableText value={item.id} tag="span" /></span>
                         <div className="flex-1 p-4 border-2 border-black rounded-xl bg-white shadow-sm h-24 flex items-center justify-center">
@@ -124,9 +120,9 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
 
 export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="dynamic-grid">
-            {(data.groups || []).map((group, index) => (
+            {(data?.groups || []).map((group, index) => (
                 <EditableElement key={index} className="bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] break-inside-avoid">
                     <div className="mb-4 text-center">
                         <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Aranan</span>
@@ -149,7 +145,7 @@ export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> =
 );
 
 export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
-    const gridDim = data.gridDim;
+    const gridDim = data?.gridDim || 5;
     const cellSize = 30;
     const totalSize = gridDim * cellSize;
 
@@ -157,14 +153,12 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
         <div className="flex flex-col items-center">
             <span className="mb-2 font-bold text-black text-xs uppercase tracking-wider bg-white px-2 border border-black rounded shadow-sm">{isTarget ? "Referans" : "Çizim Alanı"}</span>
             <svg width={totalSize} height={totalSize} className={`bg-white border-2 border-black`}>
-                {/* Dots Grid */}
                 {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
                      const r = Math.floor(i / (gridDim + 1));
                      const c = i % (gridDim + 1);
                      return <circle key={i} cx={c*cellSize} cy={r*cellSize} r={isTarget ? "3" : "2"} className={isTarget ? "fill-black" : "fill-zinc-300"} />
                 })}
 
-                {/* Lines */}
                 {(lines || []).map((line, index) => (
                     line && line.length >= 2 && line[0] && line[1] && (
                         <line
@@ -184,9 +178,9 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
 
     return (
         <div>
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
             <div className="space-y-12">
-                {(data.drawings || []).map((drawing, index) => (
+                {(data?.drawings || []).map((drawing, index) => (
                     <EditableElement key={index} className="flex flex-col md:flex-row gap-8 items-center justify-center p-6 bg-zinc-50 rounded-3xl break-inside-avoid border-2 border-zinc-200">
                         {renderGrid(drawing.lines, true)}
                         <div className="flex flex-col items-center justify-center gap-2 text-zinc-300">
@@ -203,13 +197,12 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
 
 export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }) => (
     <div>
-         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
          
-         {/* Key Table - Decoder Ring Style */}
          <EditableElement className="mb-10 p-4 bg-black rounded-2xl border-4 border-zinc-200 shadow-xl">
             <h4 className="text-center font-bold mb-4 uppercase tracking-[0.3em] text-white text-sm">ŞİFRE ÇÖZÜCÜ</h4>
             <div className="flex flex-wrap justify-center gap-2">
-                {(data.cipherKey || []).map((item, i) => (
+                {(data?.cipherKey || []).map((item, i) => (
                     <div key={i} className="flex flex-col items-center bg-white border-2 border-zinc-600 rounded w-14 overflow-hidden">
                         <div className="w-full h-10 flex items-center justify-center bg-zinc-100 border-b-2 border-zinc-600">
                             <div className="transform scale-75"><ShapeDisplay shapes={[item.shape as ShapeType]} /></div>
@@ -222,9 +215,8 @@ export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }
             </div>
          </EditableElement>
 
-         {/* Puzzles */}
          <div className="space-y-8">
-             {(data.wordsToSolve || []).map((puzzle, index) => (
+             {(data?.wordsToSolve || []).map((puzzle, index) => (
                  <EditableElement key={index} className="flex flex-wrap justify-center gap-4 p-6 border-b-2 border-dashed border-zinc-300">
                      {puzzle.shapeSequence.map((shape, sIdx) => (
                          <div key={sIdx} className="flex flex-col items-center gap-3">
@@ -241,16 +233,15 @@ export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }
 );
 
 export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data }) => {
-    const { grid: { rows, cols }, targetPattern, shapes } = data;
-    const activeColor = shapes[0]?.color || '#000000';
+    const { grid: { rows, cols } = {rows: 5, cols: 5}, targetPattern, shapes } = data || {};
+    const activeColor = shapes?.[0]?.color || '#000000';
     const cellDisplaySize = 30; 
 
     return (
         <div>
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
             <EditableElement className="flex flex-col md:flex-row gap-12 justify-center items-start break-inside-avoid mt-8">
                 
-                {/* Target Pattern (Left Side) */}
                 <div className="flex flex-col items-center">
                     <h4 className="font-bold text-center mb-2 text-zinc-500 uppercase tracking-widest text-xs bg-white px-3 py-1 border border-zinc-300 rounded-full">Örnek</h4>
                     <div className="border-4 border-black p-1 bg-white inline-block shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -266,7 +257,6 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
                     <i className="fa-solid fa-paintbrush text-2xl"></i>
                 </div>
                 
-                {/* Empty Grid (Right Side) */}
                 <div className="flex flex-col items-center">
                     <h4 className="font-bold text-center mb-2 text-zinc-500 uppercase tracking-widest text-xs bg-white px-3 py-1 border border-zinc-300 rounded-full">Senin Eserin</h4>
                     <div className="border-4 border-black p-1 bg-white inline-block shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -284,9 +274,9 @@ export const BlockPaintingSheet: React.FC<{ data: BlockPaintingData }> = ({ data
 
 export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="dynamic-grid">
-             {(data.rows || []).map((row, i) => (
+             {(data?.rows || []).map((row, i) => (
                  <EditableElement key={i} className="flex justify-around p-4 border-2 border-black rounded-xl bg-white break-inside-avoid shadow-sm items-center relative overflow-hidden">
                      <div className="absolute top-0 left-0 bg-black text-white w-6 h-6 flex items-center justify-center font-bold text-xs rounded-br-lg">{i+1}</div>
                      {row.items.map((item, j) => {
@@ -308,22 +298,19 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
 
 export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
          <EditableElement className="flex justify-center p-8 bg-zinc-50 rounded-3xl border-2 border-zinc-200">
-            <svg width={data.gridDim * 30} height={data.gridDim * 30} className="bg-white border border-zinc-300 shadow-md">
-                {/* Light Grid */}
-                {Array.from({length: data.gridDim + 1}).map((_, i) => (
+            <svg width={(data?.gridDim || 6) * 30} height={(data?.gridDim || 6) * 30} className="bg-white border border-zinc-300 shadow-md">
+                {Array.from({length: (data?.gridDim || 6) + 1}).map((_, i) => (
                     <React.Fragment key={i}>
-                        <line x1={i*30} y1="0" x2={i*30} y2={data.gridDim*30} stroke="#e4e4e7" strokeWidth="1" />
-                        <line x1="0" y1={i*30} x2={data.gridDim*30} y2={i*30} stroke="#e4e4e7" strokeWidth="1" />
+                        <line x1={i*30} y1="0" x2={i*30} y2={(data?.gridDim || 6)*30} stroke="#e4e4e7" strokeWidth="1" />
+                        <line x1="0" y1={i*30} x2={(data?.gridDim || 6)*30} y2={i*30} stroke="#e4e4e7" strokeWidth="1" />
                     </React.Fragment>
                 ))}
                 
-                {/* Red Axis Line */}
-                <line x1={data.gridDim*15} y1="0" x2={data.gridDim*15} y2={data.gridDim*30} stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" />
+                <line x1={(data?.gridDim || 6)*15} y1="0" x2={(data?.gridDim || 6)*15} y2={(data?.gridDim || 6)*30} stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" />
                 
-                {/* Dots */}
-                {(data.dots || []).map((dot, i) => (
+                {(data?.dots || []).map((dot, i) => (
                     <circle key={i} cx={dot.x * 30 + 15} cy={dot.y * 30 + 15} r="5" fill="black" />
                 ))}
             </svg>
@@ -333,9 +320,9 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
 
 export const FindDifferentStringSheet: React.FC<{ data: FindDifferentStringData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="dynamic-grid font-mono text-xl tracking-widest">
-            {(data.rows || []).map((row, i) => (
+            {(data?.rows || []).map((row, i) => (
                 <EditableElement key={i} className="flex justify-between items-center p-4 bg-white rounded-xl border-2 border-zinc-200 break-inside-avoid shadow-sm">
                     <span className="w-6 h-6 flex items-center justify-center bg-black text-white text-xs font-bold rounded-full mr-4">{i+1}</span>
                     <div className="flex-1 flex justify-between">
@@ -351,10 +338,9 @@ export const FindDifferentStringSheet: React.FC<{ data: FindDifferentStringData 
 
 export const DotPaintingSheet: React.FC<{ data: DotPaintingData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <EditableElement className="flex justify-center my-8">
             <div className="relative p-2 border-2 border-black rounded-lg inline-block">
-                {/* Labels */}
                 <div className="absolute top-0 left-0 w-full flex justify-between px-2 text-[8px] font-mono text-zinc-400 -mt-3">
                     <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span>
                 </div>
@@ -363,22 +349,20 @@ export const DotPaintingSheet: React.FC<{ data: DotPaintingData }> = ({ data }) 
                 </div>
 
                 <svg viewBox="0 0 100 100" className="w-full max-w-lg bg-white">
-                    {/* Grid dots */}
                     {Array.from({length: 100}).map((_, i) => {
                         const x = (i % 10) * 10 + 5;
                         const y = Math.floor(i / 10) * 10 + 5;
                         return <circle key={i} cx={x} cy={y} r="1" fill="#e4e4e7" />
                     })}
-                    {/* Target Dots */}
-                    {(data.dots || []).map((dot, i) => (
+                    {(data?.dots || []).map((dot, i) => (
                         <circle key={i} cx={dot.cx} cy={dot.cy} r="3" fill={dot.color} />
                     ))}
                 </svg>
             </div>
         </EditableElement>
         <EditableElement className="mt-4 p-6 border-2 border-black rounded-xl text-center bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <h4 className="font-bold text-lg mb-2"><EditableText value={data.prompt1} tag="span" /></h4>
-            <p className="text-zinc-600"><EditableText value={data.prompt2} tag="span" /></p>
+            <h4 className="font-bold text-lg mb-2"><EditableText value={data?.prompt1} tag="span" /></h4>
+            <p className="text-zinc-600"><EditableText value={data?.prompt2} tag="span" /></p>
         </EditableElement>
     </div>
 );
@@ -388,15 +372,13 @@ export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConn
     
     return (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction || "Çiftleri birleştirin."} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction || "Çiftleri birleştirin."} note={data?.pedagogicalNote} />
         {(puzzles || []).map((puzzle: any, i: number) => (
              <EditableElement key={i} className="flex flex-col items-center mb-8">
-                {/* Professional Grid Visual */}
                 <div className="relative bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-xl overflow-hidden" 
                      style={{ width: '100%', maxWidth: '500px', aspectRatio: '1/1' }}>
                      
                     <svg viewBox={`0 0 ${puzzle.gridDim * 50} ${puzzle.gridDim * 50}`} className="w-full h-full">
-                         {/* Grid Lines */}
                          <defs>
                              <pattern id={`grid-${i}`} width="50" height="50" patternUnits="userSpaceOnUse">
                                  <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#e4e4e7" strokeWidth="2"/>
@@ -404,7 +386,6 @@ export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConn
                          </defs>
                          <rect width="100%" height="100%" fill={`url(#grid-${i})`} />
                          
-                         {/* Points */}
                          {puzzle.points.map((p: any, k: number) => {
                              const color = p.color || (p.group !== undefined ? CONNECT_COLORS[p.group % CONNECT_COLORS.length] : CONNECT_COLORS[p.pairId % CONNECT_COLORS.length]) || '#3B82F6';
                              const isImage = p.imagePrompt && p.imagePrompt.length > 0;
@@ -416,7 +397,6 @@ export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConn
                                     
                                     {isImage ? (
                                         <text y="2" textAnchor="middle" dominantBaseline="middle" fontSize="18" fill="#333">
-                                            {/* Simplified text fallback for SVG editability */}
                                             {p.label || '?'}
                                         </text>
                                     ) : (
@@ -444,12 +424,12 @@ export const AbcConnectSheet: React.FC<{ data: AbcConnectData | RomanNumeralConn
 };
 
 export const WordConnectSheet: React.FC<{ data: WordConnectData }> = ({ data }) => {
-    const leftPoints = (data.points || []).filter(p => p.x === 0).sort((a, b) => a.y - b.y);
-    const rightPoints = (data.points || []).filter(p => p.x === 1).sort((a, b) => a.y - b.y);
+    const leftPoints = (data?.points || []).filter(p => p.x === 0).sort((a, b) => a.y - b.y);
+    const rightPoints = (data?.points || []).filter(p => p.x === 1).sort((a, b) => a.y - b.y);
 
     return (
         <div>
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
             
             <div className="flex justify-between items-stretch gap-12 mt-8 relative max-w-4xl mx-auto">
                 <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
@@ -496,11 +476,11 @@ export const WordConnectSheet: React.FC<{ data: WordConnectData }> = ({ data }) 
 
 export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <EditableElement className="flex justify-center">
             <table className="border-collapse border-4 border-black bg-white shadow-lg rounded-lg overflow-hidden">
                 <tbody>
-                    {(data.grid || []).map((row, i) => (
+                    {(data?.grid || []).map((row, i) => (
                         <tr key={i}>
                             <td className="border border-black p-3 font-black bg-zinc-200 text-lg text-center w-12">{String.fromCharCode(65+i)}</td>
                             {row && row.map((cell, j) => (
@@ -512,13 +492,13 @@ export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = (
                 <tfoot>
                     <tr>
                         <td className="bg-zinc-200 border-t-2 border-black"></td>
-                        {data.grid && data.grid.length > 0 && data.grid[0] && data.grid[0].map((_, j) => <td key={j} className="text-center font-black p-2 bg-zinc-200 border-t-2 border-r border-black text-lg">{j+1}</td>)}
+                        {data?.grid && data.grid.length > 0 && data.grid[0] && data.grid[0].map((_, j) => <td key={j} className="text-center font-black p-2 bg-zinc-200 border-t-2 border-r border-black text-lg">{j+1}</td>)}
                     </tr>
                 </tfoot>
             </table>
         </EditableElement>
         <div className="mt-10 flex flex-wrap gap-4 justify-center p-6 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-300">
-            {(data.cipherCoordinates || []).map((coord, i) => (
+            {(data?.cipherCoordinates || []).map((coord, i) => (
                 <EditableElement key={i} className="flex flex-col items-center">
                     <div className="w-12 h-12 border-b-4 border-black mb-1 flex items-end justify-center pb-2 font-bold text-2xl"><EditableText value="" tag="span" /></div>
                     <span className="text-lg font-black text-zinc-500 bg-white px-2 rounded border border-zinc-200"><EditableText value={coord} tag="span" /></span>
@@ -530,10 +510,10 @@ export const CoordinateCipherSheet: React.FC<{ data: CoordinateCipherData }> = (
 
 export const ProfessionConnectSheet: React.FC<{ data: ProfessionConnectData }> = ({ data }) => (
      <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="grid grid-cols-2 gap-12 max-w-4xl mx-auto relative mt-8">
             <div className="space-y-8">
-                {(data.points || []).filter(p => p.x === 0).map((p, i) => (
+                {(data?.points || []).filter(p => p.x === 0).map((p, i) => (
                     <EditableElement key={i} className="flex items-center gap-4 p-4 border-2 border-black rounded-xl bg-white relative shadow-sm h-24">
                         <span className="text-lg font-bold text-black flex-1"><EditableText value={p.label} tag="span" /></span>
                         <div className="w-6 h-6 bg-black rounded-full absolute -right-3 border-4 border-white"></div>
@@ -541,7 +521,7 @@ export const ProfessionConnectSheet: React.FC<{ data: ProfessionConnectData }> =
                 ))}
             </div>
             <div className="space-y-8">
-                 {(data.points || []).filter(p => p.x > 0).map((p, i) => (
+                 {(data?.points || []).filter(p => p.x > 0).map((p, i) => (
                     <EditableElement key={i} className="flex items-center gap-4 p-4 border-2 border-black rounded-xl bg-white relative justify-end h-24">
                         <div className="w-6 h-6 bg-black rounded-full absolute -left-3 border-4 border-white"></div>
                         <span className="text-lg font-bold text-zinc-500 text-right flex-1 italic"><EditableText value={p.imageDescription} tag="span" /></span> 
@@ -554,22 +534,19 @@ export const ProfessionConnectSheet: React.FC<{ data: ProfessionConnectData }> =
 
 export const MatchstickSymmetrySheet: React.FC<{ data: MatchstickSymmetryData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <EditableElement className="flex justify-center mt-8">
             <div className="relative p-8 bg-amber-50 rounded-3xl border-4 border-amber-200 shadow-xl">
                 <svg width="400" height="400" className="bg-white border-2 border-amber-100 rounded-xl overflow-visible">
-                    {/* Grid Points */}
                     {Array.from({length: 36}).map((_, i) => {
                         const x = (i % 6) * 50 + 25;
                         const y = Math.floor(i / 6) * 50 + 25;
                         return <circle key={i} cx={x} cy={y} r="2" fill="#d6d3d1" />
                     })}
                     
-                    {/* Axis */}
                     <line x1="200" y1="0" x2="200" y2="400" stroke="#ef4444" strokeWidth="2" strokeDasharray="8,4" />
                     
-                    {/* Matchsticks */}
-                    {(data.puzzles[0]?.lines || []).map((l, i) => (
+                    {(data?.puzzles?.[0]?.lines || []).map((l, i) => (
                         <Matchstick 
                             key={i} 
                             x1={l.x1 * 50 + 25} y1={l.y1 * 50 + 25} 
@@ -585,9 +562,9 @@ export const MatchstickSymmetrySheet: React.FC<{ data: MatchstickSymmetryData }>
 
 export const VisualOddOneOutThemedSheet: React.FC<{ data: VisualOddOneOutThemedData }> = ({ data }) => (
     <div>
-         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
          <div className="dynamic-grid">
-             {(data.rows || []).map((row, i) => (
+             {(data?.rows || []).map((row, i) => (
                  <EditableElement key={i} className="border-2 border-black p-6 rounded-2xl bg-white break-inside-avoid shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                      <h4 className="text-xs font-black text-white bg-black inline-block px-3 py-1 rounded mb-4 uppercase tracking-widest"><EditableText value={row.theme} tag="span" /></h4>
                      <div className="flex justify-around items-center">
@@ -608,15 +585,15 @@ export const VisualOddOneOutThemedSheet: React.FC<{ data: VisualOddOneOutThemedD
 
 export const StarHuntSheet: React.FC<{ data: StarHuntData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="flex flex-col items-center justify-center mt-8">
             <div className="bg-slate-900 p-8 rounded-3xl border-4 border-slate-700 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/20 rounded-full blur-3xl"></div>
-                <GridComponent grid={data.grid || []} cellClassName="w-12 h-12 border-slate-700 bg-slate-800 text-yellow-400 text-2xl" />
+                <GridComponent grid={data?.grid || []} cellClassName="w-12 h-12 border-slate-700 bg-slate-800 text-yellow-400 text-2xl" />
             </div>
             <p className="text-center mt-6 font-bold text-black bg-yellow-100 px-6 py-2 rounded-full border border-yellow-300 shadow-sm">
                 <i className="fa-solid fa-star text-yellow-500 mr-2"></i>
-                Toplam Yıldız Hedefi: <EditableText value={data.targetCount} tag="span" />
+                Toplam Yıldız Hedefi: <EditableText value={data?.targetCount} tag="span" />
             </p>
         </div>
     </div>
@@ -624,19 +601,19 @@ export const StarHuntSheet: React.FC<{ data: StarHuntData }> = ({ data }) => (
 
 export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="flex flex-col items-center gap-12 mt-8">
-            {(data.figures || []).map((fig, index) => (
+            {(data?.figures || []).map((fig, index) => (
                 <EditableElement key={index} className="p-8 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center break-inside-avoid border-4 border-black bg-white w-full max-w-lg">
                     <svg viewBox="0 0 100 100" className="w-64 h-64 mb-8 overflow-visible">
-                        {fig.svgPaths.map((path, pIndex) => (
+                        {(fig.svgPaths || []).map((path, pIndex) => (
                             <path 
                                 key={pIndex} 
                                 d={path.d} 
                                 fill={path.fill || 'transparent'} 
                                 stroke={path.stroke || 'black'} 
                                 strokeWidth="1.5" 
-                                fillOpacity="0.5" // Transparency for overlaps
+                                fillOpacity="0.5" 
                             />
                         ))}
                     </svg>
@@ -653,7 +630,7 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
 // Fallbacks
 const createSimpleSheet = (compName: string) => ({ data }: { data: any }) => (
   <div>
-      <PedagogicalHeader title={data.title || compName} instruction={data.instruction || data.prompt || ""} note={data.pedagogicalNote} />
+      <PedagogicalHeader title={data?.title || compName} instruction={data?.instruction || data?.prompt || ""} note={data?.pedagogicalNote} />
       <div className="p-4 text-center text-zinc-500 italic">Görsel içerik oluşturuldu.</div>
   </div>
 );
