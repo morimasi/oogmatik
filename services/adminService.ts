@@ -1,7 +1,7 @@
 
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { DynamicActivity, PromptTemplate, StaticContentItem } from '../types/admin';
+import { DynamicActivity, PromptTemplate, StaticContentItem, ActivityDraft } from '../types/admin';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { PEDAGOGICAL_BASE } from './generators/prompts';
 import { generateWithSchema } from './geminiClient';
@@ -10,7 +10,7 @@ import { PROVERBS, SAYINGS } from '../data/sentences';
 import { TR_VOCAB } from '../data/vocabulary';
 import { UserRole, UserStatus, ActivityType } from '../types';
 
-const { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc } = firestore;
+const { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, orderBy, query } = firestore;
 
 export const adminService = {
     // --- ACTIVITIES ---
@@ -35,6 +35,82 @@ export const adminService = {
 
     deleteActivity: async (id: string) => {
         await deleteDoc(doc(db, "config_activities", id));
+    },
+
+    // --- DRAFTS (OCR TO SYSTEM) ---
+    saveDraftActivity: async (draft: Omit<ActivityDraft, 'id' | 'createdAt'>) => {
+        await addDoc(collection(db, "activity_drafts"), {
+            ...draft,
+            createdAt: new Date().toISOString()
+        });
+    },
+
+    getAllDrafts: async (): Promise<ActivityDraft[]> => {
+        try {
+            const q = query(collection(db, "activity_drafts"), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(d => ({ ...d.data(), id: d.id } as ActivityDraft));
+        } catch (e) {
+            console.error("Fetch drafts failed", e);
+            return [];
+        }
+    },
+
+    publishDraft: async (draft: ActivityDraft, finalConfig: { title: string, description: string, icon: string, category: string }) => {
+        // 1. Create a Prompt Template based on draft instructions
+        const promptId = `prompt_${Date.now()}`; // Unique ID
+        const baseActivityPrompt = adminService.getInitialPromptForActivity(draft.baseType as ActivityType);
+        
+        // Inject custom instructions into the base prompt structure
+        // This is a heuristic merge.
+        const mergedTemplate = baseActivityPrompt.replace(
+            "ÇIKTI (JSON): ...", 
+            `
+            EKSTRA ÖZEL TALİMATLAR (KULLANICI TANIMLI):
+            ${draft.customInstructions}
+            
+            ÇIKTI (JSON): ...
+            `
+        );
+
+        const newPrompt: PromptTemplate = {
+            id: promptId,
+            name: `${finalConfig.title} Promptu`,
+            description: `OCR kaynaklı otomatik oluşturulan prompt. Kaynak: ${draft.baseType}`,
+            category: finalConfig.category,
+            systemInstruction: "Sen uzman bir eğitim materyali tasarımcısısın.",
+            template: mergedTemplate,
+            variables: ['difficulty', 'topic', 'worksheetCount', 'itemCount'],
+            tags: ['ocr', 'auto-generated'],
+            updatedAt: new Date().toISOString(),
+            version: 1,
+            history: []
+        };
+
+        await setDoc(doc(db, "config_prompts", promptId), newPrompt);
+
+        // 2. Create the Dynamic Activity
+        const activityId = `ACT_${Date.now()}`;
+        const newActivity: DynamicActivity = {
+            id: activityId,
+            title: finalConfig.title,
+            description: finalConfig.description,
+            icon: finalConfig.icon,
+            category: finalConfig.category, // e.g. 'others'
+            isActive: true,
+            isPremium: false,
+            promptId: promptId,
+            defaultParams: draft.defaultParams
+        };
+
+        await setDoc(doc(db, "config_activities", activityId), newActivity);
+
+        // 3. Delete the draft
+        await deleteDoc(doc(db, "activity_drafts", draft.id));
+    },
+    
+    deleteDraft: async (id: string) => {
+        await deleteDoc(doc(db, "activity_drafts", id));
     },
 
     // --- PROMPTS ---

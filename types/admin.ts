@@ -15,6 +15,21 @@ export interface DynamicActivity {
     order?: number; // Sorting order
 }
 
+export interface ActivityDraft {
+    id: string;
+    title: string;
+    description: string;
+    baseType: string; // The underlying ActivityType (e.g. BASIC_OPERATIONS)
+    customInstructions: string; // The OCR derived instructions
+    defaultParams: {
+        topic: string;
+        difficulty: string;
+        itemCount: number;
+    };
+    createdAt: string;
+    createdBy: string;
+}
+
 export interface PromptVersion {
     version: number;
     template: string;

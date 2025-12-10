@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { SavedWorksheet, SavedAssessment, ActivityType } from '../types';
 import { ACTIVITIES } from '../constants';
@@ -89,7 +88,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
   const handleBulkDelete = async () => {
       if (isReadOnly || selectedIds.size === 0) return;
       if (confirm(`${selectedIds.size} öğeyi silmek istediğinizden emin misiniz?`)) {
-          const ids = Array.from(selectedIds);
+          const ids = Array.from(selectedIds) as string[];
           // Filter IDs to check type (currently only worksheets support bulk delete efficiently via service)
           const worksheetIds = ids.filter(id => worksheets.some(w => w.id === id));
           

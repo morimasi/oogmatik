@@ -9,6 +9,7 @@ import { printService } from '../utils/printService';
 import { ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
+import { adminService } from '../services/adminService';
 
 interface OCRScannerProps {
     onBack: () => void;
@@ -202,6 +203,31 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
         }
     };
     
+    const handleSaveAsDraft = async () => {
+        if (!user || user.role !== 'admin') return;
+        setIsSaving(true);
+        try {
+             await adminService.saveDraftActivity({
+                 title: config.title,
+                 description: analysisResult?.description || 'OCR ile oluşturuldu',
+                 baseType: config.activityType,
+                 customInstructions: config.instructions,
+                 defaultParams: {
+                     topic: config.topic,
+                     difficulty: config.difficulty,
+                     itemCount: config.itemCount
+                 },
+                 createdBy: user.email
+             });
+             alert("Etkinlik taslağı Yönetici Paneline gönderildi.");
+        } catch (e) {
+            console.error("Draft save error", e);
+            alert("Taslak kaydedilemedi.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+    
     const handlePrint = () => {
         printService.generatePdf('.worksheet-item', config.title, { action: 'print' });
     };
@@ -226,8 +252,15 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                 {step === 'preview' && (
                     <div className="flex gap-2">
                         <button onClick={handlePrint} className="px-4 py-2 bg-zinc-800 hover:bg-black text-white rounded-lg font-bold shadow-sm transition-all"><i className="fa-solid fa-print mr-2"></i> Yazdır</button>
+                        
+                        {user?.role === 'admin' && (
+                             <button onClick={handleSaveAsDraft} disabled={isSaving} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold shadow-sm transition-all disabled:opacity-50">
+                                <i className="fa-solid fa-upload mr-2"></i> Sisteme Ekle
+                            </button>
+                        )}
+                        
                         <button onClick={handleSaveToArchive} disabled={!user || isSaving} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-sm transition-all disabled:opacity-50">
-                            {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save mr-2"></i>} Kaydet
+                            {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save mr-2"></i>} Arşivle
                         </button>
                     </div>
                 )}

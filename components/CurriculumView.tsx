@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { curriculumService } from '../services/curriculumService';
 import { Curriculum, CurriculumDay, CurriculumActivity } from '../types';
@@ -157,7 +156,7 @@ const WizardStep3 = ({ data, setData, onGenerate, loading }: any) => {
 
 // --- PLAN COMPONENTS ---
 
-const DayCard = ({ day, onRegenerate, onToggleActivity, onSelectActivity }: { day: CurriculumDay, onRegenerate: () => void, onToggleActivity: (day: number, actId: string) => void, onSelectActivity: (id: string) => void }) => {
+const DayCard: React.FC<{ day: CurriculumDay, onRegenerate: () => void, onToggleActivity: (day: number, actId: string) => void, onSelectActivity: (id: string) => void }> = ({ day, onRegenerate, onToggleActivity, onSelectActivity }) => {
     const isAllCompleted = day.activities.every(a => a.status === 'completed');
     
     return (

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { Activity, ActivityStats, ActivityType } from '../types';
 import { statsService } from '../services/statsService';
@@ -24,7 +23,7 @@ interface FavoriteCardProps {
 
 // --- UI COMPONENTS ---
 
-const CategoryPill = ({ id, active, onClick }: { id: string, active: boolean, onClick: () => void }) => {
+const CategoryPill: React.FC<{ id: string, active: boolean, onClick: () => void }> = ({ id, active, onClick }) => {
     const category = ACTIVITY_CATEGORIES.find(c => c.id === id);
     if (!category && id !== 'all') return null;
 
