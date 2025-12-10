@@ -341,33 +341,42 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
     return results;
 };
 
+// IMPROVED STROOP TEST GENERATOR (A4 FILLER)
 export const generateOfflineStroopTest = async (options: GeneratorOptions): Promise<StroopTestData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { worksheetCount } = options;
     const results: StroopTestData[] = [];
+    
+    // Expanded color map for variety
     const colorMap = [
         { name: 'KIRMIZI', css: '#ef4444' }, 
         { name: 'MAVİ', css: '#3b82f6' }, 
         { name: 'YEŞİL', css: '#22c55e' }, 
-        { name: 'SARI', css: '#eab308' },
+        { name: 'SARI', css: '#facc15' }, // Slightly darker yellow for visibility
         { name: 'MOR', css: '#a855f7' },
-        { name: 'SİYAH', css: '#000000' }
+        { name: 'SİYAH', css: '#000000' },
+        { name: 'TURUNCU', css: '#f97316' },
+        { name: 'PEMBE', css: '#ec4899' }
     ];
 
+    // Standard A4 Grid calculation: 
+    // 4 Columns x 12 Rows = 48 Items looks standard and professional.
+    const TOTAL_ITEMS = 48;
+
     for (let i = 0; i < worksheetCount; i++) {
-        const items = Array.from({ length: itemCount || 24 }).map(() => {
+        const items = Array.from({ length: TOTAL_ITEMS }).map(() => {
             const textObj = getRandomItems(colorMap, 1)[0];
             // Ensure conflict (interference)
-            let colorObj = getRandomItems(colorMap, 1)[0];
-            while (colorObj.name === textObj.name) {
-                colorObj = getRandomItems(colorMap, 1)[0];
-            }
+            // Filter out the matching color to guarantee mismatched ink
+            const conflictPool = colorMap.filter(c => c.name !== textObj.name);
+            const colorObj = getRandomItems(conflictPool, 1)[0];
+            
             return { text: textObj.name, color: colorObj.css };
         });
         
         results.push({ 
-            title: 'Stroop Testi (Renk Söyle)', 
-            instruction: "DİKKAT: Yazılan kelimeyi okuma! Kelimenin RENGİNİ söyle.",
-            pedagogicalNote: "Dürtü kontrolü (inhibisyon), seçici dikkat ve bilişsel esneklik sağlar.",
+            title: 'STROOP TESTİ (Renk Söyleme)', 
+            instruction: "DİKKAT: Yazılan kelimeyi okumayın! Kelimenin yazıldığı RENGİ yüksek sesle söyleyin.",
+            pedagogicalNote: "Dürtü kontrolü (inhibisyon), seçici dikkat ve bilişsel esneklik değerlendirmesi.",
             imagePrompt: 'Renkler',
             items 
         });

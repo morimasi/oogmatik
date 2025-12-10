@@ -1,450 +1,392 @@
 
-import React, { useState, useEffect } from 'react';
-import { AssessmentProfile, SavedAssessment, ActivityType, TestCategory, AssessmentReport, AssessmentConfig, AdaptiveQuestion } from '../types';
-import { generateAssessmentReport } from '../services/assessmentGenerator';
-import { assessmentService } from '../services/assessmentService';
-import { AssessmentReportViewer } from './AssessmentReportViewer';
+import React, { useState, useEffect, useRef } from 'react';
+import { ActivityType, SavedAssessment, ProfessionalAssessmentReport, SubTestResult, CognitiveDomain, ClinicalObservation } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { shuffle } from '../services/offlineGenerators/helpers';
+import { AssessmentEngine } from './assessment/AssessmentEngine';
+import { AssessmentReportViewer } from './AssessmentReportViewer';
+import { assessmentService } from '../services/assessmentService';
 
 interface AssessmentModuleProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
     onAddToWorkbook?: (assessment: SavedAssessment) => void;
-    onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
+    onAutoGenerateWorkbook?: (report: any) => void;
 }
+
+const DOMAINS: { id: CognitiveDomain; title: string; desc: string; icon: string; estimatedTime: string }[] = [
+    { 
+        id: 'visual_spatial_memory', 
+        title: 'Görsel-Uzamsal Bellek (Matrix)', 
+        desc: 'Kısa süreli görsel hafıza ve desen takibi.', 
+        icon: 'fa-table-cells', 
+        estimatedTime: '3 dk' 
+    },
+    { 
+        id: 'processing_speed', 
+        title: 'Hızlı İsimlendirme (RAN)', 
+        desc: 'Görsel uyaranları işlemleme ve sözel tepki hızı.', 
+        icon: 'fa-stopwatch', 
+        estimatedTime: '2 dk' 
+    },
+    { 
+        id: 'selective_attention', 
+        title: 'Stroop Testi (Dikkat)', 
+        desc: 'Dürtü kontrolü, odaklanma ve çeldirici baskılama.', 
+        icon: 'fa-traffic-light', 
+        estimatedTime: '3 dk' 
+    },
+    { 
+        id: 'logical_reasoning', 
+        title: 'Mantıksal Muhakeme', 
+        desc: 'Akışkan zeka ve problem çözme becerisi.', 
+        icon: 'fa-brain', 
+        estimatedTime: '5 dk' 
+    }
+];
 
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }) => {
     const { user } = useAuth();
     
-    // Workflow State
-    const [step, setStep] = useState<'profile' | 'config' | 'loading' | 'test-intro' | 'testing' | 'generating' | 'report'>('profile');
+    // State Machine
+    const [view, setView] = useState<'setup' | 'running' | 'report'>('setup');
+    const [activeTestIndex, setActiveTestIndex] = useState(0);
     
-    // Profile Data
-    const [profile, setProfile] = useState<AssessmentProfile>({
-        studentName: '',
-        age: 7,
-        grade: '1. Sınıf',
-        gender: 'Erkek',
-        observations: [],
-        testResults: {},
-        errorPatterns: {} 
+    // Profile & Config
+    const [studentName, setStudentName] = useState('');
+    const [studentAge, setStudentAge] = useState(7);
+    const [selectedDomains, setSelectedDomains] = useState<CognitiveDomain[]>(['visual_spatial_memory', 'selective_attention', 'processing_speed', 'logical_reasoning']);
+    
+    // Results
+    const [results, setResults] = useState<SubTestResult[]>([]);
+    const [observations, setObservations] = useState<ClinicalObservation>({
+        anxietyLevel: 'low',
+        attentionSpan: 'focused',
+        motorSkills: 'typical',
+        notes: ''
     });
 
-    // Configuration
-    const [config, setConfig] = useState<AssessmentConfig>({
-        mode: 'standard',
-        selectedSkills: ['linguistic', 'logical', 'spatial', 'attention'],
-        duration: 20
-    });
+    const [finalReport, setFinalReport] = useState<SavedAssessment | null>(null);
 
-    // Test Runtime State
-    const [questionPool, setQuestionPool] = useState<AdaptiveQuestion[]>([]);
-    const [adaptiveQueue, setAdaptiveQueue] = useState<AdaptiveQuestion[]>([]);
-    const [currentQIndex, setCurrentQIndex] = useState(0);
-    const [answers, setAnswers] = useState<any[]>([]);
-    
-    // Reporting
-    const [generatedReport, setGeneratedReport] = useState<SavedAssessment | null>(null);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isSaved, setIsSaved] = useState(false);
-
-    // --- 1. CONFIGURATION LOGIC ---
-    
-    const handleProfileSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setStep('config');
-    };
-
-    const handleConfigSubmit = async () => {
-        setStep('loading');
-        try {
-            // Generate/Fetch questions from AI or Offline Fallback
-            const pool = await assessmentService.generateSession(config);
-            setQuestionPool(pool);
-
-            // Initialize Queue: Pick one starting question (Difficulty ~2 or 1) for each selected skill
-            const initialQuestions = config.selectedSkills.map(skill => {
-                const skillQs = pool.filter(q => q.skill === skill);
-                return skillQs.find(q => q.difficulty === 2) || skillQs[0];
-            }).filter(q => q !== undefined);
-
-            setAdaptiveQueue(shuffle(initialQuestions));
-            setStep('test-intro');
-        } catch (error) {
-            console.error("Assessment initialization failed:", error);
-            alert("Test başlatılamadı. Lütfen tekrar deneyin.");
-            setStep('config');
-        }
-    };
-
-    // --- 2. ADAPTIVE ENGINE LOGIC ---
-
-    const handleAnswer = (selectedOption: string) => {
-        const currentQ = adaptiveQueue[currentQIndex];
-        const isCorrect = selectedOption === currentQ.correct;
-        const errorTag = !isCorrect ? currentQ.errorTags?.[selectedOption] : null;
-
-        // Record Answer
-        const answerRecord = {
-            questionId: currentQ.id,
-            skill: currentQ.skill,
-            isCorrect,
-            difficulty: currentQ.difficulty,
-            errorTag,
-            timestamp: Date.now()
-        };
-        
-        const newAnswers = [...answers, answerRecord];
-        setAnswers(newAnswers);
-
-        // Update Error Patterns
-        if (errorTag) {
-            setProfile(prev => ({
-                ...prev,
-                errorPatterns: {
-                    ...prev.errorPatterns,
-                    [errorTag]: (prev.errorPatterns?.[errorTag] || 0) + 1
-                }
-            }));
-        }
-
-        // Adaptive Branching
-        const skillAnswers = newAnswers.filter(a => a.skill === currentQ.skill);
-        const maxQuestionsPerSkill = config.mode === 'quick' ? 3 : (config.mode === 'standard' ? 5 : 8);
-
-        if (skillAnswers.length < maxQuestionsPerSkill) {
-            // Find next question from pool
-            let nextDifficulty = currentQ.difficulty;
-            
-            if (isCorrect) {
-                nextDifficulty = Math.min(5, currentQ.difficulty + 1);
-            } else {
-                nextDifficulty = Math.max(1, currentQ.difficulty - 1);
-            }
-
-            // Find a question of this difficulty not yet answered
-            const usedIds = new Set(newAnswers.map(a => a.questionId));
-            const availableSkillQs = questionPool.filter(q => q.skill === currentQ.skill && !usedIds.has(q.id) && !adaptiveQueue.some(aq => aq.id === q.id));
-            
-            // Try to find exact difficulty match, else closest
-            const nextQ = availableSkillQs.find(q => q.difficulty === nextDifficulty) 
-                       || availableSkillQs.sort((a,b) => Math.abs(a.difficulty - nextDifficulty) - Math.abs(b.difficulty - nextDifficulty))[0];
-
-            if (nextQ) {
-                setAdaptiveQueue(prev => [...prev, nextQ]);
-            }
-        }
-
-        setCurrentQIndex(prev => prev + 1);
-    };
-
-    // Check for completion
-    useEffect(() => {
-        if (adaptiveQueue.length > 0 && currentQIndex >= adaptiveQueue.length) {
-            finishTests();
-        }
-    }, [currentQIndex, adaptiveQueue.length]);
-
-
-    // --- 3. REPORT GENERATION ---
-
-    const finishTests = async () => {
-        setStep('generating');
-        
-        const compiledResults: any = {};
-        
-        config.selectedSkills.forEach(skill => {
-            const skillAnswers = answers.filter(a => a.skill === skill);
-            if (skillAnswers.length === 0) return;
-
-            const totalWeight = skillAnswers.reduce((acc, a) => acc + a.difficulty, 0);
-            const earnedWeight = skillAnswers.reduce((acc, a) => acc + (a.isCorrect ? a.difficulty : 0), 0);
-            
-            const accuracy = totalWeight > 0 ? (earnedWeight / totalWeight) * 100 : 0;
-
-            compiledResults[skill] = {
-                id: skill,
-                name: skill.charAt(0).toUpperCase() + skill.slice(1), 
-                score: earnedWeight,
-                total: totalWeight,
-                accuracy: Math.round(accuracy),
-                duration: 0,
-                timestamp: Date.now()
-            };
-        });
-
-        const finalProfile = { ...profile, testResults: compiledResults };
-        setProfile(finalProfile);
-
-        try {
-            const report = await generateAssessmentReport(finalProfile);
-            const savedAssessment: SavedAssessment = {
-                id: crypto.randomUUID(),
-                userId: user?.id || 'guest',
-                studentName: profile.studentName,
-                age: profile.age,
-                gender: profile.gender,
-                grade: profile.grade,
-                report,
-                createdAt: new Date().toISOString()
-            };
-            
-            if (user) {
-                await assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, report);
-                setIsSaved(true);
-            }
-            
-            setGeneratedReport(savedAssessment);
-            setStep('report');
-        } catch (error) {
-            console.error(error);
-            alert("Rapor oluşturulurken bir hata oluştu.");
-            setStep('profile');
-        }
-    };
-
-    const handleManualSave = async () => {
-        if (!user) {
-            alert("Kaydetmek için lütfen giriş yapın.");
+    const startBattery = () => {
+        if (!studentName.trim()) {
+            alert("Lütfen öğrenci adını giriniz.");
             return;
         }
-        if (!generatedReport) return;
+        setResults([]);
+        setActiveTestIndex(0);
+        setView('running');
+    };
 
-        setIsSaving(true);
-        try {
-            await assessmentService.saveAssessment(user.id, profile.studentName, profile.gender, profile.age, profile.grade, generatedReport.report);
-            setIsSaved(true);
-            alert("Rapor başarıyla arşive kaydedildi.");
-        } catch (e) {
-            console.error(e);
-            alert("Kaydetme sırasında hata oluştu.");
-        } finally {
-            setIsSaving(false);
+    const handleTestComplete = (result: SubTestResult) => {
+        const newResults = [...results, result];
+        setResults(newResults);
+
+        if (activeTestIndex < selectedDomains.length - 1) {
+            setActiveTestIndex(prev => prev + 1);
+        } else {
+            generateFinalReport(newResults);
         }
     };
 
-    // --- RENDERERS ---
+    const generateFinalReport = async (completedResults: SubTestResult[]) => {
+        // Simple Heuristic Analysis (In a real app, this would be more complex AI or Statistical Model)
+        const totalScore = completedResults.reduce((acc, r) => acc + r.score, 0) / completedResults.length;
+        
+        // Mock Risk Calculation
+        const attentionScore = completedResults.find(r => r.testId === 'selective_attention')?.score || 100;
+        const memoryScore = completedResults.find(r => r.testId === 'visual_spatial_memory')?.score || 100;
+        
+        const reportData: ProfessionalAssessmentReport = {
+            id: crypto.randomUUID(),
+            studentId: 'temp',
+            studentName,
+            examinerId: user?.id || 'guest',
+            date: new Date().toISOString(),
+            duration: 0, // Todo calculation
+            subTests: completedResults,
+            observations,
+            overallRiskAnalysis: {
+                dyslexiaRisk: memoryScore < 50 ? 'high' : memoryScore < 70 ? 'moderate' : 'low',
+                dyscalculiaRisk: 'low', // Would need math test
+                attentionDeficitRisk: attentionScore < 50 ? 'high' : attentionScore < 70 ? 'moderate' : 'low',
+                summary: `Öğrenci ${studentName}, batarya genelinde %${Math.round(totalScore)} performans göstermiştir. ${observations.notes}`
+            },
+            recommendations: [
+                attentionScore < 60 ? "Dikkat sürdürülebilirliği çalışmaları (Stroop, Burdon) önerilir." : "",
+                memoryScore < 60 ? "Görsel hafıza egzersizleri (Memory, Matrix) günlük plana eklenmelidir." : ""
+            ].filter(s => s !== "")
+        };
 
-    if (step === 'loading') {
+        // Convert to legacy structure for compatibility with existing Viewer
+        const legacyReport: any = {
+            overallSummary: reportData.overallRiskAnalysis.summary,
+            scores: {
+                attention: attentionScore,
+                spatial: memoryScore,
+                logical: completedResults.find(r => r.testId === 'logical_reasoning')?.score || 0,
+                linguistic: completedResults.find(r => r.testId === 'processing_speed')?.score || 0 // Proxy
+            },
+            chartData: completedResults.map(r => ({ label: r.name, value: r.score, fullMark: 100 })),
+            analysis: {
+                strengths: completedResults.filter(r => r.score > 75).map(r => `${r.name} alanında güçlü performans.`),
+                weaknesses: completedResults.filter(r => r.score < 50).map(r => `${r.name} alanında desteğe ihtiyaç var.`),
+                errorAnalysis: [`Ortalama Tepki Süresi: ${Math.round(completedResults.reduce((a,b)=>a+b.avgReactionTime,0)/completedResults.length)}ms`]
+            },
+            roadmap: []
+        };
+
+        const savedAssessment: SavedAssessment = {
+            id: reportData.id,
+            userId: user?.id || 'guest',
+            studentName,
+            age: studentAge,
+            gender: 'Erkek', // UI doesn't ask yet
+            grade: '1. Sınıf',
+            report: legacyReport,
+            createdAt: new Date().toISOString()
+        };
+
+        if (user) {
+            await assessmentService.saveAssessment(user.id, studentName, 'Erkek', studentAge, '1. Sınıf', legacyReport);
+        }
+
+        setFinalReport(savedAssessment);
+        setView('report');
+    };
+
+    // --- VIEW: SETUP ---
+    if (view === 'setup') {
         return (
-            <div className="flex flex-col items-center justify-center h-full mt-20">
-                <div className="w-24 h-24 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
-                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Test Hazırlanıyor...</h3>
-                <p className="text-zinc-500 mt-2">Yapay zeka senin için özel sorular üretiyor.</p>
+            <div className="max-w-5xl mx-auto p-6 md:p-12 animate-in fade-in">
+                <div className="flex items-center gap-4 mb-8">
+                    <button onClick={onBack} className="w-10 h-10 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center transition-colors">
+                        <i className="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black text-zinc-900 dark:text-white">Bilişsel Değerlendirme Bataryası</h1>
+                        <p className="text-zinc-500">Özel öğrenme güçlüğü tanılama ve tarama için profesyonel araç seti.</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left: Configuration */}
+                    <div className="lg:col-span-2 space-y-8">
+                        
+                        <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                <i className="fa-solid fa-user-tag text-indigo-500"></i> Öğrenci Profili
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Ad Soyad</label>
+                                    <input 
+                                        type="text" 
+                                        value={studentName}
+                                        onChange={(e) => setStudentName(e.target.value)}
+                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        placeholder="Örn: Ali Yılmaz"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yaş</label>
+                                    <input 
+                                        type="number" 
+                                        value={studentAge}
+                                        onChange={(e) => setStudentAge(Number(e.target.value))}
+                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                <i className="fa-solid fa-layer-group text-purple-500"></i> Alt Testler (Batarya İçeriği)
+                            </h3>
+                            <div className="space-y-3">
+                                {DOMAINS.map(domain => {
+                                    const isSelected = selectedDomains.includes(domain.id);
+                                    return (
+                                        <div 
+                                            key={domain.id}
+                                            onClick={() => {
+                                                setSelectedDomains(prev => 
+                                                    prev.includes(domain.id) 
+                                                        ? prev.filter(d => d !== domain.id) 
+                                                        : [...prev, domain.id]
+                                                );
+                                            }}
+                                            className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-zinc-200 dark:border-zinc-700 opacity-60 hover:opacity-100'}`}
+                                        >
+                                            <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl mr-4 ${isSelected ? 'bg-indigo-100 text-indigo-600' : 'bg-zinc-100 text-zinc-400'}`}>
+                                                <i className={`fa-solid ${domain.icon}`}></i>
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">{domain.title}</h4>
+                                                <p className="text-xs text-zinc-500">{domain.desc}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-xs font-mono font-bold text-zinc-400">{domain.estimatedTime}</span>
+                                                <div className={`w-6 h-6 rounded-full border-2 ml-auto mt-1 flex items-center justify-center ${isSelected ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-zinc-300'}`}>
+                                                    {isSelected && <i className="fa-solid fa-check text-[10px]"></i>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {/* Right: Intro & Start */}
+                    <div className="bg-zinc-900 dark:bg-black text-white p-8 rounded-3xl flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+                        
+                        <div>
+                            <div className="inline-block px-3 py-1 bg-white/10 rounded-full text-xs font-bold mb-6 backdrop-blur-md border border-white/10">
+                                PRO MODÜL
+                            </div>
+                            <h2 className="text-3xl font-black mb-4 leading-tight">Tanısal Değerlendirme Başlat</h2>
+                            <p className="text-white/60 text-sm leading-relaxed mb-8">
+                                Bu batarya, öğrencinin temel bilişsel becerilerini interaktif görevlerle ölçer. Test sırasında sessiz bir ortam sağladığınızdan emin olun.
+                            </p>
+                            
+                            <div className="space-y-4 mb-8">
+                                <div className="flex items-center gap-3 text-sm text-white/80">
+                                    <i className="fa-regular fa-clock w-5 text-center"></i>
+                                    <span>Tahmini Süre: ~15 Dakika</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-white/80">
+                                    <i className="fa-solid fa-laptop w-5 text-center"></i>
+                                    <span>Gereksinim: Dokunmatik veya Mouse</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={startBattery}
+                            disabled={selectedDomains.length === 0}
+                            className="w-full py-4 bg-white text-black font-black rounded-xl hover:bg-zinc-200 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <i className="fa-solid fa-play"></i>
+                            TESTİ BAŞLAT
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }
 
-    if (step === 'profile') {
+    // --- VIEW: RUNNING ---
+    if (view === 'running') {
+        const currentDomainId = selectedDomains[activeTestIndex];
+        const domainInfo = DOMAINS.find(d => d.id === currentDomainId);
+
         return (
-            <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-zinc-800 rounded-2xl shadow-xl mt-8 border border-zinc-200 dark:border-zinc-700">
-                <div className="flex items-center gap-3 mb-6 border-b pb-4 border-zinc-200 dark:border-zinc-700">
-                    <button onClick={onBack} className="text-zinc-400 hover:text-zinc-600"><i className="fa-solid fa-arrow-left"></i></button>
-                    <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Öğrenci Profili</h2>
-                </div>
-                
-                <form onSubmit={handleProfileSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-2">Adı Soyadı</label>
-                            <input type="text" required className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white" 
-                                value={profile.studentName} onChange={e => setProfile({...profile, studentName: e.target.value})} placeholder="Örn: Ali Yılmaz" />
+            <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-zinc-900 flex flex-col">
+                {/* Test Runner Header */}
+                <div className="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 flex items-center justify-between px-6 shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                            <i className={`fa-solid ${domainInfo?.icon}`}></i>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-2">Cinsiyet</label>
-                            <div className="flex gap-4">
-                                {['Erkek', 'Kız'].map(g => (
-                                    <button key={g} type="button" onClick={() => setProfile({...profile, gender: g as any})}
-                                        className={`flex-1 p-3 rounded-xl border-2 font-bold transition-all ${profile.gender === g ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-zinc-200 text-zinc-500'}`}>
-                                        {g}
-                                    </button>
-                                ))}
+                            <h3 className="font-bold text-zinc-800 dark:text-zinc-100">{domainInfo?.title}</h3>
+                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                                <span>Test {activeTestIndex + 1} / {selectedDomains.length}</span>
+                                <div className="w-24 h-1.5 bg-zinc-200 rounded-full overflow-hidden">
+                                    <div className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${((activeTestIndex) / selectedDomains.length) * 100}%` }}></div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-2">Yaş</label>
-                            <input type="number" required min="5" max="15" className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white" 
-                                value={profile.age} onChange={e => setProfile({...profile, age: parseInt(e.target.value)})} />
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
+                            <i className="fa-solid fa-eye"></i>
+                            <span>Gözlem Modu Aktif</span>
                         </div>
-                        <div>
-                            <label className="block text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-2">Sınıf</label>
-                            <select className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700 dark:text-white"
-                                value={profile.grade} onChange={e => setProfile({...profile, grade: e.target.value})}>
-                                {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
-                            </select>
-                        </div>
+                        <button onClick={() => { if(confirm('Testi iptal etmek istediğinize emin misiniz?')) setView('setup'); }} className="text-zinc-400 hover:text-red-500 transition-colors">
+                            <i className="fa-solid fa-times text-xl"></i>
+                        </button>
                     </div>
-
-                    <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2">
-                        <span>Devam Et</span>
-                        <i className="fa-solid fa-arrow-right"></i>
-                    </button>
-                </form>
-            </div>
-        );
-    }
-
-    if (step === 'config') {
-        const skills: {id: TestCategory, label: string, icon: string}[] = [
-            { id: 'linguistic', label: 'Sözel-Dilsel', icon: 'fa-book' },
-            { id: 'logical', label: 'Mantıksal', icon: 'fa-calculator' },
-            { id: 'spatial', label: 'Görsel-Uzamsal', icon: 'fa-eye' },
-            { id: 'attention', label: 'Dikkat', icon: 'fa-bullseye' },
-            { id: 'musical', label: 'Müziksel', icon: 'fa-music' },
-            { id: 'kinesthetic', label: 'Bedensel', icon: 'fa-person-running' },
-        ];
-
-        return (
-            <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-zinc-800 rounded-2xl shadow-xl mt-8 border border-zinc-200 dark:border-zinc-700">
-                <div className="flex items-center gap-3 mb-6 border-b pb-4 border-zinc-200 dark:border-zinc-700">
-                    <button onClick={() => setStep('profile')} className="text-zinc-400 hover:text-zinc-600"><i className="fa-solid fa-arrow-left"></i></button>
-                    <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Test Yapılandırması</h2>
                 </div>
 
-                <div className="space-y-8">
-                    {/* Mode Selection */}
-                    <div>
-                        <label className="block text-sm font-bold text-zinc-500 uppercase mb-3">Değerlendirme Modu</label>
-                        <div className="grid grid-cols-3 gap-4">
-                            {[
-                                { id: 'quick', label: 'Hızlı Tarama', desc: '~10 dk', icon: 'fa-bolt' },
-                                { id: 'standard', label: 'Standart', desc: '~20 dk', icon: 'fa-clipboard-check' },
-                                { id: 'full', label: 'Detaylı Analiz', desc: '~40 dk', icon: 'fa-microscope' }
-                            ].map(m => (
-                                <button
-                                    key={m.id}
-                                    onClick={() => setConfig({...config, mode: m.id as any})}
-                                    className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${config.mode === m.id ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-zinc-200 text-zinc-500 hover:bg-zinc-50'}`}
+                <div className="flex-1 flex overflow-hidden">
+                    {/* Main Test Area */}
+                    <div className="flex-1 relative bg-zinc-100 dark:bg-black p-4 flex items-center justify-center">
+                        <AssessmentEngine 
+                            domain={currentDomainId} 
+                            onComplete={handleTestComplete} 
+                        />
+                    </div>
+
+                    {/* Examiner Sidebar (Observer Panel) */}
+                    <div className="w-80 bg-white dark:bg-zinc-800 border-l border-zinc-200 dark:border-zinc-700 p-6 flex flex-col overflow-y-auto">
+                        <h4 className="font-black text-zinc-400 uppercase tracking-widest text-xs mb-6">Klinik Gözlem</h4>
+                        
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 mb-2">Kaygı Düzeyi</label>
+                                <div className="flex bg-zinc-100 rounded-lg p-1">
+                                    {['low', 'medium', 'high'].map(l => (
+                                        <button 
+                                            key={l}
+                                            onClick={() => setObservations({...observations, anxietyLevel: l as any})}
+                                            className={`flex-1 py-2 text-xs font-bold rounded capitalize transition-colors ${observations.anxietyLevel === l ? (l==='high'?'bg-red-500 text-white':'bg-white shadow text-black') : 'text-zinc-500'}`}
+                                        >
+                                            {l === 'low' ? 'Düşük' : l === 'medium' ? 'Orta' : 'Yüksek'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 mb-2">Dikkat Süresi</label>
+                                <select 
+                                    value={observations.attentionSpan}
+                                    onChange={(e) => setObservations({...observations, attentionSpan: e.target.value as any})}
+                                    className="w-full p-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm font-medium"
                                 >
-                                    <i className={`fa-solid ${m.icon} text-2xl`}></i>
-                                    <span className="font-bold text-sm">{m.label}</span>
-                                    <span className="text-xs opacity-70">{m.desc}</span>
-                                </button>
-                            ))}
+                                    <option value="focused">Odaklanmış</option>
+                                    <option value="distracted">Çabuk Dağılan</option>
+                                    <option value="hyperactive">Hareketli/Dürtüsel</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-zinc-500 mb-2">Anlık Notlar</label>
+                                <textarea 
+                                    value={observations.notes}
+                                    onChange={(e) => setObservations({...observations, notes: e.target.value})}
+                                    className="w-full h-32 p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    placeholder="Öğrencinin tepkileri, kullandığı stratejiler..."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <div className="mt-auto pt-6 border-t border-zinc-100">
+                             <div className="p-4 bg-blue-50 text-blue-700 text-xs rounded-xl leading-relaxed">
+                                 <i className="fa-solid fa-circle-info mr-2"></i>
+                                 Bu panel sadece uygulayıcı içindir. Öğrenci ekranı görmemelidir.
+                             </div>
                         </div>
                     </div>
-
-                    {/* Skill Selection */}
-                    <div>
-                        <label className="block text-sm font-bold text-zinc-500 uppercase mb-3">Test Edilecek Alanlar</label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {skills.map(s => {
-                                const isSelected = config.selectedSkills.includes(s.id);
-                                return (
-                                    <button
-                                        key={s.id}
-                                        onClick={() => {
-                                            const newSkills = isSelected 
-                                                ? config.selectedSkills.filter(id => id !== s.id)
-                                                : [...config.selectedSkills, s.id];
-                                            setConfig({...config, selectedSkills: newSkills});
-                                        }}
-                                        className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${isSelected ? 'border-green-500 bg-green-50 text-green-700' : 'border-zinc-200 text-zinc-500'}`}
-                                    >
-                                        <i className={`fa-solid ${s.icon}`}></i>
-                                        <span className="text-sm font-bold">{s.label}</span>
-                                        {isSelected && <i className="fa-solid fa-check ml-auto"></i>}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        {config.selectedSkills.length === 0 && <p className="text-red-500 text-xs mt-2">En az bir alan seçmelisiniz.</p>}
-                    </div>
-
-                    <button 
-                        onClick={handleConfigSubmit} 
-                        disabled={config.selectedSkills.length === 0}
-                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Değerlendirmeyi Başlat
-                    </button>
                 </div>
             </div>
         );
     }
 
-    if (step === 'test-intro') {
-        return (
-            <div className="max-w-xl mx-auto mt-20 text-center p-8 bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border-4 border-indigo-100 dark:border-zinc-700 animate-in zoom-in">
-                <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 text-3xl">
-                    <i className="fa-solid fa-rocket"></i>
-                </div>
-                <h2 className="text-2xl font-black text-zinc-800 dark:text-zinc-100 mb-2">Hazır mısın {profile.studentName.split(' ')[0]}?</h2>
-                <p className="text-zinc-500 dark:text-zinc-400 mb-8">
-                    Senin için yapay zeka tarafından özel olarak hazırlanan sorularla zihinsel bir yolculuğa çıkacağız.
-                </p>
-                <button onClick={() => setStep('testing')} className="px-8 py-3 bg-indigo-600 text-white rounded-full font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-300">
-                    Başla!
-                </button>
-            </div>
-        );
-    }
-
-    if (step === 'testing') {
-        const currentQ = adaptiveQueue[currentQIndex];
-
-        if (!currentQ) {
-             return <div className="text-center p-10"><i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i></div>;
-        }
-
-        const progressPercent = ((currentQIndex) / (adaptiveQueue.length + 3)) * 100;
-
-        return (
-            <div className="max-w-3xl mx-auto mt-8 p-6 md:p-12 bg-white dark:bg-zinc-800 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-700 relative overflow-hidden min-h-[500px] flex flex-col">
-                <div className="absolute top-0 left-0 w-full h-2 bg-zinc-100 dark:bg-zinc-700">
-                    <div className="h-full bg-indigo-500 transition-all duration-500" 
-                        style={{width: `${Math.min(100, progressPercent)}%`}}></div>
-                </div>
-                
-                <div className="flex justify-between items-center mb-8">
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{currentQ.skill.toUpperCase()}</span>
-                    <div className="flex gap-2">
-                        {Array.from({length: 5}).map((_, i) => (
-                            <div key={i} className={`w-2 h-2 rounded-full ${i < currentQ.difficulty ? 'bg-amber-400' : 'bg-zinc-200'}`}></div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="flex-1 flex flex-col justify-center animate-in fade-in slide-in-from-right duration-300" key={currentQ.id}>
-                     <h3 className="text-2xl md:text-3xl font-bold text-zinc-800 dark:text-zinc-100 text-center mb-10 whitespace-pre-line">{currentQ.text}</h3>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         {currentQ.options.map((opt: string, i: number) => (
-                             <button key={i} onClick={() => handleAnswer(opt)} 
-                                 className="p-6 text-lg font-bold text-zinc-700 dark:text-zinc-200 bg-zinc-50 dark:bg-zinc-700/50 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-700 dark:hover:text-indigo-300 transition-all active:scale-95">
-                                 {opt}
-                             </button>
-                         ))}
-                     </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (step === 'generating') {
-        return (
-            <div className="flex flex-col items-center justify-center h-full mt-20">
-                <div className="w-24 h-24 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
-                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Sonuçlar Analiz Ediliyor...</h3>
-                <p className="text-zinc-500 mt-2">Hata paternleri inceleniyor ve rapor hazırlanıyor.</p>
-            </div>
-        );
-    }
-
-    if (step === 'report' && generatedReport) {
+    // --- VIEW: REPORT ---
+    if (view === 'report' && finalReport) {
         return (
             <AssessmentReportViewer 
-                assessment={generatedReport} 
-                onClose={onBack} 
+                assessment={finalReport}
+                onClose={() => { setView('setup'); onBack(); }} // Go back to main
                 user={user}
                 onAddToWorkbook={onAddToWorkbook}
                 onAutoGenerateWorkbook={onAutoGenerateWorkbook}
-                onManualSave={handleManualSave}
-                isSaving={isSaving}
-                isSaved={isSaved}
             />
         );
     }

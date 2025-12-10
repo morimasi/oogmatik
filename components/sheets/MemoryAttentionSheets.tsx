@@ -361,17 +361,20 @@ export const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData 
     </div>
 );
 
+// --- REVISED STROOP TEST SHEET ---
 export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+    <div className="flex flex-col h-full justify-between">
+        <div className="shrink-0 mb-6">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        </div>
         
-        <div className="grid grid-cols-4 gap-6 mt-8">
+        {/* Main Content: High density grid for A4 filling */}
+        <div className="flex-1 grid grid-cols-4 gap-y-8 gap-x-4 items-center content-start min-h-[700px] py-4">
             {data.items.map((item, index) => (
-                <EditableElement key={index} className="aspect-[4/3] bg-white border-4 border-black rounded-2xl flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] break-inside-avoid relative overflow-hidden">
-                    <div className="absolute top-1 left-2 text-[10px] font-bold text-zinc-300">{index+1}</div>
+                <EditableElement key={index} className="flex justify-center break-inside-avoid">
                     <span 
-                        className="text-3xl md:text-4xl font-black tracking-wider uppercase"
-                        style={{ color: item.color }} // This is the trick: Word says 'BLUE' but color is Red
+                        className="text-3xl md:text-4xl font-black tracking-wide uppercase text-center"
+                        style={{ color: item.color }} 
                     >
                         <EditableText value={item.text} tag="span" />
                     </span>
@@ -379,19 +382,30 @@ export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) =>
             ))}
         </div>
 
-        <div className="mt-8 flex justify-between gap-4 border-t-2 border-black pt-6">
-            <div className="flex-1 p-4 border-2 border-black rounded-xl bg-white shadow-sm">
-                <h4 className="font-bold mb-2 border-b border-black text-center uppercase text-xs">Toplam Hata</h4>
-                <div className="h-8"></div>
+        {/* Footer: Professional Evaluation Box */}
+        <div className="mt-auto pt-6 border-t-4 border-black break-inside-avoid">
+            <div className="flex justify-between gap-4">
+                <div className="flex-1 p-3 border-2 border-black rounded-lg bg-zinc-50">
+                    <h4 className="font-bold text-xs uppercase text-center mb-2">Toplam Süre</h4>
+                    <div className="h-8 border-b border-black border-dashed"></div>
+                </div>
+                <div className="flex-1 p-3 border-2 border-black rounded-lg bg-zinc-50">
+                    <h4 className="font-bold text-xs uppercase text-center mb-2">Hata Sayısı</h4>
+                    <div className="h-8 border-b border-black border-dashed"></div>
+                </div>
+                <div className="flex-1 p-3 border-2 border-black rounded-lg bg-zinc-50">
+                    <h4 className="font-bold text-xs uppercase text-center mb-2">Düzeltme</h4>
+                    <div className="h-8 border-b border-black border-dashed"></div>
+                </div>
+                 <div className="flex-1 p-3 border-2 border-black rounded-lg bg-zinc-50">
+                    <h4 className="font-bold text-xs uppercase text-center mb-2">Puan</h4>
+                    <div className="h-8 border-b border-black border-dashed"></div>
+                </div>
             </div>
-            <div className="flex-1 p-4 border-2 border-black rounded-xl bg-white shadow-sm">
-                <h4 className="font-bold mb-2 border-b border-black text-center uppercase text-xs">Düzeltme</h4>
-                <div className="h-8"></div>
+            <div className="mt-2 text-[10px] text-center text-zinc-500 font-bold uppercase tracking-widest">
+                Klinik Gözlem Notları
             </div>
-            <div className="flex-1 p-4 border-2 border-black rounded-xl bg-white shadow-sm">
-                <h4 className="font-bold mb-2 border-b border-black text-center uppercase text-xs">Süre (sn)</h4>
-                <div className="h-8"></div>
-            </div>
+            <div className="h-16 border-2 border-zinc-200 mt-1 rounded-lg"></div>
         </div>
     </div>
 );
@@ -516,6 +530,10 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
                     </EditableElement>
                 ))}
             </div>
+            {/* Answer Key Strip (For Print) */}
+            <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
+                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
+            </div>
         </div>
     );
 };
@@ -559,6 +577,10 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
                         </div>
                     </EditableElement>
                 ))}
+            </div>
+            {/* Answer Key Strip (For Print) */}
+            <div className="mt-8 pt-4 border-t-2 border-dashed border-zinc-300 hidden print:block text-center text-xs text-zinc-400">
+                Cevaplar: {data.puzzles.map((p,i) => `${i+1}) ${p.answer}`).join('  |  ')}
             </div>
         </div>
     );

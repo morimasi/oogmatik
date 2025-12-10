@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment } from './types';
 import Sidebar from './components/Sidebar';
@@ -43,7 +42,7 @@ const initialStyleSettings: StyleSettings = {
     showInstruction: false,
     showImage: false,
     showFooter: false,
-    smartPagination: true,
+    smartPagination: false, // DEFAULT DISABLED BUT ENFORCED INTERNALLY
     fontFamily: 'OpenDyslexic',
     lineHeight: 1.5,
     letterSpacing: 0
@@ -57,311 +56,287 @@ const initialUiSettings: UiSettings = {
     saturation: 100
 };
 
-type ModalType = 'how-to-use' | 'about' | 'contact' | 'history' | 'settings' | 'developer';
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-}
-
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
-  const [isRendered, setIsRendered] = useState(false);
-  useEffect(() => { if (isOpen) setIsRendered(true); }, [isOpen]);
-  const handleTransitionEnd = () => { if (!isOpen) setIsRendered(false); };
-  if (!isRendered) return null;
-
-  return (
-    <div 
-      className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-out ${isOpen ? 'opacity-100' : 'opacity-0'}`} 
-      onClick={onClose}
-      onTransitionEnd={handleTransitionEnd}
-    >
-      <div 
-        className={`bg-[var(--bg-paper)] rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transition-all duration-300 ease-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Only show default header if NOT history modal (HistoryView has its own) */}
-        {title !== 'İşlem Geçmişi' && (
-            <header className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">{title}</h2>
-              <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--bg-inset)] transition-colors"><i className="fa-solid fa-times"></i></button>
-            </header>
-        )}
-        <div className={`overflow-y-auto custom-scrollbar ${title === 'İşlem Geçmişi' ? 'h-full p-0 bg-transparent' : 'p-6 space-y-4 text-[var(--text-secondary)]'}`}>
-            {children}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const tourSteps: TourStep[] = [
-    { targetId: 'tour-logo', title: 'Ana Sayfa', content: 'Uygulamaya hoş geldiniz! Buraya tıklayarak her zaman ana ekrana dönebilir ve etkinlik seçimini sıfırlayabilirsiniz.', position: 'bottom' },
-    { targetId: 'tour-sidebar', title: 'Etkinlik Menüsü', content: 'Uygulamanın kalbi burası! Üretmek istediğiniz etkinlik kategorisini ve türünü bu menüden seçin. Seçim yaptıktan sonra ayar ekranı açılacaktır.', position: 'right' },
-    { targetId: 'tour-search', title: 'Hızlı Arama', content: 'Yüzlerce etkinlik arasında kaybolmayın. Aradığınız bir etkinliğe buradan hızlıca ulaşabilirsiniz.', position: 'bottom' },
-    { targetId: 'tour-content', title: 'İçerik Alanı', content: 'Seçtiğiniz etkinlik ayarları ve ürettiğiniz çalışma kağıtlarınız bu ana alanda görüntülenir.', position: 'left' },
-    { targetId: 'tour-toolbar', title: 'Araç Çubuğu', content: 'Etkinlik oluşturulduktan sonra, bu araç çubuğu belirir. Kaydetme, paylaşma ve görünüm ayarlarını (ölçek, kenar boşluğu vb.) buradan yapabilirsiniz.', position: 'bottom' },
-    { targetId: 'tour-workbook-btn', title: 'Çalışma Kitapçığı', content: 'Buradan farklı etkinlikleri biriktirip, tek seferde basabileceğiniz bir kitapçık oluşturabilirsiniz.', position: 'bottom' },
-    { targetId: 'tour-favorites-btn', title: 'Favoriler', content: 'En çok kullanılan etkinliklere buradan hızlıca ulaşabilirsiniz.', position: 'bottom' },
-    { targetId: 'tour-archive-btn', title: 'Arşiv', content: 'Kaydettiğiniz tüm etkinliklere buradan ulaşabilir, tekrar açabilir veya arkadaşlarınızla paylaşabilirsiniz.', position: 'bottom' },
-    { targetId: 'tour-profile-btn', title: 'Profiliniz', content: 'Hesap bilgilerinizi, istatistiklerinizi ve değerlendirme raporlarınızı yönetmek için profilinize gidin.', position: 'bottom' },
-];
-
-const LoadingSpinner = () => (
-    <div className="flex h-full w-full items-center justify-center text-indigo-500">
-        <i className="fa-solid fa-circle-notch fa-spin text-3xl"></i>
-    </div>
-);
+type ModalType = 'settings' | 'history' | 'about' | 'developer';
 
 const toPascalCase = (str: string): string => {
     return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 };
 
+const LoadingSpinner = () => (
+    <div className="flex items-center justify-center h-full w-full min-h-[200px]">
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+    </div>
+);
+
+const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }> = ({ isOpen, onClose, title, children }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
+            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center p-5 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 rounded-t-2xl">
+                    <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{title}</h3>
+                    <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                        <i className="fa-solid fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto custom-scrollbar">
+                    {children}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const tourSteps: TourStep[] = [
+    { targetId: 'tour-logo', title: 'Hoş Geldiniz', content: 'Bursa Disleksi AI platformuna hoş geldiniz. Hızlı bir tura başlayalım mı?', position: 'bottom' },
+    { targetId: 'tour-search', title: 'Etkinlik Arama', content: 'İstediğiniz etkinliği veya konuyu buradan hızla bulabilirsiniz.', position: 'bottom' },
+    { targetId: 'tour-sidebar', title: 'Kategoriler', content: 'Sol menüden etkinlik kategorilerine ulaşabilirsiniz.', position: 'right' },
+    { targetId: 'tour-workbook-btn', title: 'Çalışma Kitapçığı', content: 'Seçtiğiniz etkinlikleri buraya ekleyerek tek bir PDF kitapçık oluşturabilirsiniz.', position: 'bottom' },
+    { targetId: 'tour-history-btn', title: 'Geçmiş', content: 'Daha önce oluşturduğunuz etkinliklere buradan ulaşabilirsiniz.', position: 'bottom' },
+];
+
 const AppContent: React.FC = () => {
-  const { user, logout } = useAuth();
-  const [currentView, setCurrentView] = useState<View>('generator');
-  const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
-  const [worksheetData, setWorksheetData] = useState<WorksheetData>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-  
-  const [zenMode, setZenMode] = useState(false);
+    const { user, logout } = useAuth();
+    const [currentView, setCurrentView] = useState<View>('generator');
+    const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
+    const [worksheetData, setWorksheetData] = useState<WorksheetData>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+    
+    const [zenMode, setZenMode] = useState(false);
 
-  const [openModal, setOpenModal] = useState<ModalType | null>(null);
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isTourOpen, setIsTourOpen] = useState(false);
-  
-  const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
-  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+    const [openModal, setOpenModal] = useState<ModalType | null>(null);
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [isTourOpen, setIsTourOpen] = useState(false);
+    
+    const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
+    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
-  const [workbookItems, setWorkbookItems] = useState<CollectionItem[]>([]);
-  const [workbookSettings, setWorkbookSettings] = useState<WorkbookSettings>({
-      title: 'Çalışma Kitapçığı',
-      studentName: '',
-      schoolName: '',
-      year: new Date().getFullYear().toString(),
-      teacherNote: '',
-      theme: 'modern',
-      accentColor: '#4f46e5',
-      coverStyle: 'centered',
-      showTOC: true,
-      showPageNumbers: true,
-      showWatermark: false,
-      watermarkOpacity: 0.05,
-      showBackCover: true
-  });
-  
-  const [theme, setTheme] = useState<AppTheme>(() => {
-      try {
-          const storedTheme = localStorage.getItem('app-theme');
-          return (storedTheme as AppTheme) || 'anthracite';
-      } catch (e) {
-          return 'anthracite';
-      }
-  });
+    const [workbookItems, setWorkbookItems] = useState<CollectionItem[]>([]);
+    const [workbookSettings, setWorkbookSettings] = useState<WorkbookSettings>({
+        title: 'Çalışma Kitapçığı',
+        studentName: '',
+        schoolName: '',
+        year: new Date().getFullYear().toString(),
+        teacherNote: '',
+        theme: 'modern',
+        accentColor: '#4f46e5',
+        coverStyle: 'centered',
+        showTOC: true,
+        showPageNumbers: true,
+        showWatermark: false,
+        watermarkOpacity: 0.05,
+        showBackCover: true
+    });
+    
+    const [theme, setTheme] = useState<AppTheme>(() => {
+        try {
+            const storedTheme = localStorage.getItem('app-theme');
+            return (storedTheme as AppTheme) || 'anthracite';
+        } catch (e) {
+            return 'anthracite';
+        }
+    });
 
-  const [uiSettings, setUiSettings] = useState<UiSettings>(() => {
-      try {
-          const stored = localStorage.getItem('app-ui-settings');
-          return stored ? { ...initialUiSettings, ...JSON.parse(stored) } : initialUiSettings;
-      } catch (e) {
-          return initialUiSettings;
-      }
-  });
+    const [uiSettings, setUiSettings] = useState<UiSettings>(() => {
+        try {
+            const stored = localStorage.getItem('app-ui-settings');
+            return stored ? { ...initialUiSettings, ...JSON.parse(stored) } : initialUiSettings;
+        } catch (e) {
+            return initialUiSettings;
+        }
+    });
 
-  const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
-  
-  // HISTORY STATE (Persistent via LocalStorage)
-  const [historyItems, setHistoryItems] = useState<HistoryItem[]>(() => {
-      try {
-          const stored = localStorage.getItem('user_history');
-          return stored ? JSON.parse(stored) : [];
-      } catch { return []; }
-  });
+    const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
+    
+    // HISTORY STATE (Persistent via LocalStorage)
+    const [historyItems, setHistoryItems] = useState<HistoryItem[]>(() => {
+        try {
+            const stored = localStorage.getItem('user_history');
+            return stored ? JSON.parse(stored) : [];
+        } catch { return []; }
+    });
 
-  useEffect(() => {
-      // Sync History to LS
-      localStorage.setItem('user_history', JSON.stringify(historyItems));
-  }, [historyItems]);
+    useEffect(() => {
+        // Sync History to LS
+        localStorage.setItem('user_history', JSON.stringify(historyItems));
+    }, [historyItems]);
 
-  const refreshNotifications = useCallback(async () => {
-      if (user) {
-          try {
-              const count = await messagingService.getUnreadCount(user.id);
-              setUnreadCount(count);
-          } catch (e) { console.error(e); }
-      }
-  }, [user]);
+    const refreshNotifications = useCallback(async () => {
+        if (user) {
+            try {
+                const count = await messagingService.getUnreadCount(user.id);
+                setUnreadCount(count);
+            } catch (e) { console.error(e); }
+        }
+    }, [user]);
 
-  useEffect(() => {
-      if (user) {
-          refreshNotifications();
-          const interval = setInterval(refreshNotifications, 30000);
-          return () => clearInterval(interval);
-      }
-  }, [user, refreshNotifications]);
+    useEffect(() => {
+        if (user) {
+            refreshNotifications();
+            const interval = setInterval(refreshNotifications, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [user, refreshNotifications]);
 
-  useEffect(() => {
-      if (!user && ['profile', 'admin', 'messages', 'shared'].includes(currentView)) {
-          setCurrentView('generator');
-      }
-  }, [user, currentView]);
+    useEffect(() => {
+        if (!user && ['profile', 'admin', 'messages', 'shared'].includes(currentView)) {
+            setCurrentView('generator');
+        }
+    }, [user, currentView]);
 
-  useEffect(() => {
-      try {
-          const root = document.documentElement;
-          const themesToRemove = [
-              'theme-light', 'dark', 'theme-anthracite', 'theme-anthracite-gold', 
-              'theme-anthracite-cyber', 'theme-anthracite-bumblebee', 'theme-anthracite-stone', 
-              'theme-anthracite-honey', 'theme-anthracite-onyx', 'theme-space', 'theme-nature', 'theme-ocean'
-          ];
-          root.classList.remove(...themesToRemove);
-          if (theme === 'dark') {
-              root.classList.add('dark');
-          } else if (theme === 'light') {
-              root.classList.add('theme-light');
-          } else if (theme === 'anthracite') {
-          } else {
-              root.classList.add(`theme-${theme}`);
-          }
-          localStorage.setItem('app-theme', theme);
-      } catch (e) {
-          console.error("Theme application failed:", e);
-      }
-  }, [theme]);
+    useEffect(() => {
+        try {
+            const root = document.documentElement;
+            const themesToRemove = [
+                'theme-light', 'dark', 'theme-anthracite', 'theme-anthracite-gold', 
+                'theme-anthracite-cyber', 'theme-anthracite-bumblebee', 'theme-anthracite-stone', 
+                'theme-anthracite-honey', 'theme-anthracite-onyx', 'theme-space', 'theme-nature', 'theme-ocean'
+            ];
+            root.classList.remove(...themesToRemove);
+            if (theme === 'dark') {
+                root.classList.add('dark');
+            } else if (theme === 'light') {
+                root.classList.add('theme-light');
+            } else if (theme === 'anthracite') {
+            } else {
+                root.classList.add(`theme-${theme}`);
+            }
+            localStorage.setItem('app-theme', theme);
+        } catch (e) {
+            console.error("Theme application failed:", e);
+        }
+    }, [theme]);
 
-  useEffect(() => {
-      try {
-          const root = document.documentElement;
-          const fontVal = uiSettings.fontFamily === 'Lexend' ? 'Lexend' :
-                          uiSettings.fontFamily === 'OpenDyslexic' ? 'OpenDyslexic' : 
-                          uiSettings.fontFamily === 'Inter' ? 'Inter' :
-                          uiSettings.fontFamily === 'Comic Neue' ? 'Comic Neue' :
-                          uiSettings.fontFamily === 'Lora' ? 'Lora' : 'OpenDyslexic';
-                          
-          root.style.setProperty('--ui-font', fontVal);
-          root.style.setProperty('--ui-scale', uiSettings.fontSizeScale.toString());
-          root.style.setProperty('--ui-spacing', uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal');
-          root.style.setProperty('--ui-line-height', (uiSettings.lineHeight || 1.6).toString());
-          root.style.setProperty('--ui-saturation', `${uiSettings.saturation || 100}%`);
-          
-          localStorage.setItem('app-ui-settings', JSON.stringify(uiSettings));
-      } catch (e) {
-          console.error("UI Settings application failed:", e);
-      }
-  }, [uiSettings]);
+    useEffect(() => {
+        try {
+            const root = document.documentElement;
+            const fontVal = uiSettings.fontFamily === 'Lexend' ? 'Lexend' :
+                            uiSettings.fontFamily === 'OpenDyslexic' ? 'OpenDyslexic' : 
+                            uiSettings.fontFamily === 'Inter' ? 'Inter' :
+                            uiSettings.fontFamily === 'Comic Neue' ? 'Comic Neue' :
+                            uiSettings.fontFamily === 'Lora' ? 'Lora' : 'OpenDyslexic';
+                            
+            root.style.setProperty('--ui-font', fontVal);
+            root.style.setProperty('--ui-scale', uiSettings.fontSizeScale.toString());
+            root.style.setProperty('--ui-spacing', uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal');
+            root.style.setProperty('--ui-line-height', (uiSettings.lineHeight || 1.6).toString());
+            root.style.setProperty('--ui-saturation', `${uiSettings.saturation || 100}%`);
+            
+            localStorage.setItem('app-ui-settings', JSON.stringify(uiSettings));
+        } catch (e) {
+            console.error("UI Settings application failed:", e);
+        }
+    }, [uiSettings]);
 
-  const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
-      const activity = ACTIVITIES.find(a => a.id === activityType);
-      const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
-      if (!activity || !category) return;
+    const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
+        const activity = ACTIVITIES.find(a => a.id === activityType);
+        const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
+        if (!activity || !category) return;
 
-      const newItem: HistoryItem = {
-          id: Date.now().toString() + Math.random(),
-          userId: user?.id || 'guest',
-          activityType,
-          data,
-          timestamp: new Date().toISOString(),
-          title: activity.title,
-          category: { id: category.id, title: category.title }
-      };
-
-      setHistoryItems(prev => [newItem, ...prev].slice(0, 100)); // Keep last 100 items
-  };
-
-  const clearHistory = () => {
-      setHistoryItems([]);
-  };
-
-  const deleteHistoryItem = (id: string) => {
-      setHistoryItems(prev => prev.filter(i => i.id !== id));
-  };
-
-  const addSavedWorksheet = async (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
-    if (!user) {
-        setIsAuthModalOpen(true);
-        return;
-    }
-    const activity = ACTIVITIES.find(a => a.id === activityType);
-    const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
-    if (!activity || !category) return;
-
-    try {
-        await worksheetService.saveWorksheet(
-            user.id,
-            name,
+        const newItem: HistoryItem = {
+            id: Date.now().toString() + Math.random(),
+            userId: user?.id || 'guest',
             activityType,
             data,
-            activity.icon,
-            { id: category.id, title: category.title },
-            styleSettings,
-            studentProfile || undefined
-        );
-        alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
-    } catch (e: any) {
-        console.error("Save error:", e);
-        alert(`Kaydedilirken bir hata oluştu: ${e.message || 'Bilinmeyen hata'}.`);
-    }
-  };
+            timestamp: new Date().toISOString(),
+            title: activity.title,
+            category: { id: category.id, title: category.title }
+        };
 
-  // Wrapper for history item to SavedWorksheet for restore
-  const handleRestoreFromHistory = (item: HistoryItem) => {
-      loadSavedWorksheet({
-          id: item.id, // Temp ID
-          userId: item.userId,
-          name: item.title,
-          activityType: item.activityType,
-          worksheetData: item.data,
-          createdAt: item.timestamp,
-          icon: ACTIVITIES.find(a => a.id === item.activityType)?.icon || 'fa-file',
-          category: item.category
-      });
-      setOpenModal(null);
-  };
+        setHistoryItems(prev => [newItem, ...prev].slice(0, 100)); // Keep last 100 items
+    };
 
-  const handleSaveHistoryItem = (item: HistoryItem) => {
-      if (!user) { setIsAuthModalOpen(true); return; }
-      addSavedWorksheet(`${item.title} (Geçmiş)`, item.activityType, item.data);
-  };
+    const clearHistory = () => {
+        setHistoryItems([]);
+    };
 
-  const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
-    if (worksheet.activityType === ActivityType.WORKBOOK) {
-        if (worksheet.workbookItems && worksheet.workbookSettings) {
-            setWorkbookItems(worksheet.workbookItems);
-            setWorkbookSettings(worksheet.workbookSettings);
-            setCurrentView('workbook');
+    const deleteHistoryItem = (id: string) => {
+        setHistoryItems(prev => prev.filter(i => i.id !== id));
+    };
+
+    const addSavedWorksheet = async (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
+        if (!user) {
+            setIsAuthModalOpen(true);
+            return;
         }
-    } else {
-        setSelectedActivity(worksheet.activityType);
-        setWorksheetData(worksheet.worksheetData);
-        if (worksheet.styleSettings) {
-            setStyleSettings(worksheet.styleSettings);
+        const activity = ACTIVITIES.find(a => a.id === activityType);
+        const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
+        if (!activity || !category) return;
+
+        try {
+            await worksheetService.saveWorksheet(
+                user.id,
+                name,
+                activityType,
+                data,
+                activity.icon,
+                { id: category.id, title: category.title },
+                styleSettings,
+                studentProfile || undefined
+            );
+            alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
+        } catch (e: any) {
+            console.error("Save error:", e);
+            alert(`Kaydedilirken bir hata oluştu: ${e.message || 'Bilinmeyen hata'}.`);
         }
-        if (worksheet.studentProfile) {
-            setStudentProfile(worksheet.studentProfile);
+    };
+
+    const handleRestoreFromHistory = (item: HistoryItem) => {
+        loadSavedWorksheet({
+            id: item.id,
+            userId: item.userId,
+            name: item.title,
+            activityType: item.activityType,
+            worksheetData: item.data,
+            createdAt: item.timestamp,
+            icon: ACTIVITIES.find(a => a.id === item.activityType)?.icon || 'fa-file',
+            category: item.category
+        });
+        setOpenModal(null);
+    };
+
+    const handleSaveHistoryItem = (item: HistoryItem) => {
+        if (!user) { setIsAuthModalOpen(true); return; }
+        addSavedWorksheet(`${item.title} (Geçmiş)`, item.activityType, item.data);
+    };
+
+    const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
+        if (worksheet.activityType === ActivityType.WORKBOOK) {
+            if (worksheet.workbookItems && worksheet.workbookSettings) {
+                setWorkbookItems(worksheet.workbookItems);
+                setWorkbookSettings(worksheet.workbookSettings);
+                setCurrentView('workbook');
+            }
         } else {
-            setStudentProfile(null);
+            setSelectedActivity(worksheet.activityType);
+            setWorksheetData(worksheet.worksheetData);
+            if (worksheet.styleSettings) {
+                setStyleSettings(worksheet.styleSettings);
+            }
+            if (worksheet.studentProfile) {
+                setStudentProfile(worksheet.studentProfile);
+            } else {
+                setStudentProfile(null);
+            }
+            setCurrentView('generator');
         }
+    };
+
+    const handleSelectActivity = (activityType: ActivityType | null) => {
+        setSelectedActivity(activityType);
+        setWorksheetData(null);
+        setError(null);
         setCurrentView('generator');
-    }
-  };
+        if (isSidebarOpen) setIsSidebarOpen(false);
+    };
 
-  const handleSelectActivity = (activityType: ActivityType | null) => {
-    setSelectedActivity(activityType);
-    setWorksheetData(null);
-    setError(null);
-    setCurrentView('generator');
-    if (isSidebarOpen) setIsSidebarOpen(false);
-  };
-
-  const handleAddToWorkbook = () => {
+    const handleAddToWorkbook = () => {
         if (selectedActivity && worksheetData) {
             const newItems: CollectionItem[] = worksheetData.map(sheet => ({
                 id: crypto.randomUUID(),
@@ -378,86 +353,86 @@ const AppContent: React.FC = () => {
                 setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
             }
         }
-  };
+    };
 
-  const handleAutoGenerateWorkbook = async (report: AssessmentReport) => {
-      setIsLoading(true);
-      setCurrentView('workbook'); 
-      
-      const newItems: CollectionItem[] = [];
-      
-      const defaultOptions: GeneratorOptions = {
-          mode: 'fast',
-          difficulty: 'Orta',
-          worksheetCount: 1,
-          itemCount: 10,
-          gridSize: 10,
-          operationType: 'mixed',
-          numberRange: '1-20',
-      };
+    const handleAutoGenerateWorkbook = async (report: AssessmentReport) => {
+        setIsLoading(true);
+        setCurrentView('workbook'); 
+        
+        const newItems: CollectionItem[] = [];
+        
+        const defaultOptions: GeneratorOptions = {
+            mode: 'fast',
+            difficulty: 'Orta',
+            worksheetCount: 1,
+            itemCount: 10,
+            gridSize: 10,
+            operationType: 'mixed',
+            numberRange: '1-20',
+        };
 
-      try {
-          const reportItem: CollectionItem = {
-              id: crypto.randomUUID(),
-              activityType: ActivityType.ASSESSMENT_REPORT,
-              data: {
-                  id: 'temp-report',
-                  userId: user?.id || 'guest',
-                  studentName: studentProfile?.name || 'Öğrenci',
-                  gender: 'Erkek', 
-                  age: 7, 
-                  grade: studentProfile?.grade || '1. Sınıf',
-                  createdAt: new Date().toISOString(),
-                  report: report
-              } as SavedAssessment, 
-              settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
-              title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`
-          };
-          newItems.push(reportItem);
+        try {
+            const reportItem: CollectionItem = {
+                id: crypto.randomUUID(),
+                activityType: ActivityType.ASSESSMENT_REPORT,
+                data: {
+                    id: 'temp-report',
+                    userId: user?.id || 'guest',
+                    studentName: studentProfile?.name || 'Öğrenci',
+                    gender: 'Erkek', 
+                    age: 7, 
+                    grade: studentProfile?.grade || '1. Sınıf',
+                    createdAt: new Date().toISOString(),
+                    report: report
+                } as SavedAssessment, 
+                settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
+                title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`
+            };
+            newItems.push(reportItem);
 
-          for (const roadItem of report.roadmap) {
-              const activityId = roadItem.activityId as ActivityType;
-              const pascalName = toPascalCase(activityId);
-              const generatorName = `generateOffline${pascalName}`;
-              
-              // @ts-ignore 
-              const generator = offlineGenerators[generatorName];
-              
-              if (generator) {
-                  try {
-                      const generatedData = await generator(defaultOptions);
-                      generatedData.forEach((sheet: any) => {
-                          newItems.push({
-                              id: crypto.randomUUID(),
-                              activityType: activityId,
-                              data: sheet,
-                              settings: { ...styleSettings },
-                              title: ACTIVITIES.find(a => a.id === activityId)?.title || activityId
-                          });
-                      });
-                  } catch (genErr) {
-                      console.error(`Failed to auto-generate ${activityId}`, genErr);
-                  }
-              }
-          }
-          
-          setWorkbookItems(newItems);
-          setWorkbookSettings(prev => ({
-              ...prev,
-              title: `Kişisel Gelişim Planı`,
-              studentName: studentProfile?.name || '',
-              teacherNote: "Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur."
-          }));
+            for (const roadItem of report.roadmap) {
+                const activityId = roadItem.activityId as ActivityType;
+                const pascalName = toPascalCase(activityId);
+                const generatorName = `generateOffline${pascalName}`;
+                
+                // @ts-ignore 
+                const generator = offlineGenerators[generatorName];
+                
+                if (generator) {
+                    try {
+                        const generatedData = await generator(defaultOptions);
+                        generatedData.forEach((sheet: any) => {
+                            newItems.push({
+                                id: crypto.randomUUID(),
+                                activityType: activityId,
+                                data: sheet,
+                                settings: { ...styleSettings },
+                                title: ACTIVITIES.find(a => a.id === activityId)?.title || activityId
+                            });
+                        });
+                    } catch (genErr) {
+                        console.error(`Failed to auto-generate ${activityId}`, genErr);
+                    }
+                }
+            }
+            
+            setWorkbookItems(newItems);
+            setWorkbookSettings(prev => ({
+                ...prev,
+                title: `Kişisel Gelişim Planı`,
+                studentName: studentProfile?.name || '',
+                teacherNote: "Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur."
+            }));
 
-      } catch (e) {
-          console.error("Auto generation failed", e);
-          alert("Otomatik kitapçık oluşturulurken bir hata meydana geldi.");
-      } finally {
-          setIsLoading(false);
-      }
-  };
+        } catch (e) {
+            console.error("Auto generation failed", e);
+            alert("Otomatik kitapçık oluşturulurken bir hata meydana geldi.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-  const handleAddToWorkbookFromReport = (assessment: SavedAssessment) => {
+    const handleAddToWorkbookFromReport = (assessment: SavedAssessment) => {
         const newItem: CollectionItem = {
             id: crypto.randomUUID(),
             activityType: ActivityType.ASSESSMENT_REPORT, 
@@ -466,342 +441,319 @@ const AppContent: React.FC = () => {
             title: `Rapor: ${assessment.studentName}`
         };
         setWorkbookItems(prev => [...prev, newItem]);
-  };
+    };
 
-  const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
+    const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
 
-  if (currentView === 'admin') {
-      return (
-          <Suspense fallback={<LoadingSpinner />}>
-              <AdminDashboard onBack={() => setCurrentView('generator')} />
-          </Suspense>
-      );
-  }
-  if (currentView === 'profile') {
-      return (
-          <Suspense fallback={<LoadingSpinner />}>
-              <ProfileView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} />
-          </Suspense>
-      );
-  }
-  if (currentView === 'messages') {
-      return (
-          <Suspense fallback={<LoadingSpinner />}>
-              <MessagesView onBack={() => setCurrentView('generator')} onRefreshNotifications={refreshNotifications} />
-          </Suspense>
-      );
-  }
+    if (currentView === 'admin') {
+        return (
+            <Suspense fallback={<LoadingSpinner />}>
+                <AdminDashboard onBack={() => setCurrentView('generator')} />
+            </Suspense>
+        );
+    }
+    if (currentView === 'profile') {
+        return (
+            <Suspense fallback={<LoadingSpinner />}>
+                <ProfileView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} />
+            </Suspense>
+        );
+    }
+    if (currentView === 'messages') {
+        return (
+            <Suspense fallback={<LoadingSpinner />}>
+                <MessagesView onBack={() => setCurrentView('generator')} onRefreshNotifications={refreshNotifications} />
+            </Suspense>
+        );
+    }
 
-  const headerIconBtnClass = "p-2 text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:drop-shadow-[0_0_5px_rgba(251,191,36,0.5)] transition-all duration-300 rounded-md";
+    const headerIconBtnClass = "p-2 text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:drop-shadow-[0_0_5px_rgba(251,191,36,0.5)] transition-all duration-300 rounded-md";
 
-  return (
-    <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
-      
-      <header className={`relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 transition-all duration-500 ${zenMode ? '-mt-20 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
-        <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
-          <div className="flex items-center">
-            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] mr-3 p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars fa-lg"></i></button>
-             <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
-                <DyslexiaLogo className="h-10 w-auto" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
-             <div id="tour-search">
-                <GlobalSearch onSelectActivity={handleSelectActivity} />
-             </div>
-             
-             <div className="flex items-center gap-1 border-r border-[var(--border-color)] pr-2 mx-1">
-                <button onClick={() => setIsTourOpen(true)} className={headerIconBtnClass} title="Nasıl Kullanılır?">
-                    <i className="fa-solid fa-question-circle fa-lg"></i>
-                </button>
-                <button onClick={() => setOpenModal('developer')} className={headerIconBtnClass} title="Geliştirici İletişim">
-                    <i className="fa-solid fa-laptop-code fa-lg"></i>
-                </button>
-                <button onClick={() => setOpenModal('about')} className={headerIconBtnClass} title="Hakkımızda">
-                    <i className="fa-solid fa-circle-info fa-lg"></i>
-                </button>
-                <button onClick={() => setIsFeedbackOpen(true)} className={headerIconBtnClass} title="İletişim / Hata Bildir">
-                    <i className="fa-solid fa-headset fa-lg"></i>
-                </button>
-             </div>
-             
-             <button 
-                onClick={() => setCurrentView('assessment')} 
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[var(--accent-color)] text-black rounded-full text-xs font-extrabold shadow-md hover:shadow-[var(--accent-color)]/30 hover:scale-105 transition-all border border-[var(--accent-hover)]"
-                title="Öğrenme Güçlüğü Analizi"
-             >
-                 <i className="fa-solid fa-user-doctor"></i> Değerlendirme
-             </button>
-
-             <div className="h-6 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
-
-             <div className="flex items-center gap-2">
-             
-                <button id="tour-workbook-btn" onClick={() => setCurrentView('workbook')} className="relative p-2 text-[var(--text-secondary)] hover:text-emerald-500 hover:drop-shadow-[0_0_5px_rgba(16,185,129,0.8)] transition-all rounded-md group" title="Çalışma Kitapçığı">
-                    <i className="fa-solid fa-book-open-reader fa-lg"></i>
-                    {workbookItems.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-bold px-1.5 rounded-full border border-black min-w-[18px] text-center">
-                            {workbookItems.length}
-                        </span>
-                    )}
-                </button>
-
-                <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-[var(--text-secondary)] hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
-                    <i className="fa-solid fa-heart fa-lg"></i>
-                </button>
-
-             {user ? (
-                 <>
-                    {user.role === 'admin' && (
-                        <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-400 hover:bg-purple-900/20 rounded-md relative hover:text-white hover:drop-shadow-[0_0_5px_rgba(168,85,247,0.8)] transition-all" title="Yönetici Paneli">
-                            <i className="fa-solid fa-shield-halved fa-lg"></i>
+    return (
+        <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
+            <header className={`relative bg-[var(--panel-bg)] backdrop-blur-sm border-b border-[var(--border-color)] shadow-sm z-10 transition-all duration-500 ${zenMode ? '-mt-20 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
+                <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
+                    <div className="flex items-center">
+                        <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] mr-3 p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars fa-lg"></i></button>
+                        <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
+                            <DyslexiaLogo className="h-10 w-auto" />
                         </button>
-                    )}
-                    
-                    <button id="tour-messages-btn" onClick={() => setCurrentView('messages')} className={headerIconBtnClass + " relative"} title="Mesajlar">
-                        <i className="fa-solid fa-envelope fa-lg"></i>
-                        {unreadCount > 0 && (
-                            <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-black">
-                                {unreadCount}
-                            </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <div id="tour-search">
+                            <GlobalSearch onSelectActivity={handleSelectActivity} />
+                        </div>
+                        
+                        <div className="flex items-center gap-1 border-r border-[var(--border-color)] pr-2 mx-1">
+                            <button onClick={() => setIsTourOpen(true)} className={headerIconBtnClass} title="Nasıl Kullanılır?">
+                                <i className="fa-solid fa-question-circle fa-lg"></i>
+                            </button>
+                            <button onClick={() => setOpenModal('developer')} className={headerIconBtnClass} title="Geliştirici İletişim">
+                                <i className="fa-solid fa-laptop-code fa-lg"></i>
+                            </button>
+                            <button onClick={() => setOpenModal('about')} className={headerIconBtnClass} title="Hakkımızda">
+                                <i className="fa-solid fa-circle-info fa-lg"></i>
+                            </button>
+                            <button onClick={() => setIsFeedbackOpen(true)} className={headerIconBtnClass} title="İletişim / Hata Bildir">
+                                <i className="fa-solid fa-headset fa-lg"></i>
+                            </button>
+                        </div>
+                        
+                        <button 
+                            onClick={() => setCurrentView('assessment')} 
+                            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[var(--accent-color)] text-black rounded-full text-xs font-extrabold shadow-md hover:shadow-[var(--accent-color)]/30 hover:scale-105 transition-all border border-[var(--accent-hover)]"
+                            title="Öğrenme Güçlüğü Analizi"
+                        >
+                            <i className="fa-solid fa-user-doctor"></i> Değerlendirme
+                        </button>
+
+                        <div className="h-6 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
+
+                        <div className="flex items-center gap-2">
+                        
+                            <button id="tour-workbook-btn" onClick={() => setCurrentView('workbook')} className="relative p-2 text-[var(--text-secondary)] hover:text-emerald-500 hover:drop-shadow-[0_0_5px_rgba(16,185,129,0.8)] transition-all rounded-md group" title="Çalışma Kitapçığı">
+                                <i className="fa-solid fa-book-open-reader fa-lg"></i>
+                                {workbookItems.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-bold px-1.5 rounded-full border border-black min-w-[18px] text-center">
+                                        {workbookItems.length}
+                                    </span>
+                                )}
+                            </button>
+
+                            <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-[var(--text-secondary)] hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
+                                <i className="fa-solid fa-heart fa-lg"></i>
+                            </button>
+
+                        {user ? (
+                            <>
+                                {user.role === 'admin' && (
+                                    <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-400 hover:bg-purple-900/20 rounded-md relative hover:text-white hover:drop-shadow-[0_0_5px_rgba(168,85,247,0.8)] transition-all" title="Yönetici Paneli">
+                                        <i className="fa-solid fa-shield-halved fa-lg"></i>
+                                    </button>
+                                )}
+                                
+                                <button id="tour-messages-btn" onClick={() => setCurrentView('messages')} className={headerIconBtnClass + " relative"} title="Mesajlar">
+                                    <i className="fa-solid fa-envelope fa-lg"></i>
+                                    {unreadCount > 0 && (
+                                        <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-black">
+                                            {unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+
+                                <button id="tour-shared-btn" onClick={() => setCurrentView('shared')} className={headerIconBtnClass} title="Paylaşılanlar">
+                                    <i className="fa-solid fa-share-nodes fa-lg"></i>
+                                </button>
+
+                                <button id="tour-archive-btn" onClick={() => setCurrentView('savedList')} className={headerIconBtnClass} title="Arşiv">
+                                    <i className="fa-solid fa-box-archive fa-lg"></i>
+                                </button>
+                                <button id="tour-history-btn" onClick={() => setOpenModal('history')} className={headerIconBtnClass} title="Geçmiş">
+                                    <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
+                                </button>
+                                
+                                <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
+                                    <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-[var(--border-color)] shadow-sm hover:border-[var(--accent-color)] transition-colors bg-zinc-800" />
+                                </button>
+                            </>
+                        ) : (
+                            <button onClick={() => setIsAuthModalOpen(true)} className="ml-2 px-5 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg font-black text-sm hover:bg-[var(--bg-inset)] transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+                                Giriş Yap
+                            </button>
                         )}
-                    </button>
-
-                    <button id="tour-shared-btn" onClick={() => setCurrentView('shared')} className={headerIconBtnClass} title="Paylaşılanlar">
-                        <i className="fa-solid fa-share-nodes fa-lg"></i>
-                    </button>
-
-                    <button id="tour-archive-btn" onClick={() => setCurrentView('savedList')} className={headerIconBtnClass} title="Arşiv">
-                        <i className="fa-solid fa-box-archive fa-lg"></i>
-                    </button>
-                    <button id="tour-history-btn" onClick={() => setOpenModal('history')} className={headerIconBtnClass} title="Geçmiş">
-                        <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
-                    </button>
-                    
-                    <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
-                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-[var(--border-color)] shadow-sm hover:border-[var(--accent-color)] transition-colors bg-zinc-800" />
-                    </button>
-                 </>
-             ) : (
-                 <button onClick={() => setIsAuthModalOpen(true)} className="ml-2 px-5 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg font-black text-sm hover:bg-[var(--bg-inset)] transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]">
-                     Giriş Yap
-                 </button>
-             )}
-             </div>
-             
-             <div className="h-6 w-px bg-[var(--border-color)] mx-1"></div>
-             <button onClick={() => setOpenModal('settings')} className={headerIconBtnClass}><i className="fa-solid fa-gear fa-lg"></i></button>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex flex-1 overflow-hidden">
-        {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
-        
-        <div 
-            onMouseEnter={() => setIsSidebarExpanded(true)} 
-            className={`transition-all duration-500 ease-in-out h-full ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}
-        >
-            <Sidebar
-                isSidebarOpen={isSidebarOpen}
-                closeSidebar={() => setIsSidebarOpen(false)}
-                selectedActivity={selectedActivity}
-                onSelectActivity={handleSelectActivity}
-                setWorksheetData={setWorksheetData}
-                setIsLoading={setIsLoading}
-                setError={setError}
-                isLoading={isLoading}
-                onAddToHistory={addToHistory}
-                isExpanded={isSidebarExpanded}
-                onOpenStudentModal={() => setIsStudentModalOpen(true)}
-                studentProfile={studentProfile}
-                styleSettings={styleSettings}
-            />
-        </div>
-        
-        <div 
-            className="flex-1 flex flex-col overflow-hidden" 
-            onMouseEnter={() => setIsSidebarExpanded(false)}
-        >
-            {isLoading && currentView === 'workbook' && (
-                <div className="flex flex-col items-center justify-center h-full w-full bg-zinc-50 dark:bg-zinc-900 z-50">
-                    <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                    <h3 className="text-xl font-bold text-indigo-600">Kitapçık Hazırlanıyor...</h3>
-                    <p className="text-zinc-500">Kişiselleştirilmiş materyaller oluşturuluyor.</p>
-                </div>
-            )}
-
-            <ContentArea
-              currentView={currentView}
-              onBackToGenerator={() => { setCurrentView('generator'); setSelectedActivity(null); setWorksheetData(null); }}
-              activityType={selectedActivity}
-              worksheetData={worksheetData}
-              isLoading={isLoading}
-              error={error}
-              styleSettings={styleSettings}
-              onStyleChange={setStyleSettings}
-              onSave={addSavedWorksheet}
-              onLoadSaved={loadSavedWorksheet}
-              onFeedback={() => setIsFeedbackOpen(true)}
-              onOpenAuth={() => setIsAuthModalOpen(true)}
-              onSelectActivity={handleSelectActivity}
-              workbookItems={workbookItems}
-              setWorkbookItems={setWorkbookItems}
-              workbookSettings={workbookSettings}
-              setWorkbookSettings={setWorkbookSettings}
-              onAddToWorkbook={handleAddToWorkbook}
-              onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
-              studentProfile={studentProfile}
-              zenMode={zenMode}
-              toggleZenMode={() => setZenMode(!zenMode)}
-            />
-            
-            {currentView === 'assessment' && (
-                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-40 overflow-y-auto">
-                    <Suspense fallback={<LoadingSpinner />}>
-                        <AssessmentModule 
-                            onBack={() => setCurrentView('generator')}
-                            onSelectActivity={handleSelectActivity}
-                            onAddToWorkbook={handleAddToWorkbookFromReport}
-                            onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
-                        />
-                    </Suspense>
-                </div>
-            )}
-        </div>
-      </div>
-      
-      <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
-
-      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      
-      <StudentInfoModal 
-          isOpen={isStudentModalOpen} 
-          onClose={() => setIsStudentModalOpen(false)} 
-          currentProfile={studentProfile}
-          onSave={(p) => setStudentProfile(p)}
-          onClear={() => setStudentProfile(null)}
-      />
-
-      <SettingsModal 
-          isOpen={openModal === 'settings'} 
-          onClose={() => setOpenModal(null)}
-          uiSettings={uiSettings}
-          onUpdateUiSettings={setUiSettings}
-          theme={theme}
-          onUpdateTheme={setTheme}
-      />
-
-      <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi">
-          <HistoryView 
-             historyItems={historyItems}
-             onRestore={handleRestoreFromHistory}
-             onSaveToArchive={handleSaveHistoryItem}
-             onDelete={deleteHistoryItem}
-             onClearAll={clearHistory}
-             onClose={() => setOpenModal(null)}
-          />
-      </Modal>
-
-      <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">
-        <div className="text-center space-y-6">
-            <DyslexiaLogo className="h-16 w-auto mx-auto" />
-            <div className="space-y-4 text-zinc-600 dark:text-zinc-300">
-                <p className="leading-relaxed">
-                    Bursa Disleksi AI, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini desteklemek, eğitmen ve ailelere kişiselleştirilmiş, bilimsel temelli materyaller sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.
-                </p>
-                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
-                    <p className="text-xs font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-widest mb-1">Resmi Web Sitesi</p>
-                    <a href="https://www.bursadisleksi.com" target="_blank" rel="noopener noreferrer" className="text-xl font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                        www.bursadisleksi.com
-                    </a>
-                </div>
-            </div>
-            <div className="pt-6 border-t border-[var(--border-color)]">
-                <p className="text-xs text-zinc-500">Versiyon 1.0.3</p>
-                <p className="text-xs text-zinc-500">© 2024 Bursa Disleksi</p>
-            </div>
-        </div>
-      </Modal>
-
-      <Modal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} title="Geliştirici & İletişim">
-        <div className="space-y-6">
-            <div className="flex flex-col items-center p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
-                <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl shadow-lg mb-4">
-                    <i className="fa-solid fa-code"></i>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Barış Mutlu Altunel</h3>
-                <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Full Stack Developer & Eğitim Teknoloğu</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <a href="mailto:morimasi@gmail.com" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group bg-white dark:bg-zinc-800">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i className="fa-solid fa-envelope"></i>
+                        </div>
+                        
+                        <div className="h-6 w-px bg-[var(--border-color)] mx-1"></div>
+                        <button onClick={() => setOpenModal('settings')} className={headerIconBtnClass}><i className="fa-solid fa-gear fa-lg"></i></button>
                     </div>
-                    <div>
-                        <p className="text-xs font-bold text-zinc-400 uppercase">E-posta</p>
-                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">morimasi@gmail.com</p>
-                    </div>
-                </a>
+                </div>
+            </header>
+
+            <div className="flex flex-1 overflow-hidden">
+                {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
                 
-                <a href="https://twitter.com/barismutlualtunel" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group bg-white dark:bg-zinc-800">
-                    <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i className="fa-brands fa-x-twitter"></i>
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-zinc-400 uppercase">Twitter / X</p>
-                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">@barismutlualtunel</p>
-                    </div>
-                </a>
+                <div 
+                    onMouseEnter={() => setIsSidebarExpanded(true)} 
+                    className={`transition-all duration-500 ease-in-out h-full ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}
+                >
+                    <Sidebar
+                        isSidebarOpen={isSidebarOpen}
+                        closeSidebar={() => setIsSidebarOpen(false)}
+                        selectedActivity={selectedActivity}
+                        onSelectActivity={handleSelectActivity}
+                        setWorksheetData={setWorksheetData}
+                        setIsLoading={setIsLoading}
+                        setError={setError}
+                        isLoading={isLoading}
+                        onAddToHistory={addToHistory}
+                        isExpanded={isSidebarExpanded}
+                        onOpenStudentModal={() => setIsStudentModalOpen(true)}
+                        studentProfile={studentProfile}
+                        styleSettings={styleSettings}
+                    />
+                </div>
+                
+                <div 
+                    className="flex-1 flex flex-col overflow-hidden" 
+                    onMouseEnter={() => setIsSidebarExpanded(false)}
+                >
+                    {isLoading && currentView === 'workbook' && (
+                        <div className="flex flex-col items-center justify-center h-full w-full bg-zinc-50 dark:bg-zinc-900 z-50">
+                            <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                            <h3 className="text-xl font-bold text-indigo-600">Kitapçık Hazırlanıyor...</h3>
+                            <p className="text-zinc-500">Kişiselleştirilmiş materyaller oluşturuluyor.</p>
+                        </div>
+                    )}
 
-                <a href="https://instagram.com/bbmaltunel" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-pink-500 hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-all group bg-white dark:bg-zinc-800">
-                    <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-300 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i className="fa-brands fa-instagram"></i>
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-zinc-400 uppercase">Instagram</p>
-                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">@bbmaltunel</p>
-                    </div>
-                </a>
-
-                <div className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 opacity-80">
-                    <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 flex items-center justify-center">
-                        <i className="fa-solid fa-location-dot"></i>
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-zinc-400 uppercase">Konum</p>
-                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Bursa, Türkiye</p>
-                    </div>
+                    <ContentArea
+                    currentView={currentView}
+                    onBackToGenerator={() => { setCurrentView('generator'); setSelectedActivity(null); setWorksheetData(null); }}
+                    activityType={selectedActivity}
+                    worksheetData={worksheetData}
+                    isLoading={isLoading}
+                    error={error}
+                    styleSettings={styleSettings}
+                    onStyleChange={setStyleSettings}
+                    onSave={addSavedWorksheet}
+                    onLoadSaved={loadSavedWorksheet}
+                    onFeedback={() => setIsFeedbackOpen(true)}
+                    onOpenAuth={() => setIsAuthModalOpen(true)}
+                    onSelectActivity={handleSelectActivity}
+                    workbookItems={workbookItems}
+                    setWorkbookItems={setWorkbookItems}
+                    workbookSettings={workbookSettings}
+                    setWorkbookSettings={setWorkbookSettings}
+                    onAddToWorkbook={handleAddToWorkbook}
+                    onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
+                    studentProfile={studentProfile}
+                    zenMode={zenMode}
+                    toggleZenMode={() => setZenMode(!zenMode)}
+                    />
+                    
+                    {currentView === 'assessment' && (
+                        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-40 overflow-y-auto">
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <AssessmentModule 
+                                    onBack={() => setCurrentView('generator')}
+                                    onSelectActivity={handleSelectActivity}
+                                    onAddToWorkbook={handleAddToWorkbookFromReport}
+                                    onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
+                                />
+                            </Suspense>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-2xl bg-zinc-900 text-white p-6 shadow-xl border border-zinc-700 group">
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <i className="fa-solid fa-wand-magic-sparkles text-8xl"></i>
-                </div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-3 text-amber-400">
-                        <i className="fa-solid fa-lightbulb"></i>
-                        <span className="text-xs font-bold uppercase tracking-wider">Proje Geliştirme</span>
+            <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
+
+            <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
+            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+            
+            <StudentInfoModal 
+                isOpen={isStudentModalOpen} 
+                onClose={() => setIsStudentModalOpen(false)} 
+                currentProfile={studentProfile}
+                onSave={(p) => setStudentProfile(p)}
+                onClear={() => setStudentProfile(null)}
+            />
+
+            <SettingsModal 
+                isOpen={openModal === 'settings'} 
+                onClose={() => setOpenModal(null)}
+                uiSettings={uiSettings}
+                onUpdateUiSettings={setUiSettings}
+                theme={theme}
+                onUpdateTheme={setTheme}
+            />
+
+            <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi">
+                <HistoryView 
+                    historyItems={historyItems}
+                    onRestore={handleRestoreFromHistory}
+                    onSaveToArchive={handleSaveHistoryItem}
+                    onDelete={deleteHistoryItem}
+                    onClearAll={clearHistory}
+                    onClose={() => setOpenModal(null)}
+                />
+            </Modal>
+            
+             <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">
+                <div className="text-center space-y-6">
+                    <DyslexiaLogo className="h-16 w-auto mx-auto" />
+                    <div className="space-y-4 text-zinc-600 dark:text-zinc-300">
+                        <p className="leading-relaxed">
+                            Bursa Disleksi AI, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini desteklemek, eğitmen ve ailelere kişiselleştirilmiş, bilimsel temelli materyaller sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.
+                        </p>
+                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                            <p className="text-xs font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-widest mb-1">Resmi Web Sitesi</p>
+                            <a href="https://www.bursadisleksi.com" target="_blank" rel="noopener noreferrer" className="text-xl font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                www.bursadisleksi.com
+                            </a>
+                        </div>
                     </div>
-                    <h4 className="text-lg font-bold mb-2">Dijital Eğitim Materyali Projeleri</h4>
-                    <p className="text-sm text-zinc-300 leading-relaxed mb-4">
-                        Kurumunuza özel, yapay zeka destekli ve modern arayüze sahip dijital eğitim çözümleri için profesyonel destek alın.
-                    </p>
-                    <a href="mailto:morimasi@gmail.com?subject=Proje%20Talebi" className="inline-flex items-center gap-2 text-xs font-bold bg-white text-black px-5 py-2.5 rounded-lg hover:bg-zinc-200 transition-colors shadow-lg">
-                        <span>Teklif Al</span>
-                        <i className="fa-solid fa-arrow-right"></i>
-                    </a>
+                    <div className="pt-6 border-t border-[var(--border-color)]">
+                        <p className="text-xs text-zinc-500">Versiyon 1.0.3</p>
+                        <p className="text-xs text-zinc-500">© 2024 Bursa Disleksi</p>
+                    </div>
                 </div>
-            </div>
+            </Modal>
+
+            <Modal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} title="Geliştirici & İletişim">
+                <div className="space-y-6">
+                    <div className="flex flex-col items-center p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                        <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl shadow-lg mb-4">
+                            <i className="fa-solid fa-code"></i>
+                        </div>
+                        <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Barış Mutlu Altunel</h3>
+                        <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Full Stack Developer & Eğitim Teknoloğu</p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a href="mailto:morimasi@gmail.com" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group bg-white dark:bg-zinc-800">
+                            <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i className="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-zinc-400 uppercase">E-posta</p>
+                                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">morimasi@gmail.com</p>
+                            </div>
+                        </a>
+                        
+                        <a href="https://twitter.com/barismutlualtunel" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group bg-white dark:bg-zinc-800">
+                            <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i className="fa-brands fa-x-twitter"></i>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-zinc-400 uppercase">Twitter / X</p>
+                                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">@barismutlualtunel</p>
+                            </div>
+                        </a>
+
+                        <a href="https://instagram.com/bbmaltunel" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-pink-500 hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-all group bg-white dark:bg-zinc-800">
+                            <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i className="fa-brands fa-instagram"></i>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-zinc-400 uppercase">Instagram</p>
+                                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">@bbmaltunel</p>
+                            </div>
+                        </a>
+                        
+                        <div className="flex items-center gap-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 opacity-80">
+                            <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 flex items-center justify-center">
+                                <i className="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-zinc-400 uppercase">Konum</p>
+                                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Bursa, Türkiye</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </div>
-      </Modal>
-
-    </div>
-  );
+    );
 };
 
 export const App: React.FC = () => {

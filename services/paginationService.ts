@@ -1,4 +1,3 @@
-
 import { SingleWorksheetData, ActivityType, WorksheetData, StyleSettings } from '../types';
 
 // Configuration for which property holds the list of items to split for each ActivityType
@@ -177,13 +176,13 @@ export const paginationService = {
     process: (data: WorksheetData, activityType: ActivityType, settings?: StyleSettings): WorksheetData => {
         if (!data || data.length === 0) return [];
         
-        // If Smart Pagination is disabled, return original structure (but cleaned)
-        if (settings && !settings.smartPagination) {
+        // FORCE DISABLE FOR STORY COMPREHENSION TO PREVENT SPLIT/DUPLICATION
+        if (activityType === ActivityType.STORY_COMPREHENSION) {
             return data;
         }
 
-        // FORCE DISABLE FOR STORY COMPREHENSION TO PREVENT SPLIT/DUPLICATION
-        if (activityType === ActivityType.STORY_COMPREHENSION) {
+        // FORCE DISABLE FOR STROOP TEST (Designed to fill one A4 page as a dense grid)
+        if (activityType === ActivityType.STROOP_TEST) {
             return data;
         }
 
@@ -194,7 +193,6 @@ export const paginationService = {
         const scale = settings?.scale || 1;
         const fontSize = settings?.fontSize || 16;
         const columns = Math.max(1, settings?.columns || 1);
-        const margin = settings?.margin || 20;
         
         // Dynamic Effective Columns logic (same as Worksheet.tsx)
         const effectiveCols = Math.max(1, Math.round(columns / scale));
@@ -203,8 +201,6 @@ export const paginationService = {
         const fontFactor = fontSize / 16; 
         
         // Scale Factor: Smaller scale allows more items on page (conceptually height increases)
-        // But since we use transform:scale on the container, the internal pixels remain constant relative to content.
-        // However, if we want "Smart Reflow" (more items when zoomed out), we effectively have more virtual height.
         const virtualPageHeight = A4_CONTENT_HEIGHT_PX * (1 / scale);
 
         for (const page of data) {
@@ -224,13 +220,8 @@ export const paginationService = {
             // Actual height of one item card
             const itemHeight = itemBaseHeight * fontFactor;
             
-            // In a grid, items share the row height.
-            // Height consumed per ITEM index = itemHeight / columns
-            // e.g. 10 items, 2 cols -> 5 rows. Total height = 5 * itemHeight.
-            
             let currentPageItems: any[] = [];
             let currentY = 0;
-            const headerHeight = 150 * scale; // Header scales too
 
             // Helper to calculate height of a row of items
             const getRowHeight = (item: any) => {
@@ -256,7 +247,7 @@ export const paginationService = {
                 });
 
                 // Check if this row fits
-                if (currentY + maxRowHeight > virtualPageHeight) {
+                if (currentY + maxRowHeight > virtualPageHeight && currentPageItems.length > 0) {
                     // Page full, push current and reset
                     newWorksheetData.push({
                         ...page,
