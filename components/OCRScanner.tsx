@@ -7,6 +7,8 @@ import { worksheetService } from '../services/worksheetService';
 import { useAuth } from '../context/AuthContext';
 import { printService } from '../utils/printService';
 import { ShareModal } from './ShareModal';
+import { adminService } from '../services/adminService';
+import { ACTIVITY_CATEGORIES } from '../constants';
 
 interface OCRScannerProps {
     onBack: () => void;
@@ -24,7 +26,7 @@ const PREVIEW_SETTINGS: StyleSettings = {
 
 export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
     const { user } = useAuth();
-    const [step, setStep] = useState<'upload' | 'processing' | 'analysis_review' | 'preview'>('upload');
+    const [step, setStep] = useState<'upload' | 'processing' | 'analysis_review' | 'preview' | 'admin_save'>('upload');
     const [image, setImage] = useState<string | null>(null);
     
     const [rawOCR, setRawOcr] = useState<any>(null); // AI Response
@@ -35,6 +37,10 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Admin Save Form
+    const [newActivityTitle, setNewActivityTitle] = useState('');
+    const [newActivityCategory, setNewActivityCategory] = useState('others');
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -53,6 +59,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
         try {
             const result = await ocrService.processImage(imgData);
             setRawOcr(result);
+            setNewActivityTitle(result.title || "Yeni Aktivite");
             setStep('analysis_review');
         } catch (error) {
             console.error("OCR Failed:", error);
@@ -62,14 +69,13 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
     };
 
     const handleGenerateActivity = () => {
-        // Convert the "AI Concept" into "Real Activity Data"
         const { type, data } = ocrService.convertToWorksheetData(rawOCR);
         setFinalActivityType(type);
         setFinalWorksheetData(data);
         setStep('preview');
     };
 
-    const handleSave = async () => {
+    const handleSaveToArchive = async () => {
         if (!user || !finalWorksheetData || !finalActivityType) return;
         setIsSaving(true);
         try {
@@ -90,6 +96,53 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
             setIsSaving(false);
         }
     };
+
+    const handleAdminSaveSystem = async () => {
+        if (!user || user.role !== 'admin' || !rawOCR) return;
+        setIsSaving(true);
+        try {
+            // 1. Create Prompt Template
+            const promptId = `prompt_custom_${Date.now()}`;
+            const promptTemplate = {
+                id: promptId,
+                name: `${newActivityTitle} Prompt`,
+                description: `Otomatik oluşturulan prompt: ${rawOCR.description}`,
+                category: 'custom',
+                systemInstruction: "Sen uzman bir eğitim materyali üreticisisin.",
+                template: rawOCR.generatedTemplate,
+                variables: ['worksheetCount', 'difficulty', 'topic'],
+                tags: ['custom', 'ocr'],
+                updatedAt: new Date().toISOString(),
+                version: 1
+            };
+            
+            await adminService.savePrompt(promptTemplate, "OCR Auto Generated");
+
+            // 2. Create Activity Definition
+            const activityId = `CUSTOM_${Date.now()}`;
+            const newActivity = {
+                id: activityId,
+                title: newActivityTitle,
+                description: rawOCR.description,
+                icon: 'fa-solid fa-robot',
+                category: newActivityCategory,
+                isActive: true,
+                isPremium: false,
+                promptId: promptId,
+                baseType: rawOCR.baseType // Important for rendering
+            };
+            
+            await adminService.saveActivity(newActivity);
+            
+            alert(`"${newActivityTitle}" sisteme eklendi! Artık menüden erişilebilir.`);
+            setStep('upload'); // Reset
+        } catch (e) {
+            console.error(e);
+            alert("Sisteme ekleme başarısız.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
     
     const handlePrint = () => {
         printService.generatePdf('.worksheet-item', rawOCR.title || 'Etkinlik', { action: 'print' });
@@ -105,14 +158,14 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
                     </button>
                     <h2 className="text-lg font-black text-zinc-800 dark:text-white flex items-center gap-2">
                         <i className="fa-solid fa-camera-retro text-indigo-500"></i>
-                        {step === 'upload' ? 'Akıllı Tarayıcı' : step === 'processing' ? 'Analiz Ediliyor' : 'Sonuç'}
+                        {step === 'upload' ? 'Akıllı Tarayıcı & Mimari' : step === 'processing' ? 'Pedagojik Analiz' : 'Sonuç'}
                     </h2>
                 </div>
                 
                 {step === 'preview' && (
                     <div className="flex gap-2">
                         <button onClick={handlePrint} className="px-4 py-2 bg-zinc-800 hover:bg-black text-white rounded-lg font-bold shadow-sm transition-all"><i className="fa-solid fa-print mr-2"></i> Yazdır</button>
-                        <button onClick={handleSave} disabled={!user} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-sm transition-all disabled:opacity-50"><i className="fa-solid fa-save mr-2"></i> Kaydet</button>
+                        <button onClick={handleSaveToArchive} disabled={!user} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-sm transition-all disabled:opacity-50"><i className="fa-solid fa-save mr-2"></i> Arşive Kaydet</button>
                     </div>
                 )}
             </div>
@@ -123,14 +176,17 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
                 {step === 'upload' && (
                     <div className="h-full flex flex-col items-center justify-center p-8 bg-zinc-50 dark:bg-black">
                         <div 
-                            className="w-full max-w-lg aspect-video border-4 border-dashed border-zinc-300 dark:border-zinc-700 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors group bg-white dark:bg-zinc-900"
+                            className="w-full max-w-lg aspect-video border-4 border-dashed border-zinc-300 dark:border-zinc-700 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors group bg-white dark:bg-zinc-900 shadow-lg"
                             onClick={() => fileInputRef.current?.click()}
                         >
-                            <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
-                                <i className="fa-solid fa-cloud-arrow-up text-4xl text-indigo-500"></i>
+                            <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner border border-indigo-100">
+                                <i className="fa-solid fa-wand-magic-sparkles text-4xl text-indigo-500"></i>
                             </div>
-                            <h3 className="text-2xl font-black text-zinc-700 dark:text-zinc-200">Etkinlik Yükle</h3>
-                            <p className="text-zinc-500 mt-2 text-center px-8">Kitap sayfası, test veya el yazısı bir etkinlik fotoğrafı yükleyin. Yapay zeka onu analiz edip <strong>yeni varyasyonlarını</strong> üretsin.</p>
+                            <h3 className="text-2xl font-black text-zinc-700 dark:text-zinc-200">Etkinlik Görseli Yükle</h3>
+                            <p className="text-zinc-500 mt-2 text-center px-8 text-sm">
+                                Herhangi bir çalışma kağıdını yükleyin. Yapay zeka, etkinliğin <strong>mantığını çözecek</strong> ve sisteminize <strong>yeni bir etkinlik türü</strong> olarak eklemenizi sağlayacak.
+                            </p>
+                            <span className="mt-4 px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold uppercase tracking-wider">Tersine Mühendislik Modu</span>
                         </div>
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                     </div>
@@ -141,10 +197,10 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
                         <div className="relative w-32 h-32 mb-8">
                             <div className="absolute inset-0 border-4 border-zinc-200 rounded-full"></div>
                             <div className="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
-                            <i className="fa-solid fa-brain absolute inset-0 flex items-center justify-center text-3xl text-indigo-500 animate-pulse"></i>
+                            <i className="fa-solid fa-microchip absolute inset-0 flex items-center justify-center text-3xl text-indigo-500 animate-pulse"></i>
                         </div>
-                        <h3 className="text-2xl font-black text-zinc-800 dark:text-white">Pedagojik Analiz Yapılıyor...</h3>
-                        <p className="text-zinc-500 mt-2">Etkinlik mantığı çözümleniyor ve yeni sorular üretiliyor.</p>
+                        <h3 className="text-2xl font-black text-zinc-800 dark:text-white">Pedagojik Mantık Çözümleniyor...</h3>
+                        <p className="text-zinc-500 mt-2">Görseldeki kurallar analiz edilip Prompt Şablonuna dönüştürülüyor.</p>
                     </div>
                 )}
 
@@ -153,9 +209,6 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
                         {/* LEFT: Source Image */}
                         <div className="w-full md:w-1/3 bg-black relative flex items-center justify-center p-4 border-r border-zinc-800">
                             <img src={image!} className="max-w-full max-h-full object-contain shadow-2xl rounded-lg" />
-                            <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md">
-                                Orijinal Kaynak
-                            </div>
                         </div>
 
                         {/* RIGHT: Analysis Result */}
@@ -165,40 +218,73 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack, onResult }) => {
                                     TESPİT EDİLEN TÜR: {rawOCR.detectedType}
                                 </div>
                                 <h2 className="text-3xl font-black text-zinc-800 dark:text-white mb-2">{rawOCR.title}</h2>
-                                <p className="text-zinc-500 dark:text-zinc-400 text-lg leading-relaxed">{rawOCR.description}</p>
-                            </div>
-
-                            <div className="bg-zinc-50 dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 mb-8 flex-1">
-                                <h4 className="font-bold text-zinc-400 uppercase text-xs mb-4">ÜRETİLEN İÇERİK ÖNİZLEME</h4>
-                                <div className="space-y-2">
-                                    {/* Preview Content Snippets based on type */}
-                                    {rawOCR.detectedType === 'MATH' && rawOCR.mathItems?.slice(0,5).map((m: any, i: number) => (
-                                        <div key={i} className="font-mono text-lg font-bold">{m.num1} {m.operator} {m.num2} = ?</div>
-                                    ))}
-                                    {rawOCR.detectedType === 'MATCHING' && rawOCR.pairs?.slice(0,5).map((p: any, i: number) => (
-                                        <div key={i} className="flex gap-4 font-bold text-zinc-600 dark:text-zinc-300">
-                                            <span>{p.left}</span> <i className="fa-solid fa-arrow-right text-zinc-400"></i> <span>{p.right}</span>
-                                        </div>
-                                    ))}
-                                    {/* Generic Fallback */}
-                                    {(!['MATH', 'MATCHING'].includes(rawOCR.detectedType)) && (
-                                        <div className="italic text-zinc-500">
-                                            İçerik sistem şablonuna uyarlandı. Görüntülemek için devam edin.
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="mt-4 text-xs text-indigo-500 font-bold">
-                                    + Ve daha fazlası (Tam sayfa doldurulacak)
+                                <p className="text-zinc-500 dark:text-zinc-400 text-lg leading-relaxed border-b pb-4 mb-4">{rawOCR.description}</p>
+                                
+                                <div className="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 font-mono text-xs text-zinc-600 dark:text-zinc-400 overflow-x-auto">
+                                    <p className="font-bold text-indigo-500 mb-2">// OLUŞTURULAN AI PROMPT ŞABLONU</p>
+                                    {rawOCR.generatedTemplate}
                                 </div>
                             </div>
 
-                            <button 
-                                onClick={handleGenerateActivity}
-                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 text-lg"
-                            >
-                                <i className="fa-solid fa-wand-magic-sparkles"></i>
-                                BU MANTIKLA ETKİNLİK OLUŞTUR
-                            </button>
+                            <div className="flex gap-4 mt-auto pt-6 border-t border-zinc-100 dark:border-zinc-800">
+                                <button 
+                                    onClick={handleGenerateActivity}
+                                    className="flex-1 py-4 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                                >
+                                    <i className="fa-solid fa-play"></i>
+                                    Test Et (Önizle)
+                                </button>
+                                
+                                {user?.role === 'admin' && (
+                                    <button 
+                                        onClick={() => setStep('admin_save')}
+                                        className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black rounded-xl shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <i className="fa-solid fa-plus-circle"></i>
+                                        SİSTEME EKLE (KALICI)
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {step === 'admin_save' && (
+                    <div className="h-full flex items-center justify-center bg-zinc-100 dark:bg-black p-4">
+                        <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-xl p-8 border border-zinc-200 dark:border-zinc-700">
+                            <h3 className="text-xl font-black text-zinc-800 dark:text-white mb-6">Yeni Aktivite Olarak Kaydet</h3>
+                            
+                            <div className="space-y-4 mb-8">
+                                <div>
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-1">Aktivite Başlığı</label>
+                                    <input 
+                                        type="text" 
+                                        value={newActivityTitle} 
+                                        onChange={e => setNewActivityTitle(e.target.value)} 
+                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-1">Kategori</label>
+                                    <select 
+                                        value={newActivityCategory}
+                                        onChange={e => setNewActivityCategory(e.target.value)}
+                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                                    >
+                                        {ACTIVITY_CATEGORIES.map(c => (
+                                            <option key={c.id} value={c.id}>{c.title}</option>
+                                        ))}
+                                        <option value="others">Diğerleri (Özel)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button onClick={() => setStep('analysis_review')} className="flex-1 py-3 text-zinc-500 font-bold hover:bg-zinc-100 rounded-xl transition-colors">Vazgeç</button>
+                                <button onClick={handleAdminSaveSystem} disabled={isSaving} className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition-colors disabled:opacity-50">
+                                    {isSaving ? 'Kaydediliyor...' : 'Onayla ve Yayınla'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

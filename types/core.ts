@@ -1,5 +1,6 @@
 
 export const ActivityType = {
+    // ... Existing types ...
     FIND_THE_DIFFERENCE: 'FIND_THE_DIFFERENCE',
     WORD_COMPARISON: 'WORD_COMPARISON',
     SHAPE_MATCHING: 'SHAPE_MATCHING',
@@ -153,10 +154,13 @@ export const ActivityType = {
 
     ASSESSMENT_REPORT: 'ASSESSMENT_REPORT',
     WORKBOOK: 'WORKBOOK',
-    OCR_CONTENT: 'OCR_CONTENT'
+    OCR_CONTENT: 'OCR_CONTENT',
+    
+    // Catch-all for dynamic activities
+    CUSTOM_GENERATED: 'CUSTOM_GENERATED' 
 } as const;
 
-export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
+export type ActivityType = typeof ActivityType[keyof typeof ActivityType] | string;
 
 export interface Activity {
     id: ActivityType;
@@ -164,6 +168,9 @@ export interface Activity {
     description: string;
     icon: string;
     defaultStyle?: Partial<StyleSettings>;
+    isCustom?: boolean; // Flag for user-generated activities
+    promptTemplate?: string; // Stored prompt for AI generation
+    baseType?: ActivityType; // What renderer it uses
 }
 
 export interface ActivityCategory {
@@ -172,6 +179,7 @@ export interface ActivityCategory {
     description: string;
     icon: string;
     activities: ActivityType[];
+    isCustom?: boolean;
 }
 
 export interface BaseActivityData {
@@ -273,6 +281,9 @@ export interface GeneratorOptions {
     type?: string;
     visualType?: string;
     concept?: string;
+    
+    // For Custom Activities
+    customPrompt?: string; 
 }
 
 export type AppTheme = 'light' | 'dark' | 'anthracite' | 'space' | 'nature' | 'ocean' | 'anthracite-gold' | 'anthracite-cyber';
@@ -531,24 +542,12 @@ export interface SavedWorksheet {
 // --- OCR TYPES ---
 export interface OCRResult {
     rawText: string;
-    detectedType: 'worksheet' | 'text' | 'handwriting' | 'unknown';
+    detectedType: string; // Dynamic now
+    title?: string;
+    description?: string;
+    generatedTemplate?: string; // The reverse engineered prompt template
     suggestedActivity?: string; 
     structuredData?: any; 
-}
-export interface OCRMathItem {
-    num1: number | string;
-    num2: number | string;
-    operator: string;
-    answer: number | string;
-    id: string;
-}
-export interface OCRReadingItem {
-    text: string;
-    questions: {
-        question: string;
-        type: 'open' | 'multiple';
-        options?: string[];
-    }[];
 }
 
 // --- CURRICULUM TYPES ---

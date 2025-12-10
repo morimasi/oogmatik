@@ -1,11 +1,12 @@
 
-import React, { useState, useMemo } from 'react';
-import { ActivityType, WorksheetData, Activity, GeneratorOptions } from '../types';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ActivityType, WorksheetData, Activity, GeneratorOptions, ActivityCategory } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
+import { adminService } from '../services/adminService'; // Import admin service for fetching custom activities
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -17,11 +18,6 @@ interface SidebarProps {
   isSidebarOpen: boolean;
   closeSidebar: () => void;
   onAddToHistory: (activityType: ActivityType, data: WorksheetData) => void;
-}
-
-const getActivityById = (id: ActivityType | null): Activity | undefined => {
-    if (!id) return undefined;
-    return ACTIVITIES.find(a => a.id === id);
 }
 
 const toPascalCase = (str: string): string => {
@@ -40,6 +36,65 @@ const Sidebar: React.FC<SidebarProps> = ({
   onAddToHistory
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
+  
+  // State to hold combined activities (Static + Dynamic)
+  const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
+  const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
+
+  // Load custom activities on mount
+  useEffect(() => {
+      const loadCustomActivities = async () => {
+          try {
+              const customActs = await adminService.getAllActivities(); // Should fetch from 'config_activities'
+              
+              // Filter out ones that are already in static list to avoid dupes if any
+              const newCustoms = customActs.filter(ca => !ACTIVITIES.find(a => a.id === ca.id));
+              
+              if (newCustoms.length > 0) {
+                  // Merge activities
+                  setAllActivities([...ACTIVITIES, ...newCustoms]);
+                  
+                  // Update categories
+                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({...cat})); // Shallow copy
+                  
+                  // Check if "Others" category exists, if not add it
+                  let otherCat = updatedCategories.find(c => c.id === 'others');
+                  if (!otherCat) {
+                      otherCat = {
+                          id: 'others',
+                          title: 'Diğerleri (Özel)',
+                          description: 'Sistem tarafından üretilen özel etkinlikler.',
+                          icon: 'fa-solid fa-wand-magic-sparkles',
+                          activities: []
+                      };
+                      updatedCategories.push(otherCat);
+                  }
+
+                  newCustoms.forEach(act => {
+                      const targetCatId = act.category || 'others';
+                      const targetCat = updatedCategories.find(c => c.id === targetCatId);
+                      if (targetCat) {
+                          if (!targetCat.activities.includes(act.id)) {
+                              targetCat.activities.push(act.id);
+                          }
+                      } else {
+                           // If category doesn't exist, put in Others
+                           otherCat!.activities.push(act.id);
+                      }
+                  });
+                  setCategories(updatedCategories);
+              }
+          } catch (e) {
+              console.error("Failed to load custom activities", e);
+          }
+      };
+      loadCustomActivities();
+  }, []);
+
+  const getActivityById = (id: ActivityType | null): Activity | undefined => {
+      if (!id) return undefined;
+      return allActivities.find(a => a.id === id);
+  }
 
   const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
@@ -48,63 +103,91 @@ const Sidebar: React.FC<SidebarProps> = ({
     setWorksheetData(null);
     setError(null);
 
-    const pascalCaseName = toPascalCase(selectedActivity);
-    const generatorFunctionName = `generate${pascalCaseName}FromAI`;
-    const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
+    // Get current activity to check if it is custom
+    const currentAct = getActivityById(selectedActivity);
+    const isCustom = currentAct?.isCustom || (currentAct as any)?.promptId; // Check if custom
 
     try {
         let result: WorksheetData;
         
-        const runOfflineGenerator = async () => {
-             const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
-             if (offlineGenerator) {
-                 return await offlineGenerator(options);
+        // CUSTOM ACTIVITY LOGIC
+        if (isCustom && (currentAct as any).promptId) {
+             // For custom activities, we ALWAYS use AI generation via the stored prompt template
+             // We can use the 'testPrompt' function from adminService or a new dedicated generator
+             const promptTemplate = await adminService.getPromptTemplate((currentAct as any).promptId);
+             
+             if (promptTemplate) {
+                 // Prepare variables from options
+                 const vars = {
+                     worksheetCount: options.worksheetCount,
+                     difficulty: options.difficulty,
+                     topic: options.topic || 'Genel',
+                     itemCount: options.itemCount
+                 };
+                 // Generate using the template
+                 const aiResult = await adminService.testPrompt(promptTemplate, vars);
+                 
+                 // Normalize result: Ensure it's an array for WorksheetData
+                 // The custom prompt usually returns an object with a 'data' array or similar.
+                 // We need to match it to a known Worksheet Structure based on 'baseType'
+                 
+                 // If the custom activity has a 'baseType', we wrap the result in that structure if needed
+                 // For now, assume the Prompt Template returns a valid WorksheetData array directly or inside a property
+                 if (Array.isArray(aiResult)) {
+                     result = aiResult;
+                 } else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) {
+                     result = (aiResult as any).data;
+                 } else {
+                     // Fallback: wrap single object
+                     result = [aiResult];
+                 }
              } else {
-                 throw new Error(`Hızlı mod için "${getActivityById(selectedActivity)?.title}" henüz desteklenmiyor.`);
+                 throw new Error("Aktivite şablonu bulunamadı.");
              }
-        };
 
-        if (options.mode === 'ai') {
-            const onlineGenerator = (generators as any)[generatorFunctionName];
-            if (onlineGenerator) {
-                try {
-                    result = await onlineGenerator(options);
-                } catch (err: any) {
-                    if (err.message && (err.message.includes('429') || err.message.includes('503') || err.message.includes('quota') || err.message.includes('kotası') || err.message.includes('fetch'))) {
-                         console.warn("AI Quota exceeded or Network Error. Switching to Fast Mode automatically.");
-                         try {
-                             result = await runOfflineGenerator();
-                             setError("Bilgi: Yapay zeka servisi şu an çok yoğun olduğu için etkinlik 'Hızlı Mod' ile oluşturuldu.");
-                             setTimeout(() => setError(null), 5000);
-                         } catch (offlineErr: any) {
-                              throw new Error("Yapay zeka kotası dolu ve Hızlı Mod sırasında da bir hata oluştu: " + offlineErr.message);
-                         }
-                    } else {
-                        throw err;
+        } else {
+            // STANDARD STATIC ACTIVITY LOGIC
+            const pascalCaseName = toPascalCase(selectedActivity);
+            const generatorFunctionName = `generate${pascalCaseName}FromAI`;
+            const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
+
+            const runOfflineGenerator = async () => {
+                 const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
+                 if (offlineGenerator) {
+                     return await offlineGenerator(options);
+                 } else {
+                     throw new Error(`Hızlı mod için "${currentAct?.title}" henüz desteklenmiyor.`);
+                 }
+            };
+
+            if (options.mode === 'ai') {
+                const onlineGenerator = (generators as any)[generatorFunctionName];
+                if (onlineGenerator) {
+                    try {
+                        result = await onlineGenerator(options);
+                    } catch (err: any) {
+                        // Fallback logic...
+                        console.warn("AI generator failed, trying offline.", err);
+                        result = await runOfflineGenerator();
+                        setError("Bilgi: Yapay zeka servisi yanıt vermediği için Hızlı Mod kullanıldı.");
                     }
+                } else {
+                    result = await runOfflineGenerator();
                 }
-            } else {
-                console.warn("AI generator not found, trying offline.");
+            } else { 
                 result = await runOfflineGenerator();
             }
-        } else { 
-            result = await runOfflineGenerator();
         }
         
         if (result) {
             setWorksheetData(result);
             onAddToHistory(selectedActivity, result);
-            // Fire and forget stats increment to not block UI
             statsService.incrementUsage(selectedActivity).catch(console.error);
         }
 
     } catch (e: any) {
         console.error("Etkinlik oluşturulurken hata:", e);
-        if (e.message && (e.message.includes('429') || e.message.includes('quota'))) {
-            setError("API kotası aşıldı. Lütfen 'Hızlı Mod'u kullanın.");
-        } else {
-            setError(e.message || "Beklenmeyen bir hata oluştu.");
-        }
+        setError(e.message || "Beklenmeyen bir hata oluştu.");
     } finally {
         setIsLoading(false);
     }
@@ -112,13 +195,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const currentActivity = getActivityById(selectedActivity);
 
-  // Optimization: Memoize categorization to avoid recalculation on every render
+  // Use state-based categories instead of constant
   const categorizedActivities = useMemo(() => {
-      return ACTIVITY_CATEGORIES.map(category => ({
+      return categories.map(category => ({
           ...category,
-          items: ACTIVITIES.filter(act => category.activities.includes(act.id))
-      }));
-  }, []);
+          items: allActivities.filter(act => category.activities.includes(act.id))
+      })).filter(c => c.items.length > 0);
+  }, [allActivities, categories]);
 
   return (
     <aside
@@ -156,10 +239,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <div key={category.id} className="py-1">
                                 <button
                                     onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
-                                    className="w-full flex items-center justify-between p-3 text-left font-semibold text-zinc-800 dark:text-zinc-200 rounded-lg hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                    className={`w-full flex items-center justify-between p-3 text-left font-semibold rounded-lg hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors focus:outline-none ${category.id === 'others' ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-800 dark:text-zinc-200'}`}
                                     aria-expanded={openCategoryId === category.id}
                                 >
-                                    <span>{category.title}</span>
+                                    <span className="flex items-center gap-2"><i className={category.icon}></i> {category.title}</span>
                                     <i className={`fa-solid fa-chevron-down text-sm text-zinc-400 transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (

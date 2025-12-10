@@ -17,21 +17,12 @@ export const adminService = {
     getAllActivities: async (): Promise<DynamicActivity[]> => {
         try {
             const snapshot = await getDocs(collection(db, "config_activities"));
-            if (snapshot.empty) {
-                // Initialize from constants if DB is empty
-                const defaults = ACTIVITIES.map(a => ({
-                    id: a.id,
-                    title: a.title,
-                    description: a.description,
-                    icon: a.icon,
-                    category: ACTIVITY_CATEGORIES.find(c => c.activities.includes(a.id))?.id || 'general',
-                    isActive: true,
-                    isPremium: false,
-                    promptId: `prompt_${a.id.toLowerCase()}`
-                }));
-                return defaults;
-            }
-            return snapshot.docs.map(d => d.data() as DynamicActivity);
+            
+            const dbActivities = snapshot.docs.map(d => d.data() as DynamicActivity);
+            
+            // Note: In real production, you might not merge with hardcoded CONSTANTS here if you migrate everything to DB.
+            // But for hybrid approach, we return DB items. Sidebar merges them.
+            return dbActivities;
         } catch (e) {
             console.error("Fetch activities failed", e);
             return [];
@@ -54,6 +45,18 @@ export const adminService = {
         } catch (e) {
             console.error("Fetch prompts failed", e);
             return [];
+        }
+    },
+    
+    getPromptTemplate: async (id: string): Promise<PromptTemplate | null> => {
+        try {
+            const ref = doc(db, "config_prompts", id);
+            const snap = await getDoc(ref);
+            if (snap.exists()) return snap.data() as PromptTemplate;
+            return null;
+        } catch (e) {
+            console.error("Fetch specific prompt failed", e);
+            return null;
         }
     },
 
@@ -209,6 +212,8 @@ KURALLAR:
                 items: { type: Type.ARRAY, items: { type: Type.OBJECT } },
                 questions: { type: Type.ARRAY, items: { type: Type.OBJECT } },
                 puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT } },
+                rows: { type: Type.ARRAY, items: { type: Type.OBJECT } },
+                pairs: { type: Type.ARRAY, items: { type: Type.OBJECT } },
             }
         };
 
