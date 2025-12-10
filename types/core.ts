@@ -573,6 +573,11 @@ export interface CurriculumDay {
 
 export interface Curriculum {
     id: string;
+    userId?: string; 
+    createdAt?: string; 
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
     studentName: string;
     grade: string;
     startDate: string;

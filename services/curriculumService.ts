@@ -1,7 +1,12 @@
+
 import { generateWithSchema } from './geminiClient';
 import { Type } from "@google/genai";
 import { Curriculum, ActivityType, CurriculumDay } from '../types';
 import { ACTIVITIES } from '../constants';
+import { db } from './firebaseClient';
+import * as firestore from "firebase/firestore";
+
+const { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc } = firestore;
 
 export const curriculumService = {
     generatePlan: async (
@@ -183,5 +188,53 @@ export const curriculumService = {
                 status: 'pending'
             }))
         };
+    },
+
+    // --- DB OPERATIONS ---
+
+    saveCurriculum: async (userId: string, curriculum: Curriculum): Promise<void> => {
+        const payload = {
+            ...curriculum,
+            userId,
+            createdAt: new Date().toISOString()
+        };
+        // If it already has an ID that matches a Firestore doc, update it, else add new
+        // For simplicity, we mostly treat generated ones as new unless explicitly updating
+        await addDoc(collection(db, "saved_curriculums"), payload);
+    },
+
+    getUserCurriculums: async (userId: string): Promise<Curriculum[]> => {
+        try {
+            const q = query(collection(db, "saved_curriculums"), where("userId", "==", userId));
+            const querySnapshot = await getDocs(q);
+            const items: Curriculum[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data() as any;
+                items.push({ ...data, id: doc.id });
+            });
+            return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+        } catch (e) {
+            console.error("Get Curriculums Error", e);
+            return [];
+        }
+    },
+
+    deleteCurriculum: async (id: string): Promise<void> => {
+        await deleteDoc(doc(db, "saved_curriculums", id));
+    },
+
+    shareCurriculum: async (curriculum: Curriculum, senderId: string, senderName: string, receiverId: string): Promise<void> => {
+        const payload = {
+            ...curriculum,
+            userId: senderId, // Owner remains sender or system, but we track sharing fields
+            sharedBy: senderId,
+            sharedByName: senderName,
+            sharedWith: receiverId,
+            createdAt: new Date().toISOString()
+        };
+        // Remove original ID to create new share copy
+        delete (payload as any).id;
+        
+        await addDoc(collection(db, "saved_curriculums"), payload);
     }
 };
