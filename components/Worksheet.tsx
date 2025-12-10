@@ -44,7 +44,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         
         const gridTemplateColumns = `repeat(${effectiveCols}, minmax(0, 1fr))`;
         // Reduce vertical gap to fit more, compact mode
-        const verticalGap = userCols < 3 ? '0.75rem' : '0.35rem'; 
+        const verticalGap = userCols < 3 ? '0.5rem' : '0.25rem'; 
 
         return {
             '--worksheet-font-size': `${adjustedFontSize}px`,
@@ -98,10 +98,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     if (!data || !activityType || data.length === 0) return null;
 
     const visualStyleClass = `style-${settings.visualStyle || 'card'}`;
-    const isSinglePage = data.length === 1;
+    // const isSinglePage = data.length === 1;
 
     return (
-        <div className={`flex flex-col items-center ${visualStyleClass} ${isSinglePage ? '' : 'gap-8 pb-8'}`} style={variableStyle}>
+        <div className={`flex flex-col items-center ${visualStyleClass} gap-8 pb-8`} style={variableStyle}>
             <style>{`
                 .dynamic-grid {
                     display: grid;
@@ -109,144 +109,92 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     gap: var(--worksheet-gap);
                     row-gap: var(--worksheet-vertical-gap);
                     width: 100%;
-                    align-items: start;
+                    align-items: stretch; /* Items stretch to fill height in row */
                     align-content: start;
-                    height: 100%; /* Force grid to fill available height */
+                    height: 100%;
                 }
                 
                 .worksheet-content {
                     font-family: var(--worksheet-font-family), sans-serif;
                     font-size: var(--worksheet-font-size);
-                    font-weight: var(--font-weight);
-                    font-style: var(--font-style);
                     line-height: var(--worksheet-line-height);
                     letter-spacing: var(--worksheet-letter-spacing);
                     text-align: var(--content-align);
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    height: 100%;
-                }
-                
-                .worksheet-content > div.flex-1 {
-                    display: flex;
-                    flex-direction: column;
-                    /* Distribute items evenly if grid, stretch to fill */
-                    justify-content: ${settings.columns > 1 ? 'start' : 'space-between'};
-                    flex: 1 1 auto;
-                }
-                
-                .worksheet-content .editable-element,
-                .worksheet-content .item-card {
-                    flex-direction: var(--item-direction) !important;
-                    gap: var(--item-gap) !important;
-                    padding: var(--item-padding) !important;
+                    font-weight: var(--font-weight);
+                    font-style: var(--font-style);
                 }
 
-                .worksheet-content[data-complexity="low"] .item-card {
-                    border: 2px solid #e5e7eb !important; 
-                    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);
-                    border-radius: 0.5rem;
-                    background-color: #fafafa;
-                }
-                
-                .worksheet-content[data-complexity="high"] .item-card {
-                     border: 1px solid #e5e7eb !important; 
-                     box-shadow: none !important;
-                }
-
-                .style-zebra .dynamic-grid > *:nth-child(odd) {
-                    background-color: rgba(0,0,0,0.03);
+                .item-card {
+                    padding: var(--item-padding);
                 }
             `}</style>
 
-            {(data || []).map((sheetData, index) => (
-                <div 
-                    key={index} 
-                    className="worksheet-page-wrapper"
-                >
-                    <div 
-                        className="worksheet-item worksheet-page transition-all duration-300 ease-in-out"
-                        style={pageStyle}
-                    >
-                        {showQR && <WorkbookQR url="https://www.bursadisleksi.com" />}
-
-                        {/* Reduced padding to 5mm to maximize A4 usage */}
-                        <div className="w-full h-full p-[5mm] relative flex flex-col">
-                            
-                            {isEditMode && (
-                                <>
-                                    <div className="absolute inset-0 edit-grid-overlay z-0 pointer-events-none"></div>
-                                    <div className="absolute inset-[5mm] edit-safety-guide z-0 pointer-events-none"></div>
-                                    <div className="absolute top-2 right-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded shadow-sm opacity-50 pointer-events-none edit-handle">
-                                        Sayfa {index + 1}
-                                    </div>
-                                </>
-                            )}
-
-                            <div 
-                                className="worksheet-scaler worksheet-content relative z-10 flex-1 flex flex-col justify-start"
-                                style={{ width: '100%', height: '100%' }}
-                                data-complexity={settings.columns > 3 ? 'high' : 'low'}
-                            >
-                                <div className="mb-2 pb-1 border-b border-black flex justify-between items-end shrink-0 w-full" style={{ display: 'var(--display-student-info)' }}>
-                                    <div className="flex gap-4 text-xs text-black">
-                                        <div className="flex gap-1 items-baseline">
-                                            <span className="text-[10px] uppercase font-bold text-zinc-500">Ad Soyad:</span>
-                                            <EditableText value={studentProfile?.name || ''} tag="span" className="min-w-[120px] border-b border-dotted border-zinc-400" />
-                                        </div>
-                                        <div className="flex gap-1 items-baseline">
-                                            <span className="text-[10px] uppercase font-bold text-zinc-500">Sınıf:</span>
-                                            <EditableText value={studentProfile?.grade || ''} tag="span" className="min-w-[40px] border-b border-dotted border-zinc-400" />
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-1 items-baseline text-xs text-black">
-                                        <span className="text-[10px] uppercase font-bold text-zinc-500">Tarih:</span>
-                                        <EditableText value={studentProfile?.date || ''} tag="span" className="min-w-[80px] border-b border-dotted border-zinc-400" />
-                                    </div>
-                                </div>
-
-                                <EditableElement id="main-content" className="flex-1 w-full h-full flex flex-col min-h-0">
-                                    <div className="flex-1 flex flex-col h-full min-h-0">
-                                        <ErrorBoundary>
-                                            <SheetRenderer activityType={activityType} data={sheetData} />
-                                        </ErrorBoundary>
-                                    </div>
-                                </EditableElement>
-                                
-                                <div 
-                                    className="mt-auto w-full pt-1 px-2 flex justify-between items-center text-[8px] text-zinc-400 pointer-events-none shrink-0"
-                                    style={{ display: 'var(--display-footer)' }}
-                                >
-                                    <span className="uppercase tracking-widest font-bold">Bursa Disleksi AI</span>
-                                    <span className="font-mono">{index + 1} / {data.length}</span>
+            {data.map((pageData, index) => (
+                <div key={index} id={`page-${index}`} className="worksheet-page" style={pageStyle}>
+                    
+                    {/* Student Info Strip */}
+                    <div className="absolute top-0 left-0 w-full px-12 py-6 flex justify-between items-end border-b border-zinc-200" style={{ display: 'var(--display-student-info)' }}>
+                        <div className="flex gap-8">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Ad Soyad</span>
+                                <div className="h-6 border-b border-zinc-800 min-w-[200px] font-bold text-lg leading-none">
+                                    <EditableText value={studentProfile?.name} tag="span" />
                                 </div>
                             </div>
-                            
-                            {(overlayItems || []).filter(item => item.pageIndex === index).map(item => (
-                                <EditableElement 
-                                    key={item.id} 
-                                    initialPos={{x: item.x, y: item.y}} 
-                                    className="absolute z-50 cursor-move"
-                                    style={{left: 0, top: 0}}
-                                >
-                                    {item.type === 'text' ? (
-                                        <div className="bg-white/80 border border-dashed border-zinc-400 p-1 rounded min-w-[50px]">
-                                            <EditableText value={item.content} tag="div" className="text-sm font-bold" />
-                                        </div>
-                                    ) : (
-                                        <div className="w-16 h-16">
-                                            <img src={item.content} className="w-full h-full object-contain drop-shadow-md" alt="Sticker" />
-                                        </div>
-                                    )}
-                                </EditableElement>
-                            ))}
+                            <div className="flex flex-col">
+                                <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Sınıf / No</span>
+                                <div className="h-6 border-b border-zinc-800 min-w-[100px] font-bold text-lg leading-none">
+                                    <EditableText value={studentProfile?.grade} tag="span" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Tarih</span>
+                            <div className="h-6 border-b border-zinc-800 min-w-[120px] font-bold text-lg leading-none text-right">
+                                <EditableText value={studentProfile?.date} tag="span" />
+                            </div>
                         </div>
                     </div>
+
+                    {/* QR Code */}
+                    {showQR && <WorkbookQR url="https://bursadisleksi.com" />}
+
+                    {/* Main Content Container */}
+                    <div className="w-full h-full pt-24 px-12 pb-16 flex flex-col worksheet-content relative z-10">
+                        <ErrorBoundary>
+                            <SheetRenderer activityType={activityType} data={pageData} />
+                        </ErrorBoundary>
+                    </div>
+
+                    {/* Overlay Items */}
+                    {overlayItems && overlayItems.filter(item => item.pageIndex === index).map(item => (
+                        <div key={item.id} className="absolute z-50 pointer-events-auto" style={{ left: item.x, top: item.y }}>
+                             <EditableElement id={item.id} type={item.type}>
+                                 {item.type === 'text' ? (
+                                     <EditableText value={item.content} tag="div" className="bg-transparent" />
+                                 ) : (
+                                     <img src={item.content} alt="sticker" className="w-24 h-24 object-contain" />
+                                 )}
+                             </EditableElement>
+                        </div>
+                    ))}
+
+                    {/* Footer */}
+                    <div className="absolute bottom-4 left-0 w-full px-12 flex justify-between items-end text-[10px] text-zinc-400 font-mono" style={{ display: 'var(--display-footer)' }}>
+                        <span>Bursa Disleksi AI © {new Date().getFullYear()}</span>
+                        <span>Sayfa {index + 1} / {data.length}</span>
+                    </div>
+
+                    {/* Edit Handles (Only in Edit Mode) */}
+                    {isEditMode && (
+                        <div className="absolute top-2 left-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded shadow-sm opacity-50 hover:opacity-100 transition-opacity cursor-default edit-handle no-print">
+                            Sayfa {index + 1}
+                        </div>
+                    )}
                 </div>
             ))}
         </div>
     );
 };
 
-export default React.memo(Worksheet);
+export default Worksheet;
