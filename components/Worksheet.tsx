@@ -169,7 +169,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     {/* Overlay Items */}
                     {overlayItems && overlayItems.filter(item => item.pageIndex === index).map(item => (
                         <div key={item.id} className="absolute z-50 pointer-events-auto" style={{ left: item.x, top: item.y }}>
-                             <EditableElement id={item.id} type={item.type === 'sticker' ? 'image' : 'text'}>
+                             <EditableElement 
+                                 id={item.id} 
+                                 type={item.type === 'sticker' ? 'image' : 'text' as 'image' | 'text'}
+                             >
                                  {item.type === 'text' ? (
                                      <EditableText value={item.content} tag="div" className="bg-transparent" />
                                  ) : (

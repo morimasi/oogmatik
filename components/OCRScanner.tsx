@@ -34,8 +34,9 @@ const resizeImage = (file: File): Promise<string> => {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const MAX_WIDTH = 1024;
-                const MAX_HEIGHT = 1024;
+                // Aggressively reduce size to ensure payload stays under Vercel limits
+                const MAX_WIDTH = 800;
+                const MAX_HEIGHT = 800;
 
                 if (width > height) {
                     if (width > MAX_WIDTH) {
@@ -54,8 +55,8 @@ const resizeImage = (file: File): Promise<string> => {
                 const ctx = canvas.getContext('2d');
                 ctx?.drawImage(img, 0, 0, width, height);
                 
-                // Convert to base64 string with reduced quality (0.7) to save space
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                // Convert to base64 string with reduced quality (0.6) to save space
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
                 resolve(dataUrl);
             };
             img.onerror = reject;
