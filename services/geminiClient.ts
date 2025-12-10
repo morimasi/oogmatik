@@ -1,4 +1,5 @@
 
+
 // This function calls our own backend proxy.
 export const generateWithSchema = async (prompt: string, schema: any, model?: string) => {
     try {
@@ -112,7 +113,11 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
             }),
         });
 
-        if (!response.ok) throw new Error("Image analysis failed");
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Vision API Error Details:", errorText);
+            throw new Error(`Vision API Failed: ${response.status} ${response.statusText} - ${errorText.substring(0, 150)}...`);
+        }
         
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
