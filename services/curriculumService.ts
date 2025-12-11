@@ -100,7 +100,7 @@ export const curriculumService = {
             required: ['goals', 'note', 'schedule']
         };
 
-        const result = await generateWithSchema(prompt, schema, 'gemini-2.5-flash');
+        const result = await generateWithSchema(prompt, schema, 'gemini-2.0-flash');
 
         // Post-process to add IDs and status
         const schedule = result.schedule.map((day: any) => ({
@@ -177,7 +177,7 @@ export const curriculumService = {
             required: ['day', 'focus', 'activities']
         };
 
-        const result = await generateWithSchema(prompt, schema, 'gemini-2.5-flash');
+        const result = await generateWithSchema(prompt, schema, 'gemini-2.0-flash');
         
         return {
             ...result,
@@ -198,8 +198,6 @@ export const curriculumService = {
             userId,
             createdAt: new Date().toISOString()
         };
-        // If it already has an ID that matches a Firestore doc, update it, else add new
-        // For simplicity, we mostly treat generated ones as new unless explicitly updating
         await addDoc(collection(db, "saved_curriculums"), payload);
     },
 
@@ -226,13 +224,12 @@ export const curriculumService = {
     shareCurriculum: async (curriculum: Curriculum, senderId: string, senderName: string, receiverId: string): Promise<void> => {
         const payload = {
             ...curriculum,
-            userId: senderId, // Owner remains sender or system, but we track sharing fields
+            userId: senderId, 
             sharedBy: senderId,
             sharedByName: senderName,
             sharedWith: receiverId,
             createdAt: new Date().toISOString()
         };
-        // Remove original ID to create new share copy
         delete (payload as any).id;
         
         await addDoc(collection(db, "saved_curriculums"), payload);

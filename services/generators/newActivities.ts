@@ -149,7 +149,8 @@ export const generateFromRichPrompt = async (activityType: ActivityType, richPro
     NOT: Eğer algoritma tek bir "büyük" bulmaca (örneğin Sudoku veya Kelime Avı) tarif ediyorsa, her çalışma sayfasında 1 adet büyük bulmaca olabilir. Ancak liste tipi (çoktan seçmeli, eşleştirme vb.) sorularda sayfa başına çoklu soru üretilmelidir.
     `;
 
-    return generateWithSchema(finalPrompt, schema, 'gemini-2.5-flash');
+    // Use Gemini 2.0 Flash for complex reasoning
+    return generateWithSchema(finalPrompt, schema, 'gemini-2.0-flash');
 };
 
 // ... Existing exports (generateFamilyRelationsFromAI, etc.) remain unchanged

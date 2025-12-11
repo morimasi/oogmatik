@@ -89,7 +89,7 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     const prompt = `
     [ROL: EĞİTİM PSİKOLOĞU VE ÖLÇME DEĞERLENDİRME UZMANI]
     
-    GÖREV: Aşağıdaki öğrenci profilini, test sonuçlarını ve **HATA PATERNLERİNİ** analiz ederek, veli ve öğretmen için profesyonel, akademik dille yazılmış, yönlendirici bir "Tanılama ve Bireysel Gelişim Raporu" oluştur.
+    GÖREV: Aşağıdaki öğrenci profili, test sonuçlarını ve **HATA PATERNLERİNİ** analiz ederek, veli ve öğretmen için profesyonel, akademik dille yazılmış, yönlendirici bir "Tanılama ve Bireysel Gelişim Raporu" oluştur.
     
     ÖĞRENCİ PROFİLİ:
     - İsim: ${profile.studentName}
@@ -195,7 +195,8 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     };
 
     try {
-        return await generateWithSchema(prompt, schema, 'gemini-2.5-flash') as unknown as AssessmentReport;
+        // Use gemini-2.0-flash as primary, the handler will fallback if needed
+        return await generateWithSchema(prompt, schema, 'gemini-2.0-flash') as unknown as AssessmentReport;
     } catch (error) {
         console.warn("AI Assessment Error, falling back:", error);
         return generateOfflineAssessmentReport(profile);

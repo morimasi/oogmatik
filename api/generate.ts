@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { prompt, schema, image } = req.body;
+        const { prompt, schema, image, model } = req.body;
 
         if (!prompt || !schema) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
@@ -75,15 +75,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // --- UPDATED ROBUST MODEL STRATEGY ---
-        // 1. Primary: Gemini 2.5 Flash (Newest, Fastest, Best Multimodal)
-        // 2. Secondary: Gemini 1.5 Flash (Most Stable, High Rate Limits)
-        // 3. Tertiary: Gemini 1.5 Pro Latest (Fallback for complex reasoning if flash fails)
+        // 1. Primary: Gemini 2.0 Flash (Fastest, Smartest, Multimodal)
+        // 2. Secondary: Gemini 1.5 Pro (Deep reasoning fallback)
+        // 3. Tertiary: Gemini 1.5 Flash (Reliable, fast fallback)
         
-        const modelChain = [
-            "gemini-2.5-flash",        // HIZLI, GÜÇLÜ VE YENİ
-            "gemini-1.5-flash",        // SAĞLAM YEDEK
-            "gemini-1.5-pro-latest"    // SON ÇARE (Daha yavaş ama zeki)
+        const defaultModelChain = [
+            "gemini-2.0-flash",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash"
         ];
+        
+        // If a specific model is requested and valid, try it first, then fallback to chain
+        let modelChain = defaultModelChain;
+        if (model && defaultModelChain.includes(model)) {
+            modelChain = [model, ...defaultModelChain.filter(m => m !== model)];
+        }
         
         let lastError = null;
         let successResponseText = null;
