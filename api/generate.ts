@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { prompt, schema, model, image } = req.body;
+        const { prompt, schema, image } = req.body;
 
         if (!prompt || !schema) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
@@ -64,132 +64,85 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Build contents array
         let contents: any = prompt;
         if (image) {
+            // Remove header if present (data:image/png;base64,)
+            const cleanImage = image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
             contents = {
                 parts: [
-                    { inlineData: { mimeType: 'image/jpeg', data: image } },
+                    { inlineData: { mimeType: 'image/jpeg', data: cleanImage } },
                     { text: prompt }
                 ]
             };
         }
 
-        // --- MODEL SELECTION STRATEGY ---
-        let requestedModel = model || "gemini-2.5-flash";
+        // --- ROBUST MODEL STRATEGY ---
+        // 1. Primary: Gemini 1.5 Flash (Fastest, High Throughput, Multimodal)
+        // 2. Secondary: Gemini 1.5 Pro (More Intelligent, Higher Limits, Multimodal fallback)
+        // 3. Tertiary: Gemini 1.0 Pro (Legacy Text-Only fallback if no image)
         
-        // Extended Fallback list
-        const modelsToTry = [
-            requestedModel,
-            "gemini-2.5-flash",
-            "gemini-2.0-flash-exp",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
-            "gemini-pro-vision" // Legacy backup for vision
+        const modelChain = [
+            "gemini-1.5-flash", // HIZLI VE GÜÇLÜ
+            "gemini-1.5-pro",   // ZEKİ VE KARMAŞIK
+            "gemini-1.0-pro"    // GÜVENLİ LİMAN (Sadece metin ise)
         ];
         
-        // Deduplicate
-        const uniqueModels = [...new Set(modelsToTry)];
+        // If image is present, remove text-only models from fallback chain
+        const activeModels = image 
+            ? modelChain.filter(m => !m.includes('1.0')) 
+            : modelChain;
 
-        // STRATEGY SPLIT: 
-        if (image) {
-            for (const currentModel of uniqueModels) {
-                try {
-                    console.log(`Trying Vision Model: ${currentModel}`);
-                    const result = await ai.models.generateContent({
-                        model: currentModel, 
-                        contents: contents, 
-                        config: generationConfig,
-                    });
-                    
-                    let text = result.text || "{}";
-                    text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-                    
-                    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                    res.status(200).send(text); 
-                    return; 
-                } catch (error: any) {
-                    const errorMsg = error.message || String(error);
-                    console.warn(`Model ${currentModel} failed:`, errorMsg);
-                    
-                    const status = error.status || (error.response ? error.response.status : 0);
-                    
-                    // Critical Auth/Quota errors -> Fail immediately
-                    if (status === 401 || status === 403) {
-                         throw error;
-                    }
+        let lastError = null;
 
-                    // For 400 (Bad Request), 404 (Not Found), 503 (Unavailable), 429 (Quota) -> Continue to fallback
-                    // If it's the last model, throw
-                    if (currentModel === uniqueModels[uniqueModels.length - 1]) {
-                        throw error;
-                    }
-                    // Continue loop
-                }
-            }
-            return;
-        }
-
-        // Text-Only Requests (Streaming)
-        for (const currentModel of uniqueModels) {
+        // Try models in sequence (Daisy-chaining)
+        for (const currentModel of activeModels) {
             try {
-                // If the model is known to be vision-only (like gemini-pro-vision), skip for text tasks
-                if (currentModel.includes('vision') && !image) continue;
-
-                const stream = await ai.models.generateContentStream({
+                console.log(`Attempting generation with model: ${currentModel} (Image: ${!!image})`);
+                
+                // Use streaming for text-only to keep connection alive, regular for complex JSON to ensure integrity
+                // For JSON schema enforcement, generateContent is often safer than stream for parsing assurance
+                const result = await ai.models.generateContent({
                     model: currentModel, 
                     contents: contents, 
                     config: generationConfig,
                 });
-
-                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                res.setHeader('Transfer-Encoding', 'chunked');
-
-                for await (const chunk of stream) {
-                    const chunkText = chunk.text;
-                    if (chunkText) {
-                        res.write(chunkText);
-                    }
-                }
                 
-                res.end();
-                return; 
+                let text = result.text || "{}";
+                // Clean markdown code blocks if present
+                text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+                
+                res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                res.status(200).send(text); 
+                return; // Success! Exit function.
 
             } catch (error: any) {
                 const errorMsg = error.message || String(error);
-                console.error(`Stream error (${currentModel}):`, errorMsg);
+                const status = error.status || (error.response ? error.response.status : 500);
                 
-                if (res.headersSent) {
-                    res.end();
-                    return;
+                console.warn(`Model ${currentModel} failed (${status}):`, errorMsg);
+                lastError = { status, message: errorMsg };
+
+                // Critical Auth errors -> Fail immediately, don't retry other models
+                if (status === 401 || status === 403 || errorMsg.includes('API key')) {
+                     return res.status(status).json({ error: `Yetkilendirme hatası: ${errorMsg}` });
                 }
                 
-                if (currentModel === uniqueModels[uniqueModels.length - 1]) {
-                    if (error.status === 429 || error.status === 503) {
-                        return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Text)" });
-                    }
-                    return res.status(500).json({ error: `Yapay zeka akışı sırasında hata oluştu: ${errorMsg}` });
+                // If it's the last model, throw/return error
+                if (currentModel === activeModels[activeModels.length - 1]) {
+                    break;
                 }
-                
-                continue;
+                // Continue to next model in loop...
             }
         }
 
+        // All models failed
+        console.error("All AI models failed.");
+        return res.status(lastError?.status || 500).json({ 
+            error: `Tüm yapay zeka modelleri meşgul veya erişilemez. (${lastError?.message})` 
+        });
+
     } catch (error: any) {
-        console.error("API Handler Error:", error);
+        console.error("API Handler Critical Error:", error);
         if (!res.headersSent) {
-            let errorMessage = "Sunucu hatası.";
-            let statusCode = 500;
-            
-            if (error.status === 429 || error.status === 503) {
-                statusCode = 429;
-                errorMessage = "API kotası aşıldı veya servis meşgul. Lütfen kısa bir süre sonra tekrar deneyin.";
-            } else if (error instanceof Error) {
-                errorMessage = error.message;
-            }
-            
-            if (errorMessage.includes("404") || errorMessage.includes("not found")) {
-                 errorMessage = "Model yapılandırma hatası (Model Bulunamadı veya Erişim Yok).";
-            }
-            
-            return res.status(statusCode).json({ error: errorMessage });
+            return res.status(500).json({ error: "Sunucu tarafında kritik bir hata oluştu." });
         }
         res.end();
     }

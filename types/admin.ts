@@ -58,6 +58,14 @@ export interface PromptTemplate {
     };
 }
 
+export interface PromptSnippet {
+    id: string;
+    label: string;
+    value: string;
+    category?: string;
+    updatedAt?: string;
+}
+
 export interface StaticContentItem {
     id: string; // e.g., 'proverbs_tr', 'word_list_animals'
     title: string;

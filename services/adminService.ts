@@ -1,7 +1,7 @@
 
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { DynamicActivity, PromptTemplate, StaticContentItem, ActivityDraft } from '../types/admin';
+import { DynamicActivity, PromptTemplate, StaticContentItem, ActivityDraft, PromptSnippet } from '../types/admin';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } from './generators/prompts';
 import { generateWithSchema } from './geminiClient';
@@ -32,6 +32,32 @@ export const adminService = {
 
     deleteActivity: async (id: string) => {
         await deleteDoc(doc(db, "config_activities", id));
+    },
+
+    // --- SNIPPETS (LIBRARY) ---
+    getAllSnippets: async (): Promise<PromptSnippet[]> => {
+        try {
+            const snapshot = await getDocs(collection(db, "config_snippets"));
+            return snapshot.docs.map(d => ({ ...d.data(), id: d.id } as PromptSnippet));
+        } catch (e) {
+            console.error("Fetch snippets failed", e);
+            return [];
+        }
+    },
+
+    saveSnippet: async (snippet: PromptSnippet) => {
+        const payload = { ...snippet, updatedAt: new Date().toISOString() };
+        // Use setDoc with merge to support both create and update with custom ID if needed
+        // But here we use snippet.id if exists, else auto-gen logic in component
+        if (snippet.id) {
+             await setDoc(doc(db, "config_snippets", snippet.id), payload, { merge: true });
+        } else {
+             await addDoc(collection(db, "config_snippets"), payload);
+        }
+    },
+
+    deleteSnippet: async (id: string) => {
+        await deleteDoc(doc(db, "config_snippets", id));
     },
 
     // --- DRAFTS (OCR TO SYSTEM) ---

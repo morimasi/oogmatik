@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { PromptTemplate } from '../types/admin';
+import { PromptTemplate, PromptSnippet } from '../types/admin';
 import { adminService } from '../services/adminService';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import { ActivityType } from '../types';
@@ -13,11 +13,6 @@ const DEFAULT_SNIPPETS = [
     { label: 'Görsel Prompt', value: '"imagePrompt" alanı için: "Flat Vector Art, Educational, Minimalist, White Background" stilinde İngilizce betimleme yaz.' },
     { label: 'Disleksi Kuralı', value: 'Disleksik bireyler için: Kısa cümleler, devrik olmayan yapı ve somut kelimeler kullan.' }
 ];
-
-interface Snippet {
-    label: string;
-    value: string;
-}
 
 // --- COMPONENTS ---
 
@@ -84,15 +79,10 @@ export const AdminPromptStudio: React.FC = () => {
     const [rightPanel, setRightPanel] = useState<'test' | 'snippets'>('test');
     
     // Snippet Management State
-    const [snippets, setSnippets] = useState<Snippet[]>(() => {
-        try {
-            const stored = localStorage.getItem('admin_prompt_snippets');
-            return stored ? JSON.parse(stored) : DEFAULT_SNIPPETS;
-        } catch { return DEFAULT_SNIPPETS; }
-    });
+    const [snippets, setSnippets] = useState<PromptSnippet[]>([]);
     const [snippetMode, setSnippetMode] = useState<'list' | 'edit'>('list');
-    const [editingSnippetIdx, setEditingSnippetIdx] = useState<number | null>(null);
-    const [snippetForm, setSnippetForm] = useState<Snippet>({ label: '', value: '' });
+    const [editingSnippet, setEditingSnippet] = useState<PromptSnippet | null>(null);
+    const [snippetForm, setSnippetForm] = useState<PromptSnippet>({ id: '', label: '', value: '' });
 
     // Simulation State
     const [testVariables, setTestVariables] = useState<Record<string, string>>({});
@@ -102,16 +92,23 @@ export const AdminPromptStudio: React.FC = () => {
 
     useEffect(() => {
         loadPrompts();
+        loadSnippets();
     }, []);
-
-    // Sync Snippets to LocalStorage
-    useEffect(() => {
-        localStorage.setItem('admin_prompt_snippets', JSON.stringify(snippets));
-    }, [snippets]);
 
     const loadPrompts = async () => {
         const data = await adminService.getAllPrompts();
         setPrompts(data);
+    };
+
+    const loadSnippets = async () => {
+        const data = await adminService.getAllSnippets();
+        if (data.length === 0) {
+             // Convert defaults to proper type with IDs
+             const defaultsWithIds = DEFAULT_SNIPPETS.map((s, i) => ({...s, id: `def_${i}`}));
+             setSnippets(defaultsWithIds);
+        } else {
+             setSnippets(data);
+        }
     };
 
     const handleSelectActivity = async (activityId: string, title: string, categoryId: string) => {
@@ -228,36 +225,39 @@ export const AdminPromptStudio: React.FC = () => {
 
     // --- SNIPPET MANAGEMENT ---
     const handleAddSnippet = () => {
-        setSnippetForm({ label: '', value: '' });
-        setEditingSnippetIdx(null);
+        setSnippetForm({ id: `snip_${Date.now()}`, label: '', value: '' });
+        setEditingSnippet(null);
         setSnippetMode('edit');
     };
 
-    const handleEditSnippet = (idx: number, e: React.MouseEvent) => {
+    const handleEditSnippet = (snippet: PromptSnippet, e: React.MouseEvent) => {
         e.stopPropagation();
-        setSnippetForm(snippets[idx]);
-        setEditingSnippetIdx(idx);
+        setSnippetForm(snippet);
+        setEditingSnippet(snippet);
         setSnippetMode('edit');
     };
 
-    const handleSaveSnippet = () => {
+    const handleSaveSnippet = async () => {
         if (!snippetForm.label || !snippetForm.value) return;
         
+        // Optimistic UI update
         setSnippets(prev => {
-            const newList = [...prev];
-            if (editingSnippetIdx !== null) {
-                newList[editingSnippetIdx] = snippetForm;
+            if (editingSnippet) {
+                return prev.map(s => s.id === snippetForm.id ? snippetForm : s);
             } else {
-                newList.push(snippetForm);
+                return [...prev, snippetForm];
             }
-            return newList;
         });
+
+        // Async save to DB
+        await adminService.saveSnippet(snippetForm);
         setSnippetMode('list');
     };
 
-    const handleDeleteSnippet = (idx: number) => {
+    const handleDeleteSnippet = async (id: string) => {
         if(confirm("Bu parçacığı silmek istediğinize emin misiniz?")) {
-            setSnippets(prev => prev.filter((_, i) => i !== idx));
+            setSnippets(prev => prev.filter(s => s.id !== id));
+            await adminService.deleteSnippet(id);
         }
     };
 
@@ -546,14 +546,14 @@ export const AdminPromptStudio: React.FC = () => {
                                                 {/* Actions */}
                                                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <button 
-                                                        onClick={(e) => handleEditSnippet(i, e)}
+                                                        onClick={(e) => handleEditSnippet(snip, e)}
                                                         className="p-1 hover:text-indigo-400 text-zinc-500"
                                                         title="Düzenle"
                                                     >
                                                         <i className="fa-solid fa-pen text-[10px]"></i>
                                                     </button>
                                                     <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleDeleteSnippet(i); }}
+                                                        onClick={(e) => { e.stopPropagation(); handleDeleteSnippet(snip.id); }}
                                                         className="p-1 hover:text-red-400 text-zinc-500"
                                                         title="Sil"
                                                     >
@@ -568,7 +568,7 @@ export const AdminPromptStudio: React.FC = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center border-b border-[#333] pb-2">
                                         <h4 className="text-xs font-bold text-white">
-                                            {editingSnippetIdx !== null ? 'Parçacık Düzenle' : 'Yeni Parçacık'}
+                                            {editingSnippet ? 'Parçacık Düzenle' : 'Yeni Parçacık'}
                                         </h4>
                                         <button onClick={() => setSnippetMode('list')} className="text-zinc-500 hover:text-white">
                                             <i className="fa-solid fa-times"></i>
