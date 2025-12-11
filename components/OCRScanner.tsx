@@ -221,7 +221,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                  },
                  createdBy: user.email
              });
-             alert("Algoritma başarıyla 'Taslaklar' havuzuna eklendi. Yönetici onayı sonrası herkes kullanabilir.");
+             alert("Algoritma başarıyla YÖNETİCİ ONAYINA gönderildi. Onaylandıktan sonra 'Diğerleri' menüsünde yayınlanacaktır.");
         } catch (e) {
             console.error("Template save error", e);
             alert("Şablon kaydedilemedi.");
@@ -395,16 +395,17 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                                     className="flex-[2] py-4 bg-zinc-900 hover:bg-black text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all flex items-center justify-center gap-3 text-lg"
                                 >
                                     <i className="fa-solid fa-file-invoice"></i>
-                                    📄 Etkinlik Olarak Üret
+                                    📄 Test Et & Üret
                                 </button>
                                 
                                 <button 
                                     onClick={handleSaveAsTemplate}
                                     disabled={isSaving}
-                                    className="flex-1 py-4 bg-white border-2 border-indigo-200 hover:border-indigo-400 text-indigo-700 font-bold rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2 hover:bg-indigo-50"
+                                    className="flex-1 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2"
+                                    title="Yönetici onayı için taslaklara gönder"
                                 >
-                                    <i className="fa-solid fa-code-branch"></i>
-                                    🧬 Algoritmayı Kaydet
+                                    <i className="fa-solid fa-paper-plane"></i>
+                                    Yönetici Onayına Gönder
                                 </button>
                             </div>
                         </div>

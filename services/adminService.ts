@@ -3,7 +3,7 @@ import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { DynamicActivity, PromptTemplate, StaticContentItem, ActivityDraft } from '../types/admin';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
-import { PEDAGOGICAL_BASE } from './generators/prompts';
+import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } from './generators/prompts';
 import { generateWithSchema } from './geminiClient';
 import { Type } from '@google/genai';
 import { PROVERBS, SAYINGS } from '../data/sentences';
@@ -19,9 +19,6 @@ export const adminService = {
             const snapshot = await getDocs(collection(db, "config_activities"));
             
             const dbActivities = snapshot.docs.map(d => d.data() as DynamicActivity);
-            
-            // Note: In real production, you might not merge with hardcoded CONSTANTS here if you migrate everything to DB.
-            // But for hybrid approach, we return DB items. Sidebar merges them.
             return dbActivities;
         } catch (e) {
             console.error("Fetch activities failed", e);
@@ -59,29 +56,52 @@ export const adminService = {
     publishDraft: async (draft: ActivityDraft, finalConfig: { title: string, description: string, icon: string, category: string }) => {
         // 1. Create a Prompt Template based on draft instructions
         const promptId = `prompt_${Date.now()}`; // Unique ID
-        const baseActivityPrompt = adminService.getInitialPromptForActivity(draft.baseType as ActivityType);
         
-        // Inject custom instructions into the base prompt structure
-        // This is a heuristic merge.
-        const mergedTemplate = baseActivityPrompt.replace(
-            "ÇIKTI (JSON): ...", 
-            `
-            EKSTRA ÖZEL TALİMATLAR (KULLANICI TANIMLI):
-            ${draft.customInstructions}
-            
-            ÇIKTI (JSON): ...
-            `
-        );
+        let finalTemplate = "";
+
+        // Eğer OCR'dan gelen özel bir talimat varsa, temiz bir şablon oluştur
+        if (draft.customInstructions && draft.customInstructions.length > 10) {
+            finalTemplate = `
+${PEDAGOGICAL_PROMPT_BASE}
+
+GÖREV: ${draft.title} etkinliği oluştur.
+KONU: {{topic}}
+ZORLUK: {{difficulty}}
+ADET: {{itemCount}}
+
+ÖZEL ÜRETİM ALGORİTMASI (OCR KAYNAKLI):
+=========================================
+${draft.customInstructions}
+=========================================
+
+${IMAGE_GENERATION_GUIDE}
+
+ÇIKTI FORMATI:
+Sadece JSON formatında, yukarıdaki algoritmaya uygun veri yapısını döndür.
+            `;
+        } else {
+            // Eğer özel talimat yoksa (manuel taslak), baseType'ın şablonunu al
+            const basePrompt = adminService.getInitialPromptForActivity(draft.baseType as ActivityType);
+             finalTemplate = basePrompt.replace(
+                "ÇIKTI (JSON): ...", 
+                `
+                EKSTRA ÖZEL TALİMATLAR:
+                ${draft.description}
+                
+                ÇIKTI (JSON): ...
+                `
+            );
+        }
 
         const newPrompt: PromptTemplate = {
             id: promptId,
             name: `${finalConfig.title} Promptu`,
-            description: `OCR kaynaklı otomatik oluşturulan prompt. Kaynak: ${draft.baseType}`,
+            description: `OCR/Taslak kaynaklı otomatik oluşturulan prompt. Kaynak: ${draft.baseType}`,
             category: finalConfig.category,
             systemInstruction: "Sen uzman bir eğitim materyali tasarımcısısın.",
-            template: mergedTemplate,
+            template: finalTemplate.trim(),
             variables: ['difficulty', 'topic', 'worksheetCount', 'itemCount'],
-            tags: ['ocr', 'auto-generated'],
+            tags: ['ocr', 'auto-generated', finalConfig.category],
             updatedAt: new Date().toISOString(),
             version: 1,
             history: []
@@ -96,11 +116,11 @@ export const adminService = {
             title: finalConfig.title,
             description: finalConfig.description,
             icon: finalConfig.icon,
-            category: finalConfig.category, // e.g. 'others'
+            category: finalConfig.category || 'others',
             isActive: true,
             isPremium: false,
             promptId: promptId,
-            defaultParams: draft.defaultParams
+            defaultParams: draft.defaultParams || { difficulty: 'Orta', itemCount: 10, topic: 'Genel' }
         };
 
         await setDoc(doc(db, "config_activities", activityId), newActivity);
@@ -137,72 +157,22 @@ export const adminService = {
     },
 
     // --- REVERSE ENGINEER DEFAULT PROMPTS ---
-    // This allows the admin to see the "current code logic" as a prompt text
-    // instead of an empty box when they open an activity for the first time.
     getInitialPromptForActivity: (activityId: ActivityType): string => {
         const base = PEDAGOGICAL_BASE;
-        const imgGuide = `
-[GÖRSEL SANAT YÖNETMENİ]
-"imagePrompt" alanı için: "Flat Vector Art, Educational, Minimalist, White Background" stilinde İngilizce betimleme yaz.
-        `;
+        const imgGuide = IMAGE_GENERATION_GUIDE;
 
         let taskSpecific = "";
 
-        // MATH LOGIC
-        if (['BASIC_OPERATIONS', 'MATH_PUZZLE', 'NUMBER_PYRAMID'].includes(activityId)) {
-            taskSpecific = `
-GÖREV: Matematiksel içerik üret.
+        // Generic Fallback
+        taskSpecific = `
+GÖREV: Eğitim materyali üret.
 TÜR: ${activityId}
 ZORLUK: {{difficulty}}
 KONU: {{topic}}
-İŞLEM TÜRÜ: {{operationType}} (Eğer belirtilmişse)
+ADET: {{itemCount}}
 
-KURALLAR:
-- Sayılar yaş seviyesine uygun olmalı.
-- Sonuçlar tam sayı olmalı.
-- "worksheetCount": {{worksheetCount}} adet üret.
-            `;
-        } 
-        // VERBAL
-        else if (['WORD_SEARCH', 'CROSSWORD', 'ANAGRAM'].includes(activityId)) {
-            taskSpecific = `
-GÖREV: Kelime oyunu içeriği üret.
-TÜR: ${activityId}
-KONU: {{topic}}
-ZORLUK: {{difficulty}}
-
-KURALLAR:
-- Kelimeler konuyla ilgili olmalı.
-- Harf hataları yapılmamalı.
-- "itemCount": {{itemCount}} adet kelime/soru üret.
-            `;
-        }
-        // READING
-        else if (['STORY_COMPREHENSION', 'STORY_SEQUENCING'].includes(activityId)) {
-            taskSpecific = `
-GÖREV: Okuma anlama metni ve soruları.
-KONU: {{topic}}
-ZORLUK: {{difficulty}}
-
-KURALLAR:
-- Hikaye akıcı ve anlaşılır olsun.
-- Disleksi dostu kısa cümleler kur.
-- 5N 1K soruları ekle.
-            `;
-        }
-        // VISUAL / ATTENTION
-        else {
-             taskSpecific = `
-GÖREV: Görsel algı ve dikkat egzersizi.
-TÜR: ${activityId}
-ZORLUK: {{difficulty}}
-ÖĞE SAYISI: {{itemCount}}
-
-KURALLAR:
-- Görsel betimlemeler (imagePrompt) çok detaylı olsun.
-- Çeldiriciler mantıklı seçilsin.
-            `;
-        }
+Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
+        `;
 
         return `${base}\n\n${taskSpecific}\n\n${imgGuide}\n\nÇIKTI (JSON): ...`;
     },
@@ -292,6 +262,7 @@ KURALLAR:
                 pairs: { type: Type.ARRAY, items: { type: Type.OBJECT } },
                 leftColumn: { type: Type.ARRAY, items: { type: Type.OBJECT } }, // For relations
                 rightColumn: { type: Type.ARRAY, items: { type: Type.OBJECT } },
+                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
             }
         };
 
@@ -306,3 +277,13 @@ KURALLAR:
         return await generateWithSchema(fullContext, genericSchema, prompt.modelConfig?.modelName || 'gemini-2.5-flash');
     }
 };
+
+const PEDAGOGICAL_PROMPT_BASE = `
+[ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI ve ÖĞRETİM TASARIMCISI]
+
+TEMEL PRENSİPLER:
+1. **Bilişsel Yük Teorisi:** Gereksiz karmaşıklıktan kaçın. Yönergeler "kısa, net ve eylem odaklı" olsun.
+2. **Pozitif Dil:** Hata yapmayı değil, denemeyi teşvik eden bir dil kullan.
+3. **Görsel Destek:** Soyut kavramları somut görsellerle eşleştir.
+4. **Çıktı Formatı:** Kesinlikle ve sadece geçerli JSON üret.
+`;
