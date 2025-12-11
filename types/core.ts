@@ -1,4 +1,6 @@
 
+
+
 export const ActivityType = {
     // ... Existing types ...
     FIND_THE_DIFFERENCE: 'FIND_THE_DIFFERENCE',
@@ -172,6 +174,7 @@ export interface Activity {
     promptTemplate?: string; // Stored prompt for AI generation
     baseType?: ActivityType; // What renderer it uses
     category?: string;
+    promptId?: string; // Linked prompt template ID
 }
 
 export interface ActivityCategory {

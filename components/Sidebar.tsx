@@ -1,4 +1,6 @@
 
+
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { ActivityType, WorksheetData, Activity, GeneratorOptions, ActivityCategory } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
@@ -6,7 +8,7 @@ import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
-import { adminService } from '../services/adminService'; // Import admin service for fetching custom activities
+import { adminService } from '../services/adminService';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -49,78 +51,88 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
   
-  // State to hold combined activities (Static + Dynamic)
+  // Tekil doğruluk kaynağı: allActivities
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
-  // Load custom activities on mount
+  // 1. ADIM: Veritabanından Aktiviteleri Yükle ve Statik Listeyle Birleştir
   useEffect(() => {
-      const loadCustomActivities = async () => {
+      const initActivities = async () => {
           try {
-              const dbActivities = await adminService.getAllActivities(); // Fetches from 'config_activities'
+              const dbActivities = await adminService.getAllActivities();
               
-              // --- MERGE STRATEGY: DATABASE OVERRIDES STATIC ---
-              // 1. Start with static activities map
+              // Statik aktiviteleri baz alarak bir Map oluştur (Hızlı erişim için)
               const activityMap = new Map<string, Activity>();
-              ACTIVITIES.forEach(a => activityMap.set(a.id, a));
+              ACTIVITIES.forEach(act => activityMap.set(act.id, { ...act }));
 
-              // 2. Overlay DB activities (This allows overriding standard prompts)
-              const customCategoriesNeeded: Activity[] = [];
+              // Veritabanından gelenleri işle
+              const newCustomActivities: Activity[] = [];
 
               dbActivities.forEach(dbAct => {
                   if (activityMap.has(dbAct.id)) {
-                      // Override existing (Standard activity with custom prompt)
-                      // We merge to keep static icons/desc if missing in DB, but prefer DB values
-                      activityMap.set(dbAct.id, { ...activityMap.get(dbAct.id)!, ...dbAct });
+                      // ÇAKIŞMA: Veritabanı, statik olanı EZER (Overwrite)
+                      // Bu sayede standart bir etkinliğe 'promptId' atarsanız, veritabanındaki geçerli olur.
+                      const existing = activityMap.get(dbAct.id)!;
+                      activityMap.set(dbAct.id, { 
+                          ...existing, 
+                          ...dbAct,
+                          // PromptId varsa kesinlikle üzerine yaz
+                          promptId: dbAct.promptId || existing.promptId 
+                      });
                   } else {
-                      // Completely new custom activity
-                      activityMap.set(dbAct.id, { ...dbAct } as Activity);
-                      customCategoriesNeeded.push(dbAct as Activity);
+                      // YENİ: Listede yoksa ekle
+                      activityMap.set(dbAct.id, dbAct as Activity);
+                      newCustomActivities.push(dbAct as Activity);
                   }
               });
 
-              // 3. Update State
-              setAllActivities(Array.from(activityMap.values()));
+              // Güncellenmiş listeyi state'e at
+              const mergedList = Array.from(activityMap.values());
+              setAllActivities(mergedList);
 
-              // 4. Update Categories if there are purely new custom activities
-              if (customCategoriesNeeded.length > 0) {
-                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({...cat})); 
-                  
-                  let otherCat = updatedCategories.find(c => c.id === 'others');
-                  if (!otherCat) {
-                      otherCat = {
+              // 2. ADIM: Kategorileri Güncelle (Yeni aktiviteler için)
+              if (newCustomActivities.length > 0) {
+                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({
+                      ...cat,
+                      activities: [...cat.activities] // Shallow copy array
+                  }));
+
+                  // 'Diğerleri' kategorisini bul veya oluştur
+                  let otherCatIndex = updatedCategories.findIndex(c => c.id === 'others');
+                  if (otherCatIndex === -1) {
+                      updatedCategories.push({
                           id: 'others',
                           title: 'Diğerleri (Özel)',
                           description: 'Sistem tarafından üretilen özel etkinlikler.',
                           icon: 'fa-solid fa-wand-magic-sparkles',
                           activities: []
-                      };
-                      updatedCategories.push(otherCat);
+                      });
+                      otherCatIndex = updatedCategories.length - 1;
                   }
 
-                  customCategoriesNeeded.forEach(act => {
-                      // Only add to category if it's not already assigned in static config
+                  // Yeni aktiviteleri kategorilere dağıt
+                  newCustomActivities.forEach(act => {
                       const targetCatId = act.category || 'others';
-                      const targetCat = updatedCategories.find(c => c.id === targetCatId);
+                      const cat = updatedCategories.find(c => c.id === targetCatId);
                       
-                      // Check if this ID is already in any category (static or dynamic)
-                      const alreadyCategorized = updatedCategories.some(c => c.activities.includes(act.id));
-
-                      if (!alreadyCategorized) {
-                          if (targetCat) {
-                              targetCat.activities.push(act.id);
-                          } else {
-                              otherCat!.activities.push(act.id);
-                          }
+                      // Eğer aktivite ID'si zaten kategoride yoksa ekle
+                      if (cat && !cat.activities.includes(act.id)) {
+                          cat.activities.push(act.id);
+                      } else if (!cat) {
+                          // Kategori bulunamazsa 'others'a ekle
+                          updatedCategories[otherCatIndex].activities.push(act.id);
                       }
                   });
+
                   setCategories(updatedCategories);
               }
-          } catch (e) {
-              console.error("Failed to load custom activities", e);
+
+          } catch (error) {
+              console.error("Aktiviteler yüklenirken hata:", error);
           }
       };
-      loadCustomActivities();
+
+      initActivities();
   }, []);
 
   const getActivityById = (id: ActivityType | null): Activity | undefined => {
@@ -128,6 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       return allActivities.find(a => a.id === id);
   }
 
+  // ÜRETİM MANTIĞI
   const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
     
@@ -135,47 +148,53 @@ const Sidebar: React.FC<SidebarProps> = ({
     setWorksheetData(null);
     setError(null);
 
-    // Get current activity to check if it is custom
     const currentAct = getActivityById(selectedActivity);
     
-    // Check if it has a prompt attached (Either it's purely custom OR it's a standard one we overrode)
-    const shouldUsePrompt = (currentAct as any)?.promptId; 
+    // KRİTİK KONTROL: Prompt ID var mı?
+    // promptId varsa, standart kodları yok say ve AI Prompt sistemini kullan.
+    const promptId = currentAct?.promptId;
 
     try {
         let result: WorksheetData | null = null;
         
-        // PROMPT-BASED GENERATION LOGIC
-        if (shouldUsePrompt) {
-             console.log(`Using Custom Prompt Logic for: ${currentAct?.title} (PromptID: ${(currentAct as any).promptId})`);
+        // ---------------------------------------------------------
+        // YOL 1: PROMPT TABANLI ÜRETİM (Veritabanı / Custom)
+        // ---------------------------------------------------------
+        if (promptId) {
+             console.log(`[Sidebar] Prompt Modu Aktif: ${currentAct?.title} (ID: ${promptId})`);
              
-             const promptTemplate = await adminService.getPromptTemplate((currentAct as any).promptId);
+             const promptTemplate = await adminService.getPromptTemplate(promptId);
              
              if (promptTemplate) {
-                 // Prepare variables from options
+                 // Options'dan gelen değişkenleri hazırla
                  const vars = {
                      worksheetCount: options.worksheetCount,
                      difficulty: options.difficulty,
                      topic: options.topic || 'Genel',
-                     itemCount: options.itemCount
+                     itemCount: options.itemCount,
+                     // Ekstra parametreler buraya eklenebilir
                  };
-                 // Generate using the template
+                 
+                 // AI Servisini Çağır
                  const aiResult = await adminService.testPrompt(promptTemplate, vars);
                  
-                 // Normalize result
+                 // Sonucu WorksheetData formatına (Array) çevir
                  if (Array.isArray(aiResult)) {
                      result = aiResult;
                  } else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) {
                      result = (aiResult as any).data;
                  } else {
+                     // Tekil obje geldiyse diziye sar
                      result = [aiResult];
                  }
              } else {
-                 console.warn("Prompt ID exists but template not found. Falling back to standard generator.");
+                 console.warn(`Prompt şablonu (${promptId}) bulunamadı. Standart moda geçiliyor.`);
              }
         } 
 
-        // FALLBACK / STANDARD GENERATION LOGIC
-        // If no promptId was found OR if prompt execution returned null/failed
+        // ---------------------------------------------------------
+        // YOL 2: STANDART KOD TABANLI ÜRETİM (Fallback)
+        // ---------------------------------------------------------
         if (!result) {
             const pascalCaseName = toPascalCase(selectedActivity);
             const generatorFunctionName = `generate${pascalCaseName}FromAI`;
@@ -187,10 +206,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                  if (offlineGenerator) {
                      return await offlineGenerator(options);
                  } else {
-                     throw new Error(`Hızlı mod için "${currentAct?.title}" henüz desteklenmiyor.`);
+                     // Eğer offline da yoksa hata fırlat
+                     throw new Error(`"${currentAct?.title}" için üretim motoru bulunamadı.`);
                  }
             };
 
+            // AI Modu Seçiliyse
             if (options.mode === 'ai') {
                 // @ts-ignore
                 const onlineGenerator = (generators as any)[generatorFunctionName];
@@ -200,19 +221,27 @@ const Sidebar: React.FC<SidebarProps> = ({
                     } catch (err: any) {
                         console.warn("AI generator failed, trying offline.", err);
                         result = await runOfflineGenerator();
-                        setError("Bilgi: Standart AI servisi yanıt vermediği için Hızlı Mod kullanıldı.");
+                        setError("Bilgi: Yapay zeka servisi yanıt vermediği için Hızlı Mod (Offline) kullanıldı.");
                     }
                 } else {
                     result = await runOfflineGenerator();
                 }
             } else { 
+                // Hızlı Mod (Fast)
                 result = await runOfflineGenerator();
             }
         }
         
+        // SONUÇ VARSA
         if (result) {
-            setWorksheetData(result);
-            onAddToHistory(selectedActivity, result);
+            // Her sayfaya başlık ekle (eğer yoksa)
+            const labeledResult = result.map((page: any) => ({
+                ...page,
+                title: page.title || currentAct?.title || 'Etkinlik'
+            }));
+            
+            setWorksheetData(labeledResult);
+            onAddToHistory(selectedActivity, labeledResult);
             statsService.incrementUsage(selectedActivity).catch(console.error);
         }
 
@@ -226,7 +255,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const currentActivity = getActivityById(selectedActivity);
 
-  // Use state-based categories instead of constant
+  // Kategorileri ve içindeki aktiviteleri eşleştir
   const categorizedActivities = useMemo(() => {
       return categories.map(category => ({
           ...category,
@@ -262,7 +291,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 />
             ) : (
                 <>
-                {/* HEADER AREA: SEARCH INTEGRATED */}
+                {/* HEADER */}
                 <div className="flex-shrink-0 h-[56px] flex items-center justify-between px-3 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/30 dark:bg-zinc-800/30">
                     {isExpanded ? (
                         <div className="relative w-full group">
@@ -289,7 +318,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     </button>
                 </div>
 
-                {/* NEW TOOLS SECTION */}
+                {/* TOOLS */}
                 {isExpanded && (
                     <div className="px-3 py-2 grid grid-cols-2 gap-2 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-1">
                         {onOpenOCR && (
@@ -311,7 +340,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     </div>
                 )}
 
-                {/* CATEGORY LIST - COMPACT MODE */}
+                {/* CATEGORIES */}
                 <nav className="flex-1 overflow-y-auto px-2 py-1 custom-scrollbar min-h-0 space-y-0.5">
                     {categorizedActivities.map((category) => {
                         const isOpen = openCategoryId === category.id;
@@ -352,7 +381,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     )}
                                 </button>
                                 
-                                {/* Sub-items (Activities) */}
+                                {/* Sub-items */}
                                 {isExpanded && isOpen && (
                                     <div className="overflow-hidden animate-in slide-in-from-left-1 duration-200">
                                         <div className="pl-3 ml-[11px] border-l border-zinc-200 dark:border-zinc-800 mt-0.5 space-y-0.5">
@@ -372,7 +401,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 >
                                                     <span className={`w-1 h-1 rounded-full ${selectedActivity === activity.id ? 'bg-indigo-500' : 'bg-transparent border border-zinc-300'}`}></span>
                                                     <span className="truncate">{activity.title}</span>
-                                                    {(activity as any).promptId && <i className="fa-solid fa-bolt text-[8px] text-amber-500 ml-auto" title="Özel Prompt"></i>}
+                                                    
+                                                    {/* Prompt göstergesi */}
+                                                    {(activity as any).promptId && (
+                                                        <i className="fa-solid fa-bolt text-[8px] text-amber-500 ml-auto" title="Özel AI Prompt"></i>
+                                                    )}
                                                 </button>
                                             ))}
                                         </div>
@@ -381,14 +414,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                         );
                     })}
-                    
                 </nav>
 
                 {/* FOOTER */}
                 <div className={`p-3 border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
                      <div className="flex items-center justify-center gap-1.5 opacity-30 hover:opacity-100 transition-opacity">
                          <i className="fa-solid fa-robot text-indigo-500 text-xs"></i>
-                         <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">v2.2 (Live)</span>
+                         <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">v2.3 (Pro)</span>
                      </div>
                 </div>
                 </>
