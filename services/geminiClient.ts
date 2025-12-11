@@ -13,7 +13,7 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                     body: JSON.stringify({ 
                         prompt: enhancedPrompt, 
                         schema, 
-                        model: model || 'gemini-2.5-flash' // Default to 2.5 on client request
+                        model: model // Optional: let server decide if undefined
                     }),
                 });
 
@@ -121,7 +121,8 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                     body: JSON.stringify({
                         prompt,
                         schema,
-                        model: 'gemini-2.5-flash', // Explicitly request 2.5 flash first
+                        // DO NOT FORCE MODEL HERE. Let the server daisy-chain handle it.
+                        // sending model: undefined allows server logic to pick best available.
                         image: cleanBase64 
                     }),
                 });

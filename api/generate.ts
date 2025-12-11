@@ -74,47 +74,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             };
         }
 
-        // --- ROBUST MODEL STRATEGY ---
-        // 1. Primary: Gemini 1.5 Flash (Fastest, High Throughput, Multimodal)
-        // 2. Secondary: Gemini 1.5 Pro (More Intelligent, Higher Limits, Multimodal fallback)
-        // 3. Tertiary: Gemini 1.0 Pro (Legacy Text-Only fallback if no image)
+        // --- UPDATED ROBUST MODEL STRATEGY ---
+        // 1. Primary: Gemini 2.5 Flash (Newest, Fastest, Best Multimodal)
+        // 2. Secondary: Gemini 1.5 Flash (Most Stable, High Rate Limits)
+        // 3. Tertiary: Gemini 1.5 Pro Latest (Fallback for complex reasoning if flash fails)
         
         const modelChain = [
-            "gemini-1.5-flash", // HIZLI VE GÜÇLÜ
-            "gemini-1.5-pro",   // ZEKİ VE KARMAŞIK
-            "gemini-1.0-pro"    // GÜVENLİ LİMAN (Sadece metin ise)
+            "gemini-2.5-flash",        // HIZLI, GÜÇLÜ VE YENİ
+            "gemini-1.5-flash",        // SAĞLAM YEDEK
+            "gemini-1.5-pro-latest"    // SON ÇARE (Daha yavaş ama zeki)
         ];
         
-        // If image is present, remove text-only models from fallback chain
-        const activeModels = image 
-            ? modelChain.filter(m => !m.includes('1.0')) 
-            : modelChain;
-
         let lastError = null;
+        let successResponseText = null;
 
         // Try models in sequence (Daisy-chaining)
-        for (const currentModel of activeModels) {
+        for (const currentModel of modelChain) {
             try {
                 console.log(`Attempting generation with model: ${currentModel} (Image: ${!!image})`);
                 
-                // Use streaming for text-only to keep connection alive, regular for complex JSON to ensure integrity
-                // For JSON schema enforcement, generateContent is often safer than stream for parsing assurance
                 const result = await ai.models.generateContent({
                     model: currentModel, 
                     contents: contents, 
                     config: generationConfig,
                 });
                 
-                let text = result.text || "{}";
+                successResponseText = result.text;
+                if (!successResponseText) throw new Error("Empty response from AI");
+
                 // Clean markdown code blocks if present
-                text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+                successResponseText = successResponseText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
                 
-                res.setHeader('Content-Type', 'application/json; charset=utf-8');
-                res.status(200).send(text); 
-                return; // Success! Exit function.
+                // If we got here, success!
+                break; 
 
             } catch (error: any) {
                 const errorMsg = error.message || String(error);
+                // Extract status code if available
                 const status = error.status || (error.response ? error.response.status : 500);
                 
                 console.warn(`Model ${currentModel} failed (${status}):`, errorMsg);
@@ -125,12 +121,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                      return res.status(status).json({ error: `Yetkilendirme hatası: ${errorMsg}` });
                 }
                 
-                // If it's the last model, throw/return error
-                if (currentModel === activeModels[activeModels.length - 1]) {
-                    break;
-                }
-                // Continue to next model in loop...
+                // If it's a 404 (Model Not Found) or 429 (Rate Limit), we continue to the next model in the loop
+                // ... continue loop
             }
+        }
+
+        if (successResponseText) {
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            return res.status(200).send(successResponseText);
         }
 
         // All models failed
