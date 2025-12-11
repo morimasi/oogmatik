@@ -20,30 +20,29 @@ export const ocrService = {
         1. **GÖRSEL & ŞEKİL ANALİZİ (Visual & Geometry):**
            - Sayfada hangi şekiller var? (Daire, kare, beşgen, özel vektörler).
            - Şekillerin konumu ve düzeni ne? (Izgara, dairesel dizilim, liste, rastgele dağılım).
-           - Renk kodları veya görsel ipuçları var mı? (Örn: "Kırmızı olanlar tek sayı").
         
-        2. **VERİ & TABLO ANALİZİ (Data & Graph):**
-           - Eğer bir tablo veya grafik varsa; X ve Y eksenleri neyi temsil ediyor?
-           - Hücreler arasındaki ilişki ne? (Örn: Satır toplamı, Sütun çarpımı).
-           - Veri akışı nasıl? (Soldan sağa mı, merkezden dışa mı?).
-
-        3. **MATEMATİKSEL & MANTIKSAL ALGORİTMA (Core Logic):**
+        2. **MATEMATİKSEL & MANTIKSAL ALGORİTMA (Core Logic):**
            - Sorunun çözüm formülü ne? (Örn: \`Sonuç = (ŞekilKenarSayısı * İçindekiSayı) + 5\`).
            - Örüntü kuralı ne? (Örn: Fibonacci, +2 artış, Ayna görüntüsü).
-           - Değişkenler neler? (Hangi kısımlar sabit, hangi kısımlar değiştirilebilir?).
 
-        4. **PEDAGOJİK HEDEF (Target Skill):**
-           - Bu etkinlik hangi bilişsel beceriyi ölçüyor? (Görsel Dikkat, İşlem Akıcılığı, Uzamsal Algı, Okuduğunu Anlama).
-           - Hedef kitle kim? (Okul öncesi, Özel Eğitim, İlkokul).
+        3. **EN YAKIN AKTİVİTE TÜRÜ (Activity Mapping):**
+           - Bu görsel şu listedeki hangi türe en yakın: [${validIds}]?
+           - Eğer listede yoksa, en uygun genel kategori nedir (Math, Logic, Word)?
 
-        5. **MASTER PROMPT OLUŞTURMA (generatedTemplate - KRİTİK):**
-           Bu alan, bir yapay zeka için "Üretim Emri" olmalıdır. Orijinal görseli hiç görmeyen bir yapay zeka, sadece bu metni okuyarak aynı stilde ve mantıkta *yepyeni* sorular üretebilmelidir.
-           Şunları KESİN olarak içermelidir:
-           - **KONU & KAPSAM:** Etkinliğin tam adı ve amacı.
-           - **DEĞİŞKENLER:** Hangi sayı aralıkları veya kelime havuzları kullanılacak?
-           - **GÖRSEL İSTEMİ (ImagePrompt):** Kullanılacak görsellerin stili (Flat vector, black & white outline, clean educational style). Asla soyut konuşma, somut görsel betimlemeleri yap.
-           - **JSON FORMATI:** Verinin nasıl yapılandırılacağı (Array of Objects, Grid Matrix vb.).
-           - **KURAL SETİ:** "Doğru cevap asla A şıkkı olmasın", "Çeldiriciler fonetik olarak benzesin" gibi teknik kurallar.
+        4. **MASTER PROMPT OLUŞTURMA (generatedTemplate - KRİTİK):**
+           Bu alan, bir yapay zeka için "Üretim Emri" olmalıdır. 
+           **ÇOK ÖNEMLİ:** Üretilecek JSON verisinin hangi alanda olması gerektiğini AÇIKÇA belirt.
+           - Eğer bu bir kelime/bulmaca ise: "Verileri 'grid' veya 'puzzles' array'ine koy."
+           - Eğer bu bir matematik işlemi ise: "Verileri 'operations' array'ine koy."
+           - Eğer bu bir liste/eşleştirme ise: "Verileri 'items' veya 'pairs' array'ine koy."
+           - Eğer bu bir metin/soru ise: "Verileri 'questions' array'ine koy."
+
+           Prompt şablonu şöyle olmalı:
+           "KONU: [Konu]
+            GÖREV: [Detaylı Algoritma]
+            VERİ YAPISI: [Hangi JSON field kullanılacak?]
+            ÖRNEK VERİ: [Bir örnek]
+            KURALLAR: [Kısıtlamalar]"
 
         ÇIKTI FORMATI (JSON):
         {
@@ -54,7 +53,7 @@ export const ocrService = {
             "estimatedItemCount": Sayı (Görseldeki soru adedi),
             "topic": "Algılanan Konu (Örn: Çarpım Tablosu, Zıt Anlamlılar)",
             "components": ["Tablo 3x3", "Vektörel Elma İkonu", "Eşleştirme Çizgileri"],
-            "generatedTemplate": "Buraya, yukarıda 5. maddede belirtilen DETAYLI, TEKNİK ve KURAL TABANLI 'Master Prompt' metnini yaz."
+            "generatedTemplate": "Buraya, yukarıda 4. maddede belirtilen DETAYLI, TEKNİK ve 'Hangi JSON Field Kullanılacak' bilgisini içeren Master Prompt metnini yaz."
         }
         `;
 
@@ -68,7 +67,7 @@ export const ocrService = {
                 estimatedItemCount: { type: Type.INTEGER },
                 topic: { type: Type.STRING },
                 components: { type: Type.ARRAY, items: { type: Type.STRING } },
-                generatedTemplate: { type: Type.STRING, description: "Etkinliğin mantığını, görsel yapısını ve matematiksel algoritmasını içeren çok detaylı üretim promptu." }
+                generatedTemplate: { type: Type.STRING, description: "Etkinliğin mantığını, görsel yapısını ve veri yapısını (grid/items/operations) içeren çok detaylı üretim promptu." }
             },
             required: ['detectedType', 'title', 'description', 'estimatedDifficulty', 'generatedTemplate', 'components']
         };

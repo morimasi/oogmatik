@@ -16,52 +16,136 @@ const PEDAGOGICAL_PROMPT = `
 6.  **İçerik:**
     - Üst düzey düşünme becerilerini (HOTs) hedefle.
     - Orijinal "Algoritma"daki mantığı BİREBİR uygula.
+    - **ASLA BOŞ VERİ DÖNME.** İstenen veri yapılarını (grid, questions, items vb.) mutlaka mantıklı verilerle doldur.
 `;
+
+// --- DYNAMIC SCHEMA SELECTOR ---
+// Selects the strictest possible schema based on the activity type to force content generation.
+const getSchemaForActivityType = (type: ActivityType) => {
+    
+    // 1. GRID BASED (Word Search, Sudoku, Crossword, Matrix)
+    const gridSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            words: { type: Type.ARRAY, items: { type: Type.STRING } }, // Optional word list
+            clues: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: {id: {type:Type.NUMBER}, text:{type:Type.STRING}, direction:{type:Type.STRING}}, required:['id','text'] } }
+        },
+        required: ['title', 'instruction', 'grid'] // Force Grid
+    };
+
+    // 2. MATH OPERATIONS (Basic Ops, Pyramids, Equations)
+    const mathSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            operations: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { num1: {type:Type.NUMBER}, num2: {type:Type.NUMBER}, operator: {type:Type.STRING}, answer: {type:Type.NUMBER} }, required: ['num1', 'operator', 'answer'] } },
+            puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { problem: {type:Type.STRING}, answer: {type:Type.STRING} }, required: ['problem', 'answer'] } }
+        },
+        required: ['title', 'instruction', 'operations'] // Force Operations
+    };
+
+    // 3. QUESTIONS & TEXT (Stories, Logic Riddles)
+    const questionSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            story: { type: Type.STRING },
+            questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: {type:Type.STRING}, options: {type:Type.ARRAY, items:{type:Type.STRING}}, answer: {type:Type.STRING} }, required: ['question', 'answer'] } }
+        },
+        required: ['title', 'instruction', 'questions'] // Force Questions
+    };
+
+    // 4. LISTS & MATCHING (Pairs, Sorting, Odd One Out)
+    const listSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type:Type.STRING}, isCorrect: {type:Type.BOOLEAN}, imagePrompt: {type:Type.STRING} }, required: ['text'] } },
+            rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: {type: Type.ARRAY, items: {type: Type.STRING}}, correctIndex: {type: Type.NUMBER} }, required: ['items'] } },
+            pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { item1: {type:Type.STRING}, item2: {type:Type.STRING} }, required: ['item1', 'item2'] } }
+        },
+        // We require at least 'items' but the AI can put data in rows/pairs if structure demands.
+        // To be safe for generic lists, we prioritize 'items'.
+        required: ['title', 'instruction', 'items'] 
+    };
+
+    // Routing Logic based on ActivityType string
+    if (['WORD_SEARCH', 'CROSSWORD', 'SUDOKU', 'MINI_WORD_GRID', 'KENDOKU', 'FUTOSHIKI', 'LETTER_GRID_TEST'].some(t => type.includes(t))) {
+        return gridSchema;
+    }
+    if (['BASIC_OPERATIONS', 'MATH_PUZZLE', 'NUMBER_PYRAMID', 'ARITHMETIC'].some(t => type.includes(t))) {
+        return mathSchema;
+    }
+    if (['STORY', 'READING', 'LOGIC_DEDUCTION', 'RIDDLE'].some(t => type.includes(t))) {
+        return questionSchema;
+    }
+    
+    // Default to a Flexible Schema but with stricter requirements for the "General" case
+    return {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            // Union of all possible data containers
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type:Type.STRING}, value: {type:Type.STRING}, isCorrect: {type:Type.BOOLEAN}, imagePrompt: {type:Type.STRING} } } },
+            questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: {type:Type.STRING}, options: {type:Type.ARRAY, items:{type:Type.STRING}}, answer: {type:Type.STRING} } } },
+            puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { problem: {type:Type.STRING}, answer: {type:Type.STRING}, question: {type:Type.STRING} } } },
+            rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: {type: Type.ARRAY, items: {type: Type.STRING}}, correctIndex: {type: Type.NUMBER} } } },
+            pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { item1: {type:Type.STRING}, item2: {type:Type.STRING} } } },
+            operations: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { num1: {type:Type.NUMBER}, num2: {type:Type.NUMBER}, operator: {type:Type.STRING}, answer: {type:Type.NUMBER} } } }
+        },
+        required: ['title', 'instruction'] // In fallback, we trust the specific prompt instructions below
+    };
+};
 
 // --- OCR / RICH PROMPT HANDLER ---
 export const generateFromRichPrompt = async (activityType: ActivityType, richPrompt: string, options: GeneratorOptions) => {
     
-    // Generic Schema that covers most activity types to handle dynamic OCR content
+    // 1. Get the specific schema that forces the AI to output data
+    const itemSchema = getSchemaForActivityType(activityType);
+    
+    // 2. Wrap in Array Schema (as the app expects array of worksheets)
     const schema = {
         type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                imagePrompt: { type: Type.STRING },
-                // A massive union of possible properties to allow flexibility
-                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type:Type.STRING}, value: {type:Type.STRING}, isCorrect: {type:Type.BOOLEAN}, imagePrompt: {type:Type.STRING} } } },
-                questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: {type:Type.STRING}, options: {type:Type.ARRAY, items:{type:Type.STRING}}, answer: {type:Type.STRING} } } },
-                puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { problem: {type:Type.STRING}, answer: {type:Type.STRING}, question: {type:Type.STRING} } } },
-                rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: {type: Type.ARRAY, items: {type: Type.STRING}}, correctIndex: {type: Type.NUMBER} } } },
-                pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { item1: {type:Type.STRING}, item2: {type:Type.STRING} } } },
-                // Math specifics
-                operations: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { num1: {type:Type.NUMBER}, num2: {type:Type.NUMBER}, operator: {type:Type.STRING}, answer: {type:Type.NUMBER} } } }
-            },
-            required: ['title', 'instruction']
-        }
+        items: itemSchema
     };
 
     const finalPrompt = `
     ${PEDAGOGICAL_PROMPT}
 
-    ÖZEL GÖREV (ALGORİTMA TABANLI ÜRETİM):
-    Aşağıdaki "Algoritma Tanımı"nı kullanarak YENİ ve ÖZGÜN içerik üret:
+    ÖZEL GÖREV (OCR ALGORİTMA DÖNÜŞÜMÜ):
+    Elimizde bir eğitim materyalinin "Kaynak Kodu/Algoritması" var. 
+    Görevin, bu algoritmayı kullanarak ${options.itemCount || 10} adet YENİ ve ÖZGÜN soru/içerik üretmektir.
     
+    GİRDİ ALGORİTMASI:
     =========================================
     ${richPrompt}
     =========================================
     
-    EK AYARLAR:
-    - Adet/Miktar: ${options.itemCount || 10}
-    - Zorluk: ${options.difficulty}
-    - Konu: ${options.topic || 'Genel'}
+    ÜRETİM KURALLARI:
+    1. **Veri Yapısı:** Algoritmada belirtilen yapıya (Tablo ise 'grid', Soru ise 'questions', Eşleştirme ise 'pairs') sadık kal.
+    2. **Zorluk:** ${options.difficulty} seviyesine uygun sayılar veya kelimeler seç.
+    3. **Konu:** ${options.topic || 'Genel'} temasına uygun içerik üret.
+    4. **Dolu İçerik:** Sadece başlık yazıp bırakma. 'grid', 'items', 'operations' gibi veri alanlarını MUTLAKA doldur.
     
-    Lütfen JSON şemasına sadık kal ancak içeriği tamamen bu algoritmaya göre şekillendir.
-    ${options.worksheetCount} sayfa oluştur.
+    Hedef: ${options.worksheetCount} adet dolu çalışma sayfası verisi.
     `;
 
     return generateWithSchema(finalPrompt, schema, 'gemini-2.5-flash');
