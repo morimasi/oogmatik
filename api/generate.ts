@@ -85,14 +85,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ];
         }
 
-        // --- STABLE MODEL STRATEGY ---
-        // Priority: Stable Production Models > Newest Features
-        // 1. Gemini 1.5 Flash (Fastest, Cheapest, Most Reliable)
-        // 2. Gemini 1.5 Pro (Smarter, for complex logic)
-        // 3. Gemini 2.0 Flash Exp (Experimental, might be region-locked or unstable)
+        // --- STABLE & ROBUST MODEL STRATEGY ---
+        // Priority: High Quota/Stable > Smart/Experimental
+        // 1. Gemini 1.5 Flash (Most reliable free tier)
+        // 2. Gemini 1.5 Flash 8b (Fastest)
+        // 3. Gemini 1.5 Pro (Smarter fallback)
+        // 4. Gemini 2.0 Flash Exp (Smartest but unstable/limited)
         
         const defaultModelChain = [
-            "gemini-1.5-flash", 
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-002",
+            "gemini-1.5-flash-8b",
             "gemini-1.5-pro",
             "gemini-2.0-flash-exp" 
         ];
@@ -102,7 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (model && !defaultModelChain.includes(model)) {
             modelChain = [model, ...defaultModelChain];
         } else if (model) {
-            // If it is in chain, prioritize it
+            // If it is in chain, prioritize it but keep others as fallback
             modelChain = [model, ...defaultModelChain.filter(m => m !== model)];
         }
         
@@ -112,7 +115,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Try models in sequence (Daisy-chaining)
         for (const currentModel of modelChain) {
             try {
-                console.log(`Attempting generation with model: ${currentModel} (Image: ${!!image})`);
+                // console.log(`Attempting generation with model: ${currentModel}`);
                 
                 const result = await ai.models.generateContent({
                     model: currentModel, 
@@ -125,7 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
                         successResponseText = result.candidates[0].content.parts[0].text;
                     } else {
-                         console.warn(`Model ${currentModel} returned empty response.`);
+                         // Empty response means model failed to generate useful content
                          continue;
                     }
                 }
@@ -134,20 +137,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 successResponseText = successResponseText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
                 
                 // If we got here, success!
-                console.log(`Success with model: ${currentModel}`);
+                // console.log(`Success with model: ${currentModel}`);
                 break; 
 
             } catch (error: any) {
                 const errorMsg = error.message || String(error);
                 const status = error.status || (error.response ? error.response.status : 500);
                 
-                console.warn(`Model ${currentModel} failed (${status}):`, errorMsg);
+                console.warn(`Model ${currentModel} failed (${status}):`, errorMsg.substring(0, 100));
                 lastError = { status, message: errorMsg, model: currentModel };
 
                 // Critical Auth errors -> Fail immediately
                 if (status === 401 || status === 403 || errorMsg.includes('API key')) {
                      return res.status(status).json({ error: `Yetkilendirme hatası: ${errorMsg}` });
                 }
+                // Continue loop for 429 (Quota), 503 (Overloaded), 404 (Not Found)
             }
         }
 
@@ -159,7 +163,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // All models failed
         console.error("All AI models failed.");
         return res.status(lastError?.status || 500).json({ 
-            error: `Yapay zeka servisine ulaşılamadı. (Model: ${lastError?.model}, Hata: ${lastError?.message})` 
+            error: `Yapay zeka servisine ulaşılamadı. (Son Hata: ${lastError?.message})` 
         });
 
     } catch (error: any) {

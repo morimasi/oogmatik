@@ -195,8 +195,8 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     };
 
     try {
-        // Use gemini-2.0-flash-exp as primary, the handler will fallback if needed
-        return await generateWithSchema(prompt, schema, 'gemini-2.0-flash-exp') as unknown as AssessmentReport;
+        // Removed specific model constraint
+        return await generateWithSchema(prompt, schema) as unknown as AssessmentReport;
     } catch (error) {
         console.warn("AI Assessment Error, falling back:", error);
         return generateOfflineAssessmentReport(profile);
