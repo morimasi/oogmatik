@@ -87,16 +87,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // --- UPDATED ROBUST MODEL STRATEGY ---
-        // 1. Gemini 2.0 Flash Exp (Fastest, Multimodal, Latest)
-        // 2. Gemini 1.5 Flash (Stable, Fast)
-        // 3. Gemini 1.5 Flash 8B (Ultra Fast)
-        // 4. Gemini 1.5 Pro (High Intelligence Fallback)
+        // Priority: 
+        // 1. Gemini 2.0 Flash Exp (Experimental but smartest/fastest)
+        // 2. Gemini 1.5 Pro 002 (Latest Stable Pro)
+        // 3. Gemini 1.5 Flash 002 (Latest Stable Flash)
+        // 4. Gemini 1.5 Pro 001 (Legacy Stable Pro)
+        // 5. Gemini 1.5 Flash 001 (Legacy Stable Flash)
+        // 6. Gemini 1.5 Pro (Alias)
+        // 7. Gemini 1.5 Flash (Alias)
         
         const defaultModelChain = [
             "gemini-2.0-flash-exp",
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-8b",
-            "gemini-1.5-pro"
+            "gemini-1.5-pro-002",
+            "gemini-1.5-flash-002",
+            "gemini-1.5-pro-001",
+            "gemini-1.5-flash-001",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash"
         ];
         
         // If a specific model is requested and valid, try it first
@@ -125,7 +132,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
                         successResponseText = result.candidates[0].content.parts[0].text;
                     } else {
-                        throw new Error("Empty response from AI");
+                        // Just move to next model if empty response
+                         console.warn(`Model ${currentModel} returned empty response.`);
+                         continue;
                     }
                 }
 
@@ -133,6 +142,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 successResponseText = successResponseText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
                 
                 // If we got here, success!
+                console.log(`Success with model: ${currentModel}`);
                 break; 
 
             } catch (error: any) {
@@ -148,7 +158,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                      return res.status(status).json({ error: `Yetkilendirme hatası: ${errorMsg}` });
                 }
                 
-                // 400 Bad Request usually means schema/prompt issue, not model availability, but we retry anyway just in case 2.0 parses differently than 1.5
+                // For 404 (Not Found), 429 (Too Many Requests), 503 (Service Unavailable), etc., continue loop
             }
         }
 
