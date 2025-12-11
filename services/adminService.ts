@@ -245,7 +245,7 @@ Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
             compiledPrompt = compiledPrompt.replace(regex, String(value));
         });
 
-        // Use a generic schema for testing to see raw structure or partial structure
+        // Use a broad but valid schema to avoid 400 Bad Request
         const genericSchema = {
             type: Type.OBJECT,
             properties: {
@@ -253,16 +253,111 @@ Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
                 instruction: { type: Type.STRING },
                 pedagogicalNote: { type: Type.STRING },
                 imagePrompt: { type: Type.STRING },
-                data: { type: Type.ARRAY, items: { type: Type.OBJECT, description: "Dynamic content items" } }, 
-                // Loose schema to allow most AI responses to pass
-                items: { type: Type.ARRAY, items: { type: Type.OBJECT } },
-                questions: { type: Type.ARRAY, items: { type: Type.OBJECT } },
-                puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT } },
-                rows: { type: Type.ARRAY, items: { type: Type.OBJECT } },
-                pairs: { type: Type.ARRAY, items: { type: Type.OBJECT } },
-                leftColumn: { type: Type.ARRAY, items: { type: Type.OBJECT } }, // For relations
-                rightColumn: { type: Type.ARRAY, items: { type: Type.OBJECT } },
-                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
+                
+                // Add properties to object types to satisfy schema validation
+                data: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.OBJECT, 
+                        properties: { 
+                            text: {type: Type.STRING}, 
+                            value: {type: Type.STRING},
+                            id: {type: Type.STRING}
+                        } 
+                    } 
+                }, 
+                items: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.OBJECT, 
+                        properties: { 
+                            text: {type: Type.STRING}, 
+                            value: {type: Type.STRING}, 
+                            id: {type: Type.STRING}, 
+                            isCorrect: {type: Type.BOOLEAN},
+                            imagePrompt: {type: Type.STRING}
+                        } 
+                    } 
+                },
+                questions: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.OBJECT, 
+                        properties: { 
+                            question: {type: Type.STRING}, 
+                            text: {type: Type.STRING}, 
+                            answer: {type: Type.STRING}, 
+                            options: {type: Type.ARRAY, items: {type: Type.STRING}},
+                            correct: {type: Type.STRING},
+                            imagePrompt: {type: Type.STRING}
+                        } 
+                    } 
+                },
+                puzzles: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.OBJECT, 
+                        properties: { 
+                            puzzle: {type: Type.STRING}, 
+                            question: {type: Type.STRING}, 
+                            answer: {type: Type.STRING}, 
+                            clues: {type: Type.ARRAY, items: {type: Type.STRING}},
+                            imagePrompt: {type: Type.STRING}
+                        } 
+                    } 
+                },
+                rows: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.OBJECT, 
+                        properties: { 
+                            id: {type: Type.STRING}, 
+                            items: {type: Type.ARRAY, items: {type: Type.STRING}}, 
+                            text: {type: Type.STRING} 
+                        } 
+                    } 
+                },
+                pairs: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.OBJECT, 
+                        properties: { 
+                            item1: {type: Type.STRING}, 
+                            item2: {type: Type.STRING}, 
+                            id: {type: Type.STRING},
+                            imagePrompt1: {type: Type.STRING}
+                        } 
+                    } 
+                },
+                leftColumn: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.OBJECT, 
+                        properties: { 
+                            text: {type: Type.STRING}, 
+                            id: {type: Type.STRING}, 
+                            imagePrompt: {type: Type.STRING} 
+                        } 
+                    } 
+                }, 
+                rightColumn: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.OBJECT, 
+                        properties: { 
+                            text: {type: Type.STRING}, 
+                            id: {type: Type.STRING}, 
+                            imagePrompt: {type: Type.STRING} 
+                        } 
+                    } 
+                },
+                grid: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                        type: Type.ARRAY, 
+                        items: { type: Type.STRING } 
+                    } 
+                }
             }
         };
 
