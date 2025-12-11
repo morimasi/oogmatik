@@ -2,7 +2,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
-// System Instruction: The AI's persona and strict rules.
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
 Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış veya risk grubundaki çocuklar için **bilimsel temelli, hatasız ve JSON formatında** eğitim materyali üretmek.
@@ -30,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { prompt, schema, image, model } = req.body;
+        const { prompt, schema, image, model, mimeType } = req.body;
 
         if (!prompt || !schema) {
             return res.status(400).json({ error: 'İstek gövdesinde "prompt" ve "schema" alanları zorunludur.' });
@@ -65,12 +64,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let contents: any[];
         
         if (image) {
-            // Remove header if present (data:image/png;base64,)
+            // Remove header if present (data:image/png;base64,) just in case, though client should send clean
             const cleanImage = image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
             contents = [
                 {
                     parts: [
-                        { inlineData: { mimeType: 'image/jpeg', data: cleanImage } },
+                        { inlineData: { mimeType: mimeType || 'image/jpeg', data: cleanImage } },
                         { text: prompt }
                     ]
                 }
@@ -86,29 +85,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ];
         }
 
-        // --- UPDATED ROBUST MODEL STRATEGY ---
-        // Priority: 
-        // 1. Gemini 2.0 Flash Exp (Experimental but smartest/fastest)
-        // 2. Gemini 1.5 Pro 002 (Latest Stable Pro)
-        // 3. Gemini 1.5 Flash 002 (Latest Stable Flash)
-        // 4. Gemini 1.5 Pro 001 (Legacy Stable Pro)
-        // 5. Gemini 1.5 Flash 001 (Legacy Stable Flash)
-        // 6. Gemini 1.5 Pro (Alias)
-        // 7. Gemini 1.5 Flash (Alias)
-        
+        // --- ULTRA ROBUST MODEL STRATEGY ---
+        // Includes Exp, Latest, Specific Versions, and Fallbacks
         const defaultModelChain = [
             "gemini-2.0-flash-exp",
-            "gemini-1.5-pro-002",
-            "gemini-1.5-flash-002",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash-latest",
             "gemini-1.5-pro-001",
             "gemini-1.5-flash-001",
-            "gemini-1.5-pro",
-            "gemini-1.5-flash"
+            "gemini-1.5-flash-8b",
+            "gemini-1.5-flash-8b-latest"
         ];
         
         // If a specific model is requested and valid, try it first
         let modelChain = defaultModelChain;
-        if (model && defaultModelChain.includes(model)) {
+        if (model && !defaultModelChain.includes(model)) {
+            // If requested model isn't in chain, put it first anyway
+            modelChain = [model, ...defaultModelChain];
+        } else if (model) {
+            // If it is in chain, prioritize it
             modelChain = [model, ...defaultModelChain.filter(m => m !== model)];
         }
         
@@ -128,11 +125,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 
                 successResponseText = result.text;
                 if (!successResponseText) {
-                    // Sometimes text is empty but candidates exists, unlikely with JSON schema but check
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
                         successResponseText = result.candidates[0].content.parts[0].text;
                     } else {
-                        // Just move to next model if empty response
                          console.warn(`Model ${currentModel} returned empty response.`);
                          continue;
                     }
@@ -147,18 +142,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             } catch (error: any) {
                 const errorMsg = error.message || String(error);
-                // Extract status code if available
                 const status = error.status || (error.response ? error.response.status : 500);
                 
                 console.warn(`Model ${currentModel} failed (${status}):`, errorMsg);
-                lastError = { status, message: errorMsg };
+                lastError = { status, message: errorMsg, model: currentModel };
 
-                // Critical Auth errors -> Fail immediately, don't retry other models
+                // Critical Auth errors -> Fail immediately
                 if (status === 401 || status === 403 || errorMsg.includes('API key')) {
                      return res.status(status).json({ error: `Yetkilendirme hatası: ${errorMsg}` });
                 }
-                
-                // For 404 (Not Found), 429 (Too Many Requests), 503 (Service Unavailable), etc., continue loop
             }
         }
 
@@ -170,7 +162,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // All models failed
         console.error("All AI models failed.");
         return res.status(lastError?.status || 500).json({ 
-            error: `Tüm yapay zeka modelleri meşgul veya erişilemez. (${lastError?.message})` 
+            error: `Yapay zeka modellerine erişilemedi. Son denenen model (${lastError?.model}): ${lastError?.message}` 
         });
 
     } catch (error: any) {

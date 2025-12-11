@@ -13,11 +13,10 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                     body: JSON.stringify({ 
                         prompt: enhancedPrompt, 
                         schema, 
-                        model: model // Optional: let server decide if undefined
+                        model: model 
                     }),
                 });
 
-                // Retry on 429 (Too Many Requests) or 503 (Service Unavailable)
                 if (response.status === 429 || response.status === 503) {
                      if (retries > 0) {
                          console.warn(`API busy (429/503). Retrying in ${delay}ms...`);
@@ -51,7 +50,6 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
             throw new Error(errorMessage);
         }
         
-        // STREAM HANDLER
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let fullText = '';
@@ -110,9 +108,9 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
 // NEW: Vision API Handler
 export const analyzeImage = async (base64Image: string, prompt: string, schema: any) => {
     try {
+        // Strip header if present
         const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-        // Increased delay for vision API (Start at 2s)
         const fetchWithRetry = async (retries = 3, delay = 2000): Promise<Response> => {
             try {
                  const response = await fetch('/api/generate', {
@@ -121,9 +119,8 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                     body: JSON.stringify({
                         prompt,
                         schema,
-                        // DO NOT FORCE MODEL HERE. Let the server daisy-chain handle it.
-                        // sending model: undefined allows server logic to pick best available.
-                        image: cleanBase64 
+                        image: cleanBase64,
+                        mimeType: 'image/jpeg' // Explicitly set as client converts to jpeg
                     }),
                 });
 
@@ -171,6 +168,7 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                 fullText += decoder.decode(value, { stream: true });
             }
         }
+        fullText += decoder.decode();
         
         const cleaned = fullText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
         return JSON.parse(cleaned);
