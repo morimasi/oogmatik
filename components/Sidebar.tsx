@@ -57,19 +57,35 @@ const Sidebar: React.FC<SidebarProps> = ({
   useEffect(() => {
       const loadCustomActivities = async () => {
           try {
-              const customActs = await adminService.getAllActivities(); // Should fetch from 'config_activities'
+              const dbActivities = await adminService.getAllActivities(); // Fetches from 'config_activities'
               
-              // Filter out ones that are already in static list to avoid dupes if any
-              const newCustoms = customActs.filter(ca => !ACTIVITIES.find(a => a.id === ca.id));
-              
-              if (newCustoms.length > 0) {
-                  // Merge activities
-                  setAllActivities([...ACTIVITIES, ...newCustoms]);
+              // --- MERGE STRATEGY: DATABASE OVERRIDES STATIC ---
+              // 1. Start with static activities map
+              const activityMap = new Map<string, Activity>();
+              ACTIVITIES.forEach(a => activityMap.set(a.id, a));
+
+              // 2. Overlay DB activities (This allows overriding standard prompts)
+              const customCategoriesNeeded: Activity[] = [];
+
+              dbActivities.forEach(dbAct => {
+                  if (activityMap.has(dbAct.id)) {
+                      // Override existing (Standard activity with custom prompt)
+                      // We merge to keep static icons/desc if missing in DB, but prefer DB values
+                      activityMap.set(dbAct.id, { ...activityMap.get(dbAct.id)!, ...dbAct });
+                  } else {
+                      // Completely new custom activity
+                      activityMap.set(dbAct.id, { ...dbAct } as Activity);
+                      customCategoriesNeeded.push(dbAct as Activity);
+                  }
+              });
+
+              // 3. Update State
+              setAllActivities(Array.from(activityMap.values()));
+
+              // 4. Update Categories if there are purely new custom activities
+              if (customCategoriesNeeded.length > 0) {
+                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({...cat})); 
                   
-                  // Update categories
-                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({...cat})); // Shallow copy
-                  
-                  // Check if "Others" category exists, if not add it
                   let otherCat = updatedCategories.find(c => c.id === 'others');
                   if (!otherCat) {
                       otherCat = {
@@ -82,16 +98,20 @@ const Sidebar: React.FC<SidebarProps> = ({
                       updatedCategories.push(otherCat);
                   }
 
-                  newCustoms.forEach(act => {
+                  customCategoriesNeeded.forEach(act => {
+                      // Only add to category if it's not already assigned in static config
                       const targetCatId = act.category || 'others';
                       const targetCat = updatedCategories.find(c => c.id === targetCatId);
-                      if (targetCat) {
-                          if (!targetCat.activities.includes(act.id)) {
+                      
+                      // Check if this ID is already in any category (static or dynamic)
+                      const alreadyCategorized = updatedCategories.some(c => c.activities.includes(act.id));
+
+                      if (!alreadyCategorized) {
+                          if (targetCat) {
                               targetCat.activities.push(act.id);
+                          } else {
+                              otherCat!.activities.push(act.id);
                           }
-                      } else {
-                           // If category doesn't exist, put in Others
-                           otherCat!.activities.push(act.id);
                       }
                   });
                   setCategories(updatedCategories);
@@ -117,14 +137,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 
     // Get current activity to check if it is custom
     const currentAct = getActivityById(selectedActivity);
-    const isCustom = currentAct?.isCustom || (currentAct as any)?.promptId; // Check if custom
+    
+    // Check if it has a prompt attached (Either it's purely custom OR it's a standard one we overrode)
+    const shouldUsePrompt = (currentAct as any)?.promptId; 
 
     try {
         let result: WorksheetData | null = null;
         
-        // CUSTOM ACTIVITY LOGIC
-        if (isCustom && (currentAct as any).promptId) {
-             // For custom activities, we ALWAYS use AI generation via the stored prompt template
+        // PROMPT-BASED GENERATION LOGIC
+        if (shouldUsePrompt) {
+             console.log(`Using Custom Prompt Logic for: ${currentAct?.title} (PromptID: ${(currentAct as any).promptId})`);
+             
              const promptTemplate = await adminService.getPromptTemplate((currentAct as any).promptId);
              
              if (promptTemplate) {
@@ -138,25 +161,28 @@ const Sidebar: React.FC<SidebarProps> = ({
                  // Generate using the template
                  const aiResult = await adminService.testPrompt(promptTemplate, vars);
                  
+                 // Normalize result
                  if (Array.isArray(aiResult)) {
                      result = aiResult;
                  } else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) {
                      result = (aiResult as any).data;
                  } else {
-                     // Fallback: wrap single object
                      result = [aiResult];
                  }
              } else {
-                 throw new Error("Aktivite şablonu bulunamadı.");
+                 console.warn("Prompt ID exists but template not found. Falling back to standard generator.");
              }
+        } 
 
-        } else {
-            // STANDARD STATIC ACTIVITY LOGIC
+        // FALLBACK / STANDARD GENERATION LOGIC
+        // If no promptId was found OR if prompt execution returned null/failed
+        if (!result) {
             const pascalCaseName = toPascalCase(selectedActivity);
             const generatorFunctionName = `generate${pascalCaseName}FromAI`;
             const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
 
             const runOfflineGenerator = async () => {
+                 // @ts-ignore
                  const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
                  if (offlineGenerator) {
                      return await offlineGenerator(options);
@@ -166,15 +192,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             };
 
             if (options.mode === 'ai') {
+                // @ts-ignore
                 const onlineGenerator = (generators as any)[generatorFunctionName];
                 if (onlineGenerator) {
                     try {
                         result = await onlineGenerator(options);
                     } catch (err: any) {
-                        // Fallback logic...
                         console.warn("AI generator failed, trying offline.", err);
                         result = await runOfflineGenerator();
-                        setError("Bilgi: Yapay zeka servisi yanıt vermediği için Hızlı Mod kullanıldı.");
+                        setError("Bilgi: Standart AI servisi yanıt vermediği için Hızlı Mod kullanıldı.");
                     }
                 } else {
                     result = await runOfflineGenerator();
@@ -346,6 +372,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 >
                                                     <span className={`w-1 h-1 rounded-full ${selectedActivity === activity.id ? 'bg-indigo-500' : 'bg-transparent border border-zinc-300'}`}></span>
                                                     <span className="truncate">{activity.title}</span>
+                                                    {(activity as any).promptId && <i className="fa-solid fa-bolt text-[8px] text-amber-500 ml-auto" title="Özel Prompt"></i>}
                                                 </button>
                                             ))}
                                         </div>
@@ -361,7 +388,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <div className={`p-3 border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm ${!isExpanded ? 'hidden' : ''}`}>
                      <div className="flex items-center justify-center gap-1.5 opacity-30 hover:opacity-100 transition-opacity">
                          <i className="fa-solid fa-robot text-indigo-500 text-xs"></i>
-                         <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">v2.1</span>
+                         <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">v2.2 (Live)</span>
                      </div>
                 </div>
                 </>

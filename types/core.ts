@@ -171,6 +171,7 @@ export interface Activity {
     isCustom?: boolean; // Flag for user-generated activities
     promptTemplate?: string; // Stored prompt for AI generation
     baseType?: ActivityType; // What renderer it uses
+    category?: string;
 }
 
 export interface ActivityCategory {
