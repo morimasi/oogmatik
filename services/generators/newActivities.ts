@@ -132,20 +132,21 @@ export const generateFromRichPrompt = async (activityType: ActivityType, richPro
 
     ÖZEL GÖREV (OCR ALGORİTMA DÖNÜŞÜMÜ):
     Elimizde bir eğitim materyalinin "Kaynak Kodu/Algoritması" var. 
-    Görevin, bu algoritmayı kullanarak ${options.itemCount || 10} adet YENİ ve ÖZGÜN soru/içerik üretmektir.
+    Bu algoritmayı kullanarak YENİ ve ÖZGÜN içerik üretmelisin.
     
     GİRDİ ALGORİTMASI:
     =========================================
     ${richPrompt}
     =========================================
     
-    ÜRETİM KURALLARI:
-    1. **Veri Yapısı:** Algoritmada belirtilen yapıya (Tablo ise 'grid', Soru ise 'questions', Eşleştirme ise 'pairs') sadık kal.
-    2. **Zorluk:** ${options.difficulty} seviyesine uygun sayılar veya kelimeler seç.
-    3. **Konu:** ${options.topic || 'Genel'} temasına uygun içerik üret.
-    4. **Dolu İçerik:** Sadece başlık yazıp bırakma. 'grid', 'items', 'operations' gibi veri alanlarını MUTLAKA doldur.
+    HİYERARŞİ VE ÜRETİM KURALLARI (DİKKAT!):
+    1. **HİYERARŞİ:** Toplam **${options.worksheetCount}** adet Çalışma Sayfası (Worksheet) nesnesi döndür.
+    2. **İÇERİK:** Her bir Çalışma Sayfası nesnesinin içinde, yukarıdaki algoritmaya uygun **${options.itemCount || 10} adet** soru/öğe (items/questions/rows/puzzles) bulunmalıdır.
+       - Yani dizi içinde ${options.worksheetCount} eleman olacak, her eleman kendi içinde ${options.itemCount || 10} soru barındıracak.
+    3. **Zorluk:** ${options.difficulty} seviyesine uygun sayılar veya kelimeler seç.
+    4. **Konu:** ${options.topic || 'Genel'} temasına uygun içerik üret.
     
-    Hedef: ${options.worksheetCount} adet dolu çalışma sayfası verisi.
+    NOT: Eğer algoritma tek bir "büyük" bulmaca (örneğin Sudoku veya Kelime Avı) tarif ediyorsa, her çalışma sayfasında 1 adet büyük bulmaca olabilir. Ancak liste tipi (çoktan seçmeli, eşleştirme vb.) sorularda sayfa başına çoklu soru üretilmelidir.
     `;
 
     return generateWithSchema(finalPrompt, schema, 'gemini-2.5-flash');
