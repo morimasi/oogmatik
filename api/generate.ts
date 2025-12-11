@@ -53,7 +53,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             temperature: 0.7, 
             topP: 0.95,
             topK: 40,
-            // Safety Settings: Allow educational content
             safetySettings: [
                 { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
@@ -74,28 +73,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // --- MODEL SELECTION STRATEGY ---
-        // Primary: gemini-2.5-flash (Most current/stable for general text)
-        // Primary Vision: gemini-2.5-flash (Supports multimodal)
-        // Fallback: gemini-1.5-flash (Reliable backup)
-        
-        // Determine requested model or default
         let requestedModel = model || "gemini-2.5-flash";
         
-        // Fallback list to try in order
+        // Extended Fallback list
         const modelsToTry = [
             requestedModel,
             "gemini-2.5-flash",
-            "gemini-1.5-flash", // Safe backup
-            "gemini-1.5-pro-latest" // Last resort, but powerful
+            "gemini-2.0-flash-exp",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
+            "gemini-pro-vision" // Legacy backup for vision
         ];
         
         // Deduplicate
         const uniqueModels = [...new Set(modelsToTry)];
 
         // STRATEGY SPLIT: 
-        // 1. For Images: Use non-streaming with Fallback Logic (Crucial for 429/404 errors)
-        // 2. For Text: Use generateContentStream for better UX, but handle model fallback manually if needed.
-
         if (image) {
             for (const currentModel of uniqueModels) {
                 try {
@@ -107,54 +100,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     });
                     
                     let text = result.text || "{}";
-                    // Remove markdown code blocks if present
                     text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
                     
                     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
                     res.status(200).send(text); 
-                    return; // Exit on success
+                    return; 
                 } catch (error: any) {
                     const errorMsg = error.message || String(error);
                     console.warn(`Model ${currentModel} failed:`, errorMsg);
                     
-                    // Specific Error Handling for Retry Logic:
-                    // 429: Too Many Requests (Quota)
-                    // 503: Service Unavailable
-                    // 404: Model Not Found (Crucial fix for deprecated models)
                     const status = error.status || (error.response ? error.response.status : 0);
                     
-                    if (status !== 429 && status !== 503 && status !== 404 && !errorMsg.includes("not found")) {
-                         // If it's a logic error (400), don't retry, just fail.
-                         throw error; 
+                    // Critical Auth/Quota errors -> Fail immediately
+                    if (status === 401 || status === 403) {
+                         throw error;
                     }
-                    
-                    // If it's the last model in the list, throw the error
+
+                    // For 400 (Bad Request), 404 (Not Found), 503 (Unavailable), 429 (Quota) -> Continue to fallback
+                    // If it's the last model, throw
                     if (currentModel === uniqueModels[uniqueModels.length - 1]) {
                         throw error;
                     }
-                    
-                    console.log(`Switching to fallback model...`);
-                    // Continue loop to next model...
+                    // Continue loop
                 }
             }
             return;
         }
 
-        // Streaming for Text-Only Requests
-        // We wrap the stream attempt in a loop to handle model fallbacks for text too
+        // Text-Only Requests (Streaming)
         for (const currentModel of uniqueModels) {
             try {
+                // If the model is known to be vision-only (like gemini-pro-vision), skip for text tasks
+                if (currentModel.includes('vision') && !image) continue;
+
                 const stream = await ai.models.generateContentStream({
                     model: currentModel, 
                     contents: contents, 
                     config: generationConfig,
                 });
 
-                // Headerları ayarla - Text stream olarak döneceğiz
                 res.setHeader('Content-Type', 'text/plain; charset=utf-8');
                 res.setHeader('Transfer-Encoding', 'chunked');
 
-                // Chunkları client'a ilet
                 for await (const chunk of stream) {
                     const chunkText = chunk.text;
                     if (chunkText) {
@@ -163,19 +150,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 }
                 
                 res.end();
-                return; // Success
+                return; 
 
             } catch (error: any) {
                 const errorMsg = error.message || String(error);
                 console.error(`Stream error (${currentModel}):`, errorMsg);
                 
-                // If headers sent, we can't retry gracefully in this stream response
                 if (res.headersSent) {
                     res.end();
                     return;
                 }
                 
-                // If it's the last model, return error
                 if (currentModel === uniqueModels[uniqueModels.length - 1]) {
                     if (error.status === 429 || error.status === 503) {
                         return res.status(429).json({ error: "API kotası aşıldı veya servis meşgul. (Text)" });
@@ -183,7 +168,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     return res.status(500).json({ error: `Yapay zeka akışı sırasında hata oluştu: ${errorMsg}` });
                 }
                 
-                // Continue to next model
                 continue;
             }
         }
@@ -201,7 +185,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 errorMessage = error.message;
             }
             
-            // Clean up error message for user
             if (errorMessage.includes("404") || errorMessage.includes("not found")) {
                  errorMessage = "Model yapılandırma hatası (Model Bulunamadı veya Erişim Yok).";
             }

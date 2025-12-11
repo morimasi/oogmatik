@@ -5,14 +5,19 @@ import { adminService } from '../services/adminService';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import { ActivityType } from '../types';
 
-// --- SNIPPETS LIBRARY ---
-const SNIPPETS = [
+// --- DEFAULT SNIPPETS (FALLBACK) ---
+const DEFAULT_SNIPPETS = [
     { label: 'Rol: Pedagog', value: '[ROL: UZMAN PEDAGOG VE ÖZEL EĞİTİM UZMANI]\nSen çocuk psikolojisi ve öğrenme güçlükleri konusunda uzmansın.' },
     { label: 'Rol: Matematikçi', value: '[ROL: MATEMATİK ÖĞRETİM TASARIMCISI]\nSoyut kavramları somutlaştırma konusunda ustasın.' },
     { label: 'JSON Kuralı', value: 'KESİN KURAL: Sadece geçerli JSON formatında yanıt ver. Markdown, açıklama veya ek metin kullanma.' },
     { label: 'Görsel Prompt', value: '"imagePrompt" alanı için: "Flat Vector Art, Educational, Minimalist, White Background" stilinde İngilizce betimleme yaz.' },
     { label: 'Disleksi Kuralı', value: 'Disleksik bireyler için: Kısa cümleler, devrik olmayan yapı ve somut kelimeler kullan.' }
 ];
+
+interface Snippet {
+    label: string;
+    value: string;
+}
 
 // --- COMPONENTS ---
 
@@ -78,6 +83,17 @@ export const AdminPromptStudio: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'editor' | 'config' | 'history'>('editor');
     const [rightPanel, setRightPanel] = useState<'test' | 'snippets'>('test');
     
+    // Snippet Management State
+    const [snippets, setSnippets] = useState<Snippet[]>(() => {
+        try {
+            const stored = localStorage.getItem('admin_prompt_snippets');
+            return stored ? JSON.parse(stored) : DEFAULT_SNIPPETS;
+        } catch { return DEFAULT_SNIPPETS; }
+    });
+    const [snippetMode, setSnippetMode] = useState<'list' | 'edit'>('list');
+    const [editingSnippetIdx, setEditingSnippetIdx] = useState<number | null>(null);
+    const [snippetForm, setSnippetForm] = useState<Snippet>({ label: '', value: '' });
+
     // Simulation State
     const [testVariables, setTestVariables] = useState<Record<string, string>>({});
     const [simulationResult, setSimulationResult] = useState<string>('');
@@ -87,6 +103,11 @@ export const AdminPromptStudio: React.FC = () => {
     useEffect(() => {
         loadPrompts();
     }, []);
+
+    // Sync Snippets to LocalStorage
+    useEffect(() => {
+        localStorage.setItem('admin_prompt_snippets', JSON.stringify(snippets));
+    }, [snippets]);
 
     const loadPrompts = async () => {
         const data = await adminService.getAllPrompts();
@@ -121,7 +142,6 @@ export const AdminPromptStudio: React.FC = () => {
             setSelectedPrompt(newDraft);
         }
         setSimulationResult('');
-        // Variables will auto-sync via useEffect
     };
 
     const toggleCategory = (catId: string) => {
@@ -143,7 +163,6 @@ export const AdminPromptStudio: React.FC = () => {
                 const newState = { ...prev };
                 detectedVariables.forEach(v => {
                     if (!newState[v]) {
-                        // Intelligent Defaults
                         if (v.includes('difficulty')) newState[v] = 'Orta';
                         else if (v.includes('Count')) newState[v] = '5';
                         else if (v.includes('topic')) newState[v] = 'Uzay';
@@ -181,15 +200,13 @@ export const AdminPromptStudio: React.FC = () => {
     const handleSimulate = async () => {
         if (!selectedPrompt) return;
         setIsSimulating(true);
-        setSimulationResult(''); // Clear previous
+        setSimulationResult(''); 
         
         try {
-            // Merge model config into the prompt object for the service to use
             const promptWithConfig = { ...selectedPrompt, modelConfig };
             const result = await adminService.testPrompt(promptWithConfig, testVariables);
             
             if (typeof result === 'string') {
-                 // If it returned a raw string (error or raw text)
                  setSimulationResult(result);
             } else {
                  setSimulationResult(JSON.stringify(result, null, 2));
@@ -203,11 +220,45 @@ export const AdminPromptStudio: React.FC = () => {
 
     const insertSnippet = (val: string) => {
         if (!selectedPrompt) return;
-        // Simple append for now - better would be cursor insertion
         setSelectedPrompt({
             ...selectedPrompt,
             template: selectedPrompt.template + "\n" + val
         });
+    };
+
+    // --- SNIPPET MANAGEMENT ---
+    const handleAddSnippet = () => {
+        setSnippetForm({ label: '', value: '' });
+        setEditingSnippetIdx(null);
+        setSnippetMode('edit');
+    };
+
+    const handleEditSnippet = (idx: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSnippetForm(snippets[idx]);
+        setEditingSnippetIdx(idx);
+        setSnippetMode('edit');
+    };
+
+    const handleSaveSnippet = () => {
+        if (!snippetForm.label || !snippetForm.value) return;
+        
+        setSnippets(prev => {
+            const newList = [...prev];
+            if (editingSnippetIdx !== null) {
+                newList[editingSnippetIdx] = snippetForm;
+            } else {
+                newList.push(snippetForm);
+            }
+            return newList;
+        });
+        setSnippetMode('list');
+    };
+
+    const handleDeleteSnippet = (idx: number) => {
+        if(confirm("Bu parçacığı silmek istediğinize emin misiniz?")) {
+            setSnippets(prev => prev.filter((_, i) => i !== idx));
+        }
     };
 
     return (
@@ -403,7 +454,7 @@ export const AdminPromptStudio: React.FC = () => {
                         onClick={() => setRightPanel('test')}
                         className={`flex-1 py-1.5 text-[10px] font-bold uppercase rounded transition-colors ${rightPanel === 'test' ? 'bg-[#333] text-white' : 'text-zinc-500 hover:bg-[#2a2d2e]'}`}
                     >
-                        <i className="fa-solid fa-flask mr-2"></i> Test & Çıktı
+                        <i className="fa-solid fa-flask mr-2"></i> Test
                     </button>
                     <button 
                         onClick={() => setRightPanel('snippets')}
@@ -468,18 +519,92 @@ export const AdminPromptStudio: React.FC = () => {
                     )}
 
                     {rightPanel === 'snippets' && (
-                        <div className="space-y-3">
-                            <p className="text-[10px] text-zinc-500 mb-2">Sık kullanılan parçacıklar. Tıklayarak ekleyin.</p>
-                            {SNIPPETS.map((snip, i) => (
-                                <button 
-                                    key={i} 
-                                    onClick={() => insertSnippet(snip.value)}
-                                    className="w-full text-left p-3 bg-[#252526] hover:bg-[#2a2d2e] border border-[#333] rounded-lg transition-colors group"
-                                >
-                                    <div className="font-bold text-xs text-zinc-300 group-hover:text-white mb-1">{snip.label}</div>
-                                    <div className="text-[10px] text-zinc-500 line-clamp-2 font-mono">{snip.value}</div>
-                                </button>
-                            ))}
+                        <div className="flex-1 flex flex-col">
+                            {snippetMode === 'list' ? (
+                                <>
+                                    <div className="flex justify-between items-center mb-3">
+                                        <p className="text-[10px] text-zinc-500">Kayıtlı Parçacıklar</p>
+                                        <button 
+                                            onClick={handleAddSnippet}
+                                            className="text-[10px] font-bold bg-indigo-600 px-2 py-1 rounded hover:bg-indigo-500 text-white transition-colors"
+                                        >
+                                            + Ekle
+                                        </button>
+                                    </div>
+                                    <div className="space-y-3 flex-1 overflow-y-auto">
+                                        {snippets.map((snip, i) => (
+                                            <div 
+                                                key={i} 
+                                                className="group w-full text-left p-3 bg-[#252526] hover:bg-[#2a2d2e] border border-[#333] rounded-lg transition-colors relative"
+                                            >
+                                                {/* Content Click -> Insert */}
+                                                <div onClick={() => insertSnippet(snip.value)} className="cursor-pointer">
+                                                    <div className="font-bold text-xs text-zinc-300 group-hover:text-white mb-1 pr-6">{snip.label}</div>
+                                                    <div className="text-[10px] text-zinc-500 line-clamp-2 font-mono">{snip.value}</div>
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button 
+                                                        onClick={(e) => handleEditSnippet(i, e)}
+                                                        className="p-1 hover:text-indigo-400 text-zinc-500"
+                                                        title="Düzenle"
+                                                    >
+                                                        <i className="fa-solid fa-pen text-[10px]"></i>
+                                                    </button>
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); handleDeleteSnippet(i); }}
+                                                        className="p-1 hover:text-red-400 text-zinc-500"
+                                                        title="Sil"
+                                                    >
+                                                        <i className="fa-solid fa-trash text-[10px]"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center border-b border-[#333] pb-2">
+                                        <h4 className="text-xs font-bold text-white">
+                                            {editingSnippetIdx !== null ? 'Parçacık Düzenle' : 'Yeni Parçacık'}
+                                        </h4>
+                                        <button onClick={() => setSnippetMode('list')} className="text-zinc-500 hover:text-white">
+                                            <i className="fa-solid fa-times"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="text-[10px] text-zinc-400 block mb-1 uppercase">Başlık (Etiket)</label>
+                                        <input 
+                                            type="text" 
+                                            value={snippetForm.label}
+                                            onChange={e => setSnippetForm({...snippetForm, label: e.target.value})}
+                                            className="w-full bg-[#252526] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
+                                            placeholder="Örn: Rol Tanımı"
+                                        />
+                                    </div>
+
+                                    <div className="flex-1 flex flex-col">
+                                        <label className="text-[10px] text-zinc-400 block mb-1 uppercase">İçerik</label>
+                                        <textarea
+                                            value={snippetForm.value}
+                                            onChange={e => setSnippetForm({...snippetForm, value: e.target.value})}
+                                            className="w-full h-40 bg-[#252526] border border-[#333] rounded p-2 text-xs text-white focus:border-indigo-500 outline-none resize-none font-mono"
+                                            placeholder="Eklenecek metni buraya yazın..."
+                                        />
+                                    </div>
+
+                                    <button 
+                                        onClick={handleSaveSnippet}
+                                        disabled={!snippetForm.label || !snippetForm.value}
+                                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold text-xs disabled:opacity-50"
+                                    >
+                                        Kaydet
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

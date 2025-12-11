@@ -12,29 +12,7 @@
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;800&family=Lexend:wght@400;600;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
       
-      @font-face {
-        font-family: 'OpenDyslexic';
-        src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.woff') format('woff');
-        font-weight: normal;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'OpenDyslexic';
-        src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-bold.woff') format('woff');
-        font-weight: bold;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'OpenDyslexic';
-        /* Fallback to regular since italic might not be available on this specific CDN path or use a different source */
-        src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.woff') format('woff');
-        font-weight: normal;
-        font-style: italic;
-        font-display: swap;
-      }
-
+      /* Replaced broken CDN with a fallback to Lexend for reliability */
       :root {
         --bg-primary: #222226;
         --bg-secondary: #1a1a1d;
@@ -48,7 +26,7 @@
         --accent-color: #fbbf24;    
         --accent-hover: #f59e0b;    
         --pattern-color: #3f3f46;
-        --ui-font: 'OpenDyslexic', sans-serif;
+        --ui-font: 'Lexend', 'OpenDyslexic', sans-serif;
         --ui-scale: 1;
         --ui-spacing: normal;
         --ui-line-height: 1.6;
