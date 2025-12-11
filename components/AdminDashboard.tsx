@@ -35,7 +35,16 @@ const NavButton = ({ active, label, icon, onClick, count }: any) => (
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks' | 'drafts'>('dashboard');
+    
+    // Persistent Tab State
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks' | 'drafts'>(() => {
+        const saved = localStorage.getItem('admin_active_tab');
+        return (saved as any) || 'dashboard';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('admin_active_tab', activeTab);
+    }, [activeTab]);
     
     // Data States
     const [stats, setStats] = useState<ActivityStats[]>([]);

@@ -104,6 +104,8 @@ const tourSteps: TourStep[] = [
 const AppContent: React.FC = () => {
     const { user, logout } = useAuth();
     const [currentView, setCurrentView] = useState<ExtendedView>('generator');
+    const [viewHistory, setViewHistory] = useState<ExtendedView[]>([]); // Navigation Stack
+    
     const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
     const [worksheetData, setWorksheetData] = useState<WorksheetData>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -167,6 +169,25 @@ const AppContent: React.FC = () => {
             return stored ? JSON.parse(stored) : [];
         } catch { return []; }
     });
+
+    // --- NAVIGATION LOGIC ---
+    const navigateTo = (view: ExtendedView) => {
+        if (currentView === view) return;
+        setViewHistory(prev => [...prev, currentView]);
+        setCurrentView(view);
+    };
+
+    const handleGoBack = () => {
+        if (viewHistory.length > 0) {
+            const newHistory = [...viewHistory];
+            const prevView = newHistory.pop();
+            setViewHistory(newHistory);
+            if (prevView) setCurrentView(prevView);
+        } else {
+            // Fallback default
+            setCurrentView('generator');
+        }
+    };
 
     useEffect(() => {
         // Sync History to LS
@@ -235,7 +256,7 @@ const AppContent: React.FC = () => {
             if (worksheet.workbookItems && worksheet.workbookSettings) {
                 setWorkbookItems(worksheet.workbookItems);
                 setWorkbookSettings(worksheet.workbookSettings);
-                setCurrentView('workbook');
+                navigateTo('workbook');
             }
         } else {
             setSelectedActivity(worksheet.activityType);
@@ -243,11 +264,18 @@ const AppContent: React.FC = () => {
             if (worksheet.styleSettings) setStyleSettings(worksheet.styleSettings);
             if (worksheet.studentProfile) setStudentProfile(worksheet.studentProfile);
             else setStudentProfile(null);
-            setCurrentView('generator');
+            navigateTo('generator');
         }
     };
 
     const handleSelectActivity = (activityType: ActivityType | null) => {
+        // If we are selecting a new activity, we should probably push current state to history if not already on generator
+        if (currentView !== 'generator') {
+             // Instead of strict navigateTo, just update view history manually if needed
+             // But simplest is to just switch view.
+             navigateTo('generator');
+        }
+        
         setSelectedActivity(activityType);
         setWorksheetData(null);
         setError(null);
@@ -276,7 +304,7 @@ const AppContent: React.FC = () => {
 
     const handleAutoGenerateWorkbook = async (report: AssessmentReport) => {
         setIsLoading(true);
-        setCurrentView('workbook'); 
+        navigateTo('workbook'); 
         
         const newItems: CollectionItem[] = [];
         const defaultOptions: GeneratorOptions = {
@@ -346,31 +374,24 @@ const AppContent: React.FC = () => {
     // Handle OCR Result
     const handleOCRResult = (result: any) => {
         if (result.detectedType === 'math' || result.suggestedActivity === 'BASIC_OPERATIONS') {
-            // Convert to worksheet format
-            // Simplified for demo: Treat as list of math problems
             const items = result.content.map((q: string) => ({
-                 num1: 0, num2: 0, operator: '?', answer: 0, remainder: 0 // Placeholder
-                 // Real implementation would parse "2+2" into components
+                 num1: 0, num2: 0, operator: '?', answer: 0, remainder: 0 
             })); 
-            // Better strategy: Create a generic "Manual Content" activity
             alert("İçerik başarıyla tarandı! Otomatik düzenleme moduna geçiliyor...");
-            // Redirect to generator with manual input populated
-            // Not fully implemented in this MVP scope, so showing data
             console.log("OCR Data:", result);
         } else {
-             // Treat as text
              alert("Metin tarandı. Kopyalandı.");
         }
-        setCurrentView('generator');
+        navigateTo('generator');
     };
 
     const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
 
-    if (currentView === 'admin') return <Suspense fallback={<LoadingSpinner />}><AdminDashboard onBack={() => setCurrentView('generator')} /></Suspense>;
-    if (currentView === 'profile') return <Suspense fallback={<LoadingSpinner />}><ProfileView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} /></Suspense>;
-    if (currentView === 'messages') return <Suspense fallback={<LoadingSpinner />}><MessagesView onBack={() => setCurrentView('generator')} onRefreshNotifications={() => {}} /></Suspense>;
-    if (currentView === 'ocr') return <Suspense fallback={<LoadingSpinner />}><OCRScanner onBack={() => setCurrentView('generator')} onResult={handleOCRResult} /></Suspense>;
-    if (currentView === 'curriculum') return <Suspense fallback={<LoadingSpinner />}><CurriculumView onBack={() => setCurrentView('generator')} onSelectActivity={handleSelectActivity} /></Suspense>;
+    if (currentView === 'admin') return <Suspense fallback={<LoadingSpinner />}><AdminDashboard onBack={handleGoBack} /></Suspense>;
+    if (currentView === 'profile') return <Suspense fallback={<LoadingSpinner />}><ProfileView onBack={handleGoBack} onSelectActivity={handleSelectActivity} /></Suspense>;
+    if (currentView === 'messages') return <Suspense fallback={<LoadingSpinner />}><MessagesView onBack={handleGoBack} onRefreshNotifications={() => {}} /></Suspense>;
+    if (currentView === 'ocr') return <Suspense fallback={<LoadingSpinner />}><OCRScanner onBack={handleGoBack} onResult={handleOCRResult} /></Suspense>;
+    if (currentView === 'curriculum') return <Suspense fallback={<LoadingSpinner />}><CurriculumView onBack={handleGoBack} onSelectActivity={handleSelectActivity} /></Suspense>;
 
     const headerIconBtnClass = "p-2 text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:drop-shadow-[0_0_5px_rgba(251,191,36,0.5)] transition-all duration-300 rounded-md";
 
@@ -380,7 +401,7 @@ const AppContent: React.FC = () => {
                 <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
                     <div className="flex items-center">
                         <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] mr-3 p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars fa-lg"></i></button>
-                        <button id="tour-logo" onClick={() => { setCurrentView('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
+                        <button id="tour-logo" onClick={() => { navigateTo('generator'); setSelectedActivity(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
                             <DyslexiaLogo className="h-10 w-auto" />
                         </button>
                     </div>
@@ -406,7 +427,7 @@ const AppContent: React.FC = () => {
                         </div>
                         
                         <button 
-                            onClick={() => setCurrentView('assessment')} 
+                            onClick={() => navigateTo('assessment')} 
                             className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[var(--accent-color)] text-black rounded-full text-xs font-extrabold shadow-md hover:shadow-[var(--accent-color)]/30 hover:scale-105 transition-all border border-[var(--accent-hover)]"
                             title="Öğrenme Güçlüğü Analizi"
                         >
@@ -417,7 +438,7 @@ const AppContent: React.FC = () => {
 
                         <div className="flex items-center gap-2">
                         
-                            <button id="tour-workbook-btn" onClick={() => setCurrentView('workbook')} className="relative p-2 text-[var(--text-secondary)] hover:text-emerald-500 hover:drop-shadow-[0_0_5px_rgba(16,185,129,0.8)] transition-all rounded-md group" title="Çalışma Kitapçığı">
+                            <button id="tour-workbook-btn" onClick={() => navigateTo('workbook')} className="relative p-2 text-[var(--text-secondary)] hover:text-emerald-500 hover:drop-shadow-[0_0_5px_rgba(16,185,129,0.8)] transition-all rounded-md group" title="Çalışma Kitapçığı">
                                 <i className="fa-solid fa-book-open-reader fa-lg"></i>
                                 {workbookItems.length > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-bold px-1.5 rounded-full border border-black min-w-[18px] text-center">
@@ -426,19 +447,19 @@ const AppContent: React.FC = () => {
                                 )}
                             </button>
 
-                            <button id="tour-favorites-btn" onClick={() => setCurrentView('favorites')} className="p-2 text-[var(--text-secondary)] hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
+                            <button id="tour-favorites-btn" onClick={() => navigateTo('favorites')} className="p-2 text-[var(--text-secondary)] hover:text-red-500 hover:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-all rounded-md relative group" title="Favoriler">
                                 <i className="fa-solid fa-heart fa-lg"></i>
                             </button>
 
                         {user ? (
                             <>
                                 {user.role === 'admin' && (
-                                    <button onClick={() => setCurrentView('admin')} className="p-2 text-purple-400 hover:bg-purple-900/20 rounded-md relative hover:text-white hover:drop-shadow-[0_0_5px_rgba(168,85,247,0.8)] transition-all" title="Yönetici Paneli">
+                                    <button onClick={() => navigateTo('admin')} className="p-2 text-purple-400 hover:bg-purple-900/20 rounded-md relative hover:text-white hover:drop-shadow-[0_0_5px_rgba(168,85,247,0.8)] transition-all" title="Yönetici Paneli">
                                         <i className="fa-solid fa-shield-halved fa-lg"></i>
                                     </button>
                                 )}
                                 
-                                <button id="tour-messages-btn" onClick={() => setCurrentView('messages')} className={headerIconBtnClass + " relative"} title="Mesajlar">
+                                <button id="tour-messages-btn" onClick={() => navigateTo('messages')} className={headerIconBtnClass + " relative"} title="Mesajlar">
                                     <i className="fa-solid fa-envelope fa-lg"></i>
                                     {unreadCount > 0 && (
                                         <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-black">
@@ -447,18 +468,18 @@ const AppContent: React.FC = () => {
                                     )}
                                 </button>
 
-                                <button id="tour-shared-btn" onClick={() => setCurrentView('shared')} className={headerIconBtnClass} title="Paylaşılanlar">
+                                <button id="tour-shared-btn" onClick={() => navigateTo('shared')} className={headerIconBtnClass} title="Paylaşılanlar">
                                     <i className="fa-solid fa-share-nodes fa-lg"></i>
                                 </button>
 
-                                <button id="tour-archive-btn" onClick={() => setCurrentView('savedList')} className={headerIconBtnClass} title="Arşiv">
+                                <button id="tour-archive-btn" onClick={() => navigateTo('savedList')} className={headerIconBtnClass} title="Arşiv">
                                     <i className="fa-solid fa-box-archive fa-lg"></i>
                                 </button>
                                 <button id="tour-history-btn" onClick={() => setOpenModal('history')} className={headerIconBtnClass} title="Geçmiş">
                                     <i className="fa-solid fa-clock-rotate-left fa-lg"></i>
                                 </button>
                                 
-                                <button id="tour-profile-btn" onClick={() => setCurrentView('profile')} className="ml-2">
+                                <button id="tour-profile-btn" onClick={() => navigateTo('profile')} className="ml-2">
                                     <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-[var(--border-color)] shadow-sm hover:border-[var(--accent-color)] transition-colors bg-zinc-800" />
                                 </button>
                             </>
@@ -496,8 +517,8 @@ const AppContent: React.FC = () => {
                         onOpenStudentModal={() => setIsStudentModalOpen(true)}
                         studentProfile={studentProfile}
                         styleSettings={styleSettings}
-                        onOpenOCR={() => setCurrentView('ocr')}
-                        onOpenCurriculum={() => setCurrentView('curriculum')}
+                        onOpenOCR={() => navigateTo('ocr')}
+                        onOpenCurriculum={() => navigateTo('curriculum')}
                     />
                 </div>
                 
@@ -507,7 +528,10 @@ const AppContent: React.FC = () => {
                 >
                     <ContentArea
                         currentView={currentView as View}
-                        onBackToGenerator={() => { setCurrentView('generator'); setSelectedActivity(null); setWorksheetData(null); }}
+                        onBackToGenerator={() => { 
+                            if(currentView !== 'generator') handleGoBack();
+                            else { setSelectedActivity(null); setWorksheetData(null); }
+                        }}
                         activityType={selectedActivity}
                         worksheetData={worksheetData}
                         isLoading={isLoading}
@@ -534,7 +558,7 @@ const AppContent: React.FC = () => {
                         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-40 overflow-y-auto">
                             <Suspense fallback={<LoadingSpinner />}>
                                 <AssessmentModule 
-                                    onBack={() => setCurrentView('generator')}
+                                    onBack={handleGoBack}
                                     onSelectActivity={handleSelectActivity}
                                     onAddToWorkbook={handleAddToWorkbookFromReport}
                                     onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
