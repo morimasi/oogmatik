@@ -147,11 +147,12 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
             const errorText = await response.text();
             console.error("Vision API Error Details:", errorText);
             
-            let errorMessage = `Vision API Failed: ${response.status} ${response.statusText}`;
+            let errorMessage = `Vision API Failed: ${response.status}`;
             try {
                  const jsonErr = JSON.parse(errorText);
                  if (jsonErr.error) errorMessage += ` - ${typeof jsonErr.error === 'string' ? jsonErr.error : JSON.stringify(jsonErr.error)}`;
             } catch {
+                 // Truncate long HTML error pages if 404
                  errorMessage += ` - ${errorText.substring(0, 100)}`;
             }
             throw new Error(errorMessage);

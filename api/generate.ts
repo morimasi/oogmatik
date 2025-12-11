@@ -64,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let contents: any[];
         
         if (image) {
-            // Remove header if present (data:image/png;base64,) just in case, though client should send clean
+            // Remove header if present (data:image/png;base64,) just in case
             const cleanImage = image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
             contents = [
                 {
@@ -85,24 +85,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ];
         }
 
-        // --- ULTRA ROBUST MODEL STRATEGY ---
-        // Includes Exp, Latest, Specific Versions, and Fallbacks
+        // --- STABLE MODEL STRATEGY ---
+        // Priority: Stable Production Models > Newest Features
+        // 1. Gemini 1.5 Flash (Fastest, Cheapest, Most Reliable)
+        // 2. Gemini 1.5 Pro (Smarter, for complex logic)
+        // 3. Gemini 2.0 Flash Exp (Experimental, might be region-locked or unstable)
+        
         const defaultModelChain = [
-            "gemini-2.0-flash-exp",
+            "gemini-1.5-flash", 
             "gemini-1.5-pro",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro-latest",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro-001",
-            "gemini-1.5-flash-001",
-            "gemini-1.5-flash-8b",
-            "gemini-1.5-flash-8b-latest"
+            "gemini-2.0-flash-exp" 
         ];
         
-        // If a specific model is requested and valid, try it first
+        // If a specific model is requested, try it first, but fallback to stable ones
         let modelChain = defaultModelChain;
         if (model && !defaultModelChain.includes(model)) {
-            // If requested model isn't in chain, put it first anyway
             modelChain = [model, ...defaultModelChain];
         } else if (model) {
             // If it is in chain, prioritize it
@@ -162,7 +159,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // All models failed
         console.error("All AI models failed.");
         return res.status(lastError?.status || 500).json({ 
-            error: `Yapay zeka modellerine erişilemedi. Son denenen model (${lastError?.model}): ${lastError?.message}` 
+            error: `Yapay zeka servisine ulaşılamadı. (Model: ${lastError?.model}, Hata: ${lastError?.message})` 
         });
 
     } catch (error: any) {
