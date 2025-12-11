@@ -127,8 +127,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                      return res.status(status).json({ error: `Yetkilendirme hatası: ${errorMsg}` });
                 }
                 
-                // If it's a 404 (Model Not Found) or 429 (Rate Limit), we continue to the next model in the loop
-                // ... continue loop
+                // If it's a 404 (Model Not Found) or 429 (Rate Limit) or 503 (Overloaded), we continue to the next model in the loop
             }
         }
 
