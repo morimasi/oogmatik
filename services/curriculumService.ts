@@ -100,7 +100,7 @@ export const curriculumService = {
             required: ['goals', 'note', 'schedule']
         };
 
-        const result = await generateWithSchema(prompt, schema, 'gemini-2.0-flash');
+        const result = await generateWithSchema(prompt, schema, 'gemini-2.0-flash-exp');
 
         // Post-process to add IDs and status
         const schedule = result.schedule.map((day: any) => ({
@@ -177,7 +177,7 @@ export const curriculumService = {
             required: ['day', 'focus', 'activities']
         };
 
-        const result = await generateWithSchema(prompt, schema, 'gemini-2.0-flash');
+        const result = await generateWithSchema(prompt, schema, 'gemini-2.0-flash-exp');
         
         return {
             ...result,

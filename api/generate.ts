@@ -61,31 +61,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ]
         };
 
-        // Build contents array
-        let contents: any = prompt;
+        // Build contents array properly for @google/genai SDK
+        let contents: any[];
+        
         if (image) {
             // Remove header if present (data:image/png;base64,)
             const cleanImage = image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
-            contents = {
-                parts: [
-                    { inlineData: { mimeType: 'image/jpeg', data: cleanImage } },
-                    { text: prompt }
-                ]
-            };
+            contents = [
+                {
+                    parts: [
+                        { inlineData: { mimeType: 'image/jpeg', data: cleanImage } },
+                        { text: prompt }
+                    ]
+                }
+            ];
+        } else {
+            // Text only
+            contents = [
+                {
+                    parts: [
+                        { text: prompt }
+                    ]
+                }
+            ];
         }
 
         // --- UPDATED ROBUST MODEL STRATEGY ---
-        // 1. Primary: Gemini 2.0 Flash (Fastest, Smartest, Multimodal)
-        // 2. Secondary: Gemini 1.5 Pro (Deep reasoning fallback)
-        // 3. Tertiary: Gemini 1.5 Flash (Reliable, fast fallback)
+        // 1. Gemini 2.0 Flash Exp (Fastest, Multimodal, Latest)
+        // 2. Gemini 1.5 Flash (Stable, Fast)
+        // 3. Gemini 1.5 Flash 8B (Ultra Fast)
+        // 4. Gemini 1.5 Pro (High Intelligence Fallback)
         
         const defaultModelChain = [
-            "gemini-2.0-flash",
-            "gemini-1.5-pro",
-            "gemini-1.5-flash"
+            "gemini-2.0-flash-exp",
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-8b",
+            "gemini-1.5-pro"
         ];
         
-        // If a specific model is requested and valid, try it first, then fallback to chain
+        // If a specific model is requested and valid, try it first
         let modelChain = defaultModelChain;
         if (model && defaultModelChain.includes(model)) {
             modelChain = [model, ...defaultModelChain.filter(m => m !== model)];
@@ -106,7 +120,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 });
                 
                 successResponseText = result.text;
-                if (!successResponseText) throw new Error("Empty response from AI");
+                if (!successResponseText) {
+                    // Sometimes text is empty but candidates exists, unlikely with JSON schema but check
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
+                        successResponseText = result.candidates[0].content.parts[0].text;
+                    } else {
+                        throw new Error("Empty response from AI");
+                    }
+                }
 
                 // Clean markdown code blocks if present
                 successResponseText = successResponseText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
@@ -127,7 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                      return res.status(status).json({ error: `Yetkilendirme hatası: ${errorMsg}` });
                 }
                 
-                // If it's a 404 (Model Not Found) or 429 (Rate Limit) or 503 (Overloaded), we continue to the next model in the loop
+                // 400 Bad Request usually means schema/prompt issue, not model availability, but we retry anyway just in case 2.0 parses differently than 1.5
             }
         }
 

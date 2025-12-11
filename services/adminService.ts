@@ -395,8 +395,8 @@ Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
         ${compiledPrompt}
         `;
 
-        // Use standard model for testing if none specified
-        return await generateWithSchema(fullContext, genericSchema, prompt.modelConfig?.modelName || 'gemini-2.0-flash');
+        // Use standard model for testing if none specified (Updated to 2.0-flash-exp)
+        return await generateWithSchema(fullContext, genericSchema, prompt.modelConfig?.modelName || 'gemini-2.0-flash-exp');
     }
 };
 
