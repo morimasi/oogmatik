@@ -64,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let contents: any[];
         
         if (image) {
-            // Remove header if present (data:image/png;base64,) just in case
+            // Remove header if present
             const cleanImage = image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
             contents = [
                 {
@@ -85,43 +85,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ];
         }
 
-        // --- OFFICIAL STABLE MODEL STRATEGY (Updated) ---
-        // 1. gemini-1.5-flash: Highest Rate Limits (15 RPM free), Fast, Multimodal.
-        // 2. gemini-1.5-flash-8b: Optimized for simple tasks, very fast.
-        // 3. gemini-1.5-pro: Higher intelligence, lower rate limit (2 RPM free). Use as last resort.
+        // --- ULTRA STABLE MODEL STRATEGY ---
+        // Kullanıcının "Ücretsiz Limit Sorunu Olmayan" isteği üzerine:
+        // Sadece 'gemini-1.5-flash' ve 'gemini-1.5-flash-8b' kullanıyoruz.
+        // 'gemini-1.5-pro' (2 RPM) ve 'exp' modelleri (kararsız) zincirden çıkarıldı.
         
-        // Removed 'exp' models to prevent instability.
         const stableModels = [
-            "gemini-1.5-flash", 
-            "gemini-1.5-flash-8b", 
-            "gemini-1.5-pro"
+            "gemini-1.5-flash",    // Ana Model (Yüksek Kota)
+            "gemini-1.5-flash-8b"  // Yedek Model (Daha Hızlı)
         ];
         
-        // Determine primary model
-        let primaryModel = "gemini-1.5-flash"; // Default safe choice
-
-        // If client requested a specific model, check if it is stable
-        if (model) {
-            if (stableModels.includes(model)) {
-                primaryModel = model;
-            } else if (model.includes('pro')) {
-                primaryModel = "gemini-1.5-pro";
-            } else {
-                primaryModel = "gemini-1.5-flash";
-            }
+        // Kullanıcı ne isterse istesin, sadece güvenli modellere izin ver
+        let selectedModel = "gemini-1.5-flash";
+        if (model && stableModels.includes(model)) {
+            selectedModel = model;
         }
 
-        // Construct the chain: Primary -> Others
-        // Filter out primary from stable list to avoid dupes, then append
         const modelChain = [
-            primaryModel,
-            ...stableModels.filter(m => m !== primaryModel)
+            selectedModel,
+            ...stableModels.filter(m => m !== selectedModel)
         ];
         
         let lastError = null;
         let successResponseText = null;
 
-        // Try models in sequence (Daisy-chaining)
+        // Try models in sequence
         for (const currentModel of modelChain) {
             try {
                 // console.log(`Attempting generation with model: ${currentModel}`);
@@ -137,15 +125,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
                         successResponseText = result.candidates[0].content.parts[0].text;
                     } else {
-                         // Empty response means model failed to generate useful content
                          continue;
                     }
                 }
 
                 // Clean markdown code blocks if present
                 successResponseText = successResponseText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-                
-                // If we got here, success!
                 break; 
 
             } catch (error: any) {
@@ -155,11 +140,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 console.warn(`Model ${currentModel} failed (${status}):`, errorMsg.substring(0, 100));
                 lastError = { status, message: errorMsg, model: currentModel };
 
-                // Critical Auth errors -> Fail immediately
-                if (status === 401 || status === 403 || errorMsg.includes('API key')) {
+                // Critical Auth errors -> Fail immediately, DO NOT RETRY
+                if (status === 400 || status === 401 || status === 403 || errorMsg.includes('API key')) {
                      return res.status(status).json({ error: `Yetkilendirme hatası: ${errorMsg}` });
                 }
-                // Continue loop for 429 (Quota), 503 (Overloaded), 404 (Not Found)
+                // Continue loop for 429 (Quota), 503 (Overloaded)
             }
         }
 
@@ -171,7 +156,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // All models failed
         console.error("All AI models failed.");
         return res.status(lastError?.status || 500).json({ 
-            error: `Yapay zeka servisine ulaşılamadı. Lütfen kısa bir süre sonra tekrar deneyin. (Hata: ${lastError?.status})` 
+            error: `Yapay zeka servisine ulaşılamadı. Lütfen daha sonra tekrar deneyin. (Son Hata: ${lastError?.message})` 
         });
 
     } catch (error: any) {

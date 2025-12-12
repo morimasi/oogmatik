@@ -13,12 +13,13 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                     body: JSON.stringify({ 
                         prompt: enhancedPrompt, 
                         schema, 
-                        model: model 
+                        model: 'gemini-1.5-flash' // Force stable model from client side too
                     }),
                 });
 
-                // Handle server overloaded or rate limited specific status codes
-                if (response.status === 429 || response.status === 503 || response.status === 504) {
+                // Retry ONLY for Server Errors (5xx) or Rate Limits (429)
+                // DO NOT RETRY for 400 (Bad Request / Invalid Key) or 401/403
+                if (response.status === 429 || response.status >= 500) {
                      if (retries > 0) {
                          console.warn(`API meşgul (${response.status}). Tekrar deneniyor... (${delay}ms)`);
                          await new Promise(res => setTimeout(res, delay));
@@ -39,12 +40,11 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Sunucu Hatası (Raw):", errorText);
             
             let errorMessage = `API hatası: ${response.status}`;
             try {
                 const errorJson = JSON.parse(errorText);
-                if (errorJson.error) errorMessage += ` - ${errorJson.error}`;
+                if (errorJson.error) errorMessage = errorJson.error;
             } catch (e) {
                 if (errorText.length < 200) errorMessage += ` - ${errorText}`;
             }
@@ -106,10 +106,8 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
     }
 };
 
-// NEW: Vision API Handler
 export const analyzeImage = async (base64Image: string, prompt: string, schema: any) => {
     try {
-        // Strip header if present
         const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
         const fetchWithRetry = async (retries = 3, delay = 2000): Promise<Response> => {
@@ -122,11 +120,11 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                         schema,
                         image: cleanBase64,
                         mimeType: 'image/jpeg',
-                        model: 'gemini-1.5-flash' // Force stable model for vision
+                        model: 'gemini-1.5-flash' // Strictly Force Stable Model
                     }),
                 });
 
-                if (response.status === 429 || response.status === 503) {
+                if (response.status === 429 || response.status >= 500) {
                      if (retries > 0) {
                          console.warn(`Vision API busy. Retrying in ${delay}ms...`);
                          await new Promise(res => setTimeout(res, delay));
@@ -147,14 +145,11 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Vision API Error Details:", errorText);
-            
             let errorMessage = `Vision API Failed: ${response.status}`;
             try {
                  const jsonErr = JSON.parse(errorText);
-                 if (jsonErr.error) errorMessage += ` - ${typeof jsonErr.error === 'string' ? jsonErr.error : JSON.stringify(jsonErr.error)}`;
+                 if (jsonErr.error) errorMessage = typeof jsonErr.error === 'string' ? jsonErr.error : JSON.stringify(jsonErr.error);
             } catch {
-                 // Truncate long HTML error pages if 404
                  errorMessage += ` - ${errorText.substring(0, 100)}`;
             }
             throw new Error(errorMessage);

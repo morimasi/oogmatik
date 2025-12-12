@@ -47,8 +47,6 @@ export const adminService = {
 
     saveSnippet: async (snippet: PromptSnippet) => {
         const payload = { ...snippet, updatedAt: new Date().toISOString() };
-        // Use setDoc with merge to support both create and update with custom ID if needed
-        // But here we use snippet.id if exists, else auto-gen logic in component
         if (snippet.id) {
              await setDoc(doc(db, "config_snippets", snippet.id), payload, { merge: true });
         } else {
@@ -80,12 +78,9 @@ export const adminService = {
     },
 
     publishDraft: async (draft: ActivityDraft, finalConfig: { title: string, description: string, icon: string, category: string }) => {
-        // 1. Create a Prompt Template based on draft instructions
-        const promptId = `prompt_${Date.now()}`; // Unique ID
+        const promptId = `prompt_${Date.now()}`;
         
         let finalTemplate = "";
-
-        // Eğer OCR'dan gelen özel bir talimat varsa, temiz bir şablon oluştur
         if (draft.customInstructions && draft.customInstructions.length > 10) {
             finalTemplate = `
 ${PEDAGOGICAL_PROMPT_BASE}
@@ -106,7 +101,6 @@ ${IMAGE_GENERATION_GUIDE}
 Sadece JSON formatında, yukarıdaki algoritmaya uygun veri yapısını döndür.
             `;
         } else {
-            // Eğer özel talimat yoksa (manuel taslak), baseType'ın şablonunu al
             const basePrompt = adminService.getInitialPromptForActivity(draft.baseType as ActivityType);
              finalTemplate = basePrompt.replace(
                 "ÇIKTI (JSON): ...", 
@@ -135,7 +129,6 @@ Sadece JSON formatında, yukarıdaki algoritmaya uygun veri yapısını döndür
 
         await setDoc(doc(db, "config_prompts", promptId), newPrompt);
 
-        // 2. Create the Dynamic Activity
         const activityId = `ACT_${Date.now()}`;
         const newActivity: DynamicActivity = {
             id: activityId,
@@ -150,8 +143,6 @@ Sadece JSON formatında, yukarıdaki algoritmaya uygun veri yapısını döndür
         };
 
         await setDoc(doc(db, "config_activities", activityId), newActivity);
-
-        // 3. Delete the draft
         await deleteDoc(doc(db, "activity_drafts", draft.id));
     },
     
@@ -186,11 +177,7 @@ Sadece JSON formatında, yukarıdaki algoritmaya uygun veri yapısını döndür
     getInitialPromptForActivity: (activityId: ActivityType): string => {
         const base = PEDAGOGICAL_BASE;
         const imgGuide = IMAGE_GENERATION_GUIDE;
-
-        let taskSpecific = "";
-
-        // Generic Fallback
-        taskSpecific = `
+        const taskSpecific = `
 GÖREV: Eğitim materyali üret.
 TÜR: ${activityId}
 ZORLUK: {{difficulty}}
@@ -199,7 +186,6 @@ ADET: {{itemCount}}
 
 Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
         `;
-
         return `${base}\n\n${taskSpecific}\n\n${imgGuide}\n\nÇIKTI (JSON): ...`;
     },
 
@@ -271,7 +257,7 @@ Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
             compiledPrompt = compiledPrompt.replace(regex, String(value));
         });
 
-        // Use a broad but valid schema to avoid 400 Bad Request
+        // Use a broad but valid schema
         const genericSchema = {
             type: Type.OBJECT,
             properties: {
@@ -279,111 +265,15 @@ Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
                 instruction: { type: Type.STRING },
                 pedagogicalNote: { type: Type.STRING },
                 imagePrompt: { type: Type.STRING },
-                
-                // Add properties to object types to satisfy schema validation
-                data: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            text: {type: Type.STRING}, 
-                            value: {type: Type.STRING},
-                            id: {type: Type.STRING}
-                        } 
-                    } 
-                }, 
-                items: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            text: {type: Type.STRING}, 
-                            value: {type: Type.STRING}, 
-                            id: {type: Type.STRING}, 
-                            isCorrect: {type: Type.BOOLEAN},
-                            imagePrompt: {type: Type.STRING}
-                        } 
-                    } 
-                },
-                questions: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            question: {type: Type.STRING}, 
-                            text: {type: Type.STRING}, 
-                            answer: {type: Type.STRING}, 
-                            options: {type: Type.ARRAY, items: {type: Type.STRING}},
-                            correct: {type: Type.STRING},
-                            imagePrompt: {type: Type.STRING}
-                        } 
-                    } 
-                },
-                puzzles: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            puzzle: {type: Type.STRING}, 
-                            question: {type: Type.STRING}, 
-                            answer: {type: Type.STRING}, 
-                            clues: {type: Type.ARRAY, items: {type: Type.STRING}},
-                            imagePrompt: {type: Type.STRING}
-                        } 
-                    } 
-                },
-                rows: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            id: {type: Type.STRING}, 
-                            items: {type: Type.ARRAY, items: {type: Type.STRING}}, 
-                            text: {type: Type.STRING} 
-                        } 
-                    } 
-                },
-                pairs: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            item1: {type: Type.STRING}, 
-                            item2: {type: Type.STRING}, 
-                            id: {type: Type.STRING},
-                            imagePrompt1: {type: Type.STRING}
-                        } 
-                    } 
-                },
-                leftColumn: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            text: {type: Type.STRING}, 
-                            id: {type: Type.STRING}, 
-                            imagePrompt: {type: Type.STRING} 
-                        } 
-                    } 
-                }, 
-                rightColumn: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            text: {type: Type.STRING}, 
-                            id: {type: Type.STRING}, 
-                            imagePrompt: {type: Type.STRING} 
-                        } 
-                    } 
-                },
-                grid: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.ARRAY, 
-                        items: { type: Type.STRING } 
-                    } 
-                }
+                data: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type: Type.STRING}, value: {type: Type.STRING}, id: {type: Type.STRING} } } },
+                items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type: Type.STRING}, value: {type: Type.STRING}, id: {type: Type.STRING}, isCorrect: {type: Type.BOOLEAN}, imagePrompt: {type: Type.STRING} } } },
+                questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: {type: Type.STRING}, text: {type: Type.STRING}, answer: {type: Type.STRING}, options: {type: Type.ARRAY, items: {type: Type.STRING}}, correct: {type: Type.STRING}, imagePrompt: {type: Type.STRING} } } },
+                puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { puzzle: {type: Type.STRING}, question: {type: Type.STRING}, answer: {type: Type.STRING}, clues: {type: Type.ARRAY, items: {type: Type.STRING}}, imagePrompt: {type: Type.STRING} } } },
+                rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: {type: Type.STRING}, items: {type: Type.ARRAY, items: {type: Type.STRING}}, text: {type: Type.STRING} } } },
+                pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { item1: {type: Type.STRING}, item2: {type: Type.STRING}, id: {type: Type.STRING}, imagePrompt1: {type: Type.STRING} } } },
+                leftColumn: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type: Type.STRING}, id: {type: Type.STRING}, imagePrompt: {type: Type.STRING} } } },
+                rightColumn: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type: Type.STRING}, id: {type: Type.STRING}, imagePrompt: {type: Type.STRING} } } },
+                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
             }
         };
 
