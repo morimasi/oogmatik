@@ -17,11 +17,12 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
                     }),
                 });
 
-                if (response.status === 429 || response.status === 503) {
+                // Handle server overloaded or rate limited specific status codes
+                if (response.status === 429 || response.status === 503 || response.status === 504) {
                      if (retries > 0) {
-                         console.warn(`API busy (429/503). Retrying in ${delay}ms...`);
+                         console.warn(`API meşgul (${response.status}). Tekrar deneniyor... (${delay}ms)`);
                          await new Promise(res => setTimeout(res, delay));
-                         return fetchWithRetry(retries - 1, delay * 2);
+                         return fetchWithRetry(retries - 1, delay * 2); // Exponential backoff
                      }
                 }
                 return response;
@@ -120,7 +121,8 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                         prompt,
                         schema,
                         image: cleanBase64,
-                        mimeType: 'image/jpeg' // Explicitly set as client converts to jpeg
+                        mimeType: 'image/jpeg',
+                        model: 'gemini-1.5-flash' // Force stable model for vision
                     }),
                 });
 

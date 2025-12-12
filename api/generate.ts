@@ -85,29 +85,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ];
         }
 
-        // --- STABLE & ROBUST MODEL STRATEGY ---
-        // Priority: High Quota/Stable > Smart/Experimental
-        // 1. Gemini 1.5 Flash (Most reliable free tier)
-        // 2. Gemini 1.5 Flash 8b (Fastest)
-        // 3. Gemini 1.5 Pro (Smarter fallback)
-        // 4. Gemini 2.0 Flash Exp (Smartest but unstable/limited)
+        // --- OFFICIAL STABLE MODEL STRATEGY (Updated) ---
+        // 1. gemini-1.5-flash: Highest Rate Limits (15 RPM free), Fast, Multimodal.
+        // 2. gemini-1.5-flash-8b: Optimized for simple tasks, very fast.
+        // 3. gemini-1.5-pro: Higher intelligence, lower rate limit (2 RPM free). Use as last resort.
         
-        const defaultModelChain = [
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-002",
-            "gemini-1.5-flash-8b",
-            "gemini-1.5-pro",
-            "gemini-2.0-flash-exp" 
+        // Removed 'exp' models to prevent instability.
+        const stableModels = [
+            "gemini-1.5-flash", 
+            "gemini-1.5-flash-8b", 
+            "gemini-1.5-pro"
         ];
         
-        // If a specific model is requested, try it first, but fallback to stable ones
-        let modelChain = defaultModelChain;
-        if (model && !defaultModelChain.includes(model)) {
-            modelChain = [model, ...defaultModelChain];
-        } else if (model) {
-            // If it is in chain, prioritize it but keep others as fallback
-            modelChain = [model, ...defaultModelChain.filter(m => m !== model)];
+        // Determine primary model
+        let primaryModel = "gemini-1.5-flash"; // Default safe choice
+
+        // If client requested a specific model, check if it is stable
+        if (model) {
+            if (stableModels.includes(model)) {
+                primaryModel = model;
+            } else if (model.includes('pro')) {
+                primaryModel = "gemini-1.5-pro";
+            } else {
+                primaryModel = "gemini-1.5-flash";
+            }
         }
+
+        // Construct the chain: Primary -> Others
+        // Filter out primary from stable list to avoid dupes, then append
+        const modelChain = [
+            primaryModel,
+            ...stableModels.filter(m => m !== primaryModel)
+        ];
         
         let lastError = null;
         let successResponseText = null;
@@ -137,7 +146,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 successResponseText = successResponseText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
                 
                 // If we got here, success!
-                // console.log(`Success with model: ${currentModel}`);
                 break; 
 
             } catch (error: any) {
@@ -163,7 +171,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // All models failed
         console.error("All AI models failed.");
         return res.status(lastError?.status || 500).json({ 
-            error: `Yapay zeka servisine ulaşılamadı. (Son Hata: ${lastError?.message})` 
+            error: `Yapay zeka servisine ulaşılamadı. Lütfen kısa bir süre sonra tekrar deneyin. (Hata: ${lastError?.status})` 
         });
 
     } catch (error: any) {
