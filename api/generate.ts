@@ -122,8 +122,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 
                 successResponseText = result.text;
                 if (!successResponseText) {
-                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
-                        successResponseText = result.candidates[0].content.parts[0].text;
+                    // Safe access using optional chaining to avoid TS2532 error
+                    const candidateText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (candidateText) {
+                        successResponseText = candidateText;
                     } else {
                          continue;
                     }
