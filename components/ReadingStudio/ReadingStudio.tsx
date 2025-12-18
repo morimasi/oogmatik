@@ -391,6 +391,13 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
     const [openSections, setOpenSections] = useState({ layers: true, add: false });
     const [isSidebarOpen, setIsSidebarOpen] = useState(true); // SIDEBAR TOGGLE STATE
 
+    // --- CANVAS ZOOM & PAN STATE ---
+    const [canvasScale, setCanvasScale] = useState(0.85);
+    const [canvasPos, setCanvasPos] = useState({ x: 0, y: 50 });
+    const [isPanning, setIsPanning] = useState(false);
+    const lastMousePos = useRef({ x: 0, y: 0 });
+    const canvasRef = useRef<HTMLDivElement>(null);
+
     // ... (Drag State same as before) ...
     const [dragState, setDragState] = useState<{ mode: 'drag' | 'resize' | 'rotate'; resizeHandle?: string; startX: number; startY: number; initialX: number; initialY: number; initialW: number; initialH: number; initialR: number; centerX?: number; centerY?: number; } | null>(null);
 
@@ -401,8 +408,18 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         return Math.max(A4_HEIGHT_PX, maxY + PAGE_BOTTOM_PADDING);
     }, [layout]);
 
-    // Initial Load - Automatic Layout
+    // Initial Load - Automatic Layout & Center Canvas
     useEffect(() => {
+        // Initial centering
+        if (canvasRef.current) {
+            const viewportW = canvasRef.current.clientWidth;
+            const pageWidth = A4_WIDTH_PX;
+            const initialScale = Math.min(0.85, (viewportW - 100) / pageWidth); 
+            const centeredX = (viewportW - (pageWidth * initialScale)) / 2;
+            setCanvasScale(initialScale);
+            setCanvasPos({ x: centeredX, y: 40 });
+        }
+
         const generatedLayout: ActiveComponent[] = [];
         let currentY = 20;
         const startX = 20;
@@ -440,20 +457,19 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                 isVisible: true,
                 customTitle: def.defaultTitle,
                 themeColor: 'black',
-                specificData: null // Will be populated when storyData is generated or manually
+                specificData: null 
             });
         });
 
         setLayout(generatedLayout);
     }, []);
     
-    // Sync Generated Data to Components (UPDATED MAPPING LOGIC)
+    // Sync Generated Data to Components
     useEffect(() => {
         if (!storyData) return;
         setLayout(prev => prev.map(item => {
             let specificData = item.specificData;
             
-            // Auto-populate based on ID if not already manually set (or force update for fresh generation)
             if (item.id === 'header') {
                 specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
             } else if (item.id === 'story_block') {
@@ -463,7 +479,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             } else if (item.id === 'questions_test') {
                 specificData = { questions: (storyData.multipleChoice || []).map(q => ({ text: q.question, options: q.options })) };
             } else if (item.id === 'questions_inference') {
-                // Map from inference OR logic questions
                 const questions = [...(storyData.inferenceQuestions || []), ...(storyData.logicQuestions || [])].slice(0, 3);
                 specificData = { questions: questions.map(q => ({ text: q.question })) };
             } else if (item.id === 'vocabulary') {
@@ -476,13 +491,53 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         }));
     }, [storyData]);
 
-    // ... (Mouse Handlers same as before) ...
+    // --- CANVAS INTERACTION HANDLERS ---
+    
+    // Wheel Zoom
+    const handleCanvasWheel = useCallback((e: React.WheelEvent) => {
+        if (e.ctrlKey) e.preventDefault(); // Prevent browser zoom if ctrl pressed
+        
+        const zoomSensitivity = -0.001; 
+        const delta = e.deltaY * zoomSensitivity;
+        const newScale = Math.min(Math.max(0.2, canvasScale + delta), 4);
+        
+        if (canvasRef.current) {
+            const rect = canvasRef.current.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Calculate new position to zoom towards mouse
+            const canvasX = (mouseX - canvasPos.x) / canvasScale;
+            const canvasY = (mouseY - canvasPos.y) / canvasScale;
+            
+            const newX = mouseX - canvasX * newScale;
+            const newY = mouseY - canvasY * newScale;
+            
+            setCanvasScale(newScale);
+            setCanvasPos({ x: newX, y: newY });
+        }
+    }, [canvasScale, canvasPos]);
+
+    // Background Pan Start
+    const handleBgMouseDown = (e: React.MouseEvent) => {
+        // Only pan if clicking directly on background (not on an item)
+        // If an item is clicked, handleMouseDown takes precedence via propagation stop
+        if (!designMode) return;
+        
+        setIsPanning(true);
+        lastMousePos.current = { x: e.clientX, y: e.clientY };
+    };
+
+    // Item Interaction Start
     const handleMouseDown = (e: React.MouseEvent, id: string, mode: 'drag' | 'resize' | 'rotate' = 'drag', handle?: string) => {
         if (!designMode) return;
-        e.stopPropagation();
+        e.stopPropagation(); // Stop bubbling to background pan handler
+        
         const item = layout.find(l => l.instanceId === id);
         if (!item) return;
+        
         setSelectedId(id);
+        
         let centerX = 0; let centerY = 0;
         if (mode === 'rotate') {
              const element = e.currentTarget.parentElement; 
@@ -492,19 +547,45 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                  centerY = rect.top + rect.height / 2;
              }
         }
-        setDragState({ mode, resizeHandle: handle, startX: e.clientX, startY: e.clientY, initialX: item.style.x, initialY: item.style.y, initialW: item.style.w, initialH: item.style.h, initialR: item.style.rotation || 0, centerX, centerY });
+        
+        setDragState({ 
+            mode, 
+            resizeHandle: handle, 
+            startX: e.clientX, 
+            startY: e.clientY, 
+            initialX: item.style.x, 
+            initialY: item.style.y, 
+            initialW: item.style.w, 
+            initialH: item.style.h, 
+            initialR: item.style.rotation || 0, 
+            centerX, centerY 
+        });
     };
 
+    // Global Move Handler (Handles both Pan and Drag)
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
+            // 1. Handle Canvas Panning
+            if (isPanning) {
+                const dx = e.clientX - lastMousePos.current.x;
+                const dy = e.clientY - lastMousePos.current.y;
+                setCanvasPos(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+                lastMousePos.current = { x: e.clientX, y: e.clientY };
+                return;
+            }
+
+            // 2. Handle Item Dragging/Resizing
             if (!dragState || !selectedId) return;
-            const dx = e.clientX - dragState.startX;
-            const dy = e.clientY - dragState.startY;
+            
+            // Adjust delta by zoom scale for accurate movement on paper
+            const dx = (e.clientX - dragState.startX) / canvasScale;
+            const dy = (e.clientY - dragState.startY) / canvasScale;
             const snap = (val: number) => Math.round(val / SNAP_GRID) * SNAP_GRID;
 
             setLayout(prev => prev.map(item => {
                 if (item.instanceId !== selectedId) return item;
                 let newStyle = { ...item.style };
+                
                 if (dragState.mode === 'drag') {
                     newStyle.x = snap(dragState.initialX + dx);
                     newStyle.y = snap(dragState.initialY + dy);
@@ -525,10 +606,21 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                 return { ...item, style: newStyle };
             }));
         };
-        const handleMouseUp = () => setDragState(null);
-        if (dragState) { window.addEventListener('mousemove', handleMouseMove); window.addEventListener('mouseup', handleMouseUp); }
-        return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
-    }, [dragState, selectedId]);
+        
+        const handleMouseUp = () => {
+            setDragState(null);
+            setIsPanning(false);
+        };
+        
+        if (dragState || isPanning) { 
+            window.addEventListener('mousemove', handleMouseMove); 
+            window.addEventListener('mouseup', handleMouseUp); 
+        }
+        return () => { 
+            window.removeEventListener('mousemove', handleMouseMove); 
+            window.removeEventListener('mouseup', handleMouseUp); 
+        };
+    }, [dragState, selectedId, isPanning, canvasScale]); // Added canvasScale dependency for math
 
     // ... (Operations add/delete/update same as before) ...
     const addComponent = (def: ComponentDefinition) => {
@@ -838,9 +930,17 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                 </button>
 
                 {/* CANVAS */}
-                <div className="flex-1 bg-[#121214] overflow-auto flex justify-center relative custom-scrollbar bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" onClick={(e) => { if(e.target === e.currentTarget) setSelectedId(null); }}>
-                    <div className="p-8 origin-top">
-                        <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px`, transform: 'scale(1)', transformOrigin: 'top center' }}>
+                <div 
+                    ref={canvasRef}
+                    className="flex-1 bg-[#121214] overflow-hidden flex items-center justify-center relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] cursor-grab active:cursor-grabbing"
+                    onWheel={handleCanvasWheel}
+                    onMouseDown={handleBgMouseDown}
+                >
+                    <div 
+                        className="origin-top-left transition-transform duration-75 ease-out will-change-transform"
+                        style={{ transform: `translate3d(${canvasPos.x}px, ${canvasPos.y}px, 0) scale(${canvasScale})` }}
+                    >
+                        <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px`, transformOrigin: '0 0' }}>
                             {designMode && <div className="absolute inset-0 pointer-events-none z-0" style={{backgroundImage: `radial-gradient(#e5e7eb 1px, transparent 1px)`, backgroundSize: `${SNAP_GRID * 4}px ${SNAP_GRID * 4}px`}}></div>}
                             {layout.map((item) => (
                                 <div key={item.instanceId} onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'drag')} className={`absolute ${designMode ? 'hover:ring-1 hover:ring-amber-500 cursor-move' : ''}`} style={{ left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h, transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex }}>
