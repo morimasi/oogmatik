@@ -636,15 +636,130 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                 </div>
                             </button>
                          ))}
-                         {/* Settings Config (Simplified for brevity) */}
+                         {/* Settings Config */}
                          {sidebarTab === 'settings' && (
-                             <div className="space-y-4">
-                                 <div className="p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-xs text-zinc-500">
-                                     <p className="mb-2 font-bold uppercase">AI Konfigürasyonu</p>
-                                     {/* Input fields for config state here... reusing previous implementation */}
-                                     <input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2 border rounded mb-2 bg-white" placeholder="Konu" />
-                                     <button onClick={handleGenerate} className="w-full py-3 bg-zinc-900 text-white rounded-xl font-bold text-xs shadow-lg hover:bg-black transition-transform active:scale-95">{isLoading ? 'Üretiliyor...' : 'Hikaye Oluştur'}</button>
-                                 </div>
+                             <div className="space-y-6">
+                                {/* 1. Öğrenci Bilgileri */}
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
+                                    <div>
+                                        <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ad Soyad</label>
+                                        <input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none" placeholder="Örn: Ali Yılmaz" />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <div className="flex-1">
+                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Sınıf</label>
+                                            <select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                                {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 2. Hikaye Ayarları */}
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-book"></i> Hikaye Kurgusu</h4>
+                                    <div>
+                                        <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Konu</label>
+                                        <input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none" placeholder="Örn: Uzay Maceraları" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Tür</label>
+                                            <select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                                {['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ton</label>
+                                            <select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                                {['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                         <div>
+                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Uzunluk</label>
+                                            <select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                                <option value="short">Kısa</option>
+                                                <option value="medium">Orta</option>
+                                                <option value="long">Uzun</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Dil Seviyesi</label>
+                                            <select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                                <option value="simple">Basit</option>
+                                                <option value="moderate">Orta</option>
+                                                <option value="advanced">İleri</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 3. Görsel Ayarları */}
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-image"></i> Görsel Üretim</h4>
+                                    <div className="flex items-center justify-between p-2 border border-zinc-200 rounded-lg bg-zinc-50">
+                                        <span className="text-xs font-medium text-zinc-700">AI Görsel Oluştur</span>
+                                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${config.imageGeneration.enabled ? 'bg-indigo-500' : 'bg-zinc-300'}`} onClick={() => setConfig({...config, imageGeneration: {...config.imageGeneration, enabled: !config.imageGeneration.enabled}})}>
+                                            <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${config.imageGeneration.enabled ? 'left-5' : 'left-1'}`}></div>
+                                        </div>
+                                    </div>
+                                    {config.imageGeneration.enabled && (
+                                        <div>
+                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Çizim Stili</label>
+                                            <select value={config.imageGeneration.style} onChange={e => setConfig({...config, imageGeneration: {...config.imageGeneration, style: e.target.value as any}})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                                <option value="storybook">Masal Kitabı</option>
+                                                <option value="cartoon">Çizgi Film</option>
+                                                <option value="watercolor">Sulu Boya</option>
+                                                <option value="realistic">Gerçekçi</option>
+                                            </select>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* 4. Bileşen Seçimi */}
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-puzzle-piece"></i> Dahil Edilecekler</h4>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {[
+                                            { label: '5N 1K Soruları', key: 'include5N1K' },
+                                            { label: 'Test Soruları', key: 'countMultipleChoice', isCount: true },
+                                            { label: 'Doğru/Yanlış', key: 'countTrueFalse', isCount: true },
+                                            { label: 'Sözlükçe', key: 'focusVocabulary' },
+                                            { label: 'Yaratıcı Görev', key: 'includeCreativeTask' }
+                                        ].map((opt: any, i) => (
+                                            <button 
+                                                key={i}
+                                                onClick={() => {
+                                                    if (opt.isCount) {
+                                                        const val = (config as any)[opt.key] > 0 ? 0 : 3; // Toggle between 0 and 3
+                                                        setConfig({...config, [opt.key]: val});
+                                                    } else {
+                                                        setConfig({...config, [opt.key]: !(config as any)[opt.key]});
+                                                    }
+                                                }}
+                                                className={`p-2 rounded-lg text-[10px] font-bold border transition-colors ${
+                                                    (opt.isCount ? (config as any)[opt.key] > 0 : (config as any)[opt.key]) 
+                                                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700' 
+                                                    : 'bg-white border-zinc-200 text-zinc-400'
+                                                }`}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button 
+                                    onClick={handleGenerate} 
+                                    disabled={isLoading}
+                                    className="w-full py-4 bg-zinc-900 hover:bg-black text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+                                    {isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}
+                                </button>
                              </div>
                          )}
                      </div>
