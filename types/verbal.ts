@@ -166,40 +166,36 @@ export interface LayoutItemStyle {
     y: number;
     w: number;
     h: number;
-    rotation?: number; 
+    rotation?: number; // Rotation in degrees
     zIndex: number;
     
     // Visuals
     backgroundColor?: string;
     borderColor?: string;
     borderWidth?: number;
-    borderStyle?: 'solid' | 'dashed' | 'dotted';
     borderRadius?: number;
-    boxShadow?: string; 
+    boxShadow?: string; // 'none', 'sm', 'md', 'lg'
     opacity?: number;
     
     // Padding
     padding: number;
     
-    // Typography override (specific to this block)
+    // Typography override (optional per block)
     fontSize?: number;
     fontFamily?: string;
-    fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter';
     color?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
-    lineHeight?: number;
-    letterSpacing?: number;
 
-    // Advanced Image Settings
+    // Advanced Image Settings (New)
     imageSettings?: {
         enabled: boolean;
         position: 'top' | 'bottom' | 'left' | 'right' | 'background' | 'overlay';
-        widthPercent: number; 
-        opacity: number; 
+        widthPercent: number; // 10-100%
+        opacity: number; // 0-1
         objectFit: 'cover' | 'contain';
         borderRadius: number;
-        blendMode?: string; 
-        filter?: string; 
+        blendMode?: string; // 'normal', 'multiply', 'screen' etc.
+        filter?: string; // 'none', 'grayscale', 'sepia'
     };
 }
 
@@ -209,6 +205,4 @@ export interface LayoutItem {
     icon: string;
     isVisible: boolean;
     style: LayoutItemStyle;
-    // New: Specific data holding for manual overrides
-    specificData?: any; 
 }
