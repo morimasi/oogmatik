@@ -75,7 +75,7 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
 
 const ResizeHandle = ({ cursor, position, onMouseDown }: { cursor: string, position: string, onMouseDown: (e: React.MouseEvent) => void }) => (
     <div 
-        className={`absolute w-3 h-3 bg-white border border-indigo-600 rounded-full z-50 hover:bg-indigo-600 hover:scale-125 transition-transform ${position}`}
+        className={`absolute w-3 h-3 bg-amber-500 border border-white rounded-full z-50 hover:scale-150 transition-transform ${position}`}
         style={{ cursor }}
         onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e); }}
     />
@@ -83,22 +83,22 @@ const ResizeHandle = ({ cursor, position, onMouseDown }: { cursor: string, posit
 
 const RotateHandle = ({ onMouseDown }: { onMouseDown: (e: React.MouseEvent) => void }) => (
     <div 
-        className="absolute -top-8 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border border-indigo-600 rounded-full z-50 hover:bg-indigo-600 hover:text-white flex items-center justify-center cursor-alias shadow-sm transition-all"
+        className="absolute -top-8 left-1/2 -translate-x-1/2 w-6 h-6 bg-zinc-800 border border-amber-500 rounded-full z-50 hover:bg-amber-500 hover:text-black text-amber-500 flex items-center justify-center cursor-alias shadow-sm transition-all"
         onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e); }}
         title="Döndür"
     >
-        <i className="fa-solid fa-rotate text-[10px] text-indigo-600 hover:text-white"></i>
+        <i className="fa-solid fa-rotate text-[10px]"></i>
     </div>
 );
 
-// --- SETTINGS PANELS (Refactored) ---
+// --- SETTINGS PANELS (THEMED) ---
 
 const TypographyControls = ({ style, onUpdate }: { style: any, onUpdate: (k: string, v: any) => void }) => (
-    <div className="space-y-3">
+    <div className="space-y-4">
         <div className="flex gap-2">
             <div className="flex-1">
-                <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Font Ailesi</label>
-                <select value={style.fontFamily} onChange={e => onUpdate('fontFamily', e.target.value)} className="w-full p-1.5 bg-zinc-50 border rounded text-xs outline-none focus:ring-1 focus:ring-indigo-500">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Font Ailesi</label>
+                <select value={style.fontFamily} onChange={e => onUpdate('fontFamily', e.target.value)} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-200 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
                     <option value="OpenDyslexic">OpenDyslexic</option>
                     <option value="Lexend">Lexend</option>
                     <option value="Comic Neue">Comic Neue</option>
@@ -107,35 +107,35 @@ const TypographyControls = ({ style, onUpdate }: { style: any, onUpdate: (k: str
                 </select>
             </div>
              <div className="w-20">
-                <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Punto</label>
-                <input type="number" value={style.fontSize} onChange={e => onUpdate('fontSize', Number(e.target.value))} className="w-full p-1.5 bg-zinc-50 border rounded text-xs outline-none focus:ring-1 focus:ring-indigo-500" />
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Punto</label>
+                <input type="number" value={style.fontSize} onChange={e => onUpdate('fontSize', Number(e.target.value))} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-200 outline-none focus:border-amber-500" />
             </div>
         </div>
         <div className="flex gap-2">
             <div className="flex-1">
-                <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Satır Aralığı</label>
-                <input type="range" min="1" max="2.5" step="0.1" value={style.lineHeight} onChange={e => onUpdate('lineHeight', Number(e.target.value))} className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Satır Aralığı</label>
+                <input type="range" min="1" max="2.5" step="0.1" value={style.lineHeight} onChange={e => onUpdate('lineHeight', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-amber-500" />
             </div>
              <div className="flex-1">
-                <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Harf Aralığı</label>
-                <input type="range" min="0" max="10" step="0.5" value={style.letterSpacing} onChange={e => onUpdate('letterSpacing', Number(e.target.value))} className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Harf Aralığı</label>
+                <input type="range" min="0" max="10" step="0.5" value={style.letterSpacing} onChange={e => onUpdate('letterSpacing', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-amber-500" />
             </div>
         </div>
          <div>
-            <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Hizalama</label>
-            <div className="flex bg-zinc-50 rounded border p-0.5">
+            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Hizalama</label>
+            <div className="flex bg-zinc-800 rounded border border-zinc-700 p-0.5">
                 {['left', 'center', 'right', 'justify'].map(align => (
-                    <button key={align} onClick={() => onUpdate('textAlign', align)} className={`flex-1 py-1 rounded text-xs transition-colors ${style.textAlign === align ? 'bg-white shadow text-indigo-600' : 'text-zinc-400 hover:text-zinc-600'}`}>
+                    <button key={align} onClick={() => onUpdate('textAlign', align)} className={`flex-1 py-1 rounded text-xs transition-colors ${style.textAlign === align ? 'bg-zinc-600 text-amber-500 shadow' : 'text-zinc-500 hover:text-zinc-300'}`}>
                         <i className={`fa-solid fa-align-${align}`}></i>
                     </button>
                 ))}
             </div>
         </div>
         <div>
-            <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Metin Rengi</label>
-            <div className="flex items-center gap-2">
-                <input type="color" value={style.color} onChange={e => onUpdate('color', e.target.value)} className="w-8 h-8 p-0 border-0 rounded cursor-pointer" />
-                <span className="text-xs font-mono text-zinc-500">{style.color}</span>
+            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Metin Rengi</label>
+            <div className="flex items-center gap-2 bg-zinc-800 p-2 rounded border border-zinc-700">
+                <input type="color" value={style.color} onChange={e => onUpdate('color', e.target.value)} className="w-8 h-8 p-0 border-0 rounded cursor-pointer bg-transparent" />
+                <span className="text-xs font-mono text-zinc-400">{style.color}</span>
             </div>
         </div>
     </div>
@@ -144,40 +144,40 @@ const TypographyControls = ({ style, onUpdate }: { style: any, onUpdate: (k: str
 const AppearanceControls = ({ style, onUpdate }: { style: any, onUpdate: (k: string, v: any) => void }) => (
     <div className="space-y-4">
         <div>
-            <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Arka Plan</label>
-             <div className="flex items-center gap-2">
-                <input type="color" value={style.backgroundColor === 'transparent' ? '#ffffff' : style.backgroundColor} onChange={e => onUpdate('backgroundColor', e.target.value)} className="w-8 h-8 p-0 border-0 rounded cursor-pointer" />
-                <button onClick={() => onUpdate('backgroundColor', 'transparent')} className={`text-xs px-2 py-1 rounded border transition-colors ${style.backgroundColor === 'transparent' ? 'bg-indigo-50 border-indigo-200 text-indigo-600 font-bold' : 'bg-white border-zinc-200 text-zinc-500'}`}>Şeffaf</button>
+            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Arka Plan</label>
+             <div className="flex items-center gap-2 bg-zinc-800 p-2 rounded border border-zinc-700">
+                <input type="color" value={style.backgroundColor === 'transparent' ? '#ffffff' : style.backgroundColor} onChange={e => onUpdate('backgroundColor', e.target.value)} className="w-8 h-8 p-0 border-0 rounded cursor-pointer bg-transparent" />
+                <button onClick={() => onUpdate('backgroundColor', 'transparent')} className={`text-xs px-2 py-1 rounded border transition-colors ml-auto ${style.backgroundColor === 'transparent' ? 'bg-amber-500/20 border-amber-500 text-amber-500 font-bold' : 'bg-zinc-700 border-zinc-600 text-zinc-400'}`}>Şeffaf</button>
             </div>
         </div>
         <div>
-            <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Kenarlık</label>
+            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Kenarlık</label>
             <div className="grid grid-cols-2 gap-2 mb-2">
-                 <select value={style.borderStyle} onChange={e => onUpdate('borderStyle', e.target.value)} className="p-1.5 bg-zinc-50 border rounded text-xs outline-none">
+                 <select value={style.borderStyle} onChange={e => onUpdate('borderStyle', e.target.value)} className="p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-200 outline-none focus:border-amber-500">
                      <option value="solid">Düz Çizgi</option>
                      <option value="dashed">Kesik Çizgi</option>
                      <option value="dotted">Noktalı</option>
                      <option value="double">Çift Çizgi</option>
                  </select>
-                 <input type="number" min="0" value={style.borderWidth} onChange={e => onUpdate('borderWidth', Number(e.target.value))} className="p-1.5 bg-zinc-50 border rounded text-xs outline-none" placeholder="Kalınlık" />
+                 <input type="number" min="0" value={style.borderWidth} onChange={e => onUpdate('borderWidth', Number(e.target.value))} className="p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-200 outline-none focus:border-amber-500" placeholder="Kalınlık" />
             </div>
-             <input type="color" value={style.borderColor === 'transparent' ? '#000000' : style.borderColor} onChange={e => onUpdate('borderColor', e.target.value)} className="w-full h-6 p-0 border-0 rounded cursor-pointer" />
+             <input type="color" value={style.borderColor === 'transparent' ? '#000000' : style.borderColor} onChange={e => onUpdate('borderColor', e.target.value)} className="w-full h-8 p-0 border-0 rounded cursor-pointer bg-zinc-800" />
         </div>
         <div>
-             <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Köşe & Gölge</label>
+             <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Köşe & Gölge</label>
              <div className="flex gap-2 mb-2">
                  <div className="flex-1">
-                     <span className="text-[9px] text-zinc-400">Radius</span>
-                     <input type="range" min="0" max="50" value={style.borderRadius} onChange={e => onUpdate('borderRadius', Number(e.target.value))} className="w-full h-1.5 bg-zinc-200 rounded-lg accent-indigo-600" />
+                     <span className="text-[9px] text-zinc-500">Radius</span>
+                     <input type="range" min="0" max="50" value={style.borderRadius} onChange={e => onUpdate('borderRadius', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg accent-amber-500" />
                  </div>
                  <div className="flex-1">
-                     <span className="text-[9px] text-zinc-400">Padding</span>
-                     <input type="range" min="0" max="50" value={style.padding} onChange={e => onUpdate('padding', Number(e.target.value))} className="w-full h-1.5 bg-zinc-200 rounded-lg accent-indigo-600" />
+                     <span className="text-[9px] text-zinc-500">Padding</span>
+                     <input type="range" min="0" max="50" value={style.padding} onChange={e => onUpdate('padding', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg accent-amber-500" />
                  </div>
              </div>
-             <div className="flex bg-zinc-50 rounded border p-0.5">
+             <div className="flex bg-zinc-800 rounded border border-zinc-700 p-0.5">
                 {['none', 'sm', 'md', 'lg'].map(sh => (
-                    <button key={sh} onClick={() => onUpdate('boxShadow', sh)} className={`flex-1 py-1 rounded text-[10px] uppercase font-bold transition-colors ${style.boxShadow === sh ? 'bg-white shadow text-indigo-600' : 'text-zinc-400 hover:text-zinc-600'}`}>
+                    <button key={sh} onClick={() => onUpdate('boxShadow', sh)} className={`flex-1 py-1 rounded text-[10px] uppercase font-bold transition-colors ${style.boxShadow === sh ? 'bg-zinc-600 text-amber-500 shadow' : 'text-zinc-500 hover:text-zinc-300'}`}>
                         {sh}
                     </button>
                 ))}
@@ -195,12 +195,12 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
         return (
             <div className="space-y-3">
                 <div>
-                    <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Başlık Metni</label>
-                    <input type="text" value={data.title} onChange={e => onUpdateSpecific({...data, title: e.target.value})} className="w-full p-2 border rounded text-sm font-bold bg-zinc-50 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Başlık Metni</label>
+                    <input type="text" value={data.title} onChange={e => onUpdateSpecific({...data, title: e.target.value})} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm font-bold text-zinc-100 focus:border-amber-500 outline-none" />
                 </div>
                 <div>
-                    <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Alt Bilgi / Tarih</label>
-                    <input type="text" value={data.subtitle} onChange={e => onUpdateSpecific({...data, subtitle: e.target.value})} className="w-full p-2 border rounded text-sm bg-zinc-50 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none" />
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Alt Bilgi / Tarih</label>
+                    <input type="text" value={data.subtitle} onChange={e => onUpdateSpecific({...data, subtitle: e.target.value})} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-100 focus:border-amber-500 outline-none" />
                 </div>
             </div>
         );
@@ -211,13 +211,13 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
          const data = item.specificData || { text: "Hikaye metni buraya gelecek..." };
          return (
             <div className="space-y-3">
-                <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Metin İçeriği (Manuel Düzenleme)</label>
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Metin İçeriği (Manuel Düzenleme)</label>
                 <textarea 
                     value={data.text} 
                     onChange={e => onUpdateSpecific({...data, text: e.target.value})} 
-                    className="w-full h-64 p-2 border rounded text-sm leading-relaxed resize-none font-dyslexic bg-zinc-50 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none"
+                    className="w-full h-64 p-2 bg-zinc-800 border border-zinc-700 rounded text-sm leading-relaxed resize-none font-dyslexic text-zinc-200 focus:border-amber-500 outline-none"
                 ></textarea>
-                <div className="bg-amber-50 p-2 rounded border border-amber-200 text-xs text-amber-700">
+                <div className="bg-amber-500/10 p-2 rounded border border-amber-500/30 text-xs text-amber-500">
                     <span className="font-bold">Not:</span> Görsel ayarı "Stil" sekmesinden yapılabilir.
                 </div>
             </div>
@@ -241,15 +241,15 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
         return (
             <div className="space-y-3">
                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-[9px] font-bold text-zinc-400 uppercase">Sorular</label>
-                    <button onClick={addQ} className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100 transition-colors font-bold">+ Ekle</button>
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Sorular</label>
+                    <button onClick={addQ} className="text-xs bg-amber-500 text-black px-2 py-1 rounded hover:bg-amber-400 transition-colors font-bold">+ Ekle</button>
                  </div>
                  <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
                      {qs.map((q: any, i: number) => (
                          <div key={i} className="flex gap-2 items-start">
-                             <span className="text-xs font-bold w-4 pt-2 text-zinc-400">{i+1}.</span>
-                             <textarea rows={2} value={q.text} onChange={e => updateQ(i, e.target.value)} className="flex-1 p-2 border rounded text-xs resize-none bg-zinc-50 focus:bg-white outline-none focus:ring-1 focus:ring-indigo-500" />
-                             <button onClick={() => removeQ(i)} className="text-zinc-400 hover:text-red-500 px-1 pt-2 transition-colors"><i className="fa-solid fa-trash"></i></button>
+                             <span className="text-xs font-bold w-4 pt-2 text-zinc-500">{i+1}.</span>
+                             <textarea rows={2} value={q.text} onChange={e => updateQ(i, e.target.value)} className="flex-1 p-2 bg-zinc-800 border border-zinc-700 rounded text-xs resize-none text-zinc-200 focus:border-amber-500 outline-none" />
+                             <button onClick={() => removeQ(i)} className="text-zinc-500 hover:text-red-500 px-1 pt-2 transition-colors"><i className="fa-solid fa-trash"></i></button>
                          </div>
                      ))}
                  </div>
@@ -262,17 +262,17 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
         const data = item.specificData || { task: "Hikayeyle ilgili bir resim çiz." };
         return (
              <div className="space-y-3">
-                <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Yaratıcı Görev Yönergesi</label>
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Yaratıcı Görev Yönergesi</label>
                 <textarea 
                     value={data.task} 
                     onChange={e => onUpdateSpecific({...data, task: e.target.value})} 
-                    className="w-full h-32 p-2 border rounded text-sm bg-zinc-50 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none resize-none"
+                    className="w-full h-32 p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200 focus:border-amber-500 outline-none resize-none"
                 ></textarea>
             </div>
         );
     }
 
-    return <div className="text-zinc-400 text-xs italic p-2 bg-zinc-50 rounded">Bu bileşen için özel içerik ayarı yok. Stil sekmesini kullanın.</div>;
+    return <div className="text-zinc-500 text-xs italic p-2 bg-zinc-800 rounded border border-zinc-700">Bu bileşen için özel içerik ayarı yok. Stil sekmesini kullanın.</div>;
 };
 
 const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveComponent, onUpdate: (updates: Partial<ActiveComponent>) => void, onClose: () => void, onDelete: () => void }) => {
@@ -298,30 +298,30 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
     };
 
     return (
-        <div className="w-80 h-full bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-700 shadow-xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-right-10 duration-300" onClick={handlePanelClick}>
+        <div className="w-80 h-full bg-[#222226] border-l border-zinc-800 shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-right-10 duration-300 font-['OpenDyslexic']" onClick={handlePanelClick}>
             {/* Header */}
-            <div className="p-4 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center shrink-0">
-                <h3 className="font-black text-xs uppercase tracking-widest text-zinc-600 dark:text-zinc-300 flex items-center gap-2">
-                    <i className={`fa-solid ${item.icon}`}></i> {item.label}
+            <div className="p-4 bg-[#2d2d32] border-b border-zinc-700 flex justify-between items-center shrink-0">
+                <h3 className="font-black text-xs uppercase tracking-widest text-zinc-300 flex items-center gap-2">
+                    <i className={`fa-solid ${item.icon} text-amber-500`}></i> {item.label}
                 </h3>
-                <button onClick={onClose} className="w-6 h-6 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors"><i className="fa-solid fa-times"></i></button>
+                <button onClick={onClose} className="w-6 h-6 rounded-full hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"><i className="fa-solid fa-times"></i></button>
             </div>
 
             {/* Pro Tab Bar */}
-            <div className="flex border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shrink-0">
+            <div className="flex border-b border-zinc-700 bg-[#222226] shrink-0">
                 {[
                     { id: 'content', icon: 'fa-pen-to-square', label: 'İçerik' },
                     { id: 'type', icon: 'fa-font', label: 'Yazı' },
                     { id: 'look', icon: 'fa-palette', label: 'Stil' },
                     { id: 'layout', icon: 'fa-ruler-combined', label: 'Düzen' }
                 ].map(tab => (
-                    <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`flex-1 py-3 text-[9px] font-bold uppercase flex flex-col items-center gap-1 transition-colors ${activeTab === tab.id ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 border-b-2 border-indigo-600' : 'text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}>
+                    <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`flex-1 py-3 text-[9px] font-bold uppercase flex flex-col items-center gap-1 transition-colors ${activeTab === tab.id ? 'text-amber-500 bg-zinc-800 border-b-2 border-amber-500' : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}>
                         <i className={`fa-solid ${tab.icon} text-sm`}></i> {tab.label}
                     </button>
                 ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-white dark:bg-zinc-900">
+            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-[#222226]">
                 {activeTab === 'content' && <ContentControls item={item} onUpdateSpecific={updateSpecificData} />}
                 {activeTab === 'type' && <TypographyControls style={item.style} onUpdate={updateStyle} />}
                 {activeTab === 'look' && <AppearanceControls style={item.style} onUpdate={updateStyle} />}
@@ -331,15 +331,15 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
                         {/* Existing Layout Controls */}
                         <div className="grid grid-cols-2 gap-3">
                                 {['x', 'y', 'w', 'h', 'rotation'].map((key) => (
-                                    <div key={key} className="flex items-center bg-zinc-50 dark:bg-zinc-800 border dark:border-zinc-700 rounded-lg px-2 py-1.5 focus-within:ring-2 ring-indigo-100">
-                                        <span className="text-[10px] font-black text-zinc-400 w-6 uppercase truncate mr-1">{key === 'rotation' ? 'Rot' : key}</span>
-                                        <input type="number" value={Math.round(item.style[key as keyof typeof item.style] as number || 0)} onChange={e => updateStyle(key as any, Number(e.target.value))} className="w-full bg-transparent text-xs font-mono outline-none text-right text-zinc-900 dark:text-zinc-100" />
+                                    <div key={key} className="flex items-center bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 focus-within:ring-1 ring-amber-500">
+                                        <span className="text-[10px] font-black text-zinc-500 w-6 uppercase truncate mr-1">{key === 'rotation' ? 'Rot' : key}</span>
+                                        <input type="number" value={Math.round(item.style[key as keyof typeof item.style] as number || 0)} onChange={e => updateStyle(key as any, Number(e.target.value))} className="w-full bg-transparent text-xs font-mono outline-none text-right text-zinc-200" />
                                     </div>
                                 ))}
                         </div>
                          <div className="flex gap-2">
-                                <button onClick={() => updateStyle('zIndex', (item.style.zIndex || 0) + 1)} className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-600 dark:text-zinc-300 transition-colors"><i className="fa-solid fa-arrow-up"></i> Öne</button>
-                                <button onClick={() => updateStyle('zIndex', Math.max(0, (item.style.zIndex || 0) - 1))} className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-600 dark:text-zinc-300 transition-colors"><i className="fa-solid fa-arrow-down"></i> Arkaya</button>
+                                <button onClick={() => updateStyle('zIndex', (item.style.zIndex || 0) + 1)} className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-300 transition-colors border border-zinc-700"><i className="fa-solid fa-arrow-up"></i> Öne</button>
+                                <button onClick={() => updateStyle('zIndex', Math.max(0, (item.style.zIndex || 0) - 1))} className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-300 transition-colors border border-zinc-700"><i className="fa-solid fa-arrow-down"></i> Arkaya</button>
                         </div>
                     </div>
                 )}
@@ -347,16 +347,16 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
 
             {/* Common Image Toggle if applicable */}
             {item.style.imageSettings && (
-                 <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 flex justify-between items-center">
-                     <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">Görsel</span>
-                     <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${item.style.imageSettings?.enabled ? 'bg-green-500' : 'bg-zinc-300'}`} onClick={() => updateImageSettings('enabled', !item.style.imageSettings?.enabled)}>
+                 <div className="p-4 border-t border-zinc-700 bg-[#2d2d32] flex justify-between items-center">
+                     <span className="text-xs font-bold text-zinc-300">Görsel</span>
+                     <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${item.style.imageSettings?.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`} onClick={() => updateImageSettings('enabled', !item.style.imageSettings?.enabled)}>
                         <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${item.style.imageSettings?.enabled ? 'left-5' : 'left-1'}`}></div>
                     </div>
                  </div>
             )}
 
-            <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 shrink-0">
-                <button onClick={onDelete} className="w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-colors">
+            <div className="p-4 border-t border-zinc-700 bg-[#222226] shrink-0">
+                <button onClick={onDelete} className="w-full py-2 bg-red-900/20 text-red-500 hover:bg-red-900/40 border border-red-900/50 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-colors">
                     <i className="fa-solid fa-trash"></i> Bileşeni Sil
                 </button>
             </div>
@@ -456,7 +456,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             if (item.id === 'header') {
                 specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
             } else if (item.id === 'story_block') {
-                // FIXED: Map story AND imagePrompt
                 specificData = { text: storyData.story, imagePrompt: storyData.imagePrompt };
             } else if (item.id === 'questions_5n1k') {
                 specificData = { questions: (storyData.fiveW1H || []).map(q => ({ text: q.question })) };
@@ -718,63 +717,63 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-zinc-100 dark:bg-black font-sans overflow-hidden">
+        <div className="h-full flex flex-col bg-[#222226] font-['OpenDyslexic'] overflow-hidden text-zinc-100">
              {/* TOP BAR */}
-            <div className="h-14 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center px-4 shrink-0 z-50">
+            <div className="h-14 bg-[#2d2d32] border-b border-zinc-800 flex justify-between items-center px-4 shrink-0 z-50">
                 <div className="flex items-center gap-3">
-                    <button onClick={onBack} className="w-8 h-8 rounded hover:bg-zinc-100 flex items-center justify-center text-zinc-500"><i className="fa-solid fa-arrow-left"></i></button>
-                    <span className="font-black text-sm uppercase tracking-widest text-indigo-600">Reading Studio <span className="bg-indigo-100 px-1 rounded text-[9px]">PRO</span></span>
+                    <button onClick={onBack} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400"><i className="fa-solid fa-arrow-left"></i></button>
+                    <span className="font-black text-sm uppercase tracking-widest text-amber-500">Reading Studio <span className="bg-amber-500/20 text-amber-500 px-1 rounded text-[9px] border border-amber-500/50">PRO</span></span>
                 </div>
                 
                 <div className="flex items-center gap-2">
-                     <button onClick={() => setDesignMode(!designMode)} className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${designMode ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-zinc-200 text-zinc-600'}`}>
+                     <button onClick={() => setDesignMode(!designMode)} className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${designMode ? 'bg-amber-500 text-black border-amber-500' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>
                          {designMode ? 'MİMARİ MOD' : 'ÖNİZLEME'}
                      </button>
-                     <button onClick={() => handlePrint('print')} className="w-8 h-8 rounded hover:bg-zinc-100 flex items-center justify-center text-zinc-600"><i className="fa-solid fa-print"></i></button>
+                     <button onClick={() => handlePrint('print')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400"><i className="fa-solid fa-print"></i></button>
                 </div>
             </div>
 
             <div className="flex-1 flex overflow-hidden">
                 {/* SIDEBAR */}
-                <div className="w-80 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700 flex flex-col shrink-0 z-40">
-                     <div className="flex border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
-                         <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase ${sidebarTab === 'settings' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-zinc-500'}`}>Ayarlar</button>
-                         <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase ${sidebarTab === 'library' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-zinc-500'}`}>Bileşenler</button>
+                <div className="w-80 bg-[#18181b] border-r border-zinc-800 flex flex-col shrink-0 z-40">
+                     <div className="flex border-b border-zinc-800 bg-[#222226]">
+                         <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Ayarlar</button>
+                         <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
                      </div>
                      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
                          {/* Library List with Accordion Sections */}
                          {sidebarTab === 'library' && (
                              <div className="flex flex-col">
                                  {/* SECTION 1: LAYERS */}
-                                 <div className="border-b border-zinc-200 dark:border-zinc-700">
+                                 <div className="border-b border-zinc-800">
                                      <button 
                                          onClick={() => toggleSection('layers')}
-                                         className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                                         className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors"
                                      >
-                                         <h4 className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                                              <i className="fa-solid fa-layer-group"></i> KATMANLAR
-                                             <span className="bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span>
+                                             <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span>
                                          </h4>
-                                         <i className={`fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
+                                         <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
                                      </button>
 
                                      {openSections.layers && (
-                                         <div className="p-2 space-y-1 bg-zinc-50 dark:bg-zinc-900/50 animate-in slide-in-from-top-2 duration-200">
+                                         <div className="p-2 space-y-1 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
                                              {layout.map((item) => (
                                                  <div 
                                                      key={item.instanceId} 
                                                      onClick={() => setSelectedId(item.instanceId)}
                                                      className={`group flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer ${
                                                          selectedId === item.instanceId 
-                                                         ? 'border-indigo-500 bg-white dark:bg-zinc-800 shadow-sm ring-1 ring-indigo-200 dark:ring-indigo-800' 
-                                                         : 'border-transparent hover:bg-white dark:hover:bg-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700'
+                                                         ? 'border-amber-500/50 bg-amber-500/10 shadow-sm ring-1 ring-amber-500/30' 
+                                                         : 'border-transparent hover:bg-zinc-800 border-zinc-800'
                                                      } ${!item.isVisible ? 'opacity-60' : ''}`}
                                                  >
-                                                     <div className={`w-7 h-7 rounded flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-indigo-100 text-indigo-600' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'}`}>
+                                                     <div className={`w-7 h-7 rounded flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-amber-500 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
                                                          <i className={`fa-solid ${item.icon}`}></i>
                                                      </div>
                                                      <div className="flex-1 min-w-0">
-                                                         <p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-indigo-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>
+                                                         <p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-amber-500' : 'text-zinc-300'}`}>
                                                              {item.customTitle || item.label}
                                                          </p>
                                                      </div>
@@ -782,14 +781,14 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                          <button 
                                                              onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }}
-                                                             className={`w-6 h-6 flex items-center justify-center rounded hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-400 ${!item.isVisible ? 'text-zinc-300' : ''}`}
+                                                             className={`w-6 h-6 flex items-center justify-center rounded hover:bg-zinc-700 text-zinc-400 ${!item.isVisible ? 'text-zinc-600' : ''}`}
                                                              title={item.isVisible ? "Gizle" : "Göster"}
                                                          >
                                                              <i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i>
                                                          </button>
                                                          <button 
                                                              onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }}
-                                                             className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-colors"
+                                                             className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"
                                                              title="Sil"
                                                          >
                                                              <i className="fa-solid fa-trash"></i>
@@ -798,7 +797,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                                  </div>
                                              ))}
                                              {layout.length === 0 && (
-                                                 <div className="text-center py-4 text-zinc-400 text-[10px] italic">
+                                                 <div className="text-center py-4 text-zinc-600 text-[10px] italic">
                                                      Henüz bileşen eklenmedi.
                                                  </div>
                                              )}
@@ -810,25 +809,25 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                  <div>
                                      <button 
                                          onClick={() => toggleSection('add')}
-                                         className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-b border-zinc-200 dark:border-zinc-700"
+                                         className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors border-b border-zinc-800"
                                      >
-                                         <h4 className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                                              <i className="fa-solid fa-plus-circle"></i> YENİ EKLE
                                          </h4>
-                                         <i className={`fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
+                                         <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
                                      </button>
 
                                      {openSections.add && (
-                                         <div className="p-4 bg-zinc-50 dark:bg-zinc-900/30 animate-in slide-in-from-top-2 duration-200">
+                                         <div className="p-4 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
                                              <div className="grid grid-cols-2 gap-2">
                                                  {COMPONENT_DEFINITIONS.map(def => (
                                                      <button 
                                                          key={def.id} 
                                                          onClick={() => addComponent(def)} 
-                                                         className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-indigo-300 hover:shadow-md transition-all group"
+                                                         className="flex flex-col items-center gap-2 p-3 bg-zinc-800 border border-zinc-700 rounded-xl hover:border-amber-500 hover:shadow-md transition-all group"
                                                      >
-                                                         <i className={`fa-solid ${def.icon} text-zinc-400 group-hover:text-indigo-500 text-lg transition-colors`}></i>
-                                                         <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 text-center leading-tight">{def.label}</span>
+                                                         <i className={`fa-solid ${def.icon} text-zinc-500 group-hover:text-amber-500 text-lg transition-colors`}></i>
+                                                         <span className="text-[10px] font-bold text-zinc-400 group-hover:text-amber-500 text-center leading-tight">{def.label}</span>
                                                      </button>
                                                  ))}
                                              </div>
@@ -846,12 +845,12 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
                                     <div>
                                         <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ad Soyad</label>
-                                        <input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none" placeholder="Örn: Ali Yılmaz" />
+                                        <input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200" placeholder="Örn: Ali Yılmaz" />
                                     </div>
                                     <div className="flex gap-2">
                                         <div className="flex-1">
                                             <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Sınıf</label>
-                                            <select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                            <select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
                                                 {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
                                             </select>
                                         </div>
@@ -863,18 +862,18 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-book"></i> Hikaye Kurgusu</h4>
                                     <div>
                                         <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Konu</label>
-                                        <input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none" placeholder="Örn: Uzay Maceraları" />
+                                        <input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200" placeholder="Örn: Uzay Maceraları" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <div>
                                             <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Tür</label>
-                                            <select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                            <select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
                                                 {['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}
                                             </select>
                                         </div>
                                         <div>
                                             <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ton</label>
-                                            <select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                            <select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
                                                 {['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}
                                             </select>
                                         </div>
@@ -882,7 +881,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                     <div className="grid grid-cols-2 gap-2">
                                          <div>
                                             <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Uzunluk</label>
-                                            <select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                            <select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
                                                 <option value="short">Kısa</option>
                                                 <option value="medium">Orta</option>
                                                 <option value="long">Uzun</option>
@@ -890,7 +889,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                         </div>
                                         <div>
                                             <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Dil Seviyesi</label>
-                                            <select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                            <select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
                                                 <option value="simple">Basit</option>
                                                 <option value="moderate">Orta</option>
                                                 <option value="advanced">İleri</option>
@@ -902,16 +901,16 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                 {/* 3. Görsel Ayarları */}
                                 <div className="space-y-3">
                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-image"></i> Görsel Üretim</h4>
-                                    <div className="flex items-center justify-between p-2 border border-zinc-200 rounded-lg bg-zinc-50">
-                                        <span className="text-xs font-medium text-zinc-700">AI Görsel Oluştur</span>
-                                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${config.imageGeneration.enabled ? 'bg-indigo-500' : 'bg-zinc-300'}`} onClick={() => setConfig({...config, imageGeneration: {...config.imageGeneration, enabled: !config.imageGeneration.enabled}})}>
+                                    <div className="flex items-center justify-between p-2 border border-zinc-700 rounded-lg bg-zinc-800">
+                                        <span className="text-xs font-medium text-zinc-300">AI Görsel Oluştur</span>
+                                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${config.imageGeneration.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`} onClick={() => setConfig({...config, imageGeneration: {...config.imageGeneration, enabled: !config.imageGeneration.enabled}})}>
                                             <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${config.imageGeneration.enabled ? 'left-5' : 'left-1'}`}></div>
                                         </div>
                                     </div>
                                     {config.imageGeneration.enabled && (
                                         <div>
                                             <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Çizim Stili</label>
-                                            <select value={config.imageGeneration.style} onChange={e => setConfig({...config, imageGeneration: {...config.imageGeneration, style: e.target.value as any}})} className="w-full p-2 border border-zinc-200 rounded-lg text-xs bg-zinc-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                                            <select value={config.imageGeneration.style} onChange={e => setConfig({...config, imageGeneration: {...config.imageGeneration, style: e.target.value as any}})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
                                                 <option value="storybook">Masal Kitabı</option>
                                                 <option value="cartoon">Çizgi Film</option>
                                                 <option value="watercolor">Sulu Boya</option>
@@ -947,8 +946,8 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                                 }}
                                                 className={`p-2 rounded-lg text-[10px] font-bold border transition-colors ${
                                                     (opt.isCount ? (config as any)[opt.key] > 0 : (config as any)[opt.key]) 
-                                                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700' 
-                                                    : 'bg-white border-zinc-200 text-zinc-400'
+                                                    ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' 
+                                                    : 'bg-zinc-800 border-zinc-700 text-zinc-500'
                                                 }`}
                                             >
                                                 {opt.label}
@@ -960,7 +959,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                 <button 
                                     onClick={handleGenerate} 
                                     disabled={isLoading}
-                                    className="w-full py-4 bg-zinc-900 hover:bg-black text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
                                     {isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}
@@ -971,19 +970,19 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                 </div>
 
                 {/* CANVAS */}
-                <div className="flex-1 bg-zinc-100 dark:bg-zinc-950 overflow-auto flex justify-center relative custom-scrollbar" onClick={(e) => { if(e.target === e.currentTarget) setSelectedId(null); }}>
+                <div className="flex-1 bg-[#121214] overflow-auto flex justify-center relative custom-scrollbar bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" onClick={(e) => { if(e.target === e.currentTarget) setSelectedId(null); }}>
                     <div className="p-8 origin-top">
                         <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px`, transform: 'scale(1)', transformOrigin: 'top center' }}>
                             {designMode && <div className="absolute inset-0 pointer-events-none z-0" style={{backgroundImage: `radial-gradient(#e5e7eb 1px, transparent 1px)`, backgroundSize: `${SNAP_GRID * 4}px ${SNAP_GRID * 4}px`}}></div>}
                             {layout.map((item) => (
-                                <div key={item.instanceId} onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'drag')} className={`absolute ${designMode ? 'hover:ring-1 hover:ring-indigo-300 cursor-move' : ''}`} style={{ left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h, transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex }}>
+                                <div key={item.instanceId} onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'drag')} className={`absolute ${designMode ? 'hover:ring-1 hover:ring-amber-500 cursor-move' : ''}`} style={{ left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h, transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex }}>
                                     {designMode && selectedId === item.instanceId && (
-                                        <div className="absolute inset-0 border-2 border-indigo-600 z-50 pointer-events-none">
+                                        <div className="absolute inset-0 border-2 border-amber-500 z-50 pointer-events-none">
                                             <div className="pointer-events-auto"><RotateHandle onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'rotate')} /></div>
                                             <div className="pointer-events-auto"><ResizeHandle cursor="se-resize" position="-bottom-1.5 -right-1.5" onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'resize', 'se')} /></div>
                                         </div>
                                     )}
-                                    <div className="w-full h-full overflow-hidden pointer-events-none">{renderContent(item)}</div>
+                                    <div className="w-full h-full overflow-hidden pointer-events-none text-black">{renderContent(item)}</div>
                                 </div>
                             ))}
                             {/* Sticky Footer */}
@@ -994,7 +993,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
 
                 {/* SETTINGS DOCK */}
                 {selectedId && (
-                    <div className="shrink-0 z-50 h-full border-l border-zinc-200 shadow-xl relative">
+                    <div className="shrink-0 z-50 h-full border-l border-zinc-800 shadow-xl relative">
                         <SettingsStation item={layout.find(l => l.instanceId === selectedId)!} onUpdate={updateItem} onClose={() => setSelectedId(null)} onDelete={deleteItem} />
                     </div>
                 )}
