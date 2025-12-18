@@ -527,6 +527,9 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
 
     // --- RENDER CONTENT (Updated to use specificData and granular styles) ---
     const renderContent = (item: ActiveComponent) => {
+        if (!item.isVisible && designMode) return <div className="w-full h-full border-2 border-dashed border-zinc-200 bg-zinc-50/50 flex items-center justify-center opacity-50"><span className="text-[10px] uppercase font-bold text-zinc-400">Gizli Bileşen</span></div>;
+        if (!item.isVisible) return null;
+
         const s = item.style;
         const boxStyle = {
             padding: `${s.padding}px`,
@@ -597,6 +600,17 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         );
     };
 
+    const toggleVisibility = (id: string) => {
+        setLayout(prev => prev.map(item => item.instanceId === id ? { ...item, isVisible: !item.isVisible } : item));
+    };
+
+    const removeComponent = (id: string) => {
+        if(confirm("Bu bileşeni silmek istediğinize emin misiniz?")) {
+            setLayout(prev => prev.filter(item => item.instanceId !== id));
+            if(selectedId === id) setSelectedId(null);
+        }
+    };
+
     const contentHeight = useMemo(() => {
         if (layout.length === 0) return A4_HEIGHT_PX;
         const maxBottom = Math.max(...layout.map(item => item.style.y + item.style.h));
@@ -627,20 +641,86 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                          <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase ${sidebarTab === 'settings' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-zinc-500'}`}>Ayarlar</button>
                          <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase ${sidebarTab === 'library' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-zinc-500'}`}>Bileşenler</button>
                      </div>
-                     <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
-                         {/* Library List */}
-                         {sidebarTab === 'library' && COMPONENT_DEFINITIONS.map(def => (
-                            <button key={def.id} onClick={() => addComponent(def)} className="w-full flex items-center gap-3 p-3 bg-zinc-50 border rounded-xl mb-2 hover:bg-indigo-50 transition-colors">
-                                <i className={`fa-solid ${def.icon} text-zinc-400`}></i> 
-                                <div className="text-left">
-                                    <span className="text-xs font-bold block">{def.label}</span>
-                                    <span className="text-[9px] text-zinc-400 block">{def.description}</span>
-                                </div>
-                            </button>
-                         ))}
+                     <div className="flex-1 overflow-y-auto custom-scrollbar">
+                         {/* Library List with Active Layers & Add New */}
+                         {sidebarTab === 'library' && (
+                             <div className="flex flex-col h-full">
+                                 {/* ACTIVE LAYERS SECTION */}
+                                 <div className="flex-1 overflow-y-auto p-4 border-b border-zinc-200 dark:border-zinc-700">
+                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 flex items-center justify-between">
+                                         KATMANLAR (LAYERS)
+                                         <span className="bg-zinc-100 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span>
+                                     </h4>
+                                     
+                                     <div className="space-y-2">
+                                         {layout.map((item) => (
+                                             <div 
+                                                 key={item.instanceId} 
+                                                 onClick={() => setSelectedId(item.instanceId)}
+                                                 className={`group flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                                                     selectedId === item.instanceId 
+                                                     ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 shadow-sm ring-1 ring-indigo-200 dark:ring-indigo-800' 
+                                                     : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600'
+                                                 } ${!item.isVisible ? 'opacity-60' : ''}`}
+                                             >
+                                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${selectedId === item.instanceId ? 'bg-indigo-100 text-indigo-600' : 'bg-zinc-100 text-zinc-500'}`}>
+                                                     <i className={`fa-solid ${item.icon}`}></i>
+                                                 </div>
+                                                 <div className="flex-1 min-w-0">
+                                                     <p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-indigo-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>
+                                                         {item.customTitle || item.label}
+                                                     </p>
+                                                     <p className="text-[9px] text-zinc-400 uppercase truncate">{item.id}</p>
+                                                 </div>
+                                                 
+                                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                     <button 
+                                                         onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }}
+                                                         className={`w-6 h-6 flex items-center justify-center rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-400 ${!item.isVisible ? 'text-zinc-300' : ''}`}
+                                                         title={item.isVisible ? "Gizle" : "Göster"}
+                                                     >
+                                                         <i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                                                     </button>
+                                                     <button 
+                                                         onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }}
+                                                         className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-colors"
+                                                         title="Sil"
+                                                     >
+                                                         <i className="fa-solid fa-trash"></i>
+                                                     </button>
+                                                 </div>
+                                             </div>
+                                         ))}
+                                         {layout.length === 0 && (
+                                             <div className="text-center py-8 text-zinc-400 text-xs italic">
+                                                 Henüz bileşen eklenmedi.
+                                             </div>
+                                         )}
+                                     </div>
+                                 </div>
+
+                                 {/* ADD NEW SECTION */}
+                                 <div className="p-4 bg-zinc-50 dark:bg-zinc-900/30">
+                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">YENİ EKLE</h4>
+                                     <div className="grid grid-cols-2 gap-2">
+                                         {COMPONENT_DEFINITIONS.map(def => (
+                                             <button 
+                                                 key={def.id} 
+                                                 onClick={() => addComponent(def)} 
+                                                 className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-indigo-300 hover:shadow-md transition-all group"
+                                             >
+                                                 <i className={`fa-solid ${def.icon} text-zinc-400 group-hover:text-indigo-500 text-lg transition-colors`}></i>
+                                                 <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 text-center leading-tight">{def.label}</span>
+                                             </button>
+                                         ))}
+                                     </div>
+                                 </div>
+                             </div>
+                         )}
+
                          {/* Settings Config */}
                          {sidebarTab === 'settings' && (
-                             <div className="space-y-6">
+                             <div className="space-y-6 p-4">
                                 {/* 1. Öğrenci Bilgileri */}
                                 <div className="space-y-3">
                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
