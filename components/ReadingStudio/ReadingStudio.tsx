@@ -389,6 +389,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
     
     // --- COLLAPSIBLE SECTION STATE ---
     const [openSections, setOpenSections] = useState({ layers: true, add: false });
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true); // SIDEBAR TOGGLE STATE
 
     // ... (Drag State same as before) ...
     const [dragState, setDragState] = useState<{ mode: 'drag' | 'resize' | 'rotate'; resizeHandle?: string; startX: number; startY: number; initialX: number; initialY: number; initialW: number; initialH: number; initialR: number; centerX?: number; centerY?: number; } | null>(null);
@@ -733,241 +734,108 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex overflow-hidden">
-                {/* SIDEBAR */}
-                <div className="w-80 bg-[#18181b] border-r border-zinc-800 flex flex-col shrink-0 z-40">
-                     <div className="flex border-b border-zinc-800 bg-[#222226]">
-                         <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Ayarlar</button>
-                         <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
-                     </div>
-                     <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
-                         {/* Library List with Accordion Sections */}
-                         {sidebarTab === 'library' && (
-                             <div className="flex flex-col">
-                                 {/* SECTION 1: LAYERS */}
-                                 <div className="border-b border-zinc-800">
-                                     <button 
-                                         onClick={() => toggleSection('layers')}
-                                         className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors"
-                                     >
-                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                                             <i className="fa-solid fa-layer-group"></i> KATMANLAR
-                                             <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span>
-                                         </h4>
-                                         <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
-                                     </button>
-
-                                     {openSections.layers && (
-                                         <div className="p-2 space-y-1 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
-                                             {layout.map((item) => (
-                                                 <div 
-                                                     key={item.instanceId} 
-                                                     onClick={() => setSelectedId(item.instanceId)}
-                                                     className={`group flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer ${
-                                                         selectedId === item.instanceId 
-                                                         ? 'border-amber-500/50 bg-amber-500/10 shadow-sm ring-1 ring-amber-500/30' 
-                                                         : 'border-transparent hover:bg-zinc-800 border-zinc-800'
-                                                     } ${!item.isVisible ? 'opacity-60' : ''}`}
-                                                 >
-                                                     <div className={`w-7 h-7 rounded flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-amber-500 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
-                                                         <i className={`fa-solid ${item.icon}`}></i>
+            <div className="flex-1 flex overflow-hidden relative">
+                
+                {/* SIDEBAR WRAPPER */}
+                <div className={`flex-shrink-0 h-full bg-[#18181b] border-r border-zinc-800 transition-all duration-300 ease-in-out overflow-hidden z-40 ${isSidebarOpen ? 'w-80 opacity-100' : 'w-0 opacity-0 border-r-0'}`}>
+                    <div className="w-80 flex flex-col h-full"> 
+                         <div className="flex border-b border-zinc-800 bg-[#222226]">
+                             <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Ayarlar</button>
+                             <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
+                         </div>
+                         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                             {sidebarTab === 'library' && (
+                                 <div className="flex flex-col">
+                                     <div className="border-b border-zinc-800">
+                                         <button onClick={() => toggleSection('layers')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors">
+                                             <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-layer-group"></i> KATMANLAR <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span></h4>
+                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
+                                         </button>
+                                         {openSections.layers && (
+                                             <div className="p-2 space-y-1 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
+                                                 {layout.map((item) => (
+                                                     <div key={item.instanceId} onClick={() => setSelectedId(item.instanceId)} className={`group flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer ${selectedId === item.instanceId ? 'border-amber-500/50 bg-amber-500/10 shadow-sm ring-1 ring-amber-500/30' : 'border-transparent hover:bg-zinc-800 border-zinc-800'} ${!item.isVisible ? 'opacity-60' : ''}`}>
+                                                         <div className={`w-7 h-7 rounded flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-amber-500 text-black' : 'bg-zinc-800 text-zinc-500'}`}><i className={`fa-solid ${item.icon}`}></i></div>
+                                                         <div className="flex-1 min-w-0"><p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-amber-500' : 'text-zinc-300'}`}>{item.customTitle || item.label}</p></div>
+                                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                             <button onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }} className={`w-6 h-6 flex items-center justify-center rounded hover:bg-zinc-700 text-zinc-400 ${!item.isVisible ? 'text-zinc-600' : ''}`}><i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i></button>
+                                                             <button onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }} className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button>
+                                                         </div>
                                                      </div>
-                                                     <div className="flex-1 min-w-0">
-                                                         <p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-amber-500' : 'text-zinc-300'}`}>
-                                                             {item.customTitle || item.label}
-                                                         </p>
-                                                     </div>
-                                                     
-                                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                         <button 
-                                                             onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }}
-                                                             className={`w-6 h-6 flex items-center justify-center rounded hover:bg-zinc-700 text-zinc-400 ${!item.isVisible ? 'text-zinc-600' : ''}`}
-                                                             title={item.isVisible ? "Gizle" : "Göster"}
-                                                         >
-                                                             <i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i>
-                                                         </button>
-                                                         <button 
-                                                             onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }}
-                                                             className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"
-                                                             title="Sil"
-                                                         >
-                                                             <i className="fa-solid fa-trash"></i>
-                                                         </button>
-                                                     </div>
-                                                 </div>
-                                             ))}
-                                             {layout.length === 0 && (
-                                                 <div className="text-center py-4 text-zinc-600 text-[10px] italic">
-                                                     Henüz bileşen eklenmedi.
-                                                 </div>
-                                             )}
-                                         </div>
-                                     )}
-                                 </div>
-
-                                 {/* SECTION 2: ADD NEW */}
-                                 <div>
-                                     <button 
-                                         onClick={() => toggleSection('add')}
-                                         className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors border-b border-zinc-800"
-                                     >
-                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                                             <i className="fa-solid fa-plus-circle"></i> YENİ EKLE
-                                         </h4>
-                                         <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
-                                     </button>
-
-                                     {openSections.add && (
-                                         <div className="p-4 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
-                                             <div className="grid grid-cols-2 gap-2">
-                                                 {COMPONENT_DEFINITIONS.map(def => (
-                                                     <button 
-                                                         key={def.id} 
-                                                         onClick={() => addComponent(def)} 
-                                                         className="flex flex-col items-center gap-2 p-3 bg-zinc-800 border border-zinc-700 rounded-xl hover:border-amber-500 hover:shadow-md transition-all group"
-                                                     >
-                                                         <i className={`fa-solid ${def.icon} text-zinc-500 group-hover:text-amber-500 text-lg transition-colors`}></i>
-                                                         <span className="text-[10px] font-bold text-zinc-400 group-hover:text-amber-500 text-center leading-tight">{def.label}</span>
-                                                     </button>
                                                  ))}
+                                                 {layout.length === 0 && <div className="text-center py-4 text-zinc-600 text-[10px] italic">Henüz bileşen eklenmedi.</div>}
                                              </div>
-                                         </div>
-                                     )}
+                                         )}
+                                     </div>
+                                     <div>
+                                         <button onClick={() => toggleSection('add')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors border-b border-zinc-800">
+                                             <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-plus-circle"></i> YENİ EKLE</h4>
+                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
+                                         </button>
+                                         {openSections.add && (
+                                             <div className="p-4 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
+                                                 <div className="grid grid-cols-2 gap-2">
+                                                     {COMPONENT_DEFINITIONS.map(def => (
+                                                         <button key={def.id} onClick={() => addComponent(def)} className="flex flex-col items-center gap-2 p-3 bg-zinc-800 border border-zinc-700 rounded-xl hover:border-amber-500 hover:shadow-md transition-all group">
+                                                             <i className={`fa-solid ${def.icon} text-zinc-500 group-hover:text-amber-500 text-lg transition-colors`}></i>
+                                                             <span className="text-[10px] font-bold text-zinc-400 group-hover:text-amber-500 text-center leading-tight">{def.label}</span>
+                                                         </button>
+                                                     ))}
+                                                 </div>
+                                             </div>
+                                         )}
+                                     </div>
                                  </div>
-                             </div>
-                         )}
-
-                         {/* Settings Config */}
-                         {sidebarTab === 'settings' && (
-                             <div className="p-4 space-y-6">
-                                {/* 1. Öğrenci Bilgileri */}
-                                <div className="space-y-3">
-                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
-                                    <div>
-                                        <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ad Soyad</label>
-                                        <input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200" placeholder="Örn: Ali Yılmaz" />
+                             )}
+                             {sidebarTab === 'settings' && (
+                                 <div className="p-4 space-y-6">
+                                    <div className="space-y-3">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
+                                        <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ad Soyad</label><input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200" placeholder="Örn: Ali Yılmaz" /></div>
+                                        <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Sınıf</label><select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">{['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}</select></div></div>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <div className="flex-1">
-                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Sınıf</label>
-                                            <select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
-                                                {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
-                                            </select>
+                                    <div className="space-y-3">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-book"></i> Hikaye Kurgusu</h4>
+                                        <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Konu</label><input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200" placeholder="Örn: Uzay Maceraları" /></div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Tür</label><select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">{['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}</select></div>
+                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ton</label><select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">{['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                             <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Uzunluk</label><select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200"><option value="short">Kısa</option><option value="medium">Orta</option><option value="long">Uzun</option></select></div>
+                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Dil Seviyesi</label><select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200"><option value="simple">Basit</option><option value="moderate">Orta</option><option value="advanced">İleri</option></select></div>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* 2. Hikaye Ayarları */}
-                                <div className="space-y-3">
-                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-book"></i> Hikaye Kurgusu</h4>
-                                    <div>
-                                        <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Konu</label>
-                                        <input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200" placeholder="Örn: Uzay Maceraları" />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Tür</label>
-                                            <select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
-                                                {['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}
-                                            </select>
+                                    <div className="space-y-3">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-image"></i> Görsel Üretim</h4>
+                                        <div className="flex items-center justify-between p-2 border border-zinc-700 rounded-lg bg-zinc-800">
+                                            <span className="text-xs font-medium text-zinc-300">AI Görsel Oluştur</span>
+                                            <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${config.imageGeneration.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`} onClick={() => setConfig({...config, imageGeneration: {...config.imageGeneration, enabled: !config.imageGeneration.enabled}})}><div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${config.imageGeneration.enabled ? 'left-5' : 'left-1'}`}></div></div>
                                         </div>
-                                        <div>
-                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ton</label>
-                                            <select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
-                                                {['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}
-                                            </select>
+                                        {config.imageGeneration.enabled && (<div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Çizim Stili</label><select value={config.imageGeneration.style} onChange={e => setConfig({...config, imageGeneration: {...config.imageGeneration, style: e.target.value as any}})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200"><option value="storybook">Masal Kitabı</option><option value="cartoon">Çizgi Film</option><option value="watercolor">Sulu Boya</option><option value="realistic">Gerçekçi</option></select></div>)}
+                                    </div>
+                                    <div className="space-y-3">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-puzzle-piece"></i> Dahil Edilecekler</h4>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {[{ label: '5N 1K Soruları', key: 'include5N1K' }, { label: 'Test Soruları', key: 'countMultipleChoice', isCount: true }, { label: 'Doğru/Yanlış', key: 'countTrueFalse', isCount: true }, { label: 'Sözlükçe', key: 'focusVocabulary' }, { label: 'Yaratıcı Görev', key: 'includeCreativeTask' }, { label: 'Boşluk Doldurma', key: 'countFillBlanks', isCount: true }, { label: 'Mantık Sorusu', key: 'countLogic', isCount: true }, { label: 'Çıkarım Sorusu', key: 'countInference', isCount: true }].map((opt: any, i) => (<button key={i} onClick={() => { if (opt.isCount) { const val = (config as any)[opt.key] > 0 ? 0 : 3; setConfig({...config, [opt.key]: val}); } else { setConfig({...config, [opt.key]: !(config as any)[opt.key]}); } }} className={`p-2 rounded-lg text-[10px] font-bold border transition-colors ${(opt.isCount ? (config as any)[opt.key] > 0 : (config as any)[opt.key]) ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-zinc-800 border-zinc-700 text-zinc-500'}`}>{opt.label}</button>))}
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                         <div>
-                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Uzunluk</label>
-                                            <select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
-                                                <option value="short">Kısa</option>
-                                                <option value="medium">Orta</option>
-                                                <option value="long">Uzun</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Dil Seviyesi</label>
-                                            <select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
-                                                <option value="simple">Basit</option>
-                                                <option value="moderate">Orta</option>
-                                                <option value="advanced">İleri</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* 3. Görsel Ayarları */}
-                                <div className="space-y-3">
-                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-image"></i> Görsel Üretim</h4>
-                                    <div className="flex items-center justify-between p-2 border border-zinc-700 rounded-lg bg-zinc-800">
-                                        <span className="text-xs font-medium text-zinc-300">AI Görsel Oluştur</span>
-                                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${config.imageGeneration.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`} onClick={() => setConfig({...config, imageGeneration: {...config.imageGeneration, enabled: !config.imageGeneration.enabled}})}>
-                                            <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${config.imageGeneration.enabled ? 'left-5' : 'left-1'}`}></div>
-                                        </div>
-                                    </div>
-                                    {config.imageGeneration.enabled && (
-                                        <div>
-                                            <label className="text-[9px] font-bold text-zinc-500 mb-1 block">Çizim Stili</label>
-                                            <select value={config.imageGeneration.style} onChange={e => setConfig({...config, imageGeneration: {...config.imageGeneration, style: e.target.value as any}})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">
-                                                <option value="storybook">Masal Kitabı</option>
-                                                <option value="cartoon">Çizgi Film</option>
-                                                <option value="watercolor">Sulu Boya</option>
-                                                <option value="realistic">Gerçekçi</option>
-                                            </select>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* 4. Bileşen Seçimi */}
-                                <div className="space-y-3">
-                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-puzzle-piece"></i> Dahil Edilecekler</h4>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {[
-                                            { label: '5N 1K Soruları', key: 'include5N1K' },
-                                            { label: 'Test Soruları', key: 'countMultipleChoice', isCount: true },
-                                            { label: 'Doğru/Yanlış', key: 'countTrueFalse', isCount: true },
-                                            { label: 'Sözlükçe', key: 'focusVocabulary' },
-                                            { label: 'Yaratıcı Görev', key: 'includeCreativeTask' },
-                                            { label: 'Boşluk Doldurma', key: 'countFillBlanks', isCount: true },
-                                            { label: 'Mantık Sorusu', key: 'countLogic', isCount: true },
-                                            { label: 'Çıkarım Sorusu', key: 'countInference', isCount: true }
-                                        ].map((opt: any, i) => (
-                                            <button 
-                                                key={i}
-                                                onClick={() => {
-                                                    if (opt.isCount) {
-                                                        const val = (config as any)[opt.key] > 0 ? 0 : 3; // Toggle between 0 and 3
-                                                        setConfig({...config, [opt.key]: val});
-                                                    } else {
-                                                        setConfig({...config, [opt.key]: !(config as any)[opt.key]});
-                                                    }
-                                                }}
-                                                className={`p-2 rounded-lg text-[10px] font-bold border transition-colors ${
-                                                    (opt.isCount ? (config as any)[opt.key] > 0 : (config as any)[opt.key]) 
-                                                    ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' 
-                                                    : 'bg-zinc-800 border-zinc-700 text-zinc-500'
-                                                }`}
-                                            >
-                                                {opt.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <button 
-                                    onClick={handleGenerate} 
-                                    disabled={isLoading}
-                                    className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                >
-                                    {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                                    {isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}
-                                </button>
-                             </div>
-                         )}
-                     </div>
+                                    <button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}{isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}</button>
+                                 </div>
+                             )}
+                         </div>
+                    </div>
                 </div>
+
+                {/* TOGGLE BUTTON - Now placed relative to the sidebar */}
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className={`absolute top-1/2 -translate-y-1/2 z-50 w-5 h-12 bg-[#2d2d32] border-y border-r border-zinc-700 rounded-r-lg flex items-center justify-center text-zinc-400 hover:text-black hover:bg-amber-500 transition-all shadow-md focus:outline-none duration-300 ease-in-out`}
+                    style={{ left: isSidebarOpen ? '320px' : '0px' }}
+                    title={isSidebarOpen ? "Paneli Gizle" : "Paneli Göster"}
+                >
+                    <i className={`fa-solid fa-chevron-${isSidebarOpen ? 'left' : 'right'} text-xs`}></i>
+                </button>
 
                 {/* CANVAS */}
                 <div className="flex-1 bg-[#121214] overflow-auto flex justify-center relative custom-scrollbar bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" onClick={(e) => { if(e.target === e.currentTarget) setSelectedId(null); }}>
