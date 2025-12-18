@@ -44,7 +44,6 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
 
     // 3. Görsel Prompt Talimatı
     // Her durumda bir görsel prompt üretiyoruz, böylece kullanıcı sonradan görseli açmak isterse veri hazır olur.
-    // Ancak stil tercihi kullanıcıdan gelir.
     const style = config.imageGeneration?.enabled ? (imageStyleMap[config.imageGeneration.style] || imageStyleMap['storybook']) : imageStyleMap['storybook'];
     
     const imageInstruction = `
@@ -169,15 +168,13 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     };
 
     // 6. AI Çağrısı
-    // 'gemini-2.5-flash' daha hızlı ve yaratıcı olduğu için tercih edildi.
-    const result = await generateWithSchema(prompt, schema, 'gemini-2.5-flash'); 
+    const result = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview'); 
     
     return {
         ...result,
         gradeLevel: config.gradeLevel,
         genre: config.genre,
         wordCount: result.story ? result.story.split(' ').length : 0,
-        // Eğer AI boş dizi döndürürse tip güvenliği için boş array ata
         vocabulary: result.vocabulary || [],
         fiveW1H: result.fiveW1H || [],
         multipleChoice: result.multipleChoice || [],

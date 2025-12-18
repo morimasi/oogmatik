@@ -136,10 +136,9 @@ export const generateFromRichPrompt = async (activityType: ActivityType, richPro
     - "imagePrompt" ile görsel betimlemeler ekle (kısa ve net).
     `;
 
-    return generateWithSchema(finalPrompt, schema, 'gemini-2.5-flash', options.useSearch);
+    return generateWithSchema(finalPrompt, schema, 'gemini-3-flash-preview', options.useSearch);
 };
 
-// ... Legacy exports unchanged ...
 export const generateFamilyRelationsFromAI = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => { return [] as any; };
 export const generateLogicDeductionFromAI = async (options: GeneratorOptions): Promise<LogicDeductionData[]> => { return [] as any; };
 export const generateNumberBoxLogicFromAI = async (options: GeneratorOptions): Promise<NumberBoxLogicData[]> => { return [] as any; };

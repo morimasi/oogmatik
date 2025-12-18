@@ -270,8 +270,8 @@ Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
                 items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: {type: Type.STRING}, value: {type: Type.STRING}, id: {type: Type.STRING}, isCorrect: {type: Type.BOOLEAN}, imagePrompt: {type: Type.STRING} } } },
                 questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: {type: Type.STRING}, text: {type: Type.STRING}, answer: {type: Type.STRING}, options: {type: Type.ARRAY, items: {type: Type.STRING}}, correct: {type: Type.STRING}, imagePrompt: {type: Type.STRING} } } },
                 puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { puzzle: {type: Type.STRING}, question: {type: Type.STRING}, answer: {type: Type.STRING}, clues: {type: Type.ARRAY, items: {type: Type.STRING}}, imagePrompt: {type: Type.STRING} } } },
-                rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: {type: Type.STRING}, items: {type: Type.ARRAY, items: {type: Type.STRING}}, text: {type: Type.STRING} } } },
-                pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { item1: {type: Type.STRING}, item2: {type: Type.STRING}, id: {type: Type.STRING}, imagePrompt1: {type: Type.STRING} } } },
+                rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: {type:Type.STRING}, items: {type:Type.ARRAY, items: {type:Type.STRING}}, text: {type:Type.STRING} } } },
+                pairs: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { item1: {type:Type.STRING}, item2: {type:Type.STRING}, id: {type:Type.STRING}, imagePrompt1: {type:Type.STRING} } } },
                 operations: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { num1: {type:Type.NUMBER}, num2: {type:Type.NUMBER}, operator: {type:Type.STRING}, answer: {type:Type.NUMBER} }, required: ['num1', 'operator', 'answer'] } },
                 grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
             }
@@ -286,7 +286,7 @@ Bu aktivite türü için uygun, çocuk dostu ve eğitici içerik oluştur.
         `;
 
         // Force Stable Model usage
-        return await generateWithSchema(fullContext, genericSchema, 'gemini-2.5-flash');
+        return await generateWithSchema(fullContext, genericSchema, 'gemini-3-flash-preview');
     }
 };
 

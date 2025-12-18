@@ -34,7 +34,7 @@ export const ocrService = {
                 "gridCols": 1 | 2 | 3 | 4,
                 "cardStyle": "simple" | "border" | "shadow"
             },
-            "generatedTemplate": "YAPAY ZEKA İÇİN ÜRETİM EMRİ:\n- Konu: [KONU]\n- Eğer görselde TABLO varsa, 'type: table' kullan.\n- Eğer ALGORİTMA varsa, 'type: code_block' kullan.\n- Eğer ŞEKİL IZGARASI varsa, 'type: shape_grid' kullan.\n- Detaylı talimatlar..."
+            "generatedTemplate": "YAPAY ZEKA İÇİR ÜRETİM EMRİ:\n- Konu: [KONU]\n- Eğer görselde TABLO varsa, 'type: table' kullan.\n- Eğer ALGORİTMA varsa, 'type: code_block' kullan.\n- Eğer ŞEKİL IZGARASI varsa, 'type: shape_grid' kullan.\n- Detaylı talimatlar..."
         }
         `;
 
@@ -62,7 +62,7 @@ export const ocrService = {
         };
 
         try {
-            const result = await analyzeImage(base64Image, prompt, schema, 'gemini-2.5-flash');
+            const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-flash-preview');
             
             const safeType = result.detectedType && (validIds.includes(result.detectedType) || result.detectedType === 'CUSTOM_GENERATED') 
                 ? result.detectedType 

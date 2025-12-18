@@ -14,7 +14,6 @@ Tasarım Felsefesi: Metin tek başına yetersizdir. Sayfayı dolduracak etkileş
 export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { topic, difficulty, worksheetCount } = options;
     
-    // Zorluk seviyesine göre metin uzunluğu ve karmaşıklığı
     const constraints = difficulty === 'Başlangıç' 
         ? '50-80 kelime. Basit cümleler. Somut olaylar.' 
         : difficulty === 'Orta' 
@@ -80,11 +79,9 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
 
     const schema = { type: Type.ARRAY, items: singleSchema };
     
-    // Using a more capable model for story generation logic
-    return generateWithSchema(prompt, schema, 'gemini-2.5-flash') as Promise<StoryData[]>;
+    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<StoryData[]>;
 };
 
-// ... Diğer fonksiyonlar (StoryAnalysis, vb.) için basit placeholderlar veya mevcut kodlar kalabilir.
 export const generateStoryAnalysisFromAI = async (o: GeneratorOptions) => [] as any; 
 export const generateStoryCreationPromptFromAI = async (o: GeneratorOptions) => [] as any;
 export const generateWordsInStoryFromAI = async (o: GeneratorOptions) => [] as any;
