@@ -5,101 +5,97 @@ import { InteractiveStoryData, ReadingStudioConfig } from '../../types';
 
 export const generateInteractiveStory = async (config: ReadingStudioConfig): Promise<InteractiveStoryData> => {
     
-    // Uzunluk haritası
+    // 1. Ayarları Doğal Dile Çevirme (Mapping)
+    
     const lengthMap = {
-        'short': '80-100 kelime (1-2 paragraf)',
-        'medium': '150-200 kelime (3-4 paragraf)',
-        'long': '300-400 kelime (Tam sayfa)',
-        'epic': '500+ kelime (Detaylı hikaye)'
+        'short': 'Kısa (80-100 kelime). Tek bir odak noktası olsun.',
+        'medium': 'Orta (150-200 kelime). Giriş, gelişme ve sonuç belirgin olsun.',
+        'long': 'Uzun (300-400 kelime). Detaylı betimlemeler içersin.',
+        'epic': 'Destansı (500+ kelime). Birden fazla olay örgüsü olsun.'
     };
 
-    // Karmaşıklık haritası
     const complexityMap = {
-        'simple': 'Çok basit cümleler, somut kelimeler, devrik cümle yok. (1-2. Sınıf seviyesi)',
-        'moderate': 'Orta uzunlukta cümleler, günlük dil, az sayıda mecaz. (3-4. Sınıf seviyesi)',
-        'advanced': 'Zengin betimlemeler, yan cümleçikler, deyimler ve soyut kavramlar. (5+ Sınıf seviyesi)'
+        'simple': '1. Sınıf Seviyesi: Çok basit, kısa cümleler. Somut kelimeler. Devrik cümle yok.',
+        'moderate': '3. Sınıf Seviyesi: Günlük konuşma dili. Orta uzunlukta cümleler.',
+        'advanced': '5. Sınıf+ Seviyesi: Zengin kelime dağarcığı, mecazlar ve yan cümleçikler.'
     };
 
-    // Görsel Stil Haritası
     const imageStyleMap = {
-        'storybook': 'Children book illustration style, colorful, flat vector, clear shapes',
-        'realistic': 'Realistic educational illustration, highly detailed, vivid colors',
-        'cartoon': 'Cartoon style, expressive characters, vibrant, fun',
-        'sketch': 'Pencil sketch style, black and white, artistic',
-        'watercolor': 'Watercolor painting style, soft colors, artistic',
-        '3d_render': '3D Render style, cute clay or plastic texture, bright lighting'
+        'storybook': 'Children book illustration style, flat vector, clean lines, bright colors',
+        'realistic': 'Realistic educational illustration, highly detailed',
+        'cartoon': 'Cartoon style, expressive characters, fun outlines',
+        'sketch': 'Pencil sketch style, black and white artistic',
+        'watercolor': 'Watercolor painting style, soft edges, artistic',
+        '3d_render': '3D clay render style, cute, plastic texture'
     };
 
-    let pedagogicalStrategy = `
-    [PEDAGOJİK STRATEJİ - BLOOM TAKSONOMİSİ]:
-    1. **Bilgi (Knowledge):** Metindeki somut gerçekleri (isimler, yerler, renkler) sorgulayan 5N1K soruları.
-    2. **Kavrama (Comprehension):** Metnin ana fikrini ve olay örgüsünü test eden Doğru/Yanlış ve Boşluk Doldurma soruları.
-    3. **Analiz (Analysis):** Metinde açıkça yazmayan, çocuğun ipuçlarından çıkarım yapmasını gerektiren "Inference" soruları. (Örn: "Çocuk neden şemsiyesini aldı?" -> Çünkü hava bulutluydu).
-    4. **Değerlendirme (Evaluation):** Karakterlerin davranışlarını yargılayan veya alternatif sonlar düşündüren Mantık soruları.
-    5. **Müdahale (Intervention):** Disleksi dostu kelime çalışmaları (Harf farkındalığı, heceleme).
-    `;
+    // 2. Pedagojik Strateji ve Bileşen Sayıları
+    
+    let tasksInstruction = "Aşağıdaki bileşenleri belirtilen sayılarda üret:";
+    
+    if (config.include5N1K) tasksInstruction += "\n- 5N 1K Soruları (Kim, Ne, Nerede, Ne Zaman, Neden, Nasıl): Tam 6 adet.";
+    if (config.countMultipleChoice > 0) tasksInstruction += `\n- Çoktan Seçmeli Test Sorusu: Tam ${config.countMultipleChoice} adet. (3 şıklı).`;
+    if (config.countTrueFalse > 0) tasksInstruction += `\n- Doğru/Yanlış Sorusu: Tam ${config.countTrueFalse} adet.`;
+    if (config.countFillBlanks > 0) tasksInstruction += `\n- Boşluk Doldurma Cümlesi: Tam ${config.countFillBlanks} adet. (Metinden alınan cümleler).`;
+    if (config.countLogic > 0) tasksInstruction += `\n- Mantık/Muhakeme Sorusu: Tam ${config.countLogic} adet.`;
+    if (config.countInference > 0) tasksInstruction += `\n- Çıkarım (Inference) Sorusu: Tam ${config.countInference} adet. (Metinde açıkça yazmayan, ipucundan bulunacak).`;
+    if (config.focusVocabulary) tasksInstruction += `\n- Sözlükçe: Metindeki en önemli 4 kelime ve çocuk dostu tanımları.`;
+    if (config.includeCreativeTask) tasksInstruction += `\n- Yaratıcı Görev: Hikaye ile ilgili bir çizim veya yazma görevi.`;
 
-    // Görsel Prompt Talimatı (Sadece aktifse)
-    let imageInstruction = "";
+    // 3. Görsel Prompt Talimatı
+    
+    let imageInstruction = `GÖRSEL İPUCU (Image Prompt): "" (Boş bırak)`;
     if (config.imageGeneration?.enabled) {
-        const styleDesc = imageStyleMap[config.imageGeneration.style] || imageStyleMap['storybook'];
+        const style = imageStyleMap[config.imageGeneration.style] || imageStyleMap['storybook'];
         imageInstruction = `
-        GÖRSEL İPUCU (Image Prompt): Hikayenin en can alıcı sahnesini anlatan, detaylı İngilizce prompt yaz.
-        Stil Talimatı: "${styleDesc}".
-        Not: Görsel betimlemesi hikaye ile tam uyumlu olmalıdır.
+        GÖRSEL İPUCU (Image Prompt): Hikayenin en önemli sahnesini betimleyen, İngilizce, detaylı bir prompt yaz.
+        Görsel Stili: "${style}".
         `;
-    } else {
-        imageInstruction = `GÖRSEL İPUCU (Image Prompt): "" (Boş bırak)`;
     }
 
+    // 4. Ana Prompt İnşası
+    
     const prompt = `
-    [ROL: KIDEMLİ EĞİTİM PSİKOLOĞU, DİSLEKSİ UZMANI ve ÇOCUK KİTABI YAZARI]
+    [ROL: KIDEMLİ EĞİTİM İÇERİK UZMANI VE ÇOCUK KİTABI YAZARI]
     
-    HEDEF KİTLE: ${config.gradeLevel} seviyesindeki öğrenci.
-    AMAÇ: Okuduğunu anlama, kelime dağarcığını geliştirme, eleştirel düşünme ve görsel algıyı destekleme.
+    GÖREV: Aşağıdaki kriterlere tam olarak uyan, özgün ve eğitici bir hikaye ve etkinlik seti oluştur.
     
-    KONU: ${config.topic || 'Çocuğun ilgisini çekecek, macera dolu ve öğretici bir tema'}
-    TÜR: ${config.genre} (${config.tone} bir tonla)
+    -- HİKAYE YAPILANDIRMASI --
+    Konu: "${config.topic || 'Çocukların ilgisini çekecek sürpriz bir konu'}"
+    Tür: ${config.genre}
+    Ton: ${config.tone}
+    Hedef Kitle: ${config.gradeLevel}
+    Öğrenci Adı (Varsa hikayeye kat): "${config.studentName}"
     
-    METİN YAPILANDIRMASI:
-    - Hedef Uzunluk: ${lengthMap[config.length] || lengthMap['medium']}
-    - Dil Karmaşıklığı: ${complexityMap[config.textComplexity || 'moderate']}
-    - Disleksi Dostu: Paragraflar kısa tutulmalı, akış net olmalı.
+    Uzunluk: ${lengthMap[config.length] || lengthMap['medium']}
+    Dil Seviyesi: ${complexityMap[config.textComplexity || 'moderate']}
     
-    ${pedagogicalStrategy}
+    -- DİSLEKSİ DOSTU YAZIM KURALLARI --
+    1. Paragraflar kısa olsun (en fazla 3-4 cümle).
+    2. Karmaşık, iç içe geçmiş cümlelerden kaçın.
+    3. Soyut kavramları somut örneklerle anlat.
+    4. "Disleksi Dostu" bir akış sağla.
     
-    İÇERİK ÇIKTILARI:
-    - "vocabulary" kısmına metinde geçen, öğrencinin zorlanabileceği veya yeni öğreneceği ${config.focusVocabulary ? '4-5 adet' : '0'} kelime seç ve çocuk dostu tanımlarını yaz.
-    - "creativeTask" için çocuğun hayal gücünü kullanabileceği, çizim veya kısa yazma içeren eğlenceli bir görev ver.
-    
-    SORU ADETLERİ (Tam Sayılar):
-    - 5N1K (Açık Uçlu): ${config.include5N1K ? '5 adet' : '0'}
-    - Çoktan Seçmeli (Test): ${config.countMultipleChoice} adet
-    - Doğru/Yanlış: ${config.countTrueFalse} adet
-    - Mantık/Yorum: ${config.countLogic} adet
-    - Çıkarım (Inference): ${config.countInference} adet
+    -- İSTENEN BİLEŞENLER --
+    ${tasksInstruction}
 
     ${imageInstruction}
     
-    SADECE JSON DÖNDÜR.
+    ÇIKTI FORMATI: Sadece geçerli bir JSON döndür.
     `;
 
+    // 5. Şema Tanımı (Types/Verbal.ts ile uyumlu)
+    
     const schema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             story: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
             mainIdea: { type: Type.STRING },
-            segments: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: { id: { type: Type.STRING }, text: { type: Type.STRING } },
-                    required: ['id', 'text']
-                }
-            },
+            imagePrompt: { type: Type.STRING },
+            
+            // Bileşenler
             vocabulary: {
                 type: Type.ARRAY,
                 items: {
@@ -109,6 +105,8 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
                 }
             },
             creativeTask: { type: Type.STRING },
+            
+            // Soru Tipleri
             fiveW1H: {
                 type: Type.ARRAY,
                 items: {
@@ -164,27 +162,27 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
                     properties: { question: { type: Type.STRING }, answer: { type: Type.STRING } },
                     required: ['question', 'answer']
                 }
-            },
-            interventionQuestions: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: { 
-                        question: { type: Type.STRING }, 
-                        type: { type: Type.STRING, enum: ['word_hunt', 'spelling', 'visual_memory'] } 
-                    },
-                    required: ['question', 'type']
-                }
             }
         },
-        required: ['title', 'story', 'segments', 'fiveW1H', 'vocabulary']
+        required: ['title', 'story', 'pedagogicalNote', 'imagePrompt', 'fiveW1H']
     };
 
+    // 6. AI Çağrısı
+    // 'gemini-2.5-flash' daha hızlı ve yaratıcı olduğu için tercih edildi.
     const result = await generateWithSchema(prompt, schema, 'gemini-2.5-flash'); 
+    
     return {
         ...result,
         gradeLevel: config.gradeLevel,
         genre: config.genre,
-        wordCount: result.story.split(' ').length
-    };
+        wordCount: result.story ? result.story.split(' ').length : 0,
+        // Eğer AI boş dizi döndürürse tip güvenliği için boş array ata
+        vocabulary: result.vocabulary || [],
+        fiveW1H: result.fiveW1H || [],
+        multipleChoice: result.multipleChoice || [],
+        trueFalse: result.trueFalse || [],
+        fillBlanks: result.fillBlanks || [],
+        logicQuestions: result.logicQuestions || [],
+        inferenceQuestions: result.inferenceQuestions || []
+    } as InteractiveStoryData;
 };

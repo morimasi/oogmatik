@@ -435,6 +435,8 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                     specificData = { questions: (storyData.fiveW1H || []).map(q => ({ text: q.question })) };
                 } else if (item.id === 'questions_test') {
                     specificData = { questions: (storyData.multipleChoice || []).map(q => ({ text: q.question })) };
+                } else if (item.id === 'questions_inference') {
+                    specificData = { questions: (storyData.inferenceQuestions || []).map(q => ({ text: q.question })) };
                 } else if (item.id === 'vocabulary') {
                      specificData = { questions: (storyData.vocabulary || []).map(v => ({ text: `${v.word}: ${v.definition}` })) };
                 }
@@ -728,7 +730,10 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                             { label: 'Test Soruları', key: 'countMultipleChoice', isCount: true },
                                             { label: 'Doğru/Yanlış', key: 'countTrueFalse', isCount: true },
                                             { label: 'Sözlükçe', key: 'focusVocabulary' },
-                                            { label: 'Yaratıcı Görev', key: 'includeCreativeTask' }
+                                            { label: 'Yaratıcı Görev', key: 'includeCreativeTask' },
+                                            { label: 'Boşluk Doldurma', key: 'countFillBlanks', isCount: true },
+                                            { label: 'Mantık Sorusu', key: 'countLogic', isCount: true },
+                                            { label: 'Çıkarım Sorusu', key: 'countInference', isCount: true }
                                         ].map((opt: any, i) => (
                                             <button 
                                                 key={i}
