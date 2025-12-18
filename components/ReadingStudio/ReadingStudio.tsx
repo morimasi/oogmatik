@@ -254,6 +254,21 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
             </div>
         );
     }
+    
+    // CREATIVE SPECIFIC
+    if (item.id === 'creative') {
+        const data = item.specificData || { task: "Hikayeyle ilgili bir resim çiz." };
+        return (
+             <div className="space-y-3">
+                <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Yaratıcı Görev Yönergesi</label>
+                <textarea 
+                    value={data.task} 
+                    onChange={e => onUpdateSpecific({...data, task: e.target.value})} 
+                    className="w-full h-32 p-2 border rounded text-sm bg-zinc-50 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none resize-none"
+                ></textarea>
+            </div>
+        );
+    }
 
     return <div className="text-zinc-400 text-xs italic p-2 bg-zinc-50 rounded">Bu bileşen için özel içerik ayarı yok. Stil sekmesini kullanın.</div>;
 };
@@ -419,28 +434,31 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         setLayout(generatedLayout);
     }, []);
     
-    // Sync Generated Data to Components
+    // Sync Generated Data to Components (UPDATED MAPPING LOGIC)
     useEffect(() => {
         if (!storyData) return;
         setLayout(prev => prev.map(item => {
             let specificData = item.specificData;
             
-            // Only populate if not already edited (simple check)
-            if (!specificData) {
-                if (item.id === 'header') {
-                    specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
-                } else if (item.id === 'story_block') {
-                    specificData = { text: storyData.story };
-                } else if (item.id === 'questions_5n1k') {
-                    specificData = { questions: (storyData.fiveW1H || []).map(q => ({ text: q.question })) };
-                } else if (item.id === 'questions_test') {
-                    specificData = { questions: (storyData.multipleChoice || []).map(q => ({ text: q.question })) };
-                } else if (item.id === 'questions_inference') {
-                    specificData = { questions: (storyData.inferenceQuestions || []).map(q => ({ text: q.question })) };
-                } else if (item.id === 'vocabulary') {
-                     specificData = { questions: (storyData.vocabulary || []).map(v => ({ text: `${v.word}: ${v.definition}` })) };
-                }
+            // Auto-populate based on ID if not already manually set (or force update for fresh generation)
+            if (item.id === 'header') {
+                specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
+            } else if (item.id === 'story_block') {
+                specificData = { text: storyData.story };
+            } else if (item.id === 'questions_5n1k') {
+                specificData = { questions: (storyData.fiveW1H || []).map(q => ({ text: q.question })) };
+            } else if (item.id === 'questions_test') {
+                specificData = { questions: (storyData.multipleChoice || []).map(q => ({ text: q.question, options: q.options })) };
+            } else if (item.id === 'questions_inference') {
+                // Map from inference OR logic questions
+                const questions = [...(storyData.inferenceQuestions || []), ...(storyData.logicQuestions || [])].slice(0, 3);
+                specificData = { questions: questions.map(q => ({ text: q.question })) };
+            } else if (item.id === 'vocabulary') {
+                 specificData = { questions: (storyData.vocabulary || []).map(v => ({ text: `${v.word}: ${v.definition}` })) };
+            } else if (item.id === 'creative') {
+                 specificData = { task: storyData.creativeTask || "Hikaye ile ilgili bir resim çiz." };
             }
+            
             return { ...item, specificData };
         }));
     }, [storyData]);
@@ -592,6 +610,22 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             );
         }
         
+        // Creative Area (Rich Renderer)
+        if (item.id === 'creative') {
+             const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
+             return (
+                 <div className="h-full flex flex-col" style={boxStyle}>
+                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
+                        <i className="fa-solid fa-paintbrush"></i> {item.customTitle}
+                     </h4>
+                     <p className="text-sm font-bold mb-2">{data.task}</p>
+                     <div className="flex-1 border-2 border-dashed border-current/30 rounded-xl bg-white/20 relative">
+                         <span className="absolute bottom-2 right-2 text-[10px] opacity-50 font-bold uppercase">Çizim Alanı</span>
+                     </div>
+                 </div>
+             );
+        }
+
         // Generic Fallback
         return (
              <div className="h-full flex items-center justify-center border-2 border-dashed border-zinc-300 rounded" style={boxStyle}>
@@ -641,12 +675,12 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                          <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase ${sidebarTab === 'settings' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-zinc-500'}`}>Ayarlar</button>
                          <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase ${sidebarTab === 'library' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-zinc-500'}`}>Bileşenler</button>
                      </div>
-                     <div className="flex-1 overflow-y-auto custom-scrollbar">
+                     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
                          {/* Library List with Active Layers & Add New */}
                          {sidebarTab === 'library' && (
                              <div className="flex flex-col h-full">
-                                 {/* ACTIVE LAYERS SECTION */}
-                                 <div className="flex-1 overflow-y-auto p-4 border-b border-zinc-200 dark:border-zinc-700">
+                                 {/* ACTIVE LAYERS SECTION - Takes available space */}
+                                 <div className="flex-1 overflow-y-auto custom-scrollbar p-4 border-b border-zinc-200 dark:border-zinc-700">
                                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 flex items-center justify-between">
                                          KATMANLAR (LAYERS)
                                          <span className="bg-zinc-100 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span>
@@ -699,8 +733,8 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                      </div>
                                  </div>
 
-                                 {/* ADD NEW SECTION */}
-                                 <div className="p-4 bg-zinc-50 dark:bg-zinc-900/30">
+                                 {/* ADD NEW SECTION - Pinned to bottom */}
+                                 <div className="shrink-0 p-4 bg-zinc-50 dark:bg-zinc-900/30 border-t border-zinc-200 dark:border-zinc-700">
                                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">YENİ EKLE</h4>
                                      <div className="grid grid-cols-2 gap-2">
                                          {COMPONENT_DEFINITIONS.map(def => (
@@ -720,7 +754,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
 
                          {/* Settings Config */}
                          {sidebarTab === 'settings' && (
-                             <div className="space-y-6 p-4">
+                             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
                                 {/* 1. Öğrenci Bilgileri */}
                                 <div className="space-y-3">
                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
