@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
 import { useAuth } from '../../context/AuthContext';
@@ -11,6 +11,7 @@ import { EditableText } from '../Editable';
 const SNAP_GRID = 5; // 5px precision grid
 const A4_WIDTH_PX = 794; // approx 210mm @ 96dpi
 const A4_HEIGHT_PX = 1123; // approx 297mm @ 96dpi
+const PAGE_BOTTOM_PADDING = 60; // Extra space at the bottom
 
 // --- DEFINITIONS & DEFAULTS ---
 
@@ -406,6 +407,14 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         focusVocabulary: true, includeCreativeTask: true, includeWordHunt: false, includeSpellingCheck: false,
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
+
+    // Dynamic Canvas Height Calculation
+    const contentHeight = useMemo(() => {
+        if (layout.length === 0) return A4_HEIGHT_PX;
+        const maxBottom = Math.max(...layout.map(item => item.style.y + item.style.h));
+        // Ensure at least A4 height, add 100px padding at bottom for footer/space
+        return Math.max(A4_HEIGHT_PX, maxBottom + PAGE_BOTTOM_PADDING);
+    }, [layout]);
 
     // Interaction State
     const [dragState, setDragState] = useState<{
@@ -916,7 +925,12 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                         <div 
                             id="canvas-root"
                             className="bg-white shadow-2xl relative transition-all duration-300"
-                            style={{ width: `${A4_WIDTH_PX}px`, height: `${A4_HEIGHT_PX}px`, transform: 'scale(1)', transformOrigin: 'top center' }}
+                            style={{ 
+                                width: `${A4_WIDTH_PX}px`, 
+                                height: `${contentHeight}px`, // DYNAMIC HEIGHT
+                                transform: 'scale(1)', 
+                                transformOrigin: 'top center' 
+                            }}
                         >
                             {/* Background Grid for Precision */}
                             {designMode && (
@@ -982,6 +996,12 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                     </div>
                                 );
                             })}
+                            
+                            {/* Sticky Footer */}
+                            <div className="absolute bottom-4 left-0 w-full text-center text-[10px] text-zinc-400 font-mono pointer-events-none flex justify-between px-8">
+                                <span>Bursa Disleksi AI © {new Date().getFullYear()}</span>
+                                <span>Sayfa 1</span>
+                            </div>
                         </div>
                     </div>
                 </div>
