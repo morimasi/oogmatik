@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
@@ -257,7 +256,7 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
     
     // CREATIVE SPECIFIC
     if (item.id === 'creative') {
-        const data = item.specificData || { task: "Hikayeyle ilgili bir resim çiz." };
+        const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
         return (
              <div className="space-y-3">
                 <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Yaratıcı Görev Yönergesi</label>
@@ -385,8 +384,18 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
     
+    // --- COLLAPSIBLE SECTION STATE ---
+    const [openSections, setOpenSections] = useState({ layers: true, add: false });
+
     // ... (Drag State same as before) ...
     const [dragState, setDragState] = useState<{ mode: 'drag' | 'resize' | 'rotate'; resizeHandle?: string; startX: number; startY: number; initialX: number; initialY: number; initialW: number; initialH: number; initialR: number; centerX?: number; centerY?: number; } | null>(null);
+
+    // Calculate dynamic content height based on layout items to expand canvas if needed
+    const contentHeight = useMemo(() => {
+        if (layout.length === 0) return A4_HEIGHT_PX;
+        const maxY = Math.max(...layout.map(item => item.style.y + item.style.h));
+        return Math.max(A4_HEIGHT_PX, maxY + PAGE_BOTTOM_PADDING);
+    }, [layout]);
 
     // Initial Load - Automatic Layout
     useEffect(() => {
@@ -543,11 +552,12 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         setTimeout(async () => { await printService.generatePdf('#canvas-root', storyData?.title || 'Hikaye', { action }); setDesignMode(prevMode); setSelectedId(prevSelected); }, 300);
     };
 
+    const toggleSection = (section: 'layers' | 'add') => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
+
     // --- RENDER CONTENT (Updated to use specificData and granular styles) ---
     const renderContent = (item: ActiveComponent) => {
-        if (!item.isVisible && designMode) return <div className="w-full h-full border-2 border-dashed border-zinc-200 bg-zinc-50/50 flex items-center justify-center opacity-50"><span className="text-[10px] uppercase font-bold text-zinc-400">Gizli Bileşen</span></div>;
-        if (!item.isVisible) return null;
-
         const s = item.style;
         const boxStyle = {
             padding: `${s.padding}px`,
@@ -579,6 +589,23 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                 </div>
             );
         }
+        
+        // Reading Tracker
+        if (item.id === 'tracker') {
+             return (
+                 <div className="h-full flex flex-col items-center justify-center" style={boxStyle}>
+                     <div className="flex gap-4">
+                         {[1, 2, 3].map(i => (
+                             <div key={i} className="flex flex-col items-center">
+                                 <div className="w-10 h-10 rounded-full border-2 border-current bg-transparent flex items-center justify-center">
+                                     <i className="fa-regular fa-star text-sm opacity-50"></i>
+                                 </div>
+                             </div>
+                         ))}
+                     </div>
+                 </div>
+             );
+        }
 
         // Story Text
         if (item.id === 'story_block') {
@@ -592,24 +619,29 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             );
         }
 
-        // Questions
-        if (item.id.startsWith('questions') || item.id === 'vocabulary') {
-            const data = item.specificData || { questions: [{text: "Madde 1..."}] };
-            return (
-                <div className="h-full flex flex-col" style={boxStyle}>
-                    <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
-                    <div className="flex-1 space-y-2 overflow-hidden">
-                        {(data.questions || []).map((q: any, i: number) => (
-                            <div key={i} className="flex gap-2">
-                                <span className="font-bold">{i+1}.</span>
-                                <p>{q.text}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
+        // Vocabulary List (Rich Renderer)
+        if (item.id === 'vocabulary') {
+             const data = item.specificData || { questions: [{text: "Örnek: Açıklama"}] };
+             return (
+                 <div className="h-full flex flex-col" style={boxStyle}>
+                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
+                        <i className="fa-solid fa-spell-check"></i> {item.customTitle}
+                     </h4>
+                     <div className="flex-1 grid grid-cols-2 gap-4 content-start overflow-hidden">
+                         {(data.questions || []).map((q: any, i: number) => {
+                             const parts = q.text.split(':');
+                             return (
+                                 <div key={i} className="bg-white/50 p-2 rounded border border-current/20">
+                                     <span className="font-bold block text-sm">{parts[0]}</span>
+                                     <span className="text-[10px] opacity-80 leading-tight block">{parts[1] || ''}</span>
+                                 </div>
+                             );
+                         })}
+                     </div>
+                 </div>
+             );
         }
-        
+
         // Creative Area (Rich Renderer)
         if (item.id === 'creative') {
              const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
@@ -625,7 +657,35 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                  </div>
              );
         }
+        
+        // Notes Area
+        if (item.id === 'notes') {
+             return (
+                 <div className="h-full flex flex-col" style={boxStyle}>
+                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
+                     <div className="flex-1" style={{backgroundImage: 'linear-gradient(transparent 95%, currentColor 95%)', backgroundSize: '100% 1.5rem', opacity: 0.3}}></div>
+                 </div>
+             );
+        }
 
+        // Generic Questions (List Style)
+        if (item.id.startsWith('questions')) {
+            const data = item.specificData || { questions: [{text: "Madde 1..."}] };
+            return (
+                <div className="h-full flex flex-col" style={boxStyle}>
+                    <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
+                    <div className="flex-1 space-y-2 overflow-hidden">
+                        {(data.questions || []).map((q: any, i: number) => (
+                            <div key={i} className="flex gap-2 items-start">
+                                <span className="font-bold bg-current text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0" style={{color: s.backgroundColor === 'transparent' ? 'white' : s.backgroundColor, backgroundColor: s.color}}>{i+1}</span>
+                                <p className="leading-snug pt-0.5">{q.text}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+        
         // Generic Fallback
         return (
              <div className="h-full flex items-center justify-center border-2 border-dashed border-zinc-300 rounded" style={boxStyle}>
@@ -644,12 +704,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             if(selectedId === id) setSelectedId(null);
         }
     };
-
-    const contentHeight = useMemo(() => {
-        if (layout.length === 0) return A4_HEIGHT_PX;
-        const maxBottom = Math.max(...layout.map(item => item.style.y + item.style.h));
-        return Math.max(A4_HEIGHT_PX, maxBottom + PAGE_BOTTOM_PADDING);
-    }, [layout]);
 
     return (
         <div className="h-full flex flex-col bg-zinc-100 dark:bg-black font-sans overflow-hidden">
@@ -675,86 +729,106 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                          <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase ${sidebarTab === 'settings' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-zinc-500'}`}>Ayarlar</button>
                          <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase ${sidebarTab === 'library' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-zinc-500'}`}>Bileşenler</button>
                      </div>
-                     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-                         {/* Library List with Active Layers & Add New */}
+                     <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                         {/* Library List with Accordion Sections */}
                          {sidebarTab === 'library' && (
-                             <div className="flex flex-col h-full">
-                                 {/* ACTIVE LAYERS SECTION - Takes available space */}
-                                 <div className="flex-1 overflow-y-auto custom-scrollbar p-4 border-b border-zinc-200 dark:border-zinc-700">
-                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 flex items-center justify-between">
-                                         KATMANLAR (LAYERS)
-                                         <span className="bg-zinc-100 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span>
-                                     </h4>
-                                     
-                                     <div className="space-y-2">
-                                         {layout.map((item) => (
-                                             <div 
-                                                 key={item.instanceId} 
-                                                 onClick={() => setSelectedId(item.instanceId)}
-                                                 className={`group flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
-                                                     selectedId === item.instanceId 
-                                                     ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 shadow-sm ring-1 ring-indigo-200 dark:ring-indigo-800' 
-                                                     : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600'
-                                                 } ${!item.isVisible ? 'opacity-60' : ''}`}
-                                             >
-                                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${selectedId === item.instanceId ? 'bg-indigo-100 text-indigo-600' : 'bg-zinc-100 text-zinc-500'}`}>
-                                                     <i className={`fa-solid ${item.icon}`}></i>
+                             <div className="flex flex-col">
+                                 {/* SECTION 1: LAYERS */}
+                                 <div className="border-b border-zinc-200 dark:border-zinc-700">
+                                     <button 
+                                         onClick={() => toggleSection('layers')}
+                                         className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                                     >
+                                         <h4 className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                                             <i className="fa-solid fa-layer-group"></i> KATMANLAR
+                                             <span className="bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span>
+                                         </h4>
+                                         <i className={`fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
+                                     </button>
+
+                                     {openSections.layers && (
+                                         <div className="p-2 space-y-1 bg-zinc-50 dark:bg-zinc-900/50 animate-in slide-in-from-top-2 duration-200">
+                                             {layout.map((item) => (
+                                                 <div 
+                                                     key={item.instanceId} 
+                                                     onClick={() => setSelectedId(item.instanceId)}
+                                                     className={`group flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer ${
+                                                         selectedId === item.instanceId 
+                                                         ? 'border-indigo-500 bg-white dark:bg-zinc-800 shadow-sm ring-1 ring-indigo-200 dark:ring-indigo-800' 
+                                                         : 'border-transparent hover:bg-white dark:hover:bg-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700'
+                                                     } ${!item.isVisible ? 'opacity-60' : ''}`}
+                                                 >
+                                                     <div className={`w-7 h-7 rounded flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-indigo-100 text-indigo-600' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'}`}>
+                                                         <i className={`fa-solid ${item.icon}`}></i>
+                                                     </div>
+                                                     <div className="flex-1 min-w-0">
+                                                         <p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-indigo-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>
+                                                             {item.customTitle || item.label}
+                                                         </p>
+                                                     </div>
+                                                     
+                                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                         <button 
+                                                             onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }}
+                                                             className={`w-6 h-6 flex items-center justify-center rounded hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-400 ${!item.isVisible ? 'text-zinc-300' : ''}`}
+                                                             title={item.isVisible ? "Gizle" : "Göster"}
+                                                         >
+                                                             <i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                                                         </button>
+                                                         <button 
+                                                             onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }}
+                                                             className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-colors"
+                                                             title="Sil"
+                                                         >
+                                                             <i className="fa-solid fa-trash"></i>
+                                                         </button>
+                                                     </div>
                                                  </div>
-                                                 <div className="flex-1 min-w-0">
-                                                     <p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-indigo-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>
-                                                         {item.customTitle || item.label}
-                                                     </p>
-                                                     <p className="text-[9px] text-zinc-400 uppercase truncate">{item.id}</p>
+                                             ))}
+                                             {layout.length === 0 && (
+                                                 <div className="text-center py-4 text-zinc-400 text-[10px] italic">
+                                                     Henüz bileşen eklenmedi.
                                                  </div>
-                                                 
-                                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                     <button 
-                                                         onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }}
-                                                         className={`w-6 h-6 flex items-center justify-center rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-400 ${!item.isVisible ? 'text-zinc-300' : ''}`}
-                                                         title={item.isVisible ? "Gizle" : "Göster"}
-                                                     >
-                                                         <i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i>
-                                                     </button>
-                                                     <button 
-                                                         onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }}
-                                                         className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-colors"
-                                                         title="Sil"
-                                                     >
-                                                         <i className="fa-solid fa-trash"></i>
-                                                     </button>
-                                                 </div>
-                                             </div>
-                                         ))}
-                                         {layout.length === 0 && (
-                                             <div className="text-center py-8 text-zinc-400 text-xs italic">
-                                                 Henüz bileşen eklenmedi.
-                                             </div>
-                                         )}
-                                     </div>
+                                             )}
+                                         </div>
+                                     )}
                                  </div>
 
-                                 {/* ADD NEW SECTION - Pinned to bottom */}
-                                 <div className="shrink-0 p-4 bg-zinc-50 dark:bg-zinc-900/30 border-t border-zinc-200 dark:border-zinc-700">
-                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">YENİ EKLE</h4>
-                                     <div className="grid grid-cols-2 gap-2">
-                                         {COMPONENT_DEFINITIONS.map(def => (
-                                             <button 
-                                                 key={def.id} 
-                                                 onClick={() => addComponent(def)} 
-                                                 className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-indigo-300 hover:shadow-md transition-all group"
-                                             >
-                                                 <i className={`fa-solid ${def.icon} text-zinc-400 group-hover:text-indigo-500 text-lg transition-colors`}></i>
-                                                 <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 text-center leading-tight">{def.label}</span>
-                                             </button>
-                                         ))}
-                                     </div>
+                                 {/* SECTION 2: ADD NEW */}
+                                 <div>
+                                     <button 
+                                         onClick={() => toggleSection('add')}
+                                         className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-b border-zinc-200 dark:border-zinc-700"
+                                     >
+                                         <h4 className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                                             <i className="fa-solid fa-plus-circle"></i> YENİ EKLE
+                                         </h4>
+                                         <i className={`fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
+                                     </button>
+
+                                     {openSections.add && (
+                                         <div className="p-4 bg-zinc-50 dark:bg-zinc-900/30 animate-in slide-in-from-top-2 duration-200">
+                                             <div className="grid grid-cols-2 gap-2">
+                                                 {COMPONENT_DEFINITIONS.map(def => (
+                                                     <button 
+                                                         key={def.id} 
+                                                         onClick={() => addComponent(def)} 
+                                                         className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-indigo-300 hover:shadow-md transition-all group"
+                                                     >
+                                                         <i className={`fa-solid ${def.icon} text-zinc-400 group-hover:text-indigo-500 text-lg transition-colors`}></i>
+                                                         <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 text-center leading-tight">{def.label}</span>
+                                                     </button>
+                                                 ))}
+                                             </div>
+                                         </div>
+                                     )}
                                  </div>
                              </div>
                          )}
 
                          {/* Settings Config */}
                          {sidebarTab === 'settings' && (
-                             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+                             <div className="p-4 space-y-6">
                                 {/* 1. Öğrenci Bilgileri */}
                                 <div className="space-y-3">
                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
