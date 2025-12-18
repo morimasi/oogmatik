@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bursa Disleksi Ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6.5.1 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Global Styles -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;800&family=Lexend:wght@400;600;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+      
+      :root {
+        --bg-primary: #222226;
+        --bg-secondary: #1a1a1d;
+        --bg-paper: #2d2d32;
+        --bg-inset: #18181b;
+        --panel-bg: rgba(45, 45, 50, 0.95);
+        --text-primary: #fefce8;    
+        --text-secondary: #d4d4d8;  
+        --text-muted: #a1a1aa;      
+        --border-color: #3f3f46;    
+        --accent-color: #fbbf24;    
+        --accent-hover: #f59e0b;    
+        --pattern-color: #3f3f46;
+        --ui-font: 'Lexend', 'OpenDyslexic', sans-serif;
+        --ui-scale: 1;
+        --ui-spacing: normal;
+        --ui-line-height: 1.6;
+        --ui-saturation: 100%;
+        --pattern-image: none;
+      }
+      
+      :root.theme-light {
+        --bg-primary: #f8fafc;
+        --bg-secondary: #f1f5f9;
+        --bg-paper: #ffffff;
+        --bg-inset: #f1f5f9;
+        --panel-bg: rgba(255, 255, 255, 0.95);
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --border-color: #e2e8f0;
+        --accent-color: #4f46e5;
+        --accent-hover: #4338ca;
+        --pattern-color: #e2e8f0;
+      }
+      :root.dark {
+        --bg-primary: #18181b;
+        --bg-secondary: #09090b;
+        --bg-paper: #27272a;
+        --bg-inset: #09090b;
+        --panel-bg: rgba(39, 39, 42, 0.95);
+        --text-primary: #f4f4f5;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --border-color: #3f3f46;
+        --accent-color: #818cf8;
+        --accent-hover: #6366f1;
+        --pattern-color: #27272a;
+      }
+
+      body {
+        font-family: var(--ui-font);
+        font-size: calc(16px * var(--ui-scale));
+        letter-spacing: var(--ui-spacing);
+        line-height: var(--ui-line-height);
+        background-color: var(--bg-primary);
+        background-image: var(--pattern-image);
+        background-size: 550px 550px;
+        color: var(--text-primary);
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; 
+        overflow-y: auto;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+      /* --- DINAMIK ÇALIŞMA SAYFASI YAPISI --- */
+      .worksheet-page {
+          background-color: white;
+          color: black;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          margin: 0 auto;
+          width: 210mm; /* A4 Genişliği Sabit */
+          min-height: 297mm; /* En az A4 boyunda başla */
+          height: auto !important; /* İÇERİK KADAR UZA (KESİLMEYİ ÖNLER) */
+          padding-bottom: 20mm; /* Alt boşluk payı */
+          position: relative;
+          overflow: visible !important; /* TAŞMALARI GİZLEME, GÖSTER */
+          flex-shrink: 0;
+          display: flex;
+          flex-direction: column;
+          page-break-after: always;
+          break-after: page;
+      }
+
+      .smart-grid > * {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          margin-bottom: 1.5rem;
+          display: inline-block; 
+          width: 100%;
+      }
+
+      /* --- PROFESSIONAL PRINT STYLES --- */
+      @media print {
+          @page {
+              size: A4 portrait;
+              margin: 0;
+          }
+          html, body {
+              visibility: hidden;
+              height: auto !important;
+              overflow: visible !important;
+              margin: 0 !important;
+              padding: 0 !important;
+          }
+          #print-container {
+              visibility: visible !important;
+              display: block !important;
+              position: absolute !important;
+              left: 0; top: 0; width: 100%;
+          }
+          .print-page {
+              width: 210mm !important;
+              height: auto !important; /* Uzun içeriklerin kağıda yayılmasını sağlar */
+              min-height: 297mm !important;
+              padding: 15mm !important;
+              overflow: visible !important;
+              break-after: page;
+          }
+      }
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "vite": "https://aistudiocdn.com/vite@^7.2.6",
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
+        "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+        "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+        "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.14",
+        "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
+        "jspdf": "https://aistudiocdn.com/jspdf@^3.0.4",
+        "pdfjs-dist": "https://esm.sh/pdfjs-dist@^5.4.449"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

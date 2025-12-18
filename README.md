@@ -1,11 +1,47 @@
-<div align="center">
+# 🧠 Bursa Disleksi AI - Özel Eğitim İçerik Platformu
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+**Bursa Disleksi AI**, öğrenme güçlüğü (disleksi, diskalkuli) ve dikkat eksikliği yaşayan bireylerin eğitimi için kişiselleştirilmiş materyaller üreten yapay zeka destekli bir platformdur.
 
-  <h1>Built with AI Studio</h2>
+---
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## 🚀 Özellikler
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+*   **100+ Etkinlik Türü:** Okuma, yazma, matematik, dikkat ve görsel algı alanlarında.
+*   **Google Gemini AI:** Sınırsız ve bağlama uygun içerik üretimi.
+*   **Değerlendirme Modülü:** Öğrenci gelişim takibi ve AI destekli raporlama.
+*   **Yönetici Paneli & Mesajlaşma:** Eğitmen ve veli iletişimi.
 
-</div>
+---
+
+## 📦 Kurulum ve Dağıtım (Deployment)
+
+Bu proje **Vercel** üzerinde çalışmak üzere optimize edilmiştir. Uygulamanın **AI üretimi yapabilmesi** ve **Firebase veritabanına bağlanabilmesi** için aşağıdaki adımları izleyin.
+
+### 1. Vercel Ortam Değişkenlerini (Environment Variables) Ayarlama
+
+Vercel proje panelinizde **Settings > Environment Variables** menüsüne gidin ve aşağıdaki anahtarları tek tek ekleyin. Bu işlem yapılmazsa AI çalışmaz ve veritabanı hatası alırsınız.
+
+| Anahtar (Key) | Açıklama / Nereden Alınır? |
+| :--- | :--- |
+| `API_KEY` | **Google Gemini API Anahtarı.** (Google AI Studio'dan alınır). Bu olmadan AI çalışmaz. |
+| `FIREBASE_API_KEY` | Firebase Console > Project Settings > General > `apiKey` |
+| `FIREBASE_AUTH_DOMAIN` | Firebase Console > Project Settings > General > `authDomain` |
+| `FIREBASE_PROJECT_ID` | Firebase Console > Project Settings > General > `projectId` |
+| `FIREBASE_STORAGE_BUCKET` | Firebase Console > Project Settings > General > `storageBucket` |
+| `FIREBASE_MESSAGING_SENDER_ID` | Firebase Console > Project Settings > General > `messagingSenderId` |
+| `FIREBASE_APP_ID` | Firebase Console > Project Settings > General > `appId` |
+
+**Not:** Değişkenleri ekledikten sonra Vercel'de projenizi **Redeploy** yapmanız gerekir.
+
+### 2. Veritabanı Kurulumu
+
+Supabase veya Firebase kullanıyorsanız, ilgili tabloların ve güvenlik kurallarının oluşturulduğundan emin olun.
+
+---
+
+## 🧩 Yeni Eklenen Etkinlikler
+
+*   **Akrabalık İlişkileri Eşleştirme**
+*   **Mantıksal Çıkarım Bulmacaları**
+*   **Kutulu Sayı Analizi**
+*   **Harita ve Yönerge Takibi**

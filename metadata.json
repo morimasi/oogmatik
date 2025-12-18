@@ -1,0 +1,7 @@
+{
+  "name": "Copy of  Bursa Disleksi Ai v2.0",
+  "description": "Bursa Disleksi Ai, disleksi dostu bir yaklaşımla çocuklar için yapay zeka destekli eğitici etkinlikler üreten bir uygulamadır.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
