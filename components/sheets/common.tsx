@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP, simpleSyllabify } from '../../services/offlineGenerators/helpers';
 import { EditableElement, EditableText } from '../Editable'; 
@@ -79,10 +79,17 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
     let safeDesc = '';
     try { if (description) safeDesc = String(description); } catch (e) { safeDesc = ''; }
     
-    const seed = useMemo(() => safeDesc.length > 0 ? safeDesc.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : Math.floor(Math.random() * 1000), [safeDesc]);
+    const [hasError, setHasError] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    const seed = useMemo(() => (safeDesc.length > 0 ? safeDesc : (prompt || 'random')).split('').reduce((a, b) => a + b.charCodeAt(0), 0) + Math.floor(Math.random() * 100), [safeDesc, prompt]);
+
+    // Handle Load State
+    const handleLoad = () => setIsLoading(false);
+    const handleError = () => { setIsLoading(false); setHasError(true); };
 
     return (
-        <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center group`}>
+        <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center group min-h-[100px]`}>
             {safeDesc && (
                 <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-1 text-[8px] text-center opacity-0 group-hover:opacity-100 transition-opacity z-10 edit-handle pointer-events-none">
                     <EditableText value={safeDesc} tag="span" />
@@ -90,41 +97,58 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
             )}
             
             {(() => {
-                if (base64 && typeof base64 === 'string' && (base64.trim().startsWith('<svg') || base64.trim().startsWith('<?xml') || base64.includes('</svg>'))) {
-                    let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').replace(/^```svg\s*|```\s*$/g, '').trim();
-                    cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
-                    if (cleanSvg.includes('style="')) {
-                        cleanSvg = cleanSvg.replace('style="', 'style="width:100%; height:100%; display:block; ');
-                    } else {
-                        cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
+                // 1. Base64 / SVG Check
+                if (base64 && typeof base64 === 'string') {
+                     if (base64.trim().startsWith('<svg') || base64.trim().startsWith('<?xml') || base64.includes('</svg>')) {
+                        let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').replace(/^```svg\s*|```\s*$/g, '').trim();
+                        // Clean up SVG attributes for responsiveness
+                        cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
+                        if (cleanSvg.includes('style="')) {
+                            cleanSvg = cleanSvg.replace('style="', 'style="width:100%; height:100%; display:block; ');
+                        } else {
+                            cleanSvg = cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
+                        }
+                        return <div className="w-full h-full p-1 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: cleanSvg }} />;
                     }
-                    return <div className="w-full h-full p-1 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: cleanSvg }} />;
-                }
-                
-                if (base64 && typeof base64 === 'string' && (base64.startsWith('data:image') || base64.length > 100)) { 
-                    return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" loading="lazy" />;
+                    if (base64.startsWith('data:image') || base64.length > 100) { 
+                        return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" loading="lazy" />;
+                    }
                 }
 
+                // 2. Pollinations AI (Unlimited Free Generation)
                 let contentForPrompt = prompt || safeDesc;
-                if (contentForPrompt && contentForPrompt.length > 1) {
-                    const finalPrompt = `${contentForPrompt}, educational vector illustration, simple black and white line art, white background, high contrast, minimalist`;
+                if (!hasError && contentForPrompt && contentForPrompt.length > 1) {
+                    // Sanitize prompt for URL
+                    const cleanPrompt = contentForPrompt.substring(0, 400).replace(/[^\w\s,.-]/gi, '');
+                    const finalPrompt = `${cleanPrompt}, vector art, white background, minimalist`;
                     const encodedPrompt = encodeURIComponent(finalPrompt);
                     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
                     
                     return (
-                        <img 
-                            src={imageUrl} 
-                            alt={safeDesc} 
-                            className="object-contain w-full h-full mix-blend-multiply" 
-                            loading="lazy"
-                        />
+                        <>
+                            {isLoading && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-zinc-50">
+                                    <i className="fa-solid fa-circle-notch fa-spin text-zinc-300 text-2xl"></i>
+                                </div>
+                            )}
+                            <img 
+                                src={imageUrl} 
+                                alt={safeDesc} 
+                                className={`object-contain w-full h-full mix-blend-multiply transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`} 
+                                loading="lazy"
+                                onLoad={handleLoad}
+                                onError={handleError}
+                            />
+                        </>
                     );
                 }
 
+                // 3. Fallback Placeholder
                 return (
-                    <div className="flex flex-col items-center justify-center h-full w-full border border-dashed border-zinc-300 rounded text-zinc-300">
-                        <span className="text-xl font-bold opacity-50">
-                            <EditableText value={safeDesc ? safeDesc.charAt(0).toUpperCase() : '?'} tag="span" />
+                    <div className="flex flex-col items-center justify-center h-full w-full border border-dashed border-zinc-300 rounded text-zinc-300 bg-zinc-50/50">
+                        <i className="fa-regular fa-image text-2xl mb-1 opacity-50"></i>
+                        <span className="text-xs font-bold opacity-50 px-2 text-center">
+                            <EditableText value={safeDesc ? safeDesc : 'Görsel Yok'} tag="span" />
                         </span>
                     </div>
                 );

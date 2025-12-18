@@ -21,12 +21,12 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     };
 
     const imageStyleMap = {
-        'storybook': 'Children book illustration style, flat vector, clean lines, bright colors',
-        'realistic': 'Realistic educational illustration, highly detailed',
-        'cartoon': 'Cartoon style, expressive characters, fun outlines',
-        'sketch': 'Pencil sketch style, black and white artistic',
-        'watercolor': 'Watercolor painting style, soft edges, artistic',
-        '3d_render': '3D clay render style, cute, plastic texture'
+        'storybook': 'Children book illustration style, flat vector, clean lines, bright colors, white background',
+        'realistic': 'Realistic educational illustration, highly detailed, 4k, white background',
+        'cartoon': 'Cartoon style, expressive characters, fun outlines, vibrant, white background',
+        'sketch': 'Pencil sketch style, black and white artistic, doodle',
+        'watercolor': 'Watercolor painting style, soft edges, artistic, pastel colors',
+        '3d_render': '3D clay render style, cute, plastic texture, isometric'
     };
 
     // 2. Pedagojik Strateji ve Bileşen Sayıları
@@ -43,15 +43,16 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     if (config.includeCreativeTask) tasksInstruction += `\n- Yaratıcı Görev: Hikaye ile ilgili bir çizim veya yazma görevi.`;
 
     // 3. Görsel Prompt Talimatı
+    // Her durumda bir görsel prompt üretiyoruz, böylece kullanıcı sonradan görseli açmak isterse veri hazır olur.
+    // Ancak stil tercihi kullanıcıdan gelir.
+    const style = config.imageGeneration?.enabled ? (imageStyleMap[config.imageGeneration.style] || imageStyleMap['storybook']) : imageStyleMap['storybook'];
     
-    let imageInstruction = `GÖRSEL İPUCU (Image Prompt): "" (Boş bırak)`;
-    if (config.imageGeneration?.enabled) {
-        const style = imageStyleMap[config.imageGeneration.style] || imageStyleMap['storybook'];
-        imageInstruction = `
-        GÖRSEL İPUCU (Image Prompt): Hikayenin en önemli sahnesini betimleyen, İngilizce, detaylı bir prompt yaz.
-        Görsel Stili: "${style}".
-        `;
-    }
+    const imageInstruction = `
+    GÖRSEL İPUCU (Image Prompt): 
+    Hikayenin en önemli sahnesini betimleyen, İNGİLİZCE, kısa ve net bir prompt yaz.
+    Stil Anahtar Kelimeleri (Bunları promptun sonuna ekle): "${style}".
+    Prompt örneği: "A cute cat sitting on a red roof, sunny day, blue sky, ${style}"
+    `;
 
     // 4. Ana Prompt İnşası
     

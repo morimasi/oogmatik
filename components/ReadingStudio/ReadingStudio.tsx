@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
@@ -216,7 +217,9 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
                     onChange={e => onUpdateSpecific({...data, text: e.target.value})} 
                     className="w-full h-64 p-2 border rounded text-sm leading-relaxed resize-none font-dyslexic bg-zinc-50 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none"
                 ></textarea>
-                <p className="text-[10px] text-zinc-400">Not: AI üretiminden sonra burayı el ile düzeltebilirsiniz.</p>
+                <div className="bg-amber-50 p-2 rounded border border-amber-200 text-xs text-amber-700">
+                    <span className="font-bold">Not:</span> Görsel ayarı "Stil" sekmesinden yapılabilir.
+                </div>
             </div>
          );
     }
@@ -256,7 +259,7 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
     
     // CREATIVE SPECIFIC
     if (item.id === 'creative') {
-        const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
+        const data = item.specificData || { task: "Hikayeyle ilgili bir resim çiz." };
         return (
              <div className="space-y-3">
                 <label className="text-[9px] font-bold text-zinc-400 uppercase block mb-1">Yaratıcı Görev Yönergesi</label>
@@ -453,7 +456,8 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             if (item.id === 'header') {
                 specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
             } else if (item.id === 'story_block') {
-                specificData = { text: storyData.story };
+                // FIXED: Map story AND imagePrompt
+                specificData = { text: storyData.story, imagePrompt: storyData.imagePrompt };
             } else if (item.id === 'questions_5n1k') {
                 specificData = { questions: (storyData.fiveW1H || []).map(q => ({ text: q.question })) };
             } else if (item.id === 'questions_test') {
@@ -609,11 +613,19 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
 
         // Story Text
         if (item.id === 'story_block') {
-            const data = item.specificData || { text: "Hikaye metni bekleniyor..." };
+            const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
             return (
                 <div className="h-full relative overflow-hidden" style={boxStyle}>
-                     {/* Image handling simplified for brevity, assume similar to before but using item.style.imageSettings */}
-                     {item.style.imageSettings?.enabled && <div className="float-right w-1/3 h-32 bg-zinc-100 ml-4 mb-2 rounded-lg border flex items-center justify-center text-xs text-zinc-400">Görsel</div>}
+                     {/* Use ImageDisplay component for robust rendering */}
+                     {item.style.imageSettings?.enabled && (
+                        <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
+                            <ImageDisplay 
+                                prompt={data.imagePrompt} 
+                                description="Hikaye Görseli" 
+                                className="w-full h-full object-contain" 
+                            />
+                        </div>
+                     )}
                      <div dangerouslySetInnerHTML={{__html: data.text.replace(/\n/g, '<br/>')}}></div>
                 </div>
             );
