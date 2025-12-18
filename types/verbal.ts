@@ -159,43 +159,47 @@ export interface ReadingStudioConfig {
 
 export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'self_eval' | 'notes';
 
-// Updated for Absolute Positioning Canvas
+// Updated for Absolute Positioning Canvas with Deep Customization
 export interface LayoutItemStyle {
     // Positioning
     x: number;
     y: number;
     w: number;
     h: number;
-    rotation?: number; // Rotation in degrees
+    rotation?: number; 
     zIndex: number;
     
-    // Visuals
+    // Visuals (Box Model)
     backgroundColor?: string;
     borderColor?: string;
     borderWidth?: number;
+    borderStyle?: 'solid' | 'dashed' | 'dotted' | 'double'; // New
     borderRadius?: number;
-    boxShadow?: string; // 'none', 'sm', 'md', 'lg'
+    boxShadow?: string; 
     opacity?: number;
     
     // Padding
     padding: number;
     
-    // Typography override (optional per block)
+    // Typography override (Deep customization)
     fontSize?: number;
     fontFamily?: string;
+    fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter'; // New
     color?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
+    lineHeight?: number; // New
+    letterSpacing?: number; // New
 
-    // Advanced Image Settings (New)
+    // Advanced Image Settings
     imageSettings?: {
         enabled: boolean;
         position: 'top' | 'bottom' | 'left' | 'right' | 'background' | 'overlay';
-        widthPercent: number; // 10-100%
-        opacity: number; // 0-1
+        widthPercent: number; 
+        opacity: number; 
         objectFit: 'cover' | 'contain';
         borderRadius: number;
-        blendMode?: string; // 'normal', 'multiply', 'screen' etc.
-        filter?: string; // 'none', 'grayscale', 'sepia'
+        blendMode?: string; 
+        filter?: string; 
     };
 }
 
@@ -205,4 +209,6 @@ export interface LayoutItem {
     icon: string;
     isVisible: boolean;
     style: LayoutItemStyle;
+    // New: Specific data holding for manual overrides (Data Separation)
+    specificData?: any; 
 }
