@@ -2,10 +2,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { printService } from '../../utils/printService';
+import { worksheetService } from '../../services/worksheetService';
 import { EditableText } from '../Editable';
+import { ShareModal } from '../ShareModal';
 import { generateMathProblemsAI } from '../../services/generators/mathStudio';
 import { generateMathDrillSet } from '../../services/offlineGenerators/mathStudio';
 import { MathDrillConfig, MathPageConfig, MathOperation, MathProblemConfig, MathProblem, MathMode } from '../../types/math';
+import { ActivityType } from '../../types';
 
 // --- CONFIGURATION ---
 const A4_WIDTH_PX = 794; 
@@ -129,12 +132,20 @@ const ProblemCard: React.FC<{ problem: MathProblem, showSolutionBox: boolean }> 
     </div>
 );
 
-export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+interface MathStudioProps {
+    onBack: () => void;
+    onAddToWorkbook?: (data: any) => void;
+}
+
+export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook }) => {
     const { user } = useAuth();
     
     // --- STATE ---
     const [mode, setMode] = useState<MathMode>('drill');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isPrinting, setIsPrinting] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     
     // Configs
     const [pageConfig, setPageConfig] = useState<MathPageConfig>({
@@ -145,7 +156,7 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         selectedOperations: ['add'], 
         digit1: 2, 
         digit2: 1, 
-        digit3: 1, // Default 3rd number digit
+        digit3: 1, 
         count: 20, cols: 4, gap: 30,
         allowCarry: true, allowBorrow: true, allowRemainder: false, allowNegative: false,
         useThirdNumber: false, showTextRepresentation: false, autoFillPage: false,
@@ -226,6 +237,19 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             return { ...prev, selectedOperations: newOps };
         });
     };
+    
+    // Prepare Data Packet for Saving/Sharing
+    const getExportData = () => {
+        return {
+            mode,
+            config: mode === 'drill' ? drillConfig : problemConfig,
+            pageConfig,
+            items: mode === 'drill' ? generatedDrills : generatedProblems,
+            // Flag for SheetRenderer to identify Math Studio Data
+            isMathStudio: true,
+            title: pageConfig.title
+        };
+    };
 
     // --- ACTIONS ---
 
@@ -247,6 +271,63 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             setIsGenerating(false);
         }
     };
+    
+    const handleSave = async () => {
+        if (!user) { alert("Kaydetmek için giriş yapmalısınız."); return; }
+        setIsSaving(true);
+        try {
+            const data = getExportData();
+            await worksheetService.saveWorksheet(
+                user.id,
+                pageConfig.title,
+                'MATH_STUDIO' as ActivityType,
+                [data],
+                'fa-solid fa-calculator',
+                { id: 'math-logic', title: 'Matematik' }
+            );
+            alert("Çalışma başarıyla kaydedildi.");
+        } catch (e) {
+            console.error(e);
+            alert("Kaydetme hatası.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleShare = async (receiverId: string) => {
+        if (!user) return;
+        try {
+            const data = getExportData();
+            const mockSavedWorksheet: any = {
+                name: pageConfig.title,
+                activityType: 'MATH_STUDIO',
+                worksheetData: [data],
+                icon: 'fa-solid fa-calculator',
+                category: { id: 'math-logic', title: 'Matematik' }
+            };
+            await worksheetService.shareWorksheet(mockSavedWorksheet, user.id, user.name, receiverId);
+            setIsShareModalOpen(false);
+            alert("Paylaşıldı.");
+        } catch (e) {
+            alert("Paylaşım hatası.");
+        }
+    };
+    
+    const handlePrint = async (action: 'print' | 'download') => {
+        setIsPrinting(true);
+        setTimeout(async () => {
+            try {
+                await printService.generatePdf('#math-canvas', pageConfig.title, { action });
+            } catch (e) { console.error(e); } finally { setIsPrinting(false); }
+        }, 100);
+    };
+
+    const handleAddToWorkbookClick = () => {
+        if (onAddToWorkbook) {
+            const data = getExportData();
+            onAddToWorkbook(data);
+        }
+    };
 
     return (
         <div className="h-full flex flex-col bg-[#121212] text-white overflow-hidden font-sans">
@@ -263,18 +344,45 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     </div>
                 </div>
                 
-                <div className="flex bg-zinc-800 p-1 rounded-lg">
-                    <button onClick={() => setMode('drill')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${mode === 'drill' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
-                        <i className="fa-solid fa-calculator"></i> İşlem Atölyesi
-                    </button>
-                    <button onClick={() => setMode('problem_ai')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${mode === 'problem_ai' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
-                        <i className="fa-solid fa-robot"></i> AI Problemleri
-                    </button>
-                </div>
+                <div className="flex items-center gap-4">
+                    <div className="flex bg-zinc-800 p-1 rounded-lg">
+                        <button onClick={() => setMode('drill')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${mode === 'drill' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
+                            <i className="fa-solid fa-calculator"></i> İşlem Atölyesi
+                        </button>
+                        <button onClick={() => setMode('problem_ai')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${mode === 'problem_ai' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
+                            <i className="fa-solid fa-robot"></i> AI Problemleri
+                        </button>
+                    </div>
 
-                <button onClick={() => printService.generatePdf('#math-canvas', pageConfig.title, { action: 'print' })} className="px-4 py-2 bg-zinc-100 hover:bg-white text-black rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2">
-                    <i className="fa-solid fa-print"></i> Yazdır
-                </button>
+                    <div className="h-8 w-px bg-zinc-800"></div>
+
+                    <div className="flex gap-2">
+                        <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="PDF İndir">
+                            {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
+                        </button>
+                        <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Yazdır">
+                            <i className="fa-solid fa-print"></i>
+                        </button>
+                        <button onClick={() => setIsShareModalOpen(true)} className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Paylaş">
+                            <i className="fa-solid fa-share-nodes"></i>
+                        </button>
+                        
+                        {onAddToWorkbook && (
+                            <button onClick={handleAddToWorkbookClick} className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-emerald-600 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Kitapçığa Ekle">
+                                <i className="fa-solid fa-plus-circle"></i>
+                            </button>
+                        )}
+                        
+                        <button 
+                            onClick={handleSave} 
+                            disabled={isSaving}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all ${isSaving ? 'bg-zinc-700 text-zinc-400' : 'bg-white text-black hover:bg-zinc-200'}`}
+                        >
+                            {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-save"></i>}
+                            Kaydet
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div className="flex-1 flex overflow-hidden">
@@ -646,6 +754,13 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 </div>
 
             </div>
+            
+            <ShareModal 
+                isOpen={isShareModalOpen} 
+                onClose={() => setIsShareModalOpen(false)} 
+                onShare={handleShare} 
+                worksheetTitle={pageConfig.title}
+            />
         </div>
     );
 };

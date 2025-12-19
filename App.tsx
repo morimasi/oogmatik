@@ -464,7 +464,10 @@ const AppContent: React.FC = () => {
 
     if (currentView === 'math-studio') return (
         <Suspense fallback={<LoadingSpinner />}>
-            <MathStudio onBack={handleGoBack} />
+            <MathStudio 
+                onBack={handleGoBack}
+                onAddToWorkbook={(data: any) => handleAddToWorkbookGeneral('MATH_STUDIO' as any, data)}
+            />
         </Suspense>
     );
     

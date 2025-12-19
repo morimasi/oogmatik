@@ -56,7 +56,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
   useEffect(() => {
-      // ... (Existing loadCustomActivities logic)
       const loadCustomActivities = async () => {
           try {
               const customActs = await adminService.getAllActivities();
@@ -127,7 +126,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   }
 
   const handleGenerate = async (options: GeneratorOptions) => {
-    // ... (Existing logic unchanged)
     if (!selectedActivity) return;
     
     setIsLoading(true);
@@ -254,13 +252,57 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <button onClick={closeSidebar} className="md:hidden ml-2 w-7 h-7 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 transition-colors"><i className="fa-solid fa-xmark text-sm"></i></button>
                 </div>
 
-                {/* MODUL BUTTONS */}
+                {/* MODUL BUTTONS (VERTICAL & LARGER) */}
                 {isExpanded && (
-                    <div className="px-3 py-2 grid grid-cols-4 gap-2 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-1">
-                        {onOpenOCR && <button onClick={onOpenOCR} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1"><div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm group-hover:scale-105 transition-transform duration-300"><i className="fa-solid fa-camera text-sm"></i></div><span className="text-[8px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">OCR</span></button>}
-                        {onOpenCurriculum && <button onClick={onOpenCurriculum} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1"><div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover:scale-105 transition-transform duration-300"><i className="fa-solid fa-graduation-cap text-sm"></i></div><span className="text-[8px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Plan</span></button>}
-                        {onOpenReadingStudio && <button onClick={onOpenReadingStudio} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1"><div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-sm group-hover:scale-105 transition-transform duration-300"><i className="fa-solid fa-book-open-reader text-sm"></i></div><span className="text-[8px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Okuma</span></button>}
-                        {onOpenMathStudio && <button onClick={onOpenMathStudio} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1"><div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm group-hover:scale-105 transition-transform duration-300"><i className="fa-solid fa-calculator text-sm"></i></div><span className="text-[8px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Mat</span></button>}
+                    <div className="px-4 py-4 grid grid-cols-1 gap-3 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-2">
+                        {onOpenOCR && (
+                            <button onClick={onOpenOCR} className="group w-full relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-4 shadow-sm hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700">
+                                <div className="w-12 h-12 shrink-0 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <i className="fa-solid fa-camera text-xl"></i>
+                                </div>
+                                <div className="flex flex-col items-start">
+                                    <span className="text-xs font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-widest">Akıllı Tarayıcı</span>
+                                    <span className="text-[10px] text-zinc-400 font-medium group-hover:text-indigo-500 transition-colors">OCR & Analiz</span>
+                                </div>
+                                <i className="fa-solid fa-chevron-right text-zinc-300 ml-auto text-xs group-hover:text-indigo-400 transition-colors"></i>
+                            </button>
+                        )}
+                        {onOpenCurriculum && (
+                            <button onClick={onOpenCurriculum} className="group w-full relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-4 shadow-sm hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700">
+                                <div className="w-12 h-12 shrink-0 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <i className="fa-solid fa-graduation-cap text-xl"></i>
+                                </div>
+                                <div className="flex flex-col items-start">
+                                    <span className="text-xs font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-widest">Eğitim Planı</span>
+                                    <span className="text-[10px] text-zinc-400 font-medium group-hover:text-emerald-500 transition-colors">Kişisel Müfredat</span>
+                                </div>
+                                <i className="fa-solid fa-chevron-right text-zinc-300 ml-auto text-xs group-hover:text-emerald-400 transition-colors"></i>
+                            </button>
+                        )}
+                        {onOpenReadingStudio && (
+                            <button onClick={onOpenReadingStudio} className="group w-full relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-4 shadow-sm hover:shadow-md hover:border-rose-300 dark:hover:border-rose-700">
+                                <div className="w-12 h-12 shrink-0 rounded-xl bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <i className="fa-solid fa-book-open-reader text-xl"></i>
+                                </div>
+                                <div className="flex flex-col items-start">
+                                    <span className="text-xs font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-widest">Okuma Stüdyosu</span>
+                                    <span className="text-[10px] text-zinc-400 font-medium group-hover:text-rose-500 transition-colors">Metin & Analiz</span>
+                                </div>
+                                <i className="fa-solid fa-chevron-right text-zinc-300 ml-auto text-xs group-hover:text-rose-400 transition-colors"></i>
+                            </button>
+                        )}
+                        {onOpenMathStudio && (
+                            <button onClick={onOpenMathStudio} className="group w-full relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-4 shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700">
+                                <div className="w-12 h-12 shrink-0 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <i className="fa-solid fa-calculator text-xl"></i>
+                                </div>
+                                <div className="flex flex-col items-start">
+                                    <span className="text-xs font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-widest">Matematik Lab</span>
+                                    <span className="text-[10px] text-zinc-400 font-medium group-hover:text-blue-500 transition-colors">İşlem & Problem</span>
+                                </div>
+                                <i className="fa-solid fa-chevron-right text-zinc-300 ml-auto text-xs group-hover:text-blue-400 transition-colors"></i>
+                            </button>
+                        )}
                     </div>
                 )}
 
