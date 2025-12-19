@@ -1,8 +1,7 @@
 
-import { MathStudioConfig } from '../../types';
+import { getRandomInt } from './helpers';
 
-const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-
+// Helper: Check constraints
 const hasCarry = (n1: number, n2: number): boolean => {
     const s1 = n1.toString().split('').reverse();
     const s2 = n2.toString().split('').reverse();
@@ -26,52 +25,68 @@ const hasBorrow = (n1: number, n2: number): boolean => {
     return false;
 };
 
-export const generateMathOperationsFast = (config: MathStudioConfig, count: number = 20) => {
+// Main Drill Generator with Deep Constraints
+export const generateMathDrillSet = (
+    count: number,
+    opType: 'add' | 'sub' | 'mult' | 'div' | 'mixed',
+    settings: { min: number, max: number, allowCarry: boolean, allowBorrow: boolean, allowRemainder: boolean }
+) => {
     const operations = [];
-    const min1 = Math.pow(10, config.digitCount1 - 1);
-    const max1 = Math.pow(10, config.digitCount1) - 1;
-    const min2 = Math.pow(10, config.digitCount2 - 1);
-    const max2 = Math.pow(10, config.digitCount2) - 1;
+    const opsList = opType === 'mixed' ? ['add', 'sub', 'mult', 'div'] : [opType];
 
     for (let i = 0; i < count; i++) {
-        const opType = config.operations[getRandomInt(0, config.operations.length - 1)];
-        let n1, n2, ans, valid = false;
+        const currentOp = opsList[getRandomInt(0, opsList.length - 1)];
+        let n1, n2, ans, symbol;
+        let valid = false;
         let attempts = 0;
 
-        while (!valid && attempts < 100) {
+        while (!valid && attempts < 200) {
             attempts++;
-            n1 = getRandomInt(min1, max1);
-            n2 = getRandomInt(min2, max2);
+            
+            // Adjust ranges based on operation to avoid impossible constraints
+            let effectiveMin = settings.min;
+            let effectiveMax = settings.max;
+            
+            if (currentOp === 'mult') {
+                effectiveMax = Math.min(settings.max, 20); // Keep multiplication factors reasonable unless expert
+                effectiveMin = 1;
+            } else if (currentOp === 'div') {
+                effectiveMax = Math.min(settings.max, 100);
+            }
 
-            if (opType === 'add') {
-                if (!config.constraints.allowCarry && hasCarry(n1, n2)) continue;
+            n1 = getRandomInt(effectiveMin, effectiveMax);
+            n2 = getRandomInt(effectiveMin, effectiveMax);
+
+            if (currentOp === 'add') {
+                symbol = '+';
+                if (!settings.allowCarry && hasCarry(n1, n2)) continue;
                 ans = n1 + n2;
                 valid = true;
-            } else if (opType === 'sub') {
-                if (n1 < n2) [n1, n2] = [n2, n1];
-                if (!config.constraints.allowBorrow && hasBorrow(n1, n2)) continue;
+            } else if (currentOp === 'sub') {
+                symbol = '-';
+                if (n1 < n2) [n1, n2] = [n2, n1]; // Ensure positive
+                if (!settings.allowBorrow && hasBorrow(n1, n2)) continue;
                 ans = n1 - n2;
                 valid = true;
-            } else if (opType === 'mult') {
+            } else if (currentOp === 'mult') {
+                symbol = 'x';
                 ans = n1 * n2;
                 valid = true;
-            } else if (opType === 'div') {
-                if (n2 === 0) continue;
-                if (!config.constraints.allowRemainder) {
-                    n1 = n2 * getRandomInt(1, 20);
+            } else if (currentOp === 'div') {
+                symbol = '÷';
+                n2 = getRandomInt(2, 12); // Divisor usually small
+                if (!settings.allowRemainder) {
+                    const factor = getRandomInt(1, 15);
+                    n1 = n2 * factor;
+                    ans = factor;
+                } else {
+                    n1 = getRandomInt(10, 100);
+                    ans = Math.floor(n1 / n2);
                 }
-                ans = Math.floor(n1 / n2);
                 valid = true;
             }
         }
-
-        const unknownPos = config.constraints.findUnknown ? (['n1', 'n2', 'ans'][getRandomInt(0, 2)] as any) : 'ans';
-
-        operations.push({
-            n1, n2, op: opType === 'add' ? '+' : opType === 'sub' ? '-' : opType === 'mult' ? 'x' : '÷',
-            ans, unknownPos
-        });
+        operations.push({ n1, n2, symbol, ans, id: i });
     }
-
     return operations;
 };

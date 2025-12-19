@@ -41,7 +41,6 @@ export const ActivityType = {
 
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType] | string;
 
-// Fix: Exporting Activity and ActivityCategory to resolve constants.ts errors
 export interface Activity {
     id: ActivityType;
     title: string;
@@ -64,7 +63,6 @@ export interface ActivityCategory {
     isCustom?: boolean;
 }
 
-// Fix: Exporting missing core worksheet types
 export type WorksheetData = any[] | null;
 export type SingleWorksheetData = any;
 
@@ -480,54 +478,4 @@ export interface AlgorithmStep {
     no?: number;
 }
 
-// --- MATH STUDIO TYPES ---
-
-export interface MathComponentStyle {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    rotation: number;
-    zIndex: number;
-    fontSize: number;
-    fontFamily: string;
-    color: string;
-    backgroundColor: string;
-    borderColor: string;
-    borderWidth: number;
-    borderRadius: number;
-    padding: number;
-    textAlign: 'left' | 'center' | 'right';
-}
-
-export type MathComponentType = 'operation_grid' | 'problem_set' | 'number_line' | 'base_10_blocks' | 'header' | 'footer' | 'notes';
-
-export interface MathStudioComponent {
-    instanceId: string;
-    type: MathComponentType;
-    label: string;
-    isVisible: boolean;
-    style: MathComponentStyle;
-    data: any; 
-}
-
-export interface MathStudioConfig {
-    gradeLevel: string;
-    studentName: string;
-    operations: ('add' | 'sub' | 'mult' | 'div')[];
-    digitCount1: number;
-    digitCount2: number;
-    constraints: {
-        allowCarry: boolean;
-        allowBorrow: boolean;
-        allowRemainder: boolean;
-        findUnknown: boolean;
-    };
-    problemConfig: {
-        enabled: boolean;
-        count: number;
-        steps: 1 | 2 | 3;
-        topic: string;
-    };
-    layout: 'grid' | 'free';
-}
+// Math types moved to types/math.ts to avoid conflict

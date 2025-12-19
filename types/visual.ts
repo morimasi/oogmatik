@@ -72,6 +72,15 @@ export interface SyllableTrainData extends BaseActivityData { trains: { syllable
 export interface BackwardSpellingData extends BaseActivityData { items: { reversed: string; }[]; }
 export interface HandwritingPracticeData extends BaseActivityData { guideType: string; lines: { text: string; type: 'trace' | 'copy' | 'empty'; imagePrompt?: string; }[]; }
 
+export interface ShapeCountingData extends BaseActivityData {
+    figures: {
+        targetShape: string;
+        correctCount: number;
+        svgPaths: { d: string; fill: string; stroke?: string; }[];
+        cubeData?: number[][];
+    }[];
+}
+
 // Added missing interfaces for Word Games
 export interface WordSearchData extends BaseActivityData {
     grid: string[][];
@@ -352,4 +361,10 @@ export interface RapidNamingData extends BaseActivityData {
 
 export interface PhonologicalAwarenessData extends BaseActivityData {
     exercises: { question: string; word: string; }[];
+}
+
+export interface MapInstructionData extends BaseActivityData {
+    mapSvg: string;
+    cities: { name: string; x: number; y: number }[];
+    instructions: string[];
 }

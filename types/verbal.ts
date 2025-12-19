@@ -212,3 +212,19 @@ export interface LayoutItem {
     // New: Specific data holding for manual overrides (Data Separation)
     specificData?: any; 
 }
+
+// New Logic/Verbal Interfaces
+export interface FamilyRelationsData extends BaseActivityData {
+    leftColumn: { text: string; id: number }[];
+    rightColumn: { text: string; id: number }[];
+}
+
+export interface LogicDeductionData extends BaseActivityData {
+    scoringText?: string;
+    questions: {
+        riddle: string;
+        options: string[];
+        answerIndex: number;
+        correctLetter: string;
+    }[];
+}
