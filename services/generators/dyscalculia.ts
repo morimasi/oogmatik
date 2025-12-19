@@ -63,10 +63,10 @@ export const generateNumberSenseFromAI = async (options: GeneratorOptions): Prom
 
 // --- 2. Arithmetic Fluency & Visual Arithmetic ---
 export const generateArithmeticFluencyFromAI = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
-    const { difficulty, worksheetCount, operationType, maxSum } = options;
+    const { difficulty, worksheetCount, operationType, numberRange } = options;
     const prompt = `
     Diskalkuli için "Temel Aritmetik Akıcılığı". Seviye: ${difficulty}.
-    İşlem: ${operationType}. Maksimum Toplam: ${maxSum || 10}.
+    İşlem: ${operationType}. Sayı Aralığı: ${numberRange || '1-10'}.
     Problemleri hem sayı hem de görsel (nokta/nesne) ile destekle.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.

@@ -25,6 +25,7 @@ const MessagesView = lazy(() => import('./components/MessagesView').then(module 
 const OCRScanner = lazy(() => import('./components/OCRScanner').then(module => ({ default: module.OCRScanner })));
 const CurriculumView = lazy(() => import('./components/CurriculumView').then(module => ({ default: module.CurriculumView })));
 const ReadingStudio = lazy(() => import('./components/ReadingStudio/ReadingStudio').then(module => ({ default: module.ReadingStudio })));
+const MathStudio = lazy(() => import('./components/MathStudio/MathStudio').then(module => ({ default: module.MathStudio })));
 
 // ... (Existing initialSettings and helper functions remain unchanged)
 const initialStyleSettings: StyleSettings = {
@@ -63,7 +64,7 @@ const initialUiSettings: UiSettings = {
 };
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer';
-type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio';
+type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio';
 
 interface ActiveCurriculumSession {
     planId: string;
@@ -460,6 +461,12 @@ const AppContent: React.FC = () => {
             />
         </Suspense>
     );
+
+    if (currentView === 'math-studio') return (
+        <Suspense fallback={<LoadingSpinner />}>
+            <MathStudio onBack={handleGoBack} />
+        </Suspense>
+    );
     
     if (currentView === 'curriculum') return (
         <Suspense fallback={<LoadingSpinner />}>
@@ -598,6 +605,7 @@ const AppContent: React.FC = () => {
                         onOpenOCR={() => navigateTo('ocr')}
                         onOpenCurriculum={() => navigateTo('curriculum')}
                         onOpenReadingStudio={() => navigateTo('reading-studio')}
+                        onOpenMathStudio={() => navigateTo('math-studio')}
                     />
                 </div>
                 

@@ -122,10 +122,10 @@ export const generateSpiralPuzzleFromAI = async (options: GeneratorOptions): Pro
 };
 
 export const generateJumbledWordStoryFromAI = async (options: GeneratorOptions): Promise<JumbledWordStoryData[]> => {
-    const { theme, worksheetCount, difficulty } = options;
+    const { topic, worksheetCount, difficulty } = options;
     const diffPrompt = getDifficultyPrompt(difficulty);
     const prompt = `
-    '${theme}' temalı Karışık Kelime Hikayesi.
+    '${topic || 'Genel'}' temalı Karışık Kelime Hikayesi.
     ${diffPrompt}
     **İngilizce** 'imagePrompt' ana görsel için.
     ${PEDAGOGICAL_PROMPT}
@@ -269,7 +269,7 @@ export const generateWordPlacementPuzzleFromAI = async (options: GeneratorOption
 export const generatePositionalAnagramFromAI = async (options: GeneratorOptions): Promise<PositionalAnagramData[]> => {
      const { worksheetCount, difficulty } = options;
      const prompt = `Yer Değiştirmeli Anagram. ${getDifficultyPrompt(difficulty)} ${PEDAGOGICAL_PROMPT}`;
-     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, scrambled: {type: Type.STRING}, answer: {type: Type.STRING}}, required: ['id','scrambled','answer']}} }, required: ['title', 'puzzles', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
+     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, prompt: {type: Type.STRING}, instruction: {type: Type.STRING}, pedagogicalNote: {type: Type.STRING}, imagePrompt: {type: Type.STRING}, puzzles: {type: Type.ARRAY, items: {type: Type.OBJECT, properties: {id: {type: Type.INTEGER}, scrambled: {type: Type.STRING}, answer: {type: Type.STRING}}, required: ['id','scrambled','answer']}}, }, required: ['title', 'puzzles', 'instruction', 'pedagogicalNote', 'imagePrompt'] } };
     return generateWithSchema(prompt, schema) as Promise<PositionalAnagramData[]>;
 }
 
