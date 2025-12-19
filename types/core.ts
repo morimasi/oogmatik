@@ -90,6 +90,8 @@ export const ActivityType = {
     MAP_INSTRUCTION: 'MAP_INSTRUCTION',
     MIND_GAMES: 'MIND_GAMES',
     MIND_GAMES_56: 'MIND_GAMES_56',
+    ALGORITHM_GENERATOR: 'ALGORITHM_GENERATOR',
+    AI_WORKSHEET_CONVERTER: 'AI_WORKSHEET_CONVERTER',
     
     // Attention & Memory
     WORD_MEMORY: 'WORD_MEMORY',
@@ -165,8 +167,6 @@ export const ActivityType = {
 } as const;
 
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType] | string;
-
-// ... (Other existing interfaces) ...
 
 // --- READING STUDIO TYPES ---
 export interface InteractiveStorySegment {
@@ -639,4 +639,18 @@ export interface Curriculum {
     progress?: number;
     interests?: string[];
     weaknesses?: string[];
+}
+
+export interface AlgorithmStep {
+    id: number;
+    type: 'process' | 'decision' | 'input' | 'output' | 'start' | 'end';
+    text: string;
+    next?: number;
+    yes?: number;
+    no?: number;
+}
+
+export interface AlgorithmData extends BaseActivityData {
+    steps: AlgorithmStep[];
+    challenge: string;
 }
