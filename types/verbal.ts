@@ -157,7 +157,7 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_tf' | 'questions_fill' | 'questions_logic' | 'questions_inference' | 'creative' | 'self_eval' | 'notes';
+export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'self_eval' | 'notes';
 
 // Updated for Absolute Positioning Canvas with Deep Customization
 export interface LayoutItemStyle {
@@ -173,7 +173,7 @@ export interface LayoutItemStyle {
     backgroundColor?: string;
     borderColor?: string;
     borderWidth?: number;
-    borderStyle?: 'solid' | 'dashed' | 'dotted' | 'double'; 
+    borderStyle?: 'solid' | 'dashed' | 'dotted' | 'double'; // New
     borderRadius?: number;
     boxShadow?: string; 
     opacity?: number;
@@ -184,11 +184,11 @@ export interface LayoutItemStyle {
     // Typography override (Deep customization)
     fontSize?: number;
     fontFamily?: string;
-    fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter'; 
+    fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter'; // New
     color?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
-    lineHeight?: number; 
-    letterSpacing?: number; 
+    lineHeight?: number; // New
+    letterSpacing?: number; // New
 
     // Advanced Image Settings
     imageSettings?: {

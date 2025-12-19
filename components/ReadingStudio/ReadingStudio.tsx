@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, LayoutItemStyle } from '../../types';
+import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
 import { useAuth } from '../../context/AuthContext';
 import { printService } from '../../utils/printService';
@@ -13,6 +13,17 @@ const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123; 
 const PAGE_BOTTOM_PADDING = 60; 
 
+// --- DEFINITIONS & DEFAULTS ---
+
+interface ComponentDefinition {
+    id: LayoutSectionId;
+    label: string;
+    defaultTitle: string;
+    icon: string;
+    description: string;
+    defaultStyle: Partial<LayoutItem['style']>;
+}
+
 interface ActiveComponent extends LayoutItem {
     customTitle?: string;
     customIcon?: string;
@@ -20,9 +31,9 @@ interface ActiveComponent extends LayoutItem {
     instanceId: string;
 }
 
-const DEFAULT_STYLE_BASE: LayoutItemStyle = {
+const DEFAULT_STYLE_BASE: LayoutItem['style'] = {
     x: 20, y: 20, w: 754, h: 100, zIndex: 1, rotation: 0,
-    padding: 15,
+    padding: 10,
     backgroundColor: 'transparent',
     borderColor: 'transparent',
     borderWidth: 0,
@@ -34,7 +45,7 @@ const DEFAULT_STYLE_BASE: LayoutItemStyle = {
     color: '#000000',
     fontSize: 14,
     fontFamily: 'OpenDyslexic',
-    lineHeight: 1.6,
+    lineHeight: 1.5,
     letterSpacing: 0,
     imageSettings: {
         enabled: true,
@@ -42,527 +53,916 @@ const DEFAULT_STYLE_BASE: LayoutItemStyle = {
         widthPercent: 40,
         opacity: 1,
         objectFit: 'cover',
-        borderRadius: 12,
+        borderRadius: 8,
         blendMode: 'normal',
         filter: 'none'
     }
 };
 
-const COMPONENT_DEFINITIONS = [
-    { id: 'header', label: 'Başlık Künyesi', defaultTitle: 'HİKAYE KÜNYESİ', icon: 'fa-heading', h: 120 },
-    { id: 'tracker', label: 'Okuma Takipçisi', defaultTitle: 'OKUMA TAKİBİ', icon: 'fa-eye', h: 60, w: 200 },
-    { id: 'story_block', label: 'Hikaye Metni', defaultTitle: 'OKUMA METNİ', icon: 'fa-book-open', h: 450 },
-    { id: 'vocabulary', label: 'Sözlükçe', defaultTitle: 'SÖZLÜKÇE', icon: 'fa-spell-check', h: 180 },
-    { id: 'questions_5n1k', label: '5N 1K Analizi', defaultTitle: '5N 1K SORULARI', icon: 'fa-circle-question', h: 320 },
-    { id: 'questions_test', label: 'Test Soruları', defaultTitle: 'DEĞERLENDİRME TESTİ', icon: 'fa-list-check', h: 300 },
-    { id: 'questions_tf', label: 'Doğru / Yanlış', defaultTitle: 'DOĞRU MU? YANLIŞ MI?', icon: 'fa-check-double', h: 200 },
-    { id: 'questions_fill', label: 'Boşluk Doldurma', defaultTitle: 'EKSİK KELİMEYİ BUL', icon: 'fa-pen-clip', h: 200 },
-    { id: 'questions_logic', label: 'Mantık Sorusu', defaultTitle: 'MANTIKSAL AKIL YÜRÜTME', icon: 'fa-brain', h: 150 },
-    { id: 'questions_inference', label: 'Çıkarım Analizi', defaultTitle: 'DERİN ANALİZ', icon: 'fa-magnifying-glass-chart', h: 150 },
-    { id: 'creative', label: 'Yaratıcı Atölye', defaultTitle: 'YARATICI ALAN', icon: 'fa-paintbrush', h: 220 },
-    { id: 'notes', label: 'Not Alanı', defaultTitle: 'NOTLARIM', icon: 'fa-note-sticky', h: 100 },
+const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
+    { id: 'header', label: 'Başlık Künyesi', defaultTitle: 'HİKAYE KÜNYESİ', icon: 'fa-heading', description: 'Başlık, tür ve tarih alanı.', defaultStyle: { h: 120 } },
+    { id: 'tracker', label: 'Okuma Takipçisi', defaultTitle: 'OKUMA TAKİBİ', icon: 'fa-eye', description: 'Okuma sayısını işaretleme alanı.', defaultStyle: { h: 60, w: 200 } },
+    { id: 'story_block', label: 'Hikaye Metni', defaultTitle: 'OKUMA METNİ', icon: 'fa-book-open', description: 'Ana metin ve görsel alanı.', defaultStyle: { h: 400, imageSettings: { enabled: true, position: 'right', widthPercent: 40, opacity: 1, objectFit: 'cover', borderRadius: 8, blendMode: 'normal' } } },
+    { id: 'vocabulary', label: 'Sözlükçe', defaultTitle: 'SÖZLÜKÇE', icon: 'fa-spell-check', description: 'Zor kelimeler ve anlamları.', defaultStyle: { h: 150 } },
+    { id: 'questions_5n1k', label: '5N 1K Analizi', defaultTitle: '5N 1K SORULARI', icon: 'fa-circle-question', description: 'Kim, Ne, Nerede soruları.', defaultStyle: { w: 754, h: 300 } },
+    { id: 'questions_test', label: 'Test Soruları', defaultTitle: 'DEĞERLENDİRME', icon: 'fa-list-check', description: 'Çoktan seçmeli sorular.', defaultStyle: { w: 754, h: 300 } },
+    { id: 'questions_inference', label: 'Derin Analiz', defaultTitle: 'DERİN ANALİZ', icon: 'fa-brain', description: 'Çıkarım ve yorum soruları.', defaultStyle: { h: 150 } },
+    { id: 'creative', label: 'Yaratıcı Alan', defaultTitle: 'YARATICI ALAN', icon: 'fa-paintbrush', description: 'Çizim ve yazma alanı.', defaultStyle: { h: 200 } },
+    { id: 'notes', label: 'Not Alanı', defaultTitle: 'NOTLAR', icon: 'fa-note-sticky', description: 'Boş not satırları.', defaultStyle: { h: 100 } },
 ];
 
-const ResizeHandle = ({ cursor, position, onMouseDown }: any) => (
-    <div className={`absolute w-3 h-3 bg-amber-500 border border-white rounded-full z-[100] hover:scale-150 transition-transform ${position}`} style={{ cursor }} onMouseDown={onMouseDown} />
+// --- MICRO COMPONENTS ---
+
+const ResizeHandle = ({ cursor, position, onMouseDown }: { cursor: string, position: string, onMouseDown: (e: React.MouseEvent) => void }) => (
+    <div 
+        className={`absolute w-3 h-3 bg-amber-500 border border-white rounded-full z-50 hover:scale-150 transition-transform ${position}`}
+        style={{ cursor }}
+        onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e); }}
+    />
 );
 
-const RotateHandle = ({ onMouseDown }: any) => (
-    <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-6 h-6 bg-zinc-800 border border-amber-500 rounded-full z-[100] hover:bg-amber-500 hover:text-black text-amber-500 flex items-center justify-center cursor-alias shadow-sm transition-all" onMouseDown={onMouseDown}>
+const RotateHandle = ({ onMouseDown }: { onMouseDown: (e: React.MouseEvent) => void }) => (
+    <div 
+        className="absolute -top-8 left-1/2 -translate-x-1/2 w-6 h-6 bg-zinc-800 border border-amber-500 rounded-full z-50 hover:bg-amber-500 hover:text-black text-amber-500 flex items-center justify-center cursor-alias shadow-sm transition-all"
+        onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e); }}
+        title="Döndür"
+    >
         <i className="fa-solid fa-rotate text-[10px]"></i>
     </div>
 );
 
-// --- SETTINGS STATION COMPONENTS ---
-const SettingSection = ({ title, icon, children }: any) => (
-    <div className="mb-6 animate-in fade-in slide-in-from-top-1">
-        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-            <i className={`fa-solid ${icon}`}></i> {title}
-        </h4>
-        <div className="space-y-3">{children}</div>
+// --- SETTINGS PANELS (THEMED) ---
+
+const TypographyControls = ({ style, onUpdate }: { style: any, onUpdate: (k: string, v: any) => void }) => (
+    <div className="space-y-4">
+        <div className="flex gap-2">
+            <div className="flex-1">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Font Ailesi</label>
+                <select value={style.fontFamily} onChange={e => onUpdate('fontFamily', e.target.value)} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-200 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                    <option value="OpenDyslexic">OpenDyslexic</option>
+                    <option value="Lexend">Lexend</option>
+                    <option value="Comic Neue">Comic Neue</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Arial">Arial</option>
+                </select>
+            </div>
+             <div className="w-20">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Punto</label>
+                <input type="number" value={style.fontSize} onChange={e => onUpdate('fontSize', Number(e.target.value))} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-200 outline-none focus:border-amber-500" />
+            </div>
+        </div>
+        <div className="flex gap-2">
+            <div className="flex-1">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Satır Aralığı</label>
+                <input type="range" min="1" max="2.5" step="0.1" value={style.lineHeight} onChange={e => onUpdate('lineHeight', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+            </div>
+             <div className="flex-1">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Harf Aralığı</label>
+                <input type="range" min="0" max="10" step="0.5" value={style.letterSpacing} onChange={e => onUpdate('letterSpacing', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+            </div>
+        </div>
+         <div>
+            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Hizalama</label>
+            <div className="flex bg-zinc-800 rounded border border-zinc-700 p-0.5">
+                {['left', 'center', 'right', 'justify'].map(align => (
+                    <button key={align} onClick={() => onUpdate('textAlign', align)} className={`flex-1 py-1 rounded text-xs transition-colors ${style.textAlign === align ? 'bg-zinc-600 text-amber-500 shadow' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                        <i className={`fa-solid fa-align-${align}`}></i>
+                    </button>
+                ))}
+            </div>
+        </div>
+        <div>
+            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Metin Rengi</label>
+            <div className="flex items-center gap-2 bg-zinc-800 p-2 rounded border border-zinc-700">
+                <input type="color" value={style.color} onChange={e => onUpdate('color', e.target.value)} className="w-8 h-8 p-0 border-0 rounded cursor-pointer bg-transparent" />
+                <span className="text-xs font-mono text-zinc-400">{style.color}</span>
+            </div>
+        </div>
     </div>
 );
 
-const LookControls = ({ style, onUpdate }: { style: LayoutItemStyle, onUpdate: (k: keyof LayoutItemStyle, v: any) => void }) => (
-    <>
-        <SettingSection title="Kutu Stili" icon="fa-square">
-            <div className="grid grid-cols-2 gap-2">
-                <div>
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-1">Arka Plan</label>
-                    <div className="flex gap-1">
-                        <input type="color" value={style.backgroundColor === 'transparent' ? '#ffffff' : style.backgroundColor} onChange={e => onUpdate('backgroundColor', e.target.value)} className="w-8 h-8 rounded border border-zinc-700 bg-transparent p-0.5 cursor-pointer" />
-                        <button onClick={() => onUpdate('backgroundColor', 'transparent')} className={`flex-1 text-[9px] font-bold border rounded px-2 ${style.backgroundColor === 'transparent' ? 'bg-amber-500 text-black border-amber-500' : 'text-zinc-400 border-zinc-700'}`}>Şeffaf</button>
-                    </div>
-                </div>
-                <div>
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-1">Kenarlık Renk</label>
-                    <input type="color" value={style.borderColor === 'transparent' ? '#000000' : style.borderColor} onChange={e => onUpdate('borderColor', e.target.value)} className="w-full h-8 rounded border border-zinc-700 bg-transparent p-0.5 cursor-pointer" />
-                </div>
+const AppearanceControls = ({ style, onUpdate }: { style: any, onUpdate: (k: string, v: any) => void }) => (
+    <div className="space-y-4">
+        <div>
+            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Arka Plan</label>
+             <div className="flex items-center gap-2 bg-zinc-800 p-2 rounded border border-zinc-700">
+                <input type="color" value={style.backgroundColor === 'transparent' ? '#ffffff' : style.backgroundColor} onChange={e => onUpdate('backgroundColor', e.target.value)} className="w-8 h-8 p-0 border-0 rounded cursor-pointer bg-transparent" />
+                <button onClick={() => onUpdate('backgroundColor', 'transparent')} className={`text-xs px-2 py-1 rounded border transition-colors ml-auto ${style.backgroundColor === 'transparent' ? 'bg-amber-500/20 border-amber-500 text-amber-500 font-bold' : 'bg-zinc-700 border-zinc-600 text-zinc-400'}`}>Şeffaf</button>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-                <div>
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-1">Kenarlık</label>
-                    <input type="number" value={style.borderWidth} onChange={e => onUpdate('borderWidth', Number(e.target.value))} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-white" />
-                </div>
-                <div>
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-1">Radius</label>
-                    <input type="number" value={style.borderRadius} onChange={e => onUpdate('borderRadius', Number(e.target.value))} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-white" />
-                </div>
-                <div>
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-1">Dolgu</label>
-                    <input type="number" value={style.padding} onChange={e => onUpdate('padding', Number(e.target.value))} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-white" />
-                </div>
+        </div>
+        <div>
+            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Kenarlık</label>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+                 <select value={style.borderStyle} onChange={e => onUpdate('borderStyle', e.target.value)} className="p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-200 outline-none focus:border-amber-500">
+                     <option value="solid">Düz Çizgi</option>
+                     <option value="dashed">Kesik Çizgi</option>
+                     <option value="dotted">Noktalı</option>
+                     <option value="double">Çift Çizgi</option>
+                 </select>
+                 <input type="number" min="0" value={style.borderWidth} onChange={e => onUpdate('borderWidth', Number(e.target.value))} className="p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-zinc-200 outline-none focus:border-amber-500" placeholder="Kalınlık" />
             </div>
-        </SettingSection>
-
-        <SettingSection title="Resim Kontrolleri" icon="fa-image">
-            <div className="flex items-center justify-between p-2 bg-zinc-800/50 rounded border border-zinc-700">
-                <span className="text-[10px] font-bold text-zinc-300 uppercase">Resmi Göster</span>
-                <button 
-                    onClick={() => onUpdate('imageSettings', { ...style.imageSettings, enabled: !style.imageSettings?.enabled })}
-                    className={`w-10 h-5 rounded-full relative transition-colors ${style.imageSettings?.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`}
-                >
-                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${style.imageSettings?.enabled ? 'left-6' : 'left-1'}`}></div>
-                </button>
-            </div>
-            
-            {style.imageSettings?.enabled && (
-                <div className="space-y-3 mt-3 animate-in slide-in-from-right-1">
-                    <div>
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-1">Pozisyon</label>
-                        <div className="grid grid-cols-2 gap-1">
-                            {['top', 'left', 'right', 'background'].map(p => (
-                                <button key={p} onClick={() => onUpdate('imageSettings', { ...style.imageSettings, position: p })} className={`py-1 text-[9px] font-bold border rounded uppercase ${style.imageSettings?.position === p ? 'bg-indigo-600 border-indigo-500 text-white' : 'text-zinc-500 border-zinc-700 hover:bg-zinc-800'}`}>{p}</button>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
-                        <label className="flex justify-between text-[9px] font-bold text-zinc-500 uppercase mb-1">
-                            Resim Boyutu <span>%{style.imageSettings?.widthPercent}</span>
-                        </label>
-                        <input type="range" min="10" max="100" value={style.imageSettings?.widthPercent} onChange={e => onUpdate('imageSettings', { ...style.imageSettings, widthPercent: Number(e.target.value) })} className="w-full accent-amber-500 h-1 bg-zinc-700 rounded" />
-                    </div>
-                    <div className="flex items-center justify-between p-2 bg-zinc-800/50 rounded border border-zinc-700">
-                        <span className="text-[10px] font-bold text-zinc-300 uppercase">Yazı Arkasında (Layer)</span>
-                        <button 
-                            onClick={() => onUpdate('zIndex', style.zIndex === 1 ? 50 : 1)}
-                            className={`w-10 h-5 rounded-full relative transition-colors ${style.zIndex === 50 ? 'bg-indigo-500' : 'bg-zinc-600'}`}
-                        >
-                            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${style.zIndex === 50 ? 'left-6' : 'left-1'}`}></div>
-                        </button>
-                    </div>
-                </div>
-            )}
-        </SettingSection>
-    </>
-);
-
-const SettingsStation = ({ item, onUpdate, onClose, onDelete }: any) => {
-    const [tab, setTab] = useState<'content' | 'style' | 'text'>('content');
-    return (
-        <div className="w-80 h-full bg-[#1e1e21] border-l border-zinc-800 shadow-2xl z-50 flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="p-4 bg-[#2d2d32] border-b border-zinc-700 flex justify-between items-center shrink-0">
-                <h3 className="font-bold text-xs uppercase tracking-widest text-zinc-200 flex items-center gap-2"><i className={`fa-solid ${item.icon} text-amber-500`}></i> {item.label}</h3>
-                <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors"><i className="fa-solid fa-times"></i></button>
-            </div>
-            <div className="flex border-b border-zinc-700 bg-[#1e1e21]">
-                {['content', 'style', 'text'].map((t: any) => (
-                    <button key={t} onClick={() => setTab(t)} className={`flex-1 py-3 text-[10px] font-bold uppercase transition-all ${tab === t ? 'text-amber-500 border-b-2 border-amber-500 bg-zinc-800/50' : 'text-zinc-500 hover:text-zinc-300'}`}>{t === 'content' ? 'İçerik' : t === 'style' ? 'Mimari' : 'Tipografi'}</button>
+             <input type="color" value={style.borderColor === 'transparent' ? '#000000' : style.borderColor} onChange={e => onUpdate('borderColor', e.target.value)} className="w-full h-8 p-0 border-0 rounded cursor-pointer bg-zinc-800" />
+        </div>
+        <div>
+             <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Köşe & Gölge</label>
+             <div className="flex gap-2 mb-2">
+                 <div className="flex-1">
+                     <span className="text-[9px] text-zinc-500">Radius</span>
+                     <input type="range" min="0" max="50" value={style.borderRadius} onChange={e => onUpdate('borderRadius', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg accent-amber-500" />
+                 </div>
+                 <div className="flex-1">
+                     <span className="text-[9px] text-zinc-500">Padding</span>
+                     <input type="range" min="0" max="50" value={style.padding} onChange={e => onUpdate('padding', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg accent-amber-500" />
+                 </div>
+             </div>
+             <div className="flex bg-zinc-800 rounded border border-zinc-700 p-0.5">
+                {['none', 'sm', 'md', 'lg'].map(sh => (
+                    <button key={sh} onClick={() => onUpdate('boxShadow', sh)} className={`flex-1 py-1 rounded text-[10px] uppercase font-bold transition-colors ${style.boxShadow === sh ? 'bg-zinc-600 text-amber-500 shadow' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                        {sh}
+                    </button>
                 ))}
             </div>
-            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
-                {tab === 'content' && (
-                    <div className="space-y-4">
-                        <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase block mb-1">Görünen Başlık</label>
-                            <input type="text" value={item.customTitle || item.label} onChange={e => onUpdate({ customTitle: e.target.value })} className="w-full p-2.5 bg-zinc-800 border border-zinc-700 rounded text-xs text-white focus:border-amber-500 outline-none" />
+        </div>
+    </div>
+);
+
+const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, onUpdateSpecific: (data: any) => void }) => {
+    // Determine content based on item ID
+    
+    // HEADER SPECIFIC
+    if (item.id === 'header') {
+        const data = item.specificData || { title: item.customTitle || "HİKAYE BAŞLIĞI", subtitle: "Tarih: ....................", showDate: true };
+        return (
+            <div className="space-y-3">
+                <div>
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Başlık Metni</label>
+                    <input type="text" value={data.title} onChange={e => onUpdateSpecific({...data, title: e.target.value})} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm font-bold text-zinc-100 focus:border-amber-500 outline-none" />
+                </div>
+                <div>
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Alt Bilgi / Tarih</label>
+                    <input type="text" value={data.subtitle} onChange={e => onUpdateSpecific({...data, subtitle: e.target.value})} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-100 focus:border-amber-500 outline-none" />
+                </div>
+            </div>
+        );
+    }
+
+    // STORY TEXT SPECIFIC
+    if (item.id === 'story_block') {
+         const data = item.specificData || { text: "Hikaye metni buraya gelecek..." };
+         return (
+            <div className="space-y-3">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Metin İçeriği (Manuel Düzenleme)</label>
+                <textarea 
+                    value={data.text} 
+                    onChange={e => onUpdateSpecific({...data, text: e.target.value})} 
+                    className="w-full h-64 p-2 bg-zinc-800 border border-zinc-700 rounded text-sm leading-relaxed resize-none font-dyslexic text-zinc-200 focus:border-amber-500 outline-none"
+                ></textarea>
+                <div className="bg-amber-500/10 p-2 rounded border border-amber-500/30 text-xs text-amber-500">
+                    <span className="font-bold">Not:</span> Görsel ayarı "Stil" sekmesinden yapılabilir.
+                </div>
+            </div>
+         );
+    }
+    
+    // QUESTIONS SPECIFIC
+    if (item.id.startsWith('questions')) {
+        const data = item.specificData || { questions: [{text: "Soru 1..."}] };
+        const qs = data.questions || [];
+        
+        const updateQ = (idx: number, val: string) => {
+            const newQs = [...qs];
+            newQs[idx] = { ...newQs[idx], text: val };
+            onUpdateSpecific({...data, questions: newQs});
+        };
+        
+        const addQ = () => onUpdateSpecific({...data, questions: [...qs, {text: "Yeni Soru"}]});
+        const removeQ = (idx: number) => onUpdateSpecific({...data, questions: qs.filter((_:any, i:number) => i !== idx)});
+
+        return (
+            <div className="space-y-3">
+                 <div className="flex justify-between items-center mb-2">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase">Sorular</label>
+                    <button onClick={addQ} className="text-xs bg-amber-500 text-black px-2 py-1 rounded hover:bg-amber-400 transition-colors font-bold">+ Ekle</button>
+                 </div>
+                 <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+                     {qs.map((q: any, i: number) => (
+                         <div key={i} className="flex gap-2 items-start">
+                             <span className="text-xs font-bold w-4 pt-2 text-zinc-500">{i+1}.</span>
+                             <textarea rows={2} value={q.text} onChange={e => updateQ(i, e.target.value)} className="flex-1 p-2 bg-zinc-800 border border-zinc-700 rounded text-xs resize-none text-zinc-200 focus:border-amber-500 outline-none" />
+                             <button onClick={() => removeQ(i)} className="text-zinc-500 hover:text-red-500 px-1 pt-2 transition-colors"><i className="fa-solid fa-trash"></i></button>
+                         </div>
+                     ))}
+                 </div>
+            </div>
+        );
+    }
+    
+    // CREATIVE SPECIFIC
+    if (item.id === 'creative') {
+        const data = item.specificData || { task: "Hikayeyle ilgili bir resim çiz." };
+        return (
+             <div className="space-y-3">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Yaratıcı Görev Yönergesi</label>
+                <textarea 
+                    value={data.task} 
+                    onChange={e => onUpdateSpecific({...data, task: e.target.value})} 
+                    className="w-full h-32 p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200 focus:border-amber-500 outline-none resize-none"
+                ></textarea>
+            </div>
+        );
+    }
+
+    return <div className="text-zinc-500 text-xs italic p-2 bg-zinc-800 rounded border border-zinc-700">Bu bileşen için özel içerik ayarı yok. Stil sekmesini kullanın.</div>;
+};
+
+const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveComponent, onUpdate: (updates: Partial<ActiveComponent>) => void, onClose: () => void, onDelete: () => void }) => {
+    const [activeTab, setActiveTab] = useState<'content' | 'type' | 'look' | 'layout'>('content');
+
+    const handlePanelClick = (e: React.MouseEvent) => e.stopPropagation();
+
+    const updateStyle = (key: keyof LayoutItem['style'], value: any) => {
+        onUpdate({ style: { ...item.style, [key]: value } });
+    };
+    
+    const updateSpecificData = (data: any) => {
+        onUpdate({ specificData: data });
+    };
+    
+    const updateImageSettings = (key: string, value: any) => {
+        onUpdate({ 
+            style: { 
+                ...item.style, 
+                imageSettings: { ...item.style.imageSettings, [key]: value } as any
+            } 
+        });
+    };
+
+    return (
+        <div className="w-80 h-full bg-[#222226] border-l border-zinc-800 shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-right-10 duration-300 font-['OpenDyslexic']" onClick={handlePanelClick}>
+            {/* Header */}
+            <div className="p-4 bg-[#2d2d32] border-b border-zinc-700 flex justify-between items-center shrink-0">
+                <h3 className="font-black text-xs uppercase tracking-widest text-zinc-300 flex items-center gap-2">
+                    <i className={`fa-solid ${item.icon} text-amber-500`}></i> {item.label}
+                </h3>
+                <button onClick={onClose} className="w-6 h-6 rounded-full hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"><i className="fa-solid fa-times"></i></button>
+            </div>
+
+            {/* Pro Tab Bar */}
+            <div className="flex border-b border-zinc-700 bg-[#222226] shrink-0">
+                {[
+                    { id: 'content', icon: 'fa-pen-to-square', label: 'İçerik' },
+                    { id: 'type', icon: 'fa-font', label: 'Yazı' },
+                    { id: 'look', icon: 'fa-palette', label: 'Stil' },
+                    { id: 'layout', icon: 'fa-ruler-combined', label: 'Düzen' }
+                ].map(tab => (
+                    <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`flex-1 py-3 text-[9px] font-bold uppercase flex flex-col items-center gap-1 transition-colors ${activeTab === tab.id ? 'text-amber-500 bg-zinc-800 border-b-2 border-amber-500' : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}>
+                        <i className={`fa-solid ${tab.icon} text-sm`}></i> {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-[#222226]">
+                {activeTab === 'content' && <ContentControls item={item} onUpdateSpecific={updateSpecificData} />}
+                {activeTab === 'type' && <TypographyControls style={item.style} onUpdate={updateStyle} />}
+                {activeTab === 'look' && <AppearanceControls style={item.style} onUpdate={updateStyle} />}
+                
+                {activeTab === 'layout' && (
+                    <div className="space-y-4 animate-in fade-in">
+                        {/* Existing Layout Controls */}
+                        <div className="grid grid-cols-2 gap-3">
+                                {['x', 'y', 'w', 'h', 'rotation'].map((key) => (
+                                    <div key={key} className="flex items-center bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 focus-within:ring-1 ring-amber-500">
+                                        <span className="text-[10px] font-black text-zinc-500 w-6 uppercase truncate mr-1">{key === 'rotation' ? 'Rot' : key}</span>
+                                        <input type="number" value={Math.round(item.style[key as keyof typeof item.style] as number || 0)} onChange={e => updateStyle(key as any, Number(e.target.value))} className="w-full bg-transparent text-xs font-mono outline-none text-right text-zinc-200" />
+                                    </div>
+                                ))}
                         </div>
-                        {/* Dinamik Bileşen Veri Düzenleme Alanı */}
-                        <div className="p-3 bg-zinc-900 rounded border border-dashed border-zinc-700">
-                             <p className="text-[9px] text-zinc-500 leading-relaxed italic"><i className="fa-solid fa-circle-info mr-1"></i> Bileşen içeriği doğrudan Canvas üzerinde "Düzenle" butonuna basılarak veya AI tarafından üretilerek değiştirilebilir.</p>
+                         <div className="flex gap-2">
+                                <button onClick={() => updateStyle('zIndex', (item.style.zIndex || 0) + 1)} className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-300 transition-colors border border-zinc-700"><i className="fa-solid fa-arrow-up"></i> Öne</button>
+                                <button onClick={() => updateStyle('zIndex', Math.max(0, (item.style.zIndex || 0) - 1))} className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs font-bold text-zinc-300 transition-colors border border-zinc-700"><i className="fa-solid fa-arrow-down"></i> Arkaya</button>
                         </div>
                     </div>
                 )}
-                {tab === 'style' && <LookControls style={item.style} onUpdate={(k, v) => onUpdate({ style: { ...item.style, [k]: v } })} />}
-                {tab === 'text' && (
-                    <SettingSection title="Yazı Ayarları" icon="fa-font">
-                         <select value={item.style.fontFamily} onChange={e => onUpdate({ style: { ...item.style, fontFamily: e.target.value } })} className="w-full p-2.5 bg-zinc-800 border border-zinc-700 rounded text-xs text-white mb-3">
-                             <option value="OpenDyslexic">OpenDyslexic</option>
-                             <option value="Lexend">Lexend</option>
-                             <option value="Inter">Standard</option>
-                         </select>
-                         <div className="grid grid-cols-2 gap-2">
-                             <div>
-                                 <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-1">Boyut</label>
-                                 <input type="number" value={item.style.fontSize} onChange={e => onUpdate({ style: { ...item.style, fontSize: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-xs text-white" />
-                             </div>
-                             <div>
-                                 <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-1">Renk</label>
-                                 <input type="color" value={item.style.color} onChange={e => onUpdate({ style: { ...item.style, color: e.target.value } })} className="w-full h-8 rounded border border-zinc-700 bg-transparent p-0.5 cursor-pointer" />
-                             </div>
-                         </div>
-                    </SettingSection>
-                )}
             </div>
-            <div className="p-4 border-t border-zinc-700 bg-[#1e1e21]">
-                <button onClick={onDelete} className="w-full py-2 bg-red-900/20 text-red-500 rounded font-bold text-xs hover:bg-red-900/40 transition-colors"><i className="fa-solid fa-trash mr-2"></i> Bileşeni Tuvalden Kaldır</button>
+
+            {/* Common Image Toggle if applicable */}
+            {item.style.imageSettings && (
+                 <div className="p-4 border-t border-zinc-700 bg-[#2d2d32] flex justify-between items-center">
+                     <span className="text-xs font-bold text-zinc-300">Görsel</span>
+                     <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${item.style.imageSettings?.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`} onClick={() => updateImageSettings('enabled', !item.style.imageSettings?.enabled)}>
+                        <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${item.style.imageSettings?.enabled ? 'left-5' : 'left-1'}`}></div>
+                    </div>
+                 </div>
+            )}
+
+            <div className="p-4 border-t border-zinc-700 bg-[#222226] shrink-0">
+                <button onClick={onDelete} className="w-full py-2 bg-red-900/20 text-red-500 hover:bg-red-900/40 border border-red-900/50 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-colors">
+                    <i className="fa-solid fa-trash"></i> Bileşeni Sil
+                </button>
             </div>
         </div>
     );
-};
+}
 
-export const ReadingStudio: React.FC<any> = ({ onBack }) => {
+// --- MAIN CANVAS COMPONENT ---
+
+export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
+    // ... (Existing State) ...
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [storyData, setStoryData] = useState<InteractiveStoryData | null>(null);
+    const [sidebarTab, setSidebarTab] = useState<'settings' | 'library'>('settings');
     const [layout, setLayout] = useState<ActiveComponent[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [designMode, setDesignMode] = useState(true);
-    const [sidebarTab, setSidebarTab] = useState<'settings' | 'layers'>('settings');
-
+    // ... (Config State same as before) ...
     const [config, setConfig] = useState<ReadingStudioConfig>({
         gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
         length: 'medium', layoutDensity: 'comfortable', textComplexity: 'moderate',
         fontSettings: { family: 'OpenDyslexic', size: 16, lineHeight: 1.8, letterSpacing: 1, wordSpacing: 2 },
         includeImage: true, imageSize: 40, imageOpacity: 100, imagePosition: 'right',
         imageGeneration: { enabled: true, style: 'storybook', complexity: 'simple' },
-        include5N1K: true, countMultipleChoice: 3, countTrueFalse: 3, countFillBlanks: 3, countLogic: 1, countInference: 1, 
+        include5N1K: true, countMultipleChoice: 3, countTrueFalse: 2, countFillBlanks: 2, countLogic: 1, countInference: 1, 
         focusVocabulary: true, includeCreativeTask: true, includeWordHunt: false, includeSpellingCheck: false,
-        showReadingTracker: true, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
+        showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
+    
+    // --- COLLAPSIBLE SECTION STATE ---
+    const [openSections, setOpenSections] = useState({ layers: true, add: false });
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true); // SIDEBAR TOGGLE STATE
 
-    const [canvasScale, setCanvasScale] = useState(0.8);
+    // --- CANVAS ZOOM & PAN STATE ---
+    const [canvasScale, setCanvasScale] = useState(0.85);
     const [canvasPos, setCanvasPos] = useState({ x: 0, y: 50 });
     const [isPanning, setIsPanning] = useState(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
     const canvasRef = useRef<HTMLDivElement>(null);
-    const [dragState, setDragState] = useState<any>(null);
 
+    // ... (Drag State same as before) ...
+    const [dragState, setDragState] = useState<{ mode: 'drag' | 'resize' | 'rotate'; resizeHandle?: string; startX: number; startY: number; initialX: number; initialY: number; initialW: number; initialH: number; initialR: number; centerX?: number; centerY?: number; } | null>(null);
+
+    // Calculate dynamic content height based on layout items to expand canvas if needed
     const contentHeight = useMemo(() => {
         if (layout.length === 0) return A4_HEIGHT_PX;
         const maxY = Math.max(...layout.map(item => item.style.y + item.style.h));
         return Math.max(A4_HEIGHT_PX, maxY + PAGE_BOTTOM_PADDING);
     }, [layout]);
 
-    // --- INITIAL LAYOUT GENERATOR ---
+    // Initial Load - Automatic Layout & Center Canvas
     useEffect(() => {
-        const items: ActiveComponent[] = [];
-        let curY = 30;
-        COMPONENT_DEFINITIONS.forEach((def, i) => {
-            items.push({
-                ...def,
-                id: def.id as any,
-                label: def.label,
-                icon: def.icon,
-                instanceId: `item-${def.id}-${i}`,
-                style: { ...DEFAULT_STYLE_BASE, y: curY, zIndex: 1, h: def.h, w: def.w || 754 },
-                isVisible: i < 5,
-                specificData: null
-            });
-            curY += def.h + 20;
-        });
-        setLayout(items);
-    }, []);
+        // Initial centering
+        if (canvasRef.current) {
+            const viewportW = canvasRef.current.clientWidth;
+            const pageWidth = A4_WIDTH_PX;
+            const initialScale = Math.min(0.85, (viewportW - 100) / pageWidth); 
+            const centeredX = (viewportW - (pageWidth * initialScale)) / 2;
+            setCanvasScale(initialScale);
+            setCanvasPos({ x: centeredX, y: 40 });
+        }
 
-    // --- DATA SYNC (AI TO UI) ---
+        const generatedLayout: ActiveComponent[] = [];
+        let currentY = 20;
+        const startX = 20;
+        const canvasWidth = A4_WIDTH_PX - (startX * 2);
+        const gap = 15;
+
+        COMPONENT_DEFINITIONS.forEach((def, index) => {
+            let itemX = startX;
+            let itemY = currentY;
+            let itemW = canvasWidth;
+            let itemH = def.defaultStyle.h || 100;
+            
+            if (def.id === 'tracker') {
+                itemW = 200;
+                itemX = A4_WIDTH_PX - 20 - 200; 
+                itemY = 35; 
+            } else if (def.id === 'header') {
+                currentY += itemH + gap;
+            } else {
+                currentY += itemH + gap;
+            }
+
+            generatedLayout.push({
+                ...def,
+                instanceId: `${def.id}-auto-${index}`,
+                style: {
+                    ...DEFAULT_STYLE_BASE,
+                    ...def.defaultStyle,
+                    x: itemX,
+                    y: itemY,
+                    w: itemW,
+                    h: itemH,
+                    zIndex: def.id === 'tracker' ? 10 : index + 1
+                },
+                isVisible: true,
+                customTitle: def.defaultTitle,
+                themeColor: 'black',
+                specificData: null 
+            });
+        });
+
+        setLayout(generatedLayout);
+    }, []);
+    
+    // Sync Generated Data to Components
     useEffect(() => {
         if (!storyData) return;
         setLayout(prev => prev.map(item => {
-            let specificData = null;
-            let isVisible = item.isVisible;
-            switch(item.id) {
-                case 'header': specificData = { title: storyData.title, subtitle: `${storyData.genre} | ${storyData.gradeLevel}` }; break;
-                case 'story_block': specificData = { text: storyData.story, imagePrompt: storyData.imagePrompt }; break;
-                case 'vocabulary': specificData = { items: storyData.vocabulary }; isVisible = config.focusVocabulary; break;
-                case 'questions_5n1k': specificData = { questions: storyData.fiveW1H }; isVisible = config.include5N1K; break;
-                case 'questions_test': specificData = { questions: storyData.multipleChoice }; isVisible = config.countMultipleChoice > 0; break;
-                case 'questions_tf': specificData = { questions: storyData.trueFalse }; isVisible = config.countTrueFalse > 0; break;
-                case 'questions_fill': specificData = { questions: storyData.fillBlanks }; isVisible = config.countFillBlanks > 0; break;
-                case 'questions_logic': specificData = { questions: storyData.logicQuestions }; isVisible = config.countLogic > 0; break;
-                case 'questions_inference': specificData = { questions: storyData.inferenceQuestions }; isVisible = config.countInference > 0; break;
-                case 'creative': specificData = { text: storyData.creativeTask }; isVisible = config.includeCreativeTask; break;
+            let specificData = item.specificData;
+            
+            if (item.id === 'header') {
+                specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
+            } else if (item.id === 'story_block') {
+                specificData = { text: storyData.story, imagePrompt: storyData.imagePrompt };
+            } else if (item.id === 'questions_5n1k') {
+                specificData = { questions: (storyData.fiveW1H || []).map(q => ({ text: q.question })) };
+            } else if (item.id === 'questions_test') {
+                specificData = { questions: (storyData.multipleChoice || []).map(q => ({ text: q.question, options: q.options })) };
+            } else if (item.id === 'questions_inference') {
+                const questions = [...(storyData.inferenceQuestions || []), ...(storyData.logicQuestions || [])].slice(0, 3);
+                specificData = { questions: questions.map(q => ({ text: q.question })) };
+            } else if (item.id === 'vocabulary') {
+                 specificData = { questions: (storyData.vocabulary || []).map(v => ({ text: `${v.word}: ${v.definition}` })) };
+            } else if (item.id === 'creative') {
+                 specificData = { task: storyData.creativeTask || "Hikaye ile ilgili bir resim çiz." };
             }
-            return { ...item, specificData, isVisible };
+            
+            return { ...item, specificData };
         }));
-    }, [storyData, config]);
+    }, [storyData]);
 
-    // --- INTERACTION HANDLERS ---
+    // --- CANVAS INTERACTION HANDLERS ---
+    
+    // Wheel Zoom
     const handleCanvasWheel = useCallback((e: React.WheelEvent) => {
-        const delta = e.deltaY * -0.001;
-        setCanvasScale(s => Math.min(Math.max(0.2, s + delta), 3));
-    }, []);
+        if (e.ctrlKey) e.preventDefault(); // Prevent browser zoom if ctrl pressed
+        
+        const zoomSensitivity = -0.001; 
+        const delta = e.deltaY * zoomSensitivity;
+        const newScale = Math.min(Math.max(0.2, canvasScale + delta), 4);
+        
+        if (canvasRef.current) {
+            const rect = canvasRef.current.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Calculate new position to zoom towards mouse
+            const canvasX = (mouseX - canvasPos.x) / canvasScale;
+            const canvasY = (mouseY - canvasPos.y) / canvasScale;
+            
+            const newX = mouseX - canvasX * newScale;
+            const newY = mouseY - canvasY * newScale;
+            
+            setCanvasScale(newScale);
+            setCanvasPos({ x: newX, y: newY });
+        }
+    }, [canvasScale, canvasPos]);
 
-    const handleMouseDown = (e: React.MouseEvent, id: string, mode: 'drag'|'resize'|'rotate' = 'drag', handle?: string) => {
+    // Background Pan Start
+    const handleBgMouseDown = (e: React.MouseEvent) => {
+        // Only pan if clicking directly on background (not on an item)
+        // If an item is clicked, handleMouseDown takes precedence via propagation stop
         if (!designMode) return;
-        e.stopPropagation();
-        const item = layout.find(l => l.instanceId === id);
-        if (!item) return;
-        setSelectedId(id);
-        setDragState({ mode, handle, startX: e.clientX, startY: e.clientY, initialX: item.style.x, initialY: item.style.y, initialW: item.style.w, initialH: item.style.h, initialR: item.style.rotation || 0 });
+        
+        setIsPanning(true);
+        lastMousePos.current = { x: e.clientX, y: e.clientY };
     };
 
+    // Item Interaction Start
+    const handleMouseDown = (e: React.MouseEvent, id: string, mode: 'drag' | 'resize' | 'rotate' = 'drag', handle?: string) => {
+        if (!designMode) return;
+        e.stopPropagation(); // Stop bubbling to background pan handler
+        
+        const item = layout.find(l => l.instanceId === id);
+        if (!item) return;
+        
+        setSelectedId(id);
+        
+        let centerX = 0; let centerY = 0;
+        if (mode === 'rotate') {
+             const element = e.currentTarget.parentElement; 
+             if (element) {
+                 const rect = element.getBoundingClientRect();
+                 centerX = rect.left + rect.width / 2;
+                 centerY = rect.top + rect.height / 2;
+             }
+        }
+        
+        setDragState({ 
+            mode, 
+            resizeHandle: handle, 
+            startX: e.clientX, 
+            startY: e.clientY, 
+            initialX: item.style.x, 
+            initialY: item.style.y, 
+            initialW: item.style.w, 
+            initialH: item.style.h, 
+            initialR: item.style.rotation || 0, 
+            centerX, centerY 
+        });
+    };
+
+    // Global Move Handler (Handles both Pan and Drag)
     useEffect(() => {
-        const onMove = (e: MouseEvent) => {
+        const handleMouseMove = (e: MouseEvent) => {
+            // 1. Handle Canvas Panning
             if (isPanning) {
-                setCanvasPos(p => ({ x: p.x + (e.clientX - lastMousePos.current.x), y: p.y + (e.clientY - lastMousePos.current.y) }));
+                const dx = e.clientX - lastMousePos.current.x;
+                const dy = e.clientY - lastMousePos.current.y;
+                setCanvasPos(prev => ({ x: prev.x + dx, y: prev.y + dy }));
                 lastMousePos.current = { x: e.clientX, y: e.clientY };
                 return;
             }
-            if (dragState && selectedId) {
-                const dx = (e.clientX - dragState.startX) / canvasScale;
-                const dy = (e.clientY - dragState.startY) / canvasScale;
-                setLayout(prev => prev.map(item => {
-                    if (item.instanceId !== selectedId) return item;
-                    const s = { ...item.style };
-                    if (dragState.mode === 'drag') { s.x = Math.round((dragState.initialX + dx) / SNAP_GRID) * SNAP_GRID; s.y = Math.round((dragState.initialY + dy) / SNAP_GRID) * SNAP_GRID; }
-                    else if (dragState.mode === 'resize') { s.w = Math.max(50, dragState.initialW + dx); s.h = Math.max(50, dragState.initialH + dy); }
-                    else if (dragState.mode === 'rotate') { s.rotation = Math.round(dragState.initialR + dx); }
-                    return { ...item, style: s };
-                }));
-            }
+
+            // 2. Handle Item Dragging/Resizing
+            if (!dragState || !selectedId) return;
+            
+            // Adjust delta by zoom scale for accurate movement on paper
+            const dx = (e.clientX - dragState.startX) / canvasScale;
+            const dy = (e.clientY - dragState.startY) / canvasScale;
+            const snap = (val: number) => Math.round(val / SNAP_GRID) * SNAP_GRID;
+
+            setLayout(prev => prev.map(item => {
+                if (item.instanceId !== selectedId) return item;
+                let newStyle = { ...item.style };
+                
+                if (dragState.mode === 'drag') {
+                    newStyle.x = snap(dragState.initialX + dx);
+                    newStyle.y = snap(dragState.initialY + dy);
+                } else if (dragState.mode === 'resize' && dragState.resizeHandle) {
+                    const h = dragState.resizeHandle;
+                    if (h.includes('e')) newStyle.w = Math.max(50, snap(dragState.initialW + dx));
+                    if (h.includes('w')) { const newW = Math.max(50, snap(dragState.initialW - dx)); newStyle.x = snap(dragState.initialX + (dragState.initialW - newW)); newStyle.w = newW; }
+                    if (h.includes('s')) newStyle.h = Math.max(50, snap(dragState.initialH + dy));
+                    if (h.includes('n')) { const newH = Math.max(50, snap(dragState.initialH - dy)); newStyle.y = snap(dragState.initialY + (dragState.initialH - newH)); newStyle.h = newH; }
+                } else if (dragState.mode === 'rotate' && dragState.centerX && dragState.centerY) {
+                    const currentAngle = Math.atan2(e.clientY - dragState.centerY, e.clientX - dragState.centerX);
+                    const startAngle = Math.atan2(dragState.startY - dragState.centerY, dragState.startX - dragState.centerX);
+                    const deg = (currentAngle - startAngle) * (180 / Math.PI);
+                    let finalR = Math.round(dragState.initialR + deg);
+                    if (e.shiftKey) finalR = Math.round(finalR / 45) * 45;
+                    newStyle.rotation = finalR;
+                }
+                return { ...item, style: newStyle };
+            }));
         };
-        const onUp = () => { setIsPanning(false); setDragState(null); };
-        window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
-        return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
-    }, [isPanning, dragState, selectedId, canvasScale]);
+        
+        const handleMouseUp = () => {
+            setDragState(null);
+            setIsPanning(false);
+        };
+        
+        if (dragState || isPanning) { 
+            window.addEventListener('mousemove', handleMouseMove); 
+            window.addEventListener('mouseup', handleMouseUp); 
+        }
+        return () => { 
+            window.removeEventListener('mousemove', handleMouseMove); 
+            window.removeEventListener('mouseup', handleMouseUp); 
+        };
+    }, [dragState, selectedId, isPanning, canvasScale]); // Added canvasScale dependency for math
+
+    // ... (Operations add/delete/update same as before) ...
+    const addComponent = (def: ComponentDefinition) => {
+        const newId = `${def.id}-${Date.now()}`;
+        const newItem: ActiveComponent = { ...def, instanceId: newId, style: { ...DEFAULT_STYLE_BASE, ...def.defaultStyle, x: 20, y: 20 }, isVisible: true, customTitle: def.defaultTitle, themeColor: 'black', specificData: null };
+        setLayout(prev => [...prev, newItem]);
+        setSelectedId(newId);
+    };
+    const updateItem = (updates: Partial<ActiveComponent>) => { if (!selectedId) return; setLayout(prev => prev.map(item => item.instanceId === selectedId ? { ...item, ...updates } : item)); };
+    const deleteItem = () => { if (!selectedId) return; if(confirm("Sil?")) { setLayout(prev => prev.filter(item => item.instanceId !== selectedId)); setSelectedId(null); } };
 
     const handleGenerate = async () => {
         setIsLoading(true);
-        try { const data = await generateInteractiveStory(config); setStoryData(data); } 
-        catch (e) { console.error(e); } finally { setIsLoading(false); }
+        try {
+            const data = await generateInteractiveStory(config);
+            setStoryData(data);
+        } catch (e) { alert("Hata"); } finally { setIsLoading(false); }
+    };
+    
+    const handlePrint = async (action: 'print' | 'download') => {
+        const prevMode = designMode;
+        const prevSelected = selectedId;
+        setDesignMode(false);
+        setSelectedId(null);
+        setTimeout(async () => { await printService.generatePdf('#canvas-root', storyData?.title || 'Hikaye', { action }); setDesignMode(prevMode); setSelectedId(prevSelected); }, 300);
     };
 
-    // --- RENDER CONTENT ENGINE ---
-    const renderComponent = (item: ActiveComponent) => {
+    const toggleSection = (section: 'layers' | 'add') => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
+
+    // --- RENDER CONTENT (Updated to use specificData and granular styles) ---
+    const renderContent = (item: ActiveComponent) => {
         const s = item.style;
-        const d = item.specificData;
         const boxStyle = {
-            padding: `${s.padding}px`, backgroundColor: s.backgroundColor, borderColor: s.borderColor,
-            borderWidth: `${s.borderWidth}px`, borderStyle: s.borderStyle, borderRadius: `${s.borderRadius}px`,
-            color: s.color, fontFamily: s.fontFamily, fontSize: `${s.fontSize}px`, lineHeight: s.lineHeight,
-            textAlign: s.textAlign as any
+            padding: `${s.padding}px`,
+            backgroundColor: s.backgroundColor,
+            borderColor: s.borderColor,
+            borderWidth: `${s.borderWidth}px`,
+            borderStyle: s.borderStyle || 'solid',
+            borderRadius: `${s.borderRadius}px`,
+            boxShadow: s.boxShadow !== 'none' ? `var(--shadow-${s.boxShadow})` : 'none',
+            opacity: s.opacity,
+            color: s.color,
+            fontFamily: s.fontFamily,
+            fontSize: `${s.fontSize}px`,
+            lineHeight: s.lineHeight,
+            textAlign: s.textAlign as any,
+            letterSpacing: `${s.letterSpacing}px`,
+            fontWeight: s.fontWeight || 'normal'
         };
 
-        const renderImage = () => {
-             if (!s.imageSettings?.enabled) return null;
-             const pos = s.imageSettings.position;
-             const isBg = pos === 'background';
-             const isFloat = pos === 'left' || pos === 'right';
-             
+        // Header
+        if (item.id === 'header') {
+            const data = item.specificData || { title: "HİKAYE BAŞLIĞI", subtitle: `Tarih: ....................` };
+            return (
+                <div className="h-full flex flex-col justify-end" style={boxStyle}>
+                    <h1 className="font-black uppercase leading-none tracking-tight" style={{fontSize: '2.5em', color: 'inherit'}}>{data.title}</h1>
+                    <div className="flex justify-between items-end mt-2 opacity-70">
+                        <span className="font-mono text-sm">{data.subtitle}</span>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Reading Tracker
+        if (item.id === 'tracker') {
              return (
-                 <div 
-                    className={`${isBg ? 'absolute inset-0' : (isFloat ? `float-${pos} ml-4 mb-2` : 'w-full mb-4')} overflow-hidden`}
-                    style={{ 
-                        width: isFloat ? `${s.imageSettings.widthPercent}%` : '100%', 
-                        opacity: s.imageSettings.opacity, 
-                        zIndex: isBg ? -1 : 1 
-                    }}
-                 >
-                    <ImageDisplay prompt={d?.imagePrompt} className="w-full h-48 object-cover rounded-xl border border-zinc-100 shadow-sm" />
+                 <div className="h-full flex flex-col items-center justify-center" style={boxStyle}>
+                     <div className="flex gap-4">
+                         {[1, 2, 3].map(i => (
+                             <div key={i} className="flex flex-col items-center">
+                                 <div className="w-10 h-10 rounded-full border-2 border-current bg-transparent flex items-center justify-center">
+                                     <i className="fa-regular fa-star text-sm opacity-50"></i>
+                                 </div>
+                             </div>
+                         ))}
+                     </div>
                  </div>
              );
-        };
+        }
 
-        if (item.id === 'header') return (
-            <div style={boxStyle} className="h-full flex flex-col justify-end">
-                <h1 className="font-black text-4xl uppercase leading-none border-b-4 border-current pb-2"><EditableText value={d?.title || item.customTitle} tag="span" /></h1>
-                <p className="text-xs mt-2 font-bold opacity-60 uppercase tracking-widest">{d?.subtitle || 'Künye'}</p>
-            </div>
-        );
-
-        if (item.id === 'story_block') return (
-            <div style={boxStyle} className="h-full relative text-justify">
-                {renderImage()}
-                <div className="font-medium text-lg leading-relaxed whitespace-pre-line relative z-10">
-                    <StoryHighlighter text={d?.text || 'Hikaye metni buraya gelecek...'} highlights={[]} />
-                </div>
-            </div>
-        );
-
-        if (item.id === 'vocabulary') return (
-            <div style={boxStyle} className="h-full flex flex-col">
-                <h4 className="font-black text-xs uppercase mb-3 border-b pb-1 opacity-40"><i className="fa-solid fa-spell-check mr-2"></i> {item.customTitle || item.label}</h4>
-                <div className="grid grid-cols-2 gap-3">
-                    {(d?.items || []).map((v: any, i: number) => (
-                        <div key={i} className="bg-white/50 p-2 rounded border border-current/10">
-                            <b className="block border-b mb-1">{v.word}</b>
-                            <span className="text-[10px] opacity-80">{v.definition}</span>
+        // Story Text
+        if (item.id === 'story_block') {
+            const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
+            return (
+                <div className="h-full relative overflow-hidden" style={boxStyle}>
+                     {/* Use ImageDisplay component for robust rendering */}
+                     {item.style.imageSettings?.enabled && (
+                        <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
+                            <ImageDisplay 
+                                prompt={data.imagePrompt} 
+                                description="Hikaye Görseli" 
+                                className="w-full h-full object-contain" 
+                            />
                         </div>
-                    ))}
+                     )}
+                     <div dangerouslySetInnerHTML={{__html: data.text.replace(/\n/g, '<br/>')}}></div>
                 </div>
-            </div>
-        );
+            );
+        }
 
-        if (item.id === 'questions_tf') return (
-            <div style={boxStyle} className="h-full flex flex-col">
-                <h4 className="font-black text-xs uppercase mb-3 border-b pb-1 opacity-40">{item.customTitle || item.label}</h4>
-                <div className="space-y-2">
-                    {(d?.questions || []).map((q: any, i: number) => (
-                        <div key={i} className="flex justify-between items-center text-xs border-b border-zinc-100 pb-1.5">
-                             <p className="flex-1 mr-4 font-medium">{q.question}</p>
-                             <div className="flex gap-2">
-                                 <div className="w-8 h-8 border-2 border-zinc-200 rounded flex items-center justify-center font-black text-zinc-300">D</div>
-                                 <div className="w-8 h-8 border-2 border-zinc-200 rounded flex items-center justify-center font-black text-zinc-300">Y</div>
-                             </div>
-                        </div>
-                    ))}
+        // Vocabulary List (Rich Renderer)
+        if (item.id === 'vocabulary') {
+             const data = item.specificData || { questions: [{text: "Örnek: Açıklama"}] };
+             return (
+                 <div className="h-full flex flex-col" style={boxStyle}>
+                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
+                        <i className="fa-solid fa-spell-check"></i> {item.customTitle}
+                     </h4>
+                     <div className="flex-1 grid grid-cols-2 gap-4 content-start overflow-hidden">
+                         {(data.questions || []).map((q: any, i: number) => {
+                             const parts = q.text.split(':');
+                             return (
+                                 <div key={i} className="bg-white/50 p-2 rounded border border-current/20">
+                                     <span className="font-bold block text-sm">{parts[0]}</span>
+                                     <span className="text-[10px] opacity-80 leading-tight block">{parts[1] || ''}</span>
+                                 </div>
+                             );
+                         })}
+                     </div>
+                 </div>
+             );
+        }
+
+        // Creative Area (Rich Renderer)
+        if (item.id === 'creative') {
+             const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
+             return (
+                 <div className="h-full flex flex-col" style={boxStyle}>
+                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
+                        <i className="fa-solid fa-paintbrush"></i> {item.customTitle}
+                     </h4>
+                     <p className="text-sm font-bold mb-2">{data.task}</p>
+                     <div className="flex-1 border-2 border-dashed border-current/30 rounded-xl bg-white/20 relative">
+                         <span className="absolute bottom-2 right-2 text-[10px] opacity-50 font-bold uppercase">Çizim Alanı</span>
+                     </div>
+                 </div>
+             );
+        }
+        
+        // Notes Area
+        if (item.id === 'notes') {
+             return (
+                 <div className="h-full flex flex-col" style={boxStyle}>
+                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
+                     <div className="flex-1" style={{backgroundImage: 'linear-gradient(transparent 95%, currentColor 95%)', backgroundSize: '100% 1.5rem', opacity: 0.3}}></div>
+                 </div>
+             );
+        }
+
+        // Generic Questions (List Style)
+        if (item.id.startsWith('questions')) {
+            const data = item.specificData || { questions: [{text: "Madde 1..."}] };
+            return (
+                <div className="h-full flex flex-col" style={boxStyle}>
+                    <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
+                    <div className="flex-1 space-y-2 overflow-hidden">
+                        {(data.questions || []).map((q: any, i: number) => (
+                            <div key={i} className="flex gap-2 items-start">
+                                <span className="font-bold bg-current text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0" style={{color: s.backgroundColor === 'transparent' ? 'white' : s.backgroundColor, backgroundColor: s.color}}>{i+1}</span>
+                                <p className="leading-snug pt-0.5">{q.text}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            );
+        }
+        
+        // Generic Fallback
+        return (
+             <div className="h-full flex items-center justify-center border-2 border-dashed border-zinc-300 rounded" style={boxStyle}>
+                 <span className="opacity-50 font-bold">{item.label}</span>
+             </div>
         );
+    };
 
-        if (item.id === 'questions_fill') return (
-            <div style={boxStyle} className="h-full flex flex-col">
-                <h4 className="font-black text-xs uppercase mb-3 border-b pb-1 opacity-40">{item.customTitle || item.label}</h4>
-                <div className="space-y-4">
-                    {(d?.questions || []).map((q: any, i: number) => (
-                        <p key={i} className="text-sm font-medium leading-relaxed italic border-b border-dashed border-zinc-200 pb-1">
-                            {q.sentence.replace('_______', '....................')}
-                        </p>
-                    ))}
-                </div>
-            </div>
-        );
+    const toggleVisibility = (id: string) => {
+        setLayout(prev => prev.map(item => item.instanceId === id ? { ...item, isVisible: !item.isVisible } : item));
+    };
 
-        if (item.id.includes('logic') || item.id.includes('inference')) return (
-            <div style={boxStyle} className="h-full flex flex-col">
-                <h4 className="font-black text-xs uppercase mb-3 border-b pb-1 opacity-40 flex items-center gap-2"><i className="fa-solid fa-brain"></i> {item.customTitle || item.label}</h4>
-                <div className="space-y-4">
-                    {(d?.questions || []).map((q: any, i: number) => (
-                        <div key={i} className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-                             <p className="font-bold text-sm mb-2">{q.question}</p>
-                             <div className="h-10 border-b-2 border-dashed border-zinc-200 w-full"></div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-
-        // Fallback standard render for others
-        return <div style={boxStyle} className="h-full flex items-center justify-center border border-dashed border-zinc-300 opacity-50">{item.label}</div>;
+    const removeComponent = (id: string) => {
+        if(confirm("Bu bileşeni silmek istediğinize emin misiniz?")) {
+            setLayout(prev => prev.filter(item => item.instanceId !== id));
+            if(selectedId === id) setSelectedId(null);
+        }
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#18181b] font-['OpenDyslexic'] text-zinc-100 overflow-hidden">
-            {/* TOP BAR */}
-            <div className="h-14 bg-[#252529] border-b border-zinc-800 flex justify-between items-center px-4 shrink-0 z-50">
+        <div className="h-full flex flex-col bg-[#222226] font-['OpenDyslexic'] overflow-hidden text-zinc-100">
+             {/* TOP BAR */}
+            <div className="h-14 bg-[#2d2d32] border-b border-zinc-800 flex justify-between items-center px-4 shrink-0 z-50">
                 <div className="flex items-center gap-3">
                     <button onClick={onBack} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400"><i className="fa-solid fa-arrow-left"></i></button>
-                    <span className="font-black text-sm uppercase tracking-widest text-amber-500">Reading Studio <span className="text-[10px] opacity-40 ml-1">MİMARİ MOD</span></span>
+                    <span className="font-black text-sm uppercase tracking-widest text-amber-500">Reading Studio <span className="bg-amber-500/20 text-amber-500 px-1 rounded text-[9px] border border-amber-500/50">PRO</span></span>
                 </div>
-                <div className="flex items-center gap-4">
-                     <button onClick={() => setDesignMode(!designMode)} className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase transition-all ${designMode ? 'bg-amber-500 text-black shadow-lg' : 'bg-zinc-800 text-zinc-500'}`}>
-                         {designMode ? 'Düzenleme Modu' : 'Önizleme Modu'}
+                
+                <div className="flex items-center gap-2">
+                     <button onClick={() => setDesignMode(!designMode)} className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${designMode ? 'bg-amber-500 text-black border-amber-500' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>
+                         {designMode ? 'MİMARİ MOD' : 'ÖNİZLEME'}
                      </button>
-                     <button onClick={() => printService.generatePdf('#canvas-root', storyData?.title || 'Hikaye', { action: 'print' })} className="w-9 h-9 rounded bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors"><i className="fa-solid fa-print"></i></button>
+                     <button onClick={() => handlePrint('print')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400"><i className="fa-solid fa-print"></i></button>
                 </div>
             </div>
 
-            <div className="flex-1 flex overflow-hidden">
-                {/* SIDEBAR */}
-                <div className={`shrink-0 h-full bg-[#1e1e21] border-r border-zinc-800 flex flex-col transition-all duration-300 w-80`}>
-                    <div className="flex border-b border-zinc-800">
-                        <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-colors ${sidebarTab === 'settings' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-600'}`}>HİKAYE AYARLARI</button>
-                        <button onClick={() => setSidebarTab('layers')} className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-colors ${sidebarTab === 'layers' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-600'}`}>KATMANLAR</button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                        {sidebarTab === 'settings' ? (
-                            <div className="space-y-6">
-                                <section>
-                                    <h4 className="text-[10px] font-black text-zinc-500 uppercase mb-3 tracking-widest">Karakter & Tema</h4>
-                                    <input type="text" placeholder="Konu (örn: Uzay Gezisi)" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2.5 bg-zinc-900 border border-zinc-800 rounded text-xs text-white mb-2" />
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="bg-zinc-900 border border-zinc-800 p-2 text-[10px] font-bold rounded">
-                                            <option>Macera</option><option>Masal</option><option>Fabl</option>
-                                        </select>
-                                        <select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="bg-zinc-900 border border-zinc-800 p-2 text-[10px] font-bold rounded">
-                                            <option>Eğlenceli</option><option>Öğretici</option><option>Duygusal</option>
-                                        </select>
+            <div className="flex-1 flex overflow-hidden relative">
+                
+                {/* SIDEBAR WRAPPER */}
+                <div className={`flex-shrink-0 h-full bg-[#18181b] border-r border-zinc-800 transition-all duration-300 ease-in-out overflow-hidden z-40 ${isSidebarOpen ? 'w-80 opacity-100' : 'w-0 opacity-0 border-r-0'}`}>
+                    <div className="w-80 flex flex-col h-full"> 
+                         <div className="flex border-b border-zinc-800 bg-[#222226]">
+                             <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Ayarlar</button>
+                             <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
+                         </div>
+                         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                             {sidebarTab === 'library' && (
+                                 <div className="flex flex-col">
+                                     <div className="border-b border-zinc-800">
+                                         <button onClick={() => toggleSection('layers')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors">
+                                             <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-layer-group"></i> KATMANLAR <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span></h4>
+                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
+                                         </button>
+                                         {openSections.layers && (
+                                             <div className="p-2 space-y-1 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
+                                                 {layout.map((item) => (
+                                                     <div key={item.instanceId} onClick={() => setSelectedId(item.instanceId)} className={`group flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer ${selectedId === item.instanceId ? 'border-amber-500/50 bg-amber-500/10 shadow-sm ring-1 ring-amber-500/30' : 'border-transparent hover:bg-zinc-800 border-zinc-800'} ${!item.isVisible ? 'opacity-60' : ''}`}>
+                                                         <div className={`w-7 h-7 rounded flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-amber-500 text-black' : 'bg-zinc-800 text-zinc-500'}`}><i className={`fa-solid ${item.icon}`}></i></div>
+                                                         <div className="flex-1 min-w-0"><p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-amber-500' : 'text-zinc-300'}`}>{item.customTitle || item.label}</p></div>
+                                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                             <button onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }} className={`w-6 h-6 flex items-center justify-center rounded hover:bg-zinc-700 text-zinc-400 ${!item.isVisible ? 'text-zinc-600' : ''}`}><i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i></button>
+                                                             <button onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }} className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button>
+                                                         </div>
+                                                     </div>
+                                                 ))}
+                                                 {layout.length === 0 && <div className="text-center py-4 text-zinc-600 text-[10px] italic">Henüz bileşen eklenmedi.</div>}
+                                             </div>
+                                         )}
+                                     </div>
+                                     <div>
+                                         <button onClick={() => toggleSection('add')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors border-b border-zinc-800">
+                                             <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-plus-circle"></i> YENİ EKLE</h4>
+                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
+                                         </button>
+                                         {openSections.add && (
+                                             <div className="p-4 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
+                                                 <div className="grid grid-cols-2 gap-2">
+                                                     {COMPONENT_DEFINITIONS.map(def => (
+                                                         <button key={def.id} onClick={() => addComponent(def)} className="flex flex-col items-center gap-2 p-3 bg-zinc-800 border border-zinc-700 rounded-xl hover:border-amber-500 hover:shadow-md transition-all group">
+                                                             <i className={`fa-solid ${def.icon} text-zinc-500 group-hover:text-amber-500 text-lg transition-colors`}></i>
+                                                             <span className="text-[10px] font-bold text-zinc-400 group-hover:text-amber-500 text-center leading-tight">{def.label}</span>
+                                                         </button>
+                                                     ))}
+                                                 </div>
+                                             </div>
+                                         )}
+                                     </div>
+                                 </div>
+                             )}
+                             {sidebarTab === 'settings' && (
+                                 <div className="p-4 space-y-6">
+                                    <div className="space-y-3">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
+                                        <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ad Soyad</label><input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200" placeholder="Örn: Ali Yılmaz" /></div>
+                                        <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Sınıf</label><select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">{['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}</select></div></div>
                                     </div>
-                                </section>
-                                <section>
-                                    <h4 className="text-[10px] font-black text-zinc-500 uppercase mb-3 tracking-widest">Dahil Et</h4>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {[
-                                            {l: '5N 1K', k: 'include5N1K'}, {l: 'Test', k: 'countMultipleChoice'}, 
-                                            {l: 'D/Y', k: 'countTrueFalse'}, {l: 'Boşluk', k: 'countFillBlanks'}, 
-                                            {l: 'Mantık', k: 'countLogic'}, {l: 'Çıkarım', k: 'countInference'},
-                                            {l: 'Sözlük', k: 'focusVocabulary'}, {l: 'Yaratıcı', k: 'includeCreativeTask'}
-                                        ].map(opt => (
-                                            <button key={opt.k} onClick={() => {
-                                                const v = (config as any)[opt.k];
-                                                setConfig({...config, [opt.k]: typeof v === 'number' ? (v > 0 ? 0 : 3) : !v});
-                                            }} className={`p-2 rounded border text-[10px] font-black transition-all ${(typeof (config as any)[opt.k] === 'number' ? (config as any)[opt.k] > 0 : (config as any)[opt.k]) ? 'bg-amber-500/20 border-amber-500 text-amber-500' : 'bg-zinc-900 border-zinc-800 text-zinc-600'}`}>{opt.l}</button>
-                                        ))}
+                                    <div className="space-y-3">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-book"></i> Hikaye Kurgusu</h4>
+                                        <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Konu</label><input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200" placeholder="Örn: Uzay Maceraları" /></div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Tür</label><select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">{['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}</select></div>
+                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ton</label><select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200">{['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                             <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Uzunluk</label><select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200"><option value="short">Kısa</option><option value="medium">Orta</option><option value="long">Uzun</option></select></div>
+                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Dil Seviyesi</label><select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200"><option value="simple">Basit</option><option value="moderate">Orta</option><option value="advanced">İleri</option></select></div>
+                                        </div>
                                     </div>
-                                </section>
-                                <button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black font-black rounded-xl shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-3">
-                                    {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                                    {isLoading ? 'YAZILIYOR...' : 'OLUŞTUR'}
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="space-y-1">
-                                {layout.map(item => (
-                                    <div key={item.instanceId} onClick={() => setSelectedId(item.instanceId)} className={`p-3 rounded-lg flex items-center gap-3 border cursor-pointer transition-all ${selectedId === item.instanceId ? 'bg-zinc-800 border-amber-500' : 'bg-zinc-900 border-transparent hover:bg-zinc-800'}`}>
-                                        <i className={`fa-solid ${item.icon} w-5 text-center ${item.isVisible ? 'text-amber-500' : 'text-zinc-600'}`}></i>
-                                        <span className={`text-[10px] font-bold truncate flex-1 ${!item.isVisible && 'opacity-30'}`}>{item.customTitle || item.label}</span>
-                                        <button onClick={(e) => { e.stopPropagation(); setLayout(prev => prev.map(l => l.instanceId === item.instanceId ? {...l, isVisible: !l.isVisible} : l)); }} className="text-zinc-600 hover:text-white"><i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i></button>
+                                    <div className="space-y-3">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-image"></i> Görsel Üretim</h4>
+                                        <div className="flex items-center justify-between p-2 border border-zinc-700 rounded-lg bg-zinc-800">
+                                            <span className="text-xs font-medium text-zinc-300">AI Görsel Oluştur</span>
+                                            <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${config.imageGeneration.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`} onClick={() => setConfig({...config, imageGeneration: {...config.imageGeneration, enabled: !config.imageGeneration.enabled}})}><div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${config.imageGeneration.enabled ? 'left-5' : 'left-1'}`}></div></div>
+                                        </div>
+                                        {config.imageGeneration.enabled && (<div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Çizim Stili</label><select value={config.imageGeneration.style} onChange={e => setConfig({...config, imageGeneration: {...config.imageGeneration, style: e.target.value as any}})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200"><option value="storybook">Masal Kitabı</option><option value="cartoon">Çizgi Film</option><option value="watercolor">Sulu Boya</option><option value="realistic">Gerçekçi</option></select></div>)}
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                    <div className="space-y-3">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-puzzle-piece"></i> Dahil Edilecekler</h4>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {[{ label: '5N 1K Soruları', key: 'include5N1K' }, { label: 'Test Soruları', key: 'countMultipleChoice', isCount: true }, { label: 'Doğru/Yanlış', key: 'countTrueFalse', isCount: true }, { label: 'Sözlükçe', key: 'focusVocabulary' }, { label: 'Yaratıcı Görev', key: 'includeCreativeTask' }, { label: 'Boşluk Doldurma', key: 'countFillBlanks', isCount: true }, { label: 'Mantık Sorusu', key: 'countLogic', isCount: true }, { label: 'Çıkarım Sorusu', key: 'countInference', isCount: true }].map((opt: any, i) => (<button key={i} onClick={() => { if (opt.isCount) { const val = (config as any)[opt.key] > 0 ? 0 : 3; setConfig({...config, [opt.key]: val}); } else { setConfig({...config, [opt.key]: !(config as any)[opt.key]}); } }} className={`p-2 rounded-lg text-[10px] font-bold border transition-colors ${(opt.isCount ? (config as any)[opt.key] > 0 : (config as any)[opt.key]) ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-zinc-800 border-zinc-700 text-zinc-500'}`}>{opt.label}</button>))}
+                                        </div>
+                                    </div>
+                                    <button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}{isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}</button>
+                                 </div>
+                             )}
+                         </div>
                     </div>
                 </div>
 
-                {/* CANVAS AREA */}
+                {/* TOGGLE BUTTON - Now placed relative to the sidebar */}
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className={`absolute top-1/2 -translate-y-1/2 z-50 w-5 h-12 bg-[#2d2d32] border-y border-r border-zinc-700 rounded-r-lg flex items-center justify-center text-zinc-400 hover:text-black hover:bg-amber-500 transition-all shadow-md focus:outline-none duration-300 ease-in-out`}
+                    style={{ left: isSidebarOpen ? '320px' : '0px' }}
+                    title={isSidebarOpen ? "Paneli Gizle" : "Paneli Göster"}
+                >
+                    <i className={`fa-solid fa-chevron-${isSidebarOpen ? 'left' : 'right'} text-xs`}></i>
+                </button>
+
+                {/* CANVAS */}
                 <div 
-                    ref={canvasRef} 
-                    className="flex-1 bg-[#09090b] relative overflow-hidden flex items-center justify-center p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] cursor-grab active:cursor-grabbing"
+                    ref={canvasRef}
+                    className="flex-1 bg-[#121214] overflow-hidden flex items-center justify-center relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] cursor-grab active:cursor-grabbing"
                     onWheel={handleCanvasWheel}
-                    onMouseDown={e => { 
-                        if(e.target === e.currentTarget) { setIsPanning(true); setSelectedId(null); } 
-                        lastMousePos.current = { x: e.clientX, y: e.clientY }; 
-                    }}
+                    onMouseDown={handleBgMouseDown}
                 >
                     <div 
-                        className="origin-top-left transition-transform duration-75 will-change-transform"
+                        className="origin-top-left transition-transform duration-75 ease-out will-change-transform"
                         style={{ transform: `translate3d(${canvasPos.x}px, ${canvasPos.y}px, 0) scale(${canvasScale})` }}
                     >
-                        <div id="canvas-root" className="bg-white shadow-2xl relative" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px` }}>
-                            {designMode && (
-                                <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: `radial-gradient(#000 1px, transparent 1px)`, backgroundSize: '20px 20px' }}></div>
-                            )}
-
-                            {layout.filter(item => item.isVisible).map((item) => (
-                                <div 
-                                    key={item.instanceId} 
-                                    onMouseDown={e => handleMouseDown(e, item.instanceId, 'drag')}
-                                    className={`absolute group ${designMode ? 'hover:ring-2 hover:ring-amber-500/50 cursor-move' : ''} ${selectedId === item.instanceId ? 'ring-2 ring-amber-500' : ''}`}
-                                    style={{ left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h, zIndex: item.style.zIndex, transform: `rotate(${item.style.rotation || 0}deg)` }}
-                                >
+                        <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px`, transformOrigin: '0 0' }}>
+                            {designMode && <div className="absolute inset-0 pointer-events-none z-0" style={{backgroundImage: `radial-gradient(#e5e7eb 1px, transparent 1px)`, backgroundSize: `${SNAP_GRID * 4}px ${SNAP_GRID * 4}px`}}></div>}
+                            {layout.map((item) => (
+                                <div key={item.instanceId} onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'drag')} className={`absolute ${designMode ? 'hover:ring-1 hover:ring-amber-500 cursor-move' : ''}`} style={{ left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h, transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex }}>
                                     {designMode && selectedId === item.instanceId && (
-                                        <>
-                                            <RotateHandle onMouseDown={(e: any) => handleMouseDown(e, item.instanceId, 'rotate')} />
-                                            <ResizeHandle cursor="nwse-resize" position="-bottom-1 -right-1" onMouseDown={(e: any) => handleMouseDown(e, item.instanceId, 'resize')} />
-                                        </>
+                                        <div className="absolute inset-0 border-2 border-amber-500 z-50 pointer-events-none">
+                                            <div className="pointer-events-auto"><RotateHandle onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'rotate')} /></div>
+                                            <div className="pointer-events-auto"><ResizeHandle cursor="se-resize" position="-bottom-1.5 -right-1.5" onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'resize', 'se')} /></div>
+                                        </div>
                                     )}
-                                    <div className="w-full h-full overflow-hidden pointer-events-none">
-                                        {renderComponent(item)}
-                                    </div>
+                                    <div className="w-full h-full overflow-hidden pointer-events-none text-black">{renderContent(item)}</div>
                                 </div>
                             ))}
+                            {/* Sticky Footer */}
+                            <div className="absolute bottom-4 left-0 w-full text-center text-[10px] text-zinc-400 font-mono pointer-events-none flex justify-between px-8"><span>Bursa Disleksi AI © {new Date().getFullYear()}</span><span>Sayfa 1</span></div>
                         </div>
                     </div>
                 </div>
 
-                {/* SETTINGS PANEL (DOCK) */}
+                {/* SETTINGS DOCK */}
                 {selectedId && (
-                    <div className="shrink-0 h-full border-l border-zinc-800">
-                         <SettingsStation 
-                            item={layout.find(l => l.instanceId === selectedId)!} 
-                            onUpdate={(updates: any) => setLayout(prev => prev.map(l => l.instanceId === selectedId ? {...l, ...updates} : l))} 
-                            onClose={() => setSelectedId(null)}
-                            onDelete={() => { if(confirm('Sil?')) { setLayout(prev => prev.filter(l => l.instanceId !== selectedId)); setSelectedId(null); }}}
-                        />
+                    <div className="shrink-0 z-50 h-full border-l border-zinc-800 shadow-xl relative">
+                        <SettingsStation item={layout.find(l => l.instanceId === selectedId)!} onUpdate={updateItem} onClose={() => setSelectedId(null)} onDelete={deleteItem} />
                     </div>
                 )}
             </div>
