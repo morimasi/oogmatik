@@ -10,62 +10,117 @@ import { MathDrillConfig, MathPageConfig, MathOperation, MathProblemConfig, Math
 // --- CONFIGURATION ---
 const A4_WIDTH_PX = 794; 
 const A4_HEIGHT_PX = 1123; 
+// Reduced margin to fit more content (was 160)
+const PAGE_MARGIN_Y = 80; 
+
+// --- UTILS ---
+const numberToTurkish = (num: number): string => {
+    if (num === 0) return "Sıfır";
+    const ones = ["", "Bir", "İki", "Üç", "Dört", "Beş", "Altı", "Yedi", "Sekiz", "Dokuz"];
+    const tens = ["", "On", "Yirmi", "Otuz", "Kırk", "Elli", "Altmış", "Yetmiş", "Seksen", "Doksan"];
+    
+    const convertGroup = (n: number) => {
+        let str = "";
+        const h = Math.floor(n / 100);
+        const t = Math.floor((n % 100) / 10);
+        const o = n % 10;
+        
+        if (h === 1) str += "Yüz ";
+        else if (h > 1) str += ones[h] + " Yüz ";
+        
+        if (t > 0) str += tens[t] + " ";
+        if (o > 0) str += ones[o] + " ";
+        return str.trim();
+    };
+
+    if (num < 1000) return convertGroup(num);
+    return num.toString();
+};
 
 // --- COMPONENTS ---
 
-const OperationCardVertical = ({ op, fontSize }: { op: MathOperation, fontSize: number }) => (
-    <div className="flex flex-col items-end font-mono font-bold leading-none" style={{ fontSize: `${fontSize}px` }}>
-        <span>{op.num1}</span>
-        <div className="flex items-center gap-2 w-full justify-end border-b-2 border-black mb-1 relative">
+const OperationCardVertical = ({ op, fontSize, showText }: { op: MathOperation, fontSize: number, showText: boolean }) => (
+    <div className="flex flex-col items-end font-mono font-bold leading-none break-inside-avoid p-1" style={{ fontSize: `${fontSize}px` }}>
+        <div className="flex items-center gap-2">
+            <span>{op.num1}</span>
+            {showText && <span className="text-[0.4em] text-zinc-400 font-sans font-normal">({numberToTurkish(op.num1)})</span>}
+        </div>
+        
+        <div className="flex items-center gap-2 w-full justify-end relative">
             <span className="absolute left-0 transform -translate-x-1/2">{op.symbol}</span>
             <span>{op.num2}</span>
+            {showText && <span className="text-[0.4em] text-zinc-400 font-sans font-normal">({numberToTurkish(op.num2)})</span>}
         </div>
-        <span className="text-transparent select-none h-[1em] w-full text-right block border border-zinc-200 border-dashed rounded text-zinc-300/50">
+
+        {op.num3 !== undefined && (
+            <div className="flex items-center gap-2 w-full justify-end relative">
+                 <span className="absolute left-0 transform -translate-x-1/2">{op.symbol2 || op.symbol}</span>
+                 <span>{op.num3}</span>
+            </div>
+        )}
+
+        <div className="w-full border-b-2 border-black mb-1"></div>
+        
+        <span className="text-transparent select-none h-[1.2em] w-full text-right block border-2 border-zinc-200 border-dashed rounded text-zinc-300/50 bg-white">
             {op.answer}
         </span>
         {op.remainder !== undefined && (
-            <span className="text-xs text-zinc-400 mt-1">Kalan: .</span>
+            <span className="text-xs text-zinc-400 mt-0.5">Kal: ...</span>
         )}
     </div>
 );
 
-const OperationCardHorizontal = ({ op, fontSize }: { op: MathOperation, fontSize: number }) => (
-    <div className="flex items-center gap-2 font-mono font-bold" style={{ fontSize: `${fontSize}px` }}>
-        <span>{op.num1}</span>
+const OperationCardHorizontal = ({ op, fontSize, showText }: { op: MathOperation, fontSize: number, showText: boolean }) => (
+    <div className="flex flex-wrap items-center gap-2 font-mono font-bold break-inside-avoid p-1 border border-transparent" style={{ fontSize: `${fontSize}px` }}>
+        <div className="flex flex-col items-center">
+            <span>{op.num1}</span>
+            {showText && <span className="text-[0.4em] text-zinc-400 font-sans font-normal whitespace-nowrap">{numberToTurkish(op.num1)}</span>}
+        </div>
         <span>{op.symbol}</span>
-        <span>{op.num2}</span>
+        <div className="flex flex-col items-center">
+            <span>{op.num2}</span>
+            {showText && <span className="text-[0.4em] text-zinc-400 font-sans font-normal whitespace-nowrap">{numberToTurkish(op.num2)}</span>}
+        </div>
+        
+        {op.num3 !== undefined && (
+            <>
+                <span>{op.symbol2 || op.symbol}</span>
+                <span>{op.num3}</span>
+            </>
+        )}
+
         <span>=</span>
-        <span className="min-w-[60px] border-b-2 border-black border-dashed h-[1em]"></span>
+        <span className="min-w-[50px] border-b-2 border-black border-dashed h-[1em] inline-block"></span>
         {op.remainder !== undefined && (
-             <span className="text-sm ml-2 text-zinc-400">(Kal: ...)</span>
+             <span className="text-[0.5em] ml-1 text-zinc-400">(K:...)</span>
         )}
     </div>
 );
 
 const ProblemCard: React.FC<{ problem: MathProblem, showSolutionBox: boolean }> = ({ problem, showSolutionBox }) => (
-    <div className="w-full mb-8 break-inside-avoid">
-        <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0 mt-1 shadow-md">
+    <div className="w-full mb-6 break-inside-avoid">
+        <div className="flex gap-3">
+            <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-md">
                 <i className="fa-solid fa-question"></i>
             </div>
             <div className="flex-1">
-                <p className="text-lg font-medium text-zinc-900 leading-relaxed text-justify font-dyslexic border-b border-zinc-100 pb-2">
+                <p className="text-base font-medium text-zinc-900 leading-relaxed text-justify font-dyslexic border-b border-zinc-100 pb-1">
                     <EditableText value={problem.text} tag="span" />
                 </p>
                 
                 {problem.operationHint && (
-                     <div className="mt-2 text-xs text-zinc-400 flex items-center gap-2">
+                     <div className="mt-1 text-[10px] text-zinc-400 flex items-center gap-1">
                          <i className="fa-solid fa-lightbulb text-yellow-500"></i>
                          <span className="italic">İpucu: {problem.operationHint}</span>
                      </div>
                 )}
 
                 {showSolutionBox && (
-                    <div className="mt-4 w-full h-32 border-2 border-zinc-200 border-dashed rounded-xl bg-zinc-50/50 relative flex items-end justify-between p-4">
-                        <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest absolute top-2 left-3">Çözüm Alanı</span>
+                    <div className="mt-2 w-full h-24 border border-zinc-300 border-dashed rounded-lg bg-zinc-50/30 relative flex items-end justify-between p-2">
+                        <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest absolute top-1 left-2">Çözüm</span>
                         <div className="text-right w-full">
                             <span className="text-xs font-bold text-zinc-400 mr-2">Cevap:</span>
-                            <span className="inline-block w-20 border-b-2 border-zinc-300"></span>
+                            <span className="inline-block w-16 border-b-2 border-zinc-300"></span>
                         </div>
                     </div>
                 )}
@@ -87,8 +142,13 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     });
 
     const [drillConfig, setDrillConfig] = useState<MathDrillConfig>({
-        operation: 'add', digit1: 2, digit2: 1, count: 20, cols: 5, gap: 30,
+        selectedOperations: ['add'], 
+        digit1: 2, 
+        digit2: 1, 
+        digit3: 1, // Default 3rd number digit
+        count: 20, cols: 4, gap: 30,
         allowCarry: true, allowBorrow: true, allowRemainder: false, allowNegative: false,
+        useThirdNumber: false, showTextRepresentation: false, autoFillPage: false,
         orientation: 'vertical', showAnswer: false, fontSize: 24
     });
 
@@ -108,26 +168,60 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [generatedDrills, setGeneratedDrills] = useState<MathOperation[]>([]);
     const [generatedProblems, setGeneratedProblems] = useState<MathProblem[]>([]);
 
-    // --- EFFECT: Auto Generate Drills on Config Change ---
+    // --- EFFECT: Calculate Capacity & Generate ---
     useEffect(() => {
         if (mode === 'drill') {
-            const items = generateMathDrillSet(drillConfig.count, drillConfig.operation, {
+            let targetCount = drillConfig.count;
+
+            // SMART AUTO FILL LOGIC
+            if (drillConfig.autoFillPage) {
+                const usableHeight = A4_HEIGHT_PX - PAGE_MARGIN_Y - (pageConfig.margin * 2);
+                
+                // Estimate Item Size (Compact Mode)
+                const itemHeight = drillConfig.orientation === 'vertical' 
+                    ? (drillConfig.fontSize * (drillConfig.useThirdNumber ? 4.5 : 3.2)) + (drillConfig.showTextRepresentation ? 12 : 0) + 15 
+                    : (drillConfig.fontSize * 1.5) + 15;
+                
+                // Calculate Grid
+                const rows = Math.floor(usableHeight / itemHeight);
+                const safeCols = drillConfig.orientation === 'vertical' && drillConfig.fontSize > 30 ? 3 : drillConfig.cols; 
+                
+                targetCount = Math.max(1, rows * safeCols);
+            }
+
+            const items = generateMathDrillSet(targetCount, drillConfig.selectedOperations as any, { 
                 digit1: drillConfig.digit1,
                 digit2: drillConfig.digit2,
+                digit3: drillConfig.digit3, // Pass digit3
                 allowCarry: drillConfig.allowCarry,
                 allowBorrow: drillConfig.allowBorrow,
-                allowRemainder: drillConfig.allowRemainder
+                allowRemainder: drillConfig.allowRemainder,
+                allowNegative: drillConfig.allowNegative,
+                useThirdNumber: drillConfig.useThirdNumber
             });
             setGeneratedDrills(items);
         }
-    }, [drillConfig, mode]);
+    }, [
+        drillConfig.selectedOperations, drillConfig.digit1, drillConfig.digit2, drillConfig.digit3, drillConfig.count, 
+        drillConfig.allowCarry, drillConfig.allowBorrow, drillConfig.allowRemainder, drillConfig.allowNegative,
+        drillConfig.useThirdNumber, drillConfig.autoFillPage, drillConfig.fontSize, drillConfig.orientation,
+        mode
+    ]);
 
-    // --- HELPER: Update Problem Operations ---
-    const toggleOperation = (op: string) => {
+    // --- HELPERS ---
+    const toggleDrillOp = (op: string) => {
+        setDrillConfig(prev => {
+            const current = prev.selectedOperations;
+            const newOps = current.includes(op) ? current.filter(o => o !== op) : [...current, op];
+            if (newOps.length === 0) return prev;
+            return { ...prev, selectedOperations: newOps };
+        });
+    };
+
+    const toggleProblemOp = (op: string) => {
         setProblemConfig(prev => {
             const current = prev.selectedOperations;
             const newOps = current.includes(op) ? current.filter(o => o !== op) : [...current, op];
-            // Ensure at least one is selected
             if (newOps.length === 0) return prev;
             return { ...prev, selectedOperations: newOps };
         });
@@ -139,17 +233,13 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         setIsGenerating(true);
         try {
             const result = await generateMathProblemsAI(problemConfig);
-
-            // Map to local format
             const mapped = (result.problems || []).map((p: any, i: number) => ({
                 id: `p-${Date.now()}-${i}`,
                 text: p.text || "Soru metni yüklenemedi.",
                 answer: p.answer || "?",
                 operationHint: p.operationHint
             }));
-
             setGeneratedProblems(mapped);
-
         } catch (e) {
             console.error(e);
             alert("Problem üretilemedi. API Hatası.");
@@ -213,20 +303,74 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         <div className="p-5 space-y-6 animate-in slide-in-from-left-4">
                             
                             {/* Operation Select */}
-                            <div className="grid grid-cols-5 gap-2">
-                                {[
-                                    {id: 'add', icon: 'plus'}, {id: 'sub', icon: 'minus'}, 
-                                    {id: 'mult', icon: 'xmark'}, {id: 'div', icon: 'divide'}, 
-                                    {id: 'mixed', icon: 'shuffle'}
-                                ].map(op => (
-                                    <button 
-                                        key={op.id}
-                                        onClick={() => setDrillConfig({...drillConfig, operation: op.id as any})}
-                                        className={`aspect-square rounded-xl flex items-center justify-center text-lg transition-all border-2 ${drillConfig.operation === op.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'}`}
-                                    >
-                                        <i className={`fa-solid fa-${op.icon}`}></i>
-                                    </button>
-                                ))}
+                            <div>
+                                <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">İşlem Türleri (Çoklu)</label>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {[
+                                        {id: 'add', icon: 'plus'}, {id: 'sub', icon: 'minus'}, 
+                                        {id: 'mult', icon: 'xmark'}, {id: 'div', icon: 'divide'}
+                                    ].map(op => (
+                                        <button 
+                                            key={op.id}
+                                            onClick={() => toggleDrillOp(op.id)}
+                                            className={`aspect-square rounded-xl flex items-center justify-center text-lg transition-all border-2 ${drillConfig.selectedOperations.includes(op.id) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'}`}
+                                        >
+                                            <i className={`fa-solid fa-${op.icon}`}></i>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Constraints Toggles (Enhanced Visibility) */}
+                            <div className="space-y-3 p-4 bg-black/40 rounded-xl border border-zinc-700/50">
+                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i className="fa-solid fa-sliders"></i> İşlem Kuralları</h4>
+                                
+                                {drillConfig.selectedOperations.includes('add') && (
+                                    <div className="space-y-2 mb-2 pb-2 border-b border-zinc-800">
+                                        <label className="flex items-center justify-between cursor-pointer group hover:bg-zinc-800 p-1 rounded transition-colors">
+                                            <span className="text-xs text-zinc-300 group-hover:text-white transition-colors font-bold">Toplama: Eldeli Olabilir</span>
+                                            <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowCarry ? 'bg-green-500' : 'bg-zinc-600'}`}>
+                                                <input type="checkbox" checked={drillConfig.allowCarry} onChange={e => setDrillConfig({...drillConfig, allowCarry: e.target.checked})} className="hidden" />
+                                                <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowCarry ? 'left-5' : 'left-1'}`}></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                )}
+                                
+                                {drillConfig.selectedOperations.includes('sub') && (
+                                    <div className="space-y-2 mb-2 pb-2 border-b border-zinc-800">
+                                        <label className="flex items-center justify-between cursor-pointer group hover:bg-zinc-800 p-1 rounded transition-colors">
+                                            <span className="text-xs text-zinc-300 group-hover:text-white transition-colors font-bold">Çıkarma: Onluk Bozmalı</span>
+                                            <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowBorrow ? 'bg-green-500' : 'bg-zinc-600'}`}>
+                                                <input type="checkbox" checked={drillConfig.allowBorrow} onChange={e => setDrillConfig({...drillConfig, allowBorrow: e.target.checked})} className="hidden" />
+                                                <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowBorrow ? 'left-5' : 'left-1'}`}></div>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-center justify-between cursor-pointer group hover:bg-zinc-800 p-1 rounded transition-colors">
+                                            <span className="text-xs text-zinc-300 group-hover:text-white transition-colors font-bold">Çıkarma: Negatif Sonuç</span>
+                                            <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowNegative ? 'bg-green-500' : 'bg-zinc-600'}`}>
+                                                <input type="checkbox" checked={drillConfig.allowNegative} onChange={e => setDrillConfig({...drillConfig, allowNegative: e.target.checked})} className="hidden" />
+                                                <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowNegative ? 'left-5' : 'left-1'}`}></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                )}
+                                
+                                {drillConfig.selectedOperations.includes('div') && (
+                                    <div className="space-y-2">
+                                        <label className="flex items-center justify-between cursor-pointer group hover:bg-zinc-800 p-1 rounded transition-colors">
+                                            <span className="text-xs text-zinc-300 group-hover:text-white transition-colors font-bold">Bölme: Kalanlı Olabilir</span>
+                                            <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowRemainder ? 'bg-green-500' : 'bg-zinc-600'}`}>
+                                                <input type="checkbox" checked={drillConfig.allowRemainder} onChange={e => setDrillConfig({...drillConfig, allowRemainder: e.target.checked})} className="hidden" />
+                                                <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowRemainder ? 'left-5' : 'left-1'}`}></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                )}
+                                
+                                {!drillConfig.selectedOperations.some(op => ['add', 'sub', 'div'].includes(op)) && (
+                                    <p className="text-[10px] text-zinc-500 italic text-center py-2">Seçilen işlemler için özel kural yok.</p>
+                                )}
                             </div>
 
                             {/* Digits Control */}
@@ -234,24 +378,60 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 <div className="flex justify-between items-center mb-3">
                                     <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Basamak Sayısı</h4>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className={`grid ${drillConfig.useThirdNumber ? 'grid-cols-3' : 'grid-cols-2'} gap-3`}>
                                     <div>
                                         <label className="block text-[9px] text-zinc-500 mb-1 font-bold">1. Sayı</label>
                                         <select value={drillConfig.digit1} onChange={e => setDrillConfig({...drillConfig, digit1: Number(e.target.value)})} className="w-full bg-black border border-zinc-600 rounded p-1.5 text-xs text-white outline-none focus:border-indigo-500">
-                                            {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Basamak</option>)}
+                                            {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} B.</option>)}
                                         </select>
                                     </div>
                                     <div>
                                         <label className="block text-[9px] text-zinc-500 mb-1 font-bold">2. Sayı</label>
                                         <select value={drillConfig.digit2} onChange={e => setDrillConfig({...drillConfig, digit2: Number(e.target.value)})} className="w-full bg-black border border-zinc-600 rounded p-1.5 text-xs text-white outline-none focus:border-indigo-500">
-                                            {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Basamak</option>)}
+                                            {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} B.</option>)}
                                         </select>
                                     </div>
+                                    {drillConfig.useThirdNumber && (
+                                        <div className="animate-in fade-in slide-in-from-left-2">
+                                            <label className="block text-[9px] text-zinc-500 mb-1 font-bold">3. Sayı</label>
+                                            <select value={drillConfig.digit3} onChange={e => setDrillConfig({...drillConfig, digit3: Number(e.target.value)})} className="w-full bg-black border border-zinc-600 rounded p-1.5 text-xs text-white outline-none focus:border-indigo-500">
+                                                {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} B.</option>)}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
+                            {/* Advanced Toggles */}
+                            <div className="space-y-2">
+                                <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2 mb-1">Gelişmiş</h4>
+                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-800/30 p-2 rounded-lg border border-zinc-800">
+                                    <span className="text-xs text-zinc-300 font-bold group-hover:text-white transition-colors">Sayfayı Otomatik Doldur</span>
+                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.autoFillPage ? 'bg-indigo-500' : 'bg-zinc-700'}`}>
+                                        <input type="checkbox" checked={drillConfig.autoFillPage} onChange={e => setDrillConfig({...drillConfig, autoFillPage: e.target.checked})} className="hidden" />
+                                        <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.autoFillPage ? 'left-5' : 'left-1'}`}></div>
+                                    </div>
+                                </label>
+
+                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-800/30 p-2 rounded-lg border border-zinc-800">
+                                    <span className="text-xs text-zinc-300 font-bold group-hover:text-white transition-colors">3. Sayı Ekle (Zincir)</span>
+                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.useThirdNumber ? 'bg-indigo-500' : 'bg-zinc-700'}`}>
+                                        <input type="checkbox" checked={drillConfig.useThirdNumber} onChange={e => setDrillConfig({...drillConfig, useThirdNumber: e.target.checked})} className="hidden" />
+                                        <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.useThirdNumber ? 'left-5' : 'left-1'}`}></div>
+                                    </div>
+                                </label>
+
+                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-800/30 p-2 rounded-lg border border-zinc-800">
+                                    <span className="text-xs text-zinc-300 font-bold group-hover:text-white transition-colors">Sayıları Yazıyla Göster</span>
+                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.showTextRepresentation ? 'bg-indigo-500' : 'bg-zinc-700'}`}>
+                                        <input type="checkbox" checked={drillConfig.showTextRepresentation} onChange={e => setDrillConfig({...drillConfig, showTextRepresentation: e.target.checked})} className="hidden" />
+                                        <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.showTextRepresentation ? 'left-5' : 'left-1'}`}></div>
+                                    </div>
+                                </label>
+                            </div>
+
                             {/* Layout & Style */}
-                            <div className="space-y-3">
+                            <div className="space-y-3 pt-4 border-t border-zinc-800">
                                 <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Görünüm</h4>
                                 
                                 <div className="flex bg-zinc-800 rounded-lg p-1 border border-zinc-700">
@@ -262,7 +442,13 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 <div className="grid grid-cols-2 gap-4">
                                      <div>
                                         <label className="block text-[9px] text-zinc-500 mb-1">Adet</label>
-                                        <input type="number" value={drillConfig.count} onChange={e => setDrillConfig({...drillConfig, count: Number(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-xs text-white" />
+                                        <input 
+                                            type="number" 
+                                            value={drillConfig.count} 
+                                            onChange={e => setDrillConfig({...drillConfig, count: Number(e.target.value)})} 
+                                            disabled={drillConfig.autoFillPage}
+                                            className={`w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-xs text-white ${drillConfig.autoFillPage ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-[9px] text-zinc-500 mb-1">Sütun</label>
@@ -271,8 +457,8 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 </div>
                                 
                                 <div>
-                                    <label className="block text-[9px] text-zinc-500 mb-1">Font Büyüklüğü</label>
-                                    <input type="range" min="12" max="48" value={drillConfig.fontSize} onChange={e => setDrillConfig({...drillConfig, fontSize: Number(e.target.value)})} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+                                    <label className="block text-[9px] text-zinc-500 mb-1">Font Büyüklüğü ({drillConfig.fontSize}px)</label>
+                                    <input type="range" min="16" max="48" value={drillConfig.fontSize} onChange={e => setDrillConfig({...drillConfig, fontSize: Number(e.target.value)})} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
                                 </div>
                             </div>
                         </div>
@@ -311,7 +497,7 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                             ].map(op => (
                                                 <button
                                                     key={op.id}
-                                                    onClick={() => toggleOperation(op.id)}
+                                                    onClick={() => toggleProblemOp(op.id)}
                                                     className={`py-2 rounded-lg font-bold text-sm transition-all border ${problemConfig.selectedOperations.includes(op.id) ? 'bg-indigo-500 text-white border-indigo-400' : 'bg-black/20 text-zinc-400 border-white/10 hover:bg-black/40'}`}
                                                 >
                                                     {op.label}
@@ -400,20 +586,26 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             backgroundSize: pageConfig.paperType === 'dot' ? '20px 20px' : '40px 40px'
                         }}
                     >
-                        {/* HEADER */}
-                        <div className="border-b-4 border-black pb-4 mb-8">
-                            <h1 className="text-4xl font-black uppercase text-center tracking-tight"><EditableText value={pageConfig.title} /></h1>
-                            <div className="flex justify-between mt-4 font-bold text-sm uppercase tracking-wider">
-                                {pageConfig.showName && <span>Ad Soyad: ........................................</span>}
-                                {pageConfig.showDate && <span>Tarih: ........................</span>}
+                        {/* COMPACT HEADER */}
+                        <div className="border-b-2 border-black pb-2 mb-4">
+                            <div className="flex justify-between items-center">
+                                <h1 className="text-2xl font-black uppercase tracking-tight text-black"><EditableText value={pageConfig.title} /></h1>
+                                <div className="flex flex-col items-end text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                                    {pageConfig.showDate && <span>Tarih: ........................</span>}
+                                </div>
                             </div>
+                            {pageConfig.showName && (
+                                <div className="mt-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                                    Ad Soyad: ............................................................
+                                </div>
+                            )}
                         </div>
 
                         {/* CONTENT */}
                         <div className="flex-1">
                             {mode === 'drill' && (
                                 <div 
-                                    className="grid w-full gap-y-12 gap-x-4"
+                                    className="grid w-full gap-y-8 gap-x-4" 
                                     style={{ 
                                         gridTemplateColumns: `repeat(${drillConfig.cols}, 1fr)`,
                                     }}
@@ -421,8 +613,8 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     {generatedDrills.map((op, i) => (
                                         <div key={op.id} className="flex justify-center items-start">
                                             {drillConfig.orientation === 'vertical' 
-                                                ? <OperationCardVertical op={op} fontSize={drillConfig.fontSize} />
-                                                : <OperationCardHorizontal op={op} fontSize={drillConfig.fontSize} />
+                                                ? <OperationCardVertical op={op} fontSize={drillConfig.fontSize} showText={drillConfig.showTextRepresentation} />
+                                                : <OperationCardHorizontal op={op} fontSize={drillConfig.fontSize} showText={drillConfig.showTextRepresentation} />
                                             }
                                         </div>
                                     ))}
@@ -430,7 +622,7 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             )}
 
                             {mode === 'problem_ai' && (
-                                <div className="flex flex-col gap-8">
+                                <div className="flex flex-col gap-6">
                                     {generatedProblems.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-20 text-zinc-400 border-2 border-dashed border-zinc-200 rounded-3xl bg-zinc-50">
                                             <i className="fa-solid fa-robot text-4xl mb-4 text-zinc-300"></i>
@@ -446,7 +638,7 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         </div>
                         
                         {/* FOOTER */}
-                        <div className="mt-8 pt-4 border-t border-zinc-200 flex justify-between items-center text-[10px] text-zinc-400 font-mono uppercase">
+                        <div className="mt-4 pt-2 border-t border-zinc-200 flex justify-between items-center text-[9px] text-zinc-400 font-mono uppercase">
                             <span>Bursa Disleksi AI</span>
                             <span>Sayfa 1</span>
                         </div>

@@ -8,18 +8,24 @@ export * from './core';
 export type MathMode = 'drill' | 'problem_ai' | 'visual_tools';
 
 export interface MathDrillConfig {
-    operation: 'add' | 'sub' | 'mult' | 'div' | 'mixed';
-    digit1: number; // 1. Sayı basamak sayısı
-    digit2: number; // 2. Sayı basamak sayısı
-    count: number;  // Soru adedi
-    cols: number;   // Sütun sayısı
-    gap: number;    // Sorular arası boşluk
+    selectedOperations: string[]; // Çoklu seçim için array'e dönüştürüldü ['add', 'sub']
+    digit1: number; 
+    digit2: number; 
+    digit3?: number; // 3. Sayı basamağı (0 ise yok)
+    count: number;  
+    cols: number;   
+    gap: number;    
     
     // Constraints
-    allowCarry: boolean;      // Eldeli toplama
-    allowBorrow: boolean;     // Onluk bozma
-    allowRemainder: boolean;  // Kalanlı bölme
-    allowNegative: boolean;   // Negatif sonuç (Genelde false)
+    allowCarry: boolean;      
+    allowBorrow: boolean;     
+    allowRemainder: boolean;  
+    allowNegative: boolean;   
+    
+    // Advanced Features
+    useThirdNumber: boolean; // 3. sayı var mı?
+    showTextRepresentation: boolean; // "12 (On iki)" şeklinde göster
+    autoFillPage: boolean; // Sayfayı otomatik doldur
     
     // Visuals
     orientation: 'vertical' | 'horizontal';
@@ -28,27 +34,30 @@ export interface MathDrillConfig {
 }
 
 export interface MathProblemConfig {
-    topic: string; // Uzay, Market, Okul vb.
+    topic: string; 
     count: number;
     includeSolutionBox: boolean;
     studentName?: string;
     
     // Advanced AI Control
-    selectedOperations: string[]; // ['add', 'mult'] gibi çoklu seçim
-    numberRange: string; // '1-20', '1-100', '100-1000'
-    problemStyle: 'simple' | 'story' | 'logic'; // Basit, Hikayeleştirilmiş, Mantık
-    complexity: '1-step' | '2-step' | 'multi-step'; // İşlem adım sayısı
+    selectedOperations: string[]; 
+    numberRange: string; 
+    problemStyle: 'simple' | 'story' | 'logic'; 
+    complexity: '1-step' | '2-step' | 'multi-step'; 
 }
 
 export interface MathOperation {
     id: string;
     num1: number;
     num2: number;
+    num3?: number; // 3. Sayı eklendi
     symbol: string;
+    symbol2?: string; // 2. İşlem sembolü (eğer 3 sayı varsa)
     answer: number;
     remainder?: number;
 }
 
+// ... Rest of the file remains unchanged ...
 export interface MathProblem {
     id: string;
     text: string;
@@ -76,7 +85,6 @@ export interface MathStudioConfig {
     };
 }
 
-// ... (Other types remain unchanged)
 export interface MathPuzzleData extends BaseActivityData {
     puzzles: {
         problem: string;
@@ -85,7 +93,7 @@ export interface MathPuzzleData extends BaseActivityData {
         objects?: { name: string; imageBase64?: string; imagePrompt?: string }[];
     }[];
 }
-// ... Rest of the file content (NumberPatternData, etc.) needs to be preserved
+
 export interface NumberPatternData extends BaseActivityData {
     patterns: { sequence: string; answer: string }[];
 }
@@ -225,8 +233,6 @@ export interface RealLifeProblemData extends BaseActivityData {
     }[];
 }
 
-// --- DYSCALCULIA & VISUAL MATH TYPES ---
-
 export interface NumberSenseData extends BaseActivityData {
     layout: string;
     exercises: {
@@ -281,8 +287,6 @@ export interface EstimationData extends BaseActivityData {
         imagePrompt?: string;
     }[];
 }
-
-// --- NEW LOGIC & BRAIN TEASER TYPES ---
 
 export interface NumberBoxLogicData extends BaseActivityData {
     puzzles: {
