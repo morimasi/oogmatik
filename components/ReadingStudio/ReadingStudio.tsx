@@ -362,6 +362,43 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
     );
 }
 
+// --- SUB-COMPONENTS FOR SETTINGS ---
+
+const CounterControl = ({ label, value, onChange, min = 0, max = 10 }: { label: string, value: number, onChange: (val: number) => void, min?: number, max?: number }) => (
+    <div className="flex items-center justify-between py-1 border-b border-zinc-800 last:border-0">
+        <span className="text-[11px] font-bold text-zinc-400 uppercase">{label}</span>
+        <div className="flex items-center bg-zinc-900 rounded-lg p-0.5 border border-zinc-800">
+            <button 
+                onClick={() => onChange(Math.max(min, value - 1))}
+                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-amber-500 transition-colors disabled:opacity-30"
+                disabled={value <= min}
+            >
+                <i className="fa-solid fa-minus text-[8px]"></i>
+            </button>
+            <span className="w-6 text-center text-xs font-mono font-bold text-zinc-300">{value}</span>
+            <button 
+                onClick={() => onChange(Math.min(max, value + 1))}
+                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-amber-500 transition-colors disabled:opacity-30"
+                disabled={value >= max}
+            >
+                <i className="fa-solid fa-plus text-[8px]"></i>
+            </button>
+        </div>
+    </div>
+);
+
+const ToggleControl = ({ label, checked, onChange, icon }: { label: string, checked: boolean, onChange: (val: boolean) => void, icon?: string }) => (
+    <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0 cursor-pointer group" onClick={() => onChange(!checked)}>
+        <div className="flex items-center gap-2">
+            {icon && <i className={`fa-solid ${icon} text-zinc-600 group-hover:text-amber-500 transition-colors text-[10px]`}></i>}
+            <span className="text-[11px] font-bold text-zinc-400 group-hover:text-zinc-200 uppercase transition-colors">{label}</span>
+        </div>
+        <div className={`w-8 h-4 rounded-full relative transition-colors ${checked ? 'bg-amber-500' : 'bg-zinc-700'}`}>
+            <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all ${checked ? 'left-5' : 'left-1'}`}></div>
+        </div>
+    </div>
+);
+
 // --- MAIN CANVAS COMPONENT ---
 
 export const ReadingStudio: React.FC<any> = ({ onBack }) => {
@@ -851,7 +888,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                                      <div className="border-b border-zinc-800">
                                          <button onClick={() => toggleSection('layers')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors">
                                              <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-layer-group"></i> KATMANLAR <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span></h4>
-                                             <i className="fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform"></i>
+                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
                                          </button>
                                          {openSections.layers && (
                                              <div className="p-2 space-y-1 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
@@ -871,7 +908,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                                      <div>
                                          <button onClick={() => toggleSection('add')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors border-b border-zinc-800">
                                              <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-plus-circle"></i> YENİ EKLE</h4>
-                                             <i className="fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform"></i>
+                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
                                          </button>
                                          {openSections.add && (
                                              <div className="p-4 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
@@ -907,6 +944,63 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                                             <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Dil Seviyesi</label><select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200"><option value="simple">Basit</option><option value="moderate">Orta</option><option value="advanced">İleri</option></select></div>
                                         </div>
                                     </div>
+
+                                    {/* DAHİL EDİLECEKLER (CONTENT COMPONENTS) SECTION - RESTORED */}
+                                    <div className="space-y-3 bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800 shadow-inner">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 mb-3">
+                                            <i className="fa-solid fa-list-check text-amber-500"></i> İçerik Bileşenleri
+                                        </h4>
+                                        
+                                        <div className="space-y-1">
+                                            <ToggleControl 
+                                                label="5N 1K Soruları" 
+                                                checked={config.include5N1K} 
+                                                onChange={v => setConfig({...config, include5N1K: v})} 
+                                                icon="fa-circle-question"
+                                            />
+                                            <ToggleControl 
+                                                label="Sözlükçe (Kelime Odaklı)" 
+                                                checked={config.focusVocabulary} 
+                                                onChange={v => setConfig({...config, focusVocabulary: v})} 
+                                                icon="fa-spell-check"
+                                            />
+                                            <ToggleControl 
+                                                label="Yaratıcı Görev" 
+                                                checked={config.includeCreativeTask} 
+                                                onChange={v => setConfig({...config, includeCreativeTask: v})} 
+                                                icon="fa-paintbrush"
+                                            />
+                                        </div>
+
+                                        <div className="mt-4 pt-3 border-t border-zinc-800 space-y-1">
+                                            <CounterControl 
+                                                label="Test Sorusu" 
+                                                value={config.countMultipleChoice} 
+                                                onChange={v => setConfig({...config, countMultipleChoice: v})} 
+                                            />
+                                            <CounterControl 
+                                                label="Doğru / Yanlış" 
+                                                value={config.countTrueFalse} 
+                                                onChange={v => setConfig({...config, countTrueFalse: v})} 
+                                            />
+                                            <CounterControl 
+                                                label="Boşluk Doldurma" 
+                                                value={config.countFillBlanks} 
+                                                onChange={v => setConfig({...config, countFillBlanks: v})} 
+                                            />
+                                            <CounterControl 
+                                                label="Mantık Sorusu" 
+                                                value={config.countLogic} 
+                                                onChange={v => setConfig({...config, countLogic: v})} 
+                                            />
+                                            <CounterControl 
+                                                label="Çıkarım Sorusu" 
+                                                value={config.countInference} 
+                                                onChange={v => setConfig({...config, countInference: v})} 
+                                            />
+                                        </div>
+                                    </div>
+
                                     <div className="space-y-3">
                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-image"></i> Görsel Üretim</h4>
                                         <div className="flex items-center justify-between p-2 border border-zinc-700 rounded-lg bg-zinc-800">
