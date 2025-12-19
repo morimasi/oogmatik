@@ -100,23 +100,16 @@ const OperationCardHorizontal = ({ op, fontSize, showText }: { op: MathOperation
     </div>
 );
 
-const ProblemCard: React.FC<{ problem: MathProblem, showSolutionBox: boolean }> = ({ problem, showSolutionBox }) => (
+const ProblemCard: React.FC<{ problem: MathProblem, showSolutionBox: boolean, index: number }> = ({ problem, showSolutionBox, index }) => (
     <div className="w-full mb-6 break-inside-avoid">
         <div className="flex gap-3">
             <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-md">
-                <i className="fa-solid fa-question"></i>
+                {index + 1}
             </div>
             <div className="flex-1">
                 <p className="text-base font-medium text-zinc-900 leading-relaxed text-justify font-dyslexic border-b border-zinc-100 pb-1">
                     <EditableText value={problem.text} tag="span" />
                 </p>
-                
-                {problem.operationHint && (
-                     <div className="mt-1 text-[10px] text-zinc-400 flex items-center gap-1">
-                         <i className="fa-solid fa-lightbulb text-yellow-500"></i>
-                         <span className="italic">İpucu: {problem.operationHint}</span>
-                     </div>
-                )}
 
                 {showSolutionBox && (
                     <div className="mt-2 w-full h-24 border border-zinc-300 border-dashed rounded-lg bg-zinc-50/30 relative flex items-end justify-between p-2">
@@ -737,8 +730,8 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                                             <p className="text-sm font-bold">Sol panelden ayarları yapıp üret butonuna basın.</p>
                                         </div>
                                     ) : (
-                                        generatedProblems.map((prob) => (
-                                            <ProblemCard key={prob.id} problem={prob} showSolutionBox={problemConfig.includeSolutionBox} />
+                                        generatedProblems.map((prob, i) => (
+                                            <ProblemCard key={prob.id} problem={prob} showSolutionBox={problemConfig.includeSolutionBox} index={i} />
                                         ))
                                     )}
                                 </div>
