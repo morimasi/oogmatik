@@ -1,5 +1,6 @@
 
 import { getRandomInt } from './helpers';
+import { MathOperation } from '../../types/math';
 
 // Helper: Check constraints
 const hasCarry = (n1: number, n2: number): boolean => {
@@ -26,7 +27,7 @@ const hasBorrow = (n1: number, n2: number): boolean => {
 };
 
 const getRangeFromDigits = (digits: number) => {
-    if (digits <= 0) return null; // Use manual range
+    if (digits <= 0) return { min: 1, max: 10 }; 
     const min = Math.pow(10, digits - 1);
     const max = Math.pow(10, digits) - 1;
     return { min, max };
@@ -37,87 +38,97 @@ export const generateMathDrillSet = (
     count: number,
     opType: 'add' | 'sub' | 'mult' | 'div' | 'mixed',
     settings: { 
-        min: number, 
-        max: number, 
         digit1: number,
         digit2: number,
         allowCarry: boolean, 
         allowBorrow: boolean, 
-        allowRemainder: boolean,
-        forceResultMax?: number
+        allowRemainder: boolean
     }
-) => {
-    const operations = [];
+): MathOperation[] => {
+    const operations: MathOperation[] = [];
     const opsList = opType === 'mixed' ? ['add', 'sub', 'mult', 'div'] : [opType];
 
-    // Determine ranges based on digits if provided, else fall back to min/max
-    const range1 = getRangeFromDigits(settings.digit1) || { min: settings.min, max: settings.max };
-    const range2 = getRangeFromDigits(settings.digit2) || { min: settings.min, max: settings.max };
+    const range1 = getRangeFromDigits(settings.digit1);
+    const range2 = getRangeFromDigits(settings.digit2);
 
     for (let i = 0; i < count; i++) {
         const currentOp = opsList[getRandomInt(0, opsList.length - 1)];
-        let n1, n2, ans, symbol;
+        let n1 = 0, n2 = 0, ans = 0, symbol = '+', rem = 0;
         let valid = false;
         let attempts = 0;
 
         while (!valid && attempts < 200) {
             attempts++;
             
+            // Generate basic numbers
             n1 = getRandomInt(range1.min, range1.max);
             n2 = getRandomInt(range2.min, range2.max);
 
             if (currentOp === 'add') {
                 symbol = '+';
+                // Carry Constraint
                 if (!settings.allowCarry && hasCarry(n1, n2)) continue;
-                if (settings.forceResultMax && (n1 + n2 > settings.forceResultMax)) continue;
-                
+                // Just in case check max JS integer safety (unlikely for worksheet)
                 ans = n1 + n2;
                 valid = true;
-            } else if (currentOp === 'sub') {
+            } 
+            else if (currentOp === 'sub') {
                 symbol = '-';
-                if (n1 < n2) [n1, n2] = [n2, n1]; // Ensure positive
-                // If strict digits set, ensure swapped result respects digits (optional, but good for consistency)
+                // Swap to ensure positive result
+                if (n1 < n2) [n1, n2] = [n2, n1]; 
                 
+                // Borrow Constraint
                 if (!settings.allowBorrow && hasBorrow(n1, n2)) continue;
+                
                 ans = n1 - n2;
                 valid = true;
-            } else if (currentOp === 'mult') {
+            } 
+            else if (currentOp === 'mult') {
                 symbol = 'x';
-                // For multiplication, keep result manageable if not expert
-                if (settings.forceResultMax && (n1 * n2 > settings.forceResultMax)) continue;
+                // Multiplication is straightforward, constraints usually just digits
                 ans = n1 * n2;
                 valid = true;
-            } else if (currentOp === 'div') {
+            } 
+            else if (currentOp === 'div') {
                 symbol = '÷';
-                // Division logic:
-                // n1 = Dividend (Bölünen), n2 = Divisor (Bölen)
-                // Usually we generate Quotient and Divisor to find Dividend.
-                // But if strict digits are requested for Dividend and Divisor, we must adhere.
+                // Division Logic:
+                // If strict digits for Dividend (n1) and Divisor (n2) are set:
+                if (n2 === 0) n2 = 1;
                 
-                // Case 1: Strict Digits for n1 and n2
-                if (settings.digit1 > 0 && settings.digit2 > 0) {
-                    // Try random generation
-                    if (n2 === 0) n2 = 1;
-                    if (!settings.allowRemainder && n1 % n2 !== 0) continue;
-                    ans = Math.floor(n1 / n2);
+                if (!settings.allowRemainder) {
+                    // Force clean division: Reconstruct n1 from n2 * answer
+                    // BUT n1 must still fit in digit1 range.
+                    
+                    // Strategy: Pick n2 (divisor) and answer (quotient), calculate n1
+                    // n2 comes from range2.
+                    // We need to find a quotient such that n2 * quotient is within range1.
+                    const maxQuotient = Math.floor(range1.max / n2);
+                    const minQuotient = Math.ceil(range1.min / n2);
+                    
+                    if (maxQuotient < minQuotient) continue; // Impossible constraints
+                    
+                    const quotient = getRandomInt(minQuotient, maxQuotient);
+                    n1 = n2 * quotient;
+                    ans = quotient;
+                    rem = 0;
                     valid = true;
                 } else {
-                    // Case 2: Constructive (easier)
-                    // Generate divisor (n2) and quotient, calc dividend (n1)
-                    n2 = getRandomInt(range2.min, Math.min(range2.max, 20)); // Limit divisor size for standard drills
-                    const quotient = getRandomInt(1, 20);
-                    const remainder = settings.allowRemainder ? getRandomInt(1, n2-1) : 0;
-                    n1 = n2 * quotient + remainder;
-                    
-                    // Check if n1 fits requested range/digits
-                    if (n1 >= range1.min && n1 <= range1.max) {
-                        ans = quotient;
-                        valid = true;
-                    }
+                    // Allow remainder
+                    ans = Math.floor(n1 / n2);
+                    rem = n1 % n2;
+                    valid = true;
                 }
             }
         }
-        operations.push({ n1, n2, symbol, ans, id: i });
+
+        operations.push({ 
+            id: crypto.randomUUID(), 
+            num1: n1, 
+            num2: n2, 
+            symbol, 
+            answer: ans, 
+            remainder: rem > 0 ? rem : undefined 
+        });
     }
     return operations;
 };
