@@ -29,10 +29,15 @@ export interface MathDrillConfig {
 
 export interface MathProblemConfig {
     topic: string; // Uzay, Market, Okul vb.
-    difficulty: 'Kolay' | 'Orta' | 'Zor';
     count: number;
     includeSolutionBox: boolean;
-    studentName?: string; // Kişiselleştirme için
+    studentName?: string;
+    
+    // Advanced AI Control
+    selectedOperations: string[]; // ['add', 'mult'] gibi çoklu seçim
+    numberRange: string; // '1-20', '1-100', '100-1000'
+    problemStyle: 'simple' | 'story' | 'logic'; // Basit, Hikayeleştirilmiş, Mantık
+    complexity: '1-step' | '2-step' | 'multi-step'; // İşlem adım sayısı
 }
 
 export interface MathOperation {
@@ -49,6 +54,7 @@ export interface MathProblem {
     text: string;
     answer: string;
     steps?: string[];
+    operationHint?: string;
 }
 
 export interface MathPageConfig {
@@ -70,8 +76,7 @@ export interface MathStudioConfig {
     };
 }
 
-// --- MATH & LOGIC ACTIVITY DATA TYPES ---
-
+// ... (Other types remain unchanged)
 export interface MathPuzzleData extends BaseActivityData {
     puzzles: {
         problem: string;
@@ -80,7 +85,7 @@ export interface MathPuzzleData extends BaseActivityData {
         objects?: { name: string; imageBase64?: string; imagePrompt?: string }[];
     }[];
 }
-
+// ... Rest of the file content (NumberPatternData, etc.) needs to be preserved
 export interface NumberPatternData extends BaseActivityData {
     patterns: { sequence: string; answer: string }[];
 }

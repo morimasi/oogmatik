@@ -1,30 +1,54 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { MathStudioConfig } from '../../types';
+import { MathProblemConfig } from '../../types/math';
 
-export const generateMathProblemsAI = async (config: MathStudioConfig) => {
+export const generateMathProblemsAI = async (config: MathProblemConfig) => {
+    // Operations text build
+    const opsMap: Record<string, string> = {
+        'add': 'Toplama (+)',
+        'sub': 'Çıkarma (-)',
+        'mult': 'Çarpma (x)',
+        'div': 'Bölme (÷)'
+    };
+    
+    const selectedOpsText = config.selectedOperations.length > 0 
+        ? config.selectedOperations.map(op => opsMap[op]).join(' ve ')
+        : 'Dört İşlem Karışık';
+
+    const complexityDesc = config.complexity === '1-step' ? 'Tek işlemli, doğrudan çözüm gerektiren' 
+        : config.complexity === '2-step' ? 'İki aşamalı (Önce topla sonra çıkar gibi)' 
+        : 'Çok adımlı ve düşündürücü';
+
     const prompt = `
-    [ROL: ÜST DÜZEY MATEMATİK ÖĞRETİM TASARIMCISI]
-    GÖREV: ${config.gradeLevel} seviyesinde, "${config.problemConfig.topic}" temalı, ${config.problemConfig.count} adet matematik problemi üret.
+    [ROL: MATEMATİK MÜFREDAT UZMANI ve ÖZEL EĞİTİM PEDAGOGU]
     
-    KURALLAR:
-    1. İşlem Sayısı: Her problem ${config.problemConfig.steps} aşamalı/işlemli olmalı.
-    2. İşlem Türleri: Sadece şu işlemleri kullan: ${config.operations.join(', ')}.
-    3. Dil: Disleksi dostu, kısa ve net cümleler. Karmaşık bağlaçlardan kaçın.
-    4. Sayılar: ${config.gradeLevel} seviyesine uygun büyüklükte sayılar seç.
+    GÖREV: Aşağıdaki **KESİN MATEMATİKSEL KISITLAMALARA** uyarak özgün sözel problemler üret.
     
-    ÇIKTI (JSON):
-    {
-        "problems": [
-            {
-                "text": "Problem metni buraya...",
-                "steps": ["1. işlem açıklaması", "2. işlem açıklaması"],
-                "answer": "Cevap",
-                "hint": "İpucu (Gerekirse)"
-            }
-        ]
-    }
+    KONFİGÜRASYON:
+    - **Adet:** ${config.count} tane problem.
+    - **Konu/Tema:** ${config.topic || 'Günlük Yaşam'}.
+    - **Öğrenci Adı:** ${config.studentName || 'Öğrenci'}.
+    - **Kullanılacak İşlemler:** SADECE ${selectedOpsText}. (Başka işlem kullanma!)
+    - **Sayı Aralığı:** ${config.numberRange} (Sonuçlar ve ara işlemler bu aralıkta kalmalı).
+    - **Problem Yapısı:** ${complexityDesc}.
+    - **Tarz:** ${config.problemStyle === 'story' ? 'Hikayeleştirilmiş, uzun betimlemeli' : config.problemStyle === 'logic' ? 'Mantık bulmacası tarzında' : 'Kısa, net ve anlaşılır'}.
+
+    PEDAGOJİK KURALLAR (DİSLEKSİ & DİSKALKULİ DOSTU):
+    1. Cümleler kısa ve net olsun. Devrik cümle kullanma.
+    2. Gereksiz sayısal kalabalık yapma. 
+    3. İşlem ipucu (operationHint) alanına, hangi işlemin yapılacağını kısaca yaz (örn: "Toplama işlemi").
+    4. Cevap anahtarı kesinlikle doğru hesaplanmış olmalı.
+
+    ÇIKTI FORMATI (JSON):
+    [
+      {
+        "text": "Problem metni buraya...",
+        "answer": "Sadece sayısal cevap (örn: 15)",
+        "operationHint": "Hangi işlemin yapılacağı (örn: 5 ile 3'ü topla)",
+        "steps": ["Adım 1: ...", "Adım 2: ..."]
+      }
+    ]
     `;
 
     const schema = {
@@ -36,16 +60,16 @@ export const generateMathProblemsAI = async (config: MathStudioConfig) => {
                     type: Type.OBJECT,
                     properties: {
                         text: { type: Type.STRING },
-                        steps: { type: Type.ARRAY, items: { type: Type.STRING } },
                         answer: { type: Type.STRING },
-                        hint: { type: Type.STRING }
+                        operationHint: { type: Type.STRING },
+                        steps: { type: Type.ARRAY, items: { type: Type.STRING } }
                     },
-                    required: ['text', 'answer']
+                    required: ['text', 'answer', 'operationHint']
                 }
             }
         },
         required: ['problems']
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };

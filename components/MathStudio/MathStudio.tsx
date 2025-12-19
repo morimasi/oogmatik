@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { printService } from '../../utils/printService';
 import { EditableText } from '../Editable';
-import { generateFromRichPrompt } from '../../services/generators/newActivities';
+import { generateMathProblemsAI } from '../../services/generators/mathStudio';
 import { generateMathDrillSet } from '../../services/offlineGenerators/mathStudio';
 import { MathDrillConfig, MathPageConfig, MathOperation, MathProblemConfig, MathProblem, MathMode } from '../../types/math';
 
@@ -42,19 +42,31 @@ const OperationCardHorizontal = ({ op, fontSize }: { op: MathOperation, fontSize
     </div>
 );
 
-const ProblemCard = ({ problem, showSolutionBox }: { problem: MathProblem, showSolutionBox: boolean }) => (
-    <div className="w-full mb-6 break-inside-avoid">
+const ProblemCard: React.FC<{ problem: MathProblem, showSolutionBox: boolean }> = ({ problem, showSolutionBox }) => (
+    <div className="w-full mb-8 break-inside-avoid">
         <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm shrink-0 mt-1">
+            <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0 mt-1 shadow-md">
                 <i className="fa-solid fa-question"></i>
             </div>
             <div className="flex-1">
-                <p className="text-lg font-medium text-zinc-900 leading-relaxed text-justify font-dyslexic">
+                <p className="text-lg font-medium text-zinc-900 leading-relaxed text-justify font-dyslexic border-b border-zinc-100 pb-2">
                     <EditableText value={problem.text} tag="span" />
                 </p>
+                
+                {problem.operationHint && (
+                     <div className="mt-2 text-xs text-zinc-400 flex items-center gap-2">
+                         <i className="fa-solid fa-lightbulb text-yellow-500"></i>
+                         <span className="italic">İpucu: {problem.operationHint}</span>
+                     </div>
+                )}
+
                 {showSolutionBox && (
-                    <div className="mt-4 w-full h-32 border-2 border-zinc-300 border-dashed rounded-xl bg-zinc-50 relative">
-                        <span className="absolute top-2 left-3 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Çözüm Alanı</span>
+                    <div className="mt-4 w-full h-32 border-2 border-zinc-200 border-dashed rounded-xl bg-zinc-50/50 relative flex items-end justify-between p-4">
+                        <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest absolute top-2 left-3">Çözüm Alanı</span>
+                        <div className="text-right w-full">
+                            <span className="text-xs font-bold text-zinc-400 mr-2">Cevap:</span>
+                            <span className="inline-block w-20 border-b-2 border-zinc-300"></span>
+                        </div>
                     </div>
                 )}
             </div>
@@ -81,7 +93,15 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     });
 
     const [problemConfig, setProblemConfig] = useState<MathProblemConfig>({
-        topic: 'Uzay Yolculuğu', difficulty: 'Orta', count: 4, includeSolutionBox: true, studentName: ''
+        topic: 'Uzay Yolculuğu', 
+        count: 4, 
+        includeSolutionBox: true, 
+        studentName: '',
+        difficulty: 'Orta',
+        selectedOperations: ['add', 'sub'],
+        numberRange: '1-20',
+        problemStyle: 'simple',
+        complexity: '1-step'
     });
 
     // Data
@@ -102,51 +122,37 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         }
     }, [drillConfig, mode]);
 
+    // --- HELPER: Update Problem Operations ---
+    const toggleOperation = (op: string) => {
+        setProblemConfig(prev => {
+            const current = prev.selectedOperations;
+            const newOps = current.includes(op) ? current.filter(o => o !== op) : [...current, op];
+            // Ensure at least one is selected
+            if (newOps.length === 0) return prev;
+            return { ...prev, selectedOperations: newOps };
+        });
+    };
+
     // --- ACTIONS ---
 
     const handleGenerateProblems = async () => {
         setIsGenerating(true);
         try {
-            const prompt = `
-            Konu: ${problemConfig.topic}. Seviye: ${problemConfig.difficulty}. 
-            ${problemConfig.studentName ? `Öğrenci Adı: ${problemConfig.studentName}.` : ''}
-            ${problemConfig.count} adet ilkokul seviyesinde, eğlenceli matematik problemi yaz.
-            Cevapları da belirt.
-            `;
-            
-            // Using existing robust AI handler
-            const result = await generateFromRichPrompt(
-                'REAL_LIFE_MATH_PROBLEMS', 
-                prompt, 
-                { difficulty: problemConfig.difficulty as any, worksheetCount: 1, itemCount: problemConfig.count, mode: 'ai' }
-            );
-
-            // Extract items from the generic structure
-            // Depending on how generateFromRichPrompt structures it, usually in sections or items
-            let problems: any[] = [];
-            if (result && result.length > 0) {
-                 const page = result[0];
-                 if (page.sections) {
-                     page.sections.forEach((s: any) => {
-                         if (s.content) problems.push(...s.content);
-                     });
-                 } else if (page.items) {
-                     problems = page.items;
-                 }
-            }
+            const result = await generateMathProblemsAI(problemConfig);
 
             // Map to local format
-            const mapped = problems.map((p: any, i: number) => ({
-                id: `p-${i}`,
-                text: p.text || p.question || "Soru metni yüklenemedi.",
+            const mapped = (result.problems || []).map((p: any, i: number) => ({
+                id: `p-${Date.now()}-${i}`,
+                text: p.text || "Soru metni yüklenemedi.",
                 answer: p.answer || "?",
-            })).slice(0, problemConfig.count);
+                operationHint: p.operationHint
+            }));
 
             setGeneratedProblems(mapped);
 
         } catch (e) {
             console.error(e);
-            alert("Problem üretilemedi. Lütfen tekrar deneyin.");
+            alert("Problem üretilemedi. API Hatası.");
         } finally {
             setIsGenerating(false);
         }
@@ -269,92 +275,106 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     <input type="range" min="12" max="48" value={drillConfig.fontSize} onChange={e => setDrillConfig({...drillConfig, fontSize: Number(e.target.value)})} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
                                 </div>
                             </div>
-
-                            {/* Constraints Toggles */}
-                            <div className="space-y-2 pt-4 border-t border-zinc-800">
-                                <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Kurallar</h4>
-                                {drillConfig.operation === 'add' && (
-                                    <label className="flex items-center justify-between cursor-pointer group">
-                                        <span className="text-xs text-zinc-400 group-hover:text-white transition-colors">Eldeli Toplama</span>
-                                        <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowCarry ? 'bg-green-500' : 'bg-zinc-700'}`}>
-                                            <input type="checkbox" checked={drillConfig.allowCarry} onChange={e => setDrillConfig({...drillConfig, allowCarry: e.target.checked})} className="hidden" />
-                                            <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowCarry ? 'left-5' : 'left-1'}`}></div>
-                                        </div>
-                                    </label>
-                                )}
-                                {drillConfig.operation === 'sub' && (
-                                    <label className="flex items-center justify-between cursor-pointer group">
-                                        <span className="text-xs text-zinc-400 group-hover:text-white transition-colors">Onluk Bozma</span>
-                                        <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowBorrow ? 'bg-green-500' : 'bg-zinc-700'}`}>
-                                            <input type="checkbox" checked={drillConfig.allowBorrow} onChange={e => setDrillConfig({...drillConfig, allowBorrow: e.target.checked})} className="hidden" />
-                                            <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowBorrow ? 'left-5' : 'left-1'}`}></div>
-                                        </div>
-                                    </label>
-                                )}
-                                {drillConfig.operation === 'div' && (
-                                    <label className="flex items-center justify-between cursor-pointer group">
-                                        <span className="text-xs text-zinc-400 group-hover:text-white transition-colors">Kalanlı Bölme</span>
-                                        <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowRemainder ? 'bg-green-500' : 'bg-zinc-700'}`}>
-                                            <input type="checkbox" checked={drillConfig.allowRemainder} onChange={e => setDrillConfig({...drillConfig, allowRemainder: e.target.checked})} className="hidden" />
-                                            <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowRemainder ? 'left-5' : 'left-1'}`}></div>
-                                        </div>
-                                    </label>
-                                )}
-                            </div>
                         </div>
                     )}
 
                     {/* AI PROBLEM SETTINGS */}
                     {mode === 'problem_ai' && (
                         <div className="p-5 space-y-6 animate-in slide-in-from-left-4">
+                            
                             <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 p-4 rounded-2xl border border-indigo-500/30">
-                                <div className="flex items-center gap-3 mb-3">
+                                <div className="flex items-center gap-3 mb-4">
                                     <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl">🤖</div>
                                     <div>
-                                        <h4 className="font-bold text-white text-sm">AI Problem Üretici</h4>
-                                        <p className="text-[10px] text-indigo-200">Konu bazlı özgün sorular.</p>
+                                        <h4 className="font-bold text-white text-sm">Akıllı Problem Motoru</h4>
+                                        <p className="text-[10px] text-indigo-200">Tam kontrollü üretim.</p>
                                     </div>
                                 </div>
-                                <input 
-                                    type="text" 
-                                    placeholder="Konu (Örn: Uzay, Market, Dinozorlar)" 
-                                    value={problemConfig.topic}
-                                    onChange={e => setProblemConfig({...problemConfig, topic: e.target.value})}
-                                    className="w-full p-2.5 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-white/30 outline-none focus:ring-1 focus:ring-white/50 mb-3"
-                                />
-                                <div className="grid grid-cols-2 gap-2 mb-3">
-                                    <select value={problemConfig.difficulty} onChange={e => setProblemConfig({...problemConfig, difficulty: e.target.value as any})} className="bg-black/40 border border-white/10 rounded-lg p-2 text-xs text-white outline-none">
-                                        <option value="Kolay">Kolay (1. Sınıf)</option>
-                                        <option value="Orta">Orta (2-3. Sınıf)</option>
-                                        <option value="Zor">Zor (4. Sınıf)</option>
-                                    </select>
-                                    <select value={problemConfig.count} onChange={e => setProblemConfig({...problemConfig, count: Number(e.target.value)})} className="bg-black/40 border border-white/10 rounded-lg p-2 text-xs text-white outline-none">
-                                        <option value="2">2 Soru</option>
-                                        <option value="4">4 Soru</option>
-                                        <option value="6">6 Soru</option>
-                                    </select>
+                                
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Konu</label>
+                                        <input 
+                                            type="text" 
+                                            value={problemConfig.topic}
+                                            onChange={e => setProblemConfig({...problemConfig, topic: e.target.value})}
+                                            className="w-full p-2.5 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-white/30 outline-none focus:ring-1 focus:ring-white/50"
+                                            placeholder="Örn: Dinozorlar, Market..."
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Hangi İşlemler?</label>
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {[
+                                                {id:'add', label:'+'}, {id:'sub', label:'-'}, {id:'mult', label:'x'}, {id:'div', label:'÷'}
+                                            ].map(op => (
+                                                <button
+                                                    key={op.id}
+                                                    onClick={() => toggleOperation(op.id)}
+                                                    className={`py-2 rounded-lg font-bold text-sm transition-all border ${problemConfig.selectedOperations.includes(op.id) ? 'bg-indigo-500 text-white border-indigo-400' : 'bg-black/20 text-zinc-400 border-white/10 hover:bg-black/40'}`}
+                                                >
+                                                    {op.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Sayı Aralığı</label>
+                                            <select value={problemConfig.numberRange} onChange={e => setProblemConfig({...problemConfig, numberRange: e.target.value})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
+                                                <option value="1-10">1 - 10</option>
+                                                <option value="1-20">1 - 20</option>
+                                                <option value="1-50">1 - 50</option>
+                                                <option value="1-100">1 - 100</option>
+                                                <option value="100-1000">100 - 1000</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Adet</label>
+                                            <select value={problemConfig.count} onChange={e => setProblemConfig({...problemConfig, count: Number(e.target.value)})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
+                                                <option value="2">2 Soru</option>
+                                                <option value="4">4 Soru</option>
+                                                <option value="6">6 Soru</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Karmaşıklık</label>
+                                            <select value={problemConfig.complexity} onChange={e => setProblemConfig({...problemConfig, complexity: e.target.value as any})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
+                                                <option value="1-step">Tek İşlem</option>
+                                                <option value="2-step">İki Aşamalı</option>
+                                                <option value="multi-step">Çok Adımlı</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Kurgu Tarzı</label>
+                                            <select value={problemConfig.problemStyle} onChange={e => setProblemConfig({...problemConfig, problemStyle: e.target.value as any})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
+                                                <option value="simple">Kısa & Net</option>
+                                                <option value="story">Hikayeli</option>
+                                                <option value="logic">Mantık</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        onClick={handleGenerateProblems} 
+                                        disabled={isGenerating}
+                                        className="w-full py-3 bg-white text-indigo-900 font-bold rounded-xl text-sm shadow-lg hover:bg-indigo-50 transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2"
+                                    >
+                                        {isGenerating ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+                                        {isGenerating ? 'Düşünülüyor...' : 'Problemleri Yaz'}
+                                    </button>
                                 </div>
-                                <input 
-                                    type="text" 
-                                    placeholder="Öğrenci Adı (Opsiyonel)" 
-                                    value={problemConfig.studentName}
-                                    onChange={e => setProblemConfig({...problemConfig, studentName: e.target.value})}
-                                    className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white placeholder-white/30 outline-none mb-4"
-                                />
-                                <button 
-                                    onClick={handleGenerateProblems} 
-                                    disabled={isGenerating}
-                                    className="w-full py-3 bg-white text-indigo-900 font-bold rounded-xl text-sm shadow-lg hover:bg-indigo-50 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
-                                >
-                                    {isGenerating ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                                    {isGenerating ? 'Yazılıyor...' : 'Problemleri Yaz'}
-                                </button>
                             </div>
                             
                             <div className="space-y-2">
-                                <label className="flex items-center gap-3 p-3 bg-zinc-800 rounded-xl cursor-pointer border border-zinc-700">
-                                    <input type="checkbox" checked={problemConfig.includeSolutionBox} onChange={e => setProblemConfig({...problemConfig, includeSolutionBox: e.target.checked})} className="w-4 h-4 rounded text-indigo-500 focus:ring-indigo-500" />
-                                    <span className="text-xs font-bold text-zinc-300">Çözüm Kutusu Ekle</span>
+                                <label className="flex items-center gap-3 p-3 bg-zinc-800 rounded-xl cursor-pointer border border-zinc-700 hover:border-indigo-500/50 transition-colors">
+                                    <input type="checkbox" checked={problemConfig.includeSolutionBox} onChange={e => setProblemConfig({...problemConfig, includeSolutionBox: e.target.checked})} className="w-4 h-4 rounded text-indigo-500 focus:ring-indigo-500 bg-black border-zinc-600" />
+                                    <span className="text-xs font-bold text-zinc-300">Çözüm ve İşlem Kutusu Ekle</span>
                                 </label>
                             </div>
                         </div>
@@ -412,8 +432,9 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             {mode === 'problem_ai' && (
                                 <div className="flex flex-col gap-8">
                                     {generatedProblems.length === 0 ? (
-                                        <div className="text-center py-20 text-zinc-400 italic border-2 border-dashed border-zinc-200 rounded-3xl">
-                                            Problem üretmek için sol menüyü kullanın.
+                                        <div className="flex flex-col items-center justify-center py-20 text-zinc-400 border-2 border-dashed border-zinc-200 rounded-3xl bg-zinc-50">
+                                            <i className="fa-solid fa-robot text-4xl mb-4 text-zinc-300"></i>
+                                            <p className="text-sm font-bold">Sol panelden ayarları yapıp üret butonuna basın.</p>
                                         </div>
                                     ) : (
                                         generatedProblems.map((prob) => (
