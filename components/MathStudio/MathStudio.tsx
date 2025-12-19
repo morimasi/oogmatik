@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { MathStudioItem, MathComponentType, MathPageConfig } from '../../types/math';
 import { generateMathDrillSet } from '../../services/offlineGenerators/mathStudio';
 import { useAuth } from '../../context/AuthContext';
@@ -89,12 +89,13 @@ const DrillRenderer = ({ item }: { item: any }) => {
     const isVertical = orientation === 'vertical';
 
     return (
-        <div className="w-full h-full p-2 overflow-hidden flex flex-col">
+        <div className="w-full h-full overflow-hidden flex flex-col">
             <div 
-                className="grid w-full flex-1 align-content-start" 
+                className="grid w-full h-full align-content-start" 
                 style={{ 
                     gridTemplateColumns: `repeat(${cols}, 1fr)`, 
-                    gap: `${gap}px` 
+                    gap: `${gap}px`,
+                    padding: '4px' // Prevent border cut-off
                 }}
             >
                 {operations.map((op: any, i: number) => (
@@ -137,8 +138,7 @@ const WordProblemRenderer = ({ item }: { item: any }) => {
              </div>
              {item.data.showWorkSpace && (
                  <div 
-                    className="w-full border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 relative"
-                    style={{ height: item.data.workspaceHeight || 100 }}
+                    className="w-full border-2 border-dashed border-zinc-300 rounded-xl bg-zinc-50 relative flex-1 min-h-[60px]"
                  >
                      <span className="absolute top-2 left-2 text-[10px] text-zinc-400 font-bold uppercase">Çözüm Alanı</span>
                  </div>
@@ -198,16 +198,14 @@ const GeometryRenderer = ({ data }: { data: any }) => {
 // --- MAIN STUDIO ---
 
 const A4_WIDTH = 794; 
-const A4_HEIGHT = 1123;
-// Calculate approx max items based on height. A standard row is approx 50-80px.
-const PAGE_CONTENT_HEIGHT = A4_HEIGHT - 200; // Minus header/margins
+const A4_HEIGHT = 1123; // Min height
 
 export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { user } = useAuth();
     const [items, setItems] = useState<MathStudioItem[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [pageConfig, setPageConfig] = useState<MathPageConfig>({
-        paperType: 'blank', gridSize: 20, margin: 20, orientation: 'portrait'
+        paperType: 'blank', gridSize: 20, margin: 40, orientation: 'portrait'
     });
     const [isSaved, setIsSaved] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -217,6 +215,13 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [activeCategory, setActiveCategory] = useState<string>('math'); 
 
+    // Dynamic Page Height Calculation
+    const pageHeight = useMemo(() => {
+        if (items.length === 0) return A4_HEIGHT;
+        const maxBottom = Math.max(...items.map(i => i.y + i.h));
+        return Math.max(A4_HEIGHT, maxBottom + 50); // +50px padding at bottom
+    }, [items]);
+
     // Default Items
     useEffect(() => {
         addItem('header');
@@ -224,12 +229,22 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const addItem = (type: MathComponentType) => {
         const id = crypto.randomUUID();
+        // Calculate next Y position (stacked)
+        const lastItem = items[items.length - 1];
+        const nextY = lastItem ? lastItem.y + lastItem.h + 20 : 40;
+        
+        // Default Full Width with margins
+        const defaultWidth = A4_WIDTH - (pageConfig.margin * 2);
+
         let newItem: MathStudioItem = {
-            id, type, x: 20, y: items.length * 150 + 20, w: A4_WIDTH - 40, h: 100
+            id, type, x: pageConfig.margin, y: nextY, w: defaultWidth, h: 100
         };
 
         if (type === 'header') {
-            newItem = { ...newItem, h: 100, data: { title: 'MATEMATİK ÇALIŞMASI', subtitle: 'Ad Soyad:', showDate: true } };
+            newItem = { 
+                ...newItem, y: 40, h: 100, 
+                data: { title: 'MATEMATİK ÇALIŞMASI', subtitle: 'Ad Soyad:', showDate: true } 
+            };
         } else if (type === 'operation_drill') {
             newItem = { 
                 ...newItem, h: 400, 
@@ -278,24 +293,19 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         setIsSaved(false);
     };
     
-    // Feature: Auto-Fill Page
-    const handleAutoFill = (id: string) => {
+    // Feature: Resize Height to Fit Content (Smart Resize)
+    const handleFitHeight = (id: string) => {
         const item = items.find(i => i.id === id);
         if (!item || item.type !== 'operation_drill') return;
 
-        // Estimate capacity based on font size and orientation
-        const rowHeight = item.data.orientation === 'vertical' ? (item.data.fontSize * 4) : (item.data.fontSize * 2);
-        const availableHeight = item.h; // Use current component height OR expand to full page
+        const { count, cols, fontSize, orientation, gap } = item.data;
+        const rows = Math.ceil(count / cols);
         
-        // Let's expand the component to fill the page first
-        const newH = A4_HEIGHT - item.y - 50; // Leave bottom margin
-        const rows = Math.floor(newH / (rowHeight + 20)); // +20 padding
-        const totalCount = rows * item.data.cols;
+        // Estimated height calculation
+        const opHeight = orientation === 'vertical' ? (fontSize * 4.5) : (fontSize * 2.5); // Approximate visual height per item
+        const totalHeight = (rows * opHeight) + ((rows - 1) * gap) + 40; // +40 padding
         
-        updateItem(id, { 
-            h: newH,
-            data: { ...item.data, count: totalCount }
-        });
+        updateItem(id, { h: totalHeight });
     };
 
     const removeItem = (id: string) => {
@@ -316,8 +326,13 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             );
             const problemText = result[0]?.sections?.[0]?.content?.[0]?.text || result[0]?.items?.[0]?.text || "AI tarafından üretilen problem metni buraya gelecek.";
             const id = crypto.randomUUID();
+            
+            // Auto position at bottom
+            const lastItem = items[items.length - 1];
+            const nextY = lastItem ? lastItem.y + lastItem.h + 20 : 40;
+            
             const newItem: MathStudioItem = {
-                id, type: 'word_problem', x: 20, y: items.length * 150 + 20, w: A4_WIDTH - 40, h: 150,
+                id, type: 'word_problem', x: pageConfig.margin, y: nextY, w: A4_WIDTH - (pageConfig.margin * 2), h: 150,
                 data: { text: problemText, showWorkSpace: true, workspaceHeight: 80 }
             };
             setItems(prev => [...prev, newItem]);
@@ -415,6 +430,7 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         style={{ 
                             width: `${A4_WIDTH}px`, 
                             minHeight: `${A4_HEIGHT}px`,
+                            height: `${pageHeight}px`, // Dynamic Height
                             backgroundImage: pageConfig.paperType === 'grid' 
                                 ? 'linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)' 
                                 : pageConfig.paperType === 'dot' 
@@ -528,7 +544,7 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         </div>
                                         <div><label className="text-[9px] font-bold text-zinc-500 block">Font</label><input type="number" value={selectedItem.data.fontSize} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, fontSize: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
                                         
-                                        <button onClick={() => handleAutoFill(selectedItem.id)} className="w-full mt-2 py-2 bg-indigo-600 hover:bg-indigo-500 rounded text-xs font-bold text-white transition-colors flex items-center justify-center gap-2"><i className="fa-solid fa-arrows-to-circle"></i> Sayfayı Doldur (Oto)</button>
+                                        <button onClick={() => handleFitHeight(selectedItem.id)} className="w-full mt-2 py-2 bg-indigo-600 hover:bg-indigo-500 rounded text-xs font-bold text-white transition-colors flex items-center justify-center gap-2"><i className="fa-solid fa-arrows-up-down"></i> İçeriğe Göre Boyutlandır</button>
                                     </>
                                 )}
 
