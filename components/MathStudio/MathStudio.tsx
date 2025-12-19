@@ -86,17 +86,28 @@ const FractionRenderer = ({ data }: { data: any }) => {
 
 const DrillRenderer = ({ item }: { item: any }) => {
     const { operations, orientation, cols, gap, showAnswer, fontSize } = item.data;
-    
+    const isVertical = orientation === 'vertical';
+
     return (
-        <div className="w-full h-full p-2 overflow-hidden">
-            <div className="grid w-full" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: `${gap}px` }}>
+        <div className="w-full h-full p-2 overflow-hidden flex flex-col">
+            <div 
+                className="grid w-full flex-1 align-content-start" 
+                style={{ 
+                    gridTemplateColumns: `repeat(${cols}, 1fr)`, 
+                    gap: `${gap}px` 
+                }}
+            >
                 {operations.map((op: any, i: number) => (
-                    <div key={i} className={`flex ${orientation === 'vertical' ? 'flex-col items-end' : 'flex-row items-center justify-center gap-2'} font-mono font-bold border border-transparent hover:border-zinc-200 rounded p-2`} style={{fontSize: `${fontSize || 20}px`}}>
-                        {orientation === 'vertical' ? (
+                    <div 
+                        key={i} 
+                        className={`flex justify-center items-center font-mono font-bold border border-transparent hover:border-zinc-200 rounded p-2 ${isVertical ? 'flex-col items-end' : 'flex-row gap-2'}`} 
+                        style={{fontSize: `${fontSize || 20}px`}}
+                    >
+                        {isVertical ? (
                             <>
-                                <span>{op.n1}</span>
-                                <div className="flex items-center justify-between w-full gap-2">
-                                    <span>{op.symbol}</span>
+                                <span className="leading-none">{op.n1}</span>
+                                <div className="flex items-center justify-between w-full gap-2 leading-none relative">
+                                    <span className="absolute left-0 transform -translate-x-1/2">{op.symbol}</span>
                                     <span>{op.n2}</span>
                                 </div>
                                 <div className="w-full border-b-2 border-black my-1"></div>
@@ -108,7 +119,7 @@ const DrillRenderer = ({ item }: { item: any }) => {
                                 <span>{op.symbol}</span>
                                 <span>{op.n2}</span>
                                 <span>=</span>
-                                <span className={`text-indigo-600 ${!showAnswer && 'text-transparent border-b border-black min-w-[30px]'}`}>{op.ans}</span>
+                                <span className={`text-indigo-600 ${!showAnswer && 'text-transparent border-b-2 border-black min-w-[40px] text-center'}`}>{op.ans}</span>
                             </>
                         )}
                     </div>
@@ -188,6 +199,8 @@ const GeometryRenderer = ({ data }: { data: any }) => {
 
 const A4_WIDTH = 794; 
 const A4_HEIGHT = 1123;
+// Calculate approx max items based on height. A standard row is approx 50-80px.
+const PAGE_CONTENT_HEIGHT = A4_HEIGHT - 200; // Minus header/margins
 
 export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { user } = useAuth();
@@ -202,7 +215,7 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     // AI Problem Generation State
     const [aiProblemPrompt, setAiProblemPrompt] = useState({ topic: '', difficulty: 'Orta', count: 1 });
     const [isGenerating, setIsGenerating] = useState(false);
-    const [activeCategory, setActiveCategory] = useState<string>('basic'); // 'basic', 'math', 'visual', 'geometry'
+    const [activeCategory, setActiveCategory] = useState<string>('math'); 
 
     // Default Items
     useEffect(() => {
@@ -212,18 +225,18 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const addItem = (type: MathComponentType) => {
         const id = crypto.randomUUID();
         let newItem: MathStudioItem = {
-            id, type, x: 20, y: items.length * 120 + 20, w: A4_WIDTH - 40, h: 100
+            id, type, x: 20, y: items.length * 150 + 20, w: A4_WIDTH - 40, h: 100
         };
 
         if (type === 'header') {
             newItem = { ...newItem, h: 100, data: { title: 'MATEMATİK ÇALIŞMASI', subtitle: 'Ad Soyad:', showDate: true } };
         } else if (type === 'operation_drill') {
             newItem = { 
-                ...newItem, h: 300, 
-                data: { count: 12, cols: 4, gap: 20, fontSize: 20, opType: 'add', difficulty: 'easy', orientation: 'vertical', showAnswer: false, operations: [] },
-                settings: { rangeMin: 10, rangeMax: 99, allowCarry: true, allowBorrow: true, allowRemainder: false }
+                ...newItem, h: 400, 
+                data: { count: 12, cols: 4, gap: 20, fontSize: 24, opType: 'add', difficulty: 'easy', orientation: 'vertical', showAnswer: false, operations: [] },
+                settings: { rangeMin: 10, rangeMax: 99, digit1: 2, digit2: 1, allowCarry: true, allowBorrow: true, allowRemainder: false }
             };
-            newItem.data.operations = generateMathDrillSet(12, 'add', { min: 10, max: 99, allowCarry: true, allowBorrow: true, allowRemainder: false });
+            newItem.data.operations = generateMathDrillSet(12, 'add', newItem.settings);
         } else if (type === 'analog_clock') {
             newItem = { ...newItem, w: 150, h: 180, data: { time: '10:10', showNumbers: true, showMinuteMarks: true, label: 'Saat Kaç?' } };
         } else if (type === 'fraction_visual') {
@@ -256,12 +269,33 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 
                 updated.data.operations = generateMathDrillSet(finalData.count, finalData.opType, {
                     min: finalSettings.rangeMin, max: finalSettings.rangeMax, 
+                    digit1: finalSettings.digit1, digit2: finalSettings.digit2,
                     allowCarry: finalSettings.allowCarry, allowBorrow: finalSettings.allowBorrow, allowRemainder: finalSettings.allowRemainder
                 });
             }
             return updated;
         }));
         setIsSaved(false);
+    };
+    
+    // Feature: Auto-Fill Page
+    const handleAutoFill = (id: string) => {
+        const item = items.find(i => i.id === id);
+        if (!item || item.type !== 'operation_drill') return;
+
+        // Estimate capacity based on font size and orientation
+        const rowHeight = item.data.orientation === 'vertical' ? (item.data.fontSize * 4) : (item.data.fontSize * 2);
+        const availableHeight = item.h; // Use current component height OR expand to full page
+        
+        // Let's expand the component to fill the page first
+        const newH = A4_HEIGHT - item.y - 50; // Leave bottom margin
+        const rows = Math.floor(newH / (rowHeight + 20)); // +20 padding
+        const totalCount = rows * item.data.cols;
+        
+        updateItem(id, { 
+            h: newH,
+            data: { ...item.data, count: totalCount }
+        });
     };
 
     const removeItem = (id: string) => {
@@ -336,9 +370,9 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 {/* Left: Toolbox Categories */}
                 <div className="w-48 bg-[#18181b] border-r border-zinc-800 flex flex-col p-2 gap-1">
                     <div className="mb-4 px-2 pt-2"><p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">ARAÇ KUTUSU</p></div>
-                    <ToolboxCategory id="basic" label="Temel Araçlar" icon="fa-layer-group" />
                     <ToolboxCategory id="math" label="Sayılar & İşlem" icon="fa-calculator" />
                     <ToolboxCategory id="visual" label="Görsel Materyal" icon="fa-shapes" />
+                    <ToolboxCategory id="basic" label="Temel Araçlar" icon="fa-layer-group" />
                     <div className="mt-auto border-t border-zinc-800 pt-4 p-2">
                         <div className="p-3 bg-zinc-800 rounded-xl border border-zinc-700">
                             <p className="text-[10px] text-zinc-400 mb-2">Yapay Zeka Asistanı</p>
@@ -460,19 +494,41 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 {selectedItem.type === 'operation_drill' && (
                                     <>
                                         <div><label className="text-xs font-bold text-zinc-500 mb-2 block">İşlem</label><select value={selectedItem.data.opType} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, opType: e.target.value } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200"><option value="add">Toplama</option><option value="sub">Çıkarma</option><option value="mult">Çarpma</option><option value="div">Bölme</option><option value="mixed">Karışık</option></select></div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div><label className="text-[9px] font-bold text-zinc-500 block">Soru Sayısı</label><input type="number" value={selectedItem.data.count} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, count: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
+                                        
+                                        <div className="bg-zinc-800 p-3 rounded-lg border border-zinc-700 space-y-3">
+                                            <p className="text-[10px] font-bold text-zinc-400 uppercase">Basamak Ayarları</p>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                    <label className="text-[9px] text-zinc-500 block mb-1">1. Sayı</label>
+                                                    <select value={selectedItem.settings.digit1} onChange={e => updateItem(selectedItem.id, { settings: { ...selectedItem.settings, digit1: Number(e.target.value) } })} className="w-full p-1 bg-zinc-900 border border-zinc-600 rounded text-xs text-zinc-200">
+                                                        <option value="1">1 Basamak</option>
+                                                        <option value="2">2 Basamak</option>
+                                                        <option value="3">3 Basamak</option>
+                                                        <option value="4">4 Basamak</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="text-[9px] text-zinc-500 block mb-1">2. Sayı</label>
+                                                    <select value={selectedItem.settings.digit2} onChange={e => updateItem(selectedItem.id, { settings: { ...selectedItem.settings, digit2: Number(e.target.value) } })} className="w-full p-1 bg-zinc-900 border border-zinc-600 rounded text-xs text-zinc-200">
+                                                        <option value="1">1 Basamak</option>
+                                                        <option value="2">2 Basamak</option>
+                                                        <option value="3">3 Basamak</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="pt-2 border-t border-zinc-700">
+                                                 <label className="flex items-center gap-2 cursor-pointer mb-1"><input type="checkbox" checked={selectedItem.settings.allowCarry} onChange={e => updateItem(selectedItem.id, { settings: { ...selectedItem.settings, allowCarry: e.target.checked } })} /><span className="text-xs">Eldeli / Onluk Bozma</span></label>
+                                                 <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={selectedItem.settings.allowRemainder} onChange={e => updateItem(selectedItem.id, { settings: { ...selectedItem.settings, allowRemainder: e.target.checked } })} /><span className="text-xs">Kalanlı Bölme</span></label>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2 mt-4">
                                             <div><label className="text-[9px] font-bold text-zinc-500 block">Sütun</label><input type="number" value={selectedItem.data.cols} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, cols: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
+                                            <div><label className="text-[9px] font-bold text-zinc-500 block">Boşluk</label><input type="number" value={selectedItem.data.gap} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, gap: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div><label className="text-[9px] font-bold text-zinc-500 block">Boşluk (px)</label><input type="number" value={selectedItem.data.gap} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, gap: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
-                                            <div><label className="text-[9px] font-bold text-zinc-500 block">Font</label><input type="number" value={selectedItem.data.fontSize} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, fontSize: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
-                                        </div>
-                                        <div className="bg-zinc-800 p-3 rounded-lg border border-zinc-700 space-y-2 mt-2">
-                                            <p className="text-[9px] font-bold text-zinc-400">Sayı Aralığı (Min - Max)</p>
-                                            <div className="flex gap-2"><input type="number" value={selectedItem.settings.rangeMin} onChange={e => updateItem(selectedItem.id, { settings: { ...selectedItem.settings, rangeMin: Number(e.target.value) } })} className="w-full p-1 bg-zinc-900 border border-zinc-600 rounded text-xs text-center text-zinc-200" /><input type="number" value={selectedItem.settings.rangeMax} onChange={e => updateItem(selectedItem.id, { settings: { ...selectedItem.settings, rangeMax: Number(e.target.value) } })} className="w-full p-1 bg-zinc-900 border border-zinc-600 rounded text-xs text-center text-zinc-200" /></div>
-                                            <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={selectedItem.settings.allowCarry} onChange={e => updateItem(selectedItem.id, { settings: { ...selectedItem.settings, allowCarry: e.target.checked } })} /><span className="text-xs">Eldeli / Onluk Bozma</span></label>
-                                        </div>
+                                        <div><label className="text-[9px] font-bold text-zinc-500 block">Font</label><input type="number" value={selectedItem.data.fontSize} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, fontSize: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
+                                        
+                                        <button onClick={() => handleAutoFill(selectedItem.id)} className="w-full mt-2 py-2 bg-indigo-600 hover:bg-indigo-500 rounded text-xs font-bold text-white transition-colors flex items-center justify-center gap-2"><i className="fa-solid fa-arrows-to-circle"></i> Sayfayı Doldur (Oto)</button>
                                     </>
                                 )}
 
@@ -483,21 +539,7 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                             <div><label className="text-[9px] font-bold text-zinc-500 block">Bitiş</label><input type="number" value={selectedItem.data.end} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, end: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
                                         </div>
                                         <div><label className="text-[9px] font-bold text-zinc-500 block">Artış Miktarı</label><input type="number" value={selectedItem.data.step} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, step: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
-                                        <div><label className="text-[9px] font-bold text-zinc-500 block">Eksik Sayı Adedi</label><input type="number" value={selectedItem.data.missingCount} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, missingCount: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
                                     </>
-                                )}
-
-                                {selectedItem.type === 'geometry_shape' && (
-                                    <>
-                                        <div><label className="text-xs font-bold text-zinc-500 mb-2 block">Şekil</label><select value={selectedItem.data.shape} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, shape: e.target.value } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200"><option value="circle">Daire</option><option value="square">Kare</option><option value="triangle">Üçgen</option><option value="star">Yıldız</option></select></div>
-                                        <div><label className="text-xs font-bold text-zinc-500 mb-2 block">Renk</label><input type="color" value={selectedItem.data.color} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, color: e.target.value } })} className="w-full h-8 cursor-pointer rounded" /></div>
-                                        <label className="flex items-center gap-2 cursor-pointer mt-2"><input type="checkbox" checked={selectedItem.data.fill} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, fill: e.target.checked } })} /><span className="text-xs">İçini Doldur</span></label>
-                                        <div><label className="text-xs font-bold text-zinc-500 mt-2 block">Etiket</label><input type="text" value={selectedItem.data.label} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, label: e.target.value } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
-                                    </>
-                                )}
-                                
-                                {selectedItem.type === 'base10_block' && (
-                                    <div><label className="text-xs font-bold text-zinc-500 mb-2 block">Sayı</label><input type="number" value={selectedItem.data.number} onChange={e => updateItem(selectedItem.id, { data: { ...selectedItem.data, number: Number(e.target.value) } })} className="w-full p-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-200" /></div>
                                 )}
 
                                 <div className="pt-6 mt-6 border-t border-zinc-800">
