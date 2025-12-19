@@ -334,9 +334,9 @@ export const MathStudio: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         <div>
                                             <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Adet</label>
                                             <select value={problemConfig.count} onChange={e => setProblemConfig({...problemConfig, count: Number(e.target.value)})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
-                                                <option value="2">2 Soru</option>
-                                                <option value="4">4 Soru</option>
-                                                <option value="6">6 Soru</option>
+                                                {Array.from({length: 20}, (_, i) => i + 1).map(n => (
+                                                    <option key={n} value={n}>{n} Soru</option>
+                                                ))}
                                             </select>
                                         </div>
                                     </div>
