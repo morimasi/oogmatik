@@ -1,11 +1,13 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig } from '../../types';
+import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
 import { useAuth } from '../../context/AuthContext';
 import { printService } from '../../utils/printService';
+import { worksheetService } from '../../services/worksheetService';
 import { ImageDisplay, QUESTION_TYPES, StoryHighlighter } from '../sheets/common';
 import { EditableText } from '../Editable';
+import { ShareModal } from '../ShareModal';
 
 // --- CONFIGURATION CONSTANTS ---
 const SNAP_GRID = 5; 
@@ -187,8 +189,6 @@ const AppearanceControls = ({ style, onUpdate }: { style: any, onUpdate: (k: str
 );
 
 const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, onUpdateSpecific: (data: any) => void }) => {
-    // Determine content based on item ID
-    
     // HEADER SPECIFIC
     if (item.id === 'header') {
         const data = item.specificData || { title: item.customTitle || "HİKAYE BAŞLIĞI", subtitle: "Tarih: ....................", showDate: true };
@@ -328,7 +328,6 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
                 
                 {activeTab === 'layout' && (
                     <div className="space-y-4 animate-in fade-in">
-                        {/* Existing Layout Controls */}
                         <div className="grid grid-cols-2 gap-3">
                                 {['x', 'y', 'w', 'h', 'rotation'].map((key) => (
                                     <div key={key} className="flex items-center bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 focus-within:ring-1 ring-amber-500">
@@ -345,7 +344,6 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
                 )}
             </div>
 
-            {/* Common Image Toggle if applicable */}
             {item.style.imageSettings && (
                  <div className="p-4 border-t border-zinc-700 bg-[#2d2d32] flex justify-between items-center">
                      <span className="text-xs font-bold text-zinc-300">Görsel</span>
@@ -366,16 +364,19 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
 
 // --- MAIN CANVAS COMPONENT ---
 
-export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
-    // ... (Existing State) ...
+export const ReadingStudio: React.FC<any> = ({ onBack }) => {
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    
     const [storyData, setStoryData] = useState<InteractiveStoryData | null>(null);
     const [sidebarTab, setSidebarTab] = useState<'settings' | 'library'>('settings');
     const [layout, setLayout] = useState<ActiveComponent[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [designMode, setDesignMode] = useState(true);
-    // ... (Config State same as before) ...
+    
     const [config, setConfig] = useState<ReadingStudioConfig>({
         gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
         length: 'medium', layoutDensity: 'comfortable', textComplexity: 'moderate',
@@ -387,30 +388,24 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
     
-    // --- COLLAPSIBLE SECTION STATE ---
     const [openSections, setOpenSections] = useState({ layers: true, add: false });
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true); // SIDEBAR TOGGLE STATE
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // --- CANVAS ZOOM & PAN STATE ---
     const [canvasScale, setCanvasScale] = useState(0.85);
     const [canvasPos, setCanvasPos] = useState({ x: 0, y: 50 });
     const [isPanning, setIsPanning] = useState(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
     const canvasRef = useRef<HTMLDivElement>(null);
 
-    // ... (Drag State same as before) ...
     const [dragState, setDragState] = useState<{ mode: 'drag' | 'resize' | 'rotate'; resizeHandle?: string; startX: number; startY: number; initialX: number; initialY: number; initialW: number; initialH: number; initialR: number; centerX?: number; centerY?: number; } | null>(null);
 
-    // Calculate dynamic content height based on layout items to expand canvas if needed
     const contentHeight = useMemo(() => {
         if (layout.length === 0) return A4_HEIGHT_PX;
         const maxY = Math.max(...layout.map(item => item.style.y + item.style.h));
         return Math.max(A4_HEIGHT_PX, maxY + PAGE_BOTTOM_PADDING);
     }, [layout]);
 
-    // Initial Load - Automatic Layout & Center Canvas
     useEffect(() => {
-        // Initial centering
         if (canvasRef.current) {
             const viewportW = canvasRef.current.clientWidth;
             const pageWidth = A4_WIDTH_PX;
@@ -464,7 +459,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         setLayout(generatedLayout);
     }, []);
     
-    // Sync Generated Data to Components
     useEffect(() => {
         if (!storyData) return;
         setLayout(prev => prev.map(item => {
@@ -489,14 +483,11 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             
             return { ...item, specificData };
         }));
+        setIsSaved(false);
     }, [storyData]);
 
-    // --- CANVAS INTERACTION HANDLERS ---
-    
-    // Wheel Zoom
     const handleCanvasWheel = useCallback((e: React.WheelEvent) => {
-        if (e.ctrlKey) e.preventDefault(); // Prevent browser zoom if ctrl pressed
-        
+        if (e.ctrlKey) e.preventDefault();
         const zoomSensitivity = -0.001; 
         const delta = e.deltaY * zoomSensitivity;
         const newScale = Math.min(Math.max(0.2, canvasScale + delta), 4);
@@ -505,39 +496,27 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             const rect = canvasRef.current.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
-            
-            // Calculate new position to zoom towards mouse
             const canvasX = (mouseX - canvasPos.x) / canvasScale;
             const canvasY = (mouseY - canvasPos.y) / canvasScale;
-            
             const newX = mouseX - canvasX * newScale;
             const newY = mouseY - canvasY * newScale;
-            
             setCanvasScale(newScale);
             setCanvasPos({ x: newX, y: newY });
         }
     }, [canvasScale, canvasPos]);
 
-    // Background Pan Start
     const handleBgMouseDown = (e: React.MouseEvent) => {
-        // Only pan if clicking directly on background (not on an item)
-        // If an item is clicked, handleMouseDown takes precedence via propagation stop
         if (!designMode) return;
-        
         setIsPanning(true);
         lastMousePos.current = { x: e.clientX, y: e.clientY };
     };
 
-    // Item Interaction Start
     const handleMouseDown = (e: React.MouseEvent, id: string, mode: 'drag' | 'resize' | 'rotate' = 'drag', handle?: string) => {
         if (!designMode) return;
-        e.stopPropagation(); // Stop bubbling to background pan handler
-        
+        e.stopPropagation();
         const item = layout.find(l => l.instanceId === id);
         if (!item) return;
-        
         setSelectedId(id);
-        
         let centerX = 0; let centerY = 0;
         if (mode === 'rotate') {
              const element = e.currentTarget.parentElement; 
@@ -547,25 +526,11 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                  centerY = rect.top + rect.height / 2;
              }
         }
-        
-        setDragState({ 
-            mode, 
-            resizeHandle: handle, 
-            startX: e.clientX, 
-            startY: e.clientY, 
-            initialX: item.style.x, 
-            initialY: item.style.y, 
-            initialW: item.style.w, 
-            initialH: item.style.h, 
-            initialR: item.style.rotation || 0, 
-            centerX, centerY 
-        });
+        setDragState({ mode, resizeHandle: handle, startX: e.clientX, startY: e.clientY, initialX: item.style.x, initialY: item.style.y, initialW: item.style.w, initialH: item.style.h, initialR: item.style.rotation || 0, centerX, centerY });
     };
 
-    // Global Move Handler (Handles both Pan and Drag)
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
-            // 1. Handle Canvas Panning
             if (isPanning) {
                 const dx = e.clientX - lastMousePos.current.x;
                 const dy = e.clientY - lastMousePos.current.y;
@@ -573,19 +538,13 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                 lastMousePos.current = { x: e.clientX, y: e.clientY };
                 return;
             }
-
-            // 2. Handle Item Dragging/Resizing
             if (!dragState || !selectedId) return;
-            
-            // Adjust delta by zoom scale for accurate movement on paper
             const dx = (e.clientX - dragState.startX) / canvasScale;
             const dy = (e.clientY - dragState.startY) / canvasScale;
             const snap = (val: number) => Math.round(val / SNAP_GRID) * SNAP_GRID;
-
             setLayout(prev => prev.map(item => {
                 if (item.instanceId !== selectedId) return item;
                 let newStyle = { ...item.style };
-                
                 if (dragState.mode === 'drag') {
                     newStyle.x = snap(dragState.initialX + dx);
                     newStyle.y = snap(dragState.initialY + dy);
@@ -606,38 +565,35 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                 return { ...item, style: newStyle };
             }));
         };
-        
-        const handleMouseUp = () => {
-            setDragState(null);
-            setIsPanning(false);
-        };
-        
-        if (dragState || isPanning) { 
-            window.addEventListener('mousemove', handleMouseMove); 
-            window.addEventListener('mouseup', handleMouseUp); 
-        }
-        return () => { 
-            window.removeEventListener('mousemove', handleMouseMove); 
-            window.removeEventListener('mouseup', handleMouseUp); 
-        };
-    }, [dragState, selectedId, isPanning, canvasScale]); // Added canvasScale dependency for math
+        const handleMouseUp = () => { setDragState(null); setIsPanning(false); };
+        if (dragState || isPanning) { window.addEventListener('mousemove', handleMouseMove); window.addEventListener('mouseup', handleMouseUp); }
+        return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
+    }, [dragState, selectedId, isPanning, canvasScale]);
 
-    // ... (Operations add/delete/update same as before) ...
     const addComponent = (def: ComponentDefinition) => {
         const newId = `${def.id}-${Date.now()}`;
         const newItem: ActiveComponent = { ...def, instanceId: newId, style: { ...DEFAULT_STYLE_BASE, ...def.defaultStyle, x: 20, y: 20 }, isVisible: true, customTitle: def.defaultTitle, themeColor: 'black', specificData: null };
         setLayout(prev => [...prev, newItem]);
         setSelectedId(newId);
     };
-    const updateItem = (updates: Partial<ActiveComponent>) => { if (!selectedId) return; setLayout(prev => prev.map(item => item.instanceId === selectedId ? { ...item, ...updates } : item)); };
-    const deleteItem = () => { if (!selectedId) return; if(confirm("Sil?")) { setLayout(prev => prev.filter(item => item.instanceId !== selectedId)); setSelectedId(null); } };
+
+    const updateItem = (updates: Partial<ActiveComponent>) => { 
+        if (!selectedId) return; 
+        setLayout(prev => prev.map(item => item.instanceId === selectedId ? { ...item, ...updates } : item)); 
+        setIsSaved(false);
+    };
+
+    const deleteItem = () => { 
+        if (!selectedId) return; 
+        if(confirm("Sil?")) { setLayout(prev => prev.filter(item => item.instanceId !== selectedId)); setSelectedId(null); setIsSaved(false); } 
+    };
 
     const handleGenerate = async () => {
         setIsLoading(true);
         try {
             const data = await generateInteractiveStory(config);
             setStoryData(data);
-        } catch (e) { alert("Hata"); } finally { setIsLoading(false); }
+        } catch (e) { alert("Üretim sırasında hata oluştu."); } finally { setIsLoading(false); }
     };
     
     const handlePrint = async (action: 'print' | 'download') => {
@@ -645,14 +601,63 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
         const prevSelected = selectedId;
         setDesignMode(false);
         setSelectedId(null);
-        setTimeout(async () => { await printService.generatePdf('#canvas-root', storyData?.title || 'Hikaye', { action }); setDesignMode(prevMode); setSelectedId(prevSelected); }, 300);
+        setTimeout(async () => { 
+            await printService.generatePdf('#canvas-root', storyData?.title || 'Hikaye', { action }); 
+            setDesignMode(prevMode); 
+            setSelectedId(prevSelected); 
+        }, 300);
+    };
+
+    const handleSaveToArchive = async () => {
+        if (!user) { alert("Kaydetmek için lütfen giriş yapın."); return; }
+        if (!storyData && layout.length === 0) { alert("Kaydedilecek bir içerik yok."); return; }
+        
+        setIsSaving(true);
+        try {
+            const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
+            
+            await worksheetService.saveWorksheet(
+                user.id,
+                title,
+                'STORY_COMPREHENSION',
+                [{ storyData, layout }], // Studio item specific wrap
+                'fa-solid fa-book-open-reader',
+                { id: 'reading-verbal', title: 'Okuma & Dil' }
+            );
+            setIsSaved(true);
+            alert("Etkinlik başarıyla arşivlendi.");
+        } catch (e) {
+            console.error(e);
+            alert("Kaydetme sırasında bir hata oluştu.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleShare = async (receiverId: string) => {
+        if (!user) return;
+        try {
+            const title = storyData?.title || 'Paylaşılan Hikaye';
+            const mockSavedWorksheet: any = {
+                name: title,
+                activityType: 'STORY_COMPREHENSION',
+                worksheetData: [{ storyData, layout }],
+                icon: 'fa-solid fa-share-nodes',
+                category: { id: 'reading-verbal', title: 'Okuma & Dil' }
+            };
+            
+            await worksheetService.shareWorksheet(mockSavedWorksheet, user.id, user.name, receiverId);
+            setIsShareModalOpen(false);
+            alert("Hikaye başarıyla paylaşıldı.");
+        } catch (e) {
+            alert("Paylaşım hatası.");
+        }
     };
 
     const toggleSection = (section: 'layers' | 'add') => {
         setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
     };
 
-    // --- RENDER CONTENT (Updated to use specificData and granular styles) ---
     const renderContent = (item: ActiveComponent) => {
         const s = item.style;
         const boxStyle = {
@@ -673,7 +678,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             fontWeight: s.fontWeight || 'normal'
         };
 
-        // Header
         if (item.id === 'header') {
             const data = item.specificData || { title: "HİKAYE BAŞLIĞI", subtitle: `Tarih: ....................` };
             return (
@@ -686,7 +690,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             );
         }
         
-        // Reading Tracker
         if (item.id === 'tracker') {
              return (
                  <div className="h-full flex flex-col items-center justify-center" style={boxStyle}>
@@ -703,12 +706,10 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
              );
         }
 
-        // Story Text
         if (item.id === 'story_block') {
             const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
             return (
                 <div className="h-full relative overflow-hidden" style={boxStyle}>
-                     {/* Use ImageDisplay component for robust rendering */}
                      {item.style.imageSettings?.enabled && (
                         <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
                             <ImageDisplay 
@@ -718,12 +719,11 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                             />
                         </div>
                      )}
-                     <div dangerouslySetInnerHTML={{__html: data.text.replace(/\n/g, '<br/>')}}></div>
+                     <div dangerouslySetInnerHTML={{__html: (data.text || '').replace(/\n/g, '<br/>')}}></div>
                 </div>
             );
         }
 
-        // Vocabulary List (Rich Renderer)
         if (item.id === 'vocabulary') {
              const data = item.specificData || { questions: [{text: "Örnek: Açıklama"}] };
              return (
@@ -746,7 +746,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
              );
         }
 
-        // Creative Area (Rich Renderer)
         if (item.id === 'creative') {
              const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
              return (
@@ -762,7 +761,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
              );
         }
         
-        // Notes Area
         if (item.id === 'notes') {
              return (
                  <div className="h-full flex flex-col" style={boxStyle}>
@@ -772,7 +770,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
              );
         }
 
-        // Generic Questions (List Style)
         if (item.id.startsWith('questions')) {
             const data = item.specificData || { questions: [{text: "Madde 1..."}] };
             return (
@@ -790,7 +787,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
             );
         }
         
-        // Generic Fallback
         return (
              <div className="h-full flex items-center justify-center border-2 border-dashed border-zinc-300 rounded" style={boxStyle}>
                  <span className="opacity-50 font-bold">{item.label}</span>
@@ -800,12 +796,14 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
 
     const toggleVisibility = (id: string) => {
         setLayout(prev => prev.map(item => item.instanceId === id ? { ...item, isVisible: !item.isVisible } : item));
+        setIsSaved(false);
     };
 
     const removeComponent = (id: string) => {
         if(confirm("Bu bileşeni silmek istediğinize emin misiniz?")) {
             setLayout(prev => prev.filter(item => item.instanceId !== id));
             if(selectedId === id) setSelectedId(null);
+            setIsSaved(false);
         }
     };
 
@@ -822,13 +820,25 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                      <button onClick={() => setDesignMode(!designMode)} className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${designMode ? 'bg-amber-500 text-black border-amber-500' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>
                          {designMode ? 'MİMARİ MOD' : 'ÖNİZLEME'}
                      </button>
-                     <button onClick={() => handlePrint('print')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400"><i className="fa-solid fa-print"></i></button>
+                     <div className="h-8 w-px bg-zinc-700 mx-2"></div>
+                     
+                     <button onClick={() => handlePrint('download')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="PDF Olarak İndir"><i className="fa-solid fa-file-pdf"></i></button>
+                     <button onClick={() => handlePrint('print')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="Yazdır"><i className="fa-solid fa-print"></i></button>
+                     <button onClick={() => setIsShareModalOpen(true)} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
+                     
+                     <button 
+                        onClick={handleSaveToArchive} 
+                        disabled={isSaving || isSaved}
+                        className={`ml-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${isSaved ? 'bg-green-600 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg'}`}
+                     >
+                         {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : (isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>)}
+                         {isSaved ? 'Arşivlendi' : 'Arşive Kaydet'}
+                     </button>
                 </div>
             </div>
 
             <div className="flex-1 flex overflow-hidden relative">
                 
-                {/* SIDEBAR WRAPPER */}
                 <div className={`flex-shrink-0 h-full bg-[#18181b] border-r border-zinc-800 transition-all duration-300 ease-in-out overflow-hidden z-40 ${isSidebarOpen ? 'w-80 opacity-100' : 'w-0 opacity-0 border-r-0'}`}>
                     <div className="w-80 flex flex-col h-full"> 
                          <div className="flex border-b border-zinc-800 bg-[#222226]">
@@ -841,7 +851,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                      <div className="border-b border-zinc-800">
                                          <button onClick={() => toggleSection('layers')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors">
                                              <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-layer-group"></i> KATMANLAR <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span></h4>
-                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
+                                             <i className="fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform"></i>
                                          </button>
                                          {openSections.layers && (
                                              <div className="p-2 space-y-1 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
@@ -855,14 +865,13 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                                          </div>
                                                      </div>
                                                  ))}
-                                                 {layout.length === 0 && <div className="text-center py-4 text-zinc-600 text-[10px] italic">Henüz bileşen eklenmedi.</div>}
                                              </div>
                                          )}
                                      </div>
                                      <div>
                                          <button onClick={() => toggleSection('add')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors border-b border-zinc-800">
                                              <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-plus-circle"></i> YENİ EKLE</h4>
-                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
+                                             <i className="fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform"></i>
                                          </button>
                                          {openSections.add && (
                                              <div className="p-4 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
@@ -904,13 +913,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                             <span className="text-xs font-medium text-zinc-300">AI Görsel Oluştur</span>
                                             <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${config.imageGeneration.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`} onClick={() => setConfig({...config, imageGeneration: {...config.imageGeneration, enabled: !config.imageGeneration.enabled}})}><div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${config.imageGeneration.enabled ? 'left-5' : 'left-1'}`}></div></div>
                                         </div>
-                                        {config.imageGeneration.enabled && (<div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Çizim Stili</label><select value={config.imageGeneration.style} onChange={e => setConfig({...config, imageGeneration: {...config.imageGeneration, style: e.target.value as any}})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-amber-500 outline-none text-zinc-200"><option value="storybook">Masal Kitabı</option><option value="cartoon">Çizgi Film</option><option value="watercolor">Sulu Boya</option><option value="realistic">Gerçekçi</option></select></div>)}
-                                    </div>
-                                    <div className="space-y-3">
-                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-puzzle-piece"></i> Dahil Edilecekler</h4>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {[{ label: '5N 1K Soruları', key: 'include5N1K' }, { label: 'Test Soruları', key: 'countMultipleChoice', isCount: true }, { label: 'Doğru/Yanlış', key: 'countTrueFalse', isCount: true }, { label: 'Sözlükçe', key: 'focusVocabulary' }, { label: 'Yaratıcı Görev', key: 'includeCreativeTask' }, { label: 'Boşluk Doldurma', key: 'countFillBlanks', isCount: true }, { label: 'Mantık Sorusu', key: 'countLogic', isCount: true }, { label: 'Çıkarım Sorusu', key: 'countInference', isCount: true }].map((opt: any, i) => (<button key={i} onClick={() => { if (opt.isCount) { const val = (config as any)[opt.key] > 0 ? 0 : 3; setConfig({...config, [opt.key]: val}); } else { setConfig({...config, [opt.key]: !(config as any)[opt.key]}); } }} className={`p-2 rounded-lg text-[10px] font-bold border transition-colors ${(opt.isCount ? (config as any)[opt.key] > 0 : (config as any)[opt.key]) ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-zinc-800 border-zinc-700 text-zinc-500'}`}>{opt.label}</button>))}
-                                        </div>
                                     </div>
                                     <button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}{isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}</button>
                                  </div>
@@ -919,17 +921,14 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                     </div>
                 </div>
 
-                {/* TOGGLE BUTTON - Now placed relative to the sidebar */}
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     className={`absolute top-1/2 -translate-y-1/2 z-50 w-5 h-12 bg-[#2d2d32] border-y border-r border-zinc-700 rounded-r-lg flex items-center justify-center text-zinc-400 hover:text-black hover:bg-amber-500 transition-all shadow-md focus:outline-none duration-300 ease-in-out`}
                     style={{ left: isSidebarOpen ? '320px' : '0px' }}
-                    title={isSidebarOpen ? "Paneli Gizle" : "Paneli Göster"}
                 >
                     <i className={`fa-solid fa-chevron-${isSidebarOpen ? 'left' : 'right'} text-xs`}></i>
                 </button>
 
-                {/* CANVAS */}
                 <div 
                     ref={canvasRef}
                     className="flex-1 bg-[#121214] overflow-hidden flex items-center justify-center relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] cursor-grab active:cursor-grabbing"
@@ -942,7 +941,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                     >
                         <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px`, transformOrigin: '0 0' }}>
                             {designMode && <div className="absolute inset-0 pointer-events-none z-0" style={{backgroundImage: `radial-gradient(#e5e7eb 1px, transparent 1px)`, backgroundSize: `${SNAP_GRID * 4}px ${SNAP_GRID * 4}px`}}></div>}
-                            {layout.map((item) => (
+                            {layout.filter(l => l.isVisible).map((item) => (
                                 <div key={item.instanceId} onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'drag')} className={`absolute ${designMode ? 'hover:ring-1 hover:ring-amber-500 cursor-move' : ''}`} style={{ left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h, transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex }}>
                                     {designMode && selectedId === item.instanceId && (
                                         <div className="absolute inset-0 border-2 border-amber-500 z-50 pointer-events-none">
@@ -953,19 +952,24 @@ export const ReadingStudio: React.FC<any> = ({ onBack, onAddToWorkbook }) => {
                                     <div className="w-full h-full overflow-hidden pointer-events-none text-black">{renderContent(item)}</div>
                                 </div>
                             ))}
-                            {/* Sticky Footer */}
                             <div className="absolute bottom-4 left-0 w-full text-center text-[10px] text-zinc-400 font-mono pointer-events-none flex justify-between px-8"><span>Bursa Disleksi AI © {new Date().getFullYear()}</span><span>Sayfa 1</span></div>
                         </div>
                     </div>
                 </div>
 
-                {/* SETTINGS DOCK */}
                 {selectedId && (
                     <div className="shrink-0 z-50 h-full border-l border-zinc-800 shadow-xl relative">
                         <SettingsStation item={layout.find(l => l.instanceId === selectedId)!} onUpdate={updateItem} onClose={() => setSelectedId(null)} onDelete={deleteItem} />
                     </div>
                 )}
             </div>
+            
+            <ShareModal 
+                isOpen={isShareModalOpen} 
+                onClose={() => setIsShareModalOpen(false)} 
+                onShare={handleShare} 
+                worksheetTitle={storyData?.title || 'Hikaye'}
+            />
         </div>
     );
 };
