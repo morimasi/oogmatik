@@ -16,6 +16,7 @@ interface HistoryViewProps {
 const getRelativeDateGroup = (dateStr: string): string => {
     const date = new Date(dateStr);
     const now = new Date();
+    // Fix: Explicitly use getTime() to resolve arithmetic operation type error
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 

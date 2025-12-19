@@ -25,6 +25,7 @@ interface SidebarProps {
   onOpenOCR?: () => void;
   onOpenCurriculum?: () => void;
   onOpenReadingStudio?: () => void;
+  onOpenMathStudio?: () => void; // Added Prop
 }
 
 const toPascalCase = (str: string): string => {
@@ -47,14 +48,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   styleSettings,
   onOpenOCR,
   onOpenCurriculum,
-  onOpenReadingStudio
+  onOpenReadingStudio,
+  onOpenMathStudio // Added Prop
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
   useEffect(() => {
-      // ... (Existing loadCustomActivities logic)
       const loadCustomActivities = async () => {
           try {
               const customActs = await adminService.getAllActivities();
@@ -125,64 +126,35 @@ const Sidebar: React.FC<SidebarProps> = ({
   }
 
   const handleGenerate = async (options: GeneratorOptions) => {
-    // ... (Existing logic unchanged)
     if (!selectedActivity) return;
-    
     setIsLoading(true);
     setWorksheetData(null);
     setError(null);
-
     const currentAct = getActivityById(selectedActivity);
-    const promptId = currentAct?.promptId;
-
     try {
         let result: WorksheetData | null = null;
-        
-        if (promptId) {
-             const promptTemplate = await adminService.getPromptTemplate(promptId);
-             if (promptTemplate) {
-                 const vars = {
-                     worksheetCount: options.worksheetCount,
-                     difficulty: options.difficulty,
-                     topic: options.topic || 'Genel',
-                     itemCount: options.itemCount
-                 };
-                 const aiResult = await adminService.testPrompt(promptTemplate, vars);
-                 
-                 if (Array.isArray(aiResult)) {
-                     result = aiResult;
-                 } else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) {
-                     result = (aiResult as any).data;
-                 } else {
-                     result = [aiResult];
-                 }
-             }
-        } 
+        const pascalCaseName = toPascalCase(selectedActivity);
+        const generatorFunctionName = `generate${pascalCaseName}FromAI`;
+        const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
 
-        if (!result) {
-            const pascalCaseName = toPascalCase(selectedActivity);
-            const generatorFunctionName = `generate${pascalCaseName}FromAI`;
-            const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
+        const runOfflineGenerator = async () => {
+             // @ts-ignore
+             const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
+             if (offlineGenerator) return await offlineGenerator(options);
+             throw new Error(`"${currentAct?.title}" için üretim motoru bulunamadı.`);
+        };
 
-            const runOfflineGenerator = async () => {
-                 // @ts-ignore
-                 const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
-                 if (offlineGenerator) return await offlineGenerator(options);
-                 throw new Error(`"${currentAct?.title}" için üretim motoru bulunamadı.`);
-            };
-
-            if (options.mode === 'ai') {
-                // @ts-ignore
-                const onlineGenerator = (generators as any)[generatorFunctionName];
-                if (onlineGenerator) {
-                    try { result = await onlineGenerator(options); } 
-                    catch (err) { result = await runOfflineGenerator(); }
-                } else {
-                    result = await runOfflineGenerator();
-                }
-            } else { 
+        if (options.mode === 'ai') {
+            // @ts-ignore
+            const onlineGenerator = (generators as any)[generatorFunctionName];
+            if (onlineGenerator) {
+                try { result = await onlineGenerator(options); } 
+                catch (err) { result = await runOfflineGenerator(); }
+            } else {
                 result = await runOfflineGenerator();
             }
+        } else { 
+            result = await runOfflineGenerator();
         }
         
         if (result) {
@@ -194,7 +166,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             onAddToHistory(selectedActivity, labeledResult);
             statsService.incrementUsage(selectedActivity).catch(console.error);
         }
-
     } catch (e: any) {
         console.error("Etkinlik oluşturulurken hata:", e);
         setError(e.message || "Beklenmeyen bir hata oluştu.");
@@ -204,7 +175,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const currentActivity = getActivityById(selectedActivity);
-
   const categorizedActivities = useMemo(() => {
       return categories.map(category => ({
           ...category,
@@ -252,12 +222,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <button onClick={closeSidebar} className="md:hidden ml-2 w-7 h-7 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 transition-colors"><i className="fa-solid fa-xmark text-sm"></i></button>
                 </div>
 
-                {/* MODUL BUTTONS */}
+                {/* MODUL BUTTONS - GRID COLS 4 TO FIT MATH */}
                 {isExpanded && (
-                    <div className="px-3 py-2 grid grid-cols-3 gap-2 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-1">
+                    <div className="px-3 py-2 grid grid-cols-4 gap-1 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-1">
                         {onOpenOCR && <button onClick={onOpenOCR} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1"><div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm group-hover:scale-105 transition-transform duration-300"><i className="fa-solid fa-camera text-sm"></i></div><span className="text-[8px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">OCR</span></button>}
                         {onOpenCurriculum && <button onClick={onOpenCurriculum} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1"><div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover:scale-105 transition-transform duration-300"><i className="fa-solid fa-graduation-cap text-sm"></i></div><span className="text-[8px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Plan</span></button>}
                         {onOpenReadingStudio && <button onClick={onOpenReadingStudio} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1"><div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-sm group-hover:scale-105 transition-transform duration-300"><i className="fa-solid fa-book-open-reader text-sm"></i></div><span className="text-[8px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Okuma</span></button>}
+                        {onOpenMathStudio && <button onClick={onOpenMathStudio} className="group relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-all flex flex-col items-center gap-1"><div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm group-hover:scale-105 transition-transform duration-300"><i className="fa-solid fa-calculator text-sm"></i></div><span className="text-[8px] font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">Matematik</span></button>}
                     </div>
                 )}
 
@@ -286,7 +257,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 <button key={activity.id} onClick={() => { onSelectActivity(activity.id); if(window.innerWidth < 768) closeSidebar(); }} className={`w-full text-left px-3 py-1 rounded-md text-[10px] font-medium transition-all flex items-center gap-1.5 relative ${selectedActivity === activity.id ? 'bg-indigo-50/50 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-300 font-bold' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'}`}>
                                                     <span className={`w-1 h-1 rounded-full ${selectedActivity === activity.id ? 'bg-indigo-500' : 'bg-transparent border border-zinc-300'}`}></span>
                                                     <span className="truncate">{activity.title}</span>
-                                                    {(activity as any).promptId && <i className="fa-solid fa-bolt text-[8px] text-amber-500 ml-auto" title="Özel AI Prompt"></i>}
                                                 </button>
                                             ))}
                                         </div>

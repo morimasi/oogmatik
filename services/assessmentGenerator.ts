@@ -5,12 +5,14 @@ import { AssessmentProfile, AssessmentReport, ActivityType } from '../types';
 
 // Offline Heuristic Generator (Backup)
 const generateOfflineAssessmentReport = (profile: AssessmentProfile): AssessmentReport => {
-    const results = profile.testResults || {};
+    // Fix: Cast results to any to allow dynamic indexing
+    const results = (profile.testResults || {}) as Record<string, any>;
     
     const getScore = (key: string) => {
         const res = results[key];
         if (!res) return 0;
-        return Math.max(0, res.accuracy); 
+        // Fix: Ensure accuracy is treated as number
+        return Math.max(0, Number(res.accuracy) || 0); 
     };
 
     const scores = {
@@ -26,7 +28,7 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
     };
 
     // Analyze Error Patterns from Profile if available
-    const errorAnalysis = [];
+    const errorAnalysis: string[] = [];
     if (profile.errorPatterns) {
         // Find most frequent errors
         const sortedErrors = Object.entries(profile.errorPatterns).sort((a,b) => b[1] - a[1]);
@@ -39,8 +41,8 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
     }
 
     // Simple Heuristic Logic
-    const strengths = [];
-    const weaknesses = [];
+    const strengths: string[] = [];
+    const weaknesses: string[] = [];
     if (scores.linguistic > 80) strengths.push("Sözel-Dilsel zekası güçlü. Kelimelerle arası çok iyi.");
     if (scores.logical > 80) strengths.push("Mantıksal-Matematiksel zekası baskın. Problem çözmede başarılı.");
     if (scores.spatial > 80) strengths.push("Görsel-Uzamsal zekası yüksek. Resimlerle düşünüyor.");
@@ -73,6 +75,7 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     if (profile.testResults && Object.keys(profile.testResults).length > 0) {
         testResultsDesc = "TEST SONUÇLARI (% Doğruluk):\n";
         for(const [key, result] of Object.entries(profile.testResults)) {
+            // Fix: result is properly typed via AssessmentProfile
             testResultsDesc += `- ${result.name} (${key}): %${result.accuracy.toFixed(1)}\n`;
         }
     }
@@ -195,7 +198,6 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     };
 
     try {
-        // Removed specific model constraint
         return await generateWithSchema(prompt, schema) as unknown as AssessmentReport;
     } catch (error) {
         console.warn("AI Assessment Error, falling back:", error);
