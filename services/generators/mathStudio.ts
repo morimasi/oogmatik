@@ -1,37 +1,27 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { MathStudioConfig, MathStudioData } from '../../types';
+import { MathStudioConfig } from '../../types';
 
-export const generateMathProblemsAI = async (config: MathStudioConfig): Promise<MathStudioData> => {
+export const generateMathProblemsAI = async (config: MathStudioConfig) => {
     const prompt = `
-    [ROL: ÖZEL ÖĞRENME GÜÇLÜĞÜ (DİSKALKULİ) MATEMATİK UZMANI]
+    [ROL: ÜST DÜZEY MATEMATİK ÖĞRETİM TASARIMCISI]
+    GÖREV: ${config.gradeLevel} seviyesinde, "${config.problemConfig.topic}" temalı, ${config.problemConfig.count} adet matematik problemi üret.
     
-    GÖREV: ${config.gradeLevel} seviyesindeki, ${config.studentName ? config.studentName + ' adlı' : ''} bir öğrenci için **pedagojik değeri yüksek**, **güncel**, **gerçek hayatla ilişkili** ve **disleksi/diskalkuli dostu** matematik problemleri üret.
+    KURALLAR:
+    1. İşlem Sayısı: Her problem ${config.problemConfig.steps} aşamalı/işlemli olmalı.
+    2. İşlem Türleri: Sadece şu işlemleri kullan: ${config.operations.join(', ')}.
+    3. Dil: Disleksi dostu, kısa ve net cümleler. Karmaşık bağlaçlardan kaçın.
+    4. Sayılar: ${config.gradeLevel} seviyesine uygun büyüklükte sayılar seç.
     
-    YAPILANDIRMA:
-    - İşlem Türleri: ${config.operations.join(', ')}
-    - Konu/Tema: "${config.problemTopic || 'Günlük Yaşam'}"
-    - Problem Sayısı: ${config.problemCount}
-    - Problem Zorluğu: ${config.problemSteps} aşamalı işlem gerektirir.
-    
-    PEDAGOJİK KURALLAR (HAYATİ ÖNEMLİ):
-    1. **Dil:** Kısa, net, devrik olmayan cümleler kullan. Gereksiz sıfatlardan kaçın.
-    2. **Somutlaştırma:** Problemler soyut sayılarla değil; elma, para, oyuncak, otobüs yolcusu gibi somut nesnelerle kurgulanmalıdır.
-    3. **Senaryolar:** Güncel çocuk dünyasına hitap et (Örn: Minecraft blokları, Kantin alışverişi, YouTube izlenme sayısı, Futbol maçı skoru).
-    4. **Saygı ve Pozitiflik:** Başarısızlık değil, çözüm odaklı bir dil kullan.
-    5. **Tutarlılık:** Çıkan sonuçlar mantıklı olmalıdır (Örn: Bir sınıfta 500 öğrenci olamaz).
-    
-    ÇIKTI FORMATI (JSON):
+    ÇIKTI (JSON):
     {
-        "title": "Çekici bir başlık (Örn: Uzay Macerası Matematiği)",
-        "pedagogicalNote": "Öğretmen/Veli için bu setin hangi bilişsel beceriyi (örn: sayı hissi, problem çözme stratejisi) desteklediğine dair kısa akademik not.",
-        "instruction": "Öğrenciye yönelik cesaretlendirici, kısa yönerge.",
         "problems": [
             {
-                "text": "Problem metni...",
-                "answer": Sayısal cevap (Number),
-                "steps": ["1. Adım: ...", "2. Adım: ..."] (Çözüm yolunu basitçe anlatan adımlar)
+                "text": "Problem metni buraya...",
+                "steps": ["1. işlem açıklaması", "2. işlem açıklaması"],
+                "answer": "Cevap",
+                "hint": "İpucu (Gerekirse)"
             }
         ]
     }
@@ -40,26 +30,22 @@ export const generateMathProblemsAI = async (config: MathStudioConfig): Promise<
     const schema = {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            instruction: { type: Type.STRING },
             problems: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
                         text: { type: Type.STRING },
-                        answer: { type: Type.NUMBER },
-                        steps: { type: Type.ARRAY, items: { type: Type.STRING } }
+                        steps: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING },
+                        hint: { type: Type.STRING }
                     },
                     required: ['text', 'answer']
                 }
             }
         },
-        required: ['title', 'problems', 'instruction', 'pedagogicalNote']
+        required: ['problems']
     };
 
-    // Cast response to correct type intersection
-    const result = await generateWithSchema(prompt, schema);
-    return result as any; // Cast to MathStudioData
+    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
 };

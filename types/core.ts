@@ -5,7 +5,7 @@ export const ActivityType = {
     WORKBOOK: 'WORKBOOK',
     OCR_CONTENT: 'OCR_CONTENT',
     CUSTOM_GENERATED: 'CUSTOM_GENERATED',
-    MATH_STUDIO: 'MATH_STUDIO', // New Module
+    MATH_STUDIO: 'MATH_STUDIO',
     ALGORITHM_GENERATOR: 'ALGORITHM_GENERATOR',
     AI_WORKSHEET_CONVERTER: 'AI_WORKSHEET_CONVERTER',
 
@@ -41,51 +41,7 @@ export const ActivityType = {
 
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType] | string;
 
-// --- MATH STUDIO TYPES ---
-export interface MathStudioConfig {
-    gradeLevel: string;
-    studentName: string;
-    
-    // Operation Logic
-    operations: ('add' | 'sub' | 'mult' | 'div')[];
-    isMixed: boolean;
-    
-    // Detailed Constraints
-    allowCarry: boolean;      // Toplama: Eldeli
-    allowBorrow: boolean;     // Çıkarma: Onluk Bozmalı
-    allowRemainder: boolean;  // Bölme: Kalanlı
-    findUnknown: boolean;     // Bilinmeyen Sayıyı Bulma (? + 5 = 10)
-    
-    // Digits - NEW
-    num1Digits: number; // 1, 2, 3
-    num2Digits: number; // 1, 2, 3
-    
-    // Problems
-    includeProblems: boolean;
-    problemCount: number;
-    problemSteps: 1 | 2 | 3; // İşlem sayısı
-    problemTopic: string;
-    
-    // Layout
-    layoutMode: 'standard' | 'large' | 'compact';
-    itemCount: number; // 0 = Auto Fill
-}
-
-export interface MathOperation {
-    num1: number;
-    num2: number;
-    operator: string;
-    answer: number;
-    remainder?: number;
-    unknownPos?: 'num1' | 'num2' | 'ans'; // For findUnknown
-}
-
-export interface MathStudioData extends BaseActivityData {
-    operations: MathOperation[];
-    problems: { text: string; answer: number; steps: string[] }[];
-}
-
-// ... existing types
+// Fix: Exporting Activity and ActivityCategory to resolve constants.ts errors
 export interface Activity {
     id: ActivityType;
     title: string;
@@ -108,6 +64,7 @@ export interface ActivityCategory {
     isCustom?: boolean;
 }
 
+// Fix: Exporting missing core worksheet types
 export type WorksheetData = any[] | null;
 export type SingleWorksheetData = any;
 
@@ -171,7 +128,6 @@ export interface GeneratorOptions {
     directions?: 'simple' | 'diagonal' | 'all';
     customInput?: string | string[];
     topic?: string;
-    theme?: string;
     useSearch?: boolean;
     num1Digits?: number;
     num2Digits?: number;
@@ -194,7 +150,6 @@ export interface GeneratorOptions {
     symbolType?: string;
     codeLength?: number;
     subType?: string;
-    maxSum?: number;
 }
 
 export interface SavedWorksheet {
@@ -525,6 +480,8 @@ export interface AlgorithmStep {
     no?: number;
 }
 
+// --- MATH STUDIO TYPES ---
+
 export interface MathComponentStyle {
     x: number;
     y: number;
@@ -552,4 +509,25 @@ export interface MathStudioComponent {
     isVisible: boolean;
     style: MathComponentStyle;
     data: any; 
+}
+
+export interface MathStudioConfig {
+    gradeLevel: string;
+    studentName: string;
+    operations: ('add' | 'sub' | 'mult' | 'div')[];
+    digitCount1: number;
+    digitCount2: number;
+    constraints: {
+        allowCarry: boolean;
+        allowBorrow: boolean;
+        allowRemainder: boolean;
+        findUnknown: boolean;
+    };
+    problemConfig: {
+        enabled: boolean;
+        count: number;
+        steps: 1 | 2 | 3;
+        topic: string;
+    };
+    layout: 'grid' | 'free';
 }
