@@ -1,5 +1,4 @@
 
-
 export const ActivityType = {
     // System Types
     ASSESSMENT_REPORT: 'ASSESSMENT_REPORT',
@@ -57,9 +56,9 @@ export interface MathStudioConfig {
     allowRemainder: boolean;  // Bölme: Kalanlı
     findUnknown: boolean;     // Bilinmeyen Sayıyı Bulma (? + 5 = 10)
     
-    // Digits
-    num1Digits: number;
-    num2Digits: number;
+    // Digits - NEW
+    num1Digits: number; // 1, 2, 3
+    num2Digits: number; // 1, 2, 3
     
     // Problems
     includeProblems: boolean;
@@ -69,7 +68,7 @@ export interface MathStudioConfig {
     
     // Layout
     layoutMode: 'standard' | 'large' | 'compact';
-    itemCount: number; // Will be auto-calculated for A4 if 0
+    itemCount: number; // 0 = Auto Fill
 }
 
 export interface MathOperation {
@@ -86,7 +85,7 @@ export interface MathStudioData extends BaseActivityData {
     problems: { text: string; answer: number; steps: string[] }[];
 }
 
-// Fix: Exporting Activity and ActivityCategory to resolve constants.ts errors
+// ... existing types
 export interface Activity {
     id: ActivityType;
     title: string;
@@ -109,7 +108,6 @@ export interface ActivityCategory {
     isCustom?: boolean;
 }
 
-// Fix: Exporting missing core worksheet types
 export type WorksheetData = any[] | null;
 export type SingleWorksheetData = any;
 
@@ -526,8 +524,6 @@ export interface AlgorithmStep {
     yes?: number;
     no?: number;
 }
-
-// --- MATH STUDIO TYPES ---
 
 export interface MathComponentStyle {
     x: number;
