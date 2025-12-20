@@ -33,6 +33,13 @@ interface ActiveComponent extends LayoutItem {
     instanceId: string;
 }
 
+interface SavedTemplate {
+    id: string;
+    name: string;
+    createdAt: string;
+    layout: ActiveComponent[];
+}
+
 const DEFAULT_STYLE_BASE: LayoutItem['style'] = {
     x: 20, y: 20, w: 754, h: 100, zIndex: 1, rotation: 0,
     padding: 10,
@@ -208,7 +215,7 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
 
     // STORY TEXT SPECIFIC
     if (item.id === 'story_block') {
-         const data = item.specificData || { text: "Hikaye metni buraya gelecek..." };
+         const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
          return (
             <div className="space-y-3">
                 <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Metin İçeriği (Manuel Düzenleme)</label>
@@ -259,7 +266,7 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
     
     // CREATIVE SPECIFIC
     if (item.id === 'creative') {
-        const data = item.specificData || { task: "Hikayeyle ilgili bir resim çiz." };
+        const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
         return (
              <div className="space-y-3">
                 <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Yaratıcı Görev Yönergesi</label>
@@ -409,7 +416,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     
     const [storyData, setStoryData] = useState<InteractiveStoryData | null>(null);
-    const [sidebarTab, setSidebarTab] = useState<'settings' | 'library'>('settings');
+    const [sidebarTab, setSidebarTab] = useState<'settings' | 'library' | 'templates'>('settings');
     const [layout, setLayout] = useState<ActiveComponent[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [designMode, setDesignMode] = useState(true);
@@ -425,6 +432,10 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
     
+    // Template State
+    const [templates, setTemplates] = useState<SavedTemplate[]>([]);
+    const [templateName, setTemplateName] = useState("");
+
     const [openSections, setOpenSections] = useState({ layers: true, add: false });
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -441,6 +452,14 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         const maxY = Math.max(...layout.map(item => item.style.y + item.style.h));
         return Math.max(A4_HEIGHT_PX, maxY + PAGE_BOTTOM_PADDING);
     }, [layout]);
+
+    // Load templates on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('rs_templates');
+        if(saved) {
+            try { setTemplates(JSON.parse(saved)); } catch(e) {}
+        }
+    }, []);
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -622,7 +641,82 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
 
     const deleteItem = () => { 
         if (!selectedId) return; 
-        if(confirm("Sil?")) { setLayout(prev => prev.filter(item => item.instanceId !== selectedId)); setSelectedId(null); setIsSaved(false); } 
+        removeComponent(selectedId);
+    };
+    
+    // --- AUTO-REFLOW LOGIC ---
+    const removeComponent = (id: string) => {
+        if(confirm("Bu bileşeni silmek istediğinize emin misiniz?")) {
+            const itemToRemove = layout.find(item => item.instanceId === id);
+            
+            // If item doesn't exist or layout shouldn't reflow automatically (optional toggle), just delete
+            if (!itemToRemove) return;
+            
+            // Auto-Reflow Logic:
+            // 1. Identify space freed up
+            const gap = 15; // Standard gap
+            const removedHeight = itemToRemove.style.h + gap;
+            const removedY = itemToRemove.style.y;
+
+            setLayout(prev => {
+                // Remove target
+                const filtered = prev.filter(item => item.instanceId !== id);
+                
+                // Shift items below UP
+                return filtered.map(item => {
+                    // Simple logic: if item was below the removed one, move it up
+                    if (item.style.y > removedY) {
+                        return {
+                            ...item,
+                            style: {
+                                ...item.style,
+                                y: item.style.y - removedHeight
+                            }
+                        };
+                    }
+                    return item;
+                });
+            });
+
+            if(selectedId === id) setSelectedId(null);
+            setIsSaved(false);
+        }
+    };
+
+    // --- TEMPLATE LOGIC ---
+    const saveTemplate = () => {
+        if(!templateName.trim()) return alert("Lütfen şablon adı giriniz.");
+        const newTemplate: SavedTemplate = {
+            id: crypto.randomUUID(),
+            name: templateName,
+            createdAt: new Date().toISOString(),
+            layout: layout // Save current layout state
+        };
+        const updated = [...templates, newTemplate];
+        setTemplates(updated);
+        localStorage.setItem('rs_templates', JSON.stringify(updated));
+        setTemplateName("");
+        alert("Şablon kaydedildi.");
+    };
+
+    const loadTemplate = (t: SavedTemplate) => {
+        if(confirm("Mevcut düzen silinecek ve şablon yüklenecek. Onaylıyor musunuz?")) {
+            // Refresh instance IDs to prevent conflicts
+            const newLayout = t.layout.map((item) => ({
+                ...item,
+                instanceId: item.id + '-' + Date.now() + Math.random().toString(36).substr(2, 5)
+            }));
+            setLayout(newLayout);
+            setIsSaved(false);
+        }
+    };
+
+    const deleteTemplate = (id: string) => {
+         if(confirm("Şablonu silmek istediğinize emin misiniz?")) {
+            const updated = templates.filter(t => t.id !== id);
+            setTemplates(updated);
+            localStorage.setItem('rs_templates', JSON.stringify(updated));
+         }
     };
 
     const handleGenerate = async () => {
@@ -836,14 +930,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         setIsSaved(false);
     };
 
-    const removeComponent = (id: string) => {
-        if(confirm("Bu bileşeni silmek istediğinize emin misiniz?")) {
-            setLayout(prev => prev.filter(item => item.instanceId !== id));
-            if(selectedId === id) setSelectedId(null);
-            setIsSaved(false);
-        }
-    };
-
     return (
         <div className="h-full flex flex-col bg-[#222226] font-['OpenDyslexic'] overflow-hidden text-zinc-100">
              {/* TOP BAR */}
@@ -881,6 +967,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                          <div className="flex border-b border-zinc-800 bg-[#222226]">
                              <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Ayarlar</button>
                              <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
+                             <button onClick={() => setSidebarTab('templates')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'templates' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Şablonlar</button>
                          </div>
                          <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
                              {sidebarTab === 'library' && (
@@ -920,6 +1007,56 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                                                          </button>
                                                      ))}
                                                  </div>
+                                             </div>
+                                         )}
+                                     </div>
+                                 </div>
+                             )}
+                             {sidebarTab === 'templates' && (
+                                 <div className="p-4 space-y-6">
+                                     <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-800">
+                                         <h4 className="text-[10px] font-bold text-zinc-400 uppercase mb-2">Şablon Kaydet</h4>
+                                         <div className="flex gap-2">
+                                             <input 
+                                                 type="text" 
+                                                 value={templateName} 
+                                                 onChange={e => setTemplateName(e.target.value)} 
+                                                 placeholder="Şablon Adı..." 
+                                                 className="flex-1 p-2 bg-zinc-900 border border-zinc-700 rounded text-xs text-white outline-none"
+                                             />
+                                             <button onClick={saveTemplate} className="px-3 bg-amber-500 text-black rounded font-bold text-xs hover:bg-amber-400"><i className="fa-solid fa-save"></i></button>
+                                         </div>
+                                     </div>
+                                     <div>
+                                         <h4 className="text-[10px] font-bold text-zinc-500 uppercase mb-3">Kayıtlı Şablonlar</h4>
+                                         {templates.length === 0 ? (
+                                             <div className="text-center text-zinc-600 text-xs py-4">Henüz şablon yok.</div>
+                                         ) : (
+                                             <div className="space-y-3">
+                                                 {templates.map(t => (
+                                                     <div key={t.id} className="group bg-zinc-800 border border-zinc-700 rounded-lg p-3 hover:border-amber-500/50 transition-colors cursor-pointer" onClick={() => loadTemplate(t)}>
+                                                         <div className="flex justify-between items-start mb-2">
+                                                             <h5 className="font-bold text-sm text-zinc-200">{t.name}</h5>
+                                                             <button onClick={(e) => {e.stopPropagation(); deleteTemplate(t.id);}} className="text-zinc-500 hover:text-red-500"><i className="fa-solid fa-trash"></i></button>
+                                                         </div>
+                                                         {/* Mini Preview */}
+                                                         <div className="w-full h-24 bg-white rounded overflow-hidden relative pointer-events-none">
+                                                             <div className="absolute inset-0" style={{transform: 'scale(0.15)', transformOrigin: '0 0', width: '600%', height: '600%'}}>
+                                                                 {t.layout.map((item, idx) => (
+                                                                     <div key={idx} style={{
+                                                                         position: 'absolute',
+                                                                         left: item.style.x,
+                                                                         top: item.style.y,
+                                                                         width: item.style.w,
+                                                                         height: item.style.h,
+                                                                         border: '2px solid #ccc',
+                                                                         backgroundColor: item.style.backgroundColor || 'transparent'
+                                                                     }}></div>
+                                                                 ))}
+                                                             </div>
+                                                         </div>
+                                                     </div>
+                                                 ))}
                                              </div>
                                          )}
                                      </div>
