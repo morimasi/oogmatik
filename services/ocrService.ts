@@ -9,33 +9,27 @@ export const ocrService = {
         const validIds = ACTIVITIES.map(a => a.id).join(', ');
 
         const prompt = `
-        [ROL: KIDEMLİ EĞİTİM MATERYALİ MÜHENDİSİ VE MİMARI]
+        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI]
+        GÖREV: Görüntüdeki etkinliğin MİMARİ PLANINI (Blueprint) çıkar. 
         
-        GÖREV: Yüklenen eğitim materyalinin "DNA'sını" çıkar. Sadece metni okuma, sayfanın İNŞA EDİLME MANTIĞINI çöz.
-        
-        ANALİZ KRİTERLERİ:
-        1. **Yapısal Düzen:** Sayfa tek sütun mu? İki sütunlu mu? Izgara (grid) yapısı mı var?
-        2. **Bileşen Tespiti:** 
-           - Tablo varsa: Satır/sütun sayısı nedir? Başlıklar neler?
-           - Görsel varsa: Konumu neresi? Ne anlatıyor?
-           - Soru varsa: Tipi nedir? (Eşleştirme, Boşluk Doldurma, Test).
-        3. **Algoritma:** Etkinlik nasıl çözülüyor? (Örn: "Soldaki sayı ile sağdaki harfi topla" gibi bir mantık var mı?)
+        KRİTİK KURALLAR:
+        1. **Döngü Yasaktır:** Soruları veya içerikleri tek tek yazma. Yapıyı tarif et. 
+           - YANLIŞ: "Soru 1 şu, Soru 2 şu..." (Bu döngüye sebep olur)
+           - DOĞRU: "Sayfada 2 sütunlu, toplam 10 soruluk bir test yapısı var. Her soru görsel içeriyor."
+        2. **Birebir Klonlama:** Orijinal sayfadaki tablo sütun sayısını, grid yapısını ve görsel yerleşimlerini (sol/sağ/üst) teknik olarak belirt.
+        3. **Algoritma Çıkarımı:** Etkinliğin çözüm mantığını (eşleştirme mi, hesaplama mı, boyama mı) teknik bir dille özetle.
         
         ÇIKTI (Kesinlikle JSON):
         {
-            "detectedType": "Mevcut ActivityType listesinden en yakını veya 'CUSTOM_GENERATED'",
-            "title": "Görseldeki ana başlık",
-            "description": "Etkinliğin ne yaptığının özeti",
-            "estimatedDifficulty": "Başlangıç | Orta | Zor | Uzman",
-            "topic": "Etkinlik konusu",
+            "detectedType": "ActivityType",
+            "title": "Ana Başlık",
+            "description": "Kısa özet",
             "layoutHint": {
                 "containerType": "grid | list",
-                "gridCols": 1, 2, 3, 4,
-                "hasImages": true/false,
-                "hasTables": true/false
+                "gridCols": 1,
+                "hasImages": true
             },
-            "blueprint": "Yapay zekanın bu sayfayı BİREBİR YENİDEN ÜRETMESİ İÇİN teknik talimat. Örn: 'Sayfada 2x5 bir tablo var, her hücrede meyve isimleri olmalı. Alt kısımda 3 satırlık bir not alanı var.'",
-            "originalContentSummary": "Orijinal içerikteki örnek verilerin özeti."
+            "blueprint": "TEKNİK ÖZET: [YAPI] + [SORU TİPİ] + [GÖRSEL KONUMU]. Örn: 3x4 tablo yapısı, hücrelerde meyve isimleri, her satır sonunda boyama alanı."
         }
         `;
 
@@ -45,26 +39,21 @@ export const ocrService = {
                 detectedType: { type: Type.STRING },
                 title: { type: Type.STRING },
                 description: { type: Type.STRING },
-                estimatedDifficulty: { type: Type.STRING },
-                topic: { type: Type.STRING },
                 layoutHint: {
                     type: Type.OBJECT,
                     properties: {
                         containerType: { type: Type.STRING },
                         gridCols: { type: Type.NUMBER },
-                        hasImages: { type: Type.BOOLEAN },
-                        hasTables: { type: Type.BOOLEAN }
+                        hasImages: { type: Type.BOOLEAN }
                     },
                     required: ['containerType', 'gridCols']
                 },
-                blueprint: { type: Type.STRING },
-                originalContentSummary: { type: Type.STRING }
+                blueprint: { type: Type.STRING }
             },
             required: ['detectedType', 'title', 'blueprint', 'layoutHint']
         };
 
         try {
-            // Force gemini-3-flash-preview for high speed and layout understanding
             const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-flash-preview');
             
             const safeType = result.detectedType && (validIds.includes(result.detectedType) || result.detectedType === 'CUSTOM_GENERATED') 
@@ -72,15 +61,15 @@ export const ocrService = {
                 : 'CUSTOM_GENERATED';
 
             return {
-                rawText: result.originalContentSummary || '', 
+                rawText: '', 
                 detectedType: safeType,
                 title: result.title || 'Analiz Edilen Etkinlik',
                 description: result.description || 'Tasarım klonlandı.',
                 generatedTemplate: result.blueprint || '',
                 structuredData: {
-                    difficulty: result.estimatedDifficulty as any || 'Orta',
+                    difficulty: 'Orta',
                     itemCount: 10,
-                    topic: result.topic || 'Genel',
+                    topic: 'Genel',
                     instructions: result.blueprint || '',
                     components: [],
                     layoutHint: result.layoutHint 
@@ -89,7 +78,7 @@ export const ocrService = {
             };
         } catch (error) {
             console.error("OCR Analysis Error:", error);
-            throw new Error("Görsel mimarisi çözümlenemedi.");
+            throw new Error("Görsel mimarisi çözümlenemedi. Lütfen daha net bir görsel yükleyin.");
         }
     }
 };

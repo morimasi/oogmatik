@@ -5,21 +5,17 @@ import { GeneratorOptions, ActivityType } from '../../types';
 
 const RECONSTRUCTION_PROMPT = `
 [ROL: MATEMATİK VE DİL MATERYALİ ÜRETİM MOTORU]
-GÖREV: Sana verilen TEKNİK PLANA (Blueprint) uygun olarak bir çalışma sayfası İÇERİĞİ üret.
+GÖREV: Verilen teknik plana uygun özgün içerik üret.
 
-STRATEJİ:
-1. **Planda ne varsa onu yap:** Eğer plan bir tablo diyorsa 'sections' içine tablo objesi koy.
-2. **İçeriği zenginleştir:** Konuyla uyumlu, çocuk dostu ve eğitici veriler yaz.
-3. **Sayfayı doldur:** A4 sayfasının boş kalmaması için yeterli sayıda (itemCount kadar) veri üret.
-
-MİMARİ KURALLAR:
-- Her 'section' kendi 'layoutConfig' değerine sahip olabilir.
-- 'content' dizisindeki her obje mutlaka 'type' içermelidir ('text', 'table', 'question', 'image' vb.).
+ÜRETİM PROTOKOLÜ:
+1. **Çeşitlilik:** Her bir soru veya içerik öğesi bir öncekinden FARKLI olmalıdır. Aynı veriyi tekrar etme.
+2. **Yapısal Sadakat:** Planda 'tablo' deniliyorsa tablo, 'grid' deniliyorsa grid kullan.
+3. **Miktar:** 'itemCount' kadar benzersiz öğe üret. Sayfayı doldur.
+4. **Hata Önleme:** JSON yapısı içinde asla sonsuz metin blokları oluşturma. Kısa, öz ve yapısal ol.
 `;
 
 export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions, layoutHint?: any) => {
     
-    // Basitleştirilmiş ve daha hızlı yanıt veren şema
     const schema = {
         type: Type.ARRAY,
         items: {
@@ -63,25 +59,12 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
     const finalPrompt = `
     ${RECONSTRUCTION_PROMPT}
 
-    [TEKNİK PLAN (BLUEPRINT)]:
-    ${blueprint}
-    
-    [KONFİGÜRASYON]:
-    - SEVİYE: ${options.difficulty}
-    - KONU: ${options.topic || 'Genel'}
-    - ADET: ${options.itemCount || 10}
-    - LAYOUT: ${layoutHint ? JSON.stringify(layoutHint) : 'Otomatik'}
+    [TEKNİK PLAN]: ${blueprint}
+    [AYARLAR]: Seviye: ${options.difficulty}, Konu: ${options.topic || 'Genel'}, Adet: ${options.itemCount || 10}
+    [DÜZEN]: ${layoutHint ? JSON.stringify(layoutHint) : 'Otomatik'}
 
-    DİKKAT: Yanıt sadece geçerli JSON olmalı. Sayfanın mimarisi orijinal görseldekiyle aynı kalmalıdır.
+    DİKKAT: Sadece geçerli JSON döndür. Döngüye girme, her öğeyi özgün yaz.
     `;
 
-    // Kesinlikle gemini-3-flash-preview kullanıyoruz
     return generateWithSchema(finalPrompt, schema, 'gemini-3-flash-preview', options.useSearch);
 };
-
-export const generateFamilyRelationsFromAI = async (options: GeneratorOptions) => [];
-export const generateLogicDeductionFromAI = async (options: GeneratorOptions) => [];
-export const generateNumberBoxLogicFromAI = async (options: GeneratorOptions) => [];
-export const generateMapInstructionFromAI = async (options: GeneratorOptions) => [];
-export const generateMindGamesFromAI = async (options: GeneratorOptions) => [];
-export const generateMindGames56FromAI = async (options: GeneratorOptions) => [];
