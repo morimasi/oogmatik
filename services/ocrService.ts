@@ -9,32 +9,33 @@ export const ocrService = {
         const validIds = ACTIVITIES.map(a => a.id).join(', ');
 
         const prompt = `
-        [ROL: KIDEMLİ EĞİTİM MATERYALİ MÜHENDİSİ]
+        [ROL: KIDEMLİ EĞİTİM MATERYALİ MÜHENDİSİ VE MİMARI]
         
-        GÖREV: Yüklenen eğitim materyalinin "Bileşen Mimarisini" (Component Architecture) çıkar.
-        Sadece metinleri değil, sayfadaki **GÖRSEL YAPILARI (WIDGETS)** tanımla.
+        GÖREV: Yüklenen eğitim materyalinin "DNA'sını" çıkar. Sadece metni okuma, sayfanın İNŞA EDİLME MANTIĞINI çöz.
         
-        TESPİT ETMEN GEREKEN YAPILAR:
-        1. **TABLOLAR (Tables):** Satır ve sütun çizgileri var mı?
-        2. **GRAFİKLER (Charts):** Sütun grafiği, pasta grafiği veya sayı doğrusu var mı?
-        3. **ŞEKİL IZGARALARI (Shape Grids):** Boyanması gereken kareler, kutucuklar var mı?
-        4. **ALGORİTMA/KOD (Algorithms):** Adım adım işlemler, oklar, akış şemaları veya kod benzeri yapılar var mı?
-        5. **KARTLAR (Cards):** Bilgi kutucukları var mı?
+        ANALİZ KRİTERLERİ:
+        1. **Yapısal Düzen:** Sayfa tek sütun mu? İki sütunlu mu? Izgara (grid) yapısı mı var?
+        2. **Bileşen Tespiti:** 
+           - Tablo varsa: Satır/sütun sayısı nedir? Başlıklar neler?
+           - Görsel varsa: Konumu neresi? Ne anlatıyor?
+           - Soru varsa: Tipi nedir? (Eşleştirme, Boşluk Doldurma, Test).
+        3. **Algoritma:** Etkinlik nasıl çözülüyor? (Örn: "Soldaki sayı ile sağdaki harfi topla" gibi bir mantık var mı?)
         
-        ANALİZ ÇIKTISI (JSON):
+        ÇIKTI (Kesinlikle JSON):
         {
-            "detectedType": "ActivityType veya 'CUSTOM_GENERATED'",
-            "title": "Başlık",
-            "description": "Özet",
-            "estimatedDifficulty": "Orta",
-            "estimatedItemCount": 10,
-            "topic": "Konu",
-            "layoutStyle": {
-                "containerType": "grid" | "list",
-                "gridCols": 1 | 2 | 3 | 4,
-                "cardStyle": "simple" | "border" | "shadow"
+            "detectedType": "Mevcut ActivityType listesinden en yakını veya 'CUSTOM_GENERATED'",
+            "title": "Görseldeki ana başlık",
+            "description": "Etkinliğin ne yaptığının özeti",
+            "estimatedDifficulty": "Başlangıç | Orta | Zor | Uzman",
+            "topic": "Etkinlik konusu",
+            "layoutHint": {
+                "containerType": "grid | list",
+                "gridCols": 1, 2, 3, 4,
+                "hasImages": true/false,
+                "hasTables": true/false
             },
-            "generatedTemplate": "YAPAY ZEKA İÇİR ÜRETİM EMRİ:\n- Konu: [KONU]\n- Eğer görselde TABLO varsa, 'type: table' kullan.\n- Eğer ALGORİTMA varsa, 'type: code_block' kullan.\n- Eğer ŞEKİL IZGARASI varsa, 'type: shape_grid' kullan.\n- Detaylı talimatlar..."
+            "blueprint": "Yapay zekanın bu sayfayı BİREBİR YENİDEN ÜRETMESİ İÇİN teknik talimat. Örn: 'Sayfada 2x5 bir tablo var, her hücrede meyve isimleri olmalı. Alt kısımda 3 satırlık bir not alanı var.'",
+            "originalContentSummary": "Orijinal içerikteki örnek verilerin özeti."
         }
         `;
 
@@ -44,24 +45,26 @@ export const ocrService = {
                 detectedType: { type: Type.STRING },
                 title: { type: Type.STRING },
                 description: { type: Type.STRING },
-                estimatedDifficulty: { type: Type.STRING, enum: ['Başlangıç', 'Orta', 'Zor', 'Uzman'] },
-                estimatedItemCount: { type: Type.INTEGER },
+                estimatedDifficulty: { type: Type.STRING },
                 topic: { type: Type.STRING },
-                layoutStyle: {
+                layoutHint: {
                     type: Type.OBJECT,
                     properties: {
-                        containerType: { type: Type.STRING, enum: ['grid', 'list', 'flex'] },
-                        gridCols: { type: Type.INTEGER },
-                        cardStyle: { type: Type.STRING, enum: ['simple', 'border', 'shadow', 'colorful'] }
+                        containerType: { type: Type.STRING },
+                        gridCols: { type: Type.NUMBER },
+                        hasImages: { type: Type.BOOLEAN },
+                        hasTables: { type: Type.BOOLEAN }
                     },
                     required: ['containerType', 'gridCols']
                 },
-                generatedTemplate: { type: Type.STRING }
+                blueprint: { type: Type.STRING },
+                originalContentSummary: { type: Type.STRING }
             },
-            required: ['detectedType', 'title', 'description', 'layoutStyle', 'generatedTemplate']
+            required: ['detectedType', 'title', 'blueprint', 'layoutHint']
         };
 
         try {
+            // Force gemini-3-flash-preview for high speed and layout understanding
             const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-flash-preview');
             
             const safeType = result.detectedType && (validIds.includes(result.detectedType) || result.detectedType === 'CUSTOM_GENERATED') 
@@ -69,28 +72,24 @@ export const ocrService = {
                 : 'CUSTOM_GENERATED';
 
             return {
-                rawText: '', 
+                rawText: result.originalContentSummary || '', 
                 detectedType: safeType,
                 title: result.title || 'Analiz Edilen Etkinlik',
-                description: result.description || 'Tasarım kopyalandı.',
-                generatedTemplate: result.generatedTemplate || 'Standart üretim.',
+                description: result.description || 'Tasarım klonlandı.',
+                generatedTemplate: result.blueprint || '',
                 structuredData: {
                     difficulty: result.estimatedDifficulty as any || 'Orta',
-                    itemCount: result.estimatedItemCount || 10,
+                    itemCount: 10,
                     topic: result.topic || 'Genel',
-                    instructions: result.generatedTemplate || '',
+                    instructions: result.blueprint || '',
                     components: [],
-                    layoutHint: result.layoutStyle 
+                    layoutHint: result.layoutHint 
                 },
                 baseType: safeType
             };
         } catch (error) {
-            console.error("OCR Service Error:", error);
-            throw error; 
+            console.error("OCR Analysis Error:", error);
+            throw new Error("Görsel mimarisi çözümlenemedi.");
         }
-    },
-
-    convertToWorksheetData: (ocrData: OCRResult): { type: ActivityType, data: any[] } => {
-        return { type: ocrData.baseType as ActivityType, data: [] };
     }
 };
