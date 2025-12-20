@@ -63,13 +63,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 }) => {
     const { user } = useAuth();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const [isSharing, setIsSharing] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     
     // --- SMART PAGINATION STATE ---
     const [processedData, setProcessedData] = useState<WorksheetData>([]);
 
-    // Process data whenever raw data or relevant settings change
     useEffect(() => {
         if (!worksheetData) {
             setProcessedData([]);
@@ -77,8 +75,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         }
         
         if (activityType) {
-            // Apply Smart Pagination Logic
-            // This splits long content into multiple A4 pages
             const paged = paginationService.process(worksheetData, activityType, styleSettings);
             setProcessedData(paged);
         } else {
@@ -86,7 +82,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         }
     }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns]); 
 
-    // Apply Smart Defaults
     useEffect(() => {
         if (activityType) {
             const activity = ACTIVITIES.find(a => a.id === activityType);
@@ -134,18 +129,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         if (!canvasRef.current) return;
         const viewportW = canvasRef.current.clientWidth;
         const isLandscape = styleSettings.orientation === 'landscape';
-        const PAGE_WIDTH_MM = isLandscape ? 297 : 210;
-        const PAGE_HEIGHT_MM = isLandscape ? 210 : 297;
         const PX_PER_MM = 3.78;
-        const PAGE_WIDTH_PX = PAGE_WIDTH_MM * PX_PER_MM;
-        const PAGE_HEIGHT_PX = PAGE_HEIGHT_MM * PX_PER_MM;
-        const VERTICAL_GAP = 100; // Gap between pages
-        const VERTICAL_PADDING = 100; // Initial top padding
+        const PAGE_HEIGHT_PX = (isLandscape ? 210 : 297) * PX_PER_MM;
+        const VERTICAL_GAP = 100;
+        const VERTICAL_PADDING = 100;
         const pageTopY = VERTICAL_PADDING + index * (PAGE_HEIGHT_PX + VERTICAL_GAP);
-        const targetViewportY = 50; 
-        const newY = targetViewportY - (pageTopY * scale);
-        const newX = (viewportW - (PAGE_WIDTH_PX * scale)) / 2;
-        setPosition({ x: newX, y: newY });
+        setPosition(prev => ({ ...prev, y: 50 - (pageTopY * scale) }));
         setCurrentPage(index);
     };
 
@@ -195,14 +184,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const handleSave = () => { if (activityType && processedData) onSave(generateAutoName(), activityType, processedData); }
     const handleShare = () => { if(!user) { onOpenAuth(); return; } setIsShareModalOpen(true); };
     const handleConfirmShare = async (receiverId: string) => { setIsShareModalOpen(false); };
-    const handleAddToWorkbookFromReport = (assessment: SavedAssessment) => { /* ... */ };
-    const handleAddText = () => { /* ... */ };
-    const handleAddSticker = (url: string) => { /* ... */ };
-    const handleSpeak = () => { /* ... */ };
-    const handleStopSpeak = () => { speechService.stop(); setIsSpeaking(false); };
 
     const getBreadcrumbs = () => {
         if (currentView === 'savedList') return ['Ana Sayfa', 'Arşivim'];
+        if (currentView === 'workbook') return ['Ana Sayfa', 'Kitapçık'];
+        if (currentView === 'favorites') return ['Ana Sayfa', 'Atölyem'];
+        if (currentView === 'shared') return ['Ana Sayfa', 'Paylaşılanlar'];
         return ['Ana Sayfa'];
     };
     const breadcrumbs = getBreadcrumbs();
@@ -242,11 +229,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     onViewWorkbook={() => {}}
                     onToggleEdit={() => setIsEditMode(!isEditMode)} 
                     isEditMode={isEditMode} 
-                    onAddText={handleAddText}
-                    onAddSticker={handleAddSticker}
-                    onSpeak={handleSpeak}
+                    onSnapshot={() => {}} 
+                    onAddText={() => {}}
+                    onAddSticker={() => {}}
+                    onSpeak={() => {}}
                     isSpeaking={isSpeaking}
-                    onStopSpeak={handleStopSpeak}
+                    onStopSpeak={() => {}}
                     showQR={showQR}
                     onToggleQR={() => setShowQR(!showQR)}
                     worksheetData={processedData}
@@ -272,7 +260,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         onMouseUp={currentView === 'generator' && processedData ? handleMouseUp : undefined}
       >
           {/* PAGE NAVIGATOR SIDEBAR */}
-          {processedData && processedData.length > 1 && (
+          {processedData && processedData.length > 1 && currentView === 'generator' && (
               <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-50 transition-all duration-300 opacity-0 group-hover:opacity-100 -translate-x-full group-hover:translate-x-0">
                   <div className="bg-white/80 dark:bg-black/50 backdrop-blur-md p-2 rounded-2xl shadow-xl border border-white/20 flex flex-col gap-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
                       {processedData.map((_, i) => (
@@ -284,7 +272,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                                   ? 'bg-indigo-600 text-white scale-110 ring-2 ring-indigo-300' 
                                   : 'bg-white text-zinc-600 hover:bg-indigo-50 dark:bg-zinc-800 dark:text-zinc-300'
                               }`}
-                              title={`${i+1}. Sayfa`}
                           >
                               {i+1}
                           </button>
@@ -294,12 +281,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
 
           {/* FLOATING ZOOM CONTROLS */}
-          {processedData && (
+          {processedData && currentView === 'generator' && (
               <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-white dark:bg-zinc-800 p-1 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 z-50">
                   <button onClick={() => setScale(s => Math.max(0.1, s - 0.1))} className="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-minus"></i></button>
                   <span className="text-xs font-mono font-bold w-12 text-center text-zinc-800 dark:text-zinc-200">{Math.round(scale * 100)}%</span>
                   <button onClick={() => setScale(s => Math.min(5, s + 0.1))} className="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-plus"></i></button>
-                  <button onClick={centerCanvas} className="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 border-l dark:border-zinc-700 ml-1" title="Merkezle"><i className="fa-solid fa-expand"></i></button>
+                  <button onClick={centerCanvas} className="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 border-l dark:border-zinc-700 ml-1"><i className="fa-solid fa-expand"></i></button>
               </div>
           )}
 
@@ -338,7 +325,30 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 )}
             </>
           ) : currentView === 'savedList' ? (
-            <div className="w-full max-w-5xl h-full overflow-y-auto mx-auto p-4 absolute inset-0"><SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} /></div>
+            <div className="w-full max-w-7xl h-full overflow-y-auto mx-auto p-4 absolute inset-0 custom-scrollbar">
+                <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+            </div>
+          ) : currentView === 'workbook' ? (
+            <div className="w-full h-full overflow-y-auto absolute inset-0 custom-scrollbar bg-zinc-100 dark:bg-zinc-950">
+                <WorkbookView 
+                    items={workbookItems} 
+                    setItems={setWorkbookItems} 
+                    settings={workbookSettings} 
+                    setSettings={setWorkbookSettings} 
+                    onBack={onBackToGenerator} 
+                />
+            </div>
+          ) : currentView === 'favorites' ? (
+            <div className="w-full h-full overflow-y-auto absolute inset-0 custom-scrollbar">
+                <FavoritesSection 
+                    onSelectActivity={(id) => { if(onSelectActivity) onSelectActivity(id); }} 
+                    onBack={onBackToGenerator} 
+                />
+            </div>
+          ) : currentView === 'shared' ? (
+            <div className="w-full max-w-7xl h-full overflow-y-auto mx-auto p-4 absolute inset-0 custom-scrollbar">
+                <SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+            </div>
           ) : null}
 
         <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleConfirmShare} />
