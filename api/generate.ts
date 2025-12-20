@@ -28,12 +28,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const ai = new GoogleGenAI({ apiKey });
         
-        // Default model chain for reliability and cost efficiency
-        const modelChain = [
-            model || "gemini-3-flash-preview",
-            "gemini-2.0-flash-exp",
-            "gemini-1.5-flash"
-        ];
+        // Kullanıcı isteği doğrultusunda tüm servisler Gemini 3 Flash'a çekildi.
+        const selectedModel = "gemini-3-flash-preview";
 
         const generationConfig = {
             systemInstruction: SYSTEM_INSTRUCTION,
@@ -46,33 +42,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ]
         };
 
+        if (useSearch) {
+            (generationConfig as any).tools = [{ googleSearch: {} }];
+        }
+
         let contents: any[] = image ? [
             { parts: [{ inlineData: { mimeType: mimeType || 'image/jpeg', data: image } }, { text: prompt }] }
         ] : [
             { parts: [{ text: prompt }] }
         ];
 
-        let lastError = null;
-        for (const currentModel of modelChain) {
-            try {
-                const result = await ai.models.generateContent({
-                    model: currentModel,
-                    contents: contents,
-                    config: generationConfig,
-                });
-                
-                if (result.text) {
-                    res.setHeader('Access-Control-Allow-Origin', '*');
-                    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-                    return res.status(200).send(result.text);
-                }
-            } catch (error: any) {
-                console.warn(`Model ${currentModel} failed, trying next...`);
-                lastError = error;
-            }
+        const result = await ai.models.generateContent({
+            model: selectedModel,
+            contents: contents,
+            config: generationConfig,
+        });
+        
+        if (result.text) {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            return res.status(200).send(result.text);
         }
 
-        throw lastError || new Error("AI failed to generate content.");
+        throw new Error("AI failed to generate content.");
 
     } catch (error: any) {
         console.error("API Handler Error:", error);

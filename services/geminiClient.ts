@@ -96,8 +96,8 @@ const generateDirectly = async (params: {
         contents = [{ parts: [{ text: params.prompt }] }];
     }
 
-    // Default to gemini-3-flash-preview for best cost/performance
-    const modelName = params.model || 'gemini-3-flash-preview';
+    // Her durumda gemini-3-flash-preview kullanımı zorunlu kılındı.
+    const modelName = 'gemini-3-flash-preview';
     
     const config: any = {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -129,20 +129,20 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
             body: JSON.stringify({ 
                 prompt, 
                 schema, 
-                model: model || 'gemini-3-flash-preview',
+                model: 'gemini-3-flash-preview',
                 useSearch: useSearch || false
             }),
         });
 
         if (!response.ok) {
-            return await generateDirectly({ prompt, schema, model, useSearch });
+            return await generateDirectly({ prompt, schema, model: 'gemini-3-flash-preview', useSearch });
         }
         
         const fullText = await response.text();
         return tryRepairJson(fullText);
 
     } catch (error: any) {
-        return await generateDirectly({ prompt, schema, model, useSearch });
+        return await generateDirectly({ prompt, schema, model: 'gemini-3-flash-preview', useSearch });
     }
 };
 
@@ -158,18 +158,18 @@ export const analyzeImage = async (base64Image: string, prompt: string, schema: 
                 schema,
                 image: cleanBase64,
                 mimeType: 'image/jpeg',
-                model: model || 'gemini-3-flash-preview'
+                model: 'gemini-3-flash-preview'
             }),
         });
 
         if (!response.ok) {
-            return await generateDirectly({ prompt, schema, image: base64Image, model });
+            return await generateDirectly({ prompt, schema, image: base64Image, model: 'gemini-3-flash-preview' });
         }
         
         const fullText = await response.text();
         return tryRepairJson(fullText);
 
     } catch (error: any) {
-        return await generateDirectly({ prompt, schema, image: base64Image, model });
+        return await generateDirectly({ prompt, schema, image: base64Image, model: 'gemini-3-flash-preview' });
     }
 };
