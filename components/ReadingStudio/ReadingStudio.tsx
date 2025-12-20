@@ -404,7 +404,12 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
 
 // --- MAIN CANVAS COMPONENT ---
 
-export const ReadingStudio: React.FC<any> = ({ onBack }) => {
+interface ReadingStudioProps {
+    onBack: () => void;
+    onAddToWorkbook?: (data: any) => void;
+}
+
+export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWorkbook }) => {
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -435,7 +440,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const [canvasScale, setCanvasScale] = useState(0.85);
-    const [canvasPos, setCanvasPos] = useState({ x: 0, y: 40 }); // Initial Y fixed near top
+    const [canvasPos, setCanvasPos] = useState({ x: 0, y: 40 }); 
     const [isPanning, setIsPanning] = useState(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -462,7 +467,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
             const initialScale = Math.min(0.85, (viewportW - 100) / pageWidth); 
             const centeredX = (viewportW - (pageWidth * initialScale)) / 2;
             setCanvasScale(initialScale);
-            setCanvasPos({ x: centeredX, y: 40 }); // Centered horizontally, fixed 40px vertically
+            setCanvasPos({ x: centeredX, y: 40 }); 
         }
 
         const generatedLayout: ActiveComponent[] = [];
@@ -545,13 +550,8 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         if (canvasRef.current) {
             const rect = canvasRef.current.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
-            
-            // X positioning relative to mouse
             const canvasX = (mouseX - canvasPos.x) / canvasScale;
             const newX = mouseX - canvasX * newScale;
-
-            // Y positioning: FIXED (Locked to top edge)
-            // Scaling happens around top edge because origin-top is set below
             setCanvasScale(newScale);
             setCanvasPos(prev => ({ x: newX, y: prev.y }));
         }
@@ -585,7 +585,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         const handleMouseMove = (e: MouseEvent) => {
             if (isPanning) {
                 const dx = e.clientX - lastMousePos.current.x;
-                // Only horizontal panning allowed if we want top fixed
                 setCanvasPos(prev => ({ x: prev.x + dx, y: prev.y }));
                 lastMousePos.current = { x: e.clientX, y: e.clientY };
                 return;
@@ -652,13 +651,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                 const filtered = prev.filter(item => item.instanceId !== id);
                 return filtered.map(item => {
                     if (item.style.y > removedY) {
-                        return {
-                            ...item,
-                            style: {
-                                ...item.style,
-                                y: item.style.y - removedHeight
-                            }
-                        };
+                        return { ...item, style: { ...item.style, y: item.style.y - removedHeight } };
                     }
                     return item;
                 });
@@ -730,22 +723,35 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         setIsSaving(true);
         try {
             const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
-            
             await worksheetService.saveWorksheet(
-                user.id,
-                title,
-                'STORY_COMPREHENSION',
-                [{ storyData, layout }], 
-                'fa-solid fa-book-open-reader',
-                { id: 'reading-verbal', title: 'Okuma & Dil' }
+                user.id, title, 'STORY_COMPREHENSION', [{ storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' }
             );
             setIsSaved(true);
             alert("Etkinlik başarıyla arşivlendi.");
         } catch (e) {
-            console.error(e);
             alert("Kaydetme sırasında bir hata oluştu.");
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleAddToWorkbook = () => {
+        if (!storyData && layout.length === 0) {
+            alert("Eklenecek bir içerik bulunamadı.");
+            return;
+        }
+        if (onAddToWorkbook) {
+            onAddToWorkbook({ storyData, layout });
+            const btn = document.getElementById('rs-workbook-btn');
+            if (btn) {
+                const original = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Eklendi';
+                btn.classList.add('bg-green-600');
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.classList.remove('bg-green-600');
+                }, 2000);
+            }
         }
     };
 
@@ -760,7 +766,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                 icon: 'fa-solid fa-share-nodes',
                 category: { id: 'reading-verbal', title: 'Okuma & Dil' }
             };
-            
             await worksheetService.shareWorksheet(mockSavedWorksheet, user.id, user.name, receiverId);
             setIsShareModalOpen(false);
             alert("Hikaye başarıyla paylaşıldı.");
@@ -927,16 +932,26 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                      <button onClick={() => setDesignMode(!designMode)} className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${designMode ? 'bg-amber-500 text-black border-amber-500' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>
                          {designMode ? 'MİMARİ MOD' : 'ÖNİZLEME'}
                      </button>
-                     <div className="h-8 w-px bg-zinc-700 mx-2"></div>
+                     <div className="h-8 w-px bg-zinc-800 mx-2"></div>
                      
                      <button onClick={() => handlePrint('download')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="PDF Olarak İndir"><i className="fa-solid fa-file-pdf"></i></button>
                      <button onClick={() => handlePrint('print')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="Yazdır"><i className="fa-solid fa-print"></i></button>
                      <button onClick={() => setIsShareModalOpen(true)} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
                      
                      <button 
+                        id="rs-workbook-btn"
+                        onClick={handleAddToWorkbook}
+                        className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg border border-emerald-500"
+                        title="Çalışma Kitapçığına Ekle"
+                     >
+                         <i className="fa-solid fa-plus-circle"></i>
+                         Kitapçığa Ekle
+                     </button>
+
+                     <button 
                         onClick={handleSaveToArchive} 
                         disabled={isSaving || isSaved}
-                        className={`ml-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${isSaved ? 'bg-green-600 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg'}`}
+                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${isSaved ? 'bg-indigo-600 text-white' : 'bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white border border-indigo-500/50'}`}
                      >
                          {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : (isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>)}
                          {isSaved ? 'Arşivlendi' : 'Arşive Kaydet'}
@@ -1066,7 +1081,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                                         </div>
                                     </div>
 
-                                    {/* DAHİL EDİLECEKLER (CONTENT COMPONENTS) SECTION - RESTORED */}
                                     <div className="space-y-3 bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800 shadow-inner">
                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 mb-3">
                                             <i className="fa-solid fa-list-check text-amber-500"></i> İçerik Bileşenleri
