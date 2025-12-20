@@ -100,7 +100,40 @@ const RotateHandle = ({ onMouseDown }: { onMouseDown: (e: React.MouseEvent) => v
     </div>
 );
 
-// --- SETTINGS PANELS (THEMED) ---
+const CounterControl = ({ label, value, onChange, min = 0, max = 10 }: { label: string, value: number, onChange: (val: number) => void, min?: number, max?: number }) => (
+    <div className="flex items-center justify-between py-1 border-b border-zinc-800 last:border-0">
+        <span className="text-[11px] font-bold text-zinc-400 uppercase">{label}</span>
+        <div className="flex items-center bg-zinc-900 rounded-lg p-0.5 border border-zinc-800">
+            <button 
+                onClick={() => onChange(Math.max(min, value - 1))}
+                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-amber-500 transition-colors disabled:opacity-30"
+                disabled={value <= min}
+            >
+                <i className="fa-solid fa-minus text-[8px]"></i>
+            </button>
+            <span className="w-6 text-center text-xs font-mono font-bold text-zinc-300">{value}</span>
+            <button 
+                onClick={() => onChange(Math.min(max, value + 1))}
+                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-amber-500 transition-colors disabled:opacity-30"
+                disabled={value >= max}
+            >
+                <i className="fa-solid fa-plus text-[8px]"></i>
+            </button>
+        </div>
+    </div>
+);
+
+const ToggleControl = ({ label, checked, onChange, icon }: { label: string, checked: boolean, onChange: (val: boolean) => void, icon?: string }) => (
+    <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0 cursor-pointer group" onClick={() => onChange(!checked)}>
+        <div className="flex items-center gap-2">
+            {icon && <i className={`fa-solid ${icon} text-zinc-600 group-hover:text-amber-500 transition-colors text-[10px]`}></i>}
+            <span className="text-[11px] font-bold text-zinc-400 group-hover:text-zinc-200 uppercase transition-colors">{label}</span>
+        </div>
+        <div className={`w-8 h-4 rounded-full relative transition-colors ${checked ? 'bg-amber-500' : 'bg-zinc-700'}`}>
+            <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all ${checked ? 'left-5' : 'left-1'}`}></div>
+        </div>
+    </div>
+);
 
 const TypographyControls = ({ style, onUpdate }: { style: any, onUpdate: (k: string, v: any) => void }) => (
     <div className="space-y-4">
@@ -369,43 +402,6 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
     );
 }
 
-// --- SUB-COMPONENTS FOR SETTINGS ---
-
-const CounterControl = ({ label, value, onChange, min = 0, max = 10 }: { label: string, value: number, onChange: (val: number) => void, min?: number, max?: number }) => (
-    <div className="flex items-center justify-between py-1 border-b border-zinc-800 last:border-0">
-        <span className="text-[11px] font-bold text-zinc-400 uppercase">{label}</span>
-        <div className="flex items-center bg-zinc-900 rounded-lg p-0.5 border border-zinc-800">
-            <button 
-                onClick={() => onChange(Math.max(min, value - 1))}
-                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-amber-500 transition-colors disabled:opacity-30"
-                disabled={value <= min}
-            >
-                <i className="fa-solid fa-minus text-[8px]"></i>
-            </button>
-            <span className="w-6 text-center text-xs font-mono font-bold text-zinc-300">{value}</span>
-            <button 
-                onClick={() => onChange(Math.min(max, value + 1))}
-                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-amber-500 transition-colors disabled:opacity-30"
-                disabled={value >= max}
-            >
-                <i className="fa-solid fa-plus text-[8px]"></i>
-            </button>
-        </div>
-    </div>
-);
-
-const ToggleControl = ({ label, checked, onChange, icon }: { label: string, checked: boolean, onChange: (val: boolean) => void, icon?: string }) => (
-    <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0 cursor-pointer group" onClick={() => onChange(!checked)}>
-        <div className="flex items-center gap-2">
-            {icon && <i className={`fa-solid ${icon} text-zinc-600 group-hover:text-amber-500 transition-colors text-[10px]`}></i>}
-            <span className="text-[11px] font-bold text-zinc-400 group-hover:text-zinc-200 uppercase transition-colors">{label}</span>
-        </div>
-        <div className={`w-8 h-4 rounded-full relative transition-colors ${checked ? 'bg-amber-500' : 'bg-zinc-700'}`}>
-            <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all ${checked ? 'left-5' : 'left-1'}`}></div>
-        </div>
-    </div>
-);
-
 // --- MAIN CANVAS COMPONENT ---
 
 export const ReadingStudio: React.FC<any> = ({ onBack }) => {
@@ -432,7 +428,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
     
-    // Template State
     const [templates, setTemplates] = useState<SavedTemplate[]>([]);
     const [templateName, setTemplateName] = useState("");
 
@@ -440,7 +435,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const [canvasScale, setCanvasScale] = useState(0.85);
-    const [canvasPos, setCanvasPos] = useState({ x: 0, y: 50 });
+    const [canvasPos, setCanvasPos] = useState({ x: 0, y: 40 }); // Initial Y fixed near top
     const [isPanning, setIsPanning] = useState(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -453,7 +448,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         return Math.max(A4_HEIGHT_PX, maxY + PAGE_BOTTOM_PADDING);
     }, [layout]);
 
-    // Load templates on mount
     useEffect(() => {
         const saved = localStorage.getItem('rs_templates');
         if(saved) {
@@ -468,7 +462,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
             const initialScale = Math.min(0.85, (viewportW - 100) / pageWidth); 
             const centeredX = (viewportW - (pageWidth * initialScale)) / 2;
             setCanvasScale(initialScale);
-            setCanvasPos({ x: centeredX, y: 40 });
+            setCanvasPos({ x: centeredX, y: 40 }); // Centered horizontally, fixed 40px vertically
         }
 
         const generatedLayout: ActiveComponent[] = [];
@@ -551,13 +545,15 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         if (canvasRef.current) {
             const rect = canvasRef.current.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
+            
+            // X positioning relative to mouse
             const canvasX = (mouseX - canvasPos.x) / canvasScale;
-            const canvasY = (mouseY - canvasPos.y) / canvasScale;
             const newX = mouseX - canvasX * newScale;
-            const newY = mouseY - canvasY * newScale;
+
+            // Y positioning: FIXED (Locked to top edge)
+            // Scaling happens around top edge because origin-top is set below
             setCanvasScale(newScale);
-            setCanvasPos({ x: newX, y: newY });
+            setCanvasPos(prev => ({ x: newX, y: prev.y }));
         }
     }, [canvasScale, canvasPos]);
 
@@ -589,8 +585,8 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         const handleMouseMove = (e: MouseEvent) => {
             if (isPanning) {
                 const dx = e.clientX - lastMousePos.current.x;
-                const dy = e.clientY - lastMousePos.current.y;
-                setCanvasPos(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+                // Only horizontal panning allowed if we want top fixed
+                setCanvasPos(prev => ({ x: prev.x + dx, y: prev.y }));
                 lastMousePos.current = { x: e.clientX, y: e.clientY };
                 return;
             }
@@ -644,27 +640,17 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         removeComponent(selectedId);
     };
     
-    // --- AUTO-REFLOW LOGIC ---
     const removeComponent = (id: string) => {
         if(confirm("Bu bileşeni silmek istediğinize emin misiniz?")) {
             const itemToRemove = layout.find(item => item.instanceId === id);
-            
-            // If item doesn't exist or layout shouldn't reflow automatically (optional toggle), just delete
             if (!itemToRemove) return;
-            
-            // Auto-Reflow Logic:
-            // 1. Identify space freed up
-            const gap = 15; // Standard gap
+            const gap = 15; 
             const removedHeight = itemToRemove.style.h + gap;
             const removedY = itemToRemove.style.y;
 
             setLayout(prev => {
-                // Remove target
                 const filtered = prev.filter(item => item.instanceId !== id);
-                
-                // Shift items below UP
                 return filtered.map(item => {
-                    // Simple logic: if item was below the removed one, move it up
                     if (item.style.y > removedY) {
                         return {
                             ...item,
@@ -683,14 +669,13 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
         }
     };
 
-    // --- TEMPLATE LOGIC ---
     const saveTemplate = () => {
         if(!templateName.trim()) return alert("Lütfen şablon adı giriniz.");
         const newTemplate: SavedTemplate = {
             id: crypto.randomUUID(),
             name: templateName,
             createdAt: new Date().toISOString(),
-            layout: layout // Save current layout state
+            layout: layout 
         };
         const updated = [...templates, newTemplate];
         setTemplates(updated);
@@ -701,7 +686,6 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
 
     const loadTemplate = (t: SavedTemplate) => {
         if(confirm("Mevcut düzen silinecek ve şablon yüklenecek. Onaylıyor musunuz?")) {
-            // Refresh instance IDs to prevent conflicts
             const newLayout = t.layout.map((item) => ({
                 ...item,
                 instanceId: item.id + '-' + Date.now() + Math.random().toString(36).substr(2, 5)
@@ -751,7 +735,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                 user.id,
                 title,
                 'STORY_COMPREHENSION',
-                [{ storyData, layout }], // Studio item specific wrap
+                [{ storyData, layout }], 
                 'fa-solid fa-book-open-reader',
                 { id: 'reading-verbal', title: 'Okuma & Dil' }
             );
@@ -1167,7 +1151,7 @@ export const ReadingStudio: React.FC<any> = ({ onBack }) => {
                     onMouseDown={handleBgMouseDown}
                 >
                     <div 
-                        className="origin-top-left transition-transform duration-75 ease-out will-change-transform"
+                        className="origin-top transition-transform duration-75 ease-out will-change-transform"
                         style={{ transform: `translate3d(${canvasPos.x}px, ${canvasPos.y}px, 0) scale(${canvasScale})` }}
                     >
                         <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px`, transformOrigin: '0 0' }}>

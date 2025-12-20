@@ -6,39 +6,48 @@ import { InteractiveStoryData, ReadingStudioConfig } from '../../types';
 export const generateInteractiveStory = async (config: ReadingStudioConfig): Promise<InteractiveStoryData> => {
     
     const lengthMap = {
-        'short': 'Kısa (80-100 kelime).',
-        'medium': 'Orta (150-200 kelime).',
-        'long': 'Uzun (300-400 kelime).',
-        'epic': 'Destansı (500+ kelime).'
+        'short': 'Kısa ve öz (80-120 kelime).',
+        'medium': 'Orta uzunlukta (180-250 kelime).',
+        'long': 'Kapsamlı ve detaylı (350-500 kelime).',
+        'epic': 'Zengin kurgulu ve uzun (600+ kelime).'
     };
 
     const complexityMap = {
-        'simple': '1. Sınıf: Çok basit, kısa cümleler.',
-        'moderate': '3. Sınıf: Standart anlatım.',
-        'advanced': '5. Sınıf+: Zengin dil.'
+        'simple': 'Çok basit cümle yapısı, somut kavramlar, 1. kademe dil seviyesi.',
+        'moderate': 'Standart okul seviyesi, bileşik cümleler, 2. kademe dil seviyesi.',
+        'advanced': 'Zengin kelime dağarcığı, edebi sanatlar, 3. kademe üstü dil seviyesi.'
     };
 
-    let tasksInstruction = "HİKAYE BAĞLAMINA GÖRE şu bileşenleri üret:";
-    if (config.include5N1K) tasksInstruction += "\n- 5N 1K: 6 adet.";
-    if (config.countMultipleChoice > 0) tasksInstruction += `\n- Test: ${config.countMultipleChoice} adet.`;
-    if (config.countTrueFalse > 0) tasksInstruction += `\n- Doğru/Yanlış: ${config.countTrueFalse} adet.`;
-    if (config.countFillBlanks > 0) tasksInstruction += `\n- Boşluk Doldurma: ${config.countFillBlanks} adet (kelimeyi metinde '........' ile maskele).`;
-    if (config.countLogic > 0) tasksInstruction += `\n- Mantık Sorusu: ${config.countLogic} adet.`;
-    if (config.countInference > 0) tasksInstruction += `\n- Çıkarım Sorusu: ${config.countInference} adet.`;
+    let tasksInstruction = `HİKAYE İÇERİĞİNE %100 UYUMLU şu interaktif bileşenleri üret:`;
+    if (config.include5N1K) tasksInstruction += "\n- 5N 1K Analizi: Metindeki gerçek verilere dayalı 6 soru-cevap çifti.";
+    if (config.countMultipleChoice > 0) tasksInstruction += `\n- Çoktan Seçmeli Test: ${config.countMultipleChoice} adet (Çeldiriciler mantıklı olmalı).`;
+    if (config.countTrueFalse > 0) tasksInstruction += `\n- Doğru/Yanlış Sorgusu: ${config.countTrueFalse} adet.`;
+    if (config.countFillBlanks > 0) tasksInstruction += `\n- Boşluk Doldurma: ${config.countFillBlanks} adet (Önemli kavramlar metinden seçilip maskelenmeli).`;
+    if (config.countLogic > 0) tasksInstruction += `\n- Mantık/Muhakeme: ${config.countLogic} adet (Hikaye evreninde geçen bir problem).`;
+    if (config.countInference > 0) tasksInstruction += `\n- Çıkarım Yapma: ${config.countInference} adet (Satır aralarını okuma soruları).`;
 
     const prompt = `
-    [ROL: UZMAN ÖĞRETİM TASARIMCISI]
-    KONU: "${config.topic}"
-    TÜR: ${config.genre}
-    UZUNLUK: ${lengthMap[config.length]}
-    SEVİYE: ${complexityMap[config.textComplexity]}
-    ÖĞRENCİ: ${config.studentName}
+    [ROL: PROFESYONEL ÇOCUK EDEBİYATI YAZARI VE EĞİTİM TEKNOLOĞU]
     
+    Aşağıdaki parametrelerin TAMAMINI kullanarak eşsiz bir eğitim materyali tasarla:
+    
+    1. KONU/TEMA: "${config.topic}"
+    2. TÜR: ${config.genre} (Bu türün anlatım tekniklerini kullan)
+    3. ANLATIM TONU: ${config.tone} (Örn: Eğlenceli ise mizah kat, Öğretici ise bilgi vurgula)
+    4. HEDEF KİTLE: ${config.gradeLevel} seviyesindeki bir çocuk.
+    5. DİL KARMAŞIKLIĞI: ${complexityMap[config.textComplexity]}
+    6. METİN UZUNLUĞU: ${lengthMap[config.length]}
+    
+    GÖRSEL ÜRETİM TALİMATI (imagePrompt):
+    - Hikayenin ana olayını veya en can alıcı sahnesini betimleyen profesyonel bir görsel promptu yaz.
+    - Stil: ${config.imageGeneration.style} tarzında.
+    - Detay Seviyesi: ${config.imageGeneration.complexity === 'detailed' ? 'Yüksek detaylı, dokulu ve zengin' : 'Minimalist, net hatlı ve temiz'}.
+    - Şart: Görselde hikayedeki ana karakter ve çevre mutlaka hikayedeki anlatıma uygun yer almalı.
+    
+    EĞİTSEL GÖREVLER:
     ${tasksInstruction}
     
-    GÖRSEL PROMPT: "Educational children storybook style, high contrast".
-    
-    ÇIKTI: JSON formatında.
+    DİKKAT: Sadece JSON formatında, metin dışına çıkmadan yanıt ver. Hikaye disleksi dostu (dyslexia-friendly) yapıda, kısa paragraflar ve net bir akışla yazılmalıdır.
     `;
 
     const schema = {
@@ -46,8 +55,10 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         properties: {
             title: { type: Type.STRING },
             story: { type: Type.STRING },
+            genre: { type: Type.STRING },
+            gradeLevel: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING, description: "Detailed visual prompt for the main scene" },
             vocabulary: {
                 type: Type.ARRAY,
                 items: {
@@ -114,8 +125,8 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
                 }
             }
         },
-        required: ['title', 'story', 'fiveW1H']
+        required: ['title', 'story', 'imagePrompt', 'fiveW1H']
     };
 
-    return await generateWithSchema(prompt, schema);
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
