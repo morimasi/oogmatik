@@ -80,9 +80,6 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
     { id: 'notes', label: 'Not Alanı', defaultTitle: 'NOTLAR', icon: 'fa-note-sticky', description: 'Boş not satırları.', defaultStyle: { h: 100 } },
 ];
 
-// --- MICRO COMPONENTS ---
-
-// Helper to detect content size changes with Infinite Loop Protection
 const AutoContentWrapper = ({ 
     children, 
     onSizeChange,
@@ -100,21 +97,12 @@ const AutoContentWrapper = ({
         
         const observer = new ResizeObserver((entries) => {
             for (const entry of entries) {
-                // Get the exact height of the content content
                 const contentHeight = entry.target.scrollHeight;
                 const width = entry.contentRect.width;
                 
-                // --- INFINITE LOOP PROTECTION ---
-                // Only trigger update if the height difference is significant (> 5px)
-                // This prevents micro-adjustments from causing a re-render loop
                 if (Math.abs(contentHeight - lastReportedHeight.current) > 5) {
-                     // Add a small padding buffer to prevent scrollbars (e.g. +10px)
                      const finalHeight = contentHeight + 10;
-                     
-                     // Update ref immediately to prevent double firing
                      lastReportedHeight.current = finalHeight;
-                     
-                     // Trigger the parent update
                      onSizeChange(width, finalHeight);
                 }
             }
@@ -122,15 +110,15 @@ const AutoContentWrapper = ({
 
         observer.observe(ref.current);
         return () => observer.disconnect();
-    }, [onSizeChange]); // Removed isActive dependency to prevent re-attaching observer unnecessarily
+    }, [onSizeChange]);
 
     return (
         <div 
             ref={ref} 
             style={{ 
-                height: 'auto', // Important: Let content dictate height
+                height: 'auto', 
                 minHeight: '100%', 
-                overflow: 'visible', // Allow measurement of overflow
+                overflow: 'visible', 
                 width: '100%'
             }}
         >
@@ -286,7 +274,6 @@ const AppearanceControls = ({ style, onUpdate }: { style: any, onUpdate: (k: str
 );
 
 const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, onUpdateSpecific: (data: any) => void }) => {
-    // HEADER SPECIFIC
     if (item.id === 'header') {
         const data = item.specificData || { title: item.customTitle || "HİKAYE BAŞLIĞI", subtitle: "Tarih: ....................", showDate: true };
         return (
@@ -303,7 +290,6 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
         );
     }
 
-    // STORY TEXT SPECIFIC
     if (item.id === 'story_block') {
          const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
          return (
@@ -321,7 +307,6 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
          );
     }
     
-    // QUESTIONS SPECIFIC
     if (item.id.startsWith('questions')) {
         const data = item.specificData || { questions: [{text: "Soru 1..."}] };
         const qs = data.questions || [];
@@ -354,7 +339,6 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
         );
     }
     
-    // CREATIVE SPECIFIC
     if (item.id === 'creative') {
         const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
         return (
@@ -396,7 +380,6 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
 
     return (
         <div className="w-80 h-full bg-[#222226] border-l border-zinc-800 shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-right-10 duration-300 font-['OpenDyslexic']" onClick={handlePanelClick}>
-            {/* Header */}
             <div className="p-4 bg-[#2d2d32] border-b border-zinc-700 flex justify-between items-center shrink-0">
                 <h3 className="font-black text-xs uppercase tracking-widest text-zinc-300 flex items-center gap-2">
                     <i className={`fa-solid ${item.icon} text-amber-500`}></i> {item.label}
@@ -404,7 +387,6 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
                 <button onClick={onClose} className="w-6 h-6 rounded-full hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"><i className="fa-solid fa-times"></i></button>
             </div>
 
-            {/* Pro Tab Bar */}
             <div className="flex border-b border-zinc-700 bg-[#222226] shrink-0">
                 {[
                     { id: 'content', icon: 'fa-pen-to-square', label: 'İçerik' },
@@ -517,7 +499,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         }
     }, []);
 
-    // --- AUTO RESIZE & SMART REFLOW LOGIC ---
     const handleAutoResize = useCallback((instanceId: string, newContentHeight: number) => {
         setLayout(prevLayout => {
             const itemIndex = prevLayout.findIndex(item => item.instanceId === instanceId);
@@ -525,31 +506,21 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
             const item = prevLayout[itemIndex];
             const oldHeight = item.style.h;
-            
-            // Round to nearest SNAP_GRID to prevent micro-oscillation (jitter)
             const roundedNewHeight = Math.ceil(newContentHeight / SNAP_GRID) * SNAP_GRID;
 
-            // Only update if height changed significantly to avoid jitter and infinite loops
             if (Math.abs(oldHeight - roundedNewHeight) < SNAP_GRID) return prevLayout;
 
             const deltaY = roundedNewHeight - oldHeight;
             const itemBottomY = item.style.y + oldHeight;
 
-            // 1. Update current item height
             const newLayout = [...prevLayout];
             newLayout[itemIndex] = {
                 ...item,
                 style: { ...item.style, h: roundedNewHeight }
             };
 
-            // 2. Cascade push/pull: Move all items below this one
-            // This logic now handles both expansion (positive delta) and shrinking (negative delta)
             for (let i = 0; i < newLayout.length; i++) {
                 if (i === itemIndex) continue;
-                
-                // If item starts below the resizing item's original bottom (plus small buffer)
-                // push it down by deltaY.
-                // We use a small threshold (10px) to handle alignment variance
                 if (newLayout[i].style.y > (itemBottomY - 10)) {
                     newLayout[i] = {
                         ...newLayout[i],
@@ -574,12 +545,9 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             setCanvasScale(initialScale);
             setCanvasPos({ x: centeredX, y: 40 }); 
         }
-
-        // Initialize empty layout. Components will be added after generation.
         setLayout([]);
     }, []);
     
-    // This effect runs when storyData is generated (or updated)
     useEffect(() => {
         if (!storyData) return;
 
@@ -589,14 +557,12 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         const canvasWidth = A4_WIDTH_PX - (startX * 2);
         const gap = 15;
 
-        // Iterate through COMPONENT_DEFINITIONS to reconstruct layout based on new data
         COMPONENT_DEFINITIONS.forEach((def, index) => {
             let itemX = startX;
             let itemY = currentY;
             let itemW = canvasWidth;
             let itemH = def.defaultStyle.h || 100;
             
-            // Special handling for Tracker (Top Right)
             if (def.id === 'tracker') {
                 itemW = 200;
                 itemX = A4_WIDTH_PX - 20 - 200; 
@@ -607,7 +573,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 currentY += itemH + gap;
             }
             
-            // Map specific data from storyData to component
             let specificData = null;
             if (def.id === 'header') {
                 specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
@@ -730,10 +695,33 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     }, [dragState, selectedId, isPanning, canvasScale]);
 
     const addComponent = (def: ComponentDefinition) => {
-        const newId = `${def.id}-${Date.now()}`;
-        const newItem: ActiveComponent = { ...def, instanceId: newId, style: { ...DEFAULT_STYLE_BASE, ...def.defaultStyle, x: 20, y: 20 }, isVisible: true, customTitle: def.defaultTitle, themeColor: 'black', specificData: null };
+        const newId = `${def.id}-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+        
+        let nextY = 20; 
+        const gap = 15; 
+
+        if (layout.length > 0) {
+            const maxY = Math.max(...layout.map(item => item.style.y + item.style.h));
+            nextY = maxY + gap;
+        }
+
+        const newItem: ActiveComponent = { 
+            ...def, 
+            instanceId: newId, 
+            style: { 
+                ...DEFAULT_STYLE_BASE, 
+                ...def.defaultStyle, 
+                x: 20, 
+                y: nextY 
+            }, 
+            isVisible: true, 
+            customTitle: def.defaultTitle, 
+            themeColor: 'black', 
+            specificData: null 
+        };
         setLayout(prev => [...prev, newItem]);
         setSelectedId(newId);
+        setIsSaved(false);
     };
 
     const updateItem = (updates: Partial<ActiveComponent>) => { 
@@ -1035,7 +1023,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
     return (
         <div className="h-full flex flex-col bg-[#222226] font-['OpenDyslexic'] overflow-hidden text-zinc-100">
-             {/* TOP BAR */}
             <div className="h-14 bg-[#2d2d32] border-b border-zinc-800 flex justify-between items-center px-4 shrink-0 z-50">
                 <div className="flex items-center gap-3">
                     <button onClick={onBack} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400"><i className="fa-solid fa-arrow-left"></i></button>
@@ -1074,7 +1061,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             </div>
 
             <div className="flex-1 flex overflow-hidden relative">
-                
                 <div className={`flex-shrink-0 h-full bg-[#18181b] border-r border-zinc-800 transition-all duration-300 ease-in-out overflow-hidden z-40 ${isSidebarOpen ? 'w-80 opacity-100' : 'w-0 opacity-0 border-r-0'}`}>
                     <div className="w-80 flex flex-col h-full"> 
                          <div className="flex border-b border-zinc-800 bg-[#222226]">
@@ -1152,7 +1138,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                                              <h5 className="font-bold text-sm text-zinc-200">{t.name}</h5>
                                                              <button onClick={(e) => {e.stopPropagation(); deleteTemplate(t.id);}} className="text-zinc-500 hover:text-red-500"><i className="fa-solid fa-trash"></i></button>
                                                          </div>
-                                                         {/* Mini Preview */}
                                                          <div className="w-full h-24 bg-white rounded overflow-hidden relative pointer-events-none">
                                                              <div className="absolute inset-0" style={{transform: 'scale(0.15)', transformOrigin: '0 0', width: '600%', height: '600%'}}>
                                                                  {t.layout.map((item, idx) => (
@@ -1199,62 +1184,17 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 mb-3">
                                             <i className="fa-solid fa-list-check text-amber-500"></i> İçerik Bileşenleri
                                         </h4>
-                                        
                                         <div className="space-y-1">
-                                            <ToggleControl 
-                                                label="5N 1K Soruları" 
-                                                checked={config.include5N1K} 
-                                                onChange={v => setConfig({...config, include5N1K: v})} 
-                                                icon="fa-circle-question"
-                                            />
-                                            <ToggleControl 
-                                                label="Sözlükçe (Kelime Odaklı)" 
-                                                checked={config.focusVocabulary} 
-                                                onChange={v => setConfig({...config, focusVocabulary: v})} 
-                                                icon="fa-spell-check"
-                                            />
-                                            <ToggleControl 
-                                                label="Yaratıcı Görev" 
-                                                checked={config.includeCreativeTask} 
-                                                onChange={v => setConfig({...config, includeCreativeTask: v})} 
-                                                icon="fa-paintbrush"
-                                            />
+                                            <ToggleControl label="5N 1K Soruları" checked={config.include5N1K} onChange={v => setConfig({...config, include5N1K: v})} icon="fa-circle-question" />
+                                            <ToggleControl label="Sözlükçe (Kelime Odaklı)" checked={config.focusVocabulary} onChange={v => setConfig({...config, focusVocabulary: v})} icon="fa-spell-check" />
+                                            <ToggleControl label="Yaratıcı Görev" checked={config.includeCreativeTask} onChange={v => setConfig({...config, includeCreativeTask: v})} icon="fa-paintbrush" />
                                         </div>
-
                                         <div className="mt-4 pt-3 border-t border-zinc-800 space-y-1">
-                                            <CounterControl 
-                                                label="Test Sorusu" 
-                                                value={config.countMultipleChoice} 
-                                                onChange={v => setConfig({...config, countMultipleChoice: v})} 
-                                            />
-                                            <CounterControl 
-                                                label="Doğru / Yanlış" 
-                                                value={config.countTrueFalse} 
-                                                onChange={v => setConfig({...config, countTrueFalse: v})} 
-                                            />
-                                            <CounterControl 
-                                                label="Boşluk Doldurma" 
-                                                value={config.countFillBlanks} 
-                                                onChange={v => setConfig({...config, countFillBlanks: v})} 
-                                            />
-                                            <CounterControl 
-                                                label="Mantık Sorusu" 
-                                                value={config.countLogic} 
-                                                onChange={v => setConfig({...config, countLogic: v})} 
-                                            />
-                                            <CounterControl 
-                                                label="Çıkarım Sorusu" 
-                                                value={config.countInference} 
-                                                onChange={v => setConfig({...config, countInference: v})} 
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-image"></i> Görsel Üretim</h4>
-                                        <div className="flex items-center justify-between p-2 border border-zinc-700 rounded-lg bg-zinc-800">
-                                            <span className="text-xs font-medium text-zinc-300">AI Görsel Oluştur</span>
-                                            <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${config.imageGeneration.enabled ? 'bg-amber-500' : 'bg-zinc-600'}`} onClick={() => setConfig({...config, imageGeneration: {...config.imageGeneration, enabled: !config.imageGeneration.enabled}})}><div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${config.imageGeneration.enabled ? 'left-5' : 'left-1'}`}></div></div>
+                                            <CounterControl label="Test Sorusu" value={config.countMultipleChoice} onChange={v => setConfig({...config, countMultipleChoice: v})} />
+                                            <CounterControl label="Doğru / Yanlış" value={config.countTrueFalse} onChange={v => setConfig({...config, countTrueFalse: v})} />
+                                            <CounterControl label="Boşluk Doldurma" value={config.countFillBlanks} onChange={v => setConfig({...config, countFillBlanks: v})} />
+                                            <CounterControl label="Mantık Sorusu" value={config.countLogic} onChange={v => setConfig({...config, countLogic: v})} />
+                                            <CounterControl label="Çıkarım Sorusu" value={config.countInference} onChange={v => setConfig({...config, countInference: v})} />
                                         </div>
                                     </div>
                                     <button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}{isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}</button>
