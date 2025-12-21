@@ -546,18 +546,28 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             setCanvasPos({ x: centeredX, y: 40 }); 
         }
 
+        // Initialize empty layout. Components will be added after generation.
+        setLayout([]);
+    }, []);
+    
+    // This effect runs when storyData is generated (or updated)
+    useEffect(() => {
+        if (!storyData) return;
+
         const generatedLayout: ActiveComponent[] = [];
         let currentY = 20;
         const startX = 20;
         const canvasWidth = A4_WIDTH_PX - (startX * 2);
         const gap = 15;
 
+        // Iterate through COMPONENT_DEFINITIONS to reconstruct layout based on new data
         COMPONENT_DEFINITIONS.forEach((def, index) => {
             let itemX = startX;
             let itemY = currentY;
             let itemW = canvasWidth;
             let itemH = def.defaultStyle.h || 100;
             
+            // Special handling for Tracker (Top Right)
             if (def.id === 'tracker') {
                 itemW = 200;
                 itemX = A4_WIDTH_PX - 20 - 200; 
@@ -567,10 +577,29 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             } else {
                 currentY += itemH + gap;
             }
+            
+            // Map specific data from storyData to component
+            let specificData = null;
+            if (def.id === 'header') {
+                specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
+            } else if (def.id === 'story_block') {
+                specificData = { text: storyData.story, imagePrompt: storyData.imagePrompt };
+            } else if (def.id === 'questions_5n1k') {
+                specificData = { questions: (storyData.fiveW1H || []).map(q => ({ text: q.question })) };
+            } else if (def.id === 'questions_test') {
+                specificData = { questions: (storyData.multipleChoice || []).map(q => ({ text: q.question, options: q.options })) };
+            } else if (def.id === 'questions_inference') {
+                const questions = [...(storyData.inferenceQuestions || []), ...(storyData.logicQuestions || [])].slice(0, 3);
+                specificData = { questions: questions.map(q => ({ text: q.question })) };
+            } else if (def.id === 'vocabulary') {
+                 specificData = { questions: (storyData.vocabulary || []).map(v => ({ text: `${v.word}: ${v.definition}` })) };
+            } else if (def.id === 'creative') {
+                 specificData = { task: storyData.creativeTask || "Hikaye ile ilgili bir resim çiz." };
+            }
 
             generatedLayout.push({
                 ...def,
-                instanceId: `${def.id}-auto-${index}`,
+                instanceId: `${def.id}-auto-${index}-${Date.now()}`,
                 style: {
                     ...DEFAULT_STYLE_BASE,
                     ...def.defaultStyle,
@@ -583,37 +612,11 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 isVisible: true,
                 customTitle: def.defaultTitle,
                 themeColor: 'black',
-                specificData: null 
+                specificData: specificData 
             });
         });
 
         setLayout(generatedLayout);
-    }, []);
-    
-    useEffect(() => {
-        if (!storyData) return;
-        setLayout(prev => prev.map(item => {
-            let specificData = item.specificData;
-            
-            if (item.id === 'header') {
-                specificData = { title: storyData.title || "HİKAYE", subtitle: `Tarih: .................... | ${storyData.genre}` };
-            } else if (item.id === 'story_block') {
-                specificData = { text: storyData.story, imagePrompt: storyData.imagePrompt };
-            } else if (item.id === 'questions_5n1k') {
-                specificData = { questions: (storyData.fiveW1H || []).map(q => ({ text: q.question })) };
-            } else if (item.id === 'questions_test') {
-                specificData = { questions: (storyData.multipleChoice || []).map(q => ({ text: q.question, options: q.options })) };
-            } else if (item.id === 'questions_inference') {
-                const questions = [...(storyData.inferenceQuestions || []), ...(storyData.logicQuestions || [])].slice(0, 3);
-                specificData = { questions: questions.map(q => ({ text: q.question })) };
-            } else if (item.id === 'vocabulary') {
-                 specificData = { questions: (storyData.vocabulary || []).map(v => ({ text: `${v.word}: ${v.definition}` })) };
-            } else if (item.id === 'creative') {
-                 specificData = { task: storyData.creativeTask || "Hikaye ile ilgili bir resim çiz." };
-            }
-            
-            return { ...item, specificData };
-        }));
         setIsSaved(false);
     }, [storyData]);
 
