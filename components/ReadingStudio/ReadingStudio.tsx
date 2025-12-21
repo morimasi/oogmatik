@@ -82,37 +82,61 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
 
 // --- MICRO COMPONENTS ---
 
-// Helper to detect content size changes
+// Helper to detect content size changes with Infinite Loop Protection
 const AutoContentWrapper = ({ 
     children, 
-    onSizeChange 
+    onSizeChange,
+    isActive 
 }: { 
     children?: React.ReactNode, 
-    onSizeChange: (w: number, h: number) => void 
+    onSizeChange: (w: number, h: number) => void,
+    isActive: boolean
 }) => {
     const ref = useRef<HTMLDivElement>(null);
+    const lastReportedHeight = useRef<number>(0);
 
     useLayoutEffect(() => {
         if (!ref.current) return;
         
         const observer = new ResizeObserver((entries) => {
             for (const entry of entries) {
-                // Use scrollHeight to get the full content height including overflow
-                const height = entry.target.scrollHeight;
+                // Get the exact height of the content content
+                const contentHeight = entry.target.scrollHeight;
                 const width = entry.contentRect.width;
                 
-                // Add a small buffer to prevent flicker
-                if (height > 0) {
-                     onSizeChange(width, height + 10);
+                // --- INFINITE LOOP PROTECTION ---
+                // Only trigger update if the height difference is significant (> 5px)
+                // This prevents micro-adjustments from causing a re-render loop
+                if (Math.abs(contentHeight - lastReportedHeight.current) > 5) {
+                     // Add a small padding buffer to prevent scrollbars (e.g. +10px)
+                     const finalHeight = contentHeight + 10;
+                     
+                     // Update ref immediately to prevent double firing
+                     lastReportedHeight.current = finalHeight;
+                     
+                     // Trigger the parent update
+                     onSizeChange(width, finalHeight);
                 }
             }
         });
 
         observer.observe(ref.current);
         return () => observer.disconnect();
-    }, [onSizeChange]);
+    }, [onSizeChange]); // Removed isActive dependency to prevent re-attaching observer unnecessarily
 
-    return <div ref={ref} style={{ height: '100%', overflow: 'hidden' }}>{children}</div>;
+    return (
+        <div 
+            ref={ref} 
+            style={{ 
+                height: 'auto', // Important: Let content dictate height
+                minHeight: '100%', 
+                overflow: 'visible', // Allow measurement of overflow
+                width: '100%'
+            }}
+        >
+            {children}
+        </div>
+    );
 };
 
 const ResizeHandle = ({ cursor, position, onMouseDown }: { cursor: string, position: string, onMouseDown: (e: React.MouseEvent) => void }) => (
@@ -501,20 +525,25 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
             const item = prevLayout[itemIndex];
             const oldHeight = item.style.h;
-            // Only update if height changed significantly to avoid jitter
-            if (Math.abs(oldHeight - newContentHeight) < 10) return prevLayout;
+            
+            // Round to nearest SNAP_GRID to prevent micro-oscillation (jitter)
+            const roundedNewHeight = Math.ceil(newContentHeight / SNAP_GRID) * SNAP_GRID;
 
-            const deltaY = newContentHeight - oldHeight;
+            // Only update if height changed significantly to avoid jitter and infinite loops
+            if (Math.abs(oldHeight - roundedNewHeight) < SNAP_GRID) return prevLayout;
+
+            const deltaY = roundedNewHeight - oldHeight;
             const itemBottomY = item.style.y + oldHeight;
 
             // 1. Update current item height
             const newLayout = [...prevLayout];
             newLayout[itemIndex] = {
                 ...item,
-                style: { ...item.style, h: newContentHeight }
+                style: { ...item.style, h: roundedNewHeight }
             };
 
-            // 2. Cascade push: Move all items below this one
+            // 2. Cascade push/pull: Move all items below this one
+            // This logic now handles both expansion (positive delta) and shrinking (negative delta)
             for (let i = 0; i < newLayout.length; i++) {
                 if (i === itemIndex) continue;
                 
@@ -908,8 +937,8 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'story_block') {
             const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
             return (
-                <AutoContentWrapper onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
-                    <div className="h-full relative overflow-hidden" style={boxStyle}>
+                <AutoContentWrapper isActive={designMode} onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
+                    <div className="relative overflow-hidden" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                          {item.style.imageSettings?.enabled && (
                             <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
                                 <ImageDisplay 
@@ -928,8 +957,8 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'vocabulary') {
              const data = item.specificData || { questions: [{text: "Örnek: Açıklama"}] };
              return (
-                 <AutoContentWrapper onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
-                 <div className="h-full flex flex-col" style={boxStyle}>
+                 <AutoContentWrapper isActive={designMode} onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
+                 <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                      <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
                         <i className="fa-solid fa-spell-check"></i> {item.customTitle}
                      </h4>
@@ -976,8 +1005,8 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id.startsWith('questions')) {
             const data = item.specificData || { questions: [{text: "Madde 1..."}] };
             return (
-                <AutoContentWrapper onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
-                <div className="h-full flex flex-col" style={boxStyle}>
+                <AutoContentWrapper isActive={designMode} onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
+                <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
                     <div className="flex-1 space-y-2 overflow-hidden">
                         {(data.questions || []).map((q: any, i: number) => (
