@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
 import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
 import { useAuth } from '../../context/AuthContext';
@@ -81,6 +81,39 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
 ];
 
 // --- MICRO COMPONENTS ---
+
+// Helper to detect content size changes
+const AutoContentWrapper = ({ 
+    children, 
+    onSizeChange 
+}: { 
+    children?: React.ReactNode, 
+    onSizeChange: (w: number, h: number) => void 
+}) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        if (!ref.current) return;
+        
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                // Use scrollHeight to get the full content height including overflow
+                const height = entry.target.scrollHeight;
+                const width = entry.contentRect.width;
+                
+                // Add a small buffer to prevent flicker
+                if (height > 0) {
+                     onSizeChange(width, height + 10);
+                }
+            }
+        });
+
+        observer.observe(ref.current);
+        return () => observer.disconnect();
+    }, [onSizeChange]);
+
+    return <div ref={ref} style={{ height: '100%', overflow: 'hidden' }}>{children}</div>;
+};
 
 const ResizeHandle = ({ cursor, position, onMouseDown }: { cursor: string, position: string, onMouseDown: (e: React.MouseEvent) => void }) => (
     <div 
@@ -460,6 +493,49 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         }
     }, []);
 
+    // --- AUTO RESIZE & SMART REFLOW LOGIC ---
+    const handleAutoResize = useCallback((instanceId: string, newContentHeight: number) => {
+        setLayout(prevLayout => {
+            const itemIndex = prevLayout.findIndex(item => item.instanceId === instanceId);
+            if (itemIndex === -1) return prevLayout;
+
+            const item = prevLayout[itemIndex];
+            const oldHeight = item.style.h;
+            // Only update if height changed significantly to avoid jitter
+            if (Math.abs(oldHeight - newContentHeight) < 10) return prevLayout;
+
+            const deltaY = newContentHeight - oldHeight;
+            const itemBottomY = item.style.y + oldHeight;
+
+            // 1. Update current item height
+            const newLayout = [...prevLayout];
+            newLayout[itemIndex] = {
+                ...item,
+                style: { ...item.style, h: newContentHeight }
+            };
+
+            // 2. Cascade push: Move all items below this one
+            for (let i = 0; i < newLayout.length; i++) {
+                if (i === itemIndex) continue;
+                
+                // If item starts below the resizing item's original bottom (plus small buffer)
+                // push it down by deltaY.
+                // We use a small threshold (10px) to handle alignment variance
+                if (newLayout[i].style.y > (itemBottomY - 10)) {
+                    newLayout[i] = {
+                        ...newLayout[i],
+                        style: {
+                            ...newLayout[i].style,
+                            y: newLayout[i].style.y + deltaY
+                        }
+                    };
+                }
+            }
+
+            return newLayout;
+        });
+    }, []);
+
     useEffect(() => {
         if (canvasRef.current) {
             const viewportW = canvasRef.current.clientWidth;
@@ -829,24 +905,27 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'story_block') {
             const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
             return (
-                <div className="h-full relative overflow-hidden" style={boxStyle}>
-                     {item.style.imageSettings?.enabled && (
-                        <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
-                            <ImageDisplay 
-                                prompt={data.imagePrompt} 
-                                description="Hikaye Görseli" 
-                                className="w-full h-full object-contain" 
-                            />
-                        </div>
-                     )}
-                     <div dangerouslySetInnerHTML={{__html: (data.text || '').replace(/\n/g, '<br/>')}}></div>
-                </div>
+                <AutoContentWrapper onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
+                    <div className="h-full relative overflow-hidden" style={boxStyle}>
+                         {item.style.imageSettings?.enabled && (
+                            <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
+                                <ImageDisplay 
+                                    prompt={data.imagePrompt} 
+                                    description="Hikaye Görseli" 
+                                    className="w-full h-full object-contain" 
+                                />
+                            </div>
+                         )}
+                         <div dangerouslySetInnerHTML={{__html: (data.text || '').replace(/\n/g, '<br/>')}}></div>
+                    </div>
+                </AutoContentWrapper>
             );
         }
 
         if (item.id === 'vocabulary') {
              const data = item.specificData || { questions: [{text: "Örnek: Açıklama"}] };
              return (
+                 <AutoContentWrapper onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
                  <div className="h-full flex flex-col" style={boxStyle}>
                      <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
                         <i className="fa-solid fa-spell-check"></i> {item.customTitle}
@@ -863,6 +942,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                          })}
                      </div>
                  </div>
+                 </AutoContentWrapper>
              );
         }
 
@@ -893,6 +973,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id.startsWith('questions')) {
             const data = item.specificData || { questions: [{text: "Madde 1..."}] };
             return (
+                <AutoContentWrapper onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
                 <div className="h-full flex flex-col" style={boxStyle}>
                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
                     <div className="flex-1 space-y-2 overflow-hidden">
@@ -904,6 +985,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                         ))}
                     </div>
                 </div>
+                </AutoContentWrapper>
             );
         }
         
