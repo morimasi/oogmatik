@@ -17,18 +17,18 @@ interface CurriculumViewProps {
 const WizardStep1: React.FC<{ data: any, setData: any, onNext: () => void }> = ({ data, setData, onNext }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
-            <h3 className="text-xl font-bold text-zinc-800 dark:text-white mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">1</span>
+            <h3 className="text-xl font-bold text-zinc-800 dark:text-white mb-6 flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/30">1</span>
                 Öğrenci Profili
             </h3>
             
             <div>
-                <label className="block text-sm font-bold text-zinc-500 uppercase mb-2">Ad Soyad</label>
+                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Ad Soyad</label>
                 <input 
                     type="text" 
                     value={data.name} 
                     onChange={e => setData({...data, name: e.target.value})}
-                    className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg font-medium"
+                    className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-base font-medium transition-all"
                     placeholder="Örn: Ali Yılmaz"
                     autoFocus
                 />
@@ -36,20 +36,20 @@ const WizardStep1: React.FC<{ data: any, setData: any, onNext: () => void }> = (
 
             <div className="grid grid-cols-2 gap-6">
                 <div>
-                    <label className="block text-sm font-bold text-zinc-500 uppercase mb-2">Yaş</label>
+                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yaş</label>
                     <input 
                         type="number" 
                         value={data.age} 
                         onChange={e => setData({...data, age: Number(e.target.value)})}
-                        className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg font-medium"
+                        className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-base font-medium transition-all"
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-bold text-zinc-500 uppercase mb-2">Sınıf Seviyesi</label>
+                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Sınıf Seviyesi</label>
                     <select 
                         value={data.grade} 
                         onChange={e => setData({...data, grade: e.target.value})}
-                        className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg font-medium"
+                        className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-base font-medium transition-all cursor-pointer"
                     >
                         {['Okul Öncesi', '1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf'].map(g => (
                             <option key={g} value={g}>{g}</option>
@@ -59,11 +59,11 @@ const WizardStep1: React.FC<{ data: any, setData: any, onNext: () => void }> = (
             </div>
 
             <div>
-                <label className="block text-sm font-bold text-zinc-500 uppercase mb-2">Tanı / Özel Durum</label>
+                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Tanı / Özel Durum</label>
                 <select 
                     value={data.diagnosis} 
                     onChange={e => setData({...data, diagnosis: e.target.value})}
-                    className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg font-medium"
+                    className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-base font-medium transition-all cursor-pointer"
                 >
                     <option value="Disleksi (Okuma Güçlüğü)">Disleksi (Okuma Güçlüğü)</option>
                     <option value="Diskalkuli (Matematik Güçlüğü)">Diskalkuli (Matematik Güçlüğü)</option>
@@ -77,7 +77,7 @@ const WizardStep1: React.FC<{ data: any, setData: any, onNext: () => void }> = (
                 <button 
                     onClick={onNext}
                     disabled={!data.name}
-                    className="px-8 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-8 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:scale-105 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                     Devam Et <i className="fa-solid fa-arrow-right"></i>
                 </button>
@@ -104,28 +104,28 @@ const WizardStep2: React.FC<{ data: any, setData: any, onNext: () => void, onBac
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
-            <h3 className="text-xl font-bold text-zinc-800 dark:text-white mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">2</span>
+            <h3 className="text-xl font-bold text-zinc-800 dark:text-white mb-6 flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/30">2</span>
                 İlgi ve İhtiyaçlar
             </h3>
 
             <div>
-                <label className="block text-sm font-bold text-zinc-500 uppercase mb-2">Zayıf Yönler / Destek Gerekenler</label>
+                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Zayıf Yönler / Destek Gerekenler</label>
                 <div className="flex gap-2 mb-3">
                     <input 
                         type="text" 
                         value={weaknessInput}
                         onChange={e => setWeaknessInput(e.target.value)}
                         onKeyDown={e => { if(e.key === 'Enter') { addTag('weaknesses', weaknessInput); setWeaknessInput(''); } }}
-                        className="flex-1 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-red-500 outline-none"
+                        className="flex-1 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all"
                         placeholder="Örn: b/d karıştırma, çarpım tablosu..."
                     />
-                    <button onClick={() => { addTag('weaknesses', weaknessInput); setWeaknessInput(''); }} className="px-4 bg-zinc-200 dark:bg-zinc-700 rounded-xl hover:bg-zinc-300 transition-colors"><i className="fa-solid fa-plus"></i></button>
+                    <button onClick={() => { addTag('weaknesses', weaknessInput); setWeaknessInput(''); }} className="px-4 bg-zinc-200 dark:bg-zinc-700 rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors"><i className="fa-solid fa-plus"></i></button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {data.weaknesses.map((tag: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-red-50 text-red-600 border border-red-100 rounded-full text-sm font-bold flex items-center gap-2">
-                            {tag} <button onClick={() => removeTag('weaknesses', i)} className="hover:text-red-800">×</button>
+                        <span key={i} className="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800 rounded-lg text-xs font-bold flex items-center gap-2">
+                            {tag} <button onClick={() => removeTag('weaknesses', i)} className="hover:text-red-800 dark:hover:text-red-200">×</button>
                         </span>
                     ))}
                     {data.weaknesses.length === 0 && <span className="text-xs text-zinc-400 italic">Henüz eklenmedi.</span>}
@@ -133,22 +133,22 @@ const WizardStep2: React.FC<{ data: any, setData: any, onNext: () => void, onBac
             </div>
 
             <div>
-                <label className="block text-sm font-bold text-zinc-500 uppercase mb-2">İlgi Alanları (Motivasyon İçin)</label>
+                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">İlgi Alanları (Motivasyon İçin)</label>
                 <div className="flex gap-2 mb-3">
                     <input 
                         type="text" 
                         value={interestInput}
                         onChange={e => setInterestInput(e.target.value)}
                         onKeyDown={e => { if(e.key === 'Enter') { addTag('interests', interestInput); setInterestInput(''); } }}
-                        className="flex-1 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+                        className="flex-1 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-all"
                         placeholder="Örn: Uzay, Dinozorlar, Futbol..."
                     />
-                    <button onClick={() => { addTag('interests', interestInput); setInterestInput(''); }} className="px-4 bg-zinc-200 dark:bg-zinc-700 rounded-xl hover:bg-zinc-300 transition-colors"><i className="fa-solid fa-plus"></i></button>
+                    <button onClick={() => { addTag('interests', interestInput); setInterestInput(''); }} className="px-4 bg-zinc-200 dark:bg-zinc-700 rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors"><i className="fa-solid fa-plus"></i></button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {data.interests.map((tag: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-green-50 text-green-600 border border-green-100 rounded-full text-sm font-bold flex items-center gap-2">
-                            {tag} <button onClick={() => removeTag('interests', i)} className="hover:text-green-800">×</button>
+                        <span key={i} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 rounded-lg text-xs font-bold flex items-center gap-2">
+                            {tag} <button onClick={() => removeTag('interests', i)} className="hover:text-emerald-800 dark:hover:text-emerald-200">×</button>
                         </span>
                     ))}
                     {data.interests.length === 0 && <span className="text-xs text-zinc-400 italic">Henüz eklenmedi.</span>}
@@ -156,10 +156,10 @@ const WizardStep2: React.FC<{ data: any, setData: any, onNext: () => void, onBac
             </div>
 
             <div className="flex justify-between pt-4">
-                <button onClick={onBack} className="px-6 py-3 text-zinc-500 hover:text-zinc-800 font-bold transition-colors">Geri</button>
+                <button onClick={onBack} className="px-6 py-3 text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 font-bold transition-colors">Geri</button>
                 <button 
                     onClick={onNext}
-                    className="px-8 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2"
+                    className="px-8 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center gap-2"
                 >
                     Devam Et <i className="fa-solid fa-arrow-right"></i>
                 </button>
@@ -172,35 +172,35 @@ const WizardStep2: React.FC<{ data: any, setData: any, onNext: () => void, onBac
 const WizardStep3: React.FC<{ data: any, setData: any, onGenerate: () => void, loading: boolean }> = ({ data, setData, onGenerate, loading }) => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500 text-center">
-            <h3 className="text-xl font-bold text-zinc-800 dark:text-white mb-6 flex items-center justify-center gap-2">
-                <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">3</span>
+            <h3 className="text-xl font-bold text-zinc-800 dark:text-white mb-6 flex items-center justify-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/30">3</span>
                 Program Süresi
             </h3>
 
             <div className="max-w-sm mx-auto">
-                <label className="block text-sm font-bold text-zinc-500 uppercase mb-4">Kaç Günlük Plan?</label>
-                <div className="flex items-center gap-4 bg-zinc-100 dark:bg-zinc-900 p-2 rounded-2xl">
+                <label className="block text-xs font-bold text-zinc-500 uppercase mb-4">Kaç Günlük Plan?</label>
+                <div className="flex items-center gap-4 bg-zinc-100 dark:bg-zinc-900 p-2 rounded-2xl border border-zinc-200 dark:border-zinc-800">
                     <button 
                         onClick={() => setData({...data, duration: Math.max(1, data.duration - 1)})}
-                        className="w-12 h-12 bg-white dark:bg-zinc-800 rounded-xl shadow-sm flex items-center justify-center text-xl hover:scale-105 transition-transform"
+                        className="w-12 h-12 bg-white dark:bg-zinc-800 rounded-xl shadow-sm flex items-center justify-center text-xl hover:scale-105 transition-transform border border-zinc-200 dark:border-zinc-700"
                     >
                         -
                     </button>
                     <div className="flex-1 text-center">
-                        <span className="text-3xl font-black text-indigo-600">{data.duration}</span>
-                        <span className="text-xs font-bold text-zinc-400 block uppercase">GÜN</span>
+                        <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{data.duration}</span>
+                        <span className="text-xs font-bold text-zinc-400 block uppercase tracking-widest mt-1">GÜN</span>
                     </div>
                     <button 
                         onClick={() => setData({...data, duration: Math.min(30, data.duration + 1)})}
-                        className="w-12 h-12 bg-white dark:bg-zinc-800 rounded-xl shadow-sm flex items-center justify-center text-xl hover:scale-105 transition-transform"
+                        className="w-12 h-12 bg-white dark:bg-zinc-800 rounded-xl shadow-sm flex items-center justify-center text-xl hover:scale-105 transition-transform border border-zinc-200 dark:border-zinc-700"
                     >
                         +
                     </button>
                 </div>
             </div>
 
-            <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-sm leading-relaxed max-w-lg mx-auto">
-                <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>
+            <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-2xl border border-amber-100 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-sm leading-relaxed max-w-lg mx-auto shadow-sm">
+                <i className="fa-solid fa-wand-magic-sparkles mr-2 text-lg"></i>
                 Yapay zeka, <strong>{data.name}</strong> için <strong>{data.diagnosis}</strong> ihtiyaçlarına uygun, <strong>{data.interests.length > 0 ? data.interests.join(', ') : 'Genel'}</strong> ilgi alanlarını içeren <strong>{data.duration}</strong> günlük bir program hazırlayacak.
             </div>
 
@@ -231,17 +231,17 @@ const DayCard: React.FC<{ day: CurriculumDay, onRegenerate: () => void, onToggle
     const isAllCompleted = day.activities.every(a => a.status === 'completed');
     
     return (
-        <div className={`group relative bg-white dark:bg-zinc-800 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${isAllCompleted ? 'border-emerald-400 dark:border-emerald-600' : 'border-zinc-100 dark:border-zinc-700'} break-inside-avoid page-break-inside-avoid print:border-zinc-300 print:shadow-none`}>
+        <div className={`group relative bg-white dark:bg-zinc-800 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${isAllCompleted ? 'border-emerald-400 dark:border-emerald-600 ring-4 ring-emerald-50 dark:ring-emerald-900/20' : 'border-zinc-100 dark:border-zinc-700'} break-inside-avoid page-break-inside-avoid print:border-zinc-300 print:shadow-none`}>
             {/* Header */}
-            <div className={`p-5 rounded-t-3xl flex justify-between items-center ${isAllCompleted ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-zinc-50 dark:bg-zinc-800'} print:bg-gray-100`}>
+            <div className={`p-5 rounded-t-[1.3rem] flex justify-between items-center ${isAllCompleted ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-zinc-50 dark:bg-zinc-900/50'} print:bg-gray-100 border-b border-zinc-100 dark:border-zinc-700`}>
                 <div>
                     <h4 className="font-black text-xl text-zinc-800 dark:text-white flex items-center gap-2 print:text-black">
                         {day.day}. Gün
                         {isAllCompleted && <i className="fa-solid fa-check-circle text-emerald-500 print:hidden"></i>}
                     </h4>
-                    <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider mt-1 print:text-black">{day.focus}</p>
+                    <p className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-1 print:text-black">{day.focus}</p>
                 </div>
-                <button onClick={onRegenerate} className="w-8 h-8 rounded-full bg-white dark:bg-zinc-700 text-zinc-400 hover:text-indigo-500 hover:rotate-180 transition-all shadow-sm flex items-center justify-center print:hidden" title="Bu günü yeniden oluştur">
+                <button onClick={onRegenerate} className="w-8 h-8 rounded-full bg-white dark:bg-zinc-700 text-zinc-400 hover:text-indigo-500 hover:rotate-180 transition-all shadow-sm flex items-center justify-center print:hidden border border-zinc-200 dark:border-zinc-600" title="Bu günü yeniden oluştur">
                     <i className="fa-solid fa-arrows-rotate"></i>
                 </button>
             </div>
@@ -254,16 +254,16 @@ const DayCard: React.FC<{ day: CurriculumDay, onRegenerate: () => void, onToggle
                             <div>
                                 <h5 className={`font-bold text-sm ${act.status === 'completed' ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-200'} print:text-black print:no-underline`}>{act.title}</h5>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-[10px] bg-zinc-100 dark:bg-zinc-700 px-2 py-0.5 rounded text-zinc-500 font-mono print:border print:border-gray-300">{act.duration} dk</span>
-                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${act.difficultyLevel === 'Hard' ? 'bg-red-50 text-red-600' : act.difficultyLevel === 'Medium' ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-600'} print:border print:border-gray-300 print:bg-white print:text-black`}>
+                                    <span className="text-[10px] bg-zinc-100 dark:bg-zinc-700 px-2 py-0.5 rounded text-zinc-500 dark:text-zinc-400 font-mono print:border print:border-gray-300">{act.duration} dk</span>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${act.difficultyLevel === 'Hard' ? 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400' : act.difficultyLevel === 'Medium' ? 'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400'} print:border print:border-gray-300 print:bg-white print:text-black`}>
                                         {act.difficultyLevel === 'Hard' ? 'Zor' : act.difficultyLevel === 'Medium' ? 'Orta' : 'Kolay'}
                                     </span>
                                 </div>
-                                <p className="text-[10px] text-zinc-500 mt-1 italic print:text-gray-600">{act.goal}</p>
+                                <p className="text-[10px] text-zinc-500 mt-1 italic print:text-gray-600 leading-tight">{act.goal}</p>
                             </div>
                             <button 
                                 onClick={() => onToggleActivity(day.day, act.id)}
-                                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all print:hidden ${act.status === 'completed' ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-300 hover:border-indigo-500 text-transparent hover:text-indigo-200'}`}
+                                className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all print:hidden ml-2 ${act.status === 'completed' ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-200 dark:border-zinc-600 hover:border-indigo-500 text-transparent hover:text-indigo-500'}`}
                             >
                                 <i className="fa-solid fa-check text-xs"></i>
                             </button>
@@ -272,7 +272,7 @@ const DayCard: React.FC<{ day: CurriculumDay, onRegenerate: () => void, onToggle
                         {act.status !== 'completed' && (
                             <button 
                                 onClick={() => onStartActivity(act.id, act.activityId, act.title)}
-                                className="mt-3 w-full py-2 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 transform active:scale-95 print:hidden"
+                                className="mt-3 w-full py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black rounded-xl text-xs font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 transform active:scale-95 print:hidden"
                             >
                                 <i className="fa-solid fa-play"></i> Hemen Üret
                             </button>
@@ -457,40 +457,40 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
     };
 
     return (
-        <div className="h-full bg-zinc-50 dark:bg-zinc-900 flex flex-col overflow-hidden relative">
+        <div className="h-full bg-zinc-50 dark:bg-zinc-900 flex flex-col overflow-hidden relative absolute inset-0 z-50">
             {/* Header */}
-            <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 flex justify-between items-center shadow-sm shrink-0 z-20 print:hidden">
-                <div className="flex items-center gap-3">
-                    <button onClick={onBack} className="w-8 h-8 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors">
-                        <i className="fa-solid fa-arrow-left text-zinc-500"></i>
+            <div className="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 flex justify-between items-center px-6 shadow-sm shrink-0 z-20 print:hidden">
+                <div className="flex items-center gap-4">
+                    <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors text-zinc-500">
+                        <i className="fa-solid fa-arrow-left"></i>
                     </button>
-                    <h2 className="text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
+                    <h2 className="text-lg font-black text-zinc-800 dark:text-white flex items-center gap-2">
                         <i className="fa-solid fa-graduation-cap text-indigo-500"></i>
                         AI Eğitim Koçu
                     </h2>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                     {step === 4 && (
                         <>
-                            <button onClick={() => setIsShareModalOpen(true)} className="p-2 text-zinc-500 hover:text-indigo-600 transition-colors" title="Paylaş">
+                            <button onClick={() => setIsShareModalOpen(true)} className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors" title="Paylaş">
                                 <i className="fa-solid fa-share-nodes"></i>
                             </button>
-                            <button onClick={() => handlePrint('download')} disabled={isPrinting} className="p-2 text-zinc-500 hover:text-red-600 transition-colors" title="PDF İndir">
+                            <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors" title="PDF İndir">
                                 {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
                             </button>
-                            <button onClick={() => handlePrint('print')} disabled={isPrinting} className="p-2 text-zinc-500 hover:text-black dark:hover:text-white transition-colors" title="Yazdır">
+                            <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors" title="Yazdır">
                                 <i className="fa-solid fa-print"></i>
                             </button>
-                            <button onClick={handleSave} disabled={isSaved} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${isSaved ? 'bg-green-100 text-green-700 cursor-default' : 'bg-zinc-900 text-white hover:bg-black'}`}>
-                                {isSaved ? <><i className="fa-solid fa-check"></i> Otomatik Kaydedildi</> : <><i className="fa-solid fa-save"></i> Kaydet</>}
+                            <button onClick={handleSave} disabled={isSaved} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm ${isSaved ? 'bg-green-100 text-green-700 cursor-default border border-green-200' : 'bg-zinc-900 text-white hover:bg-black dark:bg-white dark:text-black dark:hover:bg-zinc-200'}`}>
+                                {isSaved ? <><i className="fa-solid fa-check"></i> Kaydedildi</> : <><i className="fa-solid fa-save"></i> Kaydet</>}
                             </button>
                         </>
                     )}
                     {step < 4 && user && (
-                         <div className="bg-zinc-100 dark:bg-zinc-700 p-1 rounded-lg flex text-xs font-bold">
-                             <button onClick={() => setViewMode('create')} className={`px-3 py-1.5 rounded-md ${viewMode === 'create' ? 'bg-white text-black shadow' : 'text-zinc-500'}`}>Yeni</button>
-                             <button onClick={() => setViewMode('list')} className={`px-3 py-1.5 rounded-md ${viewMode === 'list' ? 'bg-white text-black shadow' : 'text-zinc-500'}`}>Kayıtlı</button>
+                         <div className="bg-zinc-100 dark:bg-zinc-900/50 p-1 rounded-xl flex text-xs font-bold border border-zinc-200 dark:border-zinc-700">
+                             <button onClick={() => setViewMode('create')} className={`px-4 py-1.5 rounded-lg transition-all ${viewMode === 'create' ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' : 'text-zinc-500'}`}>Yeni</button>
+                             <button onClick={() => setViewMode('list')} className={`px-4 py-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' : 'text-zinc-500'}`}>Kayıtlı</button>
                          </div>
                     )}
                 </div>
@@ -500,25 +500,38 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                 
                 {/* LIST VIEW */}
                 {viewMode === 'list' && (
-                    <div className="max-w-4xl mx-auto space-y-4">
-                        <h3 className="font-bold text-lg text-zinc-700 dark:text-zinc-300">Kayıtlı Programlarım</h3>
-                        {loading ? <div className="text-center p-8"><i className="fa-solid fa-circle-notch fa-spin"></i></div> : (
-                            savedCurriculums.length === 0 ? <div className="text-center p-12 text-zinc-400">Henüz kayıtlı program yok.</div> : (
+                    <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in">
+                        <h3 className="font-bold text-xl text-zinc-800 dark:text-white flex items-center gap-2">
+                            <i className="fa-solid fa-folder-open text-indigo-500"></i> Kayıtlı Programlarım
+                        </h3>
+                        {loading ? <div className="text-center p-12"><i className="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-500"></i></div> : (
+                            savedCurriculums.length === 0 ? <div className="text-center p-16 text-zinc-400 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl">Henüz kayıtlı program yok.</div> : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {savedCurriculums.map(c => (
-                                        <div key={c.id} className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-md transition-all group">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <h4 className="font-bold text-lg text-zinc-900 dark:text-zinc-100">{c.studentName}</h4>
-                                                    <p className="text-xs text-zinc-500">{c.grade} • {c.durationDays} Gün</p>
+                                        <div key={c.id} className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-lg transition-all group cursor-pointer relative overflow-hidden" onClick={() => handleLoadCurriculum(c)}>
+                                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                <i className="fa-solid fa-graduation-cap text-6xl"></i>
+                                            </div>
+                                            <div className="relative z-10">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div>
+                                                        <h4 className="font-bold text-lg text-zinc-900 dark:text-white">{c.studentName}</h4>
+                                                        <p className="text-xs text-zinc-500 mt-1 font-medium bg-zinc-100 dark:bg-zinc-700/50 inline-block px-2 py-0.5 rounded">{c.grade}</p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteCurriculum(c.id); }} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => handleDeleteCurriculum(c.id)} className="w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100"><i className="fa-solid fa-trash"></i></button>
+                                                <div className="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+                                                    <span className="flex items-center gap-1"><i className="fa-regular fa-calendar"></i> {c.durationDays} Günlük Plan</span>
+                                                    <span className="flex items-center gap-1"><i className="fa-solid fa-bullseye"></i> {c.goals.length} Hedef</span>
+                                                </div>
+                                                <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-700 flex justify-end">
+                                                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 group-hover:gap-2 transition-all">
+                                                        Planı Görüntüle <i className="fa-solid fa-arrow-right"></i>
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <button onClick={() => handleLoadCurriculum(c)} className="w-full py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors">
-                                                Planı Aç
-                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -527,28 +540,27 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                     </div>
                 )}
 
-                {/* CREATE WIZARD (WizardStep1, 2, 3...) - Same as before */}
+                {/* CREATE WIZARD */}
                 {viewMode === 'create' && step < 4 && (
                     <div className="max-w-2xl mx-auto mt-8">
                         {/* Progress Bar */}
-                        <div className="flex items-center gap-2 mb-8">
+                        <div className="flex items-center gap-2 mb-8 px-4">
                             {[1, 2, 3].map(s => (
-                                <div key={s} className={`flex-1 h-2 rounded-full transition-all duration-500 ${step >= s ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-700'}`}></div>
+                                <div key={s} className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${step >= s ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-800'}`}></div>
                             ))}
                         </div>
                         
-                        <div className="bg-white dark:bg-zinc-800 p-8 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-700 relative overflow-hidden">
-                             {/* Content from previous implementation... */}
+                        <div className="bg-white dark:bg-zinc-800 p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-zinc-200 dark:border-zinc-700 relative overflow-hidden">
                              {step === 0 && (
-                                <div className="text-center py-10">
-                                    <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-6xl shadow-inner">
+                                <div className="text-center py-6">
+                                    <div className="w-32 h-32 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-8 text-6xl shadow-inner border border-indigo-100 dark:border-indigo-800/50">
                                         👩‍🏫
                                     </div>
-                                    <h1 className="text-3xl font-black text-zinc-800 dark:text-white mb-4">Öğrenme Yolculuğunu Planlayalım!</h1>
-                                    <p className="text-zinc-500 text-lg mb-8 max-w-md mx-auto">
-                                        Yapay zeka ile çocuğunuza özel, bilimsel temelli ve eğlenceli bir çalışma programı oluşturun.
+                                    <h1 className="text-3xl md:text-4xl font-black text-zinc-900 dark:text-white mb-4 tracking-tight">Öğrenme Yolculuğu</h1>
+                                    <p className="text-zinc-500 text-lg mb-10 max-w-md mx-auto leading-relaxed">
+                                        Yapay zeka ile çocuğunuza özel, bilimsel temelli ve kişiselleştirilmiş bir çalışma programı oluşturun.
                                     </p>
-                                    <button onClick={() => setStep(1)} className="px-10 py-4 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black font-black rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-lg flex items-center gap-3 mx-auto">
+                                    <button onClick={() => setStep(1)} className="px-10 py-4 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black font-black rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all text-lg flex items-center gap-3 mx-auto">
                                         Başlayalım <i className="fa-solid fa-rocket"></i>
                                     </button>
                                 </div>
@@ -563,18 +575,21 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                 {/* PLAN VIEW */}
                 {viewMode === 'create' && step === 4 && curriculum && (
                     <div id="curriculum-plan-area" className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700 print:max-w-full">
-                        {/* Summary Header (Same as before) */}
-                        <div className="bg-indigo-600 text-white rounded-3xl p-8 mb-8 shadow-2xl relative overflow-hidden print:bg-white print:text-black print:border-b-2 print:shadow-none print:rounded-none">
+                        {/* Summary Header */}
+                        <div className="bg-indigo-600 text-white rounded-[2rem] p-8 md:p-10 mb-8 shadow-2xl relative overflow-hidden print:bg-white print:text-black print:border-b-2 print:shadow-none print:rounded-none">
+                            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+                            
                             <div className="relative z-10 flex flex-col md:flex-row gap-8 justify-between items-start">
                                 <div>
-                                    <div className="inline-block px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs font-bold mb-2 border border-white/20 print:bg-gray-200 print:text-black">
-                                        {curriculum.durationDays} Günlük Plan
+                                    <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold mb-4 border border-white/20 print:bg-gray-200 print:text-black uppercase tracking-wider">
+                                        {curriculum.durationDays} Günlük Spiral Program
                                     </div>
-                                    <h1 className="text-4xl font-black mb-2">{curriculum.studentName}'in Programı</h1>
-                                    <p className="opacity-80 text-lg">{curriculum.grade} • {formData.diagnosis}</p>
+                                    <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tight">{curriculum.studentName}</h1>
+                                    <p className="opacity-80 text-xl font-medium">{curriculum.grade} • {formData.diagnosis}</p>
                                 </div>
-                                <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10 max-w-sm print:bg-gray-50 print:border-gray-200">
-                                    <p className="text-sm italic opacity-90"><i className="fa-solid fa-quote-left mr-2"></i>{curriculum.note}</p>
+                                <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 max-w-md print:bg-gray-50 print:border-gray-200 shadow-lg">
+                                    <h5 className="font-bold text-sm uppercase tracking-widest opacity-70 mb-2">Ebeveyn Notu</h5>
+                                    <p className="text-sm italic opacity-90 leading-relaxed"><i className="fa-solid fa-quote-left mr-2 opacity-50"></i>{curriculum.note}</p>
                                 </div>
                             </div>
                         </div>

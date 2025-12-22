@@ -141,36 +141,36 @@ const RotateHandle = ({ onMouseDown }: { onMouseDown: (e: React.MouseEvent) => v
 );
 
 const CounterControl = ({ label, value, onChange, min = 0, max = 10 }: { label: string, value: number, onChange: (val: number) => void, min?: number, max?: number }) => (
-    <div className="flex items-center justify-between py-1 border-b border-zinc-800 last:border-0">
+    <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0">
         <span className="text-[11px] font-bold text-zinc-400 uppercase">{label}</span>
         <div className="flex items-center bg-zinc-900 rounded-lg p-0.5 border border-zinc-800">
             <button 
                 onClick={() => onChange(Math.max(min, value - 1))}
-                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-indigo-500 transition-colors disabled:opacity-30"
+                className="w-7 h-7 flex items-center justify-center text-zinc-500 hover:text-indigo-500 transition-colors disabled:opacity-30"
                 disabled={value <= min}
             >
-                <i className="fa-solid fa-minus text-[8px]"></i>
+                <i className="fa-solid fa-minus text-[10px]"></i>
             </button>
-            <span className="w-6 text-center text-xs font-mono font-bold text-zinc-300">{value}</span>
+            <span className="w-8 text-center text-xs font-mono font-bold text-zinc-300">{value}</span>
             <button 
                 onClick={() => onChange(Math.min(max, value + 1))}
-                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-indigo-500 transition-colors disabled:opacity-30"
+                className="w-7 h-7 flex items-center justify-center text-zinc-500 hover:text-indigo-500 transition-colors disabled:opacity-30"
                 disabled={value >= max}
             >
-                <i className="fa-solid fa-plus text-[8px]"></i>
+                <i className="fa-solid fa-plus text-[10px]"></i>
             </button>
         </div>
     </div>
 );
 
 const ToggleControl = ({ label, checked, onChange, icon }: { label: string, checked: boolean, onChange: (val: boolean) => void, icon?: string }) => (
-    <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0 cursor-pointer group" onClick={() => onChange(!checked)}>
+    <div className="flex items-center justify-between py-2.5 border-b border-zinc-800 last:border-0 cursor-pointer group" onClick={() => onChange(!checked)}>
         <div className="flex items-center gap-2">
-            {icon && <i className={`fa-solid ${icon} text-zinc-600 group-hover:text-indigo-500 transition-colors text-[10px]`}></i>}
+            {icon && <i className={`fa-solid ${icon} text-zinc-600 group-hover:text-indigo-500 transition-colors text-xs`}></i>}
             <span className="text-[11px] font-bold text-zinc-400 group-hover:text-zinc-200 uppercase transition-colors">{label}</span>
         </div>
-        <div className={`w-8 h-4 rounded-full relative transition-colors ${checked ? 'bg-indigo-500' : 'bg-zinc-700'}`}>
-            <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all ${checked ? 'left-5' : 'left-1'}`}></div>
+        <div className={`w-9 h-5 rounded-full relative transition-colors ${checked ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
+            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${checked ? 'left-5' : 'left-1'}`}></div>
         </div>
     </div>
 );
@@ -319,7 +319,7 @@ const ContentControls = ({ item, onUpdateSpecific }: { item: ActiveComponent, on
             <div className="space-y-3">
                  <div className="flex justify-between items-center mb-2">
                     <label className="text-[10px] font-bold text-zinc-400 uppercase">Sorular</label>
-                    <button onClick={addQ} className="text-xs bg-indigo-500 text-white px-2 py-1 rounded hover:bg-indigo-400 transition-colors font-bold">+ Ekle</button>
+                    <button onClick={addQ} className="text-xs bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-500 transition-colors font-bold">+ Ekle</button>
                  </div>
                  <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
                      {qs.map((q: any, i: number) => (
@@ -374,15 +374,15 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
     };
 
     return (
-        <div className="w-80 h-full bg-[#222226] border-l border-zinc-800 shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-right-10 duration-300 font-['OpenDyslexic']" onClick={handlePanelClick}>
-            <div className="p-4 bg-[#2d2d32] border-b border-zinc-700 flex justify-between items-center shrink-0">
+        <div className="w-80 h-full bg-[#18181b] border-l border-zinc-800 shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-right-10 duration-300 font-['OpenDyslexic']" onClick={handlePanelClick}>
+            <div className="p-4 bg-[#222226] border-b border-zinc-700 flex justify-between items-center shrink-0">
                 <h3 className="font-black text-xs uppercase tracking-widest text-zinc-300 flex items-center gap-2">
                     <i className={`fa-solid ${item.icon} text-indigo-500`}></i> {item.label}
                 </h3>
                 <button onClick={onClose} className="w-6 h-6 rounded-full hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"><i className="fa-solid fa-times"></i></button>
             </div>
 
-            <div className="flex border-b border-zinc-700 bg-[#222226] shrink-0">
+            <div className="flex border-b border-zinc-700 bg-[#18181b] shrink-0">
                 {[
                     { id: 'content', icon: 'fa-pen-to-square', label: 'İçerik' },
                     { id: 'type', icon: 'fa-font', label: 'Yazı' },
@@ -395,7 +395,7 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
                 ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-[#222226]">
+            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-[#18181b]">
                 {activeTab === 'content' && <ContentControls item={item} onUpdateSpecific={updateSpecificData} />}
                 {activeTab === 'type' && <TypographyControls style={item.style} onUpdate={updateStyle} />}
                 {activeTab === 'look' && <AppearanceControls style={item.style} onUpdate={updateStyle} />}
@@ -419,7 +419,7 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
             </div>
 
             {item.style.imageSettings && (
-                 <div className="p-4 border-t border-zinc-700 bg-[#2d2d32] flex justify-between items-center">
+                 <div className="p-4 border-t border-zinc-700 bg-[#222226] flex justify-between items-center">
                      <span className="text-xs font-bold text-zinc-300">Görsel</span>
                      <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${item.style.imageSettings?.enabled ? 'bg-indigo-500' : 'bg-zinc-600'}`} onClick={() => updateImageSettings('enabled', !item.style.imageSettings?.enabled)}>
                         <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${item.style.imageSettings?.enabled ? 'left-5' : 'left-1'}`}></div>
@@ -427,7 +427,7 @@ const SettingsStation = ({ item, onUpdate, onClose, onDelete }: { item: ActiveCo
                  </div>
             )}
 
-            <div className="p-4 border-t border-zinc-700 bg-[#222226] shrink-0">
+            <div className="p-4 border-t border-zinc-700 bg-[#18181b] shrink-0">
                 <button onClick={onDelete} className="w-full py-2 bg-red-900/20 text-red-500 hover:bg-red-900/40 border border-red-900/50 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-colors">
                     <i className="fa-solid fa-trash"></i> Bileşeni Sil
                 </button>
@@ -1062,61 +1062,71 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#222226] font-['OpenDyslexic'] overflow-hidden text-zinc-100">
-            <div className="h-14 bg-[#2d2d32] border-b border-zinc-800 flex justify-between items-center px-4 shrink-0 z-50">
-                <div className="flex items-center gap-3">
-                    <button onClick={onBack} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400"><i className="fa-solid fa-arrow-left"></i></button>
-                    <span className="font-black text-sm uppercase tracking-widest text-indigo-500">Reading Studio <span className="bg-indigo-500/20 text-indigo-500 px-1 rounded text-[9px] border border-indigo-500/50">PRO</span></span>
+        <div className="h-full flex flex-col bg-[#121212] font-['OpenDyslexic'] overflow-hidden text-zinc-100 absolute inset-0 z-50">
+            <div className="h-16 bg-[#18181b] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
+                <div className="flex items-center gap-4">
+                    <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors">
+                        <i className="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2 className="text-lg font-black text-white flex items-center gap-2 tracking-tight">
+                             <i className="fa-solid fa-book-open text-indigo-500"></i>
+                            Reading Studio
+                            <span className="bg-indigo-500/20 text-indigo-500 px-1.5 py-0.5 rounded text-[10px] border border-indigo-500/50 font-bold uppercase tracking-widest">PRO</span>
+                        </h2>
+                    </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                      {/* Smart Flow Toggle */}
-                     <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 gap-3 mr-2">
-                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Akıllı Akış</span>
-                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${smartFlow ? 'bg-indigo-500' : 'bg-zinc-600'}`} onClick={() => setSmartFlow(!smartFlow)}>
-                            <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${smartFlow ? 'left-5' : 'left-1'}`}></div>
+                     <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 gap-3">
+                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Akıllı Akış</span>
+                        <div className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${smartFlow ? 'bg-indigo-600' : 'bg-zinc-600'}`} onClick={() => setSmartFlow(!smartFlow)}>
+                            <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${smartFlow ? 'left-5' : 'left-1'}`}></div>
                         </div>
                      </div>
 
-                     <button onClick={() => setDesignMode(!designMode)} className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${designMode ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>
+                     <div className="h-8 w-px bg-zinc-700 mx-2"></div>
+
+                     <button onClick={() => setDesignMode(!designMode)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${designMode ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>
                          {designMode ? 'MİMARİ MOD' : 'ÖNİZLEME'}
                      </button>
-                     <div className="h-8 w-px bg-zinc-800 mx-2"></div>
                      
-                     <button onClick={() => handlePrint('download')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="PDF Olarak İndir"><i className="fa-solid fa-file-pdf"></i></button>
-                     <button onClick={() => handlePrint('print')} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="Yazdır"><i className="fa-solid fa-print"></i></button>
-                     <button onClick={() => setIsShareModalOpen(true)} className="w-8 h-8 rounded hover:bg-zinc-700 flex items-center justify-center text-zinc-400" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
-                     
-                     <button 
-                        id="rs-workbook-btn"
-                        onClick={handleAddToWorkbook}
-                        className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg border border-emerald-500"
-                        title="Kitapçığa Ekle"
-                     >
-                         <i className="fa-solid fa-plus-circle"></i>
-                         Kitapçığa Ekle
-                     </button>
+                     <div className="flex gap-2 ml-2">
+                         <button onClick={() => handlePrint('download')} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors" title="PDF Olarak İndir"><i className="fa-solid fa-file-pdf"></i></button>
+                         <button onClick={() => handlePrint('print')} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors" title="Yazdır"><i className="fa-solid fa-print"></i></button>
+                         <button onClick={() => setIsShareModalOpen(true)} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
+                         
+                         <button 
+                            id="rs-workbook-btn"
+                            onClick={handleAddToWorkbook}
+                            className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center text-white transition-colors shadow-lg shadow-emerald-500/20"
+                            title="Kitapçığa Ekle"
+                         >
+                             <i className="fa-solid fa-plus-circle"></i>
+                         </button>
 
-                     <button 
-                        onClick={handleSaveToArchive} 
-                        disabled={isSaving || isSaved}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${isSaved ? 'bg-indigo-600 text-white' : 'bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white border border-indigo-500/50'}`}
-                     >
-                         {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : (isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>)}
-                         {isSaved ? 'Arşivlendi' : 'Arşive Kaydet'}
-                     </button>
+                         <button 
+                            onClick={handleSaveToArchive} 
+                            disabled={isSaving || isSaved}
+                            className={`px-6 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg ${isSaved ? 'bg-indigo-600 text-white cursor-default' : 'bg-white text-indigo-600 hover:bg-indigo-50'}`}
+                        >
+                            {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : (isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>)}
+                            {isSaved ? 'Kaydedildi' : 'Kaydet'}
+                        </button>
+                     </div>
                 </div>
             </div>
 
             <div className="flex-1 flex overflow-hidden relative">
                 <div className={`flex-shrink-0 h-full bg-[#18181b] border-r border-zinc-800 transition-all duration-300 ease-in-out overflow-hidden z-40 ${isSidebarOpen ? 'w-80 opacity-100' : 'w-0 opacity-0 border-r-0'}`}>
                     <div className="w-80 flex flex-col h-full"> 
-                         <div className="flex border-b border-zinc-800 bg-[#222226]">
-                             <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Ayarlar</button>
-                             <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
-                             <button onClick={() => setSidebarTab('templates')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'templates' ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Şablonlar</button>
+                         <div className="flex border-b border-zinc-800 bg-[#18181b]">
+                             <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Ayarlar</button>
+                             <button onClick={() => setSidebarTab('library')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Bileşenler</button>
+                             <button onClick={() => setSidebarTab('templates')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'templates' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Şablonlar</button>
                          </div>
-                         <div className="flex-1 overflow-y-auto custom-scrollbar">
+                         <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#18181b]">
                              {sidebarTab === 'library' && (
                                  <div className="flex flex-col">
                                      <div className="border-b border-zinc-800">
@@ -1125,14 +1135,14 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                              <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
                                          </button>
                                          {openSections.layers && (
-                                             <div className="p-2 space-y-1 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
+                                             <div className="p-2 space-y-1 bg-[#18181b] animate-in slide-in-from-top-2 duration-200">
                                                  {layout.map((item) => (
-                                                     <div key={item.instanceId} onClick={() => setSelectedId(item.instanceId)} className={`group flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer ${selectedId === item.instanceId ? 'border-indigo-500/50 bg-indigo-500/10 shadow-sm ring-1 ring-indigo-500/30' : 'border-transparent hover:bg-zinc-800 border-zinc-800'} ${!item.isVisible ? 'opacity-60' : ''}`}>
-                                                         <div className={`w-7 h-7 rounded flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-indigo-500 text-white' : 'bg-zinc-800 text-zinc-500'}`}><i className={`fa-solid ${item.icon}`}></i></div>
-                                                         <div className="flex-1 min-w-0"><p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-indigo-500' : 'text-zinc-300'}`}>{item.customTitle || item.label}</p></div>
+                                                     <div key={item.instanceId} onClick={() => setSelectedId(item.instanceId)} className={`group flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${selectedId === item.instanceId ? 'border-indigo-500/50 bg-indigo-500/10 shadow-sm ring-1 ring-indigo-500/30' : 'border-zinc-800 hover:bg-zinc-800/80'} ${!item.isVisible ? 'opacity-60' : ''}`}>
+                                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-indigo-600 text-white' : 'bg-zinc-800 text-zinc-500'}`}><i className={`fa-solid ${item.icon}`}></i></div>
+                                                         <div className="flex-1 min-w-0"><p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-indigo-400' : 'text-zinc-300'}`}>{item.customTitle || item.label}</p></div>
                                                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                             <button onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }} className={`w-6 h-6 flex items-center justify-center rounded hover:bg-zinc-700 text-zinc-400 ${!item.isVisible ? 'text-zinc-600' : ''}`}><i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i></button>
-                                                             <button onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }} className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button>
+                                                             <button onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }} className={`w-7 h-7 flex items-center justify-center rounded hover:bg-zinc-700 text-zinc-400 ${!item.isVisible ? 'text-zinc-600' : ''}`}><i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i></button>
+                                                             <button onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }} className="w-7 h-7 flex items-center justify-center rounded hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button>
                                                          </div>
                                                      </div>
                                                  ))}
@@ -1145,11 +1155,11 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                              <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
                                          </button>
                                          {openSections.add && (
-                                             <div className="p-4 bg-[#222226] animate-in slide-in-from-top-2 duration-200">
-                                                 <div className="grid grid-cols-2 gap-2">
+                                             <div className="p-4 bg-[#18181b] animate-in slide-in-from-top-2 duration-200">
+                                                 <div className="grid grid-cols-2 gap-3">
                                                      {COMPONENT_DEFINITIONS.map(def => (
                                                          <button key={def.id} onClick={() => addComponent(def)} className="flex flex-col items-center gap-2 p-3 bg-zinc-800 border border-zinc-700 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all group">
-                                                             <i className={`fa-solid ${def.icon} text-zinc-500 group-hover:text-indigo-500 text-lg transition-colors`}></i>
+                                                             <i className={`fa-solid ${def.icon} text-zinc-500 group-hover:text-indigo-500 text-xl transition-colors`}></i>
                                                              <span className="text-[10px] font-bold text-zinc-400 group-hover:text-indigo-500 text-center leading-tight">{def.label}</span>
                                                          </button>
                                                      ))}
@@ -1160,33 +1170,33 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                  </div>
                              )}
                              {sidebarTab === 'templates' && (
-                                 <div className="p-4 space-y-6">
+                                 <div className="p-6 space-y-6">
                                      <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-800">
-                                         <h4 className="text-[10px] font-bold text-zinc-400 uppercase mb-2">Şablon Kaydet</h4>
+                                         <h4 className="text-[10px] font-bold text-zinc-400 uppercase mb-3">Şablon Kaydet</h4>
                                          <div className="flex gap-2">
                                              <input 
                                                  type="text" 
                                                  value={templateName} 
                                                  onChange={e => setTemplateName(e.target.value)} 
                                                  placeholder="Şablon Adı..." 
-                                                 className="flex-1 p-2 bg-zinc-900 border border-zinc-700 rounded text-xs text-white outline-none"
+                                                 className="flex-1 p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-xs text-white outline-none focus:border-indigo-500"
                                              />
-                                             <button onClick={saveTemplate} className="px-3 bg-indigo-500 text-white rounded font-bold text-xs hover:bg-indigo-400"><i className="fa-solid fa-save"></i></button>
+                                             <button onClick={saveTemplate} className="px-3 bg-indigo-600 text-white rounded-lg font-bold text-xs hover:bg-indigo-500"><i className="fa-solid fa-save"></i></button>
                                          </div>
                                      </div>
                                      <div>
-                                         <h4 className="text-[10px] font-bold text-zinc-500 uppercase mb-3">Kayıtlı Şablonlar</h4>
+                                         <h4 className="text-[10px] font-bold text-zinc-500 uppercase mb-3 px-1">Kayıtlı Şablonlar</h4>
                                          {templates.length === 0 ? (
-                                             <div className="text-center text-zinc-600 text-xs py-4">Henüz şablon yok.</div>
+                                             <div className="text-center text-zinc-600 text-xs py-8 border-2 border-dashed border-zinc-800 rounded-xl">Henüz şablon yok.</div>
                                          ) : (
                                              <div className="space-y-3">
                                                  {templates.map(t => (
-                                                     <div key={t.id} className="group bg-zinc-800 border border-zinc-700 rounded-lg p-3 hover:border-indigo-500/50 transition-colors cursor-pointer" onClick={() => loadTemplate(t)}>
+                                                     <div key={t.id} className="group bg-zinc-800 border border-zinc-700 rounded-xl p-3 hover:border-indigo-500/50 transition-colors cursor-pointer" onClick={() => loadTemplate(t)}>
                                                          <div className="flex justify-between items-start mb-2">
                                                              <h5 className="font-bold text-sm text-zinc-200">{t.name}</h5>
                                                              <button onClick={(e) => {e.stopPropagation(); deleteTemplate(t.id);}} className="text-zinc-500 hover:text-red-500"><i className="fa-solid fa-trash"></i></button>
                                                          </div>
-                                                         <div className="w-full h-24 bg-white rounded overflow-hidden relative pointer-events-none">
+                                                         <div className="w-full h-24 bg-white rounded-lg overflow-hidden relative pointer-events-none opacity-50 group-hover:opacity-80 transition-opacity">
                                                              <div className="absolute inset-0" style={{transform: 'scale(0.15)', transformOrigin: '0 0', width: '600%', height: '600%'}}>
                                                                  {t.layout.map((item, idx) => (
                                                                      <div key={idx} style={{
@@ -1209,27 +1219,27 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                  </div>
                              )}
                              {sidebarTab === 'settings' && (
-                                 <div className="p-4 space-y-6">
-                                    <div className="space-y-3">
+                                 <div className="p-6 space-y-8">
+                                    <div className="space-y-4">
                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
-                                        <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ad Soyad</label><input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200" placeholder="Örn: Ali Yılmaz" /></div>
-                                        <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Sınıf</label><select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200">{['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}</select></div></div>
+                                        <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Ad Soyad</label><input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium" placeholder="Örn: Ali Yılmaz" /></div>
+                                        <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Sınıf</label><select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}</select></div>
                                     </div>
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-book"></i> Hikaye Kurgusu</h4>
-                                        <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Konu</label><input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200" placeholder="Örn: Uzay Maceraları" /></div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Tür</label><select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200">{['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}</select></div>
-                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Ton</label><select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200">{['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                                        <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Konu</label><input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium" placeholder="Örn: Uzay Maceraları" /></div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Tür</label><select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}</select></div>
+                                            <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Ton</label><select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                             <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Uzunluk</label><select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200"><option value="short">Kısa</option><option value="medium">Orta</option><option value="long">Uzun</option></select></div>
-                                            <div><label className="text-[9px] font-bold text-zinc-500 mb-1 block">Dil Seviyesi</label><select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-2 border border-zinc-700 rounded-lg text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200"><option value="simple">Basit</option><option value="moderate">Orta</option><option value="advanced">İleri</option></select></div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                             <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Uzunluk</label><select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium"><option value="short">Kısa</option><option value="medium">Orta</option><option value="long">Uzun</option></select></div>
+                                            <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Dil Seviyesi</label><select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium"><option value="simple">Basit</option><option value="moderate">Orta</option><option value="advanced">İleri</option></select></div>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3 bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800 shadow-inner">
-                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 mb-3">
+                                    <div className="space-y-4 bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-inner">
+                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 mb-2">
                                             <i className="fa-solid fa-list-check text-indigo-500"></i> İçerik Bileşenleri
                                         </h4>
                                         <div className="space-y-1">
@@ -1237,7 +1247,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                             <ToggleControl label="Sözlükçe (Kelime Odaklı)" checked={config.focusVocabulary} onChange={v => setConfig({...config, focusVocabulary: v})} icon="fa-spell-check" />
                                             <ToggleControl label="Yaratıcı Görev" checked={config.includeCreativeTask} onChange={v => setConfig({...config, includeCreativeTask: v})} icon="fa-paintbrush" />
                                         </div>
-                                        <div className="mt-4 pt-3 border-t border-zinc-800 space-y-1">
+                                        <div className="mt-4 pt-4 border-t border-zinc-800 space-y-2">
                                             <CounterControl label="Test Sorusu" value={config.countMultipleChoice} onChange={v => setConfig({...config, countMultipleChoice: v})} />
                                             <CounterControl label="Doğru / Yanlış" value={config.countTrueFalse} onChange={v => setConfig({...config, countTrueFalse: v})} />
                                             <CounterControl label="Boşluk Doldurma" value={config.countFillBlanks} onChange={v => setConfig({...config, countFillBlanks: v})} />
@@ -1245,7 +1255,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                             <CounterControl label="Çıkarım Sorusu" value={config.countInference} onChange={v => setConfig({...config, countInference: v})} />
                                         </div>
                                     </div>
-                                    <button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-indigo-500 hover:bg-indigo-400 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}{isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}</button>
+                                    <button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-sm shadow-lg hover:shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}{isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}</button>
                                  </div>
                              )}
                          </div>
@@ -1254,7 +1264,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className={`absolute top-1/2 -translate-y-1/2 z-50 w-5 h-12 bg-[#2d2d32] border-y border-r border-zinc-700 rounded-r-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-indigo-500 transition-all shadow-md focus:outline-none duration-300 ease-in-out`}
+                    className={`absolute top-1/2 -translate-y-1/2 z-50 w-6 h-14 bg-[#18181b] border-y border-r border-zinc-700 rounded-r-xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-indigo-600 transition-all shadow-xl focus:outline-none duration-300 ease-in-out`}
                     style={{ left: isSidebarOpen ? '320px' : '0px' }}
                 >
                     <i className={`fa-solid fa-chevron-${isSidebarOpen ? 'left' : 'right'} text-xs`}></i>
@@ -1289,7 +1299,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 </div>
 
                 {selectedId && (
-                    <div className="shrink-0 z-50 h-full border-l border-zinc-800 shadow-xl relative">
+                    <div className="shrink-0 z-50 h-full border-l border-zinc-800 shadow-2xl relative">
                         <SettingsStation item={layout.find(l => l.instanceId === selectedId)!} onUpdate={updateItem} onClose={() => setSelectedId(null)} onDelete={deleteItem} />
                     </div>
                 )}

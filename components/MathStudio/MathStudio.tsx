@@ -323,12 +323,12 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#121212] text-white overflow-hidden font-sans">
+        <div className="h-full flex flex-col bg-[#121212] text-white overflow-hidden font-sans absolute inset-0 z-50">
             
             {/* HEADER */}
             <div className="h-16 bg-[#18181b] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
                 <div className="flex items-center gap-4">
-                    <button onClick={onBack} className="w-10 h-10 rounded-full bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors"><i className="fa-solid fa-arrow-left"></i></button>
+                    <button onClick={onBack} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors"><i className="fa-solid fa-arrow-left"></i></button>
                     <div>
                         <h1 className="font-black text-xl tracking-tight text-white flex items-center gap-2">
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">MATH STUDIO</span>
@@ -338,11 +338,11 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                 </div>
                 
                 <div className="flex items-center gap-4">
-                    <div className="flex bg-zinc-800 p-1 rounded-lg">
-                        <button onClick={() => setMode('drill')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${mode === 'drill' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
+                    <div className="flex bg-zinc-800 border border-zinc-700 rounded-xl p-1 gap-1">
+                        <button onClick={() => setMode('drill')} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${mode === 'drill' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
                             <i className="fa-solid fa-calculator"></i> İşlem Atölyesi
                         </button>
-                        <button onClick={() => setMode('problem_ai')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${mode === 'problem_ai' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
+                        <button onClick={() => setMode('problem_ai')} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${mode === 'problem_ai' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
                             <i className="fa-solid fa-robot"></i> AI Problemleri
                         </button>
                     </div>
@@ -350,18 +350,18 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                     <div className="h-8 w-px bg-zinc-800"></div>
 
                     <div className="flex gap-2">
-                        <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="PDF İndir">
+                        <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="PDF İndir">
                             {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
                         </button>
-                        <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Yazdır">
+                        <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Yazdır">
                             <i className="fa-solid fa-print"></i>
                         </button>
-                        <button onClick={() => setIsShareModalOpen(true)} className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Paylaş">
+                        <button onClick={() => setIsShareModalOpen(true)} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Paylaş">
                             <i className="fa-solid fa-share-nodes"></i>
                         </button>
                         
                         {onAddToWorkbook && (
-                            <button onClick={handleAddToWorkbookClick} className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-emerald-600 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Kitapçığa Ekle">
+                            <button onClick={handleAddToWorkbookClick} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-emerald-600 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Kitapçığa Ekle">
                                 <i className="fa-solid fa-plus-circle"></i>
                             </button>
                         )}
@@ -369,7 +369,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                         <button 
                             onClick={handleSave} 
                             disabled={isSaving}
-                            className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all ${isSaving ? 'bg-zinc-700 text-zinc-400' : 'bg-white text-black hover:bg-zinc-200'}`}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${isSaving ? 'bg-zinc-700 text-zinc-400' : 'bg-white text-black hover:bg-zinc-200'}`}
                         >
                             {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-save"></i>}
                             Kaydet
@@ -384,29 +384,29 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                 <div className="w-80 bg-[#18181b] border-r border-zinc-800 flex flex-col overflow-y-auto custom-scrollbar">
                     
                     {/* GLOBAL PAGE SETTINGS */}
-                    <div className="p-5 border-b border-zinc-800">
+                    <div className="p-6 border-b border-zinc-800">
                         <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-3">Sayfa Ayarları</h4>
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-bold text-zinc-400 mb-1">Başlık</label>
-                                <input type="text" value={pageConfig.title} onChange={e => setPageConfig({...pageConfig, title: e.target.value})} className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-xs text-white focus:border-indigo-500 outline-none" />
+                                <label className="block text-[10px] font-bold text-zinc-400 mb-1.5 uppercase">Başlık</label>
+                                <input type="text" value={pageConfig.title} onChange={e => setPageConfig({...pageConfig, title: e.target.value})} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none font-bold" />
                             </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => setPageConfig({...pageConfig, paperType: 'blank'})} className={`flex-1 py-2 text-[10px] font-bold border rounded ${pageConfig.paperType==='blank'?'bg-zinc-700 border-zinc-500 text-white':'border-zinc-700 text-zinc-500'}`}>Boş</button>
-                                <button onClick={() => setPageConfig({...pageConfig, paperType: 'grid'})} className={`flex-1 py-2 text-[10px] font-bold border rounded ${pageConfig.paperType==='grid'?'bg-zinc-700 border-zinc-500 text-white':'border-zinc-700 text-zinc-500'}`}>Kareli</button>
-                                <button onClick={() => setPageConfig({...pageConfig, paperType: 'dot'})} className={`flex-1 py-2 text-[10px] font-bold border rounded ${pageConfig.paperType==='dot'?'bg-zinc-700 border-zinc-500 text-white':'border-zinc-700 text-zinc-500'}`}>Noktalı</button>
+                            <div className="flex gap-2 bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+                                <button onClick={() => setPageConfig({...pageConfig, paperType: 'blank'})} className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-colors ${pageConfig.paperType==='blank'?'bg-zinc-700 text-white shadow-sm':'text-zinc-500 hover:text-zinc-300'}`}>Boş</button>
+                                <button onClick={() => setPageConfig({...pageConfig, paperType: 'grid'})} className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-colors ${pageConfig.paperType==='grid'?'bg-zinc-700 text-white shadow-sm':'text-zinc-500 hover:text-zinc-300'}`}>Kareli</button>
+                                <button onClick={() => setPageConfig({...pageConfig, paperType: 'dot'})} className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-colors ${pageConfig.paperType==='dot'?'bg-zinc-700 text-white shadow-sm':'text-zinc-500 hover:text-zinc-300'}`}>Noktalı</button>
                             </div>
                         </div>
                     </div>
 
                     {/* DRILL SETTINGS */}
                     {mode === 'drill' && (
-                        <div className="p-5 space-y-6 animate-in slide-in-from-left-4">
+                        <div className="p-6 space-y-8 animate-in slide-in-from-left-4">
                             
                             {/* Operation Select */}
                             <div>
-                                <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">İşlem Türleri (Çoklu)</label>
-                                <div className="grid grid-cols-4 gap-2">
+                                <label className="text-[10px] font-bold text-zinc-400 uppercase mb-2 block">İşlem Türleri</label>
+                                <div className="grid grid-cols-4 gap-3">
                                     {[
                                         {id: 'add', icon: 'plus'}, {id: 'sub', icon: 'minus'}, 
                                         {id: 'mult', icon: 'xmark'}, {id: 'div', icon: 'divide'}
@@ -414,7 +414,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                                         <button 
                                             key={op.id}
                                             onClick={() => toggleDrillOp(op.id)}
-                                            className={`aspect-square rounded-xl flex items-center justify-center text-lg transition-all border-2 ${drillConfig.selectedOperations.includes(op.id) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'}`}
+                                            className={`aspect-square rounded-xl flex items-center justify-center text-lg transition-all border-2 ${drillConfig.selectedOperations.includes(op.id) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'}`}
                                         >
                                             <i className={`fa-solid fa-${op.icon}`}></i>
                                         </button>
@@ -422,80 +422,70 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                                 </div>
                             </div>
 
-                            {/* Constraints Toggles (Enhanced Visibility) */}
-                            <div className="space-y-3 p-4 bg-black/40 rounded-xl border border-zinc-700/50">
-                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i className="fa-solid fa-sliders"></i> İşlem Kuralları</h4>
+                            {/* Constraints Toggles */}
+                            <div className="space-y-3 p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
+                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i className="fa-solid fa-sliders"></i> Kurallar</h4>
                                 
                                 {drillConfig.selectedOperations.includes('add') && (
-                                    <div className="space-y-2 mb-2 pb-2 border-b border-zinc-800">
-                                        <label className="flex items-center justify-between cursor-pointer group hover:bg-zinc-800 p-1 rounded transition-colors">
-                                            <span className="text-xs text-zinc-300 group-hover:text-white transition-colors font-bold">Toplama: Eldeli Olabilir</span>
-                                            <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowCarry ? 'bg-green-500' : 'bg-zinc-600'}`}>
-                                                <input type="checkbox" checked={drillConfig.allowCarry} onChange={e => setDrillConfig({...drillConfig, allowCarry: e.target.checked})} className="hidden" />
-                                                <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowCarry ? 'left-5' : 'left-1'}`}></div>
-                                            </div>
-                                        </label>
-                                    </div>
+                                    <label className="flex items-center justify-between cursor-pointer group p-1">
+                                        <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors font-bold">Toplama: Eldeli</span>
+                                        <div className={`w-9 h-5 rounded-full relative transition-colors ${drillConfig.allowCarry ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
+                                            <input type="checkbox" checked={drillConfig.allowCarry} onChange={e => setDrillConfig({...drillConfig, allowCarry: e.target.checked})} className="hidden" />
+                                            <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowCarry ? 'left-5' : 'left-1'}`}></div>
+                                        </div>
+                                    </label>
                                 )}
                                 
                                 {drillConfig.selectedOperations.includes('sub') && (
-                                    <div className="space-y-2 mb-2 pb-2 border-b border-zinc-800">
-                                        <label className="flex items-center justify-between cursor-pointer group hover:bg-zinc-800 p-1 rounded transition-colors">
-                                            <span className="text-xs text-zinc-300 group-hover:text-white transition-colors font-bold">Çıkarma: Onluk Bozmalı</span>
-                                            <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowBorrow ? 'bg-green-500' : 'bg-zinc-600'}`}>
+                                    <>
+                                        <label className="flex items-center justify-between cursor-pointer group p-1">
+                                            <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors font-bold">Çıkarma: Onluk Bozma</span>
+                                            <div className={`w-9 h-5 rounded-full relative transition-colors ${drillConfig.allowBorrow ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
                                                 <input type="checkbox" checked={drillConfig.allowBorrow} onChange={e => setDrillConfig({...drillConfig, allowBorrow: e.target.checked})} className="hidden" />
-                                                <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowBorrow ? 'left-5' : 'left-1'}`}></div>
+                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowBorrow ? 'left-5' : 'left-1'}`}></div>
                                             </div>
                                         </label>
-                                        <label className="flex items-center justify-between cursor-pointer group hover:bg-zinc-800 p-1 rounded transition-colors">
-                                            <span className="text-xs text-zinc-300 group-hover:text-white transition-colors font-bold">Çıkarma: Negatif Sonuç</span>
-                                            <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowNegative ? 'bg-green-500' : 'bg-zinc-600'}`}>
+                                        <label className="flex items-center justify-between cursor-pointer group p-1">
+                                            <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors font-bold">Çıkarma: Negatif</span>
+                                            <div className={`w-9 h-5 rounded-full relative transition-colors ${drillConfig.allowNegative ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
                                                 <input type="checkbox" checked={drillConfig.allowNegative} onChange={e => setDrillConfig({...drillConfig, allowNegative: e.target.checked})} className="hidden" />
-                                                <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowNegative ? 'left-5' : 'left-1'}`}></div>
+                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowNegative ? 'left-5' : 'left-1'}`}></div>
                                             </div>
                                         </label>
-                                    </div>
+                                    </>
                                 )}
                                 
                                 {drillConfig.selectedOperations.includes('div') && (
-                                    <div className="space-y-2">
-                                        <label className="flex items-center justify-between cursor-pointer group hover:bg-zinc-800 p-1 rounded transition-colors">
-                                            <span className="text-xs text-zinc-300 group-hover:text-white transition-colors font-bold">Bölme: Kalanlı Olabilir</span>
-                                            <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.allowRemainder ? 'bg-green-500' : 'bg-zinc-600'}`}>
-                                                <input type="checkbox" checked={drillConfig.allowRemainder} onChange={e => setDrillConfig({...drillConfig, allowRemainder: e.target.checked})} className="hidden" />
-                                                <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowRemainder ? 'left-5' : 'left-1'}`}></div>
-                                            </div>
-                                        </label>
-                                    </div>
-                                )}
-                                
-                                {!drillConfig.selectedOperations.some(op => ['add', 'sub', 'div'].includes(op)) && (
-                                    <p className="text-[10px] text-zinc-500 italic text-center py-2">Seçilen işlemler için özel kural yok.</p>
+                                    <label className="flex items-center justify-between cursor-pointer group p-1">
+                                        <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors font-bold">Bölme: Kalanlı</span>
+                                        <div className={`w-9 h-5 rounded-full relative transition-colors ${drillConfig.allowRemainder ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
+                                            <input type="checkbox" checked={drillConfig.allowRemainder} onChange={e => setDrillConfig({...drillConfig, allowRemainder: e.target.checked})} className="hidden" />
+                                            <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${drillConfig.allowRemainder ? 'left-5' : 'left-1'}`}></div>
+                                        </div>
+                                    </label>
                                 )}
                             </div>
 
                             {/* Digits Control */}
-                            <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-700/50">
-                                <div className="flex justify-between items-center mb-3">
-                                    <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Basamak Sayısı</h4>
-                                </div>
+                            <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800">
+                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3">Basamak Sayısı</h4>
                                 <div className={`grid ${drillConfig.useThirdNumber ? 'grid-cols-3' : 'grid-cols-2'} gap-3`}>
                                     <div>
-                                        <label className="block text-[9px] text-zinc-500 mb-1 font-bold">1. Sayı</label>
-                                        <select value={drillConfig.digit1} onChange={e => setDrillConfig({...drillConfig, digit1: Number(e.target.value)})} className="w-full bg-black border border-zinc-600 rounded p-1.5 text-xs text-white outline-none focus:border-indigo-500">
+                                        <label className="block text-[9px] text-zinc-500 mb-1 font-bold uppercase">1. Sayı</label>
+                                        <select value={drillConfig.digit1} onChange={e => setDrillConfig({...drillConfig, digit1: Number(e.target.value)})} className="w-full bg-black border border-zinc-700 rounded-lg p-2 text-xs text-white outline-none focus:border-indigo-500 font-bold">
                                             {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} B.</option>)}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-[9px] text-zinc-500 mb-1 font-bold">2. Sayı</label>
-                                        <select value={drillConfig.digit2} onChange={e => setDrillConfig({...drillConfig, digit2: Number(e.target.value)})} className="w-full bg-black border border-zinc-600 rounded p-1.5 text-xs text-white outline-none focus:border-indigo-500">
+                                        <label className="block text-[9px] text-zinc-500 mb-1 font-bold uppercase">2. Sayı</label>
+                                        <select value={drillConfig.digit2} onChange={e => setDrillConfig({...drillConfig, digit2: Number(e.target.value)})} className="w-full bg-black border border-zinc-700 rounded-lg p-2 text-xs text-white outline-none focus:border-indigo-500 font-bold">
                                             {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} B.</option>)}
                                         </select>
                                     </div>
                                     {drillConfig.useThirdNumber && (
                                         <div className="animate-in fade-in slide-in-from-left-2">
-                                            <label className="block text-[9px] text-zinc-500 mb-1 font-bold">3. Sayı</label>
-                                            <select value={drillConfig.digit3} onChange={e => setDrillConfig({...drillConfig, digit3: Number(e.target.value)})} className="w-full bg-black border border-zinc-600 rounded p-1.5 text-xs text-white outline-none focus:border-indigo-500">
+                                            <label className="block text-[9px] text-zinc-500 mb-1 font-bold uppercase">3. Sayı</label>
+                                            <select value={drillConfig.digit3} onChange={e => setDrillConfig({...drillConfig, digit3: Number(e.target.value)})} className="w-full bg-black border border-zinc-700 rounded-lg p-2 text-xs text-white outline-none focus:border-indigo-500 font-bold">
                                                 {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} B.</option>)}
                                             </select>
                                         </div>
@@ -504,62 +494,62 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                             </div>
 
                             {/* Advanced Toggles */}
-                            <div className="space-y-2">
-                                <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2 mb-1">Gelişmiş</h4>
-                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-800/30 p-2 rounded-lg border border-zinc-800">
+                            <div className="space-y-3">
+                                <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Gelişmiş</h4>
+                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-900 p-3 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
                                     <span className="text-xs text-zinc-300 font-bold group-hover:text-white transition-colors">Sayfayı Otomatik Doldur</span>
-                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.autoFillPage ? 'bg-indigo-500' : 'bg-zinc-700'}`}>
+                                    <div className={`w-9 h-5 rounded-full relative transition-colors ${drillConfig.autoFillPage ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
                                         <input type="checkbox" checked={drillConfig.autoFillPage} onChange={e => setDrillConfig({...drillConfig, autoFillPage: e.target.checked})} className="hidden" />
-                                        <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.autoFillPage ? 'left-5' : 'left-1'}`}></div>
+                                        <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${drillConfig.autoFillPage ? 'left-5' : 'left-1'}`}></div>
                                     </div>
                                 </label>
 
-                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-800/30 p-2 rounded-lg border border-zinc-800">
+                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-900 p-3 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
                                     <span className="text-xs text-zinc-300 font-bold group-hover:text-white transition-colors">3. Sayı Ekle (Zincir)</span>
-                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.useThirdNumber ? 'bg-indigo-500' : 'bg-zinc-700'}`}>
+                                    <div className={`w-9 h-5 rounded-full relative transition-colors ${drillConfig.useThirdNumber ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
                                         <input type="checkbox" checked={drillConfig.useThirdNumber} onChange={e => setDrillConfig({...drillConfig, useThirdNumber: e.target.checked})} className="hidden" />
-                                        <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.useThirdNumber ? 'left-5' : 'left-1'}`}></div>
+                                        <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${drillConfig.useThirdNumber ? 'left-5' : 'left-1'}`}></div>
                                     </div>
                                 </label>
 
-                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-800/30 p-2 rounded-lg border border-zinc-800">
+                                <label className="flex items-center justify-between cursor-pointer group bg-zinc-900 p-3 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
                                     <span className="text-xs text-zinc-300 font-bold group-hover:text-white transition-colors">Sayıları Yazıyla Göster</span>
-                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${drillConfig.showTextRepresentation ? 'bg-indigo-500' : 'bg-zinc-700'}`}>
+                                    <div className={`w-9 h-5 rounded-full relative transition-colors ${drillConfig.showTextRepresentation ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
                                         <input type="checkbox" checked={drillConfig.showTextRepresentation} onChange={e => setDrillConfig({...drillConfig, showTextRepresentation: e.target.checked})} className="hidden" />
-                                        <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${drillConfig.showTextRepresentation ? 'left-5' : 'left-1'}`}></div>
+                                        <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${drillConfig.showTextRepresentation ? 'left-5' : 'left-1'}`}></div>
                                     </div>
                                 </label>
                             </div>
 
                             {/* Layout & Style */}
-                            <div className="space-y-3 pt-4 border-t border-zinc-800">
-                                <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Görünüm</h4>
+                            <div className="space-y-4 pt-6 border-t border-zinc-800">
+                                <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Düzen</h4>
                                 
-                                <div className="flex bg-zinc-800 rounded-lg p-1 border border-zinc-700">
-                                    <button onClick={() => setDrillConfig({...drillConfig, orientation: 'vertical'})} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${drillConfig.orientation==='vertical'?'bg-zinc-600 text-white shadow':'text-zinc-500'}`}>Alt Alta</button>
-                                    <button onClick={() => setDrillConfig({...drillConfig, orientation: 'horizontal'})} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${drillConfig.orientation==='horizontal'?'bg-zinc-600 text-white shadow':'text-zinc-500'}`}>Yan Yana</button>
+                                <div className="flex bg-zinc-900 rounded-xl p-1 border border-zinc-800">
+                                    <button onClick={() => setDrillConfig({...drillConfig, orientation: 'vertical'})} className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${drillConfig.orientation==='vertical'?'bg-zinc-700 text-white shadow-sm':'text-zinc-500 hover:text-zinc-300'}`}>Alt Alta</button>
+                                    <button onClick={() => setDrillConfig({...drillConfig, orientation: 'horizontal'})} className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${drillConfig.orientation==='horizontal'?'bg-zinc-700 text-white shadow-sm':'text-zinc-500 hover:text-zinc-300'}`}>Yan Yana</button>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                      <div>
-                                        <label className="block text-[9px] text-zinc-500 mb-1">Adet</label>
+                                        <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">Soru Adedi</label>
                                         <input 
                                             type="number" 
                                             value={drillConfig.count} 
                                             onChange={e => setDrillConfig({...drillConfig, count: Number(e.target.value)})} 
                                             disabled={drillConfig.autoFillPage}
-                                            className={`w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-xs text-white ${drillConfig.autoFillPage ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                            className={`w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-sm text-white font-bold ${drillConfig.autoFillPage ? 'opacity-50 cursor-not-allowed' : ''}`} 
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[9px] text-zinc-500 mb-1">Sütun</label>
-                                        <input type="number" value={drillConfig.cols} onChange={e => setDrillConfig({...drillConfig, cols: Number(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-xs text-white" />
+                                        <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">Sütun Sayısı</label>
+                                        <input type="number" value={drillConfig.cols} onChange={e => setDrillConfig({...drillConfig, cols: Number(e.target.value)})} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-sm text-white font-bold" />
                                     </div>
                                 </div>
                                 
                                 <div>
-                                    <label className="block text-[9px] text-zinc-500 mb-1">Font Büyüklüğü ({drillConfig.fontSize}px)</label>
-                                    <input type="range" min="16" max="48" value={drillConfig.fontSize} onChange={e => setDrillConfig({...drillConfig, fontSize: Number(e.target.value)})} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+                                    <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">Yazı Büyüklüğü ({drillConfig.fontSize}px)</label>
+                                    <input type="range" min="16" max="48" value={drillConfig.fontSize} onChange={e => setDrillConfig({...drillConfig, fontSize: Number(e.target.value)})} className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
                                 </div>
                             </div>
                         </div>
@@ -567,31 +557,31 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
 
                     {/* AI PROBLEM SETTINGS */}
                     {mode === 'problem_ai' && (
-                        <div className="p-5 space-y-6 animate-in slide-in-from-left-4">
+                        <div className="p-6 space-y-8 animate-in slide-in-from-left-4">
                             
-                            <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 p-4 rounded-2xl border border-indigo-500/30">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl">🤖</div>
+                            <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 p-5 rounded-[1.5rem] border border-indigo-500/30 shadow-lg">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl shadow-inner border border-white/10">🤖</div>
                                     <div>
                                         <h4 className="font-bold text-white text-sm">Akıllı Problem Motoru</h4>
                                         <p className="text-[10px] text-indigo-200">Tam kontrollü üretim.</p>
                                     </div>
                                 </div>
                                 
-                                <div className="space-y-4">
+                                <div className="space-y-5">
                                     <div>
-                                        <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Konu</label>
+                                        <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 block">Konu</label>
                                         <input 
                                             type="text" 
                                             value={problemConfig.topic}
                                             onChange={e => setProblemConfig({...problemConfig, topic: e.target.value})}
-                                            className="w-full p-2.5 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-white/30 outline-none focus:ring-1 focus:ring-white/50"
+                                            className="w-full p-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-white/30 outline-none focus:ring-1 focus:ring-white/50 font-medium"
                                             placeholder="Örn: Dinozorlar, Market..."
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Hangi İşlemler?</label>
+                                        <label className="text-[9px] font-bold text-indigo-300 uppercase mb-2 block">Hangi İşlemler?</label>
                                         <div className="grid grid-cols-4 gap-2">
                                             {[
                                                 {id:'add', label:'+'}, {id:'sub', label:'-'}, {id:'mult', label:'x'}, {id:'div', label:'÷'}
@@ -599,7 +589,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                                                 <button
                                                     key={op.id}
                                                     onClick={() => toggleProblemOp(op.id)}
-                                                    className={`py-2 rounded-lg font-bold text-sm transition-all border ${problemConfig.selectedOperations.includes(op.id) ? 'bg-indigo-500 text-white border-indigo-400' : 'bg-black/20 text-zinc-400 border-white/10 hover:bg-black/40'}`}
+                                                    className={`py-2 rounded-lg font-bold text-sm transition-all border ${problemConfig.selectedOperations.includes(op.id) ? 'bg-indigo-500 text-white border-indigo-400 shadow-md' : 'bg-black/20 text-zinc-400 border-white/10 hover:bg-black/40 hover:text-white'}`}
                                                 >
                                                     {op.label}
                                                 </button>
@@ -609,8 +599,8 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
 
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Sayı Aralığı</label>
-                                            <select value={problemConfig.numberRange} onChange={e => setProblemConfig({...problemConfig, numberRange: e.target.value})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 block">Sayı Aralığı</label>
+                                            <select value={problemConfig.numberRange} onChange={e => setProblemConfig({...problemConfig, numberRange: e.target.value})} className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold">
                                                 <option value="1-10">1 - 10</option>
                                                 <option value="1-20">1 - 20</option>
                                                 <option value="1-50">1 - 50</option>
@@ -619,8 +609,8 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Adet</label>
-                                            <select value={problemConfig.count} onChange={e => setProblemConfig({...problemConfig, count: Number(e.target.value)})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 block">Adet</label>
+                                            <select value={problemConfig.count} onChange={e => setProblemConfig({...problemConfig, count: Number(e.target.value)})} className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold">
                                                 {Array.from({length: 20}, (_, i) => i + 1).map(n => (
                                                     <option key={n} value={n}>{n} Soru</option>
                                                 ))}
@@ -630,16 +620,16 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
 
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Karmaşıklık</label>
-                                            <select value={problemConfig.complexity} onChange={e => setProblemConfig({...problemConfig, complexity: e.target.value as any})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 block">Karmaşıklık</label>
+                                            <select value={problemConfig.complexity} onChange={e => setProblemConfig({...problemConfig, complexity: e.target.value as any})} className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold">
                                                 <option value="1-step">Tek İşlem</option>
                                                 <option value="2-step">İki Aşamalı</option>
                                                 <option value="multi-step">Çok Adımlı</option>
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1 block">Kurgu Tarzı</label>
-                                            <select value={problemConfig.problemStyle} onChange={e => setProblemConfig({...problemConfig, problemStyle: e.target.value as any})} className="w-full p-2 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none">
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 block">Kurgu Tarzı</label>
+                                            <select value={problemConfig.problemStyle} onChange={e => setProblemConfig({...problemConfig, problemStyle: e.target.value as any})} className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold">
                                                 <option value="simple">Kısa & Net</option>
                                                 <option value="story">Hikayeli</option>
                                                 <option value="logic">Mantık</option>
@@ -650,7 +640,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                                     <button 
                                         onClick={handleGenerateProblems} 
                                         disabled={isGenerating}
-                                        className="w-full py-3 bg-white text-indigo-900 font-bold rounded-xl text-sm shadow-lg hover:bg-indigo-50 transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2"
+                                        className="w-full py-3.5 bg-white text-indigo-900 font-black rounded-xl text-sm shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-4"
                                     >
                                         {isGenerating ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
                                         {isGenerating ? 'Düşünülüyor...' : 'Problemleri Yaz'}
@@ -659,9 +649,9 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                             </div>
                             
                             <div className="space-y-2">
-                                <label className="flex items-center gap-3 p-3 bg-zinc-800 rounded-xl cursor-pointer border border-zinc-700 hover:border-indigo-500/50 transition-colors">
-                                    <input type="checkbox" checked={problemConfig.includeSolutionBox} onChange={e => setProblemConfig({...problemConfig, includeSolutionBox: e.target.checked})} className="w-4 h-4 rounded text-indigo-500 focus:ring-indigo-500 bg-black border-zinc-600" />
-                                    <span className="text-xs font-bold text-zinc-300">Çözüm ve İşlem Kutusu Ekle</span>
+                                <label className="flex items-center gap-3 p-4 bg-zinc-900 rounded-xl cursor-pointer border border-zinc-800 hover:border-indigo-500/50 transition-colors">
+                                    <input type="checkbox" checked={problemConfig.includeSolutionBox} onChange={e => setProblemConfig({...problemConfig, includeSolutionBox: e.target.checked})} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 bg-black border-zinc-700" />
+                                    <span className="text-sm font-bold text-zinc-300">Çözüm ve İşlem Kutusu Ekle</span>
                                 </label>
                             </div>
                         </div>
