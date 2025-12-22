@@ -50,6 +50,8 @@ const FilterButton = ({ active, label, icon, onClick, count }: any) => (
 // --- CARDS ---
 
 const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
+    if (!item || !item.id) return null; // Safe check
+
     const activityDef = ACTIVITIES.find(a => a.id === item.activityType);
     const categoryDef = ACTIVITY_CATEGORIES.find(c => c.activities.includes(item.activityType));
     
@@ -83,14 +85,17 @@ const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
                 </h3>
                 <div className="flex items-center gap-2 text-[10px] text-zinc-400 font-mono mt-auto">
                     <i className="fa-regular fa-calendar"></i>
-                    {new Date(item.createdAt).toLocaleDateString('tr-TR')}
+                    {item.createdAt ? new Date(item.createdAt).toLocaleDateString('tr-TR') : 'Tarih Yok'}
                 </div>
             </div>
         </div>
     );
 };
 
-const ReportCard = ({ item, onDelete, isReadOnly }: any) => (
+const ReportCard = ({ item, onDelete, isReadOnly }: any) => {
+    if (!item || !item.id) return null; // Safe check
+    
+    return (
     <div className="bg-white dark:bg-zinc-800 rounded-2xl p-0 border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col group">
         <div className="h-2 bg-gradient-to-r from-purple-500 to-indigo-600"></div>
         <div className="p-5 flex-1">
@@ -107,7 +112,7 @@ const ReportCard = ({ item, onDelete, isReadOnly }: any) => (
             <div className="mt-4 grid grid-cols-2 gap-2">
                 <div className="bg-zinc-50 dark:bg-zinc-700/30 p-2 rounded-lg text-center">
                     <span className="block text-[10px] text-zinc-400 uppercase font-bold">Tarih</span>
-                    <span className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">{new Date(item.createdAt).toLocaleDateString()}</span>
+                    <span className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</span>
                 </div>
                 <div className="bg-zinc-50 dark:bg-zinc-700/30 p-2 rounded-lg text-center">
                     <span className="block text-[10px] text-zinc-400 uppercase font-bold">Durum</span>
@@ -122,9 +127,13 @@ const ReportCard = ({ item, onDelete, isReadOnly }: any) => (
             </div>
         )}
     </div>
-);
+    );
+};
 
-const PlanCard = ({ item, onDelete, isReadOnly }: any) => (
+const PlanCard = ({ item, onDelete, isReadOnly }: any) => {
+    if (!item || !item.id) return null; // Safe check
+
+    return (
     <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-5 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 opacity-10">
             <i className="fa-solid fa-calendar-days text-6xl"></i>
@@ -136,7 +145,7 @@ const PlanCard = ({ item, onDelete, isReadOnly }: any) => (
                     {item.durationDays} Günlük Plan
                 </span>
                 <span className="text-[10px] text-zinc-400 font-mono">
-                    {new Date(item.createdAt).toLocaleDateString()}
+                    {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}
                 </span>
             </div>
             
@@ -156,7 +165,8 @@ const PlanCard = ({ item, onDelete, isReadOnly }: any) => (
             </div>
         </div>
     </div>
-);
+    );
+};
 
 export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
     const { user } = useAuth();
@@ -222,22 +232,20 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
         
         if (activeTab === 'materials') {
             return worksheets.filter(item => {
-                const matchesSearch = item.name.toLowerCase().includes(query);
+                if (!item) return false;
+                const matchesSearch = (item.name || '').toLowerCase().includes(query);
                 const categoryDef = ACTIVITY_CATEGORIES.find(c => c.activities.includes(item.activityType));
                 const catId = categoryDef?.id || 'others';
-                
-                // Special check for Reading Studio items which might be saved under 'reading-verbal' category ID directly or via activity mapping
-                // The new ReadingStudio explicitly passes category info, but older items rely on activityType mapping.
                 
                 const matchesCategory = activeCategory === 'all' || catId === activeCategory || (item.category?.id === activeCategory);
                 return matchesSearch && matchesCategory;
             });
         }
         if (activeTab === 'reports') {
-            return assessments.filter(item => item.studentName.toLowerCase().includes(query));
+            return assessments.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
         }
         if (activeTab === 'plans') {
-            return plans.filter(item => item.studentName.toLowerCase().includes(query));
+            return plans.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
         }
         return [];
     }, [activeTab, activeCategory, searchQuery, worksheets, assessments, plans]);

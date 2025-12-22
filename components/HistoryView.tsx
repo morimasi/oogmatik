@@ -14,6 +14,7 @@ interface HistoryViewProps {
 
 // Helper to group dates
 const getRelativeDateGroup = (dateStr: string): string => {
+    if (!dateStr) return 'Tarihsiz';
     const date = new Date(dateStr);
     const now = new Date();
     // Fix: Explicitly use getTime() to resolve arithmetic operation type error
@@ -44,29 +45,33 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
     // --- STATISTICS ---
     const stats = useMemo(() => {
+        // Safe access
+        const validItems = historyItems.filter(i => i && i.timestamp);
         return {
-            total: historyItems.length,
-            todayCount: historyItems.filter(i => new Date(i.timestamp).toDateString() === new Date().toDateString()).length,
-            lastActivity: historyItems.length > 0 ? historyItems[0].activityType : null
+            total: validItems.length,
+            todayCount: validItems.filter(i => new Date(i.timestamp).toDateString() === new Date().toDateString()).length,
+            lastActivity: validItems.length > 0 ? validItems[0].activityType : null
         };
     }, [historyItems]);
 
     // --- FILTERING & GROUPING ---
     const groupedHistory = useMemo(() => {
-        // 1. Filter
+        // 1. Filter and Validate
         const filtered = historyItems.filter(item => {
-            const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
+            if (!item || !item.id || !item.timestamp) return false;
+            
+            const titleMatch = (item.title || '').toLowerCase().includes(searchQuery.toLowerCase());
             
             // Find category ID for the item
             const cat = ACTIVITY_CATEGORIES.find(c => c.activities.includes(item.activityType));
             const matchesCategory = selectedCategory === 'all' || cat?.id === selectedCategory;
 
-            return matchesSearch && matchesCategory;
+            return titleMatch && matchesCategory;
         });
 
         // 2. Group
         const groups: Record<string, HistoryItem[]> = {};
-        const order = ['Bugün', 'Dün', 'Bu Hafta', 'Bu Ay', 'Daha Eski'];
+        const order = ['Bugün', 'Dün', 'Bu Hafta', 'Bu Ay', 'Daha Eski', 'Tarihsiz'];
 
         filtered.forEach(item => {
             const group = getRelativeDateGroup(item.timestamp);
@@ -196,7 +201,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                                                             <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
                                                                 <span className="font-mono">{new Date(item.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}</span>
                                                                 <span>•</span>
-                                                                <span className="bg-zinc-100 dark:bg-zinc-700 px-1.5 rounded">{item.data.length} Sayfa</span>
+                                                                <span className="bg-zinc-100 dark:bg-zinc-700 px-1.5 rounded">{item.data?.length || 0} Sayfa</span>
                                                             </p>
                                                         </div>
                                                     </div>

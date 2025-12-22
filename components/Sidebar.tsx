@@ -63,7 +63,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                   const mergedActivities = [...ACTIVITIES];
                   customActs.forEach(ca => {
                       if (!ca || !ca.id) return; // Skip invalid
-                      const index = mergedActivities.findIndex(a => a.id === ca.id);
+                      // Safe findIndex check
+                      const index = mergedActivities.findIndex(a => a && a.id === ca.id);
                       if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca };
                       else mergedActivities.push(ca);
                   });
@@ -89,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const getActivityById = (id: ActivityType | null): Activity | undefined => {
       if (!id) return undefined;
-      return allActivities.find(a => a.id === id);
+      return allActivities.find(a => a && a.id === id);
   }
 
   const handleGenerate = async (options: GeneratorOptions) => {
@@ -140,6 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const categorizedActivities = useMemo(() => {
       return categories.map(category => ({ 
           ...category, 
+          // Extra safety check for act validity
           items: allActivities.filter(act => act && act.id && category.activities.includes(act.id)) 
       })).filter(c => c.items.length > 0);
   }, [allActivities, categories]);

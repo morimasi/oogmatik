@@ -74,7 +74,8 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setStudents(studentList);
             
             // If active student was deleted, clear selection
-            if (activeStudent && !studentList.find(s => s.id === activeStudent.id)) {
+            // Added extra safety check for activeStudent.id
+            if (activeStudent && activeStudent.id && !studentList.find(s => s.id === activeStudent.id)) {
                 setActiveStudent(null);
             }
             
