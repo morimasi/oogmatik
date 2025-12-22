@@ -94,6 +94,7 @@ export interface StyleSettings {
 }
 
 export interface StudentProfile {
+    studentId?: string; // Link to actual Student record
     name: string;
     school: string;
     grade: string;
@@ -362,6 +363,7 @@ export interface Message {
 
 export interface Curriculum {
     id: string;
+    studentId?: string; // Link to actual Student record
     studentName: string;
     grade: string;
     startDate: string;

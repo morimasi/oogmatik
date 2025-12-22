@@ -8,7 +8,7 @@ import DyslexiaLogo from './components/DyslexiaLogo';
 import GlobalSearch from './components/GlobalSearch';
 import { FeedbackModal } from './components/FeedbackModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { StudentProvider } from './context/StudentContext'; 
+import { StudentProvider, useStudent } from './context/StudentContext'; 
 import { AuthModal } from './components/AuthModal';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
@@ -69,6 +69,7 @@ type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studi
 
 interface ActiveCurriculumSession {
     planId: string;
+    studentId?: string;
     studentName: string;
     day: number;
     activityId: string;
@@ -115,6 +116,7 @@ const tourSteps: TourStep[] = [
 
 const AppContent: React.FC = () => {
     const { user, logout } = useAuth();
+    const { activeStudent, setActiveStudent, students } = useStudent();
     const [currentView, setCurrentView] = useState<ExtendedView>('generator');
     const [viewHistory, setViewHistory] = useState<ExtendedView[]>([]); 
     
@@ -138,6 +140,21 @@ const AppContent: React.FC = () => {
     
     const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
     const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+
+    // Sync studentProfile with activeStudent from Context
+    useEffect(() => {
+        if (activeStudent) {
+            setStudentProfile({
+                studentId: activeStudent.id,
+                name: activeStudent.name,
+                school: '',
+                grade: activeStudent.grade,
+                date: new Date().toLocaleDateString('tr-TR')
+            });
+        } else {
+            setStudentProfile(null);
+        }
+    }, [activeStudent]);
 
     const [workbookItems, setWorkbookItems] = useState<CollectionItem[]>([]);
     const [workbookSettings, setWorkbookSettings] = useState<WorkbookSettings>({
@@ -255,7 +272,7 @@ const AppContent: React.FC = () => {
         try {
             await worksheetService.saveWorksheet(
                 user.id, name, activityType, data, activity.icon,
-                { id: category.id, title: category.title }, styleSettings, studentProfile || undefined
+                { id: category.id, title: category.title }, styleSettings, studentProfile || undefined, studentProfile?.studentId
             );
             alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
         } catch (e: any) {
@@ -275,8 +292,17 @@ const AppContent: React.FC = () => {
             setSelectedActivity(worksheet.activityType);
             setWorksheetData(worksheet.worksheetData);
             if (worksheet.styleSettings) setStyleSettings(worksheet.styleSettings);
-            if (worksheet.studentProfile) setStudentProfile(worksheet.studentProfile);
-            else setStudentProfile(null);
+            
+            if (worksheet.studentProfile) {
+                setStudentProfile(worksheet.studentProfile);
+                if (worksheet.studentId) {
+                    const s = students.find(x => x.id === worksheet.studentId);
+                    if (s) setActiveStudent(s);
+                }
+            } else {
+                setStudentProfile(null);
+                setActiveStudent(null);
+            }
             navigateTo('generator');
         }
     };
@@ -295,12 +321,18 @@ const AppContent: React.FC = () => {
         if (isSidebarOpen) setIsSidebarOpen(false);
     };
 
-    const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string) => {
+    const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, studentId?: string) => {
         setActiveCurriculumSession({
-            planId, day, activityId, studentName, activityTitle: title
+            planId, day, activityId, studentName, activityTitle: title, studentId
         });
         
-        setStudentProfile({ name: studentName, school: '', grade: '', date: new Date().toLocaleDateString('tr-TR') });
+        if (studentId) {
+            const s = students.find(x => x.id === studentId);
+            if (s) setActiveStudent(s);
+        } else {
+            setStudentProfile({ name: studentName, school: '', grade: '', date: new Date().toLocaleDateString('tr-TR') });
+        }
+        
         setSelectedActivity(activityType as ActivityType);
         setWorksheetData(null); 
         navigateTo('generator');

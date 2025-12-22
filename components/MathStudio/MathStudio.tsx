@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useStudent } from '../../context/StudentContext';
 import { printService } from '../../utils/printService';
 import { worksheetService } from '../../services/worksheetService';
 import { EditableText } from '../Editable';
@@ -132,6 +133,7 @@ interface MathStudioProps {
 
 export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook }) => {
     const { user } = useAuth();
+    const { students, activeStudent } = useStudent();
     
     // --- STATE ---
     const [mode, setMode] = useState<MathMode>('drill');
@@ -140,6 +142,16 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
     const [isPrinting, setIsPrinting] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     
+    const [selectedStudentId, setSelectedStudentId] = useState<string>('anonymous');
+
+    // Sync with global active student
+    useEffect(() => {
+        if (activeStudent) {
+            setSelectedStudentId(activeStudent.id);
+            setProblemConfig(prev => ({...prev, studentName: activeStudent.name}));
+        }
+    }, [activeStudent]);
+
     // Configs
     const [pageConfig, setPageConfig] = useState<MathPageConfig>({
         paperType: 'blank', gridSize: 20, margin: 40, showDate: true, showName: true, title: 'MATEMATİK ÇALIŞMASI'
@@ -160,7 +172,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
         topic: 'Uzay Yolculuğu', 
         count: 4, 
         includeSolutionBox: true, 
-        studentName: '',
+        studentName: activeStudent?.name || '',
         difficulty: 'Orta',
         selectedOperations: ['add', 'sub'],
         numberRange: '1-20',
@@ -196,7 +208,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
             const items = generateMathDrillSet(targetCount, drillConfig.selectedOperations as any, { 
                 digit1: drillConfig.digit1,
                 digit2: drillConfig.digit2,
-                digit3: drillConfig.digit3, // Pass digit3
+                digit3: drillConfig.digit3, 
                 allowCarry: drillConfig.allowCarry,
                 allowBorrow: drillConfig.allowBorrow,
                 allowRemainder: drillConfig.allowRemainder,
@@ -270,13 +282,18 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
         setIsSaving(true);
         try {
             const data = getExportData();
+            const studentId = selectedStudentId === 'anonymous' ? undefined : selectedStudentId;
+
             await worksheetService.saveWorksheet(
                 user.id,
                 pageConfig.title,
                 'MATH_STUDIO' as ActivityType,
                 [data],
                 'fa-solid fa-calculator',
-                { id: 'math-logic', title: 'Matematik' }
+                { id: 'math-logic', title: 'Matematik' },
+                undefined,
+                undefined,
+                studentId
             );
             alert("Çalışma başarıyla kaydedildi.");
         } catch (e) {
@@ -383,6 +400,33 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                 {/* LEFT SIDEBAR: CONFIGURATION */}
                 <div className="w-80 bg-[#18181b] border-r border-zinc-800 flex flex-col overflow-y-auto custom-scrollbar">
                     
+                    {/* ASSIGN STUDENT SECTION */}
+                    <div className="p-6 border-b border-zinc-800 bg-zinc-900/30">
+                        <h4 className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                             <i className="fa-solid fa-user-graduate"></i> Öğrenci Atama
+                        </h4>
+                        <div className="relative">
+                            <select 
+                                value={selectedStudentId}
+                                onChange={(e) => {
+                                    const sid = e.target.value;
+                                    setSelectedStudentId(sid);
+                                    if (sid !== 'anonymous') {
+                                        const s = students.find(x => x.id === sid);
+                                        if (s) {
+                                            setProblemConfig(prev => ({...prev, studentName: s.name}));
+                                        }
+                                    }
+                                }}
+                                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-zinc-200 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer font-bold appearance-none"
+                            >
+                                <option value="anonymous">Anonim (Atanmamış)</option>
+                                {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                            </select>
+                            <i className="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none text-[10px]"></i>
+                        </div>
+                    </div>
+
                     {/* GLOBAL PAGE SETTINGS */}
                     <div className="p-6 border-b border-zinc-800">
                         <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-3">Sayfa Ayarları</h4>

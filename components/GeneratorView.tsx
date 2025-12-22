@@ -128,7 +128,7 @@ const DIFFICULTY_OPTIONS = [
 ];
 
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal, studentProfile }) => {
-    const { students } = useStudent();
+    const { students, setActiveStudent, activeStudent } = useStudent();
     
     const getDefaultCount = (type: string) => {
         if (['BASIC_OPERATIONS', 'MATH_PUZZLE'].includes(type)) return 40; 
@@ -183,8 +183,10 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     const handleQuickStudentSelect = (studentId: string) => {
         const student = students.find(s => s.id === studentId);
         if (student) {
+            setActiveStudent(student);
             handleChange('topic', student.interests?.[0] || '');
-            // Optionally apply more settings based on diagnosis/grade
+        } else {
+            setActiveStudent(null);
         }
     };
 
@@ -391,7 +393,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     }
 
     return (
-        <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden w-80">
+        <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700 shadow-xl overflow-hidden w-80">
             {/* Header */}
             <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-sm shrink-0 flex items-center justify-between z-10 h-[60px]">
                 <div className="flex items-center gap-3 overflow-hidden">
@@ -407,15 +409,18 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 {/* Quick Student Selector */}
                 {students.length > 0 && (
                     <div className="mb-6 bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800">
-                        <Label icon="fa-user-graduate">Hızlı Öğrenci Seç</Label>
-                        <select 
-                            onChange={(e) => handleQuickStudentSelect(e.target.value)}
-                            className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded p-1.5 text-xs font-bold outline-none cursor-pointer"
-                            defaultValue=""
-                        >
-                            <option value="" disabled>Öğrenci Seçin...</option>
-                            {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
-                        </select>
+                        <Label icon="fa-user-graduate">Öğrenci Seç / Ata</Label>
+                        <div className="relative">
+                            <select 
+                                value={activeStudent?.id || "anonymous"}
+                                onChange={(e) => handleQuickStudentSelect(e.target.value)}
+                                className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded p-1.5 text-xs font-bold outline-none cursor-pointer appearance-none"
+                            >
+                                <option value="anonymous">Anonim (Atanmamış)</option>
+                                {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                            </select>
+                            <i className="fa-solid fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-zinc-400 pointer-events-none"></i>
+                        </div>
                     </div>
                 )}
 

@@ -1,20 +1,42 @@
 
 import React, { useState, useEffect } from 'react';
 import { curriculumService } from '../services/curriculumService';
-import { Curriculum, CurriculumDay, CurriculumActivity } from '../types';
+import { Curriculum, CurriculumDay, CurriculumActivity, Student } from '../types';
 import { ACTIVITIES } from '../constants';
 import { printService } from '../utils/printService';
 import { useAuth } from '../context/AuthContext';
+import { useStudent } from '../context/StudentContext';
 import { ShareModal } from './ShareModal';
 
 interface CurriculumViewProps {
     onBack: () => void;
     onSelectActivity: (id: string) => void;
-    onStartCurriculumActivity: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string) => void;
+    onStartCurriculumActivity: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, studentId?: string) => void;
 }
 
 // Wizard Step 1: Basic Info
 const WizardStep1: React.FC<{ data: any, setData: any, onNext: () => void }> = ({ data, setData, onNext }) => {
+    const { students, setActiveStudent } = useStudent();
+
+    const handleSelectExisting = (sid: string) => {
+        const s = students.find(x => x.id === sid);
+        if (s) {
+            setActiveStudent(s);
+            setData({
+                ...data,
+                studentId: s.id,
+                name: s.name,
+                age: s.age,
+                grade: s.grade,
+                diagnosis: s.diagnosis[0] || data.diagnosis,
+                weaknesses: s.weaknesses || [],
+                interests: s.interests || []
+            });
+        } else {
+            setActiveStudent(null);
+        }
+    };
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
             <h3 className="text-xl font-bold text-zinc-800 dark:text-white mb-6 flex items-center gap-3">
@@ -22,15 +44,31 @@ const WizardStep1: React.FC<{ data: any, setData: any, onNext: () => void }> = (
                 Öğrenci Profili
             </h3>
             
+            {students.length > 0 && (
+                <div className="mb-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                    <label className="block text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase mb-2">Kayıtlı Öğrenciden Seç</label>
+                    <select 
+                        value={data.studentId || ""}
+                        onChange={(e) => handleSelectExisting(e.target.value)}
+                        className="w-full p-2 bg-white dark:bg-zinc-800 border border-indigo-200 dark:border-indigo-700 rounded-lg text-xs font-bold outline-none cursor-pointer"
+                    >
+                        <option value="">Yeni / Misafir Öğrenci</option>
+                        {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                    </select>
+                </div>
+            )}
+
             <div>
                 <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Ad Soyad</label>
                 <input 
                     type="text" 
                     value={data.name} 
-                    onChange={e => setData({...data, name: e.target.value})}
+                    onChange={e => {
+                        setData({...data, name: e.target.value, studentId: undefined});
+                        setActiveStudent(null);
+                    }}
                     className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-base font-medium transition-all"
                     placeholder="Örn: Ali Yılmaz"
-                    autoFocus
                 />
             </div>
 
@@ -147,7 +185,7 @@ const WizardStep2: React.FC<{ data: any, setData: any, onNext: () => void, onBac
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {data.interests.map((tag: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 rounded-lg text-xs font-bold flex items-center gap-2">
+                        <span key={i} className="px-3 py-1 bg-emerald-50 dark:bg-red-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 rounded-lg text-xs font-bold flex items-center gap-2">
                             {tag} <button onClick={() => removeTag('interests', i)} className="hover:text-emerald-800 dark:hover:text-emerald-200">×</button>
                         </span>
                     ))}
@@ -286,6 +324,7 @@ const DayCard: React.FC<{ day: CurriculumDay, onRegenerate: () => void, onToggle
 
 export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelectActivity, onStartCurriculumActivity }) => {
     const { user } = useAuth();
+    const { students, activeStudent, setActiveStudent } = useStudent();
     const [step, setStep] = useState(0); 
     const [loading, setLoading] = useState(false);
     const [curriculum, setCurriculum] = useState<Curriculum | null>(null);
@@ -299,7 +338,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
 
     const [formData, setFormData] = useState({
         name: '', age: 8, grade: '2. Sınıf', diagnosis: 'Disleksi (Okuma Güçlüğü)',
-        weaknesses: [] as string[], interests: [] as string[], duration: 7
+        weaknesses: [] as string[], interests: [] as string[], duration: 7, studentId: undefined as string | undefined
     });
 
     useEffect(() => {
@@ -330,8 +369,9 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             
             // AUTO SAVE LOGIC
             if (user) {
-                const savedId = await curriculumService.saveCurriculum(user.id, result);
+                const savedId = await curriculumService.saveCurriculum(user.id, result, formData.studentId);
                 result.id = savedId; // Update with Firebase ID
+                result.studentId = formData.studentId;
                 setIsSaved(true);
             } else {
                 setIsSaved(false);
@@ -407,7 +447,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
         if (!curriculum) return;
         
         try {
-            const savedId = await curriculumService.saveCurriculum(user.id, curriculum);
+            const savedId = await curriculumService.saveCurriculum(user.id, curriculum, formData.studentId);
             setCurriculum({ ...curriculum, id: savedId });
             setIsSaved(true);
             alert("Müfredat başarıyla kaydedildi.");
@@ -447,6 +487,12 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
         setStep(4);
         setViewMode('create');
         setIsSaved(true); // Already saved since loaded from DB
+        
+        // Sync active student if linked
+        if (c.studentId) {
+            const s = students.find(x => x.id === c.studentId);
+            if (s) setActiveStudent(s);
+        }
     };
 
     const handleDeleteCurriculum = async (id: string) => {
@@ -519,7 +565,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                                         <p className="text-xs text-zinc-500 mt-1 font-medium bg-zinc-100 dark:bg-zinc-700/50 inline-block px-2 py-0.5 rounded">{c.grade}</p>
                                                     </div>
                                                     <div className="flex gap-2">
-                                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteCurriculum(c.id); }} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteCurriculum(c.id!); }} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
@@ -602,7 +648,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                     day={day} 
                                     onRegenerate={() => handleRegenerateDay(idx)} 
                                     onToggleActivity={handleToggleActivity}
-                                    onStartActivity={(actId, actType, title) => onStartCurriculumActivity(curriculum.id, day.day, actId, actType, curriculum.studentName, title)}
+                                    onStartActivity={(actId, actType, title) => onStartCurriculumActivity(curriculum.id!, day.day, actId, actType, curriculum.studentName, title, curriculum.studentId)}
                                 />
                             ))}
                         </div>

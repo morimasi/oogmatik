@@ -1,8 +1,9 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
-import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType } from '../../types';
+import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType, Student } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
 import { useAuth } from '../../context/AuthContext';
+import { useStudent } from '../../context/StudentContext';
 import { printService } from '../../utils/printService';
 import { worksheetService } from '../../services/worksheetService';
 import { ImageDisplay, QUESTION_TYPES, StoryHighlighter } from '../sheets/common';
@@ -80,11 +81,6 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
     { id: 'notes', label: 'Not Alanı', defaultTitle: 'NOTLAR', icon: 'fa-note-sticky', description: 'Boş not satırları.', defaultStyle: { h: 100 } },
 ];
 
-/**
- * Akıllı İçerik Sarmalayıcı:
- * İçeriğin gerçek yüksekliğini ölçer ve ebeveyne bildirir.
- * Döngüye girmemek için container'ı değil iç 'content' divini izler.
- */
 const AutoContentWrapper = ({ 
     children, 
     onSizeChange,
@@ -445,6 +441,7 @@ interface ReadingStudioProps {
 
 export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWorkbook }) => {
     const { user } = useAuth();
+    const { students, setActiveStudent, activeStudent } = useStudent();
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -468,6 +465,13 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
     
+    // Sync with global active student
+    useEffect(() => {
+        if (activeStudent) {
+            setConfig(prev => ({...prev, studentName: activeStudent.name, gradeLevel: activeStudent.grade}));
+        }
+    }, [activeStudent]);
+
     const [templates, setTemplates] = useState<SavedTemplate[]>([]);
     const [templateName, setTemplateName] = useState("");
 
@@ -835,8 +839,11 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         setIsSaving(true);
         try {
             const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
+            const studentId = activeStudent?.id;
+            
             await worksheetService.saveWorksheet(
-                user.id, title, 'STORY_COMPREHENSION', [{ storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' }
+                user.id, title, 'STORY_COMPREHENSION', [{ storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' },
+                undefined, undefined, studentId
             );
             setIsSaved(true);
             alert("Etkinlik başarıyla arşivlendi.");
@@ -867,10 +874,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         }
     };
 
-    /**
-     * @google/genai handleShare Logic
-     * Added missing handleShare function to fix the error.
-     */
     const handleShare = async (receiverId: string) => {
         if (!user) return;
         if (!storyData && layout.length === 0) return;
@@ -1061,6 +1064,15 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         setIsSaved(false);
     };
 
+    const handleStudentChange = (sid: string) => {
+        if (sid === 'anonymous') {
+            setActiveStudent(null);
+        } else {
+            const s = students.find(x => x.id === sid);
+            if (s) setActiveStudent(s);
+        }
+    };
+
     return (
         <div className="h-full flex flex-col bg-[#121212] font-['OpenDyslexic'] overflow-hidden text-zinc-100 absolute inset-0 z-50">
             <div className="h-16 bg-[#18181b] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
@@ -1078,6 +1090,21 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 </div>
                 
                 <div className="flex items-center gap-3">
+                     {/* Student Assigner */}
+                     <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-xl px-2 py-1 gap-2">
+                        <i className="fa-solid fa-user-graduate text-xs text-zinc-500 ml-2"></i>
+                        <select 
+                            value={activeStudent?.id || "anonymous"}
+                            onChange={(e) => handleStudentChange(e.target.value)}
+                            className="bg-transparent border-none text-xs font-bold outline-none cursor-pointer p-1"
+                        >
+                            <option value="anonymous">Anonim (Atanmamış)</option>
+                            {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                        </select>
+                     </div>
+
+                     <div className="h-8 w-px bg-zinc-700 mx-1"></div>
+
                      {/* Smart Flow Toggle */}
                      <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 gap-3">
                         <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Akıllı Akış</span>
