@@ -284,6 +284,7 @@ export interface AssessmentReport {
 export interface SavedAssessment {
     id: string;
     userId: string;
+    studentId?: string;
     studentName: string;
     gender: 'Kız' | 'Erkek';
     age: number;

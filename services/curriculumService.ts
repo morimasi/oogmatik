@@ -194,10 +194,11 @@ export const curriculumService = {
 
     // --- DB OPERATIONS ---
 
-    saveCurriculum: async (userId: string, curriculum: Curriculum): Promise<string> => {
+    saveCurriculum: async (userId: string, curriculum: Curriculum, studentId?: string): Promise<string> => {
         const payload = {
             ...curriculum,
             userId,
+            studentId: studentId || null,
             createdAt: new Date().toISOString()
         };
         // Remove the temporary ID if it exists, let Firestore generate one or overwrite if explicitly setting
@@ -225,6 +226,22 @@ export const curriculumService = {
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
         } catch (e) {
             console.error("Get Curriculums Error", e);
+            return [];
+        }
+    },
+
+    getCurriculumsByStudent: async (studentId: string): Promise<Curriculum[]> => {
+        try {
+            const q = query(collection(db, "saved_curriculums"), where("studentId", "==", studentId));
+            const querySnapshot = await getDocs(q);
+            const items: Curriculum[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data() as any;
+                items.push({ ...data, id: doc.id });
+            });
+            return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+        } catch (e) {
+            console.error("Get Student Curriculums Error", e);
             return [];
         }
     },

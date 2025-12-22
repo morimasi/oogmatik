@@ -16,10 +16,12 @@ export const assessmentService = {
         gender: 'Kız' | 'Erkek',
         age: number,
         grade: string,
-        report: AssessmentReport
+        report: AssessmentReport,
+        studentId?: string // Optional link to student profile
     ): Promise<void> => {
         const payload = {
             userId,
+            studentId: studentId || null,
             studentName: studentName || 'Öğrenci',
             gender: gender || 'Erkek',
             age: age || 7,
@@ -44,6 +46,7 @@ export const assessmentService = {
                     assessments.push({
                         id: doc.id,
                         userId: data.userId,
+                        studentId: data.studentId,
                         studentName: data.studentName,
                         gender: data.gender,
                         age: data.age,
@@ -59,6 +62,39 @@ export const assessmentService = {
             return assessments;
         } catch (error) {
             console.error("Error fetching assessments:", error);
+            return [];
+        }
+    },
+
+    // NEW: Get assessments specifically for a student profile
+    getAssessmentsByStudent: async (studentId: string): Promise<SavedAssessment[]> => {
+        try {
+            // Note: In Firestore, you might need a composite index for this if also ordering by date
+            // For now, we filter by studentId and sort client-side if needed, or rely on created index
+            const q = query(
+                collection(db, "saved_assessments"), 
+                where("studentId", "==", studentId)
+            );
+            const querySnapshot = await getDocs(q);
+            const assessments: SavedAssessment[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data() as any;
+                assessments.push({
+                    id: doc.id,
+                    userId: data.userId,
+                    studentId: data.studentId,
+                    studentName: data.studentName,
+                    gender: data.gender,
+                    age: data.age,
+                    grade: data.grade,
+                    createdAt: data.createdAt,
+                    report: data.report
+                });
+            });
+            assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            return assessments;
+        } catch (error) {
+            console.error("Error fetching student assessments:", error);
             return [];
         }
     },
@@ -136,18 +172,8 @@ export const assessmentService = {
         }
 
         // 3. Flatten and Prepare Initial Queue
-        // We pick the first questions to start the adaptive chain.
-        // Actually, the previous logic (in component) assumed a dynamic fetch.
-        // Here, we'll return a POOL. The component's adaptive logic needs a full pool to pick "harder" or "easier" questions from.
-        // Since the AI returns a list (e.g. Easy, Medium, Hard), we can just return ALL of them flattened.
-        // The Component's logic: `pool.find(q => q.difficulty === nextDifficulty ...)` will work if we pass all questions.
-        
         const allQuestions = Object.values(questionsMap).flat();
         
-        // However, the component expects an initial *queue* and then dynamically adds.
-        // If we return all questions now, the component can simply use this list as the "Server Pool" 
-        // and handle the queueing locally.
-        
-        return allQuestions; // Returns the pool. The component will need to initialize the queue from this.
+        return allQuestions; 
     }
 };
