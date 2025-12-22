@@ -617,17 +617,20 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (e.ctrlKey) e.preventDefault();
         const zoomSensitivity = -0.001; 
         const delta = e.deltaY * zoomSensitivity;
-        const newScale = Math.min(Math.max(0.2, canvasScale + delta), 4);
+        const newScale = Math.min(Math.max(0.1, canvasScale + delta), 4);
         
         if (canvasRef.current) {
-            const rect = canvasRef.current.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const canvasX = (mouseX - canvasPos.x) / canvasScale;
-            const newX = mouseX - canvasX * newScale;
+            const viewportW = canvasRef.current.clientWidth;
+            const pageWidth = A4_WIDTH_PX;
+            
+            // Fixed Top-Center Zoom: Calculate X to maintain horizontal centering 
+            // relative to the container while keeping the top fixed at canvasPos.y
+            const newX = (viewportW - (pageWidth * newScale)) / 2;
+            
             setCanvasScale(newScale);
             setCanvasPos(prev => ({ x: newX, y: prev.y }));
         }
-    }, [canvasScale, canvasPos]);
+    }, [canvasScale]);
 
     const handleBgMouseDown = (e: React.MouseEvent) => {
         if (!designMode) return;
@@ -657,7 +660,8 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         const handleMouseMove = (e: MouseEvent) => {
             if (isPanning) {
                 const dx = e.clientX - lastMousePos.current.x;
-                setCanvasPos(prev => ({ x: prev.x + dx, y: prev.y }));
+                const dy = e.clientY - lastMousePos.current.y;
+                setCanvasPos(prev => ({ x: prev.x + dx, y: prev.y + dy }));
                 lastMousePos.current = { x: e.clientX, y: e.clientY };
                 return;
             }
@@ -1305,9 +1309,9 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 >
                     <div 
                         className="origin-top transition-transform duration-75 ease-out will-change-transform"
-                        style={{ transform: `translate3d(${canvasPos.x}px, ${canvasPos.y}px, 0) scale(${canvasScale})` }}
+                        style={{ transform: `translate3d(${canvasPos.x}px, ${canvasPos.y}px, 0) scale(${canvasScale})`, transformOrigin: 'top center' }}
                     >
-                        <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px`, transformOrigin: '0 0' }}>
+                        <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px` }}>
                             {designMode && <div className="absolute inset-0 pointer-events-none z-0" style={{backgroundImage: `radial-gradient(#e5e7eb 1px, transparent 1px)`, backgroundSize: `${SNAP_GRID * 4}px ${SNAP_GRID * 4}px`}}></div>}
                             {layout.filter(l => l.isVisible).map((item) => (
                                 <div key={item.instanceId} onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'drag')} className={`absolute ${designMode ? 'hover:ring-1 hover:ring-indigo-500 cursor-move' : ''}`} style={{ left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h, transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex }}>
