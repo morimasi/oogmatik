@@ -205,6 +205,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
         setTimeout(() => setMessage(null), 3000);
     };
 
+    const handleUpdateProfile = async () => {
+        if (!user || isReadOnly) return;
+        setIsSavingProfile(true);
+        try {
+            await updateUser({ name: editName });
+            showMessage('success', 'Profil güncellendi.');
+        } catch (e) {
+            showMessage('error', 'Güncelleme hatası.');
+        } finally {
+            setIsSavingProfile(false);
+        }
+    };
+
     if (!user) return null;
 
     return (
@@ -326,6 +339,28 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                                                 <button onClick={() => setSelectedPlan(plan)} className="mt-4 w-full py-2 bg-indigo-50 text-indigo-600 font-bold rounded-xl text-xs hover:bg-indigo-100 transition-colors">GÖRÜNTÜLE</button>
                                             </div>
                                         ))}
+                                    </div>
+                                </BentoCard>
+                            )}
+                            
+                            {activeTab === 'settings' && (
+                                <BentoCard title="Hesap Ayarları" icon="fa-solid fa-cog">
+                                    <div className="max-w-md space-y-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">Görünen Ad</label>
+                                            <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">E-posta</label>
+                                            <input type="text" value={user.email} disabled className="w-full p-3 bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-400" />
+                                        </div>
+                                        <button 
+                                            onClick={handleUpdateProfile}
+                                            disabled={isSavingProfile}
+                                            className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 transition-all disabled:opacity-50"
+                                        >
+                                            {isSavingProfile ? 'Kaydediliyor...' : 'Değişiklikleri Uygula'}
+                                        </button>
                                     </div>
                                 </BentoCard>
                             )}
