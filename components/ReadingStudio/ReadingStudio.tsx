@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
 import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType, Student } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
@@ -99,7 +98,8 @@ const AutoContentWrapper = ({
         const observer = new ResizeObserver(() => {
             if (!contentRef.current) return;
             const currentContentHeight = contentRef.current.scrollHeight;
-            if (Math.abs(currentContentHeight - lastHeight.current) >= SNAP_GRID) {
+            // Eşik değeri koyarak titremeyi ve sonsuz döngüyü engelliyoruz
+            if (Math.abs(currentContentHeight - lastHeight.current) > 2) {
                  lastHeight.current = currentContentHeight;
                  onSizeChange(currentContentHeight);
             }
@@ -464,6 +464,24 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         focusVocabulary: true, includeCreativeTask: true, includeWordHunt: false, includeSpellingCheck: false,
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
+
+    /**
+     * Fix Error in file components/ReadingStudio/ReadingStudio.tsx on line 1142: Cannot find name 'toggleSection'.
+     * Fix Error in file components/ReadingStudio/ReadingStudio.tsx on line 1162: Cannot find name 'toggleSection'.
+     */
+    const toggleSection = (section: keyof typeof openSections) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
+
+    /**
+     * Fix Error in file components/ReadingStudio/ReadingStudio.tsx on line 1153: Cannot find name 'toggleVisibility'.
+     */
+    const toggleVisibility = (instanceId: string) => {
+        setLayout(prev => prev.map(item => 
+            item.instanceId === instanceId ? { ...item, isVisible: !item.isVisible } : item
+        ));
+        setIsSaved(false);
+    };
     
     // Sync with global active student
     useEffect(() => {
@@ -499,7 +517,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         }
     }, []);
 
-    // --- SMART RE-FLOW & CASCADE PUSH ENGINE ---
+    // --- SMART RE-FLOW & CASCADE PUSH ENGINE (FIXED) ---
     const handleAutoResize = useCallback((instanceId: string, newContentHeight: number) => {
         if (!smartFlow) return;
 
@@ -509,7 +527,8 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
             const item = prevLayout[itemIndex];
             const oldHeight = item.style.h;
-            const roundedNewHeight = Math.ceil(newContentHeight / SNAP_GRID) * SNAP_GRID;
+            // Round height to grid to match architecture mode logic
+            const roundedNewHeight = Math.max(50, Math.ceil(newContentHeight / SNAP_GRID) * SNAP_GRID);
 
             if (Math.abs(oldHeight - roundedNewHeight) < SNAP_GRID) return prevLayout;
 
@@ -521,6 +540,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                     return { ...l, style: { ...l.style, h: roundedNewHeight } };
                 }
                 // Şelale Etkisi: Sadece dikey olarak bu elemanın altında olanları it
+                // Tolerans ekledik (-2)
                 if (l.style.y >= (itemOriginalBottomY - 2)) {
                     return {
                         ...l,
@@ -623,8 +643,8 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             const viewportW = canvasRef.current.clientWidth;
             const pageWidth = A4_WIDTH_PX;
             
-            // Fixed Top-Center Zoom: Calculate X to maintain horizontal centering 
-            // relative to the container while keeping the top fixed at canvasPos.y
+            // Fixed Top-Center Zoom: Sayfanın yatayda merkezde kalmasını sağlıyoruz
+            // transform-origin: top center olduğu için sadece X'i güncellememiz yeterli
             const newX = (viewportW - (pageWidth * newScale)) / 2;
             
             setCanvasScale(newScale);
@@ -701,8 +721,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
                 return prev.map(l => {
                     if (l.instanceId === selectedId) return { ...l, style: newStyle };
-                    // Manuel itme (Drag sırasında çarpışma kontrolü eklenebilir ama kafa karıştırıcı olabilir, 
-                    // şimdilik sadece resize ve auto-resize sırasında cascade yapıyoruz)
+                    // Manuel itme
                     if (smartFlow && itemHeightDelta !== 0 && l.style.y >= (item.style.y + item.style.h - 5)) {
                         return { ...l, style: { ...l.style, y: Math.max(20, l.style.y + itemHeightDelta) } };
                     }
@@ -900,8 +919,13 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         }
     };
 
-    const toggleSection = (section: 'layers' | 'add') => {
-        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    const handleStudentChange = (sid: string) => {
+        if (sid === 'anonymous') {
+            setActiveStudent(null);
+        } else {
+            const s = students.find(x => x.id === sid);
+            if (s) setActiveStudent(s);
+        }
     };
 
     const renderContent = (item: ActiveComponent) => {
@@ -1046,35 +1070,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                  <span className="opacity-50 font-bold">{item.label}</span>
              </div>
         );
-    };
-
-    const toggleVisibility = (id: string) => {
-        setLayout(prev => {
-            const item = prev.find(i => i.instanceId === id);
-            if (!item) return prev;
-            
-            const isClosing = item.isVisible;
-            const itemHeight = item.style.h + 15;
-            const deltaY = isClosing ? -itemHeight : itemHeight;
-
-            return prev.map(l => {
-                if (l.instanceId === id) return { ...l, isVisible: !l.isVisible };
-                if (smartFlow && l.style.y > item.style.y) {
-                    return { ...l, style: { ...l.style, y: Math.max(20, l.style.y + deltaY) } };
-                }
-                return l;
-            });
-        });
-        setIsSaved(false);
-    };
-
-    const handleStudentChange = (sid: string) => {
-        if (sid === 'anonymous') {
-            setActiveStudent(null);
-        } else {
-            const s = students.find(x => x.id === sid);
-            if (s) setActiveStudent(s);
-        }
     };
 
     return (
