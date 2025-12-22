@@ -19,7 +19,7 @@ import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView'; 
 import * as offlineGenerators from './services/offlineGenerators'; 
 
-// Lazy Loaded Components - Using relative paths strictly
+// Lazy Loaded Components
 const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
 const MessagesView = lazy(() => import('./components/MessagesView').then(module => ({ default: module.MessagesView })));
@@ -27,6 +27,7 @@ const OCRScanner = lazy(() => import('./components/OCRScanner').then(module => (
 const CurriculumView = lazy(() => import('./components/CurriculumView').then(module => ({ default: module.CurriculumView })));
 const ReadingStudio = lazy(() => import('./components/ReadingStudio/ReadingStudio').then(module => ({ default: module.ReadingStudio })));
 const MathStudio = lazy(() => import('./components/MathStudio/MathStudio').then(module => ({ default: module.MathStudio })));
+const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard').then(module => ({ default: module.StudentDashboard })));
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
@@ -64,7 +65,7 @@ const initialUiSettings: UiSettings = {
 };
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer';
-type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio';
+type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students';
 
 interface ActiveCurriculumSession {
     planId: string;
@@ -440,7 +441,8 @@ const AppContent: React.FC = () => {
     if (currentView === 'profile') return <Suspense fallback={<LoadingSpinner />}><ProfileView onBack={handleGoBack} onSelectActivity={handleSelectActivity} /></Suspense>;
     if (currentView === 'messages') return <Suspense fallback={<LoadingSpinner />}><MessagesView onBack={handleGoBack} onRefreshNotifications={() => {}} /></Suspense>;
     if (currentView === 'ocr') return <Suspense fallback={<LoadingSpinner />}><OCRScanner onBack={handleGoBack} onResult={handleOCRResult} /></Suspense>;
-    
+    if (currentView === 'students') return <Suspense fallback={<LoadingSpinner />}><StudentDashboard onBack={handleGoBack} /></Suspense>;
+
     if (currentView === 'reading-studio') return (
         <Suspense fallback={<LoadingSpinner />}>
             <ReadingStudio 
@@ -588,7 +590,7 @@ const AppContent: React.FC = () => {
                         isLoading={isLoading}
                         onAddToHistory={addToHistory}
                         isExpanded={isSidebarExpanded}
-                        onOpenStudentModal={() => setIsStudentModalOpen(true)}
+                        onOpenStudentModal={() => navigateTo('students')}
                         studentProfile={studentProfile}
                         styleSettings={styleSettings}
                         onOpenOCR={() => navigateTo('ocr')}

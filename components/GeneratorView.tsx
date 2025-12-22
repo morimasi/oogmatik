@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { Activity, GeneratorOptions, ActivityType, StudentProfile } from '../types';
+import { Activity, GeneratorOptions, ActivityType, StudentProfile, Student } from '../types';
 import { statsService } from '../services/statsService';
+import { useStudent } from '../context/StudentContext';
 
 interface GeneratorViewProps {
     activity: Activity | undefined; // Allow undefined
@@ -127,13 +128,14 @@ const DIFFICULTY_OPTIONS = [
 ];
 
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal, studentProfile }) => {
-    // INCREASED DEFAULTS FOR BETTER PAGE FILL - FAST MODE OPTIMIZATION
+    const { students } = useStudent();
+    
     const getDefaultCount = (type: string) => {
         if (['BASIC_OPERATIONS', 'MATH_PUZZLE'].includes(type)) return 40; 
         if (['NUMBER_SEARCH', 'FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT'].includes(type)) return 24;
         if (['WORD_SEARCH', 'CROSSWORD'].includes(type)) return 20; 
         if (['STORY_COMPREHENSION', 'READING_FLOW'].includes(type)) return 1; 
-        return 20; // Safe high default
+        return 20;
     };
 
     const [options, setOptions] = useState<GeneratorOptions>({
@@ -153,7 +155,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         directions: 'diagonal',
         customInput: '',
         topic: '',
-        useSearch: false // Default to false
+        useSearch: false
     });
 
     const [isFavorite, setIsFavorite] = useState(false);
@@ -162,7 +164,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         if(activity) setIsFavorite(statsService.isFavorite(activity.id));
     }, [activity]);
     
-    // Update defaults when mode changes
     useEffect(() => {
         if (activity && options.mode === 'fast') {
             setOptions(prev => ({...prev, itemCount: getDefaultCount(activity.id)}));
@@ -177,6 +178,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
     const handleChange = (key: string, value: any) => {
         setOptions((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const handleQuickStudentSelect = (studentId: string) => {
+        const student = students.find(s => s.id === studentId);
+        if (student) {
+            handleChange('topic', student.interests?.[0] || '');
+            // Optionally apply more settings based on diagnosis/grade
+        }
     };
 
     if (!activity) return null;
@@ -284,7 +293,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         </div>
     );
 
-    // --- RENDER CONTENT BASED ON TYPE ---
     const renderControls = () => {
         if (options.mode === 'manual') {
             return (
@@ -339,7 +347,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 {['WORD_SEARCH', 'WORD_SEARCH_WITH_PASSWORD', 'LETTER_GRID_WORD_FIND', 'CROSSWORD', 'ANAGRAM'].includes(type) && <WordControls />}
                 {['FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT', 'SHAPE_MATCHING', 'GRID_DRAWING'].includes(type) && <VisualControls />}
                 
-                {/* Default text input for topic if not covered above but needed */}
                 {!['BASIC_OPERATIONS', 'MATH_PUZZLE', 'KENDOKU', 'NUMBER_PYRAMID', 'REAL_LIFE_MATH_PROBLEMS', 'WORD_SEARCH', 'WORD_SEARCH_WITH_PASSWORD', 'LETTER_GRID_WORD_FIND', 'CROSSWORD', 'ANAGRAM', 'FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT', 'SHAPE_MATCHING', 'GRID_DRAWING', 'STORY_CREATION_PROMPT'].includes(type) && (
                      <div className="mt-2">
                         <Label icon="fa-tag">Konu / Tema (Opsiyonel)</Label>
@@ -347,7 +354,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     </div>
                 )}
 
-                {/* Google Search Grounding Toggle */}
                 {options.mode === 'ai' && (
                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                         <div className="flex items-center justify-between">
@@ -397,6 +403,22 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
             {/* Settings Body */}
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0">
+                
+                {/* Quick Student Selector */}
+                {students.length > 0 && (
+                    <div className="mb-6 bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                        <Label icon="fa-user-graduate">Hızlı Öğrenci Seç</Label>
+                        <select 
+                            onChange={(e) => handleQuickStudentSelect(e.target.value)}
+                            className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded p-1.5 text-xs font-bold outline-none cursor-pointer"
+                            defaultValue=""
+                        >
+                            <option value="" disabled>Öğrenci Seçin...</option>
+                            {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                        </select>
+                    </div>
+                )}
+
                 {/* Mode Switcher */}
                 <div className="mb-6">
                     <Label icon="fa-robot">Üretim Modu</Label>
@@ -427,14 +449,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         className={`w-full py-2 rounded border border-dashed transition-all flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-wider ${studentProfile ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'border-zinc-300 text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}`}
                     >
                         <i className={`fa-solid ${studentProfile ? 'fa-user-check' : 'fa-user-plus'}`}></i>
-                        {studentProfile ? studentProfile.name : 'Öğrenci Ekle'}
+                        {studentProfile ? studentProfile.name : 'Öğrenci Yönetimi'}
                     </button>
                 )}
 
                 <button
                     onClick={() => onGenerate(options)}
                     disabled={isLoading || (options.mode === 'manual' && (!options.customInput || (typeof options.customInput === 'string' ? options.customInput.trim().length < 2 : options.customInput.length < 1)))}
-                    className="w-full h-10 bg-zinc-900 hover:bg-zinc-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold rounded shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm uppercase tracking-wide"
+                    className="w-full h-10 bg-zinc-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold rounded shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm uppercase tracking-wide"
                 >
                     {isLoading ? (
                         <>

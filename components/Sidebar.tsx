@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               if (customActs && Array.isArray(customActs)) {
                   const mergedActivities = [...ACTIVITIES];
                   customActs.forEach(ca => {
-                      if (!ca || !ca.id) return; // Skip invalid
+                      if (!ca || !ca.id) return;
                       const index = mergedActivities.findIndex(a => a && a.id === ca.id);
                       if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca };
                       else mergedActivities.push(ca);
@@ -144,13 +144,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       })).filter(c => c.items.length > 0);
   }, [allActivities, categories]);
 
-  // Safe check for current activity
   const currentActivityObj = selectedActivity ? getActivityById(selectedActivity) : undefined;
 
   return (
     <aside id="tour-sidebar" className={`fixed inset-y-0 left-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-r border-zinc-200 dark:border-zinc-800 transition-all duration-500 flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[300px]' : 'w-[70px]'}`} aria-label="Etkinlik Menüsü">
         <div className="flex h-full flex-col">
-            {/* CRITICAL FIX: Ensure currentActivityObj exists before rendering GeneratorView */}
             {selectedActivity && currentActivityObj ? (
                 <GeneratorView activity={currentActivityObj} onGenerate={handleGenerate} onBack={() => onSelectActivity(null)} isLoading={isLoading} isExpanded={isExpanded} onOpenStudentModal={onOpenStudentModal} studentProfile={studentProfile} />
             ) : (
@@ -175,7 +173,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                             <div className="flex flex-col items-start">
                                 <span className="text-[11px] font-black text-white uppercase tracking-widest leading-none">Öğrencilerim</span>
-                                <span className="text-[9px] text-indigo-100 mt-1">Takip & Analiz Paneli</span>
+                                <span className="text-[9px] text-indigo-100 mt-1">Yönetim ve Analiz Paneli</span>
                             </div>
                             <i className="fa-solid fa-chevron-right text-indigo-300 ml-auto text-[10px]"></i>
                         </button>
