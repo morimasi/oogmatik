@@ -8,6 +8,7 @@ import DyslexiaLogo from './components/DyslexiaLogo';
 import GlobalSearch from './components/GlobalSearch';
 import { FeedbackModal } from './components/FeedbackModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { StudentProvider } from './context/StudentContext'; // Import StudentProvider
 import { AuthModal } from './components/AuthModal';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
@@ -686,7 +687,9 @@ const AppContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <AppContent />
+        <StudentProvider>
+          <AppContent />
+        </StudentProvider>
     </AuthProvider>
   );
 };
