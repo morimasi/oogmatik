@@ -196,7 +196,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                         
                         {(groupingMode === 'all' || openGroups[groupKey]) && (
                             <div className="space-y-1">
-                                {groupedStudents[groupKey].map(s => (
+                                {groupedStudents[groupKey].map(s => {
+                                    // SAFETY CHECK: Ensure s exists and has an ID
+                                    if (!s || !s.id) return null;
+                                    
+                                    return (
                                     <button
                                         key={s.id}
                                         onClick={() => setSelectedStudentId(s.id)}
@@ -211,7 +215,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                         </div>
                                         {activeStudent?.id === s.id && <div className="w-2 h-2 rounded-full bg-green-500 shrink-0"></div>}
                                     </button>
-                                ))}
+                                )})}
                             </div>
                         )}
                     </div>

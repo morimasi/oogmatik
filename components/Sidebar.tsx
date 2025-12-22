@@ -63,7 +63,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                   const mergedActivities = [...ACTIVITIES];
                   customActs.forEach(ca => {
                       if (!ca || !ca.id) return; // Skip invalid
-                      // Safe findIndex check
                       const index = mergedActivities.findIndex(a => a && a.id === ca.id);
                       if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca };
                       else mergedActivities.push(ca);
@@ -141,16 +140,19 @@ const Sidebar: React.FC<SidebarProps> = ({
   const categorizedActivities = useMemo(() => {
       return categories.map(category => ({ 
           ...category, 
-          // Extra safety check for act validity
           items: allActivities.filter(act => act && act.id && category.activities.includes(act.id)) 
       })).filter(c => c.items.length > 0);
   }, [allActivities, categories]);
 
+  // Safe check for current activity
+  const currentActivityObj = selectedActivity ? getActivityById(selectedActivity) : undefined;
+
   return (
     <aside id="tour-sidebar" className={`fixed inset-y-0 left-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-r border-zinc-200 dark:border-zinc-800 transition-all duration-500 flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[300px]' : 'w-[70px]'}`} aria-label="Etkinlik Menüsü">
         <div className="flex h-full flex-col">
-            {selectedActivity ? (
-                <GeneratorView activity={getActivityById(selectedActivity)!} onGenerate={handleGenerate} onBack={() => onSelectActivity(null)} isLoading={isLoading} isExpanded={isExpanded} onOpenStudentModal={onOpenStudentModal} studentProfile={studentProfile} />
+            {/* CRITICAL FIX: Ensure currentActivityObj exists before rendering GeneratorView */}
+            {selectedActivity && currentActivityObj ? (
+                <GeneratorView activity={currentActivityObj} onGenerate={handleGenerate} onBack={() => onSelectActivity(null)} isLoading={isLoading} isExpanded={isExpanded} onOpenStudentModal={onOpenStudentModal} studentProfile={studentProfile} />
             ) : (
                 <>
                 <div className="flex-shrink-0 h-[56px] flex items-center justify-between px-3 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/30 dark:bg-zinc-800/30">
@@ -167,7 +169,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
                 {isExpanded && (
                     <div className="px-4 py-4 grid grid-cols-1 gap-2 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-2">
-                        {/* Öğrenci Yönetimi Butonu */}
                         <button onClick={onOpenStudentModal} className="group w-full relative overflow-hidden bg-indigo-600 hover:bg-indigo-700 p-3 rounded-2xl transition-all flex items-center gap-4 shadow-lg shadow-indigo-500/20">
                             <div className="w-10 h-10 shrink-0 rounded-xl bg-white/20 flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
                                 <i className="fa-solid fa-user-graduate text-lg"></i>
@@ -179,7 +180,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <i className="fa-solid fa-chevron-right text-indigo-300 ml-auto text-[10px]"></i>
                         </button>
                         
-                        {/* Araçlar Grid (OCR, Plan, Okuma, Matematik) */}
                         <div className="grid grid-cols-2 gap-2 mt-1">
                             <button onClick={onOpenOCR} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-indigo-300 transition-all flex flex-col items-center gap-1 group">
                                 <i className="fa-solid fa-camera text-zinc-400 group-hover:text-indigo-500 transition-colors"></i>

@@ -4,7 +4,7 @@ import { Activity, GeneratorOptions, ActivityType, StudentProfile } from '../typ
 import { statsService } from '../services/statsService';
 
 interface GeneratorViewProps {
-    activity: Activity;
+    activity: Activity | undefined; // Allow undefined
     onGenerate: (options: GeneratorOptions) => void;
     onBack: () => void;
     isLoading: boolean;
@@ -140,7 +140,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: getDefaultCount(activity.id),
+        itemCount: activity ? getDefaultCount(activity.id) : 20,
         gridSize: 10,
         operationType: 'mixed',
         selectedOperations: ['+','-'],
@@ -159,17 +159,18 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
-        setIsFavorite(statsService.isFavorite(activity.id));
-    }, [activity.id]);
+        if(activity) setIsFavorite(statsService.isFavorite(activity.id));
+    }, [activity]);
     
     // Update defaults when mode changes
     useEffect(() => {
-        if (options.mode === 'fast') {
+        if (activity && options.mode === 'fast') {
             setOptions(prev => ({...prev, itemCount: getDefaultCount(activity.id)}));
         }
-    }, [options.mode, activity.id]);
+    }, [options.mode, activity]);
 
     const handleToggleFavorite = () => {
+        if (!activity) return;
         statsService.toggleFavorite(activity.id);
         setIsFavorite(!isFavorite);
     };
@@ -177,6 +178,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     const handleChange = (key: string, value: any) => {
         setOptions((prev) => ({ ...prev, [key]: value }));
     };
+
+    if (!activity) return null;
 
     // --- CONTROLS RENDERER ---
     
