@@ -82,6 +82,7 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
 
 /**
  * Bileşen içeriğini sarmalayan ve boyutu değiştiğinde ebeveyne haber veren akıllı bileşen.
+ * Döngüye girmemesi için sadece içeriğin (inner content) doğal yüksekliğini ölçer.
  */
 const AutoContentWrapper = ({ 
     children, 
@@ -92,36 +93,39 @@ const AutoContentWrapper = ({
     onSizeChange: (h: number) => void,
     instanceId: string
 }) => {
-    const ref = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
     const lastHeight = useRef<number>(0);
 
     useLayoutEffect(() => {
-        if (!ref.current) return;
+        if (!contentRef.current) return;
         
-        const observer = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                //scrollHeight kullanarak içeriğin gerçek kapladığı alanı alıyoruz
-                const contentHeight = ref.current?.scrollHeight || entry.contentRect.height;
-                
-                if (Math.abs(contentHeight - lastHeight.current) > 2) {
-                     lastHeight.current = contentHeight;
-                     onSizeChange(contentHeight);
-                }
+        const observer = new ResizeObserver(() => {
+            if (!contentRef.current) return;
+            
+            // Container'ın değil, içindeki gerçek içeriğin yüksekliğini alıyoruz.
+            // offsetHeight yerine scrollHeight kullanmak taşmaları da hesaplar.
+            const currentContentHeight = contentRef.current.scrollHeight;
+            
+            // Eğer yükseklik değişimi Grid boyutundan (5px) küçükse güncelleme yapma (Döngü engelleyici)
+            if (Math.abs(currentContentHeight - lastHeight.current) >= SNAP_GRID) {
+                 lastHeight.current = currentContentHeight;
+                 onSizeChange(currentContentHeight);
             }
         });
 
-        // Hem box model değişimlerini hem de içindeki çocukların değişimini izle
-        observer.observe(ref.current);
+        observer.observe(contentRef.current);
         return () => observer.disconnect();
     }, [onSizeChange]);
 
     return (
         <div 
-            ref={ref} 
+            ref={containerRef} 
             className="w-full h-full overflow-hidden"
-            style={{ minHeight: '100%' }}
         >
-            {children}
+            <div ref={contentRef} className="w-full h-auto min-h-full">
+                {children}
+            </div>
         </div>
     );
 };
@@ -233,7 +237,7 @@ const AppearanceControls = ({ style, onUpdate }: { style: any, onUpdate: (k: str
             <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Arka Plan</label>
              <div className="flex items-center gap-2 bg-zinc-800 p-2 rounded border border-zinc-700">
                 <input type="color" value={style.backgroundColor === 'transparent' ? '#ffffff' : style.backgroundColor} onChange={e => onUpdate('backgroundColor', e.target.value)} className="w-8 h-8 p-0 border-0 rounded cursor-pointer bg-transparent" />
-                <button onClick={() => onUpdate('backgroundColor', 'transparent')} className={`text-xs px-2 py-1 rounded border transition-colors ml-auto ${style.backgroundColor === 'transparent' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-500 font-bold' : 'bg-zinc-700 border-zinc-600 text-zinc-400'}`}>Şeffaf</button>
+                <button onClick={() => onUpdate('backgroundColor', 'transparent')} className={`text-xs px-2 py-1 rounded border transition-colors ml-auto ${style.backgroundColor === 'transparent' ? 'bg-indigo-50/20 border-indigo-500 text-indigo-500 font-bold' : 'bg-zinc-700 border-zinc-600 text-zinc-400'}`}>Şeffaf</button>
             </div>
         </div>
         <div>
@@ -511,11 +515,11 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             const item = prevLayout[itemIndex];
             const oldHeight = item.style.h;
             
-            // Grid'e yapışması için yuvarlama yapıyoruz
-            const roundedNewHeight = Math.ceil((newContentHeight + 10) / SNAP_GRID) * SNAP_GRID;
+            // Grid'e yapışması için yuvarlama yapıyoruz (Buffer eklemeden doğrudan ölçüm)
+            const roundedNewHeight = Math.ceil(newContentHeight / SNAP_GRID) * SNAP_GRID;
 
-            // Sonsuz döngüden kaçınmak için ufak farkları yoksayıyoruz
-            if (Math.abs(oldHeight - roundedNewHeight) < 4) return prevLayout;
+            // Döngü kilidi: Eğer fark Grid boyutundan küçükse güncelleme yapma
+            if (Math.abs(oldHeight - roundedNewHeight) < SNAP_GRID) return prevLayout;
 
             const deltaY = roundedNewHeight - oldHeight;
             const itemOriginalBottomY = item.style.y + oldHeight;
@@ -709,8 +713,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                     newStyle.rotation = finalR;
                 }
 
-                // Sürükleme bittiğinde de çarpışma kontrolü yapılabilir (opsiyonel)
-                // Şimdilik sadece manuel yeniden boyutlandırma anında itme yapıyoruz
+                // Manuel yeniden boyutlandırma anında itme yapıyoruz
                 return prev.map(l => {
                     if (l.instanceId === selectedId) return { ...l, style: newStyle };
                     if (itemHeightDelta !== 0 && l.style.y >= (item.style.y + item.style.h - 5)) {
