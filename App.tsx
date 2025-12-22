@@ -8,7 +8,7 @@ import DyslexiaLogo from './components/DyslexiaLogo';
 import GlobalSearch from './components/GlobalSearch';
 import { FeedbackModal } from './components/FeedbackModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { StudentProvider } from './context/StudentContext'; // Import StudentProvider
+import { StudentProvider } from './context/StudentContext'; 
 import { AuthModal } from './components/AuthModal';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
@@ -19,7 +19,7 @@ import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView'; 
 import * as offlineGenerators from './services/offlineGenerators'; 
 
-// Lazy Loaded Components
+// Lazy Loaded Components - Using relative paths strictly
 const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
 const MessagesView = lazy(() => import('./components/MessagesView').then(module => ({ default: module.MessagesView })));
@@ -28,7 +28,6 @@ const CurriculumView = lazy(() => import('./components/CurriculumView').then(mod
 const ReadingStudio = lazy(() => import('./components/ReadingStudio/ReadingStudio').then(module => ({ default: module.ReadingStudio })));
 const MathStudio = lazy(() => import('./components/MathStudio/MathStudio').then(module => ({ default: module.MathStudio })));
 
-// ... (Existing initialSettings and helper functions remain unchanged)
 const initialStyleSettings: StyleSettings = {
     fontSize: 16,
     scale: 1, 
@@ -231,6 +230,21 @@ const AppContent: React.FC = () => {
     const clearHistory = () => { setHistoryItems([]); };
     const deleteHistoryItem = (id: string) => { setHistoryItems(prev => prev.filter(i => i.id !== id)); };
 
+    const handleRestoreFromHistory = (item: HistoryItem) => {
+        loadSavedWorksheet({
+            id: item.id, userId: item.userId, name: item.title, activityType: item.activityType,
+            worksheetData: item.data, createdAt: item.timestamp,
+            icon: ACTIVITIES.find(a => a.id === item.activityType)?.icon || 'fa-file',
+            category: item.category
+        });
+        setOpenModal(null);
+    };
+
+    const handleSaveHistoryItem = (item: HistoryItem) => {
+        if (!user) { setIsAuthModalOpen(true); return; }
+        addSavedWorksheet(`${item.title} (Geçmiş)`, item.activityType, item.data);
+    };
+
     const addSavedWorksheet = async (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
         if (!user) { setIsAuthModalOpen(true); return; }
         const activity = ACTIVITIES.find(a => a.id === activityType);
@@ -247,21 +261,6 @@ const AppContent: React.FC = () => {
             console.error("Save error:", e);
             alert(`Kaydedilirken bir hata oluştu: ${e.message}.`);
         }
-    };
-
-    const handleRestoreFromHistory = (item: HistoryItem) => {
-        loadSavedWorksheet({
-            id: item.id, userId: item.userId, name: item.title, activityType: item.activityType,
-            worksheetData: item.data, createdAt: item.timestamp,
-            icon: ACTIVITIES.find(a => a.id === item.activityType)?.icon || 'fa-file',
-            category: item.category
-        });
-        setOpenModal(null);
-    };
-
-    const handleSaveHistoryItem = (item: HistoryItem) => {
-        if (!user) { setIsAuthModalOpen(true); return; }
-        addSavedWorksheet(`${item.title} (Geçmiş)`, item.activityType, item.data);
     };
 
     const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
@@ -295,7 +294,6 @@ const AppContent: React.FC = () => {
         if (isSidebarOpen) setIsSidebarOpen(false);
     };
 
-    // --- CURRICULUM ACTIONS ---
     const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string) => {
         setActiveCurriculumSession({
             planId, day, activityId, studentName, activityTitle: title
@@ -333,10 +331,8 @@ const AppContent: React.FC = () => {
         }
     };
 
-    // Shared Add to Workbook Logic
     const handleAddToWorkbookGeneral = (activityType: ActivityType, data: any) => {
         if (activityType && data) {
-            // Need to wrap in array if single
             const dataArray = Array.isArray(data) ? data : [data];
             
             const newItems: CollectionItem[] = dataArray.map((sheet: any) => ({
@@ -348,7 +344,6 @@ const AppContent: React.FC = () => {
             }));
             setWorkbookItems(prev => [...prev, ...newItems]);
             
-            // Visual feedback
             const btn = document.getElementById('add-to-wb-btn');
             if(btn) {
                 btn.classList.add('scale-125', 'bg-green-500', 'text-white');
@@ -435,15 +430,7 @@ const AppContent: React.FC = () => {
     };
     
     const handleOCRResult = (result: any) => {
-        if (result.detectedType === 'math' || result.suggestedActivity === 'BASIC_OPERATIONS') {
-            const items = result.content.map((q: string) => ({
-                 num1: 0, num2: 0, operator: '?', answer: 0, remainder: 0 
-            })); 
-            alert("İçerik başarıyla tarandı! Otomatik düzenleme moduna geçiliyor...");
-            console.log("OCR Data:", result);
-        } else {
-             alert("Metin tarandı. Kopyalandı.");
-        }
+        alert("İçerik başarıyla tarandı!");
         navigateTo('generator');
     };
 
@@ -496,9 +483,7 @@ const AppContent: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <div id="tour-search">
-                            <GlobalSearch onSelectActivity={handleSelectActivity} />
-                        </div>
+                        <GlobalSearch onSelectActivity={handleSelectActivity} />
                         
                         <div className="flex items-center gap-1 border-r border-[var(--border-color)] pr-2 mx-1">
                             <button onClick={() => setIsTourOpen(true)} className={headerIconBtnClass} title="Nasıl Kullanılır?">

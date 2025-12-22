@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useStudent } from '../context/StudentContext'; // Yeni eklendi
+import { useStudent } from '../context/StudentContext'; 
 import { SavedAssessment, SavedWorksheet, ActivityType, User, Curriculum } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { worksheetService } from '../services/worksheetService';
@@ -152,10 +152,7 @@ interface ProfileViewProps {
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivity, targetUser }) => {
-    const { user: authUser, updateUser, updatePassword, logout } = useAuth();
-    /**
-     * Fix: Destructured activeStudent from useStudent to resolve missing name error.
-     */
+    const { user: authUser, updateUser, logout } = useAuth();
     const { students, activeStudent } = useStudent(); 
     
     const user = targetUser || authUser;
@@ -172,13 +169,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
     const [selectedPlan, setSelectedPlan] = useState<Curriculum | null>(null);
     
     const [editName, setEditName] = useState('');
-    const [passwords, setPasswords] = useState({ new: '', confirm: '' });
     const [isSavingProfile, setIsSavingProfile] = useState(false);
-    const [isSavingPassword, setIsSavingPassword] = useState(false);
     const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
     
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
     useEffect(() => {
         if (user) {
             setEditName(user.name);
@@ -204,35 +197,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
             showMessage('error', 'Veriler yüklenirken bir hata oluştu.');
         } finally {
             setLoading(false);
-        }
-    };
-
-    const statsData = useMemo(() => {
-        if (!user) return null;
-        const totalActivities = worksheets.length;
-        const level = Math.floor(totalActivities / 10) + 1;
-        const xp = (totalActivities % 10) * 10;
-        const categoryCounts: Record<string, number> = {};
-        for (const sheet of worksheets) {
-            const catTitle = sheet.category?.title || 'Diğer';
-            categoryCounts[catTitle] = (categoryCounts[catTitle] || 0) + 1;
-        }
-        const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
-        return { totalActivities, level, xp, categoryCounts: sortedCategories, mostUsedCategory: sortedCategories[0]?.[0] || 'Henüz Yok' };
-    }, [user, worksheets]);
-
-    const handleUpdateProfile = async (e: React.FormEvent) => {
-        if (isReadOnly) return;
-        e.preventDefault();
-        if (!editName.trim()) return;
-        setIsSavingProfile(true);
-        try {
-            await updateUser({ name: editName });
-            showMessage('success', 'Profil bilgileri güncellendi.');
-        } catch (error: any) {
-            showMessage('error', error.message);
-        } finally {
-            setIsSavingProfile(false);
         }
     };
 
@@ -281,7 +245,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onSelectActivi
                         <TabPill active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} label="Genel Bakış" icon="fa-solid fa-chart-pie" />
                         <TabPill active={activeTab === 'evaluations'} onClick={() => setActiveTab('evaluations')} label="Değerlendirmeler" icon="fa-solid fa-clipboard-check" />
                         <TabPill active={activeTab === 'plans'} onClick={() => setActiveTab('plans')} label="Eğitim Planları" icon="fa-solid fa-graduation-cap" />
-                        {!isReadOnly && <TabPill active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} label="Ayarlar" icon="fa-solid fa-sliders" />}
                     </div>
                 </div>
 
