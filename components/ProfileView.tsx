@@ -86,7 +86,7 @@ const ActionButton: React.FC<{ label: string; icon: string; onClick: () => void;
 
 type ProfileTab = 'overview' | 'students' | 'evaluations' | 'plans' | 'reports' | 'settings';
 
-export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: ActivityType | null) => void; targetUser?: User }> = ({ onBack, onSelectActivity, targetUser }) => {
+export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: ActivityType | null) => void; onLoadSaved: (ws: SavedWorksheet) => void; targetUser?: User }> = ({ onBack, onSelectActivity, onLoadSaved, targetUser }) => {
     const { user: authUser, updateUser, logout } = useAuth();
     const { students, activeStudent } = useStudent(); 
     
@@ -306,7 +306,7 @@ export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: 
 
                             {activeTab === 'students' && (
                                 <div className="h-[70vh] rounded-[3rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl">
-                                    <StudentDashboard onBack={() => setActiveTab('overview')} />
+                                    <StudentDashboard onBack={() => setActiveTab('overview')} onLoadMaterial={onLoadSaved} />
                                 </div>
                             )}
 

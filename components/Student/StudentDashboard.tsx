@@ -24,13 +24,14 @@ const diagnosisOptions = [
 
 interface StudentDashboardProps {
     onBack: () => void;
+    onLoadMaterial?: (ws: SavedWorksheet) => void;
 }
 
 type TabType = 'overview' | 'materials' | 'analytics' | 'plans' | 'notes' | 'settings';
 type GroupingMode = 'all' | 'grade' | 'age';
 type FormTab = 'identity' | 'academic' | 'parent';
 
-export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) => {
+export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLoadMaterial }) => {
     const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: contextLoading } = useStudent();
     const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -383,7 +384,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                     
                                     {/* Notes Preview */}
                                     <div className="bg-amber-50 dark:bg-amber-900/10 p-6 rounded-2xl border border-amber-100 dark:border-amber-800/30">
-                                        <h3 className="font-bold text-lg text-amber-800 dark:text-amber-500 mb-4">Önemli Notlar</h3>
+                                        <h3 className="font-bold text-lg text-amber-800 dark:text-amber-50 mb-4">Önemli Notlar</h3>
                                         <p className="text-sm text-amber-900 dark:text-amber-200 leading-relaxed italic">
                                             {selectedStudent.notes || "Henüz not eklenmemiş."}
                                         </p>
@@ -405,7 +406,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                                         <p className="text-xs text-zinc-500">{new Date(ws.createdAt).toLocaleDateString('tr-TR')} • {ws.category.title}</p>
                                                     </div>
                                                 </div>
-                                                <button className="px-4 py-2 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-lg text-xs font-bold transition-colors">Görüntüle</button>
+                                                <button 
+                                                    onClick={() => onLoadMaterial?.(ws)}
+                                                    className="px-4 py-2 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-lg text-xs font-bold transition-colors"
+                                                >
+                                                    Görüntüle
+                                                </button>
                                             </div>
                                         ))
                                     )}
@@ -679,7 +685,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-5 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-center">
+                <div className="p-5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-center">
                     <div className="text-xs text-zinc-500 font-medium">
                         {formTab === 'identity' ? '1/3' : formTab === 'academic' ? '2/3' : '3/3'} Adım
                     </div>

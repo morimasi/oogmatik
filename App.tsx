@@ -470,10 +470,10 @@ const AppContent: React.FC = () => {
     const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
 
     if (currentView === 'admin') return <Suspense fallback={<LoadingSpinner />}><AdminDashboard onBack={handleGoBack} /></Suspense>;
-    if (currentView === 'profile') return <Suspense fallback={<LoadingSpinner />}><ProfileView onBack={handleGoBack} onSelectActivity={handleSelectActivity} /></Suspense>;
+    if (currentView === 'profile') return <Suspense fallback={<LoadingSpinner />}><ProfileView onBack={handleGoBack} onSelectActivity={handleSelectActivity} onLoadSaved={loadSavedWorksheet} /></Suspense>;
     if (currentView === 'messages') return <Suspense fallback={<LoadingSpinner />}><MessagesView onBack={handleGoBack} onRefreshNotifications={() => {}} /></Suspense>;
     if (currentView === 'ocr') return <Suspense fallback={<LoadingSpinner />}><OCRScanner onBack={handleGoBack} onResult={handleOCRResult} /></Suspense>;
-    if (currentView === 'students') return <Suspense fallback={<LoadingSpinner />}><StudentDashboard onBack={handleGoBack} /></Suspense>;
+    if (currentView === 'students') return <Suspense fallback={<LoadingSpinner />}><StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} /></Suspense>;
 
     if (currentView === 'reading-studio') return (
         <Suspense fallback={<LoadingSpinner />}>
