@@ -17,6 +17,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
 import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView'; 
+import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators'; 
 
 // Lazy Loaded Components
@@ -140,6 +141,7 @@ const AppContent: React.FC = () => {
     
     const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
     const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+    const [selectedSavedReport, setSelectedSavedReport] = useState<SavedAssessment | null>(null);
 
     // Sync studentProfile with activeStudent from Context
     useEffect(() => {
@@ -282,6 +284,12 @@ const AppContent: React.FC = () => {
     };
 
     const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
+        // Handle Reports specially
+        if (worksheet.activityType === ActivityType.ASSESSMENT_REPORT || (worksheet as any).report) {
+            setSelectedSavedReport(worksheet as unknown as SavedAssessment);
+            return;
+        }
+
         if (worksheet.activityType === ActivityType.WORKBOOK) {
             if (worksheet.workbookItems && worksheet.workbookSettings) {
                 setWorkbookItems(worksheet.workbookItems);
@@ -511,7 +519,7 @@ const AppContent: React.FC = () => {
                 <div className="w-full px-4 sm:px-6 py-3 flex justify-between items-center">
                     <div className="flex items-center">
                         <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] mr-3 p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars fa-lg"></i></button>
-                        <button id="tour-logo" onClick={() => { navigateTo('generator'); setSelectedActivity(null); setActiveCurriculumSession(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
+                        <button id="tour-logo" onClick={() => { navigateTo('generator'); setSelectedActivity(null); setWorksheetData(null); setActiveCurriculumSession(null); }} className="flex items-center gap-3 px-2 py-1 rounded-lg relative z-50">
                             <DyslexiaLogo className="h-10 w-auto" />
                         </button>
                     </div>
@@ -686,6 +694,15 @@ const AppContent: React.FC = () => {
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
             <StudentInfoModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} currentProfile={studentProfile} onSave={(p) => setStudentProfile(p)} onClear={() => setStudentProfile(null)} />
             <SettingsModal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} uiSettings={uiSettings} onUpdateUiSettings={setUiSettings} theme={theme} onUpdateTheme={setTheme} />
+            
+            {/* Assessment Report Viewer for Saved Reports */}
+            <AssessmentReportViewer 
+                assessment={selectedSavedReport} 
+                onClose={() => setSelectedSavedReport(null)} 
+                user={user} 
+                onSelectActivity={handleSelectActivity}
+            />
+
             <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi">
                 <HistoryView historyItems={historyItems} onRestore={handleRestoreFromHistory} onSaveToArchive={handleSaveHistoryItem} onDelete={deleteHistoryItem} onClearAll={clearHistory} onClose={() => setOpenModal(null)} />
             </Modal>
