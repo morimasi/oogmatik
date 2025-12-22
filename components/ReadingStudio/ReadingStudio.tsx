@@ -81,33 +81,28 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
 ];
 
 /**
- * Bileşen içeriğini sarmalayan ve boyutu değiştiğinde ebeveyne haber veren akıllı bileşen.
- * Döngüye girmemesi için sadece içeriğin (inner content) doğal yüksekliğini ölçer.
+ * Akıllı İçerik Sarmalayıcı:
+ * İçeriğin gerçek yüksekliğini ölçer ve ebeveyne bildirir.
+ * Döngüye girmemek için container'ı değil iç 'content' divini izler.
  */
 const AutoContentWrapper = ({ 
     children, 
     onSizeChange,
-    instanceId
+    enabled
 }: { 
     children?: React.ReactNode, 
     onSizeChange: (h: number) => void,
-    instanceId: string
+    enabled: boolean
 }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const lastHeight = useRef<number>(0);
 
     useLayoutEffect(() => {
-        if (!contentRef.current) return;
+        if (!enabled || !contentRef.current) return;
         
         const observer = new ResizeObserver(() => {
             if (!contentRef.current) return;
-            
-            // Container'ın değil, içindeki gerçek içeriğin yüksekliğini alıyoruz.
-            // offsetHeight yerine scrollHeight kullanmak taşmaları da hesaplar.
             const currentContentHeight = contentRef.current.scrollHeight;
-            
-            // Eğer yükseklik değişimi Grid boyutundan (5px) küçükse güncelleme yapma (Döngü engelleyici)
             if (Math.abs(currentContentHeight - lastHeight.current) >= SNAP_GRID) {
                  lastHeight.current = currentContentHeight;
                  onSizeChange(currentContentHeight);
@@ -116,13 +111,10 @@ const AutoContentWrapper = ({
 
         observer.observe(contentRef.current);
         return () => observer.disconnect();
-    }, [onSizeChange]);
+    }, [onSizeChange, enabled]);
 
     return (
-        <div 
-            ref={containerRef} 
-            className="w-full h-full overflow-hidden"
-        >
+        <div className="w-full h-full overflow-hidden">
             <div ref={contentRef} className="w-full h-auto min-h-full">
                 {children}
             </div>
@@ -463,6 +455,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     const [layout, setLayout] = useState<ActiveComponent[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [designMode, setDesignMode] = useState(true);
+    const [smartFlow, setSmartFlow] = useState(true); // Akış Kilidi
     
     const [config, setConfig] = useState<ReadingStudioConfig>({
         gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
@@ -503,43 +496,28 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     }, []);
 
     // --- SMART RE-FLOW & CASCADE PUSH ENGINE ---
-    /**
-     * Bir bileşenin içeriği değiştiğinde (yüksekliği arttığında),
-     * altındaki tüm bileşenleri aynı oranda aşağı iten çekirdek algoritma.
-     */
     const handleAutoResize = useCallback((instanceId: string, newContentHeight: number) => {
+        if (!smartFlow) return;
+
         setLayout(prevLayout => {
             const itemIndex = prevLayout.findIndex(item => item.instanceId === instanceId);
             if (itemIndex === -1) return prevLayout;
 
             const item = prevLayout[itemIndex];
             const oldHeight = item.style.h;
-            
-            // Grid'e yapışması için yuvarlama yapıyoruz (Buffer eklemeden doğrudan ölçüm)
             const roundedNewHeight = Math.ceil(newContentHeight / SNAP_GRID) * SNAP_GRID;
 
-            // Döngü kilidi: Eğer fark Grid boyutundan küçükse güncelleme yapma
             if (Math.abs(oldHeight - roundedNewHeight) < SNAP_GRID) return prevLayout;
 
             const deltaY = roundedNewHeight - oldHeight;
             const itemOriginalBottomY = item.style.y + oldHeight;
 
-            // Yeni layout kopyası
-            const newLayout = [...prevLayout];
-            
-            // 1. Hedef bileşenin yüksekliğini güncelle
-            newLayout[itemIndex] = {
-                ...item,
-                style: { ...item.style, h: roundedNewHeight }
-            };
-
-            // 2. Şelale Etkisi: Altındaki tüm bileşenleri it
-            return newLayout.map((l, idx) => {
-                if (idx === itemIndex) return l; // Kendisini atla
-                
-                // Eğer bileşenin başlangıç noktası, değişen bileşenin eski alt kenarından aşağıdaysa it
-                // 5px tolerans payı bırakıyoruz
-                if (l.style.y >= (itemOriginalBottomY - 5)) {
+            return prevLayout.map((l, idx) => {
+                if (idx === itemIndex) {
+                    return { ...l, style: { ...l.style, h: roundedNewHeight } };
+                }
+                // Şelale Etkisi: Sadece dikey olarak bu elemanın altında olanları it
+                if (l.style.y >= (itemOriginalBottomY - 2)) {
                     return {
                         ...l,
                         style: {
@@ -551,7 +529,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 return l;
             });
         });
-    }, []);
+    }, [smartFlow]);
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -713,10 +691,11 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                     newStyle.rotation = finalR;
                 }
 
-                // Manuel yeniden boyutlandırma anında itme yapıyoruz
                 return prev.map(l => {
                     if (l.instanceId === selectedId) return { ...l, style: newStyle };
-                    if (itemHeightDelta !== 0 && l.style.y >= (item.style.y + item.style.h - 5)) {
+                    // Manuel itme (Drag sırasında çarpışma kontrolü eklenebilir ama kafa karıştırıcı olabilir, 
+                    // şimdilik sadece resize ve auto-resize sırasında cascade yapıyoruz)
+                    if (smartFlow && itemHeightDelta !== 0 && l.style.y >= (item.style.y + item.style.h - 5)) {
                         return { ...l, style: { ...l.style, y: Math.max(20, l.style.y + itemHeightDelta) } };
                     }
                     return l;
@@ -726,7 +705,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         const handleMouseUp = () => { setDragState(null); setIsPanning(false); };
         if (dragState || isPanning) { window.addEventListener('mousemove', handleMouseMove); window.addEventListener('mouseup', handleMouseUp); }
         return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
-    }, [dragState, selectedId, isPanning, canvasScale]);
+    }, [dragState, selectedId, isPanning, canvasScale, smartFlow]);
 
     const addComponent = (def: ComponentDefinition) => {
         const newId = `${def.id}-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
@@ -773,12 +752,15 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if(confirm("Bu bileşeni silmek istediğinize emin misiniz?")) {
             const itemToRemove = layout.find(item => item.instanceId === id);
             if (!itemToRemove) return;
+            
             const gap = 15; 
             const removedHeight = itemToRemove.style.h + gap;
             const removedY = itemToRemove.style.y;
 
             setLayout(prev => {
                 const filtered = prev.filter(item => item.instanceId !== id);
+                if (!smartFlow) return filtered;
+                
                 return filtered.map(item => {
                     if (item.style.y > removedY) {
                         return { ...item, style: { ...item.style, y: Math.max(20, item.style.y - removedHeight) } };
@@ -885,22 +867,29 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         }
     };
 
+    /**
+     * @google/genai handleShare Logic
+     * Added missing handleShare function to fix the error.
+     */
     const handleShare = async (receiverId: string) => {
         if (!user) return;
+        if (!storyData && layout.length === 0) return;
+        
         try {
-            const title = storyData?.title || 'Paylaşılan Hikaye';
+            const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
             const mockSavedWorksheet: any = {
                 name: title,
                 activityType: 'STORY_COMPREHENSION',
                 worksheetData: [{ storyData, layout }],
-                icon: 'fa-solid fa-share-nodes',
+                icon: 'fa-solid fa-book-open-reader',
                 category: { id: 'reading-verbal', title: 'Okuma & Dil' }
             };
             await worksheetService.shareWorksheet(mockSavedWorksheet, user.id, user.name, receiverId);
             setIsShareModalOpen(false);
-            alert("Hikaye başarıyla paylaşıldı.");
+            alert("Etkinlik başarıyla paylaşıldı.");
         } catch (e) {
-            alert("Paylaşım hatası.");
+            console.error("Share error:", e);
+            alert("Paylaşım sırasında bir hata oluştu.");
         }
     };
 
@@ -931,7 +920,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'header') {
             const data = item.specificData || { title: "HİKAYE BAŞLIĞI", subtitle: `Tarih: ....................` };
             return (
-                <AutoContentWrapper instanceId={item.instanceId} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
+                <AutoContentWrapper enabled={smartFlow} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                     <div className="h-full flex flex-col justify-end" style={boxStyle}>
                         <h1 className="font-black uppercase leading-none tracking-tight" style={{fontSize: '2.5em', color: 'inherit'}}>{data.title}</h1>
                         <div className="flex justify-between items-end mt-2 opacity-70">
@@ -961,7 +950,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'story_block') {
             const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
             return (
-                <AutoContentWrapper instanceId={item.instanceId} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
+                <AutoContentWrapper enabled={smartFlow} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                     <div className="relative overflow-hidden" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                          {item.style.imageSettings?.enabled && (
                             <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
@@ -981,7 +970,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'vocabulary') {
              const data = item.specificData || { questions: [{text: "Örnek: Açıklama"}] };
              return (
-                 <AutoContentWrapper instanceId={item.instanceId} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
+                 <AutoContentWrapper enabled={smartFlow} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                  <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                      <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
                         <i className="fa-solid fa-spell-check"></i> {item.customTitle}
@@ -1029,7 +1018,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id.startsWith('questions')) {
             const data = item.specificData || { questions: [{text: "Madde 1..."}] };
             return (
-                <AutoContentWrapper instanceId={item.instanceId} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
+                <AutoContentWrapper enabled={smartFlow} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                 <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
                     <div className="flex-1 space-y-2 overflow-hidden">
@@ -1063,8 +1052,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
             return prev.map(l => {
                 if (l.instanceId === id) return { ...l, isVisible: !l.isVisible };
-                // Shift lower items
-                if (l.style.y > item.style.y) {
+                if (smartFlow && l.style.y > item.style.y) {
                     return { ...l, style: { ...l.style, y: Math.max(20, l.style.y + deltaY) } };
                 }
                 return l;
@@ -1082,6 +1070,14 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 </div>
                 
                 <div className="flex items-center gap-2">
+                     {/* Smart Flow Toggle */}
+                     <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 gap-3 mr-2">
+                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Akıllı Akış</span>
+                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${smartFlow ? 'bg-indigo-500' : 'bg-zinc-600'}`} onClick={() => setSmartFlow(!smartFlow)}>
+                            <div className={`w-2 h-2 bg-white rounded-full absolute top-1 transition-all ${smartFlow ? 'left-5' : 'left-1'}`}></div>
+                        </div>
+                     </div>
+
                      <button onClick={() => setDesignMode(!designMode)} className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${designMode ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>
                          {designMode ? 'MİMARİ MOD' : 'ÖNİZLEME'}
                      </button>
@@ -1120,7 +1116,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                              <button onClick={() => setSidebarTab('library')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
                              <button onClick={() => setSidebarTab('templates')} className={`flex-1 py-3 text-xs font-bold uppercase transition-colors ${sidebarTab === 'templates' ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300'}`}>Şablonlar</button>
                          </div>
-                         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                         <div className="flex-1 overflow-y-auto custom-scrollbar">
                              {sidebarTab === 'library' && (
                                  <div className="flex flex-col">
                                      <div className="border-b border-zinc-800">
