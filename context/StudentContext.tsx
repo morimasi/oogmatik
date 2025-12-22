@@ -17,6 +17,26 @@ interface StudentContextType {
 
 const StudentContext = createContext<StudentContextType | undefined>(undefined);
 
+// --- SANITIZATION LAYER ---
+const sanitizeStudent = (data: any): Partial<Student> => {
+    return {
+        name: data.name || 'İsimsiz Öğrenci',
+        age: Number(data.age) || 0,
+        grade: data.grade || '',
+        avatar: data.avatar || '',
+        diagnosis: Array.isArray(data.diagnosis) ? data.diagnosis : [],
+        interests: Array.isArray(data.interests) ? data.interests : [],
+        strengths: Array.isArray(data.strengths) ? data.strengths : [],
+        weaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : [],
+        learningStyle: data.learningStyle || 'Karma',
+        parentName: data.parentName || '',
+        contactPhone: data.contactPhone || '',
+        contactEmail: data.contactEmail || '',
+        notesHistory: data.notesHistory || '[]',
+        notes: data.notes || ''
+    };
+};
+
 export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user } = useAuth();
     const [students, setStudents] = useState<Student[]>([]);
@@ -33,8 +53,6 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         setIsLoading(true);
         
-        // Firestore Index Error Fix: Removed orderBy("createdAt", "desc") from query.
-        // Sorting will be done client-side.
         const q = query(
             collection(db, "students"),
             where("teacherId", "==", user.id)
@@ -44,38 +62,20 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const studentList: Student[] = [];
             snapshot.forEach((doc) => {
                 const data = doc.data();
-                // Safe mapping to avoid undefined errors
                 if (data) {
                     studentList.push({ 
                         id: doc.id, 
                         teacherId: data.teacherId || '',
-                        name: data.name || 'İsimsiz Öğrenci',
-                        age: data.age || 0,
-                        grade: data.grade || '',
-                        avatar: data.avatar || '',
                         createdAt: data.createdAt || new Date().toISOString(),
-                        diagnosis: Array.isArray(data.diagnosis) ? data.diagnosis : [],
-                        interests: Array.isArray(data.interests) ? data.interests : [],
-                        strengths: Array.isArray(data.strengths) ? data.strengths : [],
-                        weaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : [],
-                        learningStyle: data.learningStyle || 'Görsel',
-                        parentName: data.parentName || '',
-                        contactPhone: data.contactPhone || '',
-                        contactEmail: data.contactEmail || '',
-                        notesHistory: data.notesHistory || '',
-                        notes: data.notes || ''
+                        ...sanitizeStudent(data)
                     } as Student);
                 }
             });
 
-            // Client-side sort
             studentList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
             setStudents(studentList);
             
-            // If active student was deleted, clear selection
-            // Added extra safety check for activeStudent.id
-            if (activeStudent && activeStudent.id && !studentList.find(s => s.id === activeStudent.id)) {
+            if (activeStudent && !studentList.find(s => s.id === activeStudent.id)) {
                 setActiveStudent(null);
             }
             
@@ -86,34 +86,17 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
 
         return () => unsubscribe();
-    }, [user, activeStudent]);
+    }, [user, activeStudent?.id]);
 
     const addStudent = async (studentData: Omit<Student, 'id' | 'teacherId' | 'createdAt'>) => {
-        if (!user) throw new Error("Kullanıcı oturumu bulunamadı.");
+        if (!user) return;
         
-        if (!studentData.name || studentData.name.trim() === '') {
-            throw new Error("Öğrenci adı zorunludur.");
-        }
-
         try {
-            // Robust data sanitization before DB insert
+            const sanitized = sanitizeStudent(studentData);
             const newStudent = {
+                ...sanitized,
                 teacherId: user.id,
                 createdAt: new Date().toISOString(),
-                name: studentData.name.trim(),
-                age: Number(studentData.age) || 7,
-                grade: studentData.grade || '1. Sınıf',
-                avatar: studentData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentData.name}`,
-                diagnosis: Array.isArray(studentData.diagnosis) ? studentData.diagnosis : [],
-                interests: Array.isArray(studentData.interests) ? studentData.interests : [],
-                strengths: Array.isArray(studentData.strengths) ? studentData.strengths : [],
-                weaknesses: Array.isArray(studentData.weaknesses) ? studentData.weaknesses : [],
-                learningStyle: studentData.learningStyle || 'Görsel',
-                parentName: studentData.parentName || '',
-                contactPhone: studentData.contactPhone || '',
-                contactEmail: studentData.contactEmail || '',
-                notes: studentData.notes || '',
-                notesHistory: ''
             };
             
             await addDoc(collection(db, "students"), newStudent);
@@ -125,12 +108,21 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const updateStudent = async (id: string, updates: Partial<Student>) => {
         try {
-            const studentRef = doc(db, "students", id);
-            await updateDoc(studentRef, updates);
+            // Only sanitize keys that are present in updates to allow partial updates
+            const sanitizedUpdates: any = {};
+            const baseSanitized = sanitizeStudent(updates);
             
-            // Update active student state if it's the one being updated
+            Object.keys(updates).forEach(key => {
+                if (key in baseSanitized) {
+                    sanitizedUpdates[key] = (baseSanitized as any)[key];
+                }
+            });
+
+            const studentRef = doc(db, "students", id);
+            await updateDoc(studentRef, sanitizedUpdates);
+            
             if (activeStudent && activeStudent.id === id) {
-                setActiveStudent({ ...activeStudent, ...updates });
+                setActiveStudent({ ...activeStudent, ...sanitizedUpdates });
             }
         } catch (error) {
             console.error("Error updating student:", error);

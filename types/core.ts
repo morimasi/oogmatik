@@ -117,16 +117,16 @@ export interface Student {
     diagnosis: string[];
     interests: string[];
     learningStyle?: 'Görsel' | 'İşitsel' | 'Kinestetik' | 'Karma';
-    strengths?: string[];
-    weaknesses?: string[];
+    strengths: string[];
+    weaknesses: string[];
     
     // Contact Info
-    parentName?: string;
-    contactPhone?: string;
-    contactEmail?: string;
+    parentName: string;
+    contactPhone: string;
+    contactEmail: string;
     
     // Notes History (JSON stringified array of {date, note, author})
-    notesHistory?: string; 
+    notesHistory: string; 
     
     // Legacy support
     notes: string;

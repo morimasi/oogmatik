@@ -184,9 +184,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
             <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="font-black text-lg text-zinc-800 dark:text-white flex items-center gap-2">
-                        <i className="fa-solid fa-users text-indigo-500"></i> Öğrencilerim
+                        <i className="fa-solid fa-users text-amber-500"></i> Öğrencilerim
                     </h2>
-                    <button onClick={() => { setFormData({}); setFormTab('identity'); setShowAddForm(true); }} className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center hover:bg-indigo-100 transition-colors" title="Yeni Öğrenci Ekle">
+                    <button onClick={() => { setFormData({}); setFormTab('identity'); setShowAddForm(true); }} className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center hover:bg-amber-100 transition-colors" title="Yeni Öğrenci Ekle">
                         <i className="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -197,7 +197,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                         placeholder="Öğrenci ara..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:border-indigo-500 transition-all"
+                        className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:border-amber-500 transition-all"
                     />
                 </div>
                 
@@ -225,18 +225,17 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                         {(groupingMode === 'all' || openGroups[groupKey]) && (
                             <div className="space-y-1">
                                 {groupedStudents[groupKey].map(s => {
-                                    // SAFETY CHECK: Ensure s exists and has an ID
                                     if (!s || !s.id) return null;
                                     
                                     return (
                                     <button
                                         key={s.id}
                                         onClick={() => setSelectedStudentId(s.id)}
-                                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group ${selectedStudentId === s.id ? 'bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 shadow-sm' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800 border-l-4 border-transparent'}`}
+                                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group ${selectedStudentId === s.id ? 'bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 shadow-sm' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800 border-l-4 border-transparent'}`}
                                     >
                                         <img src={s.avatar} className="w-10 h-10 rounded-full bg-white border" alt={s.name} />
                                         <div className="flex-1 min-w-0">
-                                            <h4 className={`font-bold text-sm truncate ${selectedStudentId === s.id ? 'text-indigo-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>{s.name}</h4>
+                                            <h4 className={`font-bold text-sm truncate ${selectedStudentId === s.id ? 'text-amber-900 dark:text-amber-100' : 'text-zinc-700 dark:text-zinc-300'}`}>{s.name}</h4>
                                             <p className="text-[10px] text-zinc-500 truncate flex gap-2">
                                                 <span>{s.grade}</span> • <span>{s.age} Yaş</span>
                                             </p>
@@ -284,7 +283,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                 <span className="w-1 h-1 bg-zinc-300 rounded-full"></span>
                                 <span className="flex items-center gap-1"><i className="fa-solid fa-cake-candles"></i> {selectedStudent.age} Yaş</span>
                                 <span className="w-1 h-1 bg-zinc-300 rounded-full"></span>
-                                <span className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded text-xs font-bold border border-indigo-100 dark:border-indigo-800">
+                                <span className="bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded text-xs font-bold border border-amber-100 dark:border-amber-800">
                                     {selectedStudent.diagnosis[0] || 'Genel Takip'}
                                 </span>
                             </div>
@@ -313,7 +312,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as TabType)}
-                            className={`py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === tab.id ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
+                            className={`py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === tab.id ? 'border-amber-600 text-amber-600 dark:text-amber-400' : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
                         >
                             <i className={`fa-solid ${tab.icon}`}></i> {tab.label}
                         </button>
@@ -323,7 +322,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                     {loadingDetails ? (
-                        <div className="flex items-center justify-center h-64"><i className="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-500"></i></div>
+                        <div className="flex items-center justify-center h-64"><i className="fa-solid fa-circle-notch fa-spin text-2xl text-amber-500"></i></div>
                     ) : (
                         <div className="max-w-6xl mx-auto space-y-8 pb-20">
                             
@@ -362,7 +361,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                                 <label className="text-xs font-bold text-zinc-400 uppercase block mb-1">Tanı</label>
                                                 <div className="flex flex-wrap gap-2">
                                                     {selectedStudent.diagnosis.map((d, i) => (
-                                                        <span key={i} className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded text-xs font-bold">{d}</span>
+                                                        <span key={i} className="px-2 py-1 bg-amber-50 text-amber-700 rounded text-xs font-bold">{d}</span>
                                                     ))}
                                                 </div>
                                             </div>
@@ -458,7 +457,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h4 className="font-bold text-lg text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                                                        <i className="fa-solid fa-graduation-cap text-indigo-500"></i>
+                                                        <i className="fa-solid fa-graduation-cap text-amber-500"></i>
                                                         {new Date(plan.startDate).toLocaleDateString('tr-TR')} Programı
                                                     </h4>
                                                     <p className="text-sm text-zinc-500">{plan.durationDays} Günlük • {plan.goals.length} Hedef</p>
@@ -469,11 +468,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                             </div>
                                             
                                             <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2 mb-4">
-                                                <div className="bg-indigo-600 h-2 rounded-full transition-all" style={{ width: `${(plan.schedule.filter(d => d.isCompleted).length / plan.schedule.length) * 100}%` }}></div>
+                                                <div className="bg-amber-600 h-2 rounded-full transition-all" style={{ width: `${(plan.schedule.filter(d => d.isCompleted).length / plan.schedule.length) * 100}%` }}></div>
                                             </div>
 
                                             <div className="flex gap-2 justify-end">
-                                                <button className="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">Planı Aç</button>
+                                                <button className="text-xs font-bold text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 transition-colors">Planı Aç</button>
                                             </div>
                                         </div>
                                     ))}
@@ -483,7 +482,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                             {activeTab === 'notes' && (
                                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                      <textarea 
-                                        className="w-full h-96 p-6 bg-yellow-50 dark:bg-yellow-900/10 border-2 border-yellow-200 dark:border-yellow-800 rounded-2xl resize-none outline-none focus:border-yellow-400 text-yellow-900 dark:text-yellow-100 leading-relaxed shadow-inner"
+                                        className="w-full h-96 p-6 bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-200 dark:border-amber-800 rounded-2xl resize-none outline-none focus:border-amber-400 text-amber-900 dark:text-amber-100 leading-relaxed shadow-inner"
                                         placeholder="Öğrenci hakkında gözlem notları, hatırlatmalar..."
                                         value={formData.notes || selectedStudent.notes}
                                         onChange={e => setFormData({...formData, notes: e.target.value})}
@@ -518,19 +517,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                 <div className="flex border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                     <button 
                         onClick={() => setFormTab('identity')}
-                        className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'identity' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
+                        className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'identity' ? 'border-amber-600 text-amber-600 dark:text-amber-400 bg-amber-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
                     >
                         <i className="fa-solid fa-id-card"></i> Temel Bilgiler
                     </button>
                     <button 
                         onClick={() => setFormTab('academic')}
-                        className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'academic' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
+                        className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'academic' ? 'border-amber-600 text-amber-600 dark:text-amber-400 bg-amber-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
                     >
                         <i className="fa-solid fa-brain"></i> Akademik Profil
                     </button>
                     <button 
                         onClick={() => setFormTab('parent')}
-                        className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'parent' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
+                        className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'parent' ? 'border-amber-600 text-amber-600 dark:text-amber-400 bg-amber-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
                     >
                         <i className="fa-solid fa-users"></i> Veli & İletişim
                     </button>
@@ -545,7 +544,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                             <div className="space-y-4 animate-in slide-in-from-left-4 duration-300">
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Ad Soyad <span className="text-red-500">*</span></label>
-                                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold" placeholder="Örn: Ayşe Yılmaz" />
+                                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none font-bold" placeholder="Örn: Ayşe Yılmaz" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
@@ -561,13 +560,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Öğrenme Stili</label>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {['Görsel', 'İşitsel', 'Kinestetik'].map(style => (
+                                    <div className="grid grid-cols-4 gap-3">
+                                        {['Görsel', 'İşitsel', 'Kinestetik', 'Karma'].map(style => (
                                             <button
                                                 key={style}
                                                 type="button"
                                                 onClick={() => setFormData({...formData, learningStyle: style as any})}
-                                                className={`p-3 rounded-xl border-2 text-sm font-bold transition-all ${formData.learningStyle === style ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300' : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:border-zinc-300'}`}
+                                                className={`p-3 rounded-xl border-2 text-[10px] font-bold transition-all ${formData.learningStyle === style ? 'border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300' : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:border-zinc-300'}`}
                                             >
                                                 {style}
                                             </button>
@@ -584,9 +583,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Tanı / Özel Durum</label>
                                     <div className="flex flex-wrap gap-2 mb-3">
                                         {formData.diagnosis?.map((d, i) => (
-                                            <span key={i} className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold flex items-center gap-2">
+                                            <span key={i} className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold flex items-center gap-2">
                                                 {d} 
-                                                <button type="button" onClick={() => setFormData({...formData, diagnosis: formData.diagnosis?.filter((_, idx) => idx !== i)})} className="hover:text-indigo-900">×</button>
+                                                <button type="button" onClick={() => setFormData({...formData, diagnosis: formData.diagnosis?.filter((_, idx) => idx !== i)})} className="hover:text-amber-900">×</button>
                                             </span>
                                         ))}
                                     </div>
@@ -608,8 +607,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                     <div>
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">İlgi Alanları</label>
                                         <div className="flex gap-2">
-                                            <input type="text" value={tempInterest} onChange={e => setTempInterest(e.target.value)} className="flex-1 p-2 border rounded-lg text-sm" placeholder="Örn: Uzay" onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag('interests', tempInterest, setTempInterest))} />
-                                            <button type="button" onClick={() => handleAddTag('interests', tempInterest, setTempInterest)} className="px-3 bg-zinc-200 rounded-lg">+</button>
+                                            <input type="text" value={tempInterest} onChange={e => setTempInterest(e.target.value)} className="flex-1 p-2 border rounded-lg text-sm bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700" placeholder="Örn: Uzay" onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag('interests', tempInterest, setTempInterest))} />
+                                            <button type="button" onClick={() => handleAddTag('interests', tempInterest, setTempInterest)} className="px-3 bg-zinc-200 dark:bg-zinc-700 rounded-lg">+</button>
                                         </div>
                                         <div className="flex flex-wrap gap-1 mt-2">
                                             {formData.interests?.map((tag, i) => (
@@ -620,8 +619,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                     <div>
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Güçlü Yönler</label>
                                         <div className="flex gap-2">
-                                            <input type="text" value={tempStrength} onChange={e => setTempStrength(e.target.value)} className="flex-1 p-2 border rounded-lg text-sm" placeholder="Örn: Görsel hafıza" onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag('strengths', tempStrength, setTempStrength))} />
-                                            <button type="button" onClick={() => handleAddTag('strengths', tempStrength, setTempStrength)} className="px-3 bg-zinc-200 rounded-lg">+</button>
+                                            <input type="text" value={tempStrength} onChange={e => setTempStrength(e.target.value)} className="flex-1 p-2 border rounded-lg text-sm bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700" placeholder="Örn: Görsel hafıza" onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag('strengths', tempStrength, setTempStrength))} />
+                                            <button type="button" onClick={() => handleAddTag('strengths', tempStrength, setTempStrength)} className="px-3 bg-zinc-200 dark:bg-zinc-700 rounded-lg">+</button>
                                         </div>
                                         <div className="flex flex-wrap gap-1 mt-2">
                                             {formData.strengths?.map((tag, i) => (
@@ -634,8 +633,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Destek İhtiyaçları (Zayıf Yönler)</label>
                                     <div className="flex gap-2">
-                                        <input type="text" value={tempWeakness} onChange={e => setTempWeakness(e.target.value)} className="flex-1 p-2 border rounded-lg text-sm" placeholder="Örn: b/d harfleri" onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag('weaknesses', tempWeakness, setTempWeakness))} />
-                                        <button type="button" onClick={() => handleAddTag('weaknesses', tempWeakness, setTempWeakness)} className="px-3 bg-zinc-200 rounded-lg">+</button>
+                                        <input type="text" value={tempWeakness} onChange={e => setTempWeakness(e.target.value)} className="flex-1 p-2 border rounded-lg text-sm bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700" placeholder="Örn: b/d harfleri" onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag('weaknesses', tempWeakness, setTempWeakness))} />
+                                        <button type="button" onClick={() => handleAddTag('weaknesses', tempWeakness, setTempWeakness)} className="px-3 bg-zinc-200 dark:bg-zinc-700 rounded-lg">+</button>
                                     </div>
                                     <div className="flex flex-wrap gap-1 mt-2">
                                         {formData.weaknesses?.map((tag, i) => (
@@ -689,7 +688,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                         <button 
                             type="submit" 
                             form="student-form" 
-                            className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center gap-2"
+                            className="px-8 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center gap-2"
                         >
                             <i className="fa-solid fa-save"></i> Kaydet
                         </button>
