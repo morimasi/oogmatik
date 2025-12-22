@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useStudent } from '../../context/StudentContext';
 import { Student, SavedWorksheet, SavedAssessment } from '../../types';
@@ -65,16 +66,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
     const loadStudentData = async (id: string) => {
         setLoadingDetails(true);
         try {
+            const currentStudent = students.find(s=>s.id===id);
+            if (!currentStudent) return;
+
             const [ws, as] = await Promise.all([
                 worksheetService.getWorksheetsByStudent(id),
                 // Note: Assessment service might not have getByStudentId yet, filtering by name/metadata fallback usually happens in service
                 // For now assuming we can fetch by user and filter, or future update adds getAssessmentsByStudent
-                assessmentService.getUserAssessments(students.find(s=>s.id===id)?.teacherId || '') 
+                assessmentService.getUserAssessments(currentStudent.teacherId || '') 
             ]);
             
             setStudentWorksheets(ws);
             // Fallback filtering for assessments until backend supports studentId directly on assessments
-            const currentName = students.find(s=>s.id===id)?.name;
+            const currentName = currentStudent.name || '';
             setStudentAssessments(as.filter(a => a.studentName === currentName));
             
         } catch (e) {
@@ -138,7 +142,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
-                {students.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase())).map(s => (
+                {students.filter(s => (s.name || '').toLowerCase().includes(searchQuery.toLowerCase())).map(s => (
                     <button
                         key={s.id}
                         onClick={() => setSelectedStudentId(s.id)}
@@ -147,7 +151,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                         <img src={s.avatar} className="w-10 h-10 rounded-full bg-white border" alt={s.name} />
                         <div className="flex-1 min-w-0">
                             <h4 className={`font-bold text-sm truncate ${selectedStudentId === s.id ? 'text-indigo-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>{s.name}</h4>
-                            <p className="text-xs text-zinc-500 truncate">{s.grade} • {s.diagnosis?.[0] || 'Genel'}</p>
+                            <p className="text-xs text-zinc-500 truncate">{s.grade} • {(s.diagnosis && s.diagnosis[0]) || 'Genel'}</p>
                         </div>
                         {activeStudent?.id === s.id && <div className="w-2 h-2 rounded-full bg-green-500"></div>}
                     </button>
@@ -178,7 +182,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack }) =>
                             <div className="flex flex-wrap gap-2 mt-2">
                                 <span className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-xs font-bold text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">{selectedStudent.grade}</span>
                                 <span className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-xs font-bold text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">{selectedStudent.age} Yaş</span>
-                                {selectedStudent.diagnosis.map(d => (
+                                {(selectedStudent.diagnosis || []).map(d => (
                                     <span key={d} className="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold border border-red-100 dark:border-red-900/50">{d}</span>
                                 ))}
                             </div>

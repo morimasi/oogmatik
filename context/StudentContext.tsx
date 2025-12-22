@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Student } from '../types';
 import { db } from '../services/firebaseClient';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, orderBy } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 
 interface StudentContextType {
@@ -32,17 +32,45 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
 
         setIsLoading(true);
+        
+        // Firestore Index Error Fix: Removed orderBy("createdAt", "desc") from query.
+        // Sorting will be done client-side.
         const q = query(
             collection(db, "students"),
-            where("teacherId", "==", user.id),
-            orderBy("createdAt", "desc")
+            where("teacherId", "==", user.id)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const studentList: Student[] = [];
             snapshot.forEach((doc) => {
-                studentList.push({ id: doc.id, ...doc.data() } as Student);
+                const data = doc.data();
+                // Safe mapping to avoid undefined errors
+                if (data) {
+                    studentList.push({ 
+                        id: doc.id, 
+                        teacherId: data.teacherId || '',
+                        name: data.name || 'İsimsiz Öğrenci',
+                        age: data.age || 0,
+                        grade: data.grade || '',
+                        avatar: data.avatar || '',
+                        createdAt: data.createdAt || new Date().toISOString(),
+                        diagnosis: data.diagnosis || [],
+                        interests: data.interests || [],
+                        strengths: data.strengths || [],
+                        weaknesses: data.weaknesses || [],
+                        learningStyle: data.learningStyle,
+                        parentName: data.parentName,
+                        contactPhone: data.contactPhone,
+                        contactEmail: data.contactEmail,
+                        notesHistory: data.notesHistory,
+                        notes: data.notes || ''
+                    } as Student);
+                }
             });
+
+            // Client-side sort
+            studentList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
             setStudents(studentList);
             
             // If active student was deleted, clear selection
@@ -57,7 +85,7 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
 
         return () => unsubscribe();
-    }, [user]);
+    }, [user, activeStudent]);
 
     const addStudent = async (studentData: Omit<Student, 'id' | 'teacherId' | 'createdAt'>) => {
         if (!user) return;

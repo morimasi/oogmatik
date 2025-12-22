@@ -59,25 +59,30 @@ const Sidebar: React.FC<SidebarProps> = ({
       const loadCustomActivities = async () => {
           try {
               const customActs = await adminService.getAllActivities();
-              const mergedActivities = [...ACTIVITIES];
-              customActs.forEach(ca => {
-                  const index = mergedActivities.findIndex(a => a.id === ca.id);
-                  if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca };
-                  else mergedActivities.push(ca);
-              });
-              setAllActivities(mergedActivities);
-              const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({ ...cat, activities: [...cat.activities] }));
-              mergedActivities.forEach(act => {
-                  const catId = act.category || 'others';
-                  let category = updatedCategories.find(c => c.id === catId);
-                  if (!category) {
-                      category = { id: catId, title: catId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '), description: 'Özel Kategori', icon: 'fa-solid fa-folder-open', activities: [], isCustom: true };
-                      updatedCategories.push(category);
-                  }
-                  if (!category.activities.includes(act.id)) category.activities.push(act.id);
-              });
-              setCategories(updatedCategories);
-          } catch (e) { console.error(e); }
+              if (customActs && Array.isArray(customActs)) {
+                  const mergedActivities = [...ACTIVITIES];
+                  customActs.forEach(ca => {
+                      if (!ca || !ca.id) return; // Skip invalid
+                      const index = mergedActivities.findIndex(a => a.id === ca.id);
+                      if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca };
+                      else mergedActivities.push(ca);
+                  });
+                  setAllActivities(mergedActivities);
+                  
+                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({ ...cat, activities: [...cat.activities] }));
+                  mergedActivities.forEach(act => {
+                      if (!act) return;
+                      const catId = act.category || 'others';
+                      let category = updatedCategories.find(c => c.id === catId);
+                      if (!category) {
+                          category = { id: catId, title: catId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '), description: 'Özel Kategori', icon: 'fa-solid fa-folder-open', activities: [], isCustom: true };
+                          updatedCategories.push(category);
+                      }
+                      if (!category.activities.includes(act.id)) category.activities.push(act.id);
+                  });
+                  setCategories(updatedCategories);
+              }
+          } catch (e) { console.error("Sidebar load error", e); }
       };
       loadCustomActivities();
   }, []);
@@ -133,7 +138,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const categorizedActivities = useMemo(() => {
-      return categories.map(category => ({ ...category, items: allActivities.filter(act => category.activities.includes(act.id)) })).filter(c => c.items.length > 0);
+      return categories.map(category => ({ 
+          ...category, 
+          items: allActivities.filter(act => act && act.id && category.activities.includes(act.id)) 
+      })).filter(c => c.items.length > 0);
   }, [allActivities, categories]);
 
   return (
