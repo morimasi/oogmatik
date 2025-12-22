@@ -80,33 +80,37 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
     { id: 'notes', label: 'Not Alanı', defaultTitle: 'NOTLAR', icon: 'fa-note-sticky', description: 'Boş not satırları.', defaultStyle: { h: 100 } },
 ];
 
+/**
+ * Bileşen içeriğini sarmalayan ve boyutu değiştiğinde ebeveyne haber veren akıllı bileşen.
+ */
 const AutoContentWrapper = ({ 
     children, 
     onSizeChange,
-    isActive 
+    instanceId
 }: { 
     children?: React.ReactNode, 
-    onSizeChange: (w: number, h: number) => void,
-    isActive: boolean
+    onSizeChange: (h: number) => void,
+    instanceId: string
 }) => {
     const ref = useRef<HTMLDivElement>(null);
-    const lastReportedHeight = useRef<number>(0);
+    const lastHeight = useRef<number>(0);
 
     useLayoutEffect(() => {
         if (!ref.current) return;
         
         const observer = new ResizeObserver((entries) => {
             for (const entry of entries) {
-                const contentHeight = entry.target.scrollHeight;
-                const width = entry.contentRect.width;
+                //scrollHeight kullanarak içeriğin gerçek kapladığı alanı alıyoruz
+                const contentHeight = ref.current?.scrollHeight || entry.contentRect.height;
                 
-                if (Math.abs(contentHeight - lastReportedHeight.current) > 2) {
-                     lastReportedHeight.current = contentHeight;
-                     onSizeChange(width, contentHeight);
+                if (Math.abs(contentHeight - lastHeight.current) > 2) {
+                     lastHeight.current = contentHeight;
+                     onSizeChange(contentHeight);
                 }
             }
         });
 
+        // Hem box model değişimlerini hem de içindeki çocukların değişimini izle
         observer.observe(ref.current);
         return () => observer.disconnect();
     }, [onSizeChange]);
@@ -114,12 +118,8 @@ const AutoContentWrapper = ({
     return (
         <div 
             ref={ref} 
-            style={{ 
-                height: 'auto', 
-                minHeight: '100%', 
-                overflow: 'visible', 
-                width: '100%'
-            }}
+            className="w-full h-full overflow-hidden"
+            style={{ minHeight: '100%' }}
         >
             {children}
         </div>
@@ -498,7 +498,11 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         }
     }, []);
 
-    // --- SMART RE-FLOW ENGINE ---
+    // --- SMART RE-FLOW & CASCADE PUSH ENGINE ---
+    /**
+     * Bir bileşenin içeriği değiştiğinde (yüksekliği arttığında),
+     * altındaki tüm bileşenleri aynı oranda aşağı iten çekirdek algoritma.
+     */
     const handleAutoResize = useCallback((instanceId: string, newContentHeight: number) => {
         setLayout(prevLayout => {
             const itemIndex = prevLayout.findIndex(item => item.instanceId === instanceId);
@@ -506,36 +510,42 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
             const item = prevLayout[itemIndex];
             const oldHeight = item.style.h;
-            const roundedNewHeight = Math.ceil(newContentHeight / SNAP_GRID) * SNAP_GRID;
+            
+            // Grid'e yapışması için yuvarlama yapıyoruz
+            const roundedNewHeight = Math.ceil((newContentHeight + 10) / SNAP_GRID) * SNAP_GRID;
 
-            // Threshold to avoid infinite loops or jitter
-            if (Math.abs(oldHeight - roundedNewHeight) < 5) return prevLayout;
+            // Sonsuz döngüden kaçınmak için ufak farkları yoksayıyoruz
+            if (Math.abs(oldHeight - roundedNewHeight) < 4) return prevLayout;
 
             const deltaY = roundedNewHeight - oldHeight;
-            const itemBottomY = item.style.y + oldHeight;
+            const itemOriginalBottomY = item.style.y + oldHeight;
 
+            // Yeni layout kopyası
             const newLayout = [...prevLayout];
+            
+            // 1. Hedef bileşenin yüksekliğini güncelle
             newLayout[itemIndex] = {
                 ...item,
                 style: { ...item.style, h: roundedNewHeight }
             };
 
-            // PUSH EVERYTHING BELOW
-            for (let i = 0; i < newLayout.length; i++) {
-                if (i === itemIndex) continue;
-                // Only push items that are strictly below the current item's original bottom
-                if (newLayout[i].style.y >= (itemBottomY - 10)) {
-                    newLayout[i] = {
-                        ...newLayout[i],
+            // 2. Şelale Etkisi: Altındaki tüm bileşenleri it
+            return newLayout.map((l, idx) => {
+                if (idx === itemIndex) return l; // Kendisini atla
+                
+                // Eğer bileşenin başlangıç noktası, değişen bileşenin eski alt kenarından aşağıdaysa it
+                // 5px tolerans payı bırakıyoruz
+                if (l.style.y >= (itemOriginalBottomY - 5)) {
+                    return {
+                        ...l,
                         style: {
-                            ...newLayout[i].style,
-                            y: Math.max(20, newLayout[i].style.y + deltaY)
+                            ...l.style,
+                            y: Math.max(20, l.style.y + deltaY)
                         }
                     };
                 }
-            }
-
-            return newLayout;
+                return l;
+            });
         });
     }, []);
 
@@ -699,7 +709,8 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                     newStyle.rotation = finalR;
                 }
 
-                // If height changed during south-resize, push items below
+                // Sürükleme bittiğinde de çarpışma kontrolü yapılabilir (opsiyonel)
+                // Şimdilik sadece manuel yeniden boyutlandırma anında itme yapıyoruz
                 return prev.map(l => {
                     if (l.instanceId === selectedId) return { ...l, style: newStyle };
                     if (itemHeightDelta !== 0 && l.style.y >= (item.style.y + item.style.h - 5)) {
@@ -917,12 +928,14 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'header') {
             const data = item.specificData || { title: "HİKAYE BAŞLIĞI", subtitle: `Tarih: ....................` };
             return (
-                <div className="h-full flex flex-col justify-end" style={boxStyle}>
-                    <h1 className="font-black uppercase leading-none tracking-tight" style={{fontSize: '2.5em', color: 'inherit'}}>{data.title}</h1>
-                    <div className="flex justify-between items-end mt-2 opacity-70">
-                        <span className="font-mono text-sm">{data.subtitle}</span>
+                <AutoContentWrapper instanceId={item.instanceId} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
+                    <div className="h-full flex flex-col justify-end" style={boxStyle}>
+                        <h1 className="font-black uppercase leading-none tracking-tight" style={{fontSize: '2.5em', color: 'inherit'}}>{data.title}</h1>
+                        <div className="flex justify-between items-end mt-2 opacity-70">
+                            <span className="font-mono text-sm">{data.subtitle}</span>
+                        </div>
                     </div>
-                </div>
+                </AutoContentWrapper>
             );
         }
         
@@ -945,7 +958,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'story_block') {
             const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
             return (
-                <AutoContentWrapper isActive={designMode} onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
+                <AutoContentWrapper instanceId={item.instanceId} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                     <div className="relative overflow-hidden" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                          {item.style.imageSettings?.enabled && (
                             <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
@@ -965,7 +978,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id === 'vocabulary') {
              const data = item.specificData || { questions: [{text: "Örnek: Açıklama"}] };
              return (
-                 <AutoContentWrapper isActive={designMode} onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
+                 <AutoContentWrapper instanceId={item.instanceId} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                  <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                      <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
                         <i className="fa-solid fa-spell-check"></i> {item.customTitle}
@@ -1013,7 +1026,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (item.id.startsWith('questions')) {
             const data = item.specificData || { questions: [{text: "Madde 1..."}] };
             return (
-                <AutoContentWrapper isActive={designMode} onSizeChange={(w, h) => handleAutoResize(item.instanceId, h)}>
+                <AutoContentWrapper instanceId={item.instanceId} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                 <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
                     <div className="flex-1 space-y-2 overflow-hidden">
@@ -1268,7 +1281,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                             <div className="pointer-events-auto"><ResizeHandle cursor="se-resize" position="-bottom-1.5 -right-1.5" onMouseDown={(e) => handleMouseDown(e, item.instanceId, 'resize', 'se')} /></div>
                                         </div>
                                     )}
-                                    <div className="w-full h-full overflow-hidden pointer-events-none text-black">{renderContent(item)}</div>
+                                    <div className="w-full h-full pointer-events-none text-black">{renderContent(item)}</div>
                                 </div>
                             ))}
                             <div className="absolute bottom-4 left-0 w-full text-center text-[10px] text-zinc-400 font-mono pointer-events-none flex justify-between px-8"><span>Bursa Disleksi AI © {new Date().getFullYear()}</span><span>Sayfa 1</span></div>
