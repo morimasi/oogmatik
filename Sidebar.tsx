@@ -6,7 +6,8 @@ import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
-import { adminService } from '../services/adminService'; // Import admin service for fetching custom activities
+import { adminService } from '../services/adminService';
+import { useStudent } from '../context/StudentContext';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -36,28 +37,21 @@ const Sidebar: React.FC<SidebarProps> = ({
   onAddToHistory
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
+  const { activeStudent } = useStudent();
   
-  // State to hold combined activities (Static + Dynamic)
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
-  // Load custom activities on mount
   useEffect(() => {
       const loadCustomActivities = async () => {
           try {
-              const customActs = await adminService.getAllActivities(); // Should fetch from 'config_activities'
-              
-              // Filter out ones that are already in static list to avoid dupes if any
+              const customActs = await adminService.getAllActivities();
               const newCustoms = customActs.filter(ca => !ACTIVITIES.find(a => a.id === ca.id));
               
               if (newCustoms.length > 0) {
-                  // Merge activities
                   setAllActivities([...ACTIVITIES, ...newCustoms]);
+                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({...cat}));
                   
-                  // Update categories
-                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({...cat})); // Shallow copy
-                  
-                  // Check if "Others" category exists, if not add it
                   let otherCat = updatedCategories.find(c => c.id === 'others');
                   if (!otherCat) {
                       otherCat = {
@@ -78,7 +72,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                               targetCat.activities.push(act.id);
                           }
                       } else {
-                           // If category doesn't exist, put in Others
                            otherCat!.activities.push(act.id);
                       }
                   });
@@ -103,42 +96,37 @@ const Sidebar: React.FC<SidebarProps> = ({
     setWorksheetData(null);
     setError(null);
 
-    // Get current activity to check if it is custom
+    // Personalize options with student context if available
+    const enrichedOptions: GeneratorOptions = {
+        ...options,
+        studentContext: activeStudent || undefined
+    };
+
     const currentAct = getActivityById(selectedActivity);
-    const isCustom = currentAct?.isCustom || (currentAct as any)?.promptId; // Check if custom
+    const isCustom = currentAct?.isCustom || (currentAct as any)?.promptId;
 
     try {
         let result: WorksheetData;
         
-        // CUSTOM ACTIVITY LOGIC
         if (isCustom && (currentAct as any).promptId) {
-             // For custom activities, we ALWAYS use AI generation via the stored prompt template
-             // We can use the 'testPrompt' function from adminService or a new dedicated generator
              const promptTemplate = await adminService.getPromptTemplate((currentAct as any).promptId);
              
              if (promptTemplate) {
-                 // Prepare variables from options
                  const vars = {
-                     worksheetCount: options.worksheetCount,
-                     difficulty: options.difficulty,
-                     topic: options.topic || 'Genel',
-                     itemCount: options.itemCount
+                     worksheetCount: enrichedOptions.worksheetCount,
+                     difficulty: enrichedOptions.difficulty,
+                     topic: enrichedOptions.topic || 'Genel',
+                     itemCount: enrichedOptions.itemCount,
+                     studentName: activeStudent?.name || 'Öğrenci',
+                     diagnosis: activeStudent?.diagnosis?.join(', ') || 'Belirtilmemiş'
                  };
-                 // Generate using the template
                  const aiResult = await adminService.testPrompt(promptTemplate, vars);
                  
-                 // Normalize result: Ensure it's an array for WorksheetData
-                 // The custom prompt usually returns an object with a 'data' array or similar.
-                 // We need to match it to a known Worksheet Structure based on 'baseType'
-                 
-                 // If the custom activity has a 'baseType', we wrap the result in that structure if needed
-                 // For now, assume the Prompt Template returns a valid WorksheetData array directly or inside a property
                  if (Array.isArray(aiResult)) {
                      result = aiResult;
                  } else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) {
                      result = (aiResult as any).data;
                  } else {
-                     // Fallback: wrap single object
                      result = [aiResult];
                  }
              } else {
@@ -146,7 +134,6 @@ const Sidebar: React.FC<SidebarProps> = ({
              }
 
         } else {
-            // STANDARD STATIC ACTIVITY LOGIC
             const pascalCaseName = toPascalCase(selectedActivity);
             const generatorFunctionName = `generate${pascalCaseName}FromAI`;
             const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
@@ -154,19 +141,18 @@ const Sidebar: React.FC<SidebarProps> = ({
             const runOfflineGenerator = async () => {
                  const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
                  if (offlineGenerator) {
-                     return await offlineGenerator(options);
+                     return await offlineGenerator(enrichedOptions);
                  } else {
                      throw new Error(`Hızlı mod için "${currentAct?.title}" henüz desteklenmiyor.`);
                  }
             };
 
-            if (options.mode === 'ai') {
+            if (enrichedOptions.mode === 'ai') {
                 const onlineGenerator = (generators as any)[generatorFunctionName];
                 if (onlineGenerator) {
                     try {
-                        result = await onlineGenerator(options);
+                        result = await onlineGenerator(enrichedOptions);
                     } catch (err: any) {
-                        // Fallback logic...
                         console.warn("AI generator failed, trying offline.", err);
                         result = await runOfflineGenerator();
                         setError("Bilgi: Yapay zeka servisi yanıt vermediği için Hızlı Mod kullanıldı.");
@@ -195,7 +181,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const currentActivity = getActivityById(selectedActivity);
 
-  // Use state-based categories instead of constant
   const categorizedActivities = useMemo(() => {
       return categories.map(category => ({
           ...category,

@@ -180,6 +180,7 @@ export interface GeneratorOptions {
     symbolType?: string;
     codeLength?: number;
     subType?: string;
+    studentContext?: Student; // NEW: Personalization context
 }
 
 export interface SavedWorksheet {

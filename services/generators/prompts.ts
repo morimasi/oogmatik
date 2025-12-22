@@ -1,5 +1,7 @@
+
 // PEDAGOGICAL CORE PROMPTS
 // Bu dosya, uygulamanın "Eğitsel Zekası"nı tek bir merkezden yönetir.
+import { Student } from '../../types';
 
 export const PEDAGOGICAL_BASE = `
 [ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI ve ÖĞRETİM TASARIMCISI]
@@ -12,6 +14,18 @@ TEMEL PRENSİPLER:
 5. **Sayfa Doluluğu:** Üretilen içerik bir A4 sayfasını verimli dolduracak miktarda olmalıdır. Sayfanın boş kalmaması için yeterli sayıda soru veya alıştırma üret. Tekrar düşmeden varyasyon oluştur.
 `;
 
+export const getStudentContextPrompt = (student?: Student): string => {
+    if (!student) return "";
+    return `
+[ÖĞRENCİ PROFİLİNE GÖRE KİŞİSELLEŞTİRME]:
+- Öğrenci Adı: ${student.name}
+- Tanı/Zayıf Yönler: ${student.diagnosis?.join(', ')} / ${student.weaknesses?.join(', ')}
+- İlgi Alanları (İçeriği buna göre kurgula): ${student.interests?.join(', ')}
+- Öğrenme Stili: ${student.learningStyle}
+Lütfen içeriği bu öğrencinin ilgi alanlarına (karakter isimleri, senaryo, görseller) ve destek ihtiyaçlarına göre uyarla.
+    `;
+};
+
 export const IMAGE_GENERATION_GUIDE = `
 [GÖRSEL SANAT YÖNETMENİ MODU - MULTIMODAL DESIGN]
 "imagePrompt" alanı için şu kurallara uy:
@@ -22,9 +36,10 @@ export const IMAGE_GENERATION_GUIDE = `
 
 // --- ACTIVITY SPECIFIC PROMPTS ---
 
-export const getDyslexiaPrompt = (activityName: string, difficulty: string, specifics: string): string => {
+export const getDyslexiaPrompt = (activityName: string, difficulty: string, specifics: string, student?: Student): string => {
     return `
     ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(student)}
     
     GÖREV: "${activityName}" etkinliği oluştur.
     ZORLUK SEVİYESİ: ${difficulty}.
@@ -36,9 +51,10 @@ export const getDyslexiaPrompt = (activityName: string, difficulty: string, spec
     `;
 };
 
-export const getMathPrompt = (topic: string, difficulty: string, operationRule: string): string => {
+export const getMathPrompt = (topic: string, difficulty: string, operationRule: string, student?: Student): string => {
     return `
     ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(student)}
     
     GÖREV: Matematik/Mantık etkinliği. Konu: ${topic}.
     Zorluk: ${difficulty}.
@@ -51,9 +67,10 @@ export const getMathPrompt = (topic: string, difficulty: string, operationRule: 
     `;
 };
 
-export const getReadingPrompt = (topic: string, difficulty: string, length: string): string => {
+export const getReadingPrompt = (topic: string, difficulty: string, length: string, student?: Student): string => {
     return `
     ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(student)}
     
     GÖREV: Okuma Anlama Metni ve Soruları. Konu: ${topic}.
     Seviye: ${difficulty}.
@@ -68,9 +85,10 @@ export const getReadingPrompt = (topic: string, difficulty: string, length: stri
     `;
 };
 
-export const getAttentionPrompt = (type: string, itemCount: number, difficulty: string): string => {
+export const getAttentionPrompt = (type: string, itemCount: number, difficulty: string, student?: Student): string => {
     return `
     ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(student)}
     
     GÖREV: Dikkat ve Algı Testi (${type}).
     Öğe Sayısı: ${itemCount}.

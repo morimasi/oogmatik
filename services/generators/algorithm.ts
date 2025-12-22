@@ -2,17 +2,21 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, AlgorithmData } from '../../types';
+import { getStudentContextPrompt, PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } from './prompts';
 
 export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions): Promise<AlgorithmData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
+    const { topic, difficulty, worksheetCount, studentContext } = options;
     
     const prompt = `
-    [ROL: BİLİŞSEL GELİŞİM VE ALGORİTMİK DÜŞÜNCE UZMANI]
+    ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(studentContext)}
+    
     KONU: "${topic || 'Günlük Yaşam'}"
     ZORLUK: ${difficulty}
     
     GÖREV: Çocuklar için sıralı mantık ve problem çözmeyi öğreten bir AKIŞ ŞEMASI (Algorithm Flowchart) oluştur.
-    - Bir problem belirle (Örn: Çay demleme, okula gitme, hata düzeltme).
+    - Bir problem senaryosu belirle (Örn: Çay demleme, okula gitme, hata düzeltme). 
+    - Öğrencinin ilgi alanları varsa senaryoyu ona göre kurgula.
     - Adım adım bir süreç tasarla.
     - Karar noktaları (Evet/Hayır) ekle.
     
@@ -24,7 +28,9 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
     - 'output': Çıktı
     - 'end': Bitiş
     
-    ÇIKTI: JSON formatında.
+    ${IMAGE_GENERATION_GUIDE}
+
+    ÇIKTI: JSON formatında bir liste.
     `;
 
     const schema = {
@@ -53,7 +59,7 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
                     }
                 }
             },
-            required: ['title', 'steps', 'challenge']
+            required: ['title', 'steps', 'challenge', 'instruction', 'pedagogicalNote', 'imagePrompt']
         }
     };
 
