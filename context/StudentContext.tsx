@@ -54,15 +54,15 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
                         grade: data.grade || '',
                         avatar: data.avatar || '',
                         createdAt: data.createdAt || new Date().toISOString(),
-                        diagnosis: data.diagnosis || [],
-                        interests: data.interests || [],
-                        strengths: data.strengths || [],
-                        weaknesses: data.weaknesses || [],
-                        learningStyle: data.learningStyle,
-                        parentName: data.parentName,
-                        contactPhone: data.contactPhone,
-                        contactEmail: data.contactEmail,
-                        notesHistory: data.notesHistory,
+                        diagnosis: Array.isArray(data.diagnosis) ? data.diagnosis : [],
+                        interests: Array.isArray(data.interests) ? data.interests : [],
+                        strengths: Array.isArray(data.strengths) ? data.strengths : [],
+                        weaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : [],
+                        learningStyle: data.learningStyle || 'Görsel',
+                        parentName: data.parentName || '',
+                        contactPhone: data.contactPhone || '',
+                        contactEmail: data.contactEmail || '',
+                        notesHistory: data.notesHistory || '',
                         notes: data.notes || ''
                     } as Student);
                 }
@@ -89,18 +89,31 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }, [user, activeStudent]);
 
     const addStudent = async (studentData: Omit<Student, 'id' | 'teacherId' | 'createdAt'>) => {
-        if (!user) return;
+        if (!user) throw new Error("Kullanıcı oturumu bulunamadı.");
         
+        if (!studentData.name || studentData.name.trim() === '') {
+            throw new Error("Öğrenci adı zorunludur.");
+        }
+
         try {
+            // Robust data sanitization before DB insert
             const newStudent = {
-                ...studentData,
                 teacherId: user.id,
                 createdAt: new Date().toISOString(),
-                // Ensure array fields are initialized
-                diagnosis: studentData.diagnosis || [],
-                interests: studentData.interests || [],
-                strengths: studentData.strengths || [],
-                weaknesses: studentData.weaknesses || []
+                name: studentData.name.trim(),
+                age: Number(studentData.age) || 7,
+                grade: studentData.grade || '1. Sınıf',
+                avatar: studentData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentData.name}`,
+                diagnosis: Array.isArray(studentData.diagnosis) ? studentData.diagnosis : [],
+                interests: Array.isArray(studentData.interests) ? studentData.interests : [],
+                strengths: Array.isArray(studentData.strengths) ? studentData.strengths : [],
+                weaknesses: Array.isArray(studentData.weaknesses) ? studentData.weaknesses : [],
+                learningStyle: studentData.learningStyle || 'Görsel',
+                parentName: studentData.parentName || '',
+                contactPhone: studentData.contactPhone || '',
+                contactEmail: studentData.contactEmail || '',
+                notes: studentData.notes || '',
+                notesHistory: ''
             };
             
             await addDoc(collection(db, "students"), newStudent);
