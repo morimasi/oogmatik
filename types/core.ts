@@ -102,7 +102,7 @@ export interface StudentProfile {
 }
 
 /**
- * Fix: Added Student interface to resolve export error in StudentDashboard.tsx
+ * Enhanced Student Interface for Professional Tracking
  */
 export interface Student {
     id: string;
@@ -110,11 +110,26 @@ export interface Student {
     name: string;
     age: number;
     grade: string;
-    diagnosis: string[];
-    interests: string[];
-    notes: string;
     avatar: string;
     createdAt: string;
+    
+    // Pedagogical Profile
+    diagnosis: string[];
+    interests: string[];
+    learningStyle?: 'Görsel' | 'İşitsel' | 'Kinestetik' | 'Karma';
+    strengths?: string[];
+    weaknesses?: string[];
+    
+    // Contact Info
+    parentName?: string;
+    contactPhone?: string;
+    contactEmail?: string;
+    
+    // Notes History (JSON stringified array of {date, note, author})
+    notesHistory?: string; 
+    
+    // Legacy support
+    notes: string;
 }
 
 export interface OverlayItem {
@@ -169,9 +184,6 @@ export interface GeneratorOptions {
 export interface SavedWorksheet {
     id: string;
     userId: string;
-    /**
-     * Fix: Added studentId to SavedWorksheet to resolve type error in worksheetService.ts
-     */
     studentId?: string;
     name: string;
     activityType: ActivityType;
