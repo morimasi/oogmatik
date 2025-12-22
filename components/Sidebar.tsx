@@ -59,63 +59,25 @@ const Sidebar: React.FC<SidebarProps> = ({
       const loadCustomActivities = async () => {
           try {
               const customActs = await adminService.getAllActivities();
-              
               const mergedActivities = [...ACTIVITIES];
-              const customMap = new Map();
-              
               customActs.forEach(ca => {
                   const index = mergedActivities.findIndex(a => a.id === ca.id);
-                  if (index !== -1) {
-                      mergedActivities[index] = { ...mergedActivities[index], ...ca };
-                  } else {
-                      mergedActivities.push(ca);
-                  }
-                  if (ca.category) {
-                      customMap.set(ca.category, true);
-                  }
+                  if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca };
+                  else mergedActivities.push(ca);
               });
-              
               setAllActivities(mergedActivities);
-
               const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({ ...cat, activities: [...cat.activities] }));
-              
               mergedActivities.forEach(act => {
                   const catId = act.category || 'others';
                   let category = updatedCategories.find(c => c.id === catId);
-                  
                   if (!category) {
-                      const title = catId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                      category = {
-                          id: catId,
-                          title: title,
-                          description: 'Özel Kategori',
-                          icon: 'fa-solid fa-folder-open',
-                          activities: [],
-                          isCustom: true
-                      };
+                      category = { id: catId, title: catId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '), description: 'Özel Kategori', icon: 'fa-solid fa-folder-open', activities: [], isCustom: true };
                       updatedCategories.push(category);
                   }
-                  
-                  if (!category.activities.includes(act.id)) {
-                      category.activities.push(act.id);
-                  }
+                  if (!category.activities.includes(act.id)) category.activities.push(act.id);
               });
-              
-              if (!updatedCategories.find(c => c.id === 'others')) {
-                  updatedCategories.push({
-                      id: 'others',
-                      title: 'Diğerleri (Özel)',
-                      description: 'Sistem tarafından üretilen özel etkinlikler.',
-                      icon: 'fa-solid fa-wand-magic-sparkles',
-                      activities: []
-                  });
-              }
-
               setCategories(updatedCategories);
-
-          } catch (e) {
-              console.error("Failed to load custom activities", e);
-          }
+          } catch (e) { console.error(e); }
       };
       loadCustomActivities();
   }, []);
@@ -127,117 +89,58 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
-    
     setIsLoading(true);
     setWorksheetData(null);
     setError(null);
-
     const currentAct = getActivityById(selectedActivity);
     const promptId = currentAct?.promptId;
-
     try {
         let result: WorksheetData | null = null;
-        
         if (promptId) {
              const promptTemplate = await adminService.getPromptTemplate(promptId);
              if (promptTemplate) {
-                 const vars = {
-                     worksheetCount: options.worksheetCount,
-                     difficulty: options.difficulty,
-                     topic: options.topic || 'Genel',
-                     itemCount: options.itemCount
-                 };
+                 const vars = { worksheetCount: options.worksheetCount, difficulty: options.difficulty, topic: options.topic || 'Genel', itemCount: options.itemCount };
                  const aiResult = await adminService.testPrompt(promptTemplate, vars);
-                 
-                 if (Array.isArray(aiResult)) {
-                     result = aiResult;
-                 } else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) {
-                     result = (aiResult as any).data;
-                 } else {
-                     result = [aiResult];
-                 }
+                 if (Array.isArray(aiResult)) result = aiResult;
+                 else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) result = (aiResult as any).data;
+                 else result = [aiResult];
              }
         } 
-
         if (!result) {
             const pascalCaseName = toPascalCase(selectedActivity);
             const generatorFunctionName = `generate${pascalCaseName}FromAI`;
             const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
-
             const runOfflineGenerator = async () => {
-                 // @ts-ignore
                  const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
                  if (offlineGenerator) return await offlineGenerator(options);
-                 throw new Error(`"${currentAct?.title}" için üretim motoru bulunamadı.`);
+                 throw new Error(`"${currentAct?.title}" motoru bulunamadı.`);
             };
-
             if (options.mode === 'ai') {
-                // @ts-ignore
                 const onlineGenerator = (generators as any)[generatorFunctionName];
                 if (onlineGenerator) {
                     try { result = await onlineGenerator(options); } 
                     catch (err) { result = await runOfflineGenerator(); }
-                } else {
-                    result = await runOfflineGenerator();
-                }
-            } else { 
-                result = await runOfflineGenerator();
-            }
+                } else result = await runOfflineGenerator();
+            } else result = await runOfflineGenerator();
         }
-        
         if (result) {
-            const labeledResult = result.map((page: any) => ({
-                ...page,
-                title: page.title || currentAct?.title || 'Etkinlik'
-            }));
+            const labeledResult = result.map((page: any) => ({ ...page, title: page.title || currentAct?.title || 'Etkinlik' }));
             setWorksheetData(labeledResult);
             onAddToHistory(selectedActivity, labeledResult);
             statsService.incrementUsage(selectedActivity).catch(console.error);
         }
-
-    } catch (e: any) {
-        console.error("Etkinlik oluşturulurken hata:", e);
-        setError(e.message || "Beklenmeyen bir hata oluştu.");
-    } finally {
-        setIsLoading(false);
-    }
+    } catch (e: any) { setError(e.message || "Hata oluştu."); } finally { setIsLoading(false); }
   };
 
-  const currentActivity = getActivityById(selectedActivity);
-
   const categorizedActivities = useMemo(() => {
-      return categories.map(category => ({
-          ...category,
-          items: allActivities.filter(act => category.activities.includes(act.id))
-      })).filter(c => c.items.length > 0);
+      return categories.map(category => ({ ...category, items: allActivities.filter(act => category.activities.includes(act.id)) })).filter(c => c.items.length > 0);
   }, [allActivities, categories]);
 
   return (
-    <aside
-      id="tour-sidebar"
-      className={`
-        fixed inset-y-0 left-0 z-30 
-        bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl
-        border-r border-zinc-200 dark:border-zinc-800
-        transition-all duration-500 cubic-bezier(0.19, 1, 0.22, 1)
-        md:relative md:translate-x-0
-        flex flex-col h-full
-        ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} 
-        ${isExpanded ? 'w-[300px]' : 'w-[70px]'}
-      `}
-      aria-label="Etkinlik Menüsü"
-    >
+    <aside id="tour-sidebar" className={`fixed inset-y-0 left-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-r border-zinc-200 dark:border-zinc-800 transition-all duration-500 flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[300px]' : 'w-[70px]'}`} aria-label="Etkinlik Menüsü">
         <div className="flex h-full flex-col">
-            {currentActivity ? (
-                <GeneratorView 
-                    activity={currentActivity}
-                    onGenerate={handleGenerate}
-                    onBack={() => onSelectActivity(null)}
-                    isLoading={isLoading}
-                    isExpanded={isExpanded}
-                    onOpenStudentModal={onOpenStudentModal}
-                    studentProfile={studentProfile}
-                />
+            {selectedActivity ? (
+                <GeneratorView activity={getActivityById(selectedActivity)!} onGenerate={handleGenerate} onBack={() => onSelectActivity(null)} isLoading={isLoading} isExpanded={isExpanded} onOpenStudentModal={onOpenStudentModal} studentProfile={studentProfile} />
             ) : (
                 <>
                 <div className="flex-shrink-0 h-[56px] flex items-center justify-between px-3 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/30 dark:bg-zinc-800/30">
@@ -252,57 +155,39 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <button onClick={closeSidebar} className="md:hidden ml-2 w-7 h-7 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 transition-colors"><i className="fa-solid fa-xmark text-sm"></i></button>
                 </div>
 
-                {/* MODUL BUTTONS (VERTICAL & LARGER) */}
                 {isExpanded && (
-                    <div className="px-4 py-4 grid grid-cols-1 gap-3 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-2">
-                        {onOpenOCR && (
-                            <button onClick={onOpenOCR} className="group w-full relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-4 shadow-sm hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700">
-                                <div className="w-12 h-12 shrink-0 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                                    <i className="fa-solid fa-camera text-xl"></i>
-                                </div>
-                                <div className="flex flex-col items-start">
-                                    <span className="text-xs font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-widest">Akıllı Tarayıcı</span>
-                                    <span className="text-[10px] text-zinc-400 font-medium group-hover:text-indigo-500 transition-colors">OCR & Analiz</span>
-                                </div>
-                                <i className="fa-solid fa-chevron-right text-zinc-300 ml-auto text-xs group-hover:text-indigo-400 transition-colors"></i>
+                    <div className="px-4 py-4 grid grid-cols-1 gap-2 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-2">
+                        {/* Öğrenci Yönetimi Butonu */}
+                        <button onClick={onOpenStudentModal} className="group w-full relative overflow-hidden bg-indigo-600 hover:bg-indigo-700 p-3 rounded-2xl transition-all flex items-center gap-4 shadow-lg shadow-indigo-500/20">
+                            <div className="w-10 h-10 shrink-0 rounded-xl bg-white/20 flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
+                                <i className="fa-solid fa-user-graduate text-lg"></i>
+                            </div>
+                            <div className="flex flex-col items-start">
+                                <span className="text-[11px] font-black text-white uppercase tracking-widest leading-none">Öğrencilerim</span>
+                                <span className="text-[9px] text-indigo-100 mt-1">Takip & Analiz Paneli</span>
+                            </div>
+                            <i className="fa-solid fa-chevron-right text-indigo-300 ml-auto text-[10px]"></i>
+                        </button>
+                        
+                        {/* Araçlar Grid (OCR, Plan, Okuma, Matematik) */}
+                        <div className="grid grid-cols-2 gap-2 mt-1">
+                            <button onClick={onOpenOCR} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-indigo-300 transition-all flex flex-col items-center gap-1 group">
+                                <i className="fa-solid fa-camera text-zinc-400 group-hover:text-indigo-500 transition-colors"></i>
+                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Tarayıcı</span>
                             </button>
-                        )}
-                        {onOpenCurriculum && (
-                            <button onClick={onOpenCurriculum} className="group w-full relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-4 shadow-sm hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700">
-                                <div className="w-12 h-12 shrink-0 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                                    <i className="fa-solid fa-graduation-cap text-xl"></i>
-                                </div>
-                                <div className="flex flex-col items-start">
-                                    <span className="text-xs font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-widest">Eğitim Planı</span>
-                                    <span className="text-[10px] text-zinc-400 font-medium group-hover:text-emerald-500 transition-colors">Kişisel Müfredat</span>
-                                </div>
-                                <i className="fa-solid fa-chevron-right text-zinc-300 ml-auto text-xs group-hover:text-emerald-400 transition-colors"></i>
+                            <button onClick={onOpenCurriculum} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-emerald-300 transition-all flex flex-col items-center gap-1 group">
+                                <i className="fa-solid fa-calendar-check text-zinc-400 group-hover:text-emerald-500 transition-colors"></i>
+                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Planlama</span>
                             </button>
-                        )}
-                        {onOpenReadingStudio && (
-                            <button onClick={onOpenReadingStudio} className="group w-full relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-4 shadow-sm hover:shadow-md hover:border-rose-300 dark:hover:border-rose-700">
-                                <div className="w-12 h-12 shrink-0 rounded-xl bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                                    <i className="fa-solid fa-book-open-reader text-xl"></i>
-                                </div>
-                                <div className="flex flex-col items-start">
-                                    <span className="text-xs font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-widest">Okuma Stüdyosu</span>
-                                    <span className="text-[10px] text-zinc-400 font-medium group-hover:text-rose-500 transition-colors">Metin & Analiz</span>
-                                </div>
-                                <i className="fa-solid fa-chevron-right text-zinc-300 ml-auto text-xs group-hover:text-rose-400 transition-colors"></i>
+                            <button onClick={onOpenReadingStudio} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-pink-300 transition-all flex flex-col items-center gap-1 group">
+                                <i className="fa-solid fa-book-open text-zinc-400 group-hover:text-pink-500 transition-colors"></i>
+                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Okuma</span>
                             </button>
-                        )}
-                        {onOpenMathStudio && (
-                            <button onClick={onOpenMathStudio} className="group w-full relative overflow-hidden bg-white hover:bg-zinc-50 dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 transition-all flex items-center gap-4 shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700">
-                                <div className="w-12 h-12 shrink-0 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                                    <i className="fa-solid fa-calculator text-xl"></i>
-                                </div>
-                                <div className="flex flex-col items-start">
-                                    <span className="text-xs font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-widest">Matematik Lab</span>
-                                    <span className="text-[10px] text-zinc-400 font-medium group-hover:text-blue-500 transition-colors">İşlem & Problem</span>
-                                </div>
-                                <i className="fa-solid fa-chevron-right text-zinc-300 ml-auto text-xs group-hover:text-blue-400 transition-colors"></i>
+                            <button onClick={onOpenMathStudio} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-blue-300 transition-all flex flex-col items-center gap-1 group">
+                                <i className="fa-solid fa-calculator text-zinc-400 group-hover:text-blue-500 transition-colors"></i>
+                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Matematik</span>
                             </button>
-                        )}
+                        </div>
                     </div>
                 )}
 
@@ -311,18 +196,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                         const isOpen = openCategoryId === category.id;
                         return (
                             <div key={category.id}>
-                                <button
-                                    onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)}
-                                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all duration-200 group ${!isExpanded ? 'justify-center' : ''} ${isOpen && isExpanded ? 'bg-zinc-800 text-white dark:bg-white dark:text-zinc-900' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`}
-                                    title={!isExpanded ? category.title : undefined}
-                                >
+                                <button onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)} className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all duration-200 group ${!isExpanded ? 'justify-center' : ''} ${isOpen && isExpanded ? 'bg-zinc-800 text-white dark:bg-white dark:text-zinc-900' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`} title={!isExpanded ? category.title : undefined}>
                                     <div className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] transition-all shrink-0 ${isOpen && isExpanded ? 'text-white dark:text-black' : 'text-zinc-500 dark:text-zinc-500'}`}><i className={category.icon}></i></div>
-                                    {isExpanded && (
-                                        <>
-                                            <span className="flex-1 text-left text-[11px] font-bold uppercase tracking-tight truncate">{category.title}</span>
-                                            <i className={`fa-solid fa-chevron-down text-[8px] opacity-50 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}></i>
-                                        </>
-                                    )}
+                                    {isExpanded && <><span className="flex-1 text-left text-[11px] font-bold uppercase tracking-tight truncate">{category.title}</span><i className={`fa-solid fa-chevron-down text-[8px] opacity-50 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}></i></>}
                                 </button>
                                 {isExpanded && isOpen && (
                                     <div className="overflow-hidden animate-in slide-in-from-left-1 duration-200">
@@ -331,7 +207,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 <button key={activity.id} onClick={() => { onSelectActivity(activity.id); if(window.innerWidth < 768) closeSidebar(); }} className={`w-full text-left px-3 py-1 rounded-md text-[10px] font-medium transition-all flex items-center gap-1.5 relative ${selectedActivity === activity.id ? 'bg-indigo-50/50 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-300 font-bold' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'}`}>
                                                     <span className={`w-1 h-1 rounded-full ${selectedActivity === activity.id ? 'bg-indigo-500' : 'bg-transparent border border-zinc-300'}`}></span>
                                                     <span className="truncate">{activity.title}</span>
-                                                    {(activity as any).promptId && <i className="fa-solid fa-bolt text-[8px] text-amber-500 ml-auto" title="Özel AI Prompt"></i>}
                                                 </button>
                                             ))}
                                         </div>

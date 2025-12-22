@@ -101,6 +101,22 @@ export interface StudentProfile {
     notes?: string;
 }
 
+/**
+ * Fix: Added Student interface to resolve export error in StudentDashboard.tsx
+ */
+export interface Student {
+    id: string;
+    teacherId: string;
+    name: string;
+    age: number;
+    grade: string;
+    diagnosis: string[];
+    interests: string[];
+    notes: string;
+    avatar: string;
+    createdAt: string;
+}
+
 export interface OverlayItem {
     id: string;
     type: 'text' | 'sticker';
@@ -153,6 +169,10 @@ export interface GeneratorOptions {
 export interface SavedWorksheet {
     id: string;
     userId: string;
+    /**
+     * Fix: Added studentId to SavedWorksheet to resolve type error in worksheetService.ts
+     */
+    studentId?: string;
     name: string;
     activityType: ActivityType;
     worksheetData: any[];
@@ -477,5 +497,3 @@ export interface AlgorithmStep {
     yes?: number;
     no?: number;
 }
-
-// Math types moved to types/math.ts to avoid conflict
