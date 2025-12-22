@@ -9,7 +9,6 @@ import { shuffle } from './offlineGenerators/helpers';
 const { collection, addDoc, query, where, getDocs } = firestore;
 
 export const assessmentService = {
-    // ... (Existing Save/Get/Share methods remain unchanged)
     saveAssessment: async (
         userId: string,
         studentName: string,
@@ -17,7 +16,7 @@ export const assessmentService = {
         age: number,
         grade: string,
         report: AssessmentReport,
-        studentId?: string // Optional link to student profile
+        studentId?: string 
     ): Promise<void> => {
         const payload = {
             userId,
@@ -66,11 +65,8 @@ export const assessmentService = {
         }
     },
 
-    // NEW: Get assessments specifically for a student profile
     getAssessmentsByStudent: async (studentId: string): Promise<SavedAssessment[]> => {
         try {
-            // Note: In Firestore, you might need a composite index for this if also ordering by date
-            // For now, we filter by studentId and sort client-side if needed, or rely on created index
             const q = query(
                 collection(db, "saved_assessments"), 
                 where("studentId", "==", studentId)
@@ -147,33 +143,16 @@ export const assessmentService = {
         }
     },
 
-    // --- NEW: SESSION GENERATION ---
-    
     generateSession: async (config: AssessmentConfig): Promise<AdaptiveQuestion[]> => {
         const { selectedSkills, mode } = config;
-        
-        // Determine question count per skill based on mode
-        // Quick: 3, Standard: 5, Full: 8
         const count = mode === 'quick' ? 3 : (mode === 'standard' ? 5 : 8);
-        
         let questionsMap: Record<string, AdaptiveQuestion[]> = {};
-        let source = 'offline';
-
-        // 1. Try AI Generation
         try {
-            // Only try AI if mode is NOT specifically forcing offline (though config usually doesn't enforce this yet)
-            // Ideally we'd have a toggle, but user wants AI default with fallback.
             questionsMap = await generateAdaptiveQuestionsFromAI(selectedSkills, count);
-            source = 'ai';
         } catch (error) {
             console.warn("AI Generation failed for Assessment, falling back to Offline engine.", error);
-            // 2. Fallback to Offline
             questionsMap = generateOfflineAdaptiveQuestions(selectedSkills, count);
         }
-
-        // 3. Flatten and Prepare Initial Queue
-        const allQuestions = Object.values(questionsMap).flat();
-        
-        return allQuestions; 
+        return Object.values(questionsMap).flat(); 
     }
 };
