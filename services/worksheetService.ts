@@ -3,7 +3,7 @@ import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types';
 
-const { collection, addDoc, query, where, getDocs, orderBy, deleteDoc, doc, updateDoc, increment, writeBatch, getDoc } = firestore;
+const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc } = firestore;
 
 const serializeData = (data: any): string => {
     try {
@@ -15,22 +15,33 @@ const serializeData = (data: any): string => {
 };
 
 const deserializeData = (data: any): SingleWorksheetData[] => {
+    if (!data) return [];
+    
+    let parsed: any = [];
     if (typeof data === 'string') {
         try {
-            return JSON.parse(data);
+            parsed = JSON.parse(data);
         } catch (e) {
             console.error("Deserialization error", e);
             return [];
         }
+    } else {
+        parsed = data;
     }
-    if (Array.isArray(data)) return data;
-    return [];
+
+    // Worksheet component expects an array of pages. 
+    // If DB has a single object, wrap it in an array.
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return [parsed];
+    }
+
+    return Array.isArray(parsed) ? parsed : [];
 };
 
 const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     id: id,
     userId: docData.userId,
-    studentId: docData.studentId, // Added studentId to SavedWorksheet type in types/core.ts
+    studentId: docData.studentId,
     name: docData.name,
     activityType: docData.activityType as ActivityType,
     worksheetData: deserializeData(docData.worksheetData),
@@ -42,7 +53,7 @@ const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     sharedWith: docData.sharedWith,
     styleSettings: docData.styleSettings,
     studentProfile: docData.studentProfile,
-    workbookItems: docData.workbookItems ? JSON.parse(docData.workbookItems) : undefined,
+    workbookItems: docData.workbookItems ? deserializeData(docData.workbookItems) : undefined,
     workbookSettings: docData.workbookSettings
 });
 
@@ -56,7 +67,7 @@ export const worksheetService = {
         category: { id: string, title: string },
         styleSettings?: StyleSettings,
         studentProfile?: StudentProfile,
-        studentId?: string // Yeni eklendi
+        studentId?: string
     ): Promise<SavedWorksheet> => {
         try {
             const payload: any = {
@@ -119,9 +130,6 @@ export const worksheetService = {
         }
     },
 
-    /**
-     * Fix: Added getSharedWithMe method to resolve error in SharedWorksheetsView.tsx
-     */
     getSharedWithMe: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
         try {
             const q = query(
@@ -140,9 +148,6 @@ export const worksheetService = {
         }
     },
 
-    /**
-     * Fix: Added shareWorksheet method to resolve error in ReadingStudio.tsx and MathStudio.tsx
-     */
     shareWorksheet: async (worksheet: any, senderId: string, senderName: string, receiverId: string): Promise<void> => {
         const payload = {
             ...worksheet,
@@ -152,7 +157,7 @@ export const worksheetService = {
             sharedWith: receiverId,
             createdAt: new Date().toISOString()
         };
-        // Serialize data if necessary
+        
         if (Array.isArray(payload.worksheetData)) {
             payload.worksheetData = serializeData(payload.worksheetData);
         }
