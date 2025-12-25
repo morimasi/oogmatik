@@ -66,5 +66,5 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
     DİKKAT: Sadece geçerli JSON döndür. Döngüye girme, her öğeyi özgün yaz.
     `;
 
-    return generateWithSchema(finalPrompt, schema, 'gemini-3-flash-preview', options.useSearch);
+    return generateWithSchema(finalPrompt, schema, undefined, options.useSearch);
 };

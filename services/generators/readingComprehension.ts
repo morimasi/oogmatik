@@ -79,7 +79,7 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
 
     const schema = { type: Type.ARRAY, items: singleSchema };
     
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<StoryData[]>;
+    return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
 };
 
 export const generateStoryAnalysisFromAI = async (o: GeneratorOptions) => [] as any; 

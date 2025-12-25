@@ -1,6 +1,8 @@
 
 import { GoogleGenAI } from "@google/genai";
 
+const DEFAULT_MODEL = 'gemini-3-flash-preview';
+
 const tryRepairJson = (jsonStr: string): any => {
     let cleaned = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
 
@@ -10,10 +12,8 @@ const tryRepairJson = (jsonStr: string): any => {
         console.warn("Primary JSON Parse failed, attempting extreme repair...");
 
         // 1. Remove repetitive patterns that often break JSON (Hallucination fix)
-        // If the string has the same 50+ chars repeated more than 3 times, it's likely a loop
         const loopMatch = cleaned.match(/(.{50,})\1{2,}/g);
         if (loopMatch) {
-            console.warn("Repetition loop detected in AI response. Truncating loop.");
             cleaned = cleaned.replace(/(.{50,})\1{5,}/g, '$1'); 
         }
 
@@ -40,7 +40,6 @@ const tryRepairJson = (jsonStr: string): any => {
         try {
             return JSON.parse(repaired);
         } catch (e2) {
-             // Final fallback: find the last complete object/array before the mess
              const lastGoodIndex = Math.max(repaired.lastIndexOf('}'), repaired.lastIndexOf(']'));
              if (lastGoodIndex > 0) {
                  const truncated = repaired.substring(0, lastGoodIndex + 1);
@@ -54,7 +53,8 @@ const tryRepairJson = (jsonStr: string): any => {
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
 Disleksi, Diskalkuli ve DEHB için materyal üretirsin.
-Kural: Sadece JSON döndür. Döngüsel metinlerden (aynı cümleyi tekrar etmek) KESİNLİKLE kaçın.
+Kural: Sadece JSON döndür. Multimodal yeteneklerini (görsel analiz ve zengin metin üretimi) en üst seviyede kullan.
+Döngüsel metinlerden (aynı cümleyi tekrar etmek) KESİNLİKLE kaçın.
 `;
 
 const generateDirectly = async (params: { 
@@ -69,32 +69,31 @@ const generateDirectly = async (params: {
     if (!apiKey) throw new Error("API Anahtarı eksik.");
 
     const ai = new GoogleGenAI({ apiKey });
-    const modelName = 'gemini-3-flash-preview';
+    const modelName = params.model || DEFAULT_MODEL;
     
-    let contents: any[] = [];
+    let parts: any[] = [];
     if (params.image) {
-        contents = [{
-            parts: [
-                { inlineData: { mimeType: params.mimeType || 'image/jpeg', data: params.image } },
-                { text: params.prompt }
-            ]
-        }];
-    } else {
-        contents = [{ parts: [{ text: params.prompt }] }];
+        parts.push({ 
+            inlineData: { 
+                mimeType: params.mimeType || 'image/jpeg', 
+                data: params.image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "") 
+            } 
+        });
     }
+    parts.push({ text: params.prompt });
 
     const config: any = {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
-        temperature: 0.2, // Lower temperature to avoid loops
+        temperature: 0.2,
     };
 
     if (params.useSearch) config.tools = [{ googleSearch: {} }];
 
     const response = await ai.models.generateContent({
         model: modelName,
-        contents: contents,
+        contents: [{ role: 'user', parts }],
         config: config
     });
     
@@ -103,32 +102,34 @@ const generateDirectly = async (params: {
 };
 
 export const generateWithSchema = async (prompt: string, schema: any, model?: string, useSearch?: boolean) => {
+    const targetModel = model || DEFAULT_MODEL;
     try {
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, schema, model: 'gemini-3-flash-preview', useSearch: useSearch || false }),
+            body: JSON.stringify({ prompt, schema, model: targetModel, useSearch: useSearch || false }),
         });
-        if (!response.ok) return await generateDirectly({ prompt, schema, useSearch });
+        if (!response.ok) return await generateDirectly({ prompt, schema, model: targetModel, useSearch });
         const fullText = await response.text();
         return tryRepairJson(fullText);
     } catch (error: any) {
-        return await generateDirectly({ prompt, schema, useSearch });
+        return await generateDirectly({ prompt, schema, model: targetModel, useSearch });
     }
 };
 
 export const analyzeImage = async (base64Image: string, prompt: string, schema: any, model?: string) => {
+    const targetModel = model || DEFAULT_MODEL;
     try {
         const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, schema, image: cleanBase64, mimeType: 'image/jpeg', model: 'gemini-3-flash-preview' }),
+            body: JSON.stringify({ prompt, schema, image: cleanBase64, mimeType: 'image/jpeg', model: targetModel }),
         });
-        if (!response.ok) return await generateDirectly({ prompt, schema, image: cleanBase64 });
+        if (!response.ok) return await generateDirectly({ prompt, schema, image: base64Image, model: targetModel });
         const fullText = await response.text();
         return tryRepairJson(fullText);
     } catch (error: any) {
-        return await generateDirectly({ prompt, schema, image: base64Image });
+        return await generateDirectly({ prompt, schema, image: base64Image, model: targetModel });
     }
 };

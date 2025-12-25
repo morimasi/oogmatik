@@ -29,8 +29,6 @@ const deserializeData = (data: any): SingleWorksheetData[] => {
         parsed = data;
     }
 
-    // Worksheet component expects an array of pages. 
-    // If DB has a single object, wrap it in an array.
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
         return [parsed];
     }
@@ -47,7 +45,7 @@ const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     worksheetData: deserializeData(docData.worksheetData),
     createdAt: docData.createdAt,
     icon: docData.icon || 'fa-solid fa-file',
-    category: docData.category || { id: 'uncategorized', title: 'Genel' },
+    category: docData.category || { id: 'uncategorized', title: 'Kategorisiz' },
     sharedBy: docData.sharedBy,
     sharedByName: docData.sharedByName,
     sharedWith: docData.sharedWith,
@@ -77,7 +75,7 @@ export const worksheetService = {
                 activityType,
                 worksheetData: serializeData(data),
                 icon: icon || 'fa-solid fa-file',
-                category: category || { id: 'uncategorized', title: 'Genel' },
+                category: category || { id: 'uncategorized', title: 'Kategorisiz' },
                 createdAt: new Date().toISOString(),
             };
 

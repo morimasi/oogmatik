@@ -68,19 +68,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                       else mergedActivities.push(ca);
                   });
                   setAllActivities(mergedActivities);
-                  
-                  const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({ ...cat, activities: [...cat.activities] }));
-                  mergedActivities.forEach(act => {
-                      if (!act) return;
-                      const catId = act.category || 'others';
-                      let category = updatedCategories.find(c => c.id === catId);
-                      if (!category) {
-                          category = { id: catId, title: catId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '), description: 'Özel Kategori', icon: 'fa-solid fa-folder-open', activities: [], isCustom: true };
-                          updatedCategories.push(category);
-                      }
-                      if (!category.activities.includes(act.id)) category.activities.push(act.id);
-                  });
-                  setCategories(updatedCategories);
               }
           } catch (e) { console.error("Sidebar load error", e); }
       };

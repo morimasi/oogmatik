@@ -2,9 +2,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
+const DEFAULT_MODEL = "gemini-3-flash-preview";
+
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
 Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış veya risk grubundaki çocuklar için bilimsel temelli, hatasız ve JSON formatında eğitim materyali üretmek.
+Multimodal yeteneklerini (görsel analiz ve zengin metin üretimi) en üst seviyede kullan.
 Yanıtın SADECE geçerli bir JSON olmalıdır. Başka hiçbir açıklama yapma.
 DİKKAT: Cümleleri veya objeleri sonsuz döngüde tekrar etme!
 `;
@@ -18,18 +21,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 
     try {
-        const { prompt, schema, image, mimeType, useSearch } = req.body;
+        const { prompt, schema, image, mimeType, useSearch, model } = req.body;
         const apiKey = process.env.API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'API anahtarı eksik.' });
 
         const ai = new GoogleGenAI({ apiKey });
-        const selectedModel = "gemini-3-flash-preview";
+        const selectedModel = model || DEFAULT_MODEL;
 
         const generationConfig = {
             systemInstruction: SYSTEM_INSTRUCTION,
             responseMimeType: "application/json",
             responseSchema: schema,
-            temperature: 0.2, // Reducer temperature prevents hallucinations and loops
+            temperature: 0.2, 
             topP: 0.8,
             topK: 40,
             safetySettings: [
@@ -42,15 +45,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (useSearch) (generationConfig as any).tools = [{ googleSearch: {} }];
 
-        let contents: any[] = image ? [
-            { parts: [{ inlineData: { mimeType: mimeType || 'image/jpeg', data: image } }, { text: prompt }] }
-        ] : [
-            { parts: [{ text: prompt }] }
-        ];
+        let parts: any[] = [];
+        if (image) {
+            parts.push({ inlineData: { mimeType: mimeType || 'image/jpeg', data: image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "") } });
+        }
+        parts.push({ text: prompt });
 
         const result = await ai.models.generateContent({
             model: selectedModel,
-            contents: contents,
+            contents: [{ role: 'user', parts }],
             config: generationConfig,
         });
         
