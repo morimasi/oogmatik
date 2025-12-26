@@ -141,26 +141,68 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
     });
 };
 
-// NUMBER LOGIC RIDDLES (Offline)
+// NUMBER LOGIC RIDDLES (Offline Professional)
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, numberRange, difficulty, codeLength, useThirdNumber } = options;
+    
+    // Parse range
+    const [minRange, maxRange] = (numberRange || '1-50').split('-').map(Number);
+    const count = options.itemCount || 4;
+
     return Array.from({ length: worksheetCount }, () => {
-        const puzzles = Array.from({ length: 4 }, (_, i) => {
-            const n = getRandomInt(1, 20);
-            return {
-                riddle: `Ben bir sayıyım. ${n-1}'den büyük, ${n+1}'den küçüğüm. Ben kaçıyım?`,
-                boxes: [[n, n+5], [n-2, n+10]],
-                options: [n.toString(), (n+2).toString(), (n-1).toString()],
-                answer: n.toString(),
+        const puzzles = [];
+        let runningTotal = 0;
+
+        for (let i = 0; i < count; i++) {
+            const n = getRandomInt(minRange, maxRange);
+            
+            // Build Hints based on difficulty
+            const hints = [];
+            if (n % 2 === 0) hints.push("Ben bir çift sayıyım.");
+            else hints.push("Ben bir tek sayıyım.");
+
+            if (n > (maxRange / 2)) hints.push(`${Math.floor(maxRange/2)}'den büyüğüm.`);
+            else hints.push(`${Math.floor(maxRange/2)}'den küçüğüm.`);
+
+            if (difficulty === 'Zor' || difficulty === 'Uzman') {
+                const sumDigits = n.toString().split('').reduce((a,b) => a + parseInt(b), 0);
+                hints.push(`Rakamlarım toplamı ${sumDigits}'dir.`);
+            } else {
+                hints.push(`${n-getRandomInt(1,3)} ile ${n+getRandomInt(1,3)} arasındayım.`);
+            }
+
+            // Create 5 boxes for the grid
+            const boxes = Array.from({ length: 5 }, () => {
+                const b1 = getRandomInt(minRange, maxRange);
+                const b2 = getRandomInt(minRange, maxRange);
+                return [b1, b2];
+            });
+            // Ensure answer is in one of the boxes
+            boxes[getRandomInt(0, 4)][0] = n;
+
+            // Options (A, B, C, D)
+            const distractors = Array.from({length: 3}, () => getRandomInt(minRange, maxRange)).filter(d => d !== n);
+            const allOptions = shuffle([n.toString(), ...distractors.map(d => d.toString())]);
+            const correctHarf = ['A', 'B', 'C', 'D'][allOptions.indexOf(n.toString())];
+
+            puzzles.push({
+                riddle: hints.slice(0, codeLength || 3).join(' '),
+                boxes,
+                options: allOptions,
+                answer: `${correctHarf} - ${n}`,
                 answerValue: n
-            };
-        });
+            });
+            runningTotal += n;
+        }
+
         return {
             title: "Sayısal Mantık Bilmeceleri",
-            instruction: "Bilmeceleri çöz ve doğru cevabı bul.",
-            pedagogicalNote: "Sayı hissi ve mantıksal çıkarım.",
-            sumTarget: puzzles.reduce((acc, curr) => acc + curr.answerValue, 0),
-            sumMessage: "Tüm doğru cevapların toplamını bulun.",
+            instruction: "Bilmeceleri çöz ve doğru cevabı bul. Tüm cevapları bulduğunda alttaki toplama görevine odaklan!",
+            pedagogicalNote: "Sayı hissi, mantıksal çıkarım ve çalışma belleği.",
+            sumTarget: runningTotal,
+            sumMessage: useThirdNumber 
+                ? `Sayfadaki ${count} bilmecenin doğru cevaplarını topladığında sonuç ${runningTotal} olmalıdır. Eğer bu sayıya ulaştıysan harikasın!`
+                : "Bilmeceleri çöz ve sayıların gizemini keşfet.",
             puzzles
         };
     });
@@ -321,7 +363,6 @@ export const generateOfflineMathMemoryCards = async (options: GeneratorOptions):
 };
 
 // REAL LIFE PROBLEMS
-// Added implementation for the missing function to fix dyscalculia.ts import error
 export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
     const { worksheetCount, itemCount } = options;
     return Array.from({ length: worksheetCount }, () => ({

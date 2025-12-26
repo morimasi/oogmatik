@@ -18,31 +18,28 @@ export const generateBasicOperationsFromAI = async (options: GeneratorOptions): 
     const prompt = getMathPrompt("Dört İşlem Alıştırması", difficulty, operationRule, studentContext);
 
     const schema = {
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                imagePrompt: { type: Type.STRING },
-                operations: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            num1: { type: Type.INTEGER },
-                            num2: { type: Type.INTEGER },
-                            num3: { type: Type.INTEGER, nullable: true },
-                            operator: { type: Type.STRING },
-                            answer: { type: Type.INTEGER }
-                        },
-                        required: ['num1', 'num2', 'operator', 'answer']
-                    }
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            operations: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        num1: { type: Type.INTEGER },
+                        num2: { type: Type.INTEGER },
+                        num3: { type: Type.INTEGER, nullable: true },
+                        operator: { type: Type.STRING },
+                        answer: { type: Type.INTEGER }
+                    },
+                    required: ['num1', 'num2', 'operator', 'answer']
                 }
-            },
-            required: ['title', 'instruction', 'operations', 'pedagogicalNote', 'imagePrompt']
-        }
+            }
+        },
+        required: ['title', 'instruction', 'operations', 'pedagogicalNote', 'imagePrompt']
     };
 
     return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
@@ -177,15 +174,29 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
 };
 
 export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<any[]> => {
-    const { difficulty, worksheetCount, studentContext } = options;
+    const { difficulty, numberRange, codeLength, useThirdNumber, studentContext } = options;
     
     const rule = `
-    - Her sayfada 4 adet karmaşık sayısal mantık bilmecesi üret.
-    - Tasarım: 5 kutu, her kutuda sayılar, bir ana bilmece metni.
-    - Finalde tüm cevapların toplamı bir "Hedef Sayı"ya ulaşmalı.
+    [GÖREV]: Sayısal Mantık Bilmeceleri üret.
+    [SAYI ARALIĞI]: ${numberRange || '1-50'}
+    [BİLMECE YAPISI]: Her bilmece ${codeLength || 3} adet mantıksal ipucu içermelidir.
+    [BÜYÜK TOPLAM]: ${useThirdNumber ? 'AKTİF - Tüm doğru cevapların toplamı tam olarak bir HEDEF SAYI etmelidir.' : 'Pasif'}.
+
+    ZORLUK SEVİYESİNE GÖRE İPUCU TARZI:
+    - Başlangıç: "10'dan küçüğüm", "Çift sayıyım", "3 tane 2'liğin toplamıyım".
+    - Orta: "Onlar basamağım 2", "5 ile kalansız bölünürüm", "İki basamaklıyım".
+    - Zor: "Asal sayıyım", "Rakamlarım toplamı 9", "Karesel bir sayıyım".
+    - Uzman: "Rakamlarım çarpımı 12", "Bir sonraki asal sayıdan 2 eksiğim", "Üç basamaklı en küçük sayıdan 15 eksiğim".
+
+    TASARIM:
+    - Her sayfada A4'ü dolduracak şekilde 4 adet büyük bilmece kartı olsun.
+    - Her kartta 5 adet sayı kutusu (boxes) bulunmalı. Bu kutulardaki sayılar arasından doğru olanı seçtir.
+    - Toplamda tüm doğru cevapların toplamı olan "sumTarget" alanını kesinlikle hesapla.
+
+    MODEL: gemini-3-flash-preview (Multimodal odaklı, uzamsal ve mantıksal kurgu).
     `;
 
-    const prompt = getMathPrompt("Sayısal Mantık Bilmeceleri", difficulty, rule, studentContext);
+    const prompt = getMathPrompt("Gelişmiş Sayısal Mantık Bilmeceleri", difficulty, rule, studentContext);
 
     const schema = {
         type: Type.ARRAY,
@@ -203,11 +214,15 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            riddle: { type: Type.STRING },
-                            boxes: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
-                            options: { type: Type.ARRAY, items: { type: Type.STRING } },
-                            answer: { type: Type.STRING },
-                            answerValue: { type: Type.INTEGER }
+                            riddle: { type: Type.STRING, description: "Tüm ipuçlarını içeren bütünleşik bilmece metni." },
+                            boxes: { 
+                                type: Type.ARRAY, 
+                                items: { type: Type.ARRAY, items: { type: Type.INTEGER } },
+                                description: "5 adet kutu, her birinde 2-3 sayı."
+                            },
+                            options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 adet şık (A, B, C, D)" },
+                            answer: { type: Type.STRING, description: "Doğru şık harfi ve değeri (Örn: A - 15)" },
+                            answerValue: { type: Type.INTEGER, description: "Cevabın sadece sayısal değeri." }
                         },
                         required: ['riddle', 'boxes', 'options', 'answer', 'answerValue']
                     }
@@ -217,7 +232,7 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         }
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
 
 export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<any[]> => {

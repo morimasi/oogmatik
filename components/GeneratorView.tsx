@@ -132,11 +132,11 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: 20,
+        itemCount: 4,
         gridSize: 10,
         operationType: 'mixed',
         selectedOperations: ['add','sub'],
-        numberRange: '1-20',
+        numberRange: '1-50',
         allowCarry: true,
         allowBorrow: true,
         allowRemainder: false,
@@ -145,7 +145,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         num2Digits: 1,
         useThirdNumber: false,
         topic: '',
-        useSearch: false
+        useSearch: false,
+        codeLength: 3, // For hints per riddle in logic riddles
     });
 
     useEffect(() => {
@@ -159,7 +160,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 ODD_EVEN_SUDOKU: 1,
                 CLOCK_READING: 8,
                 MONEY_COUNTING: 4,
-                MATH_MEMORY_CARDS: 6
+                MATH_MEMORY_CARDS: 6,
+                NUMBER_LOGIC_RIDDLES: 4
             };
             setOptions(prev => ({...prev, itemCount: defaults[activity.id] || 20}));
         }
@@ -173,6 +175,38 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
     const renderMathControls = () => (
         <div className="space-y-5">
+            {activity.id === ActivityType.NUMBER_LOGIC_RIDDLES && (
+                <>
+                    <CompactSelect 
+                        label="Sayı Aralığı" 
+                        value={options.numberRange} 
+                        onChange={(v:string) => handleChange('numberRange', v)} 
+                        options={[
+                            { value: '1-20', label: '1 - 20 (Starter)' },
+                            { value: '1-50', label: '1 - 50 (Standard)' },
+                            { value: '1-100', label: '1 - 100 (Advanced)' },
+                            { value: '1-200', label: '1 - 200 (Expert)' }
+                        ]} 
+                        icon="fa-arrow-up-9-1"
+                    />
+                    <CompactSlider 
+                        label="Bilmece Başına İpucu" 
+                        value={options.codeLength} 
+                        onChange={(v:number) => handleChange('codeLength', v)} 
+                        min={2} max={5} 
+                        icon="fa-list-ul"
+                    />
+                    <div className="bg-zinc-50 dark:bg-zinc-800/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 space-y-1">
+                        <CompactCheckbox 
+                            label="Büyük Toplam Yarışı" 
+                            checked={options.useThirdNumber} 
+                            onChange={(v:boolean) => handleChange('useThirdNumber', v)} 
+                        />
+                        <p className="text-[9px] text-zinc-500 px-1.5 italic">Cevapların toplamı alt kutudaki sayıya eşit olur.</p>
+                    </div>
+                </>
+            )}
+
             {activity.id === ActivityType.BASIC_OPERATIONS && (
                 <>
                     <CompactToggleGroup 
