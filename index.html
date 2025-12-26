@@ -124,7 +124,8 @@
               visibility: visible !important;
               display: block !important;
               position: absolute !important;
-              left: 0; top: 0; width: 100%;
+              left: 0; top: 0; 
+              width: 210mm !important; /* Force desktop width in print to trigger grid-cols-2 */
               background: white !important;
               z-index: 9999 !important;
           }
@@ -146,6 +147,14 @@
               print-color-adjust: exact !important;
           }
           
+          /* Force columns in print even if browser width is small */
+          .grid {
+              display: grid !important;
+          }
+          .print-grid-2 {
+              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+
           .text-black { color: #000000 !important; }
           .bg-white { background-color: #ffffff !important; }
           

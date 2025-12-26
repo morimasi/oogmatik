@@ -107,6 +107,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
     const [step, setStep] = useState<'upload' | 'processing' | 'studio' | 'generating' | 'preview'>('upload');
     const [image, setImage] = useState<string | null>(null);
     const [analysisResult, setAnalysisResult] = useState<any>(null);
+    const [scanMode, setScanMode] = useState<'CONVERTER' | 'ALGORITHM'>('CONVERTER');
     
     const [config, setConfig] = useState({
         activityType: '' as ActivityType,
@@ -149,7 +150,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
     const startAnalysis = async (imgData: string) => {
         setStep('processing');
         try {
-            const result = await ocrService.processImage(imgData);
+            const result = await ocrService.processImage(imgData, scanMode);
             setAnalysisResult(result);
             setConfig({
                 activityType: result.baseType as ActivityType,
@@ -197,7 +198,9 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                 itemCount: config.itemCount,
                 worksheetCount: config.worksheetCount,
                 mode: 'ai',
-                useSearch: config.useGoogleSearch
+                useSearch: config.useGoogleSearch,
+                // Pass original image for multimodal generation logic if needed
+                customInput: image || undefined 
             };
 
             let result = null;
@@ -315,6 +318,22 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                 
                 {step === 'upload' && (
                     <div className="h-full flex flex-col items-center justify-center p-8 bg-[#121212] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+                        {/* MODE SELECTOR */}
+                        <div className="mb-10 flex gap-4 bg-zinc-900 p-2 rounded-2xl border border-zinc-800 shadow-xl">
+                            <button 
+                                onClick={() => setScanMode('CONVERTER')}
+                                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${scanMode === 'CONVERTER' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                            >
+                                <i className="fa-solid fa-wand-sparkles"></i> Akıllı Dönüştürücü
+                            </button>
+                            <button 
+                                onClick={() => setScanMode('ALGORITHM')}
+                                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${scanMode === 'ALGORITHM' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                            >
+                                <i className="fa-solid fa-code-fork"></i> Algoritma Üretici
+                            </button>
+                        </div>
+
                         <div 
                             className="w-full max-w-xl aspect-video border-2 border-dashed border-zinc-700 hover:border-indigo-500 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-900 transition-all group bg-zinc-900/30 relative overflow-hidden"
                             onClick={() => fileInputRef.current?.click()}
@@ -327,7 +346,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                             <h3 className="text-2xl font-bold text-white relative z-10">Materyal Yükle</h3>
                             <p className="text-zinc-500 mt-2 text-center px-12 text-sm relative z-10">
                                 JPG, PNG veya PDF formatındaki çalışma kağıdını yükleyin.<br/>
-                                Yapay zeka tasarımı analiz eder ve klonlar.
+                                {scanMode === 'CONVERTER' ? 'Yapay zeka tasarımı analiz eder ve yeni verilerle klonlar.' : 'Yapay zeka görseldeki mantığı çözerek akış şemasını çıkarır.'}
                             </p>
                         </div>
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,.pdf" className="hidden" />
@@ -341,8 +360,10 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                              <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-75"></span>
                              <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-150"></span>
                          </div>
-                        <h3 className="text-xl font-bold text-white">Görsel Mimari Analiz Ediliyor</h3>
-                        <p className="text-zinc-500 mt-2 text-sm">Grid yapısı, sorular ve stiller çözümleniyor...</p>
+                        <h3 className="text-xl font-bold text-white">
+                            {scanMode === 'CONVERTER' ? 'Görsel Mimari Analiz Ediliyor' : 'Mantıksal Akış Çözümleniyor'}
+                        </h3>
+                        <p className="text-zinc-500 mt-2 text-sm">Gemini 3.0 Flash Multimodal motoru çalışıyor...</p>
                     </div>
                 )}
 
@@ -380,7 +401,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                                 <div className="bg-[#252526] border-b border-zinc-800 p-2 flex items-center justify-between">
                                     <span className="text-[10px] font-bold text-zinc-400 px-3 uppercase tracking-wider flex items-center gap-2">
                                         <i className="fa-solid fa-code text-indigo-500"></i>
-                                        Prompt Mühendisi
+                                        {scanMode === 'CONVERTER' ? 'Klonlama Algoritması' : 'Mantık Akış Şeması'}
                                     </span>
                                     <div className="flex gap-2">
                                         {STUDIO_TOOLS.map(tool => (
@@ -414,13 +435,13 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                                     onClick={handleSaveAsTemplate}
                                     className="px-6 py-3 bg-[#18181b] border border-zinc-700 hover:bg-zinc-800 text-zinc-300 font-bold rounded-xl transition-all text-sm"
                                 >
-                                    <i className="fa-solid fa-microchip mr-2"></i> Algoritmayı Kaydet
+                                    <i className="fa-solid fa-microchip mr-2"></i> Şablonu Kaydet
                                 </button>
                                 <button 
                                     onClick={handleGenerate}
                                     className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 transform active:scale-95 text-sm"
                                 >
-                                    <i className="fa-solid fa-wand-magic-sparkles"></i> AI İLE ÜRET
+                                    <i className="fa-solid fa-wand-magic-sparkles"></i> AI İLE YENİDEN İNŞA ET
                                 </button>
                             </div>
                         </div>
@@ -437,7 +458,7 @@ export const OCRScanner: React.FC<OCRScannerProps> = ({ onBack }) => {
                     <div className="h-full flex flex-col items-center justify-center bg-[#121212]">
                          <div className="w-64 h-1 bg-zinc-800 rounded-full overflow-hidden mb-6"><div className="h-full bg-indigo-500 animate-progress"></div></div>
                         <h3 className="text-xl font-bold text-white">İçerik Yeniden İnşa Ediliyor</h3>
-                        <p className="text-zinc-500 mt-2 text-sm">Yapay zeka verileri işliyor...</p>
+                        <p className="text-zinc-500 mt-2 text-sm">Gemini 3.0 Flash Multimodal motoru çalışıyor...</p>
                     </div>
                 )}
 

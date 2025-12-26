@@ -13,7 +13,7 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
                 note={data.pedagogicalNote} 
             />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 mt-6 flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 print-grid-2 gap-x-8 gap-y-12 mt-6 flex-1">
                 {(data.puzzles || []).map((puzzle, pIdx) => (
                     <EditableElement key={pIdx} className="flex flex-col border-4 border-zinc-200 rounded-[2.5rem] p-8 bg-white shadow-lg break-inside-avoid relative group hover:border-indigo-400 transition-all duration-300 min-h-[350px]">
                         <div className="absolute -top-5 -left-5 w-14 h-14 bg-zinc-900 text-white rounded-3xl flex items-center justify-center font-black shadow-xl text-xl ring-8 ring-white">

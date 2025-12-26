@@ -12,12 +12,12 @@ GÖREV: Verilen teknik plana uygun özgün içerik üret.
 2. **Yapısal Sadakat:** Planda 'tablo' deniliyorsa tablo, 'grid' deniliyorsa grid kullan.
 3. **Miktar:** 'itemCount' kadar benzersiz öğe üret. Sayfayı doldur.
 4. **Hata Önleme:** JSON yapısı içinde asla sonsuz metin blokları oluşturma. Kısa, öz ve yapısal ol.
+5. **Klonlama Hassasiyeti:** Eğer bu bir "Dönüştürücü" göreviyse, orijinal materyalin ruhunu (mantığını) koru ama verileri (sayılar, isimler, sorular) tamamen YENİLE.
 `;
 
 export const generateAiWorksheetConverterFromAI = async (options: GeneratorOptions) => {
     // This is used for the AI Worksheet Converter feature
-    // It usually requires a blueprint, but we'll use topic/instructions if called directly
-    return generateFromRichPrompt('AI_WORKSHEET_CONVERTER' as ActivityType, options.topic || "Genel İçerik", options);
+    return generateFromRichPrompt('AI_WORKSHEET_CONVERTER' as ActivityType, options.topic || "Görsel Materyal Dönüşümü", options);
 };
 
 export const generateOcrContentFromAI = async (options: GeneratorOptions) => {
@@ -74,8 +74,8 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
     [AYARLAR]: Seviye: ${options.difficulty}, Konu: ${options.topic || 'Genel'}, Adet: ${options.itemCount || 10}
     [DÜZEN]: ${layoutHint ? JSON.stringify(layoutHint) : 'Otomatik'}
 
-    DİKKAT: Sadece geçerli JSON döndür. Döngüye girme, her öğeyi özgün yaz.
+    DİKKAT: Sadece geçerli JSON döndür. Gemini 3.0 Flash Preview yeteneklerini kullanarak zengin, hatasız ve pedagojik olarak tutarlı bir çalışma sayfası oluştur.
     `;
 
-    return generateWithSchema(finalPrompt, schema, undefined, options.useSearch);
+    return generateWithSchema(finalPrompt, schema, 'gemini-3-flash-preview', options.useSearch);
 };

@@ -41,8 +41,8 @@ export const printService = {
         printContainer.style.position = 'fixed';
         printContainer.style.top = '0';
         printContainer.style.left = '0';
-        printContainer.style.width = '100%';
-        printContainer.style.zIndex = '-9999';
+        printContainer.style.width = '210mm'; // Fixed width to prevent mobile layout trigger
+        printContainer.style.zIndex = '99999';
         printContainer.style.visibility = 'hidden';
 
         if (options.grayscale) {
@@ -112,13 +112,17 @@ export const printService = {
         const originalTitle = document.title;
         document.title = title.replace(/[^a-z0-9]/gi, '_');
         
-        // Small delay for browser rendering engine to stabilize clone
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Small delay for browser rendering engine to stabilize clone and apply desktop-width styles
+        await new Promise(resolve => setTimeout(resolve, 800));
         
         window.print();
 
         // 6. Final Cleanup
         document.title = originalTitle;
-        document.body.removeChild(printContainer);
+        setTimeout(() => {
+             if (printContainer.parentNode) {
+                 document.body.removeChild(printContainer);
+             }
+        }, 1000);
     }
 };
