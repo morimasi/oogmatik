@@ -25,7 +25,6 @@ const MathStudioRenderer: React.FC<{ data: any }> = ({ data }) => {
     // If it's a wrapper object (like from archive), extract the actual items
     const items = data.items || [];
     const config = data.config || {};
-    const pageConfig = data.pageConfig || {};
     const mode = data.mode || 'drill';
 
     if (mode === 'drill') {
@@ -84,7 +83,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         return <MathStudioRenderer data={data} />;
     }
 
-    // 2. Check for Reading Studio (STORY_COMPREHENSION can be studio based)
+    // 2. Check for Reading Studio (STORY_COMPREHENSION can be studio based in archive)
     if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) {
         return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
     }
@@ -109,6 +108,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         // VERBAL & READING
         case ActivityType.STORY_COMPREHENSION: return <Reading.StoryComprehensionSheet data={data} />;
         case ActivityType.STORY_ANALYSIS: return <Reading.StoryAnalysisSheet data={data} />;
+        case ActivityType.STORY_CREATION_PROMPT: return <Reading.StoryCreationPromptSheet data={data} />;
         case ActivityType.MISSING_PARTS: return <Reading.MissingPartsSheet data={data} />;
         case ActivityType.READING_FLOW: return <Dyslexia.ReadingFlowSheet data={data} />;
         case ActivityType.ANAGRAM: return <WordGames.AnagramSheet data={data} />;

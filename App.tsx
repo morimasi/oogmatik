@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment, Curriculum } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -127,6 +127,7 @@ const AppContent: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     
     const [activeCurriculumSession, setActiveCurriculumSession] = useState<ActiveCurriculumSession | null>(null);
+    const [loadedCurriculum, setLoadedCurriculum] = useState<Curriculum | null>(null);
     
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -283,36 +284,46 @@ const AppContent: React.FC = () => {
         }
     };
 
-    const loadSavedWorksheet = (worksheet: SavedWorksheet) => {
-        // Handle Reports specially
-        if (worksheet.activityType === ActivityType.ASSESSMENT_REPORT || (worksheet as any).report) {
-            setSelectedSavedReport(worksheet as unknown as SavedAssessment);
+    const loadSavedWorksheet = (item: any) => {
+        // 1. Rapor mu?
+        if (item.report || item.activityType === ActivityType.ASSESSMENT_REPORT) {
+            setSelectedSavedReport(item as SavedAssessment);
             return;
         }
 
-        if (worksheet.activityType === ActivityType.WORKBOOK) {
-            if (worksheet.workbookItems && worksheet.workbookSettings) {
-                setWorkbookItems(worksheet.workbookItems);
-                setWorkbookSettings(worksheet.workbookSettings);
+        // 2. Eğitim Planı mı?
+        if (item.schedule && item.durationDays) {
+            setLoadedCurriculum(item as Curriculum);
+            navigateTo('curriculum');
+            return;
+        }
+
+        // 3. Kitapçık mı?
+        if (item.activityType === ActivityType.WORKBOOK || item.workbookItems) {
+            if (item.workbookItems && item.workbookSettings) {
+                setWorkbookItems(item.workbookItems);
+                setWorkbookSettings(item.workbookSettings);
                 navigateTo('workbook');
             }
-        } else {
-            setSelectedActivity(worksheet.activityType);
-            setWorksheetData(worksheet.worksheetData);
-            if (worksheet.styleSettings) setStyleSettings(worksheet.styleSettings);
-            
-            if (worksheet.studentProfile) {
-                setStudentProfile(worksheet.studentProfile);
-                if (worksheet.studentId) {
-                    const s = students.find(x => x.id === worksheet.studentId);
-                    if (s) setActiveStudent(s);
-                }
-            } else {
-                setStudentProfile(null);
-                setActiveStudent(null);
-            }
-            navigateTo('generator');
+            return;
         }
+
+        // 4. Standart Materyal mi? (Reading/Math Studio veya Normal)
+        setSelectedActivity(item.activityType);
+        setWorksheetData(item.worksheetData);
+        if (item.styleSettings) setStyleSettings(item.styleSettings);
+        
+        if (item.studentProfile) {
+            setStudentProfile(item.studentProfile);
+            if (item.studentId) {
+                const s = students.find(x => x.id === item.studentId);
+                if (s) setActiveStudent(s);
+            }
+        } else {
+            setStudentProfile(null);
+            setActiveStudent(null);
+        }
+        navigateTo('generator');
     };
 
     const handleSelectActivity = (activityType: ActivityType | null) => {
@@ -506,7 +517,8 @@ const AppContent: React.FC = () => {
             <CurriculumView 
                 onBack={handleGoBack} 
                 onSelectActivity={handleSelectActivity} 
-                onStartCurriculumActivity={handleStartCurriculumActivity} 
+                onStartCurriculumActivity={handleStartCurriculumActivity}
+                initialPlan={loadedCurriculum} 
             />
         </Suspense>
     );

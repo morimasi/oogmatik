@@ -160,6 +160,53 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
     </div>
 );
 
+// Added StoryCreationPromptSheet
+export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData }> = ({ data }) => (
+    <div className="space-y-8">
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        
+        <div className="p-8 bg-indigo-50 rounded-[2.5rem] border-2 border-indigo-100 shadow-inner">
+            <h4 className="text-xs font-black uppercase text-indigo-400 mb-4 tracking-widest">Hikaye Başlangıcı / İpucu</h4>
+            <p className="text-xl font-bold leading-relaxed font-dyslexic text-zinc-800"><EditableText value={data.prompt} tag="span" /></p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+                <h4 className="font-black text-sm uppercase border-b-2 border-zinc-800 pb-1">Anahtar Kelimeler</h4>
+                <div className="flex flex-wrap gap-3">
+                    {(data.keywords || []).map((word, i) => (
+                        <span key={i} className="px-4 py-2 bg-white border-2 border-zinc-800 rounded-xl font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <EditableText value={word} tag="span" />
+                        </span>
+                    ))}
+                </div>
+            </div>
+            
+            <div className="space-y-4">
+                <h4 className="font-black text-sm uppercase border-b-2 border-zinc-800 pb-1">Kurgu Taslağı</h4>
+                <div className="space-y-4">
+                    {Object.entries(data.structureHints || {}).map(([key, value], i) => (
+                        <div key={i} className="flex items-center gap-3">
+                            <span className="w-20 text-[10px] font-black uppercase text-zinc-400">{key}</span>
+                            <div className="flex-1 border-b-2 border-zinc-200 py-1 font-bold italic text-zinc-600">
+                                <EditableText value={value} tag="span" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        <div className="mt-12">
+            <h4 className="font-black text-sm uppercase mb-4">Senin Hikayen</h4>
+            <div className="h-[400px] border-2 border-zinc-200 rounded-3xl bg-white p-8 relative shadow-sm">
+                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: 'linear-gradient(transparent 95%, #000 95%)', backgroundSize: '100% 2rem'}}></div>
+                <p className="text-xs text-zinc-300 font-bold uppercase absolute bottom-4 right-8">Yazma Alanı</p>
+            </div>
+        </div>
+    </div>
+);
+
 export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }) => (
     <div className="space-y-8">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
