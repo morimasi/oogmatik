@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { StyleSettings, WorksheetData } from '../types';
 import { printService } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
 import { StickerPicker } from './StickerPicker';
-import { PrintPreviewModal } from './PrintPreviewModal';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -110,6 +109,7 @@ const Toggle = ({ label, checked, onChange }: any) => (
 const DropdownPanel = ({ title, children, onClose }: any) => {
     // Click outside handler
     const ref = useRef<HTMLDivElement>(null);
+    // Added useEffect import to line 1 and used it here to handle click outside events
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (ref.current && !ref.current.contains(event.target as Node)) {
@@ -139,14 +139,13 @@ const DropdownPanel = ({ title, children, onClose }: any) => {
 
 export const Toolbar: React.FC<ToolbarProps> = ({ 
     settings, onSettingsChange, onSave, onFeedback, onShare, onTogglePreview, isPreviewMode, 
-    onAddToWorkbook, workbookItemCount, onViewWorkbook, onToggleEdit, isEditMode, onSnapshot, 
-    onAddText, onAddSticker, onSpeak, isSpeaking, onStopSpeak, 
+    onAddToWorkbook, workbookItemCount, onToggleEdit, isEditMode,
+    onAddSticker, onSpeak, isSpeaking, onStopSpeak, 
     showQR, onToggleQR, worksheetData,
     isCurriculumMode, onCompleteCurriculumTask
 }) => {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [isStickerPickerOpen, setIsStickerPickerOpen] = useState(false);
-    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const [isProcessingSnapshot, setIsProcessingSnapshot] = useState(false);
     const [isProcessingSave, setIsProcessingSave] = useState(false);
     
@@ -181,15 +180,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         onSettingsChange({ ...settings, [key]: value });
     };
 
-    const handlePrintPreview = () => {
+    const handlePrint = async () => {
         if (!worksheetData) return;
-        setIsPreviewModalOpen(true);
+        // Direct print using the robust cloning engine
+        await printService.generatePdf('.worksheet-page', settings.title || 'Etkinlik', { action: 'print' });
     };
     
     const handleSnapshot = async () => {
         setIsProcessingSnapshot(true);
         try {
-            await snapshotService.takeSnapshot('.worksheet-item', 'bursa-disleksi-etkinlik');
+            await snapshotService.takeSnapshot('.worksheet-page', 'bursa-disleksi-etkinlik');
         } catch (e) {
             console.error(e);
             alert("Görüntü oluşturulamadı.");
@@ -280,7 +280,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                                     className="w-full text-xs p-2 rounded-lg border border-zinc-200 bg-zinc-50 outline-none focus:ring-2 focus:ring-indigo-500"
                                 >
                                     <option value="OpenDyslexic">OpenDyslexic (Okuma Dostu)</option>
-                                    <option value="Lexend">Lexend (Modern)</option>
+                                    <option value="Lexend">Lexend (Okuma Dostu)</option>
                                     <option value="Comic Neue">Comic Neue (Eğlenceli)</option>
                                     <option value="Inter">Inter (Standart)</option>
                                 </select>
@@ -315,7 +315,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     )}
                 </div>
 
-                {/* 3. Appearance Group (Replaces old 'Görünüm' with Detail Levels) */}
+                {/* 3. Appearance Group */}
                 <div className="relative">
                     <MenuButton 
                         icon="fa-sliders" 
@@ -352,7 +352,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
                             <NumberControl label="Kenar Boşluğu" value={settings.margin} onChange={(v: number) => updateSetting('margin', v)} min={0} max={100} unit="px" />
                             
-                            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-700">
                                 <p className="text-xs font-bold text-zinc-400 mb-2 uppercase">Özel Ayarlar</p>
                                 <Toggle label="Başlık" checked={settings.showTitle} onChange={(v: boolean) => updateSetting('showTitle', v)} />
                                 <Toggle label="Yönerge" checked={settings.showInstruction} onChange={(v: boolean) => updateSetting('showInstruction', v)} />
@@ -435,8 +435,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 <div className="flex bg-zinc-100 p-1 rounded-lg">
                     <IconButton 
                         icon="fa-print" 
-                        title="Yazdır / PDF Önizle" 
-                        onClick={handlePrintPreview}
+                        title="Yazdır (A4)" 
+                        onClick={handlePrint}
                     />
                     <IconButton 
                         icon="fa-camera" 
@@ -457,16 +457,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     />
                 </div>
             </div>
-
-            {/* Print Preview Modal */}
-            {worksheetData && (
-                <PrintPreviewModal 
-                    isOpen={isPreviewModalOpen} 
-                    onClose={() => setIsPreviewModalOpen(false)} 
-                    worksheetData={worksheetData} 
-                    title="Baskı Önizleme"
-                />
-            )}
         </div>
     );
 };

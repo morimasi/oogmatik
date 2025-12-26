@@ -91,7 +91,7 @@
           margin: 0 auto;
           width: 210mm;
           min-height: 297mm;
-          height: auto !important; /* Allow expansion */
+          height: auto !important; 
           padding-bottom: 20mm;
           position: relative;
           overflow: visible !important;
@@ -106,7 +106,7 @@
           page-break-inside: avoid;
       }
 
-      /* --- PROFESSIONAL PRINT STYLES (Reading Studio Style) --- */
+      /* --- PROFESSIONAL PRINT STYLES --- */
       @media print {
           @page {
               size: A4 portrait;
@@ -126,6 +126,7 @@
               position: absolute !important;
               left: 0; top: 0; width: 100%;
               background: white !important;
+              z-index: 9999 !important;
           }
           .print-page {
               width: 210mm !important;
@@ -141,20 +142,21 @@
               background: white !important;
               border: none !important;
               box-shadow: none !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
           }
           
-          /* Force standard colors for print */
           .text-black { color: #000000 !important; }
           .bg-white { background-color: #ffffff !important; }
           
-          /* Background color preservation for specific elements */
-          .bg-indigo-600, .bg-amber-500, .bg-emerald-500, .bg-zinc-900 {
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
+          /* Preserve essential colors */
+          .bg-indigo-600, .bg-amber-500, .bg-emerald-500, .bg-zinc-900, .bg-indigo-500, .bg-rose-500, .bg-blue-500 {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
           }
           
-          /* Hide non-printable UI artifacts */
-          .no-print, .edit-handle, button, .page-navigator {
+          /* Hide artifacts */
+          .no-print, .edit-handle, button, .page-navigator, .page-label-container {
               display: none !important;
           }
       }
