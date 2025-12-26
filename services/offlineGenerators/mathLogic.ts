@@ -1,4 +1,5 @@
-import { GeneratorOptions, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, BasicOperationsData, MoneyCountingData, MathMemoryCardsData, ClockReadingData, RealLifeProblemData } from '../../types';
+
+import { GeneratorOptions, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, BasicOperationsData, MoneyCountingData, MathMemoryCardsData, ClockReadingData, RealLifeProblemData, MathPuzzleData, NumberLogicRiddleData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, turkishAlphabet, generateSudokuGrid, generateLatinSquare, TR_VOCAB } from './helpers';
 
 // Helper for Carry/Borrow logic check
@@ -90,6 +91,79 @@ export const generateOfflineBasicOperations = async (options: GeneratorOptions):
         });
     }
     return results;
+};
+
+// MATH PUZZLE (Offline)
+export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
+    const { worksheetCount, itemCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = Array.from({ length: itemCount || 6 }, () => {
+            const n1 = getRandomInt(1, 10);
+            const n2 = getRandomInt(1, 10);
+            return {
+                problem: `${n1} + ${n2} = ?`,
+                question: "Soru işareti yerine hangi sayı gelmelidir?",
+                answer: (n1 + n2).toString(),
+                objects: [
+                    { name: "Elma", imagePrompt: "apple" },
+                    { name: "Armut", imagePrompt: "pear" }
+                ]
+            };
+        });
+        return {
+            title: "Matematik Bulmacaları",
+            instruction: "Görsellerin temsil ettiği sayıları bularak işlemleri tamamla.",
+            pedagogicalNote: "Sembolik düşünme ve temel aritmetik.",
+            puzzles
+        };
+    });
+};
+
+// NUMBER PATTERN (Offline)
+export const generateOfflineNumberPattern = async (options: GeneratorOptions): Promise<NumberPatternData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const patterns = Array.from({ length: itemCount || 8 }, () => {
+            const start = getRandomInt(1, 20);
+            const step = difficulty === 'Başlangıç' ? getRandomInt(1, 3) : getRandomInt(2, 5);
+            const seq = [start, start + step, start + 2 * step, start + 3 * step];
+            return {
+                sequence: `${seq.join(', ')}, ?`,
+                answer: (start + 4 * step).toString()
+            };
+        });
+        return {
+            title: "Sayı Örüntüleri",
+            instruction: "Sayılar arasındaki kuralı keşfet ve boşluğu doldur.",
+            pedagogicalNote: "Sıralı düşünme ve kural bulma.",
+            patterns
+        };
+    });
+};
+
+// NUMBER LOGIC RIDDLES (Offline)
+export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
+    const { worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => {
+        const puzzles = Array.from({ length: 4 }, (_, i) => {
+            const n = getRandomInt(1, 20);
+            return {
+                riddle: `Ben bir sayıyım. ${n-1}'den büyük, ${n+1}'den küçüğüm. Ben kaçıyım?`,
+                boxes: [[n, n+5], [n-2, n+10]],
+                options: [n.toString(), (n+2).toString(), (n-1).toString()],
+                answer: n.toString(),
+                answerValue: n
+            };
+        });
+        return {
+            title: "Sayısal Mantık Bilmeceleri",
+            instruction: "Bilmeceleri çöz ve doğru cevabı bul.",
+            pedagogicalNote: "Sayı hissi ve mantıksal çıkarım.",
+            sumTarget: puzzles.reduce((acc, curr) => acc + curr.answerValue, 0),
+            sumMessage: "Tüm doğru cevapların toplamını bulun.",
+            puzzles
+        };
+    });
 };
 
 // NUMBER PYRAMID (Enhanced)

@@ -219,3 +219,85 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
 
     return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
 };
+
+export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<any[]> => {
+    const { difficulty, gridSize, worksheetCount, studentContext } = options;
+    const size = gridSize || 4;
+    const rule = `
+    - Kendoku (KenKen) bulmacası üret.
+    - Izgara boyutu: ${size}x${size}.
+    - Matematiksel kafesler (cages) oluştur.
+    - Her kafes bir hedef sayı ve işlem (+, -, *, /) içermelidir.
+    `;
+    const prompt = getMathPrompt("Kendoku Bulmacası", difficulty, rule, studentContext);
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                puzzles: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            size: { type: Type.INTEGER },
+                            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER, nullable: true } } },
+                            cages: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { row: { type: Type.INTEGER }, col: { type: Type.INTEGER } } } },
+                                        operation: { type: Type.STRING },
+                                        target: { type: Type.INTEGER }
+                                    },
+                                    required: ['cells', 'target']
+                                }
+                            }
+                        },
+                        required: ['size', 'grid', 'cages']
+                    }
+                }
+            },
+            required: ['title', 'puzzles']
+        }
+    };
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+};
+
+export const generateNumberPyramidFromAI = async (options: GeneratorOptions): Promise<any[]> => {
+    const { difficulty, pyramidType, worksheetCount, studentContext } = options;
+    const rule = `
+    - Sayı Piramidi üret.
+    - İşlem tipi: ${pyramidType || 'Toplama'}.
+    - Bazı kutucukları boş bırak (null olarak gönder).
+    - Piramit mantıklı ve çözülebilir olmalıdır.
+    `;
+    const prompt = getMathPrompt("Sayı Piramidi", difficulty, rule, studentContext);
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                pyramids: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER, nullable: true } } }
+                        },
+                        required: ['rows']
+                    }
+                }
+            },
+            required: ['title', 'pyramids']
+        }
+    };
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+};
