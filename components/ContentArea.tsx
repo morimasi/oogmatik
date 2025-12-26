@@ -66,7 +66,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const [isEditMode, setIsEditMode] = useState(false);
     
     // --- SMART PAGINATION STATE ---
-    const [processedData, setProcessedData] = useState<WorksheetData>([]);
+    const [processedData, setProcessedData] = useState<SingleWorksheetData[]>([]);
 
     useEffect(() => {
         if (!worksheetData) {
@@ -74,11 +74,17 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             return;
         }
         
-        if (activityType) {
-            const paged = paginationService.process(worksheetData, activityType, styleSettings);
-            setProcessedData(paged);
+        // Ensure data is always an array
+        const safeData = Array.isArray(worksheetData) ? worksheetData : [worksheetData];
+
+        // Custom logic for OCR and rich content (skip complex pagination if it breaks)
+        const isRichContent = activityType === ActivityType.AI_WORKSHEET_CONVERTER || activityType === ActivityType.OCR_CONTENT || safeData.some(d => d.sections);
+
+        if (activityType && !isRichContent) {
+            const paged = paginationService.process(safeData, activityType, styleSettings);
+            setProcessedData(Array.isArray(paged) && paged.length > 0 ? paged : safeData);
         } else {
-            setProcessedData(worksheetData);
+            setProcessedData(safeData);
         }
     }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns]); 
 
@@ -101,18 +107,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const canvasRef = useRef<HTMLDivElement>(null);
     const [overlayItems, setOverlayItems] = useState<OverlayItem[]>([]);
     
-    useEffect(() => {
-        if (processedData && processedData.length > 0) {
-            centerCanvas();
-        }
-        setIsEditMode(false);
-        setOverlayItems([]); 
-        if (speechService.isActive()) {
-            speechService.stop();
-            setIsSpeaking(false);
-        }
-    }, [activityType, processedData?.length]);
-
     const centerCanvas = useCallback(() => {
         if (canvasRef.current) {
             const viewportW = canvasRef.current.clientWidth;
@@ -125,38 +119,52 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         }
     }, [styleSettings.orientation]);
 
+    useEffect(() => {
+        if (processedData && processedData.length > 0) {
+            centerCanvas();
+        }
+        setIsEditMode(false);
+        setOverlayItems([]); 
+        if (speechService.isActive()) {
+            speechService.stop();
+            setIsSpeaking(false);
+        }
+    }, [activityType, processedData?.length, centerCanvas]);
+
     const scrollToPage = (index: number) => {
         if (!canvasRef.current) return;
-        const viewportW = canvasRef.current.clientWidth;
         const isLandscape = styleSettings.orientation === 'landscape';
         const PX_PER_MM = 3.78;
         const PAGE_HEIGHT_PX = (isLandscape ? 210 : 297) * PX_PER_MM;
         const VERTICAL_GAP = 100;
-        const VERTICAL_PADDING = 100;
-        const pageTopY = VERTICAL_PADDING + index * (PAGE_HEIGHT_PX + VERTICAL_GAP);
+        const pageTopY = 100 + index * (PAGE_HEIGHT_PX + VERTICAL_GAP);
         setPosition(prev => ({ ...prev, y: 50 - (pageTopY * scale) }));
         setCurrentPage(index);
     };
 
-    const handleWheel = useCallback((e: React.WheelEvent) => {
-        if (currentView !== 'generator' || !processedData) return;
+    // Rename handleWheel to handleCanvasWheel to fix the error in the template call on line 260
+    const handleCanvasWheel = useCallback((e: React.WheelEvent) => {
+        if (currentView !== 'generator' || (processedData.length === 0 && !isLoading)) return;
         if (e.ctrlKey) e.preventDefault();
         const zoomSensitivity = -0.001; 
         const delta = e.deltaY * zoomSensitivity;
-        const newScale = Math.min(Math.max(0.2, scale + delta), 4);
-        const rect = canvasRef.current!.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const canvasX = (mouseX - position.x) / scale;
-        const canvasY = (mouseY - position.y) / scale;
-        const newX = mouseX - canvasX * newScale;
-        const newY = mouseY - canvasY * newScale;
-        setScale(newScale);
-        setPosition({ x: newX, y: newY });
-    }, [scale, position, currentView, processedData]);
+        const newScale = Math.min(Math.max(0.1, scale + delta), 4);
+        
+        if (canvasRef.current) {
+            const rect = canvasRef.current.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const canvasX = (mouseX - position.x) / scale;
+            const canvasY = (mouseY - position.y) / scale;
+            const newX = mouseX - canvasX * newScale;
+            const newY = mouseY - canvasY * newScale;
+            setScale(newScale);
+            setPosition({ x: newX, y: newY });
+        }
+    }, [scale, position, currentView, processedData, isLoading]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (currentView !== 'generator' || !processedData) return;
+        if (currentView !== 'generator' || (processedData.length === 0 && !isLoading)) return;
         const target = e.target as HTMLElement;
         if (target.closest('button') || target.closest('input') || target.closest('.edit-handle') || target.closest('.editable-element') || target.tagName === 'TEXTAREA') return;
         setIsDragging(true);
@@ -180,8 +188,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         return () => window.removeEventListener('mouseup', handleGlobalUp);
     }, []);
 
-    const generateAutoName = () => { return 'Etkinlik'; };
-    const handleSave = () => { if (activityType && processedData) onSave(generateAutoName(), activityType, processedData); }
+    const handleSave = () => { if (activityType && processedData.length > 0) onSave('Etkinlik', activityType, processedData); }
     const handleShare = () => { if(!user) { onOpenAuth(); return; } setIsShareModalOpen(true); };
     const handleConfirmShare = async (receiverId: string) => { setIsShareModalOpen(false); };
 
@@ -215,7 +222,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </div>
           )}
 
-          {currentView === 'generator' && activityType && processedData && (
+          {currentView === 'generator' && activityType && (processedData.length > 0 || isLoading) && (
                 <Toolbar 
                     settings={styleSettings} 
                     onSettingsChange={onStyleChange} 
@@ -254,13 +261,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             backgroundSize: `${20 * scale}px ${20 * scale}px`,
             backgroundPosition: `${position.x}px ${position.y}px`
         }}
-        onWheel={currentView === 'generator' && processedData ? handleWheel : undefined}
-        onMouseDown={currentView === 'generator' && processedData ? handleMouseDown : undefined}
-        onMouseMove={currentView === 'generator' && processedData ? handleMouseMove : undefined}
-        onMouseUp={currentView === 'generator' && processedData ? handleMouseUp : undefined}
+        onWheel={currentView === 'generator' && (processedData.length > 0 || isLoading) ? handleCanvasWheel : undefined}
+        onMouseDown={currentView === 'generator' && (processedData.length > 0 || isLoading) ? handleMouseDown : undefined}
+        onMouseMove={currentView === 'generator' && (processedData.length > 0 || isLoading) ? handleMouseMove : undefined}
+        onMouseUp={currentView === 'generator' && (processedData.length > 0 || isLoading) ? handleMouseUp : undefined}
       >
           {/* PAGE NAVIGATOR SIDEBAR */}
-          {processedData && processedData.length > 1 && currentView === 'generator' && (
+          {processedData.length > 1 && currentView === 'generator' && (
               <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-50 transition-all duration-300 opacity-0 group-hover:opacity-100 -translate-x-full group-hover:translate-x-0">
                   <div className="bg-white/80 dark:bg-black/50 backdrop-blur-md p-2 rounded-2xl shadow-xl border border-white/20 flex flex-col gap-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
                       {processedData.map((_, i) => (
@@ -280,8 +287,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </div>
           )}
 
-          {/* FLOATING ZOOM CONTROLS */}
-          {processedData && currentView === 'generator' && (
+          {processedData.length > 0 && currentView === 'generator' && (
               <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-white dark:bg-zinc-800 p-1 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 z-50">
                   <button onClick={() => setScale(s => Math.max(0.1, s - 0.1))} className="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300"><i className="fa-solid fa-minus"></i></button>
                   <span className="text-xs font-mono font-bold w-12 text-center text-zinc-800 dark:text-zinc-200">{Math.round(scale * 100)}%</span>
@@ -295,10 +301,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 {isLoading && (
                     <div className="flex flex-col items-center justify-center absolute inset-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm pointer-events-none">
                         <SkeletonLoader />
+                        <p className="mt-4 font-black text-indigo-600 animate-pulse uppercase tracking-widest text-sm">İçerik Hazırlanıyor...</p>
                     </div>
                 )}
 
-                {!isLoading && !error && (!processedData || processedData.length === 0) && (
+                {!isLoading && !error && processedData.length === 0 && (
                      <div className="flex flex-col items-center justify-center h-full w-full pointer-events-none">
                          <div className="text-center p-8 max-w-3xl bg-[var(--panel-bg)] backdrop-blur-sm rounded-3xl border border-[var(--border-color)] shadow-2xl w-full mx-4">
                             <LandingText />
@@ -306,7 +313,18 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     </div>
                 )}
                 
-                {processedData && processedData.length > 0 && (
+                {error && (
+                    <div className="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                         <div className="text-center p-8 max-w-lg bg-red-50 rounded-3xl border border-red-200 shadow-xl w-full mx-4">
+                            <i className="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i>
+                            <h3 className="text-xl font-bold text-red-900 mb-2">Hata Oluştu</h3>
+                            <p className="text-red-700 text-sm">{error}</p>
+                            <button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 bg-red-600 text-white rounded-xl font-bold pointer-events-auto">Tekrar Dene</button>
+                        </div>
+                    </div>
+                )}
+
+                {processedData.length > 0 && (
                     <div 
                         className="absolute origin-top-left transition-transform duration-75 ease-out will-change-transform"
                         style={{ 

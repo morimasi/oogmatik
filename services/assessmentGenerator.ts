@@ -31,7 +31,7 @@ const generateOfflineAssessmentReport = (profile: AssessmentProfile): Assessment
     const errorAnalysis: string[] = [];
     if (profile.errorPatterns) {
         // Find most frequent errors
-        const sortedErrors = Object.entries(profile.errorPatterns).sort((a,b) => b[1] - a[1]);
+        const sortedErrors = Object.entries(profile.errorPatterns).sort((a,b) => (b[1] as number) - (a[1] as number));
         if (sortedErrors.length > 0) {
             errorAnalysis.push(`En sık yapılan hata türü: ${sortedErrors[0][0].replace('_', ' ')} (${sortedErrors[0][1]} kez).`);
             if (sortedErrors.length > 1) {
@@ -75,8 +75,9 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     if (profile.testResults && Object.keys(profile.testResults).length > 0) {
         testResultsDesc = "TEST SONUÇLARI (% Doğruluk):\n";
         for(const [key, result] of Object.entries(profile.testResults)) {
-            // Fix: result is properly typed via AssessmentProfile
-            testResultsDesc += `- ${result.name} (${key}): %${result.accuracy.toFixed(1)}\n`;
+            // Fix: ensure result is properly typed/casted to access properties
+            const typedResult = result as { name: string; accuracy: number };
+            testResultsDesc += `- ${typedResult.name} (${key}): %${typedResult.accuracy.toFixed(1)}\n`;
         }
     }
 

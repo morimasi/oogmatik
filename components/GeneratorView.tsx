@@ -5,7 +5,7 @@ import { statsService } from '../services/statsService';
 import { useStudent } from '../context/StudentContext';
 
 interface GeneratorViewProps {
-    activity: Activity | undefined; // Allow undefined
+    activity: Activity | undefined; 
     onGenerate: (options: GeneratorOptions) => void;
     onBack: () => void;
     isLoading: boolean;
@@ -13,8 +13,6 @@ interface GeneratorViewProps {
     onOpenStudentModal?: () => void;
     studentProfile?: StudentProfile | null;
 }
-
-// --- ULTRA COMPACT INPUT COMPONENTS ---
 
 const Label = ({ children, icon }: { children?: React.ReactNode, icon?: string }) => (
     <div className="flex items-center gap-1.5 mb-1 text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-tight">
@@ -128,244 +126,176 @@ const DIFFICULTY_OPTIONS = [
 ];
 
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal, studentProfile }) => {
-    const { students, setActiveStudent, activeStudent } = useStudent();
+    const { activeStudent } = useStudent();
     
-    const getDefaultCount = (type: string) => {
-        if (['BASIC_OPERATIONS', 'MATH_PUZZLE'].includes(type)) return 40; 
-        if (['NUMBER_SEARCH', 'FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT'].includes(type)) return 24;
-        if (['WORD_SEARCH', 'CROSSWORD'].includes(type)) return 20; 
-        if (['STORY_COMPREHENSION', 'READING_FLOW'].includes(type)) return 1; 
-        return 20;
-    };
-
     const [options, setOptions] = useState<GeneratorOptions>({
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: activity ? getDefaultCount(activity.id) : 20,
+        itemCount: 20,
         gridSize: 10,
         operationType: 'mixed',
-        selectedOperations: ['+','-'],
+        selectedOperations: ['add','sub'],
         numberRange: '1-20',
         allowCarry: true,
         allowBorrow: true,
         allowRemainder: false,
-        wordLength: { min: 3, max: 8 },
-        case: 'upper',
-        directions: 'diagonal',
-        customInput: '',
+        pyramidType: 'add',
+        num1Digits: 2,
+        num2Digits: 1,
+        useThirdNumber: false,
         topic: '',
         useSearch: false
     });
 
-    const [isFavorite, setIsFavorite] = useState(false);
-
     useEffect(() => {
-        if(activity) setIsFavorite(statsService.isFavorite(activity.id));
-    }, [activity]);
-    
-    useEffect(() => {
-        if (activity && options.mode === 'fast') {
-            setOptions(prev => ({...prev, itemCount: getDefaultCount(activity.id)}));
+        if (activity) {
+            const defaults: any = {
+                BASIC_OPERATIONS: 25,
+                MATH_PUZZLE: 12,
+                NUMBER_SEARCH: 30,
+                NUMBER_PYRAMID: 2,
+                KENDOKU: 4,
+                ODD_EVEN_SUDOKU: 1,
+                CLOCK_READING: 8,
+                MONEY_COUNTING: 4,
+                MATH_MEMORY_CARDS: 6
+            };
+            setOptions(prev => ({...prev, itemCount: defaults[activity.id] || 20}));
         }
-    }, [options.mode, activity]);
-
-    const handleToggleFavorite = () => {
-        if (!activity) return;
-        statsService.toggleFavorite(activity.id);
-        setIsFavorite(!isFavorite);
-    };
+    }, [activity?.id]);
 
     const handleChange = (key: string, value: any) => {
         setOptions((prev) => ({ ...prev, [key]: value }));
     };
 
-    const handleQuickStudentSelect = (studentId: string) => {
-        const student = students.find(s => s.id === studentId);
-        if (student) {
-            setActiveStudent(student);
-            handleChange('topic', student.interests?.[0] || '');
-        } else {
-            setActiveStudent(null);
-        }
-    };
-
     if (!activity) return null;
 
-    // --- CONTROLS RENDERER ---
-    
-    const CommonControls = () => (
-        <div className="grid grid-cols-2 gap-3 mb-4">
-            <CompactCounter label="Varyasyon Sayısı" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={20} icon="fa-copy" />
-            <CompactCounter label="Öğe Sayısı (Adet)" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={60} icon="fa-list-ol" />
-            <div className="col-span-2">
-                <CompactSelect label="Zorluk Seviyesi" value={options.difficulty} onChange={(v: string) => handleChange('difficulty', v)} options={DIFFICULTY_OPTIONS} icon="fa-gauge-high" />
-            </div>
-        </div>
-    );
-
-    const MathControls = () => (
-        <div className="space-y-4">
-            <div className="col-span-2">
-                <CompactToggleGroup 
-                    label="İşlem Türü" 
-                    icon="fa-calculator"
-                    selected={options.operationType} 
-                    onChange={(v: string) => handleChange('operationType', v)} 
-                    options={[
-                        { value: 'mixed', label: 'Karışık' },
-                        { value: 'add', label: 'Toplama', shortLabel: '+' },
-                        { value: 'sub', label: 'Çıkarma', shortLabel: '-' },
-                        { value: 'mult', label: 'Çarpma', shortLabel: 'x' },
-                        { value: 'div', label: 'Bölme', shortLabel: '÷' }
-                    ]} 
-                />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-                <CompactSelect 
-                    label="Sayı Aralığı" 
-                    value={options.numberRange} 
-                    onChange={(v: string) => handleChange('numberRange', v)} 
-                    icon="fa-arrow-up-9-1"
-                    options={[
-                        { value: '1-10', label: '1 - 10' },
-                        { value: '1-20', label: '1 - 20' },
-                        { value: '1-50', label: '1 - 50' },
-                        { value: '1-100', label: '1 - 100' },
-                        { value: '100-1000', label: '100+' }
-                    ]} 
-                />
-                
-                <div className="flex flex-col gap-1 pt-4">
-                    {['add', 'mixed', 'addsub'].includes(options.operationType || '') && (
-                        <CompactCheckbox label="Eldeli Toplama" checked={options.allowCarry} onChange={(v: boolean) => handleChange('allowCarry', v)} />
-                    )}
-                    {['sub', 'mixed', 'addsub'].includes(options.operationType || '') && (
-                        <CompactCheckbox label="Onluk Bozma" checked={options.allowBorrow} onChange={(v: boolean) => handleChange('allowBorrow', v)} />
-                    )}
-                    {['div', 'mixed', 'multdiv'].includes(options.operationType || '') && (
-                        <CompactCheckbox label="Kalanlı Bölme" checked={options.allowRemainder} onChange={(v: boolean) => handleChange('allowRemainder', v)} />
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-
-    const WordControls = () => (
-        <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-                <CompactSlider label="Izgara Boyutu" value={options.gridSize} onChange={(v: number) => handleChange('gridSize', v)} min={5} max={20} icon="fa-border-all" unit="x" />
-                <div className="pt-4">
+    const renderMathControls = () => (
+        <div className="space-y-5">
+            {activity.id === ActivityType.BASIC_OPERATIONS && (
+                <>
                     <CompactToggleGroup 
-                        label="Harf Durumu" 
-                        selected={options.case} 
-                        onChange={(v: string) => handleChange('case', v)} 
-                        icon="fa-font"
+                        label="İşlem Türü" 
+                        multi
+                        selected={options.selectedOperations} 
+                        onChange={(v: string[]) => handleChange('selectedOperations', v)} 
                         options={[
-                            { value: 'upper', label: 'BÜYÜK' },
-                            { value: 'lower', label: 'küçük' }
+                            { value: 'add', label: 'Toplama', shortLabel: '+' },
+                            { value: 'sub', label: 'Çıkarma', shortLabel: '-' },
+                            { value: 'mult', label: 'Çarpma', shortLabel: 'x' },
+                            { value: 'div', label: 'Bölme', shortLabel: '÷' }
                         ]} 
                     />
-                </div>
-            </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <CompactCounter label="Üst Sayı Basamak" value={options.num1Digits} onChange={(v:number)=>handleChange('num1Digits', v)} min={1} max={4} />
+                        <CompactCounter label="Alt Sayı Basamak" value={options.num2Digits} onChange={(v:number)=>handleChange('num2Digits', v)} min={1} max={4} />
+                    </div>
+                    <div className="bg-zinc-50 dark:bg-zinc-800/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 space-y-1">
+                        <CompactCheckbox label="Eldeli Toplama" checked={options.allowCarry} onChange={(v:boolean)=>handleChange('allowCarry', v)} />
+                        <CompactCheckbox label="Onluk Bozma" checked={options.allowBorrow} onChange={(v:boolean)=>handleChange('allowBorrow', v)} />
+                        <CompactCheckbox label="Kalanlı Bölme" checked={options.allowRemainder} onChange={(v:boolean)=>handleChange('allowRemainder', v)} />
+                        <CompactCheckbox label="3 Sayı Topla (Zincir)" checked={options.useThirdNumber} onChange={(v:boolean)=>handleChange('useThirdNumber', v)} />
+                    </div>
+                </>
+            )}
+
+            {activity.id === ActivityType.NUMBER_PYRAMID && (
+                <CompactToggleGroup 
+                    label="Piramit Türü" 
+                    selected={options.pyramidType} 
+                    onChange={(v: string) => handleChange('pyramidType', v)} 
+                    options={[
+                        { value: 'add', label: 'Toplama' },
+                        { value: 'sub', label: 'Çıkarma' },
+                        { value: 'mult', label: 'Çarpma' }
+                    ]} 
+                />
+            )}
+
+            {(activity.id === ActivityType.KENDOKU || activity.id === ActivityType.ODD_EVEN_SUDOKU) && (
+                <CompactSlider label="Izgara Boyutu" value={options.gridSize} onChange={(v:number)=>handleChange('gridSize', v)} min={3} max={9} icon="fa-border-all" />
+            )}
+
+            {activity.id === ActivityType.NUMBER_PATTERN && (
+                <CompactSelect 
+                    label="Örüntü Tipi" 
+                    value={options.patternType} 
+                    onChange={(v:string)=>handleChange('patternType', v)} 
+                    options={[
+                        {value: 'arithmetic', label: 'Artimetik (+/-)'},
+                        {value: 'geometric', label: 'Geometrik (x/÷)'},
+                        {value: 'complex', label: 'Karmaşık Adımlı'}
+                    ]} 
+                />
+            )}
             
-            <CompactToggleGroup 
-                label="Yönler" 
-                selected={options.directions} 
-                onChange={(v: string) => handleChange('directions', v)} 
-                icon="fa-arrows-up-down-left-right"
-                options={[
-                    { value: 'simple', label: 'Basit (→ ↓)' },
-                    { value: 'diagonal', label: 'Çapraz Dahil' },
-                    { value: 'all', label: 'Tüm Yönler' }
-                ]} 
-            />
+            {activity.id === ActivityType.CLOCK_READING && (
+                <CompactSelect 
+                    label="Saat Formatı" 
+                    value={options.visualStyle} 
+                    onChange={(v:string)=>handleChange('visualStyle', v)} 
+                    options={[
+                        {value: 'analog', label: 'Analog -> Dijital'},
+                        {value: 'digital', label: 'Dijital -> Analog'},
+                        {value: 'mixed', label: 'Karışık'}
+                    ]} 
+                />
+            )}
+        </div>
+    );
 
-            <div>
-                <Label icon="fa-tag">Konu / Tema</Label>
-                <input type="text" value={options.topic} onChange={(e) => handleChange('topic', e.target.value)} placeholder="Örn: Doğa, Uzay..." className="w-full h-8 px-2 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded text-xs outline-none focus:ring-1 focus:ring-indigo-500" />
+    return (
+        <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700 shadow-xl overflow-hidden w-80">
+            <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-sm shrink-0 flex items-center justify-between z-10 h-[60px]">
+                <div className="flex items-center gap-3 overflow-hidden">
+                    <button onClick={onBack} className="text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors shrink-0"><i className="fa-solid fa-arrow-left"></i></button>
+                    <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate uppercase tracking-tight">{activity.title}</h2>
+                </div>
+                <i className="fa-solid fa-sliders text-zinc-300"></i>
             </div>
-        </div>
-    );
 
-    const VisualControls = () => (
-        <div className="space-y-3">
-             <CompactSelect label="Görsel Karmaşıklık" value={options.difficulty} onChange={(v: string) => handleChange('difficulty', v)} options={[{value:'Başlangıç', label:'Basit (Az Detay)'}, {value:'Orta', label:'Normal'}, {value:'Zor', label:'Detaylı'}, {value:'Uzman', label:'Çok Karmaşık'}]} icon="fa-image" />
-        </div>
-    );
-
-    const renderControls = () => {
-        if (options.mode === 'manual') {
-            return (
-                <div className="space-y-3">
-                    <Label icon="fa-keyboard">Manuel Veri Girişi</Label>
-                    <textarea
-                        className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 focus:ring-1 focus:ring-indigo-500 outline-none h-40 resize-none font-mono text-xs leading-relaxed text-zinc-700 dark:text-zinc-200"
-                        placeholder="Her satıra bir kelime veya virgülle ayırarak yazın..."
-                        value={options.customInput}
-                        onChange={(e) => handleChange('customInput', e.target.value)}
-                    ></textarea>
-                    <p className="text-[9px] text-zinc-400"><i className="fa-solid fa-circle-info mr-1"></i>En az 2 öğe giriniz.</p>
-                    <div className="border-t border-zinc-100 dark:border-zinc-700 pt-3">
-                        <CompactCounter label="Sayfa Sayısı" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={20} icon="fa-copy" />
-                        {['WORD_SEARCH', 'CROSSWORD'].includes(activity.id) && (
-                            <div className="mt-3">
-                                <CompactSlider label="Izgara Boyutu" value={options.gridSize} onChange={(v: number) => handleChange('gridSize', v)} min={5} max={20} icon="fa-border-all" unit="x" />
-                            </div>
-                        )}
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0">
+                {/* Mode Switcher */}
+                <div className="mb-6">
+                    <Label icon="fa-robot">Üretim Modu</Label>
+                    <div className="flex bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded border border-zinc-200 dark:border-zinc-700">
+                        {['fast', 'ai'].map((m) => (
+                            <button
+                                key={m}
+                                onClick={() => handleChange('mode', m)}
+                                className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wide rounded-[3px] transition-all flex items-center justify-center gap-1.5 ${options.mode === m 
+                                    ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' 
+                                    : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                            >
+                                <i className={`fa-solid ${m === 'fast' ? 'fa-bolt' : 'fa-wand-magic-sparkles'}`}></i>
+                                {m === 'fast' ? 'Hızlı (Offline)' : 'AI (Zeki)'}
+                            </button>
+                        ))}
                     </div>
                 </div>
-            );
-        }
 
-        const type = activity.id;
-        
-        return (
-            <div className="animate-in fade-in slide-in-from-top-2">
-                {type === 'STORY_CREATION_PROMPT' ? (
-                    <div className="mb-4">
-                        <CompactSelect
-                            label="Hikaye Teması"
-                            value={options.topic || 'Rastgele'}
-                            onChange={(v: string) => handleChange('topic', v)}
-                            icon="fa-book-open"
-                            options={[
-                                { value: 'Rastgele', label: 'Rastgele Sürpriz' },
-                                { value: 'school', label: 'Okul Maceraları' },
-                                { value: 'animals', label: 'Hayvanlar Alemi' },
-                                { value: 'space', label: 'Uzay Yolculuğu' },
-                                { value: 'nature', label: 'Doğa Gezisi' },
-                                { value: 'fantasy', label: 'Masal Diyarı' }
-                            ]}
-                        />
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                    <CompactCounter label="Sayfa Sayısı" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={10} icon="fa-copy" />
+                    <CompactCounter label="Soru Adedi" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={60} icon="fa-list-ol" />
+                    <div className="col-span-2">
+                        <CompactSelect label="Zorluk Seviyesi" value={options.difficulty} onChange={(v: string) => handleChange('difficulty', v)} options={DIFFICULTY_OPTIONS} icon="fa-gauge-high" />
                     </div>
-                ) : null}
+                </div>
 
-                <CommonControls />
-                <div className="border-t border-zinc-100 dark:border-zinc-700 my-4"></div>
-                
-                {['BASIC_OPERATIONS', 'MATH_PUZZLE', 'KENDOKU', 'NUMBER_PYRAMID', 'REAL_LIFE_MATH_PROBLEMS'].includes(type) && <MathControls />}
-                {['WORD_SEARCH', 'WORD_SEARCH_WITH_PASSWORD', 'LETTER_GRID_WORD_FIND', 'CROSSWORD', 'ANAGRAM'].includes(type) && <WordControls />}
-                {['FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT', 'SHAPE_MATCHING', 'GRID_DRAWING'].includes(type) && <VisualControls />}
-                
-                {!['BASIC_OPERATIONS', 'MATH_PUZZLE', 'KENDOKU', 'NUMBER_PYRAMID', 'REAL_LIFE_MATH_PROBLEMS', 'WORD_SEARCH', 'WORD_SEARCH_WITH_PASSWORD', 'LETTER_GRID_WORD_FIND', 'CROSSWORD', 'ANAGRAM', 'FIND_THE_DIFFERENCE', 'VISUAL_ODD_ONE_OUT', 'SHAPE_MATCHING', 'GRID_DRAWING', 'STORY_CREATION_PROMPT'].includes(type) && (
-                     <div className="mt-2">
-                        <Label icon="fa-tag">Konu / Tema (Opsiyonel)</Label>
-                        <input type="text" value={options.topic} onChange={(e) => handleChange('topic', e.target.value)} placeholder="Örn: Doğa, Uzay..." className="w-full h-8 px-2 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded text-xs outline-none focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-                )}
+                <div className="border-t border-zinc-100 dark:border-zinc-700 pt-4 mb-4">
+                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-4">Etkinlik Ayarları</h4>
+                    {renderMathControls()}
+                </div>
 
                 {options.mode === 'ai' && (
                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-blue-500 shadow-sm">
-                                    <i className="fa-brands fa-google"></i>
-                                </div>
+                                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-blue-500 shadow-sm"><i className="fa-brands fa-google"></i></div>
                                 <div>
-                                    <label className="text-[10px] font-bold text-blue-800 dark:text-blue-200 uppercase block">Google ile Araştır</label>
-                                    <p className="text-[9px] text-blue-600 dark:text-blue-300">Güncel bilgiler kullanılsın mı?</p>
+                                    <label className="text-[10px] font-bold text-blue-800 dark:text-blue-200 uppercase block">Google Arama</label>
+                                    <p className="text-[9px] text-blue-600 dark:text-blue-300">İnternet verisi kullan.</p>
                                 </div>
                             </div>
                             <div className={`relative w-10 h-5 rounded-full cursor-pointer transition-colors ${options.useSearch ? 'bg-blue-600' : 'bg-zinc-300'}`} onClick={() => handleChange('useSearch', !options.useSearch)}>
@@ -375,105 +305,15 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     </div>
                 )}
             </div>
-        );
-    };
 
-    if (!isExpanded) {
-        return (
-            <div className="flex flex-col h-full bg-white dark:bg-zinc-900 items-center py-2 border-r border-zinc-200 dark:border-zinc-800 w-[72px]">
-                <button onClick={onBack} className="mb-4 text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 p-2" title="Geri"><i className="fa-solid fa-arrow-left"></i></button>
-                <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center text-lg mb-4 shadow-sm"><i className={activity.icon}></i></div>
-                <div className="mt-auto pb-4">
-                     <button onClick={() => onGenerate(options)} disabled={isLoading} className="w-10 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-lg flex items-center justify-center transition-all disabled:opacity-50">
-                        {isLoading ? <i className="fa-solid fa-circle-notch fa-spin text-sm"></i> : <i className="fa-solid fa-play text-sm"></i>}
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700 shadow-xl overflow-hidden w-80">
-            {/* Header */}
-            <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-sm shrink-0 flex items-center justify-between z-10 h-[60px]">
-                <div className="flex items-center gap-3 overflow-hidden">
-                    <button onClick={onBack} className="text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors shrink-0"><i className="fa-solid fa-arrow-left"></i></button>
-                    <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate uppercase tracking-tight">{activity.title}</h2>
-                </div>
-                <button onClick={handleToggleFavorite} className={`text-sm transition-all p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 ${isFavorite ? 'text-rose-500' : 'text-zinc-300 hover:text-zinc-500'}`}><i className={`fa-${isFavorite ? 'solid' : 'regular'} fa-heart`}></i></button>
-            </div>
-
-            {/* Settings Body */}
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0">
-                
-                {/* Quick Student Selector */}
-                {students.length > 0 && (
-                    <div className="mb-6 bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800">
-                        <Label icon="fa-user-graduate">Öğrenci Seç / Ata</Label>
-                        <div className="relative">
-                            <select 
-                                value={activeStudent?.id || "anonymous"}
-                                onChange={(e) => handleQuickStudentSelect(e.target.value)}
-                                className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded p-1.5 text-xs font-bold outline-none cursor-pointer appearance-none"
-                            >
-                                <option value="anonymous">Anonim (Atanmamış)</option>
-                                {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
-                            </select>
-                            <i className="fa-solid fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-zinc-400 pointer-events-none"></i>
-                        </div>
-                    </div>
-                )}
-
-                {/* Mode Switcher */}
-                <div className="mb-6">
-                    <Label icon="fa-robot">Üretim Modu</Label>
-                    <div className="flex bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded border border-zinc-200 dark:border-zinc-700">
-                        {['fast', 'ai', 'manual'].map((m) => (
-                            <button
-                                key={m}
-                                onClick={() => handleChange('mode', m)}
-                                className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wide rounded-[3px] transition-all flex items-center justify-center gap-1.5 ${options.mode === m 
-                                    ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm ring-1 ring-black/5' 
-                                    : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
-                            >
-                                <i className={`fa-solid ${m === 'fast' ? 'fa-bolt' : m === 'ai' ? 'fa-wand-magic-sparkles' : 'fa-keyboard'}`}></i>
-                                {m === 'fast' ? 'Hızlı' : m === 'ai' ? 'AI' : 'Manuel'}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {renderControls()}
-            </div>
-
-            {/* Footer Actions */}
-            <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0 space-y-3 z-20">
-                {onOpenStudentModal && (
-                    <button 
-                        onClick={onOpenStudentModal}
-                        className={`w-full py-2 rounded border border-dashed transition-all flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-wider ${studentProfile ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'border-zinc-300 text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}`}
-                    >
-                        <i className={`fa-solid ${studentProfile ? 'fa-user-check' : 'fa-user-plus'}`}></i>
-                        {studentProfile ? studentProfile.name : 'Öğrenci Yönetimi'}
-                    </button>
-                )}
-
+            <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0">
                 <button
                     onClick={() => onGenerate(options)}
-                    disabled={isLoading || (options.mode === 'manual' && (!options.customInput || (typeof options.customInput === 'string' ? options.customInput.trim().length < 2 : options.customInput.length < 1)))}
-                    className="w-full h-10 bg-zinc-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold rounded shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm uppercase tracking-wide"
+                    disabled={isLoading}
+                    className="w-full h-11 bg-zinc-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-50 text-white font-black rounded-xl shadow-lg transition-all transform active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2 text-sm uppercase"
                 >
-                    {isLoading ? (
-                        <>
-                            <i className="fa-solid fa-circle-notch fa-spin"></i>
-                            <span>Hazırlanıyor</span>
-                        </>
-                    ) : (
-                        <>
-                            <i className="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>OLUŞTUR</span>
-                        </>
-                    )}
+                    {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+                    {isLoading ? 'HAZIRLANIYOR' : 'OLUŞTUR'}
                 </button>
             </div>
         </div>

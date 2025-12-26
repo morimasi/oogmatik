@@ -20,14 +20,15 @@ export const paginationService = {
     process: (data: WorksheetData, activityType: ActivityType, settings?: StyleSettings): WorksheetData => {
         if (!data || !Array.isArray(data) || data.length === 0) return [];
         
-        // Okuma Stüdyosu içerikleri tek bir akışkan sayfada tutulur (Otomatik A4 yayılımı CSS ile sağlanır)
-        if (activityType === 'STORY_COMPREHENSION') return data;
+        // Okuma Stüdyosu veya jenerik metin içerikleri tek bir akışkan sayfada tutulur
+        if (activityType === 'STORY_COMPREHENSION' || activityType === 'AI_WORKSHEET_CONVERTER') return data;
 
         if (settings && settings.smartPagination === false) return data;
 
         const newPages: any[] = [];
         data.forEach((originalPageData) => {
-            if (originalPageData.sections && Array.isArray(originalPageData.sections)) {
+            // Sadece 'sections' yapısı olan verileri sayfalamaya çalış
+            if (originalPageData && originalPageData.sections && Array.isArray(originalPageData.sections)) {
                 let currentPageSections: any[] = [];
                 let currentWeight = 0;
 
@@ -47,6 +48,7 @@ export const paginationService = {
                     newPages.push({ ...originalPageData, sections: currentPageSections, isContinuation: newPages.length > 0 });
                 }
             } else {
+                // Sections yapısı yoksa veriyi olduğu gibi bırak
                 newPages.push(originalPageData);
             }
         });

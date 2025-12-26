@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, VisualMathType } from '../../types';
+import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, VisualMathType, ClockReadingData, MoneyCountingData, MathMemoryCardsData } from '../../types';
 import { PedagogicalHeader, TenFrame, Domino, NumberBond, FractionVisual, AnalogClock, NumberLine, Shape, Base10Visualizer } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
@@ -40,6 +40,24 @@ const CubeStack: React.FC<{ counts: number[][] }> = ({ counts }) => {
                 <React.Fragment key={i}>{drawCube(c.x, c.y, c.z)}</React.Fragment>
             ))}
         </svg>
+    );
+};
+
+// --- MONEY ICON HELPER ---
+const MoneyIcon: React.FC<{ value: number, type: 'coin' | 'note' }> = ({ value, type }) => {
+    if (type === 'coin') {
+        return (
+            <div className="w-12 h-12 rounded-full bg-amber-400 border-4 border-amber-600 flex items-center justify-center font-bold text-amber-900 shadow-sm relative">
+                {value}
+                <span className="absolute bottom-1 text-[8px]">TL</span>
+            </div>
+        );
+    }
+    return (
+        <div className="w-20 h-10 bg-emerald-100 border-2 border-emerald-600 flex items-center justify-center font-bold text-emerald-800 rounded relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle,_#059669_1px,_transparent_1px)] bg-[length:10px_10px]"></div>
+            {value} TL
+        </div>
     );
 };
 
@@ -131,6 +149,91 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
         </div>
     </div>
 );
+
+export const ClockReadingSheet: React.FC<{ data: ClockReadingData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <div className="dynamic-grid">
+            {(data.clocks || []).map((clock, idx) => (
+                <div key={idx} className="p-6 bg-white border-2 border-zinc-100 rounded-2xl flex flex-col items-center gap-4 break-inside-avoid shadow-sm">
+                    <AnalogClock hour={clock.hour} minute={clock.minute} className="w-40 h-40" />
+                    <div className="w-full mt-4">
+                        {clock.options ? (
+                            <div className="grid grid-cols-2 gap-2">
+                                {clock.options.map((opt, i) => (
+                                    <div key={i} className="p-2 border rounded text-center font-bold hover:bg-indigo-50 cursor-pointer">
+                                        <EditableText value={opt} tag="span" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center gap-2">
+                                <div className="w-16 h-10 border-2 border-zinc-300 rounded flex items-center justify-center text-xl font-mono bg-zinc-50">...</div>
+                                <span className="font-bold">:</span>
+                                <div className="w-16 h-10 border-2 border-zinc-300 rounded flex items-center justify-center text-xl font-mono bg-zinc-50">...</div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+export const MoneyCountingSheet: React.FC<{ data: MoneyCountingData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <div className="space-y-12">
+            {(data.puzzles || []).map((puzzle, idx) => (
+                <div key={idx} className="p-6 bg-white border-2 border-zinc-100 rounded-3xl flex flex-col gap-6 break-inside-avoid">
+                    <div className="flex flex-wrap gap-4 items-center justify-center p-4 bg-zinc-50 rounded-2xl border border-dashed border-zinc-200">
+                        {puzzle.notes?.map((n, ni) => Array.from({length: n.count}).map((_, i) => <MoneyIcon key={`n-${ni}-${i}`} value={n.value} type="note" />))}
+                        {puzzle.coins?.map((c, ci) => Array.from({length: c.count}).map((_, i) => <MoneyIcon key={`c-${ci}-${i}`} value={c.value} type="coin" />))}
+                    </div>
+                    <div className="flex flex-col items-center gap-4">
+                        <p className="font-bold text-zinc-700">{puzzle.question}</p>
+                        <div className="flex gap-4">
+                            {puzzle.options.map((opt, i) => (
+                                <div key={i} className="px-6 py-2 border-2 border-zinc-200 rounded-full font-bold text-lg hover:border-indigo-500 hover:bg-indigo-50 cursor-pointer transition-all">
+                                    <EditableText value={opt} tag="span" /> TL
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+export const MathMemoryCardsSheet: React.FC<{ data: MathMemoryCardsData }> = ({ data }) => (
+    <div>
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <div className="grid grid-cols-4 gap-4 mt-8">
+            {(shuffle((data.pairs || []).flatMap((p, i) => [
+                { id: `a-${i}`, content: p.card1 },
+                { id: `b-${i}`, content: p.card2 }
+            ])) as any[]).map((card) => (
+                <div key={card.id} className="aspect-[3/4] bg-white border-2 border-zinc-200 rounded-xl flex flex-col items-center justify-center p-2 shadow-sm hover:border-indigo-400 transition-colors">
+                    {card.content.type === 'operation' && <span className="text-xl font-bold font-mono text-indigo-700">{card.content.value}</span>}
+                    {card.content.type === 'number' && <span className="text-3xl font-black text-zinc-800">{card.content.value}</span>}
+                    {card.content.type === 'visual' && card.content.visualType === 'ten-frame' && <TenFrame count={card.content.num || 0} className="scale-75" />}
+                    {card.content.type === 'visual' && card.content.visualType === 'dice' && <Domino count={card.content.num || 0} />}
+                    {card.content.type === 'visual' && card.content.visualType === 'blocks' && <Base10Visualizer number={card.content.num || 0} className="scale-50" />}
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+function shuffle<T>(array: T[]): T[] {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+}
 
 export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) => (
     <div>

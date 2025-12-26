@@ -8,10 +8,10 @@ export * from './core';
 export type MathMode = 'drill' | 'problem_ai' | 'visual_tools';
 
 export interface MathDrillConfig {
-    selectedOperations: string[]; // Çoklu seçim için array'e dönüştürüldü ['add', 'sub']
+    selectedOperations: string[]; 
     digit1: number; 
     digit2: number; 
-    digit3?: number; // 3. Sayı basamağı (0 ise yok)
+    digit3?: number; 
     count: number;  
     cols: number;   
     gap: number;    
@@ -23,9 +23,9 @@ export interface MathDrillConfig {
     allowNegative: boolean;   
     
     // Advanced Features
-    useThirdNumber: boolean; // 3. sayı var mı?
-    showTextRepresentation: boolean; // "12 (On iki)" şeklinde göster
-    autoFillPage: boolean; // Sayfayı otomatik doldur
+    useThirdNumber: boolean; 
+    showTextRepresentation: boolean; 
+    autoFillPage: boolean; 
     
     // Visuals
     orientation: 'vertical' | 'horizontal';
@@ -44,20 +44,20 @@ export interface MathProblemConfig {
     numberRange: string; 
     problemStyle: 'simple' | 'story' | 'logic'; 
     complexity: '1-step' | '2-step' | 'multi-step'; 
+    difficulty?: string;
 }
 
 export interface MathOperation {
     id: string;
     num1: number;
     num2: number;
-    num3?: number; // 3. Sayı eklendi
+    num3?: number;
     symbol: string;
-    symbol2?: string; // 2. İşlem sembolü (eğer 3 sayı varsa)
+    symbol2?: string;
     answer: number;
     remainder?: number;
 }
 
-// ... Rest of the file remains unchanged ...
 export interface MathProblem {
     id: string;
     text: string;
@@ -73,16 +73,6 @@ export interface MathPageConfig {
     showDate: boolean;
     showName: boolean;
     title: string;
-}
-
-export interface MathStudioConfig {
-    gradeLevel: string;
-    operations: string[];
-    problemConfig: {
-        topic: string;
-        count: number;
-        steps: number;
-    };
 }
 
 export interface MathPuzzleData extends BaseActivityData {
@@ -104,31 +94,6 @@ export interface ShapeNumberPatternData extends BaseActivityData {
 
 export interface ArithmeticConnectData extends BaseActivityData {
     expressions: { text: string; value: number; group: number; x: number; y: number }[];
-}
-
-export interface RomanArabicMatchConnectData extends BaseActivityData {
-    gridDim: number;
-    points: { label: string; pairId: number; x: number; y: number }[];
-}
-
-export interface WeightConnectData extends BaseActivityData {
-    gridDim: number;
-    points: { label: string; pairId: number; x: number; y: number }[];
-}
-
-export interface LengthConnectData extends BaseActivityData {
-    gridDim: number;
-    points: { label: string; pairId: number; x: number; y: number }[];
-}
-
-export interface VisualNumberPatternData extends BaseActivityData {
-    puzzles: { items: { number: number; color: string; size: number }[]; rule: string; answer: number }[];
-}
-
-export interface LogicGridPuzzleData extends BaseActivityData {
-    clues: string[];
-    people: string[];
-    categories: { title: string; items: { name: string; imageDescription?: string; imagePrompt?: string }[] }[];
 }
 
 export interface FutoshikiData extends BaseActivityData {
@@ -157,27 +122,6 @@ export interface OddEvenSudokuData extends BaseActivityData {
         grid: (number | null)[][];
         shadedCells: { row: number; col: number }[];
         numbersToUse: string;
-    }[];
-}
-
-export interface RomanNumeralConnectData extends BaseActivityData {
-    gridDim: number;
-    puzzles: { gridDim: number; points: { label: string; x: number; y: number }[] }[];
-}
-
-export interface RomanNumeralStarHuntData extends BaseActivityData {
-    grid: string[][];
-    starCount: number;
-}
-
-export interface RoundingConnectData extends BaseActivityData {
-    numbers: { value: number; group: number; x: number; y: number }[];
-}
-
-export interface RomanNumeralMultiplicationData extends BaseActivityData {
-    puzzles: {
-        row1: string; row2: string; col1: string; col2: string;
-        results: { r1c1: string; r1c2: string; r2c1: string; r2c2: string };
     }[];
 }
 
@@ -268,16 +212,6 @@ export interface SpatialGridData extends BaseActivityData {
     }[];
 }
 
-export interface ConceptMatchData extends BaseActivityData {
-    layout: string;
-    pairs: {
-        item1: string;
-        item2: string;
-        type: string;
-        imagePrompt1?: string;
-    }[];
-}
-
 export interface EstimationData extends BaseActivityData {
     layout: string;
     items: {
@@ -327,5 +261,88 @@ export interface MindGames56Data extends BaseActivityData {
         hint?: string;
         imagePrompt?: string;
         imageBase64?: string;
+    }[];
+}
+
+export interface ConceptMatchData extends BaseActivityData {
+    layout: 'list' | 'visual';
+    pairs: {
+        item1: string;
+        item2: string;
+        type: string;
+        imagePrompt1?: string;
+    }[];
+}
+
+export interface LogicGridPuzzleData extends BaseActivityData {
+    prompt: string;
+    clues: string[];
+    people: string[];
+    categories: {
+        title: string;
+        items: { name: string; imageDescription: string; imagePrompt: string }[];
+    }[];
+}
+
+export interface VisualNumberPatternData extends BaseActivityData {
+    prompt: string;
+    puzzles: {
+        items: { number: number; color: string; size: number }[];
+        rule: string;
+        answer: number;
+    }[];
+}
+
+export interface RomanNumeralStarHuntData extends BaseActivityData {
+    items: any[];
+}
+
+export interface RoundingConnectData extends BaseActivityData {
+    items: any[];
+}
+
+export interface RomanNumeralMultiplicationData extends BaseActivityData {
+    items: any[];
+}
+
+// Added missing Math types for offline generators and components
+export interface NumberLogicRiddleData extends BaseActivityData {
+    sumTarget: number;
+    sumMessage: string;
+    puzzles: {
+        riddle: string;
+        boxes: number[][];
+        options: string[];
+        answer: string;
+        answerValue: number;
+    }[];
+}
+
+export interface ClockReadingData extends BaseActivityData {
+    clocks: {
+        hour: number;
+        minute: number;
+        displayType: 'analog' | 'digital';
+        question?: string;
+        options?: string[];
+        correctAnswer: string;
+    }[];
+}
+
+export interface MoneyCountingData extends BaseActivityData {
+    puzzles: {
+        totalAmount: number;
+        coins?: { value: number; count: number }[];
+        notes?: { value: number; count: number }[];
+        question: string;
+        options: number[];
+        correctAnswer: number;
+    }[];
+}
+
+export interface MathMemoryCardsData extends BaseActivityData {
+    pairs: {
+        card1: { type: 'operation' | 'visual' | 'text'; value: string; visualType?: string; num?: number };
+        card2: { type: string; value: string };
     }[];
 }

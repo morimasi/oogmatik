@@ -9,16 +9,20 @@ export const ActivityType = {
     ALGORITHM_GENERATOR: 'ALGORITHM_GENERATOR',
     AI_WORKSHEET_CONVERTER: 'AI_WORKSHEET_CONVERTER',
 
-    // Math
+    // Math & Dyscalculia
     BASIC_OPERATIONS: 'BASIC_OPERATIONS',
     MATH_PUZZLE: 'MATH_PUZZLE',
     NUMBER_PATTERN: 'NUMBER_PATTERN',
     NUMBER_SEARCH: 'NUMBER_SEARCH',
     ODD_EVEN_SUDOKU: 'ODD_EVEN_SUDOKU',
-    PUNCTUATION_MAZE: 'PUNCTUATION_MAZE',
     KENDOKU: 'KENDOKU',
     NUMBER_PYRAMID: 'NUMBER_PYRAMID',
     REAL_LIFE_MATH_PROBLEMS: 'REAL_LIFE_MATH_PROBLEMS',
+    NUMBER_LOGIC_RIDDLES: 'NUMBER_LOGIC_RIDDLES',
+    CLOCK_READING: 'CLOCK_READING',
+    MONEY_COUNTING: 'MONEY_COUNTING',
+    MATH_MEMORY_CARDS: 'MATH_MEMORY_CARDS',
+    FRACTION_VISUALS: 'FRACTION_VISUALS',
 
     // Verbal
     STORY_COMPREHENSION: 'STORY_COMPREHENSION',
@@ -31,6 +35,7 @@ export const ActivityType = {
     LETTER_GRID_WORD_FIND: 'LETTER_GRID_WORD_FIND',
     CROSSWORD: 'CROSSWORD',
     ANAGRAM: 'ANAGRAM',
+    PUNCTUATION_MAZE: 'PUNCTUATION_MAZE',
 
     // Visual
     FIND_THE_DIFFERENCE: 'FIND_THE_DIFFERENCE',
@@ -94,7 +99,7 @@ export interface StyleSettings {
 }
 
 export interface StudentProfile {
-    studentId?: string; // Link to actual Student record
+    studentId?: string;
     name: string;
     school: string;
     grade: string;
@@ -102,9 +107,6 @@ export interface StudentProfile {
     notes?: string;
 }
 
-/**
- * Enhanced Student Interface for Professional Tracking
- */
 export interface Student {
     id: string;
     teacherId: string;
@@ -113,32 +115,71 @@ export interface Student {
     grade: string;
     avatar: string;
     createdAt: string;
-    
-    // Pedagogical Profile
     diagnosis: string[];
     interests: string[];
     learningStyle?: 'Görsel' | 'İşitsel' | 'Kinestetik' | 'Karma';
     strengths: string[];
     weaknesses: string[];
-    
-    // Contact Info
     parentName: string;
     contactPhone: string;
     contactEmail: string;
-    
-    // Notes History (JSON stringified array of {date, note, author})
     notesHistory: string; 
-    
-    // Legacy support
     notes: string;
 }
 
+export interface BaseActivityData {
+    title: string;
+    instruction: string;
+    pedagogicalNote?: string;
+    imagePrompt?: string;
+    imageBase64?: string;
+}
+
+// Added OverlayItem for canvas interactive elements
 export interface OverlayItem {
     id: string;
     type: 'text' | 'sticker';
+    content: string;
     x: number;
     y: number;
-    content: string;
+    rotation?: number;
+    scale?: number;
+    style?: any;
+}
+
+export interface AlgorithmStep {
+    id: number;
+    type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end';
+    text: string;
+    next?: number;
+    yes?: number;
+    no?: number;
+}
+
+export interface AlgorithmData extends BaseActivityData {
+    challenge: string;
+    steps: AlgorithmStep[];
+}
+
+export interface RichSection {
+    title?: string;
+    content: RichContentItem[];
+}
+
+export interface RichContentItem {
+    type: 'text' | 'image' | 'table' | 'question' | 'key_value';
+    text?: string;
+    label?: string;
+    value?: string;
+    imagePrompt?: string;
+    options?: string[];
+    answer?: string;
+    headers?: string[];
+    rows?: string[][];
+}
+
+export interface RichWorksheetData extends BaseActivityData {
+    sections: RichSection[];
 }
 
 export interface GeneratorOptions {
@@ -180,7 +221,7 @@ export interface GeneratorOptions {
     symbolType?: string;
     codeLength?: number;
     subType?: string;
-    studentContext?: Student; // NEW: Personalization context
+    studentContext?: Student;
 }
 
 export interface SavedWorksheet {
@@ -298,17 +339,9 @@ export interface SavedAssessment {
     sharedWith?: string;
 }
 
-export interface BaseActivityData {
-    title: string;
-    instruction: string;
-    pedagogicalNote?: string;
-    imagePrompt?: string;
-    imageBase64?: string;
-}
-
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon' | 'cube' | 'sphere' | 'pyramid' | 'cone' | 'heart' | 'cloud' | 'moon';
 
-export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 'blocks';
+export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 'blocks' | 'coins';
 
 export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'content';
 
@@ -364,7 +397,7 @@ export interface Message {
 
 export interface Curriculum {
     id: string;
-    studentId?: string; // Link to actual Student record
+    studentId?: string; 
     studentName: string;
     grade: string;
     startDate: string;
@@ -500,16 +533,11 @@ export interface OCRResult {
     baseType: ActivityType;
 }
 
-export interface AlgorithmData extends BaseActivityData {
-    challenge: string;
-    steps: AlgorithmStep[];
+export interface RapidNamingData extends BaseActivityData {
+    grid: { items: { type: 'color' | 'object' | 'letter', value?: string, label?: string }[] };
+    type: 'color' | 'object' | 'letter' | 'number';
 }
 
-export interface AlgorithmStep {
-    id: number;
-    type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end';
-    text: string;
-    next?: number;
-    yes?: number;
-    no?: number;
+export interface PhonologicalAwarenessData extends BaseActivityData {
+    exercises: { question: string, word: string, answer: string }[];
 }

@@ -81,75 +81,87 @@ export interface ShapeCountingData extends BaseActivityData {
     }[];
 }
 
-// Added missing interfaces for Word Games
+export interface RomanArabicMatchConnectData extends BaseActivityData {
+    prompt: string;
+    gridDim: number;
+    points: { label: string; pairId: number; x: number; y: number }[];
+}
+
+export interface WeightConnectData extends BaseActivityData {
+    prompt: string;
+    gridDim: number;
+    points: { label: string; pairId: number; x: number; y: number; imagePrompt: string }[];
+}
+
+export interface LengthConnectData extends BaseActivityData {
+    prompt: string;
+    gridDim: number;
+    points: { label: string; pairId: number; x: number; y: number; imagePrompt: string }[];
+}
+
+export interface RomanNumeralConnectData extends BaseActivityData {
+    gridDim: number;
+    points: { label: string; pairId: number; x: number; y: number }[];
+}
+
 export interface WordSearchData extends BaseActivityData {
     grid: string[][];
     words: string[];
     hiddenMessage?: string;
-    followUpQuestion?: string;
     writingPrompt?: string;
+    followUpQuestion?: string;
 }
 
+export interface MissingPartsData extends BaseActivityData {
+    storyWithBlanks: string[];
+    wordBank: string[];
+    answers?: string[];
+    leftParts?: {id: number, text: string}[];
+    rightParts?: {id: number, text: string}[];
+    givenParts?: {word: string, parts: string[]}[];
+}
+
+// Added missing types for Map and Word Games
+export interface MapInstructionData extends BaseActivityData {
+    mapSvg?: string;
+    cities: { name: string; x: number; y: number }[];
+    instructions: string[];
+}
+
+export interface WordSearchWithPasswordData extends WordSearchData {
+    passwordCells: { row: number; col: number }[];
+}
+
+export interface LetterGridWordFindData extends WordSearchData {
+    writingPrompt: string;
+}
+
+export interface ThematicWordSearchColorData extends WordSearchData {}
+export interface SynonymWordSearchData extends WordSearchData {}
+export interface SynonymSearchAndStoryData extends WordSearchData {}
+
 export interface AnagramsData extends BaseActivityData {
-    anagrams: {
-        word: string;
-        scrambled: string;
-        letters: string[];
-        imagePrompt?: string;
-    }[];
+    anagrams: { word: string; scrambled: string; letters: string[]; imagePrompt?: string }[];
     sentencePrompt?: string;
 }
 
 export interface SpellingCheckData extends BaseActivityData {
-    checks: {
-        correct: string;
-        options: string[];
-        imagePrompt?: string;
-    }[];
-}
-
-export interface WordLadderData extends BaseActivityData {
-    ladders: {
-        startWord: string;
-        endWord: string;
-        steps: number;
-        intermediateWords: string[];
-    }[];
-    theme?: string;
-}
-
-export interface SyllableCompletionData extends BaseActivityData {
-    puzzles: {
-        id: number;
-        syllables: string[];
-        imagePrompt?: string;
-    }[];
-    storyPrompt?: string;
-    prompt?: string;
-    theme?: string;
-    syllables: string[]; 
-    wordParts: any[]; 
+    checks: { correct: string; options: string[]; imagePrompt?: string }[];
 }
 
 export interface LetterBridgeData extends BaseActivityData {
-    pairs: {
-        word1: string;
-        word2: string;
-        bridgeLetter: string;
-    }[];
+    pairs: { word1: string; word2: string; bridgeLetter: string }[];
     followUpPrompt?: string;
 }
 
+export interface WordLadderData extends BaseActivityData {
+    theme: string;
+    ladders: { startWord: string; endWord: string; steps: number; intermediateWords: string[] }[];
+}
+
 export interface WordFormationData extends BaseActivityData {
-    sets: {
-        letters: string[];
-        jokerCount: number;
-        targetCount: number;
-    }[];
-    mysteryWordChallenge?: {
-        prompt: string;
-        solution: string;
-    };
+    sets: { letters: string[]; jokerCount: number; targetCount: number }[];
+    mysteryWordChallenge?: { prompt: string; solution: string };
 }
 
 export interface ReverseWordData extends BaseActivityData {
@@ -158,29 +170,35 @@ export interface ReverseWordData extends BaseActivityData {
 }
 
 export interface WordGroupingData extends BaseActivityData {
-    groups: {
-        category: string;
-        words: string[];
-    }[];
+    groups: { category: string; items: string[] }[];
 }
 
 export interface MiniWordGridData extends BaseActivityData {
-    prompt: string;
-    puzzles: {
-        grid: string[][];
-        start: { row: number; col: number };
-    }[];
+    puzzles: { grid: string[][]; start: { row: number; col: number } }[];
 }
 
 export interface PasswordFinderData extends BaseActivityData {
-    prompt: string;
-    words: {
-        word: string;
-        passwordLetter: string;
-        isProperNoun: boolean;
-    }[];
+    words: { word: string; passwordLetter: string; isProperNoun: boolean }[];
     passwordLength: number;
 }
+
+export interface SyllableCompletionData extends BaseActivityData {
+    theme: string;
+    puzzles: { id: number; syllables: string[]; imagePrompt?: string }[];
+    syllables: string[];
+    wordParts: string[];
+    storyPrompt?: string;
+}
+
+export interface SpiralPuzzleData extends BaseActivityData {
+    theme: string;
+    clues: string[];
+    grid: (string | null)[][];
+    wordStarts: { id: number; row: number; col: number }[];
+    passwordPrompt: string;
+}
+
+export interface PunctuationSpiralPuzzleData extends SpiralPuzzleData {}
 
 export interface CrosswordClue {
     id: number;
@@ -192,146 +210,85 @@ export interface CrosswordClue {
 }
 
 export interface CrosswordData extends BaseActivityData {
-    prompt: string;
     theme: string;
     grid: (string | null)[][];
     clues: CrosswordClue[];
     passwordCells?: { row: number; col: number }[];
     passwordLength?: number;
-    passwordPrompt?: string;
-}
-
-export interface SpiralPuzzleData extends BaseActivityData {
-    prompt: string;
-    theme: string;
-    clues: string[];
-    grid: string[][];
-    wordStarts: { id: number; row: number; col: number }[];
     passwordPrompt: string;
 }
 
-export interface PunctuationSpiralPuzzleData extends SpiralPuzzleData {}
-
 export interface JumbledWordStoryData extends BaseActivityData {
-    prompt: string;
     theme: string;
-    puzzles: {
-        jumbled: string[];
-        word: string;
-    }[];
+    puzzles: { jumbled: string[]; word: string }[];
     storyPrompt: string;
 }
 
 export interface HomonymSentenceData extends BaseActivityData {
-    prompt: string;
-    items: {
-        word: string;
-        meaning1: string;
-        imagePrompt_1?: string;
-        meaning2: string;
-        imagePrompt_2?: string;
-    }[];
+    items: { word: string; meaning1: string; imagePrompt_1?: string; meaning2: string; imagePrompt_2?: string }[];
 }
 
 export interface WordGridPuzzleData extends BaseActivityData {
-    prompt: string;
     theme: string;
     wordList: string[];
-    grid: string[][];
+    grid: (string | null)[][];
     unusedWordPrompt: string;
 }
 
 export interface HomonymImageMatchData extends BaseActivityData {
-    prompt: string;
     leftImages: { id: number; word: string; imagePrompt: string }[];
     rightImages: { id: number; word: string; imagePrompt: string }[];
     wordScramble: { letters: string[]; word: string };
 }
 
 export interface AntonymFlowerPuzzleData extends BaseActivityData {
-    prompt: string;
-    puzzles: {
-        centerWord: string;
-        antonym: string;
-        petalLetters: string[];
-    }[];
+    puzzles: { centerWord: string; antonym: string; petalLetters: string[] }[];
     passwordLength: number;
 }
 
 export interface SynonymAntonymGridData extends BaseActivityData {
-    prompt: string;
-    synonyms: { word: string; synonym: string }[];
-    antonyms: { word: string; antonym: string }[];
+    antonyms: any[];
+    synonyms: any[];
     grid: string[][];
 }
 
-export interface AntonymResfebeData extends ResfebeData {}
+export interface AntonymResfebeData extends BaseActivityData {
+    puzzles: { clues: ResfebeClue[]; answer: string }[];
+}
 
 export interface SynonymMatchingPatternData extends BaseActivityData {
-    prompt: string;
     theme: string;
     pairs: { word: string; synonym: string }[];
 }
 
-export interface MissingPartsData extends BaseActivityData {
-    // Reading version
-    storyWithBlanks?: string[];
-    wordBank?: string[];
-    answers?: string[];
-    
-    // WordGame version
-    leftParts?: { id: number; text: string }[];
-    rightParts?: { id: number; text: string }[];
-    givenParts?: { word: string; parts: string[] }[];
-    prompt?: string;
-}
-
 export interface WordWebData extends BaseActivityData {
-    prompt: string;
     wordsToFind: string[];
     grid: string[][];
     keyWordPrompt: string;
 }
 
-export interface SyllableWordSearchData extends WordSearchData {
-    syllablesToCombine: string[];
-    wordsToCreate: { syllable1: string; syllable2: string; answer: string }[];
-    wordsToFindInSearch: string[];
-}
+export interface SyllableWordSearchData extends WordSearchData {}
 
 export interface WordWebWithPasswordData extends WordWebData {
-    words: string[];
     passwordColumnIndex: number;
-}
-
-export interface WordSearchWithPasswordData extends WordSearchData {
-    passwordCells: { row: number; col: number }[];
-}
-
-export interface LetterGridWordFindData extends WordSearchData {
-    prompt: string;
-    writingPrompt: string;
+    words: string[];
 }
 
 export interface WordPlacementPuzzleData extends BaseActivityData {
-    prompt: string;
     grid: string[][];
     wordGroups: { length: number; words: string[] }[];
     unusedWordPrompt: string;
 }
 
 export interface PositionalAnagramData extends BaseActivityData {
-    prompt: string;
     puzzles: { id: number; scrambled: string; answer: string }[];
 }
 
 export interface ImageAnagramSortData extends BaseActivityData {
-    prompt: string;
     cards: { imageDescription: string; imagePrompt: string; scrambledWord: string; correctWord: string }[];
 }
 
 export interface AnagramImageMatchData extends BaseActivityData {
-    prompt: string;
     wordBank: string[];
     puzzles: { imageDescription: string; imagePrompt: string; partialAnswer: string; correctWord: string }[];
 }
@@ -343,28 +300,5 @@ export interface ResfebeClue {
 }
 
 export interface ResfebeData extends BaseActivityData {
-    prompt: string;
-    puzzles: {
-        clues: ResfebeClue[];
-        answer: string;
-    }[];
-}
-
-export interface ThematicWordSearchColorData extends WordSearchData {}
-export interface SynonymSearchAndStoryData extends WordSearchData {}
-export interface SynonymWordSearchData extends WordSearchData {}
-
-export interface RapidNamingData extends BaseActivityData {
-    grid: { items: { type: string; value?: string; label?: string; }[]; };
-    type: 'object' | 'color' | 'letter' | 'number';
-}
-
-export interface PhonologicalAwarenessData extends BaseActivityData {
-    exercises: { question: string; word: string; }[];
-}
-
-export interface MapInstructionData extends BaseActivityData {
-    mapSvg: string;
-    cities: { name: string; x: number; y: number }[];
-    instructions: string[];
+    puzzles: { clues: ResfebeClue[]; answer: string }[];
 }
