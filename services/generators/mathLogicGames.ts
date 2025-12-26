@@ -2,7 +2,7 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
-import { getMathPrompt, IMAGE_GENERATION_GUIDE } from './prompts';
+import { getMathPrompt } from './prompts';
 
 export const generateBasicOperationsFromAI = async (options: GeneratorOptions): Promise<any[]> => {
     const { difficulty, itemCount, studentContext, selectedOperations, allowCarry, allowBorrow } = options;
@@ -45,7 +45,7 @@ export const generateBasicOperationsFromAI = async (options: GeneratorOptions): 
         }
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview'); // Pro model for math
+    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
 };
 
 export const generateClockReadingFromAI = async (options: GeneratorOptions): Promise<any[]> => {
@@ -219,11 +219,3 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
 
     return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
 };
-
-// Fallback logic
-export const generateMathPuzzleFromAI = async (o: any) => [] as any;
-export const generateNumberPatternFromAI = async (o: any) => [] as any;
-export const generateNumberPyramidFromAI = async (o: any) => [] as any;
-export const generateKendokuFromAI = async (o: any) => [] as any;
-export const generateOddEvenSudokuFromAI = async (o: any) => [] as any;
-export const generateRealLifeMathProblemsFromAI = async (o: any) => [] as any;

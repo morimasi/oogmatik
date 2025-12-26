@@ -14,6 +14,17 @@ GÖREV: Verilen teknik plana uygun özgün içerik üret.
 4. **Hata Önleme:** JSON yapısı içinde asla sonsuz metin blokları oluşturma. Kısa, öz ve yapısal ol.
 `;
 
+export const generateAiWorksheetConverterFromAI = async (options: GeneratorOptions) => {
+    // This is used for the AI Worksheet Converter feature
+    // It usually requires a blueprint, but we'll use topic/instructions if called directly
+    return generateFromRichPrompt('AI_WORKSHEET_CONVERTER' as ActivityType, options.topic || "Genel İçerik", options);
+};
+
+export const generateOcrContentFromAI = async (options: GeneratorOptions) => {
+    // This is used for OCR Content Reconstruction
+    return generateFromRichPrompt('OCR_CONTENT' as ActivityType, options.topic || "OCR Analizi", options);
+};
+
 export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions, layoutHint?: any) => {
     
     const schema = {

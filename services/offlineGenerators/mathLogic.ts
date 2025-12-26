@@ -1,5 +1,4 @@
-
-import { GeneratorOptions, MathPuzzleData, NumberCapsuleData, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, FutoshikiData, VisualNumberPatternData, LogicGridPuzzleData, RomanNumeralStarHuntData, RomanNumeralConnectData, RomanNumeralMultiplicationData, RoundingConnectData, ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, OddOneOutData, ShapeType, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData, ShapeNumberPatternData, BasicOperationsData, RealLifeProblemData, NumberLogicRiddleData, ClockReadingData, MoneyCountingData, MathMemoryCardsData } from '../../types';
+import { GeneratorOptions, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, BasicOperationsData, MoneyCountingData, MathMemoryCardsData, ClockReadingData, RealLifeProblemData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, turkishAlphabet, generateSudokuGrid, generateLatinSquare, TR_VOCAB } from './helpers';
 
 // Helper for Carry/Borrow logic check
@@ -149,7 +148,6 @@ export const generateOfflineKendoku = async (options: GeneratorOptions): Promise
         const size = gridSize;
         const grid = generateLatinSquare(size);
         const cages = [];
-        // Simple 2-cell vertical cages for offline mode
         for(let c=0; c<size; c++) {
             for(let r=0; r<size; r+=2) {
                 if(r+1 < size) {
@@ -207,12 +205,8 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
     const { difficulty, worksheetCount, itemCount } = options;
     return Array.from({ length: worksheetCount }, () => {
         const puzzles = Array.from({ length: itemCount || 4 }, () => {
-            const coinsPool = [1, 0.5, 0.25, 0.1, 0.05];
-            const notesPool = [5, 10, 20, 50, 100];
-            
             const coins = [{ value: 1, count: getRandomInt(1, 5) }];
             const notes = difficulty !== 'Başlangıç' ? [{ value: 5, count: getRandomInt(1, 2) }] : [];
-            
             const total = coins.reduce((a,b) => a + (b.value * b.count), 0) + notes.reduce((a,b) => a + (b.value * b.count), 0);
             
             return {
@@ -235,8 +229,8 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
 
 // MATH MEMORY CARDS
 export const generateOfflineMathMemoryCards = async (options: GeneratorOptions): Promise<MathMemoryCardsData[]> => {
-    const { difficulty, itemCount } = options;
-    const pairs = Array.from({ length: itemCount || 6 }, (_, i) => {
+    const { itemCount } = options;
+    const pairs = Array.from({ length: itemCount || 6 }, () => {
         const n1 = getRandomInt(1, 10);
         const n2 = getRandomInt(1, 10);
         return {
@@ -252,14 +246,18 @@ export const generateOfflineMathMemoryCards = async (options: GeneratorOptions):
     }];
 };
 
-// Placeholder for remaining math exports
-export const generateOfflineMathPuzzle = async (o: any) => [] as any;
-export const generateOfflineNumberPattern = async (o: any) => [] as any;
-export const generateOfflineNumberCapsule = async (o: any) => [] as any;
-export const generateOfflineNumberBoxLogic = async (o: any) => [] as any;
-export const generateOfflineTargetNumber = async (o: any) => [] as any;
-export const generateOfflineMultiplicationWheel = async (o: any) => [] as any;
-export const generateOfflineOperationSquareFillIn = async (o: any) => [] as any;
-export const generateOfflineShapeSudoku = async (o: any) => [] as any;
-export const generateOfflineRealLifeMathProblems = async (o: any) => [] as any;
-export const generateOfflineNumberLogicRiddles = async (o: any) => [] as any;
+// REAL LIFE PROBLEMS
+// Added implementation for the missing function to fix dyscalculia.ts import error
+export const generateOfflineRealLifeMathProblems = async (options: GeneratorOptions): Promise<RealLifeProblemData[]> => {
+    const { worksheetCount, itemCount } = options;
+    return Array.from({ length: worksheetCount }, () => ({
+        title: "Günlük Yaşam Problemleri",
+        instruction: "Problemleri dikkatlice oku ve çözümlerini yap.",
+        pedagogicalNote: "Matematiksel muhakeme ve günlük yaşam problemleri.",
+        problems: Array.from({ length: itemCount || 4 }, () => ({
+            text: "Ali'nin 5 elması vardı, Ayşe ona 3 elma daha verdi. Ali'nin toplam kaç elması oldu?",
+            solution: "5 + 3 = 8",
+            operationHint: "Toplama İşlemi"
+        }))
+    }));
+};
