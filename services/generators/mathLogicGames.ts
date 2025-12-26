@@ -42,7 +42,7 @@ export const generateBasicOperationsFromAI = async (options: GeneratorOptions): 
         required: ['title', 'instruction', 'operations', 'pedagogicalNote', 'imagePrompt']
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
 
 export const generateClockReadingFromAI = async (options: GeneratorOptions): Promise<any[]> => {
@@ -81,7 +81,7 @@ export const generateClockReadingFromAI = async (options: GeneratorOptions): Pro
             required: ['title', 'instruction', 'clocks']
         }
     };
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
 
 export const generateMoneyCountingFromAI = async (options: GeneratorOptions): Promise<any[]> => {
@@ -120,7 +120,7 @@ export const generateMoneyCountingFromAI = async (options: GeneratorOptions): Pr
             required: ['title', 'instruction', 'puzzles']
         }
     };
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
 
 export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): Promise<any[]> => {
@@ -170,30 +170,33 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
             required: ['title', 'pairs']
         }
     };
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
 
 export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<any[]> => {
-    const { difficulty, numberRange, codeLength, useThirdNumber, studentContext } = options;
+    const { difficulty, numberRange, codeLength, useThirdNumber, worksheetCount, itemCount, studentContext } = options;
+    
+    // Total items to generate across all pages
+    const totalItems = itemCount || (worksheetCount * 4);
     
     const rule = `
-    [GÖREV]: Sayısal Mantık Bilmeceleri üret.
+    [GÖREV]: Üst düzey "Sayısal Mantık Bilmeceleri" üret.
+    [MODEL]: gemini-3-flash-preview (Multimodal, uzamsal zeka odaklı).
+    [ZORLUK]: ${difficulty}
     [SAYI ARALIĞI]: ${numberRange || '1-50'}
-    [BİLMECE YAPISI]: Her bilmece ${codeLength || 3} adet mantıksal ipucu içermelidir.
-    [BÜYÜK TOPLAM]: ${useThirdNumber ? 'AKTİF - Tüm doğru cevapların toplamı tam olarak bir HEDEF SAYI etmelidir.' : 'Pasif'}.
+    [BİLMECE YAPISI]: Her bilmece ${codeLength || 3} adet profesyonel mantıksal ipucu içermelidir.
+    [BÜYÜK TOPLAM]: ${useThirdNumber ? 'AKTİF - Sayfadaki tüm doğru cevapların toplamı tam olarak alt kutudaki HEDEF SAYI etmelidir.' : 'Pasif'}.
+    [MİKTAR]: Toplam ${totalItems} bilmece üret. 
+    
+    TASARIM KURALLARI:
+    - Bir A4 sayfasını tam dolduracak şekilde her sayfada 4 büyük bilmece kartı planla.
+    - JSON çıktısında bilmeceleri sayfalara (pages) böl.
+    - "boxes": Her bilmece için 5 adet kutu grubu. Her grupta 2-3 adet sayı olsun. Doğru cevap bu sayılardan biri olmalı.
+    - "options": 4 adet şık (A, B, C, D) ve sayı değerleri.
+    - "sumTarget": Her sayfa için o sayfadaki bilmecelerin cevaplarının toplamını hesapla.
 
-    ZORLUK SEVİYESİNE GÖRE İPUCU TARZI:
-    - Başlangıç: "10'dan küçüğüm", "Çift sayıyım", "3 tane 2'liğin toplamıyım".
-    - Orta: "Onlar basamağım 2", "5 ile kalansız bölünürüm", "İki basamaklıyım".
-    - Zor: "Asal sayıyım", "Rakamlarım toplamı 9", "Karesel bir sayıyım".
-    - Uzman: "Rakamlarım çarpımı 12", "Bir sonraki asal sayıdan 2 eksiğim", "Üç basamaklı en küçük sayıdan 15 eksiğim".
-
-    TASARIM:
-    - Her sayfada A4'ü dolduracak şekilde 4 adet büyük bilmece kartı olsun.
-    - Her kartta 5 adet sayı kutusu (boxes) bulunmalı. Bu kutulardaki sayılar arasından doğru olanı seçtir.
-    - Toplamda tüm doğru cevapların toplamı olan "sumTarget" alanını kesinlikle hesapla.
-
-    MODEL: gemini-3-flash-preview (Multimodal odaklı, uzamsal ve mantıksal kurgu).
+    İPUCU ÖRNEKLERİ:
+    - ${difficulty === 'Başlangıç' ? '12\'den küçüğüm, çiftim, 5\'in 1 fazlasıyım.' : difficulty === 'Orta' ? 'Onlar basamağım 3, rakamlarım toplamı tek sayı, 4\'e bölünürüm.' : 'Asal sayıyım, 2 basamaklı en büyük asal sayıdan 10 küçüğüm, rakamlarım çarpımı 12.'}
     `;
 
     const prompt = getMathPrompt("Gelişmiş Sayısal Mantık Bilmeceleri", difficulty, rule, studentContext);
@@ -206,7 +209,6 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                 title: { type: Type.STRING },
                 instruction: { type: Type.STRING },
                 pedagogicalNote: { type: Type.STRING },
-                imagePrompt: { type: Type.STRING },
                 sumTarget: { type: Type.INTEGER },
                 sumMessage: { type: Type.STRING },
                 puzzles: {
@@ -214,15 +216,14 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            riddle: { type: Type.STRING, description: "Tüm ipuçlarını içeren bütünleşik bilmece metni." },
+                            riddle: { type: Type.STRING },
                             boxes: { 
                                 type: Type.ARRAY, 
-                                items: { type: Type.ARRAY, items: { type: Type.INTEGER } },
-                                description: "5 adet kutu, her birinde 2-3 sayı."
+                                items: { type: Type.ARRAY, items: { type: Type.INTEGER } }
                             },
-                            options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 adet şık (A, B, C, D)" },
-                            answer: { type: Type.STRING, description: "Doğru şık harfi ve değeri (Örn: A - 15)" },
-                            answerValue: { type: Type.INTEGER, description: "Cevabın sadece sayısal değeri." }
+                            options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            answer: { type: Type.STRING },
+                            answerValue: { type: Type.INTEGER }
                         },
                         required: ['riddle', 'boxes', 'options', 'answer', 'answerValue']
                     }

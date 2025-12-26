@@ -141,23 +141,27 @@ export const generateOfflineNumberPattern = async (options: GeneratorOptions): P
     });
 };
 
-// NUMBER LOGIC RIDDLES (Offline Professional)
+// NUMBER LOGIC RIDDLES (Professional Multi-Page Offline)
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { worksheetCount, numberRange, difficulty, codeLength, useThirdNumber } = options;
+    const { worksheetCount, numberRange, difficulty, codeLength, useThirdNumber, itemCount } = options;
     
-    // Parse range
+    // Total puzzles to generate
+    const totalCount = itemCount || (worksheetCount * 4);
+    const puzzlesPerPage = 4;
     const [minRange, maxRange] = (numberRange || '1-50').split('-').map(Number);
-    const count = options.itemCount || 4;
+    const pages: NumberLogicRiddleData[] = [];
 
-    return Array.from({ length: worksheetCount }, () => {
+    let currentPuzzleCount = 0;
+    while (currentPuzzleCount < totalCount) {
         const puzzles = [];
         let runningTotal = 0;
-
-        for (let i = 0; i < count; i++) {
+        
+        // Puzzles for this specific page
+        for (let i = 0; i < puzzlesPerPage && currentPuzzleCount < totalCount; i++) {
             const n = getRandomInt(minRange, maxRange);
-            
-            // Build Hints based on difficulty
             const hints = [];
+            
+            // Generate Hints based on difficulty
             if (n % 2 === 0) hints.push("Ben bir çift sayıyım.");
             else hints.push("Ben bir tek sayıyım.");
 
@@ -165,47 +169,54 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
             else hints.push(`${Math.floor(maxRange/2)}'den küçüğüm.`);
 
             if (difficulty === 'Zor' || difficulty === 'Uzman') {
-                const sumDigits = n.toString().split('').reduce((a,b) => a + parseInt(b), 0);
+                const sumDigits = n.toString().split('').reduce((acc, curr) => acc + parseInt(curr), 0);
                 hints.push(`Rakamlarım toplamı ${sumDigits}'dir.`);
-            } else {
-                hints.push(`${n-getRandomInt(1,3)} ile ${n+getRandomInt(1,3)} arasındayım.`);
+                if (n % 5 === 0) hints.push("5 ile kalansız bölünürüm.");
+            } else if (difficulty === 'Orta') {
+                hints.push(`${n-getRandomInt(1,5)} ile ${n+getRandomInt(1,5)} arasındayım.`);
             }
 
-            // Create 5 boxes for the grid
+            // Create 5 boxes for the visual grid
             const boxes = Array.from({ length: 5 }, () => {
-                const b1 = getRandomInt(minRange, maxRange);
-                const b2 = getRandomInt(minRange, maxRange);
-                return [b1, b2];
+                return [getRandomInt(minRange, maxRange), getRandomInt(minRange, maxRange)];
             });
-            // Ensure answer is in one of the boxes
+            // Ensure correct answer is in one random box
             boxes[getRandomInt(0, 4)][0] = n;
 
-            // Options (A, B, C, D)
-            const distractors = Array.from({length: 3}, () => getRandomInt(minRange, maxRange)).filter(d => d !== n);
-            const allOptions = shuffle([n.toString(), ...distractors.map(d => d.toString())]);
-            const correctHarf = ['A', 'B', 'C', 'D'][allOptions.indexOf(n.toString())];
+            // Multiple choice options
+            const distractors = new Set<number>();
+            while(distractors.size < 3) {
+                const d = getRandomInt(minRange, maxRange);
+                if (d !== n) distractors.add(d);
+            }
+            const allOptions = shuffle([n.toString(), ...Array.from(distractors).map(d => d.toString())]);
+            const correctLetter = ['A', 'B', 'C', 'D'][allOptions.indexOf(n.toString())];
 
             puzzles.push({
                 riddle: hints.slice(0, codeLength || 3).join(' '),
                 boxes,
                 options: allOptions,
-                answer: `${correctHarf} - ${n}`,
+                answer: `${correctLetter} - ${n}`,
                 answerValue: n
             });
+            
             runningTotal += n;
+            currentPuzzleCount++;
         }
 
-        return {
+        pages.push({
             title: "Sayısal Mantık Bilmeceleri",
-            instruction: "Bilmeceleri çöz ve doğru cevabı bul. Tüm cevapları bulduğunda alttaki toplama görevine odaklan!",
-            pedagogicalNote: "Sayı hissi, mantıksal çıkarım ve çalışma belleği.",
+            instruction: "Bilmeceleri çöz, doğru şıkkı bul ve tüm cevapların toplamıyla büyük hedefe ulaş!",
+            pedagogicalNote: "Çalışma belleği, sayı hissi ve mantıksal çıkarım becerilerini geliştirir.",
             sumTarget: runningTotal,
             sumMessage: useThirdNumber 
-                ? `Sayfadaki ${count} bilmecenin doğru cevaplarını topladığında sonuç ${runningTotal} olmalıdır. Eğer bu sayıya ulaştıysan harikasın!`
-                : "Bilmeceleri çöz ve sayıların gizemini keşfet.",
+                ? `Bu sayfadaki bilmecelerin doğru cevaplarını topladığında sonuç ${runningTotal} olmalıdır.`
+                : "Bilmeceleri çözerek sayıların gizemli dünyasını keşfet.",
             puzzles
-        };
-    });
+        });
+    }
+
+    return pages;
 };
 
 // NUMBER PYRAMID (Enhanced)

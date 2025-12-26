@@ -8,20 +8,20 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
     return (
         <div className="h-full flex flex-col text-black font-lexend">
             <PedagogicalHeader 
-                title={data.title} 
+                title={data.title || "Sayısal Mantık Bilmeceleri"} 
                 instruction={data.instruction || "Bilmeceleri çöz, doğru şıkkı işaretle ve sonuçları topla!"} 
                 note={data.pedagogicalNote} 
             />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 mt-6 flex-1">
                 {(data.puzzles || []).map((puzzle, pIdx) => (
-                    <EditableElement key={pIdx} className="flex flex-col border-4 border-zinc-200 rounded-[2.5rem] p-8 bg-white shadow-lg break-inside-avoid relative group hover:border-indigo-400 transition-all duration-300">
+                    <EditableElement key={pIdx} className="flex flex-col border-4 border-zinc-200 rounded-[2.5rem] p-8 bg-white shadow-lg break-inside-avoid relative group hover:border-indigo-400 transition-all duration-300 min-h-[350px]">
                         <div className="absolute -top-5 -left-5 w-14 h-14 bg-zinc-900 text-white rounded-3xl flex items-center justify-center font-black shadow-xl text-xl ring-8 ring-white">
                             {pIdx + 1}
                         </div>
                         
                         {/* Riddle Text */}
-                        <div className="mb-6 bg-zinc-50 dark:bg-zinc-50/50 p-6 rounded-3xl border border-zinc-100 min-h-[100px] flex items-center shadow-inner">
+                        <div className="mb-6 bg-zinc-50 p-6 rounded-3xl border border-zinc-100 min-h-[100px] flex items-center shadow-inner">
                             <p className="text-base font-bold leading-relaxed text-zinc-800">
                                 <EditableText value={puzzle.riddle} tag="span" />
                             </p>
@@ -59,7 +59,7 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
             </div>
 
             {/* Sum Challenge Footer - Premium Design */}
-            <div className="mt-auto pt-12 pb-6 break-inside-avoid">
+            <div className="mt-12 mb-6 break-inside-avoid">
                 <EditableElement className="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10">
                     {/* Decorative Blobs */}
                     <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>

@@ -57,8 +57,6 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         const isLandscape = settings.orientation === 'landscape';
         return {
             width: isLandscape ? '297mm' : '210mm',
-            // DİKKAT: Sabit yükseklik (height) kaldırıldı, min-height eklendi.
-            // Bu sayede içerik ne kadar uzun olursa olsun sayfa aşağı doğru uzayacaktır.
             minHeight: isLandscape ? '210mm' : '297mm',
             height: 'auto', 
             padding: `0mm`, 
@@ -66,8 +64,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             backgroundColor: 'white',
             color: 'black',
             boxSizing: 'border-box' as const,
-            overflow: 'visible', // Taşan içeriğin görünmesi için
-            margin: '0 auto',
+            overflow: 'visible',
+            margin: '0 auto 40px auto', // Margin between pages in UI, none in print
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
             ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
         };
@@ -76,7 +74,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
     if (!data || !activityType || data.length === 0) return null;
 
     return (
-        <div className={`flex flex-col items-center gap-[60px] py-[60px] bg-transparent w-full`} style={variableStyle}>
+        <div className={`worksheet-container flex flex-col items-center w-full`} style={variableStyle}>
             <style>{`
                 .dynamic-grid {
                     display: grid;
@@ -94,19 +92,20 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     text-align: var(--content-align);
                     font-weight: var(--font-weight);
                     font-style: var(--font-style);
-                    flex: 1; /* İçeriğin sayfayı doldurmasını sağla */
+                    flex: 1;
                 }
                 @media print {
-                    .flex-col.gap-\[60px\] { gap: 0 !important; padding: 0 !important; }
-                    .worksheet-page { margin: 0 !important; box-shadow: none !important; break-after: page; page-break-after: always; border: none !important; }
+                    .worksheet-container { display: block !important; }
+                    .worksheet-page { margin: 0 !important; box-shadow: none !important; break-after: page !important; page-break-after: always !important; border: none !important; }
                     .page-label-container { display: none !important; }
+                    .no-print { display: none !important; }
                 }
             `}</style>
 
             {data.map((pageData, index) => (
-                <div key={index} className="relative group/page flex flex-col items-center">
+                <div key={index} className="relative group/page flex flex-col items-center w-full">
                     {/* Page Number Badge Outside Paper */}
-                    <div className="page-label-container absolute -top-10 left-0 bg-zinc-800 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                    <div className="page-label-container absolute -top-10 left-0 bg-zinc-800 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg no-print">
                         Sayfa {index + 1} / {data.length}
                     </div>
 
@@ -115,20 +114,20 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         {/* Header Area */}
                         <div className="w-full px-12 py-8 flex justify-between items-end border-b border-zinc-100" style={{ display: 'var(--display-student-info)' }}>
                             <div className="flex gap-8">
-                                <div className="flex flex-col">
+                                <div className="flex flex-col text-left">
                                     <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Ad Soyad</span>
                                     <div className="h-6 border-b border-zinc-800 min-w-[200px] font-bold text-lg leading-none truncate">
                                         <EditableText value={studentProfile?.name} tag="span" />
                                     </div>
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col text-center">
                                     <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Sınıf</span>
                                     <div className="h-6 border-b border-zinc-800 min-w-[80px] font-bold text-lg leading-none truncate text-center">
                                         <EditableText value={studentProfile?.grade} tag="span" />
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex flex-col items-end">
+                            <div className="flex flex-col items-end text-right">
                                 <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Tarih</span>
                                 <div className="h-6 border-b border-zinc-800 min-w-[120px] font-bold text-lg leading-none text-right">
                                     <EditableText value={studentProfile?.date || new Date().toLocaleDateString('tr-TR')} tag="span" />
@@ -138,14 +137,14 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
                         {showQR && <WorkbookQR url="https://bursadisleksi.com" />}
 
-                        {/* Content Area - Fixed PT to accommodate header */}
+                        {/* Content Area */}
                         <div className="w-full px-12 py-10 flex flex-col worksheet-content relative z-10">
                             <ErrorBoundary>
                                 <SheetRenderer activityType={activityType} data={pageData} />
                             </ErrorBoundary>
                         </div>
 
-                        {/* Footer Area - Padding added to prevent content overlap */}
+                        {/* Footer Area */}
                         <div className="w-full px-12 pb-6 flex justify-between items-end text-[10px] text-zinc-400 font-mono mt-auto" style={{ display: 'var(--display-footer)' }}>
                             <span>Bursa Disleksi AI © {new Date().getFullYear()}</span>
                             <span>{pageData.title || 'Çalışma Sayfası'}</span>
