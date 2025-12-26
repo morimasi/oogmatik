@@ -18,7 +18,7 @@ interface WorksheetProps {
 const WorkbookQR = React.memo(({ url }: { url: string }) => {
     return (
         <div className="absolute top-4 right-4 z-20 flex flex-col items-center bg-white p-1 rounded-lg border border-black shadow-md no-print-hide scale-75 origin-top-right">
-            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`} alt="QR Code" className="w-12 h-12" crossOrigin="anonymous" />
+            <img src={`https://api.qrserver.com/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`} alt="QR Code" className="w-12 h-12" crossOrigin="anonymous" />
             <span className="text-[6px] font-bold mt-0.5 text-black uppercase tracking-wider">Dijital</span>
         </div>
     );
@@ -58,14 +58,13 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         return {
             width: isLandscape ? '297mm' : '210mm',
             minHeight: isLandscape ? '210mm' : '297mm',
-            height: 'auto', 
-            padding: `0mm`, 
+            height: 'auto', // Important: let content expand
             position: 'relative' as const,
             backgroundColor: 'white',
             color: 'black',
             boxSizing: 'border-box' as const,
             overflow: 'visible',
-            margin: '0 auto 40px auto', // Margin between pages in UI, none in print
+            margin: '0 auto 40px auto', 
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
             ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
         };
@@ -75,36 +74,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
     return (
         <div className={`worksheet-container flex flex-col items-center w-full`} style={variableStyle}>
-            <style>{`
-                .dynamic-grid {
-                    display: grid;
-                    grid-template-columns: var(--grid-columns);
-                    gap: var(--worksheet-gap);
-                    width: 100%;
-                    align-items: stretch;
-                    align-content: start;
-                }
-                .worksheet-content {
-                    font-family: var(--worksheet-font-family), sans-serif;
-                    font-size: var(--worksheet-font-size);
-                    line-height: var(--worksheet-line-height);
-                    letter-spacing: var(--worksheet-letter-spacing);
-                    text-align: var(--content-align);
-                    font-weight: var(--font-weight);
-                    font-style: var(--font-style);
-                    flex: 1;
-                }
-                @media print {
-                    .worksheet-container { display: block !important; }
-                    .worksheet-page { margin: 0 !important; box-shadow: none !important; break-after: page !important; page-break-after: always !important; border: none !important; }
-                    .page-label-container { display: none !important; }
-                    .no-print { display: none !important; }
-                }
-            `}</style>
-
             {data.map((pageData, index) => (
-                <div key={index} className="relative group/page flex flex-col items-center w-full">
-                    {/* Page Number Badge Outside Paper */}
+                <div key={index} className="relative group/page flex flex-col items-center w-full break-after-page">
+                    {/* Page Number Badge Outside Paper (UI Only) */}
                     <div className="page-label-container absolute -top-10 left-0 bg-zinc-800 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg no-print">
                         Sayfa {index + 1} / {data.length}
                     </div>
@@ -137,11 +109,30 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
                         {showQR && <WorkbookQR url="https://bursadisleksi.com" />}
 
-                        {/* Content Area */}
-                        <div className="w-full px-12 py-10 flex flex-col worksheet-content relative z-10">
-                            <ErrorBoundary>
-                                <SheetRenderer activityType={activityType} data={pageData} />
-                            </ErrorBoundary>
+                        {/* Content Area - min-h-full ensures it at least fills the first sheet */}
+                        <div className="w-full px-12 py-10 flex flex-col min-h-[200mm] relative z-10">
+                            <style>{`
+                                .worksheet-content {
+                                    font-family: var(--worksheet-font-family), sans-serif;
+                                    font-size: var(--worksheet-font-size);
+                                    line-height: var(--worksheet-line-height);
+                                    letter-spacing: var(--worksheet-letter-spacing);
+                                    text-align: var(--content-align);
+                                    font-weight: var(--font-weight);
+                                    font-style: var(--font-style);
+                                }
+                                .dynamic-grid {
+                                    display: grid;
+                                    grid-template-columns: var(--grid-columns);
+                                    gap: var(--worksheet-gap);
+                                    width: 100%;
+                                }
+                            `}</style>
+                            <div className="worksheet-content flex-1">
+                                <ErrorBoundary>
+                                    <SheetRenderer activityType={activityType} data={pageData} />
+                                </ErrorBoundary>
+                            </div>
                         </div>
 
                         {/* Footer Area */}

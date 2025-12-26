@@ -83,7 +83,7 @@
       ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-      /* --- DINAMIK ÇALIŞMA SAYFASI YAPISI --- */
+      /* --- DYNAMIC WORKSHEET STRUCTURE --- */
       .worksheet-page {
           background-color: white;
           color: black;
@@ -91,26 +91,22 @@
           margin: 0 auto;
           width: 210mm;
           min-height: 297mm;
-          height: auto !important;
-          padding-bottom: 10mm;
+          height: auto !important; /* Allow expansion */
+          padding-bottom: 20mm;
           position: relative;
           overflow: visible !important;
           flex-shrink: 0;
           display: flex;
           flex-direction: column;
-          page-break-after: always;
-          break-after: page;
       }
 
-      .smart-grid > * {
+      /* Prevent items from being cut in half during page breaks */
+      .break-inside-avoid {
           break-inside: avoid;
           page-break-inside: avoid;
-          margin-bottom: 1.5rem;
-          display: inline-block; 
-          width: 100%;
       }
 
-      /* --- PROFESSIONAL PRINT STYLES --- */
+      /* --- PROFESSIONAL PRINT STYLES (Reading Studio Style) --- */
       @media print {
           @page {
               size: A4 portrait;
@@ -129,6 +125,7 @@
               display: block !important;
               position: absolute !important;
               left: 0; top: 0; width: 100%;
+              background: white !important;
           }
           .print-page {
               width: 210mm !important;
@@ -141,16 +138,24 @@
               break-after: page !important;
               display: flex !important;
               flex-direction: column !important;
+              background: white !important;
+              border: none !important;
+              box-shadow: none !important;
           }
-          /* Ensure no dark backgrounds in print */
-          .bg-zinc-900, .bg-zinc-800, .bg-black {
-              background-color: #f4f4f5 !important;
-              color: black !important;
-          }
-          /* Keep accent colors for specific visual elements */
-          .bg-indigo-600, .bg-amber-500, .bg-emerald-500 {
+          
+          /* Force standard colors for print */
+          .text-black { color: #000000 !important; }
+          .bg-white { background-color: #ffffff !important; }
+          
+          /* Background color preservation for specific elements */
+          .bg-indigo-600, .bg-amber-500, .bg-emerald-500, .bg-zinc-900 {
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
+          }
+          
+          /* Hide non-printable UI artifacts */
+          .no-print, .edit-handle, button, .page-navigator {
+              display: none !important;
           }
       }
     </style>

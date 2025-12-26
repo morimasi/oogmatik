@@ -2,7 +2,8 @@
 export const printService = {
     /**
      * Global Print Engine.
-     * Handles single pages, multi-page workbooks, and continuous flow content (reports).
+     * Handles single pages, multi-page workbooks, and continuous flow content.
+     * Uses the 'Reading Studio' cloning logic to ensure pixel-perfect multi-page output.
      */
     generatePdf: async (
         elementSelector: string, 
@@ -35,21 +36,18 @@ export const printService = {
             printContainer.style.filter = 'grayscale(100%) contrast(1.2)';
         }
 
-        // 3. Process Elements
-        // Check if we are printing specific pages (Workbook/Worksheet) or a flow container (Report)
-        const isFlowContent = elements.length === 1 && !elements[0].classList.contains('worksheet-page');
-
+        // 3. Process Elements with Advanced Reading-Studio Logic
         elements.forEach((el, index) => {
-            // Filter by selected pages if applicable (Only for page-based content)
-            if (!isFlowContent && options.selectedPages && !options.selectedPages.includes(index)) {
+            // Filter by selected pages if applicable
+            if (options.selectedPages && !options.selectedPages.includes(index)) {
                 return;
             }
 
-            // Deep clone
+            // Deep clone to separate from live UI
             const clone = el.cloneNode(true) as HTMLElement;
 
-            // --- DATA SYNCHRONIZATION ---
-            // Input values (textareas, inputs, selects) are not cloned by default
+            // --- DATA & UI CLEANUP ---
+            // Sync Input Values
             const originalInputs = (el as HTMLElement).querySelectorAll('input, textarea, select');
             const clonedInputs = clone.querySelectorAll('input, textarea, select');
 
@@ -65,63 +63,34 @@ export const printService = {
                 } else if (originalInput.tagName === 'SELECT') {
                      const sel = clonedInput as HTMLSelectElement;
                      sel.value = originalInput.value;
-                     Array.from(sel.options).forEach(opt => {
-                         if (opt.value === originalInput.value) opt.setAttribute('selected', 'selected');
-                     });
                 } else {
                     clonedInput.setAttribute('value', originalInput.value);
                 }
             });
 
-            // Canvas Content (Bitmaps are not cloned)
-            const originalCanvases = (el as HTMLElement).querySelectorAll('canvas');
-            const clonedCanvases = clone.querySelectorAll('canvas');
-            originalCanvases.forEach((canvas, i) => {
-                const clonedCanvas = clonedCanvases[i];
-                const ctx = clonedCanvas.getContext('2d');
-                if (ctx) {
-                    clonedCanvas.width = canvas.width;
-                    clonedCanvas.height = canvas.height;
-                    ctx.drawImage(canvas, 0, 0);
-                }
-            });
+            // Remove UI garbage
+            const uiGarbage = clone.querySelectorAll('.edit-handle, .page-navigator, .no-print, button, .overlay-ui, .scrollbar-hide, [data-testid="edit-btn"]');
+            uiGarbage.forEach(e => e.remove());
 
-            // --- CLEANUP & STYLING ---
-            
-            // Remove UI artifacts
-            const artifacts = clone.querySelectorAll('.edit-handle, .page-navigator, .no-print, button, .overlay-ui, .scrollbar-hide');
-            artifacts.forEach(e => e.remove());
-
-            // Reset positioning and overflow constraints for print
+            // --- PRINT LAYOUT ENFORCEMENT ---
+            // Remove transform/flex constraints that might limit height
             clone.style.transform = 'none';
             clone.style.margin = '0';
             clone.style.boxShadow = 'none';
-            clone.style.border = 'none';
             clone.style.position = 'relative';
             clone.style.left = 'auto';
             clone.style.top = 'auto';
             clone.style.overflow = 'visible';
-            clone.style.height = 'auto';
-            clone.style.maxHeight = 'none';
-            // Clear inline padding to respect global CSS .print-page padding
-            clone.style.padding = ''; 
-
-            // Apply specific print classes based on content type
-            if (isFlowContent) {
-                // For Reports or single text blocks: Allow natural flow
-                clone.classList.add('print-page', 'print-auto-height');
-                // Ensure text wraps and is visible
-                clone.style.width = '100%';
-                clone.style.maxWidth = '210mm'; 
-            } else {
-                // For Worksheets: Enforce strict page breaks
-                clone.classList.add('print-page');
-            }
+            clone.style.height = 'auto'; 
+            clone.style.minHeight = '297mm';
+            
+            // Add global print class
+            clone.classList.add('print-page');
             
             printContainer.appendChild(clone);
         });
 
-        // 4. Generate Answer Key (Only for Worksheets)
+        // 4. Generate Answer Key if requested
         if (options.includeAnswerKey && options.worksheetData) {
             const answerPage = createAnswerKeyPage(options.worksheetData, title);
             printContainer.appendChild(answerPage);
@@ -130,7 +99,7 @@ export const printService = {
         // 5. Mount & Print
         document.body.appendChild(printContainer);
 
-        // Wait for images to load inside the clone
+        // Wait for all images in the clone to be ready
         const images = printContainer.querySelectorAll('img');
         const imagePromises = Array.from(images).map(img => {
             if (img.complete) return Promise.resolve();
@@ -141,12 +110,12 @@ export const printService = {
         });
         await Promise.all(imagePromises);
 
-        // Trigger Print
+        // Trigger Print with correct filename metadata
         const originalTitle = document.title;
         document.title = title.replace(/[^a-z0-9]/gi, '_');
         
-        // Small delay for DOM reflow
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Small delay for DOM reflow after container injection
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         window.print();
 
@@ -159,49 +128,47 @@ export const printService = {
 function createAnswerKeyPage(data: any[], title: string): HTMLElement {
     const answerPage = document.createElement('div');
     answerPage.className = 'worksheet-page print-page';
-    // Use matching padding to standard pages
     answerPage.style.cssText = `
-        padding: 10mm; 
-        background: white; 
+        padding: 20mm; 
+        background: white !important; 
         width: 210mm; 
-        height: 297mm; 
-        overflow: hidden;
+        min-height: 297mm; 
         display: flex;
         flex-direction: column;
-        color: black;
+        color: black !important;
         box-sizing: border-box;
     `;
     
     let answerHtml = `
-        <div style="font-family: sans-serif; height: 100%;">
-            <div style="border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: end;">
-                <h1 style="font-size: 24px; font-weight: 900; text-transform: uppercase;">Cevap Anahtarı</h1>
-                <span style="font-size: 12px;">${title}</span>
+        <div style="font-family: sans-serif;">
+            <div style="border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: end;">
+                <h1 style="font-size: 28px; font-weight: 900; text-transform: uppercase;">Cevap Anahtarı</h1>
+                <span style="font-size: 14px; font-weight: bold;">${title}</span>
             </div>
-            <div style="column-count: 2; column-gap: 40px; font-size: 11px;">
+            <div style="column-count: 2; column-gap: 40px;">
     `;
 
     data.forEach((sheet, idx) => {
         answerHtml += `
-            <div style="break-inside: avoid; margin-bottom: 20px;">
-                <h3 style="font-size: 14px; font-weight: bold; margin-bottom: 5px; border-bottom: 1px dashed #ccc;">Sayfa ${idx + 1}</h3>
-                <ul style="list-style-type: none; padding: 0; margin: 0;">`;
+            <div style="break-inside: avoid; margin-bottom: 25px;">
+                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 8px; color: #4f46e5; border-bottom: 1px solid #eee;">Sayfa ${idx + 1}</h3>
+                <ul style="list-style-type: none; padding: 0; margin: 0; font-size: 13px;">`;
 
         const answers = extractAnswers(sheet);
         if (answers.length > 0) {
             answers.forEach((ans, i) => {
-                answerHtml += `<li style="margin-bottom: 2px;"><strong style="margin-right:5px;">${i+1}.</strong> ${ans}</li>`;
+                answerHtml += `<li style="margin-bottom: 4px; display: flex; gap: 8px;"><strong style="color: #666; min-width: 20px;">${i+1}.</strong> <span>${ans}</span></li>`;
             });
         } else {
-            answerHtml += `<li style="font-style: italic; color: #999;">Cevap yok.</li>`;
+            answerHtml += `<li style="font-style: italic; color: #999;">Bu sayfada otomatik yanıt bulunamadı.</li>`;
         }
 
         answerHtml += `</ul></div>`;
     });
 
     answerHtml += `</div>
-        <div style="margin-top: auto; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 10px;">
-            Bursa Disleksi AI tarafından oluşturulmuştur.
+        <div style="margin-top: auto; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; letter-spacing: 2px;">
+            BURSA DİSLEKSİ AI • YAPAY ZEKA DESTEKLİ EĞİTİM MATERYALİ
         </div>
     </div>`;
     
@@ -224,11 +191,12 @@ function extractAnswers(data: any): string[] {
             return;
         }
 
-        ['operations', 'questions', 'puzzles', 'problems', 'patterns', 'items'].forEach(key => {
+        // Search in common data keys
+        ['operations', 'questions', 'puzzles', 'problems', 'patterns', 'items', 'checks', 'ladders'].forEach(key => {
             if (obj[key]) findIn(obj[key]);
         });
     };
 
     findIn(data);
-    return answers.slice(0, 40); 
+    return [...new Set(answers)].slice(0, 50); 
 }
