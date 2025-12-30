@@ -64,7 +64,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
             color: 'black',
             boxSizing: 'border-box' as const,
             overflow: 'visible',
-            margin: '0 auto 40px auto', 
+            margin: '0 auto 20px auto', 
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
             ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
         };
@@ -76,32 +76,31 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         <div className={`worksheet-container flex flex-col items-center w-full`} style={variableStyle}>
             {data.map((pageData, index) => (
                 <div key={index} className="relative group/page flex flex-col items-center w-full break-after-page">
-                    {/* Page Number Badge Outside Paper (UI Only) */}
-                    <div className="page-label-container absolute -top-10 left-0 bg-zinc-800 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg no-print">
-                        Sayfa {index + 1} / {data.length}
+                    <div className="page-label-container absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg no-print">
+                        SAYFA {index + 1} / {data.length}
                     </div>
 
                     <div id={`page-${index}`} className="worksheet-page print-page" style={pageStyle}>
                         
-                        {/* Header Area - Conditioned by Settings */}
-                        <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-4" style={{ display: 'var(--display-student-info)' }}>
-                            <div className="flex gap-8">
+                        {/* Compact Header Area */}
+                        <div className="w-full px-4 py-2 flex justify-between items-end border-b-2 border-zinc-900 mb-2" style={{ display: 'var(--display-student-info)' }}>
+                            <div className="flex gap-6">
                                 <div className="flex flex-col text-left">
-                                    <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Ad Soyad</span>
-                                    <div className="h-6 border-b border-zinc-800 min-w-[200px] font-bold text-lg leading-none truncate">
+                                    <span className="text-[7px] text-zinc-400 uppercase font-black">Öğrenci Adı</span>
+                                    <div className="h-5 border-b border-zinc-300 min-w-[150px] font-bold text-xs leading-none truncate">
                                         <EditableText value={studentProfile?.name} tag="span" />
                                     </div>
                                 </div>
                                 <div className="flex flex-col text-center">
-                                    <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Sınıf</span>
-                                    <div className="h-6 border-b border-zinc-800 min-w-[80px] font-bold text-lg leading-none truncate text-center">
+                                    <span className="text-[7px] text-zinc-400 uppercase font-black">Sınıf</span>
+                                    <div className="h-5 border-b border-zinc-300 min-w-[40px] font-bold text-xs leading-none truncate text-center">
                                         <EditableText value={studentProfile?.grade} tag="span" />
                                     </div>
                                 </div>
                             </div>
                             <div className="flex flex-col items-end text-right">
-                                <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Tarih</span>
-                                <div className="h-6 border-b border-zinc-800 min-w-[120px] font-bold text-lg leading-none text-right">
+                                <span className="text-[7px] text-zinc-400 uppercase font-black">Tarih</span>
+                                <div className="h-5 border-b border-zinc-300 min-w-[70px] font-bold text-xs leading-none text-right">
                                     <EditableText value={studentProfile?.date || new Date().toLocaleDateString('tr-TR')} tag="span" />
                                 </div>
                             </div>
@@ -109,8 +108,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
                         {showQR && <WorkbookQR url="https://bursadisleksi.com" />}
 
-                        {/* Content Area - Minimized Padding for Print Efficiency */}
-                        <div className="w-full px-4 py-4 flex flex-col relative z-10 flex-1">
+                        {/* Content Area - Filling available space */}
+                        <div className="w-full px-4 py-2 flex flex-col relative z-10 flex-1">
                             <style>{`
                                 .worksheet-content {
                                     font-family: var(--worksheet-font-family), sans-serif;
@@ -120,12 +119,16 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                                     text-align: var(--content-align);
                                     font-weight: var(--font-weight);
                                     font-style: var(--font-style);
+                                    height: 100%;
+                                    display: flex;
+                                    flex-direction: column;
                                 }
                                 .dynamic-grid {
                                     display: grid;
                                     grid-template-columns: var(--grid-columns);
                                     gap: var(--worksheet-gap);
                                     width: 100%;
+                                    flex: 1;
                                 }
                             `}</style>
                             <div className="worksheet-content flex-1">
@@ -136,9 +139,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         </div>
 
                         {/* Footer Area */}
-                        <div className="w-full px-4 pb-4 flex justify-between items-end text-[8px] text-zinc-400 font-mono mt-auto" style={{ display: 'var(--display-footer)' }}>
+                        <div className="w-full px-4 pb-1 flex justify-between items-end text-[6px] text-zinc-400 font-mono mt-auto" style={{ display: 'var(--display-footer)' }}>
                             <span>Bursa Disleksi AI © {new Date().getFullYear()}</span>
-                            <span>{pageData.title || 'Çalışma Sayfası'}</span>
+                            <span className="uppercase tracking-widest">{pageData.title || 'Çalışma Sayfası'}</span>
                         </div>
 
                         {isEditMode && (

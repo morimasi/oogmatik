@@ -35,9 +35,9 @@ const initialStyleSettings: StyleSettings = {
     scale: 1, 
     borderColor: '#d4d4d8',
     borderWidth: 1,
-    margin: 10, // Default margin reduced for better print
+    margin: 5, // Tighter print margin
     columns: 1,
-    gap: 12, // Tighter gap
+    gap: 10,
     orientation: 'portrait',
     themeBorder: 'simple',
     contentAlign: 'center',
@@ -46,7 +46,7 @@ const initialStyleSettings: StyleSettings = {
     visualStyle: 'card', 
     showPedagogicalNote: false,
     showMascot: false,
-    showStudentInfo: false, // Default to false as requested
+    showStudentInfo: false, // Default turned off per request
     showTitle: true,
     showInstruction: true,
     showImage: false,
