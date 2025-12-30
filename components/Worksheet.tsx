@@ -58,7 +58,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
         return {
             width: isLandscape ? '297mm' : '210mm',
             minHeight: isLandscape ? '210mm' : '297mm',
-            height: 'auto', // Important: let content expand
+            height: 'auto', 
             position: 'relative' as const,
             backgroundColor: 'white',
             color: 'black',
@@ -109,8 +109,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
                         {showQR && <WorkbookQR url="https://bursadisleksi.com" />}
 
-                        {/* Content Area - min-h-full ensures it at least fills the first sheet */}
-                        <div className="w-full px-12 py-10 flex flex-col min-h-[200mm] relative z-10">
+                        {/* Content Area */}
+                        <div className="w-full px-12 py-10 flex flex-col relative z-10 flex-1">
                             <style>{`
                                 .worksheet-content {
                                     font-family: var(--worksheet-font-family), sans-serif;

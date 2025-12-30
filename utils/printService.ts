@@ -10,7 +10,6 @@ export const printService = {
         title: string = "Bursa_Disleksi_AI_Etkinlik", 
         options: { 
             action: 'print' | 'download',
-            // Added selectedPages parameter to fix type error in PrintPreviewModal.tsx
             selectedPages?: number[],
             grayscale?: boolean,
             includeAnswerKey?: boolean,
@@ -20,7 +19,6 @@ export const printService = {
         // 1. Locate Target Elements
         let elements = Array.from(document.querySelectorAll(elementSelector));
         
-        // Added logic to filter printed elements based on user selection in PrintPreviewModal
         if (options.selectedPages && options.selectedPages.length > 0) {
             elements = elements.filter((_, idx) => options.selectedPages!.includes(idx));
         }
@@ -37,13 +35,13 @@ export const printService = {
         const printContainer = document.createElement('div');
         printContainer.id = 'print-container';
         
-        // Print container styling to avoid UI interference
-        printContainer.style.position = 'fixed';
+        // Print container styling
+        printContainer.style.position = 'absolute';
         printContainer.style.top = '0';
         printContainer.style.left = '0';
-        printContainer.style.width = '210mm'; // Fixed width to prevent mobile layout trigger
+        printContainer.style.width = '210mm'; 
         printContainer.style.zIndex = '99999';
-        printContainer.style.visibility = 'hidden';
+        printContainer.style.background = 'white';
 
         if (options.grayscale) {
             printContainer.style.filter = 'grayscale(100%) contrast(1.1)';
@@ -53,8 +51,7 @@ export const printService = {
         elements.forEach((el) => {
             const clone = el.cloneNode(true) as HTMLElement;
 
-            // --- DATA SYNC ---
-            // Sync current input/textarea values to the clone
+            // Sync current input/textarea values
             const originalInputs = (el as HTMLElement).querySelectorAll('input, textarea, select');
             const clonedInputs = clone.querySelectorAll('input, textarea, select');
 
@@ -72,20 +69,17 @@ export const printService = {
                 }
             });
 
-            // --- UI CLEANUP ---
-            // Remove UI garbage that shouldn't be printed
+            // Cleanup UI noise
             const uiGarbage = clone.querySelectorAll('.edit-handle, .page-navigator, .no-print, button, .overlay-ui, [data-testid="edit-btn"], .page-label-container');
             uiGarbage.forEach(e => e.remove());
 
-            // --- PRINT LAYOUT RESET ---
-            // Force reset dimensions to match A4 expectations in print engine
+            // Reset for print
             clone.style.transform = 'none';
-            clone.style.margin = '0 auto';
+            clone.style.margin = '0';
             clone.style.boxShadow = 'none';
             clone.style.position = 'relative';
             clone.style.overflow = 'visible';
             clone.style.height = 'auto'; 
-            clone.style.minHeight = '297mm';
             clone.style.width = '210mm';
             clone.style.pageBreakAfter = 'always';
             
@@ -94,10 +88,9 @@ export const printService = {
             printContainer.appendChild(clone);
         });
 
-        // 4. Mount & Wait for Assets
         document.body.appendChild(printContainer);
 
-        // Wait for images to load
+        // Wait for images
         const images = printContainer.querySelectorAll('img');
         const imagePromises = Array.from(images).map(img => {
             if (img.complete) return Promise.resolve();
@@ -108,16 +101,13 @@ export const printService = {
         });
         await Promise.all(imagePromises);
 
-        // 5. Trigger Print
         const originalTitle = document.title;
         document.title = title.replace(/[^a-z0-9]/gi, '_');
         
-        // Small delay for browser rendering engine to stabilize clone and apply desktop-width styles
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         window.print();
 
-        // 6. Final Cleanup
         document.title = originalTitle;
         setTimeout(() => {
              if (printContainer.parentNode) {
