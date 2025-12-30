@@ -55,7 +55,11 @@ const FlowStep: React.FC<{ step: AlgorithmStep }> = ({ step }) => {
 export const AlgorithmSheet: React.FC<{ data: AlgorithmData }> = ({ data }) => {
     return (
         <div className="h-full flex flex-col text-black font-lexend">
-            <PedagogicalHeader title={data.title} instruction={data.instruction || "Algoritmanın mantığını çöz ve adımları takip et."} note={data.pedagogicalNote} />
+            <PedagogicalHeader 
+                title={data.title} 
+                instruction={data.instruction || "Algoritmanın mantığını çöz ve adımları takip et."} 
+                note={data.pedagogicalNote} 
+            />
             
             <div className="mb-8 p-8 bg-zinc-50 text-zinc-900 rounded-[2.5rem] shadow-inner relative overflow-hidden border-2 border-zinc-200">
                 <div className="absolute top-0 right-0 p-6 opacity-5 rotate-12"><i className="fa-solid fa-microchip text-9xl"></i></div>
