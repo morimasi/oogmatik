@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
   <head>
@@ -91,17 +90,15 @@
           margin: 0 auto;
           width: 210mm;
           min-height: 297mm;
-          height: auto; 
-          padding-bottom: 10mm;
+          padding: 10mm;
           position: relative;
           overflow: visible !important;
-          flex-shrink: 0;
           display: flex;
           flex-direction: column;
+          box-sizing: border-box;
       }
 
-      /* Prevent items from being cut in half during page breaks */
-      .break-inside-avoid, .item-card, .pedagogical-header, .question-block {
+      .break-inside-avoid {
           break-inside: avoid !important;
           page-break-inside: avoid !important;
       }
@@ -131,11 +128,11 @@
           }
           .print-page {
               width: 210mm !important;
-              min-height: 296mm !important; /* Slightly less than A4 to prevent stray blank pages */
-              height: auto !important;
-              padding: 0 !important;
+              min-height: 296mm !important;
+              height: 296mm !important; /* Fixed height for consistency */
+              padding: 12mm !important;
               margin: 0 !important;
-              overflow: visible !important;
+              overflow: hidden !important;
               page-break-after: always !important;
               break-after: page !important;
               display: flex !important;
@@ -147,31 +144,25 @@
               print-color-adjust: exact !important;
           }
           
-          /* Remove print-time blank spaces */
-          .worksheet-page {
-              min-height: 0 !important;
-              padding-bottom: 5mm !important;
+          /* Force filling the page */
+          .worksheet-content {
+              flex: 1 !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
           }
 
-          /* Force columns in print even if browser width is small */
-          .grid {
+          .grid, .dynamic-grid {
               display: grid !important;
+              flex: 1 !important;
           }
+
           .print-grid-2 {
               grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+              gap: 15mm !important;
           }
 
-          .text-black { color: #000000 !important; }
-          .bg-white { background-color: #ffffff !important; }
-          
-          /* Preserve essential colors */
-          .bg-indigo-600, .bg-amber-500, .bg-emerald-500, .bg-zinc-900, .bg-indigo-500, .bg-rose-500, .bg-blue-500 {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-          }
-          
-          /* Hide artifacts */
-          .no-print, .edit-handle, button, .page-navigator, .page-label-container {
+          .no-print {
               display: none !important;
           }
       }
