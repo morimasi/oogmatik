@@ -83,8 +83,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
                     <div id={`page-${index}`} className="worksheet-page print-page" style={pageStyle}>
                         
-                        {/* Header Area */}
-                        <div className="w-full px-12 py-8 flex justify-between items-end border-b border-zinc-100" style={{ display: 'var(--display-student-info)' }}>
+                        {/* Header Area - Conditioned by Settings */}
+                        <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-4" style={{ display: 'var(--display-student-info)' }}>
                             <div className="flex gap-8">
                                 <div className="flex flex-col text-left">
                                     <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Ad Soyad</span>
@@ -109,8 +109,8 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
                         {showQR && <WorkbookQR url="https://bursadisleksi.com" />}
 
-                        {/* Content Area */}
-                        <div className="w-full px-12 py-10 flex flex-col relative z-10 flex-1">
+                        {/* Content Area - Minimized Padding for Print Efficiency */}
+                        <div className="w-full px-4 py-4 flex flex-col relative z-10 flex-1">
                             <style>{`
                                 .worksheet-content {
                                     font-family: var(--worksheet-font-family), sans-serif;
@@ -136,7 +136,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                         </div>
 
                         {/* Footer Area */}
-                        <div className="w-full px-12 pb-6 flex justify-between items-end text-[10px] text-zinc-400 font-mono mt-auto" style={{ display: 'var(--display-footer)' }}>
+                        <div className="w-full px-4 pb-4 flex justify-between items-end text-[8px] text-zinc-400 font-mono mt-auto" style={{ display: 'var(--display-footer)' }}>
                             <span>Bursa Disleksi AI © {new Date().getFullYear()}</span>
                             <span>{pageData.title || 'Çalışma Sayfası'}</span>
                         </div>

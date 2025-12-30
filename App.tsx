@@ -35,9 +35,9 @@ const initialStyleSettings: StyleSettings = {
     scale: 1, 
     borderColor: '#d4d4d8',
     borderWidth: 1,
-    margin: 20, 
+    margin: 10, // Default margin reduced for better print
     columns: 1,
-    gap: 16,
+    gap: 12, // Tighter gap
     orientation: 'portrait',
     themeBorder: 'simple',
     contentAlign: 'center',
@@ -46,19 +46,19 @@ const initialStyleSettings: StyleSettings = {
     visualStyle: 'card', 
     showPedagogicalNote: false,
     showMascot: false,
-    showStudentInfo: false,
-    showTitle: false,
-    showInstruction: false,
+    showStudentInfo: false, // Default to false as requested
+    showTitle: true,
+    showInstruction: true,
     showImage: false,
     showFooter: false,
-    smartPagination: false,
-    fontFamily: 'OpenDyslexic',
-    lineHeight: 1.5,
+    smartPagination: true,
+    fontFamily: 'Lexend',
+    lineHeight: 1.4,
     letterSpacing: 0
 };
 
 const initialUiSettings: UiSettings = {
-    fontFamily: 'OpenDyslexic',
+    fontFamily: 'Lexend',
     fontSizeScale: 1,
     letterSpacing: 'normal',
     lineHeight: 1.6,
@@ -691,14 +691,7 @@ const AppContent: React.FC = () => {
                     
                     {currentView === 'assessment' && (
                         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-40 overflow-y-auto">
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <AssessmentModule 
-                                    onBack={handleGoBack}
-                                    onSelectActivity={handleSelectActivity}
-                                    onAddToWorkbook={handleAddToWorkbookFromReport}
-                                    onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
-                                />
-                            </Suspense>
+                            <Suspense fallback={<LoadingSpinner />}><AssessmentModule onBack={handleGoBack} onSelectActivity={handleSelectActivity} onAddToWorkbook={handleAddToWorkbookFromReport} onAutoGenerateWorkbook={handleAutoGenerateWorkbook} /></Suspense>
                         </div>
                     )}
                 </div>
@@ -710,12 +703,7 @@ const AppContent: React.FC = () => {
             <StudentInfoModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} currentProfile={studentProfile} onSave={(p) => setStudentProfile(p)} onClear={() => setStudentProfile(null)} />
             <SettingsModal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} uiSettings={uiSettings} onUpdateUiSettings={setUiSettings} theme={theme} onUpdateTheme={setTheme} />
             
-            <AssessmentReportViewer 
-                assessment={selectedSavedReport} 
-                onClose={() => setSelectedSavedReport(null)} 
-                user={user} 
-                onSelectActivity={handleSelectActivity}
-            />
+            <AssessmentReportViewer assessment={selectedSavedReport} onClose={() => setSelectedSavedReport(null)} user={user} onSelectActivity={handleSelectActivity} />
 
             <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi">
                 <HistoryView historyItems={historyItems} onRestore={handleRestoreFromHistory} onSaveToArchive={handleSaveHistoryItem} onDelete={deleteHistoryItem} onClearAll={clearHistory} onClose={() => setOpenModal(null)} />
