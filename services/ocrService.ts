@@ -7,47 +7,48 @@ import { ACTIVITIES } from '../constants';
 export const ocrService = {
     /**
      * Specialized multimodal analysis for converting physical activities into digital blueprints.
+     * Pinned to gemini-3-flash-preview as per strict instruction.
      */
-    processImage: async (base64Image: string, targetType?: 'CONVERTER' | 'ALGORITHM'): Promise<OCRResult> => {
+    processImage: async (base64Image: string, targetType: 'CONVERTER' | 'ALGORITHM'): Promise<OCRResult> => {
         const validIds = ACTIVITIES.map(a => a.id).join(', ');
 
         const prompt = targetType === 'ALGORITHM' ? `
-        [ROL: KIDEMLİ ALGORİTMA ve MANTIK TASARIMCISI]
-        GÖREV: Görüntüdeki etkinliğin MANTIKSAL AKIŞINI (Algoritmasını) çıkar. 
+        [ROL: KIDEMLİ ALGORİTMA TASARIMCISI & ÖZEL EĞİTİM PROFESÖRÜ]
+        GÖREV: Görüntüdeki etkinliğin MANTIKSAL AKIŞINI (Algoritmasını) analiz et. 
         
         ANALİZ KRİTERLERİ:
-        1. **Adım Adım Yapı:** Başlangıçtan bitişe giden mantıksal adımları belirle.
+        1. **Adım Adım Yapı:** Başlangıçtan bitişe giden mantıksal adımları ("Başla", "İşlem", "Karar", "Giriş/Çıkış", "Bitiş") belirle.
         2. **Karar Mekanizmaları:** Eğer görselde bir yol ayırımı, evet/hayır durumu veya koşul varsa bunu 'decision' adımı olarak işaretle.
-        3. **Giriş/Çıkış:** Kullanıcının girmesi gereken verileri (input) ve elde edilen sonucu (output) belirle.
-        4. **Algoritma Özeti:** Bu mantığı 'Algorithm Generator' modülünde çalışacak teknik bir talimata dönüştür.
+        3. **İçerik Klonlama:** Orijinaldeki konuyu koru ama adımları modern, disleksi dostu bir dille yeniden yaz.
         
         ÇIKTI (Kesinlikle JSON):
         {
             "detectedType": "ALGORITHM_GENERATOR",
-            "title": "Analiz Edilen Algoritma",
-            "description": "Görselden çıkarılan mantıksal akış şeması.",
-            "blueprint": "AKIŞ TALİMATI: [ADIMLAR] + [KARARLAR]. Her adım net ve sıralı olmalı."
+            "title": "Görselden Üretilen Algoritma",
+            "description": "Görseldeki mantıksal akışın dijital analizi.",
+            "blueprint": "AKIŞ TALİMATI: [ADIMLAR] + [KARARLAR]. Her adım net ve sıralı olmalı. Çocukların anlayabileceği basitlikte kurgula.",
+            "layoutHint": { "type": "flowchart", "nodeCount": 6 }
         }
         ` : `
-        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI]
-        GÖREV: Görüntüdeki etkinliğin MİMARİ PLANINI (Blueprint) çıkar. 
+        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI & ÖZEL ÖĞRENME GÜÇLÜĞÜ UZMANI]
+        GÖREV: Görüntüdeki çalışma sayfasının MİMARİ PLANINI (Blueprint) çıkar. 
         
-        KRİTİK KURALLAR:
-        1. **Döngü Yasaktır:** Soruları veya içerikleri tek tek yazma. Yapıyı ve kuralı tarif et. 
-        2. **Birebir Klonlama:** Orijinal sayfadaki tablo sütun sayısını, grid yapısını ve görsel yerleşimlerini (sol/sağ/üst) teknik olarak belirt.
-        3. **Algoritma Çıkarımı:** Etkinliğin çözüm mantığını (eşleştirme mi, hesaplama mı, boyama mı) teknik bir dille özetle.
+        MİMARİ ANALİZ KURALLARI:
+        1. **Yapısal Sadakat:** Orijinal sayfadaki tablo sütun sayısını, grid yapısını ve görsel yerleşimlerini (sol/sağ/üst) teknik olarak belirle.
+        2. **Mantık Klonlama:** Sayfadaki soruların çözüm mantığını (eşleştirme mi, hesaplama mı, boyama mı) teknik bir dille özetle.
+        3. **Döngü Yasaktır:** Soruları veya içerikleri tek tek kopyalama. Yapıyı ve kuralı tarif et. 
         
         ÇIKTI (Kesinlikle JSON):
         {
             "detectedType": "ActivityType",
-            "title": "Ana Başlık",
-            "description": "Kısa özet",
+            "title": "Kağıttan Dönüştürülen Etkinlik",
+            "description": "Fiziksel materyalden AI ile üretilen yeni form.",
             "layoutHint": {
-                "containerType": "grid | list",
+                "containerType": "grid | list | table",
                 "gridCols": 1,
                 "hasImages": true
             },
-            "blueprint": "TEKNİK ÖZET: [YAPI] + [SORU TİPİ] + [GÖRSEL KONUMU]. Örn: 3x4 tablo yapısı, hücrelerde meyve isimleri, her satır sonunda boyama alanı."
+            "blueprint": "TEKNİK ÖZET: [YAPI] + [SORU TİPİ] + [GÖRSEL KONUMU]. Örn: 3x4 tablo yapısı, hücrelerde nesne isimleri, her satır sonunda cevap kutusu."
         }
         `;
 
@@ -62,7 +63,8 @@ export const ocrService = {
                     properties: {
                         containerType: { type: Type.STRING },
                         gridCols: { type: Type.NUMBER },
-                        hasImages: { type: Type.BOOLEAN }
+                        hasImages: { type: Type.BOOLEAN },
+                        nodeCount: { type: Type.NUMBER }
                     }
                 },
                 blueprint: { type: Type.STRING }
@@ -71,7 +73,7 @@ export const ocrService = {
         };
 
         try {
-            // Model specifically pinned to gemini-3-flash-preview as per professor's instruction
+            // Force use of gemini-3-flash-preview as instructed
             const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-flash-preview');
             
             let safeType = result.detectedType;
@@ -81,13 +83,13 @@ export const ocrService = {
             return {
                 rawText: '', 
                 detectedType: safeType,
-                title: result.title || 'Analiz Edilen Etkinlik',
-                description: result.description || 'Tasarım klonlandı.',
+                title: result.title || 'Analiz Edilen Materyal',
+                description: result.description || 'AI ile yeniden yapılandırıldı.',
                 generatedTemplate: result.blueprint || '',
                 structuredData: {
                     difficulty: 'Orta',
                     itemCount: 10,
-                    topic: 'Genel',
+                    topic: 'Görsel Analiz',
                     instructions: result.blueprint || '',
                     components: [],
                     layoutHint: result.layoutHint 

@@ -6,40 +6,39 @@ import { getStudentContextPrompt, PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } fro
 
 /**
  * Generates an Algorithm Flowchart worksheet.
- * Supports Multimodal analysis if an image is provided in options.
+ * Supports Multimodal analysis using gemini-3-flash-preview.
  */
 export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions): Promise<AlgorithmData[]> => {
     const { topic, difficulty, worksheetCount, studentContext, customInput } = options;
     
-    // Check if we have an image to clone from
+    // Check if we have an image to clone from (Multimodal Mode)
     const sourceImage = typeof customInput === 'string' && customInput.startsWith('data:image') ? customInput : null;
 
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${getStudentContextPrompt(studentContext)}
     
-    KONU: "${topic || 'Günlük Yaşam'}"
+    KONU: "${topic || 'Günlük Hayat Mantığı'}"
     ZORLUK: ${difficulty}
     
-    ${sourceImage ? '[ÖNEMLİ]: Ekteki görseldeki mantıksal akışı analiz et ve onu modern, çocuk dostu bir algoritmaya dönüştür.' : ''}
+    ${sourceImage ? '[ÖNEMLİ]: Ekteki görseldeki mantıksal akış şemasını ve problem çözüm adımlarını analiz et. Bu mantığı kullanarak tamamen yeni verilerle disleksi dostu bir algoritma üret.' : 'Yeni bir problem senaryosu üzerinden sıralı mantık algoritması üret.'}
 
-    GÖREV: Çocuklar için sıralı mantık ve problem çözmeyi öğreten bir AKIŞ ŞEMASI (Algorithm Flowchart) oluştur.
-    - Bir problem senaryosu belirle (Örn: Çay demleme, okula gitme, hata düzeltme). 
-    - Öğrencinin ilgi alanları varsa senaryoyu ona göre kurgula.
-    - Adım adım bir süreç tasarla.
-    - Karar noktaları (Evet/Hayır) ekle.
+    TASARIM KURALLARI:
+    - Bir problem senaryosu (challenge) belirle.
+    - Adım adım bir çözüm süreci tasarla (Min 5, Max 8 adım).
+    - Mutlaka bir karar noktası (decision) ekle.
     
     ADIM TİPLERİ:
-    - 'start': Başlangıç (Oval)
-    - 'process': Eylem (Dikdörtgen)
-    - 'decision': Karar (Baklava Dilimi)
-    - 'input': Giriş
-    - 'output': Çıktı
-    - 'end': Bitiş
+    - 'start': Başlangıç
+    - 'process': Eylem adımı
+    - 'decision': Koşullu ayrım (Evet/Hayır)
+    - 'input': Bilgi girişi
+    - 'output': Bilgi çıkışı
+    - 'end': Sonuç
     
     ${IMAGE_GENERATION_GUIDE}
 
-    ÇIKTI: JSON formatında bir dizi (array) döndür. Her eleman bir çalışma sayfası verisi olmalıdır.
+    ÇIKTI: JSON formatında bir dizi (array).
     `;
 
     const schema = {
@@ -59,16 +58,13 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
                         properties: {
                             id: { type: Type.INTEGER },
                             type: { type: Type.STRING, enum: ['start', 'process', 'decision', 'input', 'output', 'end'] },
-                            text: { type: Type.STRING },
-                            next: { type: Type.INTEGER },
-                            yes: { type: Type.INTEGER },
-                            no: { type: Type.INTEGER }
+                            text: { type: Type.STRING }
                         },
                         required: ['id', 'type', 'text']
                     }
                 }
             },
-            required: ['title', 'steps', 'challenge', 'instruction', 'pedagogicalNote', 'imagePrompt']
+            required: ['title', 'steps', 'challenge']
         }
     };
 
