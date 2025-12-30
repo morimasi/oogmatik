@@ -324,6 +324,7 @@ const AppContent: React.FC = () => {
             setActiveStudent(null);
         }
         navigateTo('generator');
+        setIsSidebarExpanded(true); // Ensure expanded on load
     };
 
     const handleSelectActivity = (activityType: ActivityType | null) => {
@@ -332,12 +333,12 @@ const AppContent: React.FC = () => {
         }
         
         setActiveCurriculumSession(null);
-        
         setSelectedActivity(activityType);
         setWorksheetData(null);
         setError(null);
         setCurrentView('generator');
         if (isSidebarOpen) setIsSidebarOpen(false);
+        if (activityType) setIsSidebarExpanded(true); // AUTO EXPAND ON CLICK
     };
 
     const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, studentId?: string) => {
@@ -355,6 +356,7 @@ const AppContent: React.FC = () => {
         setSelectedActivity(activityType as ActivityType);
         setWorksheetData(null); 
         navigateTo('generator');
+        setIsSidebarExpanded(true); // Ensure expanded
     };
 
     const handleCompleteCurriculumActivity = async () => {
@@ -484,6 +486,7 @@ const AppContent: React.FC = () => {
     const handleOCRResult = (result: any) => {
         alert("İçerik başarıyla tarandı!");
         navigateTo('generator');
+        setIsSidebarExpanded(true); // Show settings
     };
 
     const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
@@ -707,7 +710,6 @@ const AppContent: React.FC = () => {
             <StudentInfoModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} currentProfile={studentProfile} onSave={(p) => setStudentProfile(p)} onClear={() => setStudentProfile(null)} />
             <SettingsModal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} uiSettings={uiSettings} onUpdateUiSettings={setUiSettings} theme={theme} onUpdateTheme={setTheme} />
             
-            {/* Assessment Report Viewer for Saved Reports */}
             <AssessmentReportViewer 
                 assessment={selectedSavedReport} 
                 onClose={() => setSelectedSavedReport(null)} 

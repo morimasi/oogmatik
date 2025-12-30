@@ -146,7 +146,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         useThirdNumber: false,
         topic: '',
         useSearch: false,
-        codeLength: 3, // For hints per riddle in logic riddles
+        codeLength: 3, 
     });
 
     useEffect(() => {
@@ -280,16 +280,19 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     );
 
     return (
-        <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700 shadow-xl overflow-hidden w-80">
+        <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700 shadow-xl overflow-hidden w-full transition-all duration-300">
+            {/* Header always visible or has a placeholder when collapsed */}
             <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur-sm shrink-0 flex items-center justify-between z-10 h-[60px]">
                 <div className="flex items-center gap-3 overflow-hidden">
                     <button onClick={onBack} className="text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors shrink-0"><i className="fa-solid fa-arrow-left"></i></button>
-                    <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate uppercase tracking-tight">{activity.title}</h2>
+                    {isExpanded && <h2 className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate uppercase tracking-tight animate-in fade-in slide-in-from-left-2">{activity.title}</h2>}
                 </div>
-                <i className="fa-solid fa-sliders text-zinc-300"></i>
+                {!isExpanded && <div className="text-indigo-500 animate-pulse"><i className={activity.icon}></i></div>}
+                {isExpanded && <i className="fa-solid fa-sliders text-zinc-300"></i>}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0">
+            {/* Content Only Visible When Expanded */}
+            <div className={`flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0 transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 {/* Mode Switcher */}
                 <div className="mb-6">
                     <Label icon="fa-robot">Üretim Modu</Label>
@@ -303,17 +306,17 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                                     : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
                             >
                                 <i className={`fa-solid ${m === 'fast' ? 'fa-bolt' : 'fa-wand-magic-sparkles'}`}></i>
-                                {m === 'fast' ? 'Hızlı (Offline)' : 'AI (Zeki)'}
+                                {m === 'fast' ? 'Hızlı' : 'AI'}
                             </button>
                         ))}
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
-                    <CompactCounter label="Sayfa Sayısı" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={10} icon="fa-copy" />
-                    <CompactCounter label="Soru Adedi" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={60} icon="fa-list-ol" />
+                    <CompactCounter label="Sayfa" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={10} icon="fa-copy" />
+                    <CompactCounter label="Soru" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={60} icon="fa-list-ol" />
                     <div className="col-span-2">
-                        <CompactSelect label="Zorluk Seviyesi" value={options.difficulty} onChange={(v: string) => handleChange('difficulty', v)} options={DIFFICULTY_OPTIONS} icon="fa-gauge-high" />
+                        <CompactSelect label="Zorluk" value={options.difficulty} onChange={(v: string) => handleChange('difficulty', v)} options={DIFFICULTY_OPTIONS} icon="fa-gauge-high" />
                     </div>
                 </div>
 
@@ -328,8 +331,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-blue-500 shadow-sm"><i className="fa-brands fa-google"></i></div>
                                 <div>
-                                    <label className="text-[10px] font-bold text-blue-800 dark:text-blue-200 uppercase block">Google Arama</label>
-                                    <p className="text-[9px] text-blue-600 dark:text-blue-300">İnternet verisi kullan.</p>
+                                    <label className="text-[10px] font-bold text-blue-800 dark:text-blue-200 uppercase block">İnternet</label>
                                 </div>
                             </div>
                             <div className={`relative w-10 h-5 rounded-full cursor-pointer transition-colors ${options.useSearch ? 'bg-blue-600' : 'bg-zinc-300'}`} onClick={() => handleChange('useSearch', !options.useSearch)}>
@@ -340,14 +342,15 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 )}
             </div>
 
-            <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0">
+            {/* Footer button only functional when expanded */}
+            <div className={`p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0 transition-all ${isExpanded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'}`}>
                 <button
                     onClick={() => onGenerate(options)}
                     disabled={isLoading}
                     className="w-full h-11 bg-zinc-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-50 text-white font-black rounded-xl shadow-lg transition-all transform active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2 text-sm uppercase"
                 >
                     {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                    {isLoading ? 'HAZIRLANIYOR' : 'OLUŞTUR'}
+                    {isLoading ? 'BEKLEYİN' : 'OLUŞTUR'}
                 </button>
             </div>
         </div>

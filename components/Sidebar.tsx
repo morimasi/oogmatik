@@ -7,6 +7,7 @@ import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
+import { useStudent } from '../context/StudentContext';
 
 interface SidebarProps {
   selectedActivity: ActivityType | null;
@@ -52,6 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenMathStudio
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
+  const { activeStudent } = useStudent();
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
@@ -84,6 +86,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     setIsLoading(true);
     setWorksheetData(null);
     setError(null);
+
+    const enrichedOptions: GeneratorOptions = {
+        ...options,
+        studentContext: activeStudent || undefined
+    };
+
     const currentAct = getActivityById(selectedActivity);
     const promptId = currentAct?.promptId;
     try {
@@ -91,7 +99,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         if (promptId) {
              const promptTemplate = await adminService.getPromptTemplate(promptId);
              if (promptTemplate) {
-                 const vars = { worksheetCount: options.worksheetCount, difficulty: options.difficulty, topic: options.topic || 'Genel', itemCount: options.itemCount };
+                 const vars = { 
+                     worksheetCount: options.worksheetCount, 
+                     difficulty: options.difficulty, 
+                     topic: options.topic || 'Genel', 
+                     itemCount: options.itemCount,
+                     studentName: activeStudent?.name || 'Öğrenci'
+                 };
                  const aiResult = await adminService.testPrompt(promptTemplate, vars);
                  if (Array.isArray(aiResult)) result = aiResult;
                  else if (aiResult && (aiResult as any).data && Array.isArray((aiResult as any).data)) result = (aiResult as any).data;
@@ -104,13 +118,13 @@ const Sidebar: React.FC<SidebarProps> = ({
             const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
             const runOfflineGenerator = async () => {
                  const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
-                 if (offlineGenerator) return await offlineGenerator(options);
+                 if (offlineGenerator) return await offlineGenerator(enrichedOptions);
                  throw new Error(`"${currentAct?.title}" motoru bulunamadı.`);
             };
             if (options.mode === 'ai') {
                 const onlineGenerator = (generators as any)[generatorFunctionName];
                 if (onlineGenerator) {
-                    try { result = await onlineGenerator(options); } 
+                    try { result = await onlineGenerator(enrichedOptions); } 
                     catch (err) { result = await runOfflineGenerator(); }
                 } else result = await runOfflineGenerator();
             } else result = await runOfflineGenerator();
@@ -134,15 +148,23 @@ const Sidebar: React.FC<SidebarProps> = ({
   const currentActivityObj = selectedActivity ? getActivityById(selectedActivity) : undefined;
 
   return (
-    <aside id="tour-sidebar" className={`fixed inset-y-0 left-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-r border-zinc-200 dark:border-zinc-800 transition-all duration-500 flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[300px]' : 'w-[70px]'}`} aria-label="Etkinlik Menüsü">
+    <aside id="tour-sidebar" className={`fixed inset-y-0 left-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-r border-zinc-200 dark:border-zinc-800 transition-all duration-500 ease-in-out flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[300px]' : 'w-[70px]'}`} aria-label="Etkinlik Menüsü">
         <div className="flex h-full flex-col">
             {selectedActivity && currentActivityObj ? (
-                <GeneratorView activity={currentActivityObj} onGenerate={handleGenerate} onBack={() => onSelectActivity(null)} isLoading={isLoading} isExpanded={isExpanded} onOpenStudentModal={onOpenStudentModal} studentProfile={studentProfile} />
+                <GeneratorView 
+                    activity={currentActivityObj} 
+                    onGenerate={handleGenerate} 
+                    onBack={() => onSelectActivity(null)} 
+                    isLoading={isLoading} 
+                    isExpanded={isExpanded} 
+                    onOpenStudentModal={onOpenStudentModal} 
+                    studentProfile={studentProfile} 
+                />
             ) : (
                 <>
                 <div className="flex-shrink-0 h-[56px] flex items-center justify-between px-3 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-50/30 dark:bg-zinc-800/30">
                     {isExpanded ? (
-                        <div className="relative w-full group">
+                        <div className="relative w-full group animate-in fade-in duration-300">
                             <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-500 transition-colors text-[10px]"></i>
                             <input type="text" placeholder="Etkinlik ara..." className="w-full h-8 pl-8 pr-2 bg-white dark:bg-black/20 border border-zinc-200 dark:border-zinc-700 rounded-lg text-[11px] font-semibold text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all shadow-sm"/>
                         </div>
@@ -153,7 +175,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
 
                 {isExpanded && (
-                    <div className="px-4 py-4 grid grid-cols-1 gap-2 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-2">
+                    <div className="px-4 py-4 grid grid-cols-1 gap-2 shrink-0 border-b border-dashed border-zinc-200 dark:border-zinc-800/50 mb-2 animate-in fade-in slide-in-from-top-2 duration-300">
                         <button onClick={onOpenStudentModal} className="group w-full relative overflow-hidden bg-indigo-600 hover:bg-indigo-700 p-3 rounded-2xl transition-all flex items-center gap-4 shadow-lg shadow-indigo-500/20">
                             <div className="w-10 h-10 shrink-0 rounded-xl bg-white/20 flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
                                 <i className="fa-solid fa-user-graduate text-lg"></i>
@@ -167,20 +189,20 @@ const Sidebar: React.FC<SidebarProps> = ({
                         
                         <div className="grid grid-cols-2 gap-2 mt-1">
                             <button onClick={onOpenOCR} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-indigo-300 transition-all flex flex-col items-center gap-1 group">
-                                <i className="fa-solid fa-camera text-zinc-400 group-hover:text-indigo-500 transition-colors"></i>
+                                <i className="fa-solid fa-camera text-zinc-400 group-hover:text-indigo-500 transition-colors text-xs"></i>
                                 <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Tarayıcı</span>
                             </button>
                             <button onClick={onOpenCurriculum} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-emerald-300 transition-all flex flex-col items-center gap-1 group">
-                                <i className="fa-solid fa-calendar-check text-zinc-400 group-hover:text-emerald-500 transition-colors"></i>
+                                <i className="fa-solid fa-calendar-check text-zinc-400 group-hover:text-emerald-500 transition-colors text-xs"></i>
                                 <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Planlama</span>
                             </button>
-                            <button onClick={onOpenReadingStudio} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-pink-300 transition-all flex flex-col items-center gap-1 group">
-                                <i className="fa-solid fa-book-open text-zinc-400 group-hover:text-pink-500 transition-colors"></i>
-                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Okuma</span>
+                            <button onClick={onOpenReadingStudio} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-blue-400 transition-all flex flex-col items-center gap-1 group">
+                                <i className="fa-solid fa-book-open-reader text-zinc-400 group-hover:text-blue-500 transition-colors text-xs"></i>
+                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Okuma S.</span>
                             </button>
-                            <button onClick={onOpenMathStudio} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-blue-300 transition-all flex flex-col items-center gap-1 group">
-                                <i className="fa-solid fa-calculator text-zinc-400 group-hover:text-blue-500 transition-colors"></i>
-                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Matematik</span>
+                            <button onClick={onOpenMathStudio} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-amber-400 transition-all flex flex-col items-center gap-1 group">
+                                <i className="fa-solid fa-calculator text-zinc-400 group-hover:text-amber-500 transition-colors text-xs"></i>
+                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Matematik S.</span>
                             </button>
                         </div>
                     </div>
