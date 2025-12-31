@@ -100,7 +100,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         gridSize: 4,
         topic: '',
         distractionLevel: 'medium',
-        visualType: 'geometric'
+        visualType: 'geometric',
+        findDiffType: 'linguistic'
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -108,6 +109,48 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        if (activity.id === ActivityType.FIND_THE_DIFFERENCE) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Ayrıştırma Odak Alanı" 
+                        value={options.findDiffType} 
+                        onChange={(v:any) => handleChange('findDiffType', v)}
+                        options={[
+                            { value: 'linguistic', label: 'Dilsel (Ayna Harfler)' },
+                            { value: 'numeric', label: 'Sayısal (Benzer Rakamlar)' },
+                            { value: 'semantic', label: 'Semantik (Kelime Avı)' },
+                            { value: 'pictographic', label: 'Sembolik (Piktogram)' }
+                        ]}
+                        icon="fa-bullseye"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactToggleGroup 
+                            label="Fark Belirginliği" 
+                            selected={options.distractionLevel} 
+                            onChange={(v: string) => handleChange('distractionLevel', v)} 
+                            options={[
+                                { value: 'low', label: 'BELİRGİN' },
+                                { value: 'medium', label: 'ORTA' },
+                                { value: 'high', label: 'HASSAS' },
+                                { value: 'extreme', label: 'MİKRO' }
+                            ]} 
+                        />
+                        <CompactSlider label="Satır Başı Öğe" value={options.gridSize || 4} onChange={(v:number) => handleChange('gridSize', v)} min={3} max={6} icon="fa-table-cells" />
+                    </div>
+
+                    <CompactSlider 
+                        label="Görev Adedi (Satır)" 
+                        value={options.itemCount} 
+                        onChange={(v:number) => handleChange('itemCount', v)} 
+                        min={4} max={12} 
+                        icon="fa-list-ol" 
+                    />
+                </div>
+            );
+        }
+
         if (activity.id === ActivityType.VISUAL_ODD_ONE_OUT) {
             return (
                 <div className="space-y-5">
