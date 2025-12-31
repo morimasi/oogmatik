@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ActivityType, SingleWorksheetData } from '../types';
 import * as MathLogic from './sheets/MathLogicSheets';
@@ -114,7 +113,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.STORY_CREATION_PROMPT: return <Reading.StoryCreationPromptSheet data={data} />;
         case ActivityType.MISSING_PARTS: return <Reading.MissingPartsSheet data={data} />;
         case ActivityType.READING_FLOW: return <Dyslexia.ReadingFlowSheet data={data} />;
-        /* Fix: Added missing cases and correct type mappings */
         case ActivityType.PHONOLOGICAL_AWARENESS: return <Dyslexia.PhonologicalAwarenessSheet data={data} />;
         case ActivityType.RAPID_NAMING: return <Dyslexia.RapidNamingSheet data={data} />;
         case ActivityType.LETTER_DISCRIMINATION: return <Dyslexia.LetterDiscriminationSheet data={data} />;
@@ -135,6 +133,8 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.SHAPE_MATCHING: return <Visual.ShapeMatchingSheet data={data} />;
         case ActivityType.GRID_DRAWING: return <Visual.GridDrawingSheet data={data} />;
         case ActivityType.SYMMETRY_DRAWING: return <Visual.SymmetryDrawingSheet data={data} />;
+        case ActivityType.FIND_IDENTICAL_WORD: return <Visual.FindIdenticalWordSheet data={data} />;
+        case ActivityType.FIND_DIFFERENT_STRING: return <Visual.FindDifferentStringSheet data={data} />;
         default:
             return (
                 <div className="p-12 text-center border-2 border-dashed border-zinc-200 rounded-3xl">

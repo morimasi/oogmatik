@@ -64,24 +64,33 @@ export const generateOfflineGridDrawing = async (options: GeneratorOptions): Pro
 };
 
 export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    const { worksheetCount, gridSize, visualType, useSearch, itemCount } = options;
+    const { worksheetCount, gridSize, visualType, useSearch, itemCount, difficulty } = options;
     const dim = gridSize || 10;
     const axis = (visualType as any) || 'vertical';
+    const mid = Math.floor(dim / 2);
     
-    return Array.from({ length: worksheetCount }, () => {
-        const lines: {x1:number, y1:number, x2:number, y2:number, color:string}[] = [];
-        const steps = itemCount || 5;
-        const mid = Math.floor(dim/2);
-        
-        let cx = axis === 'vertical' ? getRandomInt(0, mid-1) : getRandomInt(0, dim-1);
-        let cy = axis === 'vertical' ? getRandomInt(0, dim-1) : getRandomInt(0, mid-1);
+    const results: SymmetryDrawingData[] = [];
 
-        for(let k=0; k<steps; k++) {
-            const moves = [[0,1],[0,-1],[1,0],[-1,0]];
-            const move = moves[getRandomInt(0,3)];
+    for (let p = 0; p < worksheetCount; p++) {
+        const lines: {x1:number, y1:number, x2:number, y2:number, color:string}[] = [];
+        const dots: {x:number, y:number, color:string}[] = [];
+        
+        // Zorluğa göre adım sayısı ve komplekslik
+        const steps = itemCount || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 7 : difficulty === 'Zor' ? 10 : 14);
+        
+        // Başlangıç noktası eksen sınırında veya içinde
+        let cx = axis === 'vertical' ? getRandomInt(0, mid) : getRandomInt(0, dim);
+        let cy = axis === 'vertical' ? getRandomInt(0, dim) : getRandomInt(0, mid);
+
+        for (let k = 0; k < steps; k++) {
+            const moves = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]];
+            const moveCount = difficulty === 'Başlangıç' ? 4 : 8; // Köşegen hareketler sadece Orta+ seviyede
+            const move = moves[getRandomInt(0, moveCount - 1)];
+            
             let nx = cx + move[0];
             let ny = cy + move[1];
 
+            // Sınır Kontrolü (Sadece referans yarım kürede kalmalı)
             if (axis === 'vertical') {
                 nx = Math.max(0, Math.min(mid, nx));
                 ny = Math.max(0, Math.min(dim, ny));
@@ -90,22 +99,29 @@ export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions):
                 ny = Math.max(0, Math.min(mid, ny));
             }
 
-            lines.push({ x1: cx, y1: cy, x2: nx, y2: ny, color: 'black' });
-            cx = nx; cy = ny;
+            // Eğer hareket gerçekleştiyse ekle
+            if (nx !== cx || ny !== cy) {
+                lines.push({ x1: cx, y1: cy, x2: nx, y2: ny, color: '#1e293b' });
+                if (Math.random() > 0.7) dots.push({ x: nx, y: ny, color: '#4f46e5' });
+                cx = nx; cy = ny;
+            }
         }
 
-        return { 
-            title: 'Simetri Tamamlama', 
-            instruction: 'Kırmızı simetri eksenine göre desenin aynadaki yansımasını diğer tarafa çizin.', 
-            pedagogicalNote: 'Simetri algısı, görsel tamamlama ve planlama becerilerini geliştirir.', 
-            imagePrompt: 'Symmetry', 
+        results.push({ 
+            title: `Profesyonel Simetri Tamamlama (${difficulty})`, 
+            instruction: `${axis === 'vertical' ? 'Dikey' : 'Yatay'} kırmızı eksene göre desenin aynadaki yansımasını diğer tarafa çizerek şekli tamamlayın.`, 
+            pedagogicalNote: "Bu etkinlik; görsel-motor koordinasyonu, parça-bütün algısını ve zihinsel rotasyon yeteneğini klinik düzeyde destekler.", 
+            imagePrompt: 'Symmetry Geometry Art', 
             gridDim: dim, 
-            axis, 
+            axis: axis as 'vertical' | 'horizontal', 
             showCoordinates: !!useSearch, 
             isMirrorImage: true, 
-            lines 
-        };
-    });
+            lines,
+            dots
+        });
+    }
+    
+    return results;
 };
 
 export const generateOfflineWordComparison = async (options: GeneratorOptions): Promise<WordComparisonData[]> => {

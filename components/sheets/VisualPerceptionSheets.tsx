@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
     FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
@@ -180,69 +179,119 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
     const offset = showCoords ? 25 : 10;
 
     return (
-        <div className="flex flex-col h-full bg-white p-2">
-            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
-            <div className="flex-1 flex flex-col items-center justify-center py-10">
-                <EditableElement className="relative p-10 bg-zinc-50 rounded-[3rem] border-2 border-zinc-100 shadow-inner group">
-                    <div className="absolute top-6 left-6 text-[8px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full shadow-sm">
-                        Simetri Merkezi: {axis === 'vertical' ? 'Dikey' : 'Yatay'}
+        <div className="flex flex-col h-full bg-white p-2 font-sans">
+            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+            
+            <div className="flex-1 flex flex-col items-center justify-center py-6">
+                <EditableElement className="relative p-10 bg-[#f8fafc] rounded-[3.5rem] border-4 border-zinc-200 shadow-xl overflow-visible">
+                    {/* Klinik Etiketler */}
+                    <div className="absolute -top-4 -left-4 bg-indigo-600 text-white px-5 py-2 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg transform -rotate-3 z-20">
+                        {axis === 'vertical' ? 'DİKEY SİMETRİ' : 'YATAY SİMETRİ'}
                     </div>
-                    
-                    <div className="bg-white p-2 border-[4px] border-zinc-900 shadow-2xl relative">
+
+                    <div className="bg-white p-4 border-[6px] border-zinc-900 shadow-2xl relative overflow-visible rounded-xl">
                         <svg width={totalSize + offset * 2} height={totalSize + offset * 2} className="overflow-visible">
                             <g transform={`translate(${offset}, ${offset})`}>
-                                {/* Grid ve Koordinatlar */}
+                                {/* Grid Arka Planı */}
                                 {Array.from({ length: gridDim + 1 }).map((_, i) => (
                                     <React.Fragment key={i}>
-                                        <line x1={i * cellSize} y1="0" x2={i * cellSize} y2={totalSize} stroke="#f1f5f9" strokeWidth="1" />
-                                        <line x1="0" y1={i * cellSize} x2={totalSize} y2={i * cellSize} stroke="#f1f5f9" strokeWidth="1" />
+                                        <line x1={i * cellSize} y1="0" x2={i * cellSize} y2={totalSize} stroke="#e2e8f0" strokeWidth="1" />
+                                        <line x1="0" y1={i * cellSize} x2={totalSize} y2={i * cellSize} stroke="#e2e8f0" strokeWidth="1" />
+                                        
                                         {showCoords && (
                                             <>
-                                                <text x={i * cellSize} y="-8" textAnchor="middle" fontSize="8" fontWeight="black" className="fill-zinc-300">{String.fromCharCode(65 + i)}</text>
-                                                <text x="-8" y={i * cellSize} dominantBaseline="middle" textAnchor="end" fontSize="8" fontWeight="black" className="fill-zinc-300">{i + 1}</text>
+                                                {/* Yatay Harf Etiketleri (A, B, C...) */}
+                                                <text x={i * cellSize} y="-12" textAnchor="middle" fontSize="10" fontWeight="black" className="fill-zinc-400 font-mono">
+                                                    {String.fromCharCode(65 + i)}
+                                                </text>
+                                                {/* Dikey Sayı Etiketleri (1, 2, 3...) */}
+                                                <text x="-12" y={i * cellSize} dominantBaseline="middle" textAnchor="end" fontSize="10" fontWeight="black" className="fill-zinc-400 font-mono">
+                                                    {i + 1}
+                                                </text>
                                             </>
                                         )}
                                     </React.Fragment>
                                 ))}
 
-                                {/* Simetri Ekseni */}
-                                {axis === 'vertical' ? (
-                                    <line x1={totalSize / 2} y1="-10" x2={totalSize / 2} y2={totalSize + 10} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" />
-                                ) : (
-                                    <line x1="-10" y1={totalSize / 2} x2={totalSize + 10} y2={totalSize / 2} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" />
-                                )}
+                                {/* Simetri Kılavuz Noktaları (Tüm Grid Üzerinde) */}
+                                {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
+                                    const r = Math.floor(i / (gridDim + 1));
+                                    const c = i % (gridDim + 1);
+                                    return <circle key={i} cx={c * cellSize} cy={r * cellSize} r="1.5" className="fill-zinc-300" />
+                                })}
 
-                                {/* Hazır Çizim Hatları */}
+                                {/* Hazır Çizim Hatları (Referans Taraf) */}
                                 {(data?.lines || []).map((l, i) => (
-                                    <line key={i} x1={l.x1 * cellSize} y1={l.y1 * cellSize} x2={l.x2 * cellSize} y2={l.y2 * cellSize} stroke={l.color || "black"} strokeWidth="3" strokeLinecap="round" />
+                                    <line 
+                                        key={i} 
+                                        x1={l.x1 * cellSize} y1={l.y1 * cellSize} 
+                                        x2={l.x2 * cellSize} y2={l.y2 * cellSize} 
+                                        stroke={l.color || "#0f172a"} 
+                                        strokeWidth="4" 
+                                        strokeLinecap="round"
+                                        className="drop-shadow-sm"
+                                    />
                                 ))}
 
-                                {/* Hazır Noktalar */}
+                                {/* Referans Noktalar */}
                                 {(data?.dots || []).map((dot, i) => (
-                                    <circle key={i} cx={dot.x * cellSize} cy={dot.y * cellSize} r="5" fill={dot.color || "black"} />
+                                    <circle key={i} cx={dot.x * cellSize} cy={dot.y * cellSize} r="5" fill={dot.color || "#4f46e5"} className="shadow-sm" />
                                 ))}
+
+                                {/* Simetri Ekseni (Kritik Vurgu) */}
+                                {axis === 'vertical' ? (
+                                    <line x1={totalSize / 2} y1="-15" x2={totalSize / 2} y2={totalSize + 15} stroke="#f43f5e" strokeWidth="5" strokeDasharray="10,5" className="drop-shadow-md" />
+                                ) : (
+                                    <line x1="-15" y1={totalSize / 2} x2={totalSize + 15} y2={totalSize / 2} stroke="#f43f5e" strokeWidth="5" strokeDasharray="10,5" className="drop-shadow-md" />
+                                )}
                             </g>
                         </svg>
+
+                        {/* Köşe Süsleri */}
+                        <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-zinc-900 -translate-x-2 -translate-y-2"></div>
+                        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-zinc-900 translate-x-2 translate-y-2"></div>
+                    </div>
+
+                    {/* Klinik Yönergeler Alt Bilgi */}
+                    <div className="mt-8 flex justify-center gap-12 opacity-50">
+                        <div className="flex flex-col items-center">
+                            <i className="fa-solid fa-compass-drafting text-xl text-zinc-400 mb-1"></i>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Denge</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <i className="fa-solid fa-eye text-xl text-zinc-400 mb-1"></i>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Odak</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <i className="fa-solid fa-brain text-xl text-zinc-400 mb-1"></i>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Biliş</span>
+                        </div>
                     </div>
                 </EditableElement>
-                
-                <div className="mt-12 grid grid-cols-3 gap-8 w-full max-w-2xl opacity-60">
-                    <div className="text-center">
-                        <i className="fa-solid fa-compass-drafting text-2xl text-zinc-300 mb-2"></i>
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Hizalama</p>
+
+                {/* Geri Bildirim ve Not Alanı */}
+                <div className="mt-10 grid grid-cols-2 gap-10 w-full max-w-3xl border-t border-zinc-100 pt-8">
+                    <div className="space-y-4">
+                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b pb-1">Hata Analizi</h4>
+                        <div className="space-y-2">
+                             <div className="flex items-center gap-3"><div className="w-4 h-4 rounded border-2 border-zinc-200"></div><span className="text-xs text-zinc-500">Yön Karıştırma (Ayna Hatası)</span></div>
+                             <div className="flex items-center gap-3"><div className="w-4 h-4 rounded border-2 border-zinc-200"></div><span className="text-xs text-zinc-500">Koordinat Kaydırma</span></div>
+                        </div>
                     </div>
-                    <div className="text-center">
-                         <i className="fa-solid fa-eye text-2xl text-indigo-300 mb-2"></i>
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Görsel Sabitlik</p>
-                    </div>
-                    <div className="text-center">
-                        <i className="fa-solid fa-brain text-2xl text-zinc-300 mb-2"></i>
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Bilişsel Esneklik</p>
+                    <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100">
+                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">Uzman Gözlemi</h4>
+                         <div className="h-20 border-b border-zinc-200 border-dashed"></div>
                     </div>
                 </div>
             </div>
-            <div className="mt-auto pt-6 text-center border-t border-zinc-100">
-                <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Simetrik Muhakeme Serisi</p>
+
+            <div className="mt-auto pt-6 flex justify-between items-end border-t border-zinc-100 px-6">
+                <p className="text-[7px] text-zinc-300 font-bold uppercase tracking-[0.4em]">Bursa Disleksi AI • Uzamsal-Motor Entegrasyon Laboratuvarı</p>
+                <div className="flex gap-2">
+                     <div className="w-6 h-1 bg-indigo-500 rounded-full"></div>
+                     <div className="w-6 h-1 bg-zinc-200 rounded-full"></div>
+                     <div className="w-6 h-1 bg-zinc-200 rounded-full"></div>
+                </div>
             </div>
         </div>
     );
@@ -338,6 +387,7 @@ export const ShapeMatchingSheet: React.FC<{ data: ShapeMatchingData }> = ({ data
     </div>
 );
 
+// Fix: Renamed FindIdenticalWordData component to FindIdenticalWordSheet to avoid collision with interface name
 export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />

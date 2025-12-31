@@ -127,23 +127,30 @@ export const generateGridDrawingFromAI = async (options: GeneratorOptions): Prom
 };
 
 export const generateSymmetryDrawingFromAI = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    const { difficulty, worksheetCount, gridSize, visualType, useSearch } = options;
+    const { difficulty, worksheetCount, gridSize, visualType, useSearch, itemCount } = options;
+    const axis = visualType || 'vertical';
+    
     const prompt = `
-    [ROL: REHABİLİTASYON UZMANI]
-    GÖREV: ${gridSize}x${gridSize} boyutunda "Simetri Tamamlama" (Ayna Çizimi) etkinliği oluştur.
+    [ROL: REHABİLİTASYON UZMANI & GÖRSEL ALGI PROFESÖRÜ]
+    GÖREV: ${gridSize}x${gridSize} boyutunda profesyonel "Simetri Tamamlama" (Ayna Çizimi) etkinliği oluştur.
     
     PARAMETRELER:
-    - Eksen: ${visualType || 'vertical'} (Dikey veya Yatay simetri hattı).
-    - Koordinat Sistemi: ${useSearch ? 'A-B-C ve 1-2-3 etiketleri aktif.' : 'Sadece görsel kılavuz noktaları.'}
-    - Zorluk: ${difficulty}.
-    
-    YAPI:
-    - SADECE SİMETRİ EKSENİNİN BİR TARAFINDAKİ (Sol veya Üst) çizgileri ve noktaları (x, y) tanımla. 
-    - Öğrenci bu çizgilerin ayna görüntüsünü boş tarafa çizecektir.
-    - Çizgiler karmaşık bir figür oluşturmalıdır.
+    - Eksen: ${axis} (Simetri hattı ${axis === 'vertical' ? 'DİKEY - dikey bir ayna' : 'YATAY - yatay bir ayna'} gibi davranacaktır).
+    - Koordinat Sistemi: ${useSearch ? 'A-B-C ve 1-2-3 etiketleri ile koordinat odaklı çalışma.' : 'Sadece görsel kılavuz noktaları.'}
+    - Zorluk Seviyesi: ${difficulty}.
+    - Segment Adedi: ~${itemCount || 8} çizgi segmenti.
+
+    TASARIM KURALLARI:
+    1. ${gridSize}x${gridSize} bir ızgarada koordinatlar [0, ${gridSize}] arasındadır.
+    2. SADECE simetri ekseninin ${axis === 'vertical' ? 'SOL' : 'ÜST'} tarafındaki çizgileri tanımla. 
+    3. Örn: Dikey eksende ${gridSize}x${gridSize} grid için x değerleri 0 ile ${Math.floor(gridSize/2)} arasında olmalıdır.
+    4. Çizgiler birleşerek anlamlı veya kompleks geometrik bir figür (ev yarısı, kelebek kanadı, roket yarısı vb.) oluşturmalıdır.
+    5. Koordinatların tam sayı olduğundan emin ol.
     
     ${PEDAGOGICAL_PROMPT}
+    "pedagogicalNote" alanında disleksi/disgrafi rehabilitasyonunda 'mental rotation' (zihinsel döndürme) ve 'spatial awareness' (uzamsal farkındalık) üzerindeki etkisini vurgula.
     `;
+
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -158,7 +165,13 @@ export const generateSymmetryDrawingFromAI = async (options: GeneratorOptions): 
                 type: Type.ARRAY, 
                 items: { 
                     type: Type.OBJECT, 
-                    properties: { x1: { type: Type.INTEGER }, y1: { type: Type.INTEGER }, x2: { type: Type.INTEGER }, y2: { type: Type.INTEGER }, color: { type: Type.STRING } }, 
+                    properties: { 
+                        x1: { type: Type.INTEGER }, 
+                        y1: { type: Type.INTEGER }, 
+                        x2: { type: Type.INTEGER }, 
+                        y2: { type: Type.INTEGER }, 
+                        color: { type: Type.STRING } 
+                    }, 
                     required: ["x1", "y1", "x2", "y2"] 
                 } 
             },
@@ -173,6 +186,7 @@ export const generateSymmetryDrawingFromAI = async (options: GeneratorOptions): 
         },
         required: ["title", "instruction", "gridDim", "lines", "axis", "pedagogicalNote"]
     };
+
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<SymmetryDrawingData[]>;
 };
