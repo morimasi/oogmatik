@@ -58,152 +58,34 @@ export const generateFromRichPrompt = async (activityType: ActivityType, instruc
     return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
 
-export const generateFamilyRelationsFromAI = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
-    const { worksheetCount, itemCount, topic, studentContext } = options;
-    const prompt = `
-    ${PEDAGOGICAL_BASE}
-    ${getStudentContextPrompt(studentContext)}
-    Akrabalık İlişkileri Eşleştirme etkinliği oluştur. 
-    Konu: ${topic || 'Akrabalık'}. ${itemCount || 10} adet çift oluştur. 
-    Sadece JSON döndür.
-    `;
-    const schema = { 
-        type: Type.ARRAY, 
-        items: { 
-            type: Type.OBJECT, 
-            properties: { 
-                title: { type: Type.STRING }, 
-                instruction: { type: Type.STRING }, 
-                pedagogicalNote: { type: Type.STRING }, 
-                imagePrompt: { type: Type.STRING }, 
-                leftColumn: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { text: { type: Type.STRING }, id: { type: Type.NUMBER } }, 
-                        required: ['text', 'id'] 
-                    } 
-                }, 
-                rightColumn: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { text: { type: Type.STRING }, id: { type: Type.NUMBER } }, 
-                        required: ['text', 'id'] 
-                    } 
-                } 
-            }, 
-            required: ['title', 'instruction', 'leftColumn', 'rightColumn'] 
-        } 
-    };
-    return generateWithSchema(prompt, schema) as Promise<FamilyRelationsData[]>;
-};
-
-export const generateLogicDeductionFromAI = async (options: GeneratorOptions): Promise<LogicDeductionData[]> => {
-    const { worksheetCount, itemCount, topic, difficulty, studentContext } = options;
-    const prompt = `
-    ${PEDAGOGICAL_BASE}
-    ${getStudentContextPrompt(studentContext)}
-    Mantıksal Çıkarım Bulmacaları. 
-    Kategori: ${topic || 'Karışık'}. Zorluk: ${difficulty}. ${itemCount || 4} adet soru üret. 
-    SADECE JSON.
-    `;
-    const schema = { 
-        type: Type.ARRAY, 
-        items: { 
-            type: Type.OBJECT, 
-            properties: { 
-                title: { type: Type.STRING }, 
-                instruction: { type: Type.STRING }, 
-                pedagogicalNote: { type: Type.STRING }, 
-                questions: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            riddle: { type: Type.STRING }, 
-                            options: { type: Type.ARRAY, items: { type: Type.STRING } }, 
-                            answerIndex: { type: Type.NUMBER }, 
-                            correctLetter: { type: Type.STRING } 
-                        }, 
-                        required: ['riddle', 'options', 'answerIndex'] 
-                    } 
-                } 
-            }, 
-            required: ['title', 'instruction', 'questions'] 
-        } 
-    };
-    return generateWithSchema(prompt, schema) as Promise<LogicDeductionData[]>;
-};
-
-export const generateNumberBoxLogicFromAI = async (options: GeneratorOptions): Promise<NumberBoxLogicData[]> => {
-    const { worksheetCount, itemCount, numberRange, studentContext } = options;
-    const prompt = `
-    ${PEDAGOGICAL_BASE}
-    ${getStudentContextPrompt(studentContext)}
-    Kutulu Sayı Analizi etkinliği. 
-    Sayı Aralığı: ${numberRange || '1-50'}. ${itemCount || 2} adet bulmaca seti üret.
-    SADECE JSON.
-    `;
-    const schema = { 
-        type: Type.ARRAY, 
-        items: { 
-            type: Type.OBJECT, 
-            properties: { 
-                title: { type: Type.STRING }, 
-                instruction: { type: Type.STRING }, 
-                pedagogicalNote: { type: Type.STRING }, 
-                puzzles: { 
-                    type: Type.ARRAY, 
-                    items: { 
-                        type: Type.OBJECT, 
-                        properties: { 
-                            box1: { type: Type.ARRAY, items: { type: Type.NUMBER } }, 
-                            box2: { type: Type.ARRAY, items: { type: Type.NUMBER } }, 
-                            questions: { 
-                                type: Type.ARRAY, 
-                                items: { 
-                                    type: Type.OBJECT, 
-                                    properties: { 
-                                        text: { type: Type.STRING }, 
-                                        options: { type: Type.ARRAY, items: { type: Type.STRING } }, 
-                                        correctAnswer: { type: Type.STRING } 
-                                    }, 
-                                    required: ['text', 'options'] 
-                                } 
-                            } 
-                        }, 
-                        required: ['box1', 'box2', 'questions'] 
-                    } 
-                } 
-            }, 
-            required: ['title', 'instruction', 'puzzles'] 
-        } 
-    };
-    return generateWithSchema(prompt, schema) as Promise<NumberBoxLogicData[]>;
-};
-
 export const generateMapInstructionFromAI = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
-    const { worksheetCount, difficulty, studentContext } = options;
+    const { worksheetCount, difficulty, studentContext, mapInstructionTypes, emphasizedRegion, itemCount } = options;
     
+    const typesDesc = mapInstructionTypes?.join(', ') || 'Yönler, Harf Özellikleri, Coğrafi Özellikler';
+    const regionDesc = emphasizedRegion === 'all' ? 'Tüm Türkiye' : emphasizedRegion;
+
     const prompt = `
     [ROL: KIDEMLİ COĞRAFYA VE ÖZEL EĞİTİM UZMANI]
     ${getStudentContextPrompt(studentContext)}
     "Harita Dedektifi" (Türkiye Coğrafyası ve Yönerge Takibi) etkinliği oluştur.
     
     Zorluk Seviyesi: ${difficulty}.
+    ODAK BÖLGE: ${regionDesc}
+    YÖNERGE TİPLERİ: ${typesDesc}
+    YÖNERGE ADEDİ: ${itemCount || 8}
     
     GÖREV STRATEJİSİ:
     1. Yönergeler karmaşık mantık ve görsel tarama gerektirmeli.
     2. Konum bazlı sorular: "İç Anadolu'nun doğusunda yer alan ve ismi 'S' ile başlayan..."
     3. Rota bazlı sorular: "İstanbul'dan Ankara'ya en kısa yoldan giderken geçilen..."
     4. Özellik bazlı sorular: "Denize kıyısı olan ama Akdeniz bölgesinde olmayan..."
+    5. Disleksi dostu kısa ve net eylem cümleleri kur.
     
     ÇIKTI FORMATI:
     - title: "Harita Dedektifi"
     - instruction: Öğrenciye yönelik motive edici yönerge.
     - pedagogicalNote: Bu çalışmanın bilişsel faydaları.
-    - instructions: En az 10 adet profesyonel yönerge dizisi.
+    - instructions: Kesinlikle ${itemCount || 8} adet profesyonel yönerge dizisi.
     
     ÖNEMLİ: Sadece geçerli JSON döndür. Gemini 3.0 Flash Preview yeteneklerini kullan.
     `;
@@ -224,12 +106,17 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
 
     const raw = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as any[];
     
+    // Şehir veritabanını offline'dan çekip AI yönergeleriyle birleştiriyoruz
     const { generateOfflineMapDetective } = await import('../offlineGenerators/mapDetective');
     const base = await generateOfflineMapDetective({ ...options, worksheetCount: 1 });
     
     return raw.map((item: any) => ({
         ...item,
         cities: base[0].cities,
-        settings: { showCityNames: true, markerStyle: 'circle', difficulty }
+        settings: { 
+            showCityNames: options.showCityNames || false, 
+            markerStyle: options.markerStyle || 'circle', 
+            difficulty 
+        }
     }));
 };

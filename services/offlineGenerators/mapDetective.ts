@@ -26,12 +26,15 @@ const CALIBRATED_CITIES = [
 ];
 
 export const generateOfflineMapDetective = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, itemCount, mapInstructionTypes, showCityNames, markerStyle, emphasizedRegion } = options;
     const results: MapInstructionData[] = [];
 
+    const activeTypes = (mapInstructionTypes && mapInstructionTypes.length > 0) 
+        ? mapInstructionTypes 
+        : ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path'];
+
     const getAdvancedRule = (diff: string) => {
-        const types = ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path'];
-        const type = getRandomItems(types, 1)[0];
+        const type = getRandomItems(activeTypes, 1)[0];
 
         if (type === 'spatial_logic') {
             const city = CALIBRATED_CITIES[getRandomInt(0, CALIBRATED_CITIES.length - 1)];
@@ -50,7 +53,9 @@ export const generateOfflineMapDetective = async (options: GeneratorOptions): Pr
 
         if (type === 'attribute_search') {
             const isCoastal = Math.random() > 0.5;
-            const region = getRandomItems(['Marmara', 'İç Anadolu', 'Ege', 'Doğu Anadolu', 'Karadeniz'], 1)[0];
+            const region = emphasizedRegion && emphasizedRegion !== 'all' 
+                ? emphasizedRegion 
+                : getRandomItems(['Marmara', 'İç Anadolu', 'Ege', 'Doğu Anadolu', 'Karadeniz'], 1)[0];
             return `${region} bölgesinde yer alan ve denize kıyısı ${isCoastal ? 'OLAN' : 'OLMAYAN'} bir ili bul ve daire içine al.`;
         }
 
@@ -63,7 +68,7 @@ export const generateOfflineMapDetective = async (options: GeneratorOptions): Pr
 
     for (let p = 0; p < worksheetCount; p++) {
         const instructions: string[] = [];
-        const count = difficulty === 'Başlangıç' ? 6 : difficulty === 'Orta' ? 8 : 12;
+        const count = itemCount || (difficulty === 'Başlangıç' ? 6 : difficulty === 'Orta' ? 8 : 12);
 
         for (let i = 0; i < count; i++) {
             instructions.push(getAdvancedRule(difficulty));
@@ -76,8 +81,8 @@ export const generateOfflineMapDetective = async (options: GeneratorOptions): Pr
             cities: CALIBRATED_CITIES.map(c => ({ ...c })),
             instructions,
             settings: {
-                showCityNames: false, // Gerçek haritada isimler zaten var
-                markerStyle: 'circle',
+                showCityNames: showCityNames !== undefined ? showCityNames : false,
+                markerStyle: markerStyle || 'circle',
                 difficulty
             }
         });

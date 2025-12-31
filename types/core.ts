@@ -33,7 +33,7 @@ export enum ActivityType {
     RAPID_NAMING = 'RAPID_NAMING',
     LETTER_DISCRIMINATION = 'LETTER_DISCRIMINATION',
     MIRROR_LETTERS = 'MIRROR_LETTERS',
-    SYLLABLE_TRAIN = 'SYLLABLE_TRAIN',
+    SYMMETRY_TRAIN = 'SYMMETRY_TRAIN',
     VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES',
     BACKWARD_SPELLING = 'BACKWARD_SPELLING',
     CODE_READING = 'CODE_READING',
@@ -52,7 +52,6 @@ export enum ActivityType {
     WORD_MEMORY = 'WORD_MEMORY',
     LOGIC_GRID_PUZZLE = 'LOGIC_GRID_PUZZLE',
     MAP_INSTRUCTION = 'MAP_INSTRUCTION',
-    // Added missing SYMMETRY_DRAWING enum value
     SYMMETRY_DRAWING = 'SYMMETRY_DRAWING'
 }
 
@@ -490,4 +489,10 @@ export interface GeneratorOptions {
     concept?: string;
     useSearch?: boolean;
     customInput?: string;
+    // Map Detective Specifics
+    mapInstructionTypes?: string[];
+    showCityNames?: boolean;
+    // Fix: Added 'none' option for consistency
+    markerStyle?: 'dot' | 'circle' | 'star' | 'target' | 'none';
+    emphasizedRegion?: string;
 }

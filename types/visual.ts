@@ -16,7 +16,8 @@ export interface MapInstructionData extends BaseActivityData {
     instructions: string[];
     settings?: {
         showCityNames: boolean;
-        markerStyle: 'dot' | 'circle' | 'none';
+        // Fix: Added 'star' and 'target' to match GeneratorOptions and component implementation
+        markerStyle: 'dot' | 'circle' | 'star' | 'target' | 'none';
         difficulty: string;
     };
 }

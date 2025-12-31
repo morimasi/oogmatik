@@ -18,6 +18,20 @@ const CompassRose = () => (
     </div>
 );
 
+const MapMarker = ({ type }: { type: string }) => {
+    switch (type) {
+        case 'star': return <i className="fa-solid fa-star text-indigo-600 text-xs"></i>;
+        case 'target': return <i className="fa-solid fa-crosshairs text-indigo-600 text-xs"></i>;
+        case 'dot': return <circle r="3" fill="#000" />;
+        default: return (
+            <>
+                <circle r="6" fill="indigo" fillOpacity="0.1" className="animate-pulse" />
+                <circle r="2" fill="#000" />
+            </>
+        );
+    }
+};
+
 export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data }) => {
     // Gerçekçi, profesyonel bir Türkiye İdari Haritası URL'i (Wikimedia Commons tabanlı)
     const REAL_ADMIN_MAP = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Turkey_administrative_divisions_map.svg/1200px-Turkey_administrative_divisions_map.svg.png";
@@ -36,11 +50,21 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                 />
                 
                 {/* Konumsal Overlay (Görünmez ama referans noktaları) */}
-                <svg viewBox="0 0 1000 500" className="w-full h-full absolute inset-0 z-10 pointer-events-none opacity-20">
+                <svg viewBox="0 0 1000 500" className="w-full h-full absolute inset-0 z-10 pointer-events-none">
                     {(data.cities || []).map((city: any) => (
                         <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
-                            <circle r="6" fill="indigo" className="animate-pulse" />
-                            <circle r="2" fill="#000" />
+                            <MapMarker type={data.settings?.markerStyle || 'circle'} />
+                            {data.settings?.showCityNames && (
+                                <text 
+                                    y="-10" 
+                                    textAnchor="middle" 
+                                    fontSize="8" 
+                                    fontWeight="bold" 
+                                    className="fill-zinc-800 drop-shadow-sm"
+                                >
+                                    {city.name}
+                                </text>
+                            )}
                         </g>
                     ))}
                 </svg>
