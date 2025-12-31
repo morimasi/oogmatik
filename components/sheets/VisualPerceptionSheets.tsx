@@ -10,7 +10,6 @@ import { EditableElement, EditableText } from '../Editable';
 
 export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => {
     const rows = data?.rows || [];
-    // Sayfa doluluğuna göre grid yapısını ayarla
     const isSingleColumn = rows.length <= 6;
 
     return (
@@ -27,12 +26,10 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                             key={index} 
                             className={`flex flex-col p-6 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm hover:shadow-md transition-all break-inside-avoid relative group`}
                         >
-                            {/* Görev Numarası */}
                             <div className="absolute -top-3 -left-2 w-10 h-10 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black shadow-lg text-sm border-4 border-white">
                                 {index + 1}
                             </div>
 
-                            {/* İçerik Alanı */}
                             <div className="flex-1 flex items-center justify-around w-full gap-4 py-2">
                                 {items.map((item, itemIndex) => (
                                     <div 
@@ -50,14 +47,11 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                                         `}>
                                             <EditableText value={item} tag="span" />
                                         </span>
-
-                                        {/* Seçim İşareti (Görünmez, öğrenci için placeholder) */}
                                         <div className="absolute -bottom-2 -right-1 w-6 h-6 rounded-full border-2 border-zinc-200 bg-white group-hover/item:border-indigo-500 transition-colors shadow-sm"></div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Profesyonel Detay Hattı */}
                             <div className="mt-4 flex items-center gap-3">
                                 <div className="h-1 flex-1 bg-zinc-100 rounded-full overflow-hidden">
                                     <div className={`h-full w-1/4 ${isHard ? 'bg-amber-400' : 'bg-indigo-400'} opacity-20`}></div>
@@ -68,8 +62,6 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                     );
                 })}
             </div>
-
-            {/* Sayfa Alt Bilgisi */}
             <div className="mt-auto pt-6 flex justify-between items-center px-6 border-t border-zinc-100">
                 <div className="flex gap-8">
                      <div className="flex flex-col">
@@ -84,6 +76,173 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                 <div className="text-right">
                     <p className="text-[8px] text-zinc-300 font-bold uppercase tracking-[0.3em]">Bursa Disleksi AI • Uzman Serisi</p>
                 </div>
+            </div>
+        </div>
+    );
+};
+
+export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
+    const gridDim = data?.gridDim || 6;
+    const cellSize = gridDim > 8 ? 20 : 30;
+    const totalSize = gridDim * cellSize;
+    const showCoords = data?.showCoordinates;
+
+    const renderGrid = (lines: [number, number][][] | null, label: string, isTarget: boolean) => {
+        const offset = showCoords ? 25 : 0;
+        return (
+            <div className="flex flex-col items-center group/grid">
+                <span className="mb-4 font-black text-zinc-900 text-[10px] uppercase tracking-widest bg-zinc-100 px-4 py-1.5 rounded-full border border-zinc-200 shadow-sm transition-all group-hover/grid:bg-indigo-600 group-hover/grid:text-white group-hover/grid:border-indigo-700">
+                    {label}
+                </span>
+                <div className="relative p-1 bg-white border-[4px] border-zinc-900 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)]">
+                    <svg width={totalSize + offset} height={totalSize + offset} className="overflow-visible">
+                        {/* Koordinat Etiketleri */}
+                        {showCoords && (
+                            <g>
+                                {Array.from({ length: gridDim + 1 }).map((_, i) => (
+                                    <React.Fragment key={i}>
+                                        <text x={i * cellSize + offset} y={offset - 10} textAnchor="middle" fontSize="9" fontWeight="black" className="fill-zinc-400">{String.fromCharCode(65 + i)}</text>
+                                        <text x={offset - 10} y={i * cellSize + offset} dominantBaseline="middle" textAnchor="end" fontSize="9" fontWeight="black" className="fill-zinc-400">{i + 1}</text>
+                                    </React.Fragment>
+                                ))}
+                            </g>
+                        )}
+
+                        <g transform={`translate(${offset}, ${offset})`}>
+                            {/* Kılavuz Noktalar */}
+                            {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
+                                const r = Math.floor(i / (gridDim + 1));
+                                const c = i % (gridDim + 1);
+                                return <circle key={i} cx={c * cellSize} cy={r * cellSize} r={isTarget ? "2" : "1.5"} className={isTarget ? "fill-zinc-400" : "fill-zinc-200"} />
+                            })}
+
+                            {/* Çizim Hatları */}
+                            {(lines || []).map((line, index) => (
+                                line && line.length >= 2 && (
+                                    <line
+                                        key={index}
+                                        x1={line[0][0] * cellSize} y1={line[0][1] * cellSize}
+                                        x2={line[1][0] * cellSize} y2={line[1][1] * cellSize}
+                                        className="stroke-zinc-900"
+                                        strokeWidth={gridDim > 8 ? "2" : "3"}
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                )
+                            ))}
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        );
+    };
+
+    const getTransformLabel = (mode: string) => {
+        switch(mode) {
+            case 'mirror_v': return 'Dikey Ayna';
+            case 'mirror_h': return 'Yatay Ayna';
+            case 'rotate_90': return '90° Dönmüş';
+            case 'rotate_180': return '180° Ters';
+            default: return 'Kopya';
+        }
+    }
+
+    return (
+        <div className="flex flex-col h-full bg-white p-2">
+            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
+            <div className="space-y-16 mt-4 flex-1 content-start">
+                {(data?.drawings || []).map((drawing, index) => (
+                    <EditableElement key={index} className="flex flex-col md:flex-row gap-16 items-center justify-center p-8 bg-zinc-50 rounded-[3rem] border-2 border-zinc-100 break-inside-avoid relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none transform rotate-12"><i className="fa-solid fa-clone text-8xl"></i></div>
+                        {renderGrid(drawing.lines, "Referans Şekil", true)}
+                        <div className="flex flex-col items-center justify-center gap-3 text-zinc-300">
+                             <div className="w-12 h-12 rounded-full border-4 border-zinc-200 flex items-center justify-center text-xl font-black italic">!</div>
+                             <span className="text-[10px] font-black uppercase tracking-tighter text-zinc-400">{getTransformLabel(data.transformMode)}</span>
+                             <i className="fa-solid fa-arrow-right text-2xl animate-pulse"></i>
+                        </div>
+                        {renderGrid(null, "Çizim Alanı", false)}
+                    </EditableElement>
+                ))}
+            </div>
+             <div className="mt-auto pt-6 text-center border-t border-zinc-100">
+                <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Uzamsal-Motor Entegrasyon Laboratuvarı</p>
+            </div>
+        </div>
+    );
+};
+
+export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data }) => {
+    const gridDim = data?.gridDim || 10;
+    const cellSize = gridDim > 10 ? 20 : 30;
+    const totalSize = gridDim * cellSize;
+    const showCoords = data?.showCoordinates;
+    const axis = data?.axis || 'vertical';
+    const offset = showCoords ? 25 : 10;
+
+    return (
+        <div className="flex flex-col h-full bg-white p-2">
+            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
+            <div className="flex-1 flex flex-col items-center justify-center py-10">
+                <EditableElement className="relative p-10 bg-zinc-50 rounded-[3rem] border-2 border-zinc-100 shadow-inner group">
+                    <div className="absolute top-6 left-6 text-[8px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full shadow-sm">
+                        Simetri Merkezi: {axis === 'vertical' ? 'Dikey' : 'Yatay'}
+                    </div>
+                    
+                    <div className="bg-white p-2 border-[4px] border-zinc-900 shadow-2xl relative">
+                        <svg width={totalSize + offset * 2} height={totalSize + offset * 2} className="overflow-visible">
+                            <g transform={`translate(${offset}, ${offset})`}>
+                                {/* Grid ve Koordinatlar */}
+                                {Array.from({ length: gridDim + 1 }).map((_, i) => (
+                                    <React.Fragment key={i}>
+                                        <line x1={i * cellSize} y1="0" x2={i * cellSize} y2={totalSize} stroke="#f1f5f9" strokeWidth="1" />
+                                        <line x1="0" y1={i * cellSize} x2={totalSize} y2={i * cellSize} stroke="#f1f5f9" strokeWidth="1" />
+                                        {showCoords && (
+                                            <>
+                                                <text x={i * cellSize} y="-8" textAnchor="middle" fontSize="8" fontWeight="black" className="fill-zinc-300">{String.fromCharCode(65 + i)}</text>
+                                                <text x="-8" y={i * cellSize} dominantBaseline="middle" textAnchor="end" fontSize="8" fontWeight="black" className="fill-zinc-300">{i + 1}</text>
+                                            </>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+
+                                {/* Simetri Ekseni */}
+                                {axis === 'vertical' ? (
+                                    <line x1={totalSize / 2} y1="-10" x2={totalSize / 2} y2={totalSize + 10} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" />
+                                ) : (
+                                    <line x1="-10" y1={totalSize / 2} x2={totalSize + 10} y2={totalSize / 2} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" />
+                                )}
+
+                                {/* Hazır Çizim Hatları */}
+                                {(data?.lines || []).map((l, i) => (
+                                    <line key={i} x1={l.x1 * cellSize} y1={l.y1 * cellSize} x2={l.x2 * cellSize} y2={l.y2 * cellSize} stroke={l.color || "black"} strokeWidth="3" strokeLinecap="round" />
+                                ))}
+
+                                {/* Hazır Noktalar */}
+                                {(data?.dots || []).map((dot, i) => (
+                                    <circle key={i} cx={dot.x * cellSize} cy={dot.y * cellSize} r="5" fill={dot.color || "black"} />
+                                ))}
+                            </g>
+                        </svg>
+                    </div>
+                </EditableElement>
+                
+                <div className="mt-12 grid grid-cols-3 gap-8 w-full max-w-2xl opacity-60">
+                    <div className="text-center">
+                        <i className="fa-solid fa-compass-drafting text-2xl text-zinc-300 mb-2"></i>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Hizalama</p>
+                    </div>
+                    <div className="text-center">
+                         <i className="fa-solid fa-eye text-2xl text-indigo-300 mb-2"></i>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Görsel Sabitlik</p>
+                    </div>
+                    <div className="text-center">
+                        <i className="fa-solid fa-brain text-2xl text-zinc-300 mb-2"></i>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Bilişsel Esneklik</p>
+                    </div>
+                </div>
+            </div>
+            <div className="mt-auto pt-6 text-center border-t border-zinc-100">
+                <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Simetrik Muhakeme Serisi</p>
             </div>
         </div>
     );
@@ -205,57 +364,6 @@ export const FindIdenticalWordSheet: React.FC<{ data: FindIdenticalWordData }> =
     </div>
 );
 
-export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
-    const gridDim = data?.gridDim || 5;
-    const cellSize = 30;
-    const totalSize = gridDim * cellSize;
-
-    const renderGrid = (lines: [number, number][][] | null, isTarget: boolean) => (
-        <div className="flex flex-col items-center">
-            <span className="mb-2 font-bold text-black text-xs uppercase tracking-wider bg-white px-2 border border-black rounded shadow-sm">{isTarget ? "Referans" : "Çizim Alanı"}</span>
-            <svg width={totalSize} height={totalSize} className={`bg-white border-2 border-black`}>
-                {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
-                     const r = Math.floor(i / (gridDim + 1));
-                     const c = i % (gridDim + 1);
-                     return <circle key={i} cx={c*cellSize} cy={r*cellSize} r={isTarget ? "3" : "2"} className={isTarget ? "fill-black" : "fill-zinc-300"} />
-                })}
-
-                {(lines || []).map((line, index) => (
-                    line && line.length >= 2 && line[0] && line[1] && (
-                        <line
-                            key={index}
-                            x1={line[0][0] * cellSize} y1={line[0][1] * cellSize}
-                            x2={line[1][0] * cellSize} y2={line[1][1] * cellSize}
-                            className="stroke-black"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    )
-                ))}
-            </svg>
-        </div>
-    );
-
-    return (
-        <div>
-            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
-            <div className="space-y-12">
-                {(data?.drawings || []).map((drawing, index) => (
-                    <EditableElement key={index} className="flex flex-col md:flex-row gap-8 items-center justify-center p-6 bg-zinc-50 rounded-3xl break-inside-avoid border-2 border-zinc-200">
-                        {renderGrid(drawing.lines, true)}
-                        <div className="flex flex-col items-center justify-center gap-2 text-zinc-300">
-                            <i className="fa-solid fa-pen-nib text-2xl"></i>
-                            <i className="fa-solid fa-arrow-right text-xl"></i>
-                        </div>
-                        {renderGrid(null, false)}
-                    </EditableElement>
-                ))}
-            </div>
-        </div>
-    );
-};
-
 export const SymbolCipherSheet: React.FC<{ data: SymbolCipherData }> = ({ data }) => (
     <div>
          <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
@@ -341,7 +449,6 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
                  <EditableElement key={i} className="flex justify-around p-4 border-2 border-black rounded-xl bg-white break-inside-avoid shadow-sm items-center relative overflow-hidden">
                      <div className="absolute top-0 left-0 bg-black text-white w-6 h-6 flex items-center justify-center font-bold text-xs rounded-br-lg">{i+1}</div>
                      {row.items.map((item, j) => {
-                         // Check if item has detailed 3x3 segment data
                          const hasSegments = item.segments && item.segments.length > 0;
                          const rotation = item.rotation || 0;
                          
@@ -351,7 +458,6 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
                                     {hasSegments ? (
                                         <SegmentDisplay segments={item.segments} />
                                     ) : (
-                                        // Fallback for old data or simple shapes
                                         <div className="w-8 h-8 bg-black"></div>
                                     )}
                                  </div>
@@ -362,28 +468,6 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
                  </EditableElement>
              ))}
         </div>
-    </div>
-);
-
-export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
-         <EditableElement className="flex justify-center p-8 bg-zinc-50 rounded-3xl border-2 border-zinc-200">
-            <svg width={(data?.gridDim || 6) * 30} height={(data?.gridDim || 6) * 30} className="bg-white border border-zinc-300 shadow-md">
-                {Array.from({length: (data?.gridDim || 6) + 1}).map((_, i) => (
-                    <React.Fragment key={i}>
-                        <line x1={i*30} y1="0" x2={i*30} y2={(data?.gridDim || 6)*30} stroke="#e4e4e7" strokeWidth="1" />
-                        <line x1="0" y1={i*30} x2={(data?.gridDim || 6)*30} y2={i*30} stroke="#e4e4e7" strokeWidth="1" />
-                    </React.Fragment>
-                ))}
-                
-                <line x1={(data?.gridDim || 6)*15} y1="0" x2={(data?.gridDim || 6)*15} y2={(data?.gridDim || 6)*30} stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" />
-                
-                {(data?.dots || []).map((dot, i) => (
-                    <circle key={i} cx={dot.x * 30 + 15} cy={dot.y * 30 + 15} r="5" fill="black" />
-                ))}
-            </svg>
-         </EditableElement>
     </div>
 );
 
@@ -673,7 +757,6 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
         <div className="flex flex-col items-center gap-12 mt-8">
             {(data?.figures || []).map((fig, index) => {
-                // Check if this is a 3D Cube Stack
                 const isCubeStack = !!(fig as any).cubeData;
 
                 return (
@@ -707,7 +790,6 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
     </div>
 );
 
-// Fallbacks
 const createSimpleSheet = (compName: string) => ({ data }: { data: any }) => (
   <div>
       <PedagogicalHeader title={data?.title || compName} instruction={data?.instruction || data?.prompt || ""} note={data?.pedagogicalNote} />

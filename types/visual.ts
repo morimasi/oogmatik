@@ -16,7 +16,6 @@ export interface MapInstructionData extends BaseActivityData {
     instructions: string[];
     settings?: {
         showCityNames: boolean;
-        // Fix: Added 'star' and 'target' to match GeneratorOptions and component implementation
         markerStyle: 'dot' | 'circle' | 'star' | 'target' | 'none';
         difficulty: string;
     };
@@ -45,11 +44,33 @@ export interface FindTheDifferenceData extends BaseActivityData { rows: { items:
 export interface WordComparisonData extends BaseActivityData { box1Title: string; box2Title: string; wordList1: string[]; wordList2: string[]; correctDifferences: string[]; }
 export interface ShapeMatchingData extends BaseActivityData { leftColumn: { id: number|string; shapes?: ShapeType[]; color: string; imageBase64?: string; rotation?: number; scale?: number; }[]; rightColumn: { id: number|string; shapes?: ShapeType[]; color: string; imageBase64?: string; rotation?: number; scale?: number; }[]; complexity: number; }
 export interface FindIdenticalWordData extends BaseActivityData { groups: { words: [string, string]; distractors: string[]; }[]; }
-export interface GridDrawingData extends BaseActivityData { gridDim: number; drawings: { lines: [number, number][][]; complexityLevel: string; }[]; }
+
+export type GridTransformMode = 'copy' | 'mirror_v' | 'mirror_h' | 'rotate_90' | 'rotate_180';
+
+export interface GridDrawingData extends BaseActivityData { 
+    gridDim: number; 
+    showCoordinates: boolean;
+    transformMode: GridTransformMode;
+    drawings: { 
+        lines: [number, number][][]; 
+        complexityLevel: string; 
+        title?: string;
+    }[]; 
+}
+
 export interface SymbolCipherData extends BaseActivityData { cipherKey: { shape: string; letter: string; color: string; }[]; wordsToSolve: { shapeSequence: string[]; wordLength: number; answer: string; }[]; }
 export interface BlockPaintingData extends BaseActivityData { grid: { rows: number; cols: number; }; targetPattern: number[][]; shapes: { id: number; color: string; pattern: number[][]; count: number; }[]; }
 export interface VisualOddOneOutData extends BaseActivityData { rows: { items: { segments: boolean[]; rotation?: number; }[]; correctIndex: number; reason: string; }[]; }
-export interface SymmetryDrawingData extends BaseActivityData { gridDim: number; dots: { x: number; y: number; color: string; }[]; axis: 'vertical' | 'horizontal'; isMirrorImage: boolean; }
+
+export interface SymmetryDrawingData extends BaseActivityData { 
+    gridDim: number; 
+    axis: 'vertical' | 'horizontal'; 
+    showCoordinates: boolean;
+    isMirrorImage: boolean;
+    lines: { x1: number, y1: number, x2: number, y2: number, color: string }[];
+    dots?: { x: number; y: number; color: string; }[]; 
+}
+
 export interface FindDifferentStringData extends BaseActivityData { rows: { items: string[]; correctIndex: number; }[]; }
 export interface DotPaintingData extends BaseActivityData { prompt1: string; prompt2: string; svgViewBox: string; gridPaths: string[]; dots: { cx: number; cy: number; color: string; }[]; hiddenImageName: string; }
 export interface AbcConnectData extends BaseActivityData { puzzles: { id: number; gridDim: number; points: { label: string; x: number; y: number; color?: string; imagePrompt?: string; }[]; }[]; }
@@ -71,8 +92,6 @@ export interface ShapeCountingData extends BaseActivityData { figures: { targetS
 export interface AnagramsData extends BaseActivityData { anagrams: { word: string; scrambled: string; letters: string[]; imagePrompt?: string }[]; sentencePrompt?: string; }
 export interface WordSearchData extends BaseActivityData { grid: string[][]; words: string[]; hiddenMessage?: string; writingPrompt?: string; }
 export interface CrosswordData extends BaseActivityData { theme: string; grid: (string | null)[][]; clues: any[]; passwordPrompt: string; }
-
-// --- ADDED MISSING INTERFACES ---
 
 export interface RomanNumeralConnectData extends BaseActivityData {
     puzzles: { id: number; gridDim: number; points: { label: string; x: number; y: number; color?: string; }[] }[];

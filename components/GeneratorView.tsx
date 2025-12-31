@@ -118,8 +118,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: 8,
-        gridSize: 5,
+        itemCount: 4,
+        gridSize: 6,
         case: 'upper',
         variant: 'square',
         topic: '',
@@ -128,9 +128,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         showCityNames: false,
         markerStyle: 'circle',
         emphasizedRegion: 'all',
-        // Find Difference Defaults
-        findDiffType: 'linguistic',
-        distractionLevel: 'medium'
+        // Grid Drawing Specifics
+        concept: 'copy', // transformation mode
+        useSearch: false // coordinates toggle reused
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -138,6 +138,55 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        if (activity.id === ActivityType.GRID_DRAWING || activity.id === ActivityType.SYMMETRY_DRAWING) {
+            const isSymmetry = activity.id === ActivityType.SYMMETRY_DRAWING;
+            return (
+                <div className="space-y-5">
+                    <CompactSlider 
+                        label="Izgara Boyutu" 
+                        value={options.gridSize || 6} 
+                        onChange={(v:number) => handleChange('gridSize', v)} 
+                        min={3} max={12} icon="fa-border-all" unit="x" 
+                    />
+                    
+                    {!isSymmetry && (
+                        <CompactSelect 
+                            label="Dönüşüm Modu" 
+                            value={options.concept || 'copy'} 
+                            onChange={(v:any) => handleChange('concept', v)}
+                            options={[
+                                { value: 'copy', label: 'Birebir Kopyalama' },
+                                { value: 'mirror_v', label: 'Dikey Simetri (Ayna)' },
+                                { value: 'mirror_h', label: 'Yatay Simetri' },
+                                { value: 'rotate_90', label: '90 Derece Rotasyon' },
+                                { value: 'rotate_180', label: '180 Derece Rotasyon' }
+                            ]}
+                            icon="fa-arrows-spin"
+                        />
+                    )}
+
+                    {isSymmetry && (
+                        <CompactToggleGroup 
+                            label="Simetri Ekseni" 
+                            selected={options.visualType || 'vertical'} 
+                            onChange={(v: string) => handleChange('visualType', v)} 
+                            options={[{ value: 'vertical', label: 'DİKEY' }, { value: 'horizontal', label: 'YATAY' }]} 
+                        />
+                    )}
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactToggleGroup 
+                            label="Koordinat Sistemi" 
+                            selected={options.useSearch ? 'on' : 'off'} 
+                            onChange={(v: string) => handleChange('useSearch', v === 'on')} 
+                            options={[{ value: 'on', label: 'GÖSTER' }, { value: 'off', label: 'GİZLE' }]} 
+                        />
+                        <CompactSlider label="Desen Karmaşıklığı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={2} max={10} icon="fa-wand-magic-sparkles" />
+                    </div>
+                </div>
+            );
+        }
+
         if (activity.id === ActivityType.HIDDEN_PASSWORD_GRID) {
             return (
                 <div className="space-y-5">
